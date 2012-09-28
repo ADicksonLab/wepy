@@ -1,1 +1,9 @@
 *.pyc
+build/
+debian/files
+debian/python-fstab.debhelper.log
+debian/python-fstab.postinst.debhelper
+debian/python-fstab.prerm.debhelper
+debian/python-fstab.substvars
+debian/python-fstab/
+python-fstab_1.4-0ubuntu2_all.deb
