@@ -1,5 +1,6 @@
 *.pyc
 build/
+debian/debhelper-build-stamp
 debian/files
 debian/python-fstab.debhelper.log
 debian/python-fstab.postinst.debhelper
