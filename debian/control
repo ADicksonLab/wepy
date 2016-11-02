@@ -3,7 +3,7 @@ Maintainer: Lars Wirzenius <lars@ubuntu.com>
 Section: python
 Priority: optional
 Standards-Version: 3.8.0
-Build-Depends: debhelper (>= 7.3.8), python-support (>= 1.0.3), python
+Build-Depends: debhelper (>= 7.3.8), python
 XS-Python-Version: all
 Vcs-Bzr: http://bazaar.launchpad.net/%7ecomputer-janitor-hackers/python-fstab/trunk.deb-packaging
 Homepage: https://wiki.ubuntu.com/PythonFstab
