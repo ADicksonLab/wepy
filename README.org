@@ -1,0 +1,12 @@
+** Goals
+
+** Rationale
+
+** Broad Requirements
+1. scalable number of workers across heterogeneous hardware
+2. use of a proper message passing interface for communication (i.e. not the filesystem)
+3. modular and plug-in'able, but cohesive, with respect to binning (recursive etc.) 
+   and order parameter calculation
+4. rich non-platform specific (hdf5) trajectory datasets with API
+
+** Specific Requirements
