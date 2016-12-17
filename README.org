@@ -4,9 +4,59 @@
 
 ** Broad Requirements
 1. scalable number of workers across heterogeneous hardware
-2. use of a proper message passing interface for communication (i.e. not the filesystem)
+  - Achievable with SCOOP
+2. use of a proper message passing interface for communication
+   (i.e. not the filesystem)
+  - Also achieved through SCOOPs use of ZMQ
+  - Need to have WEPY attachments be able to not use the file system
 3. modular, but cohesive, with respect to binning (recursive etc.),
    order parameter calculation, and MD engine
 4. rich non-platform specific (hdf5) trajectory datasets with API
 
 ** Specific Requirements
+
+** Plan
+
+Really the only thing we need to implement is a Manager.
+
+The manager talks does 3 things:
+- Dispatch workers via SCOOP
+  - this involves determining inputs from the initial state or from
+    the last segment of dynamics
+- Receive results from workers
+  - segment frames
+- Use an external binning program to calculate bins
+- save data in an in-memory object
+- convert the in-memory object to something HDF5
+
+The order of operations here is:
+1. Give the manager the initial states and initialize the walker trees
+   with states and weights.
+2. The starting walker trees are recorded in the in-memory object.
+3. Backup the in-memory object to disk.
+4. The parameters for the work function are determined.
+5. Manager dispatches workers to run dynamics on these initial states
+6. When workers are complete the final states of the system are
+   returned as a python object.
+7. The manager takes the final states and passes them to the binner.
+8. The binner returns a mapping of states to bins.
+9. States are added to the walker trees and data is recorded in the
+   in-memory object.
+10. Backup the in-memory object to disk.
+11. New walker trees are passed to the balancer.
+12. The balancer returns the new set of merged and cloned walker trees
+    with new weights.
+13. The balanced walker trees are recorded in the in-memory object.
+14. Backup the in-memory object.
+15. The new parameters to the work function is determined.
+16. Work is dispatched to workers.
+17. Repeat 5 through 16 until done.
+18. When done write out the in-memory object to the disk.
+
+
+And the important modules are:
+- the cycle manager
+- the work dispatch mechanism - SCOOP
+- the binner
+- the in-memory object API
+- the walker tree balancer - weighted ensemble, WExplore
