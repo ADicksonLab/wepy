@@ -55,8 +55,10 @@ The order of operations here is:
 
 
 And the important modules are:
-- the cycle manager
+- the cycle manager - sim_manager/work_manager??
+- the work function - a function for doing MD (OpenMM)
 - the work dispatch mechanism - SCOOP
-- the binner
-- the in-memory object API
+- the binner - the distance function and Voronoi bins
+- the in-memory object API - the WestPA HDF5 API as a template
 - the walker tree balancer - weighted ensemble, WExplore
+
