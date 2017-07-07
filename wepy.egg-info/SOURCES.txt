@@ -1,0 +1,8 @@
+wepy/WExplore.py
+wepy/__init__.py
+wepy/merge_clone.py
+wepy.egg-info/PKG-INFO
+wepy.egg-info/SOURCES.txt
+wepy.egg-info/dependency_links.txt
+wepy.egg-info/requires.txt
+wepy.egg-info/top_level.txt

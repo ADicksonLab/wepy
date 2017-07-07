@@ -9,9 +9,6 @@ import simtk.openmm.app  as app
 import simtk.openmm as mm
 import simtk.unit as unit
 
-# internal imports
-import wepy.mergeclone
-
 # should be using python3 only, this is for if you want to support
 # python2, there are other things you have to do to support it though,
 # so it is probably better to just fail quicker if a user tries to use
@@ -30,7 +27,7 @@ class Walker_chr(object):
 
 
 class Calculate:
-    def __init__(self,):
+    def __init__(self):
         #self.positions1 = None
         #self.positions2 = None
         self.ref = md.load('seh_tppu_mdtraj.pdb')
@@ -81,33 +78,36 @@ class Run_Walker(mulproc.Process):
     def run(self):
         Lock.acquire()
         self.Worker_ID = free_workers.get()
+
+        # setting up the simulation
         print('Creating system')
         psf.setBox(82.435,82.435,82.435,90,90,90)
-        system = psf.createSystem(self.Params, nonbondedMethod=app.CutoffPeriodic,
+        system = psf.createSystem(self.params, nonbondedMethod=app.CutoffPeriodic,
                      nonbondedCutoff=1.0* unit.nanometers, constraints=app.HBonds)
 
+        # instantiate an integrator
         print('Making INtegrator')
-
-        seed=rnd.randint(0,1000000)
+        seed = rnd.randint(0,1000000)
         integrator = mm.LangevinIntegrator(300*unit.kelvin, 1*(1/unit.picosecond),
                                            0.002*unit.picoseconds)
         integrator.setRandomNumberSeed(seed)
 
-
-
+        # set the platform
         print('setting platform')
-
         platform = mm.Platform.getPlatformByName('CUDA')
         platform.setPropertyDefaultValue('Precision', 'single')
-        platform.setPropertyDefaultValue('DeviceIndex',str(self.Worker_ID))
+        platform.setPropertyDefaultValue('DeviceIndex',str(self.worker_id))
         print('Making simulation object')
 
-        simulation = app.Simulation(self.Topology, system, integrator,platform)
+        # start the simulation
+        simulation = app.Simulation(self.topology, system, integrator, platform)
+
+        # if this is the first round of segments read in the coordinates
         if self.initial:
             simulation.context.setPositions(pdb.positions)
             simulation.context.setVelocitiesToTemperature(300*unit.kelvin,100)
         else:
-            chk = Walkers_List[self.Walker_ID].restartpoint
+            chk = Walkers_List[self.walker_id].restartpoint
             simulation.context.loadCheckpoint(chk)
 
 
@@ -127,13 +127,10 @@ class Run_Walker(mulproc.Process):
         # Saving Results
         item = Walkers_List[self.Walker_ID]
         item.restartpoint = simulation. context.createCheckpoint()
-        item.positions = simulation.context.getState(getPositions=True ).getPositions() [ 0 :n_atoms]
+        item.positions = simulation.context.getState(getPositions=True).getPositions()[0:n_atoms]
         Walkers_List[self.Walker_ID]=  item
         #print ("Weight ",Walkers_List[self.Walker_ID].Weight)
 
         free_workers.put(self.Worker_ID)
         Lock.release()
       #  return  state
-
-if __name__ == '__main__':
-

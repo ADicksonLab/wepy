@@ -3,7 +3,7 @@ import multiprocessing as mulproc
 import numpy as np
 import simtk.openmm.app  as app
 
-from wepy.WExplore import Walker_chr, run_walker, Calculate
+from wepy.WExplore import Walker_chr, Run_Walker, Calculate
 from wepy.merge_clone import Decision_Maker
 
 print("HELLO")
@@ -11,6 +11,7 @@ print('Reading psf file ..')
 psf = app.CharmmPsfFile('fixed_seh.psf')
 
 print('Reading pdb file ..')
+# the pdb is not used
 pdb = app.PDBFile('seh_tppu_mdtraj.pdb')
 
 print('Reading ff parameters')
@@ -44,7 +45,7 @@ walker_weights = []
 # main loop
 for i in range(n_cycles):
     # a list of walker processes
-    walkers_pool = [run_walker(params, psf.topology, i , initial)
+    walkers_pool = [Run_Walker(params, psf.topology, i , initial)
                      for i in range(n_walkers)]
 
     # queu for putting processes to workers

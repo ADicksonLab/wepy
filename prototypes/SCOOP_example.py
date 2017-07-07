@@ -1,7 +1,9 @@
+from sys import stdout
+
 import simtk.openmm.app as omma
 import simtk.openmm as omm
 import simtk.unit as unit
-from sys import stdout
+
 from scoop import futures
 
 
@@ -35,22 +37,31 @@ if __name__ == "__main__":
     ### The setup for all workers
     # load the input files
     # the topology from PDB
-    pdb = omma.PDBFile('input.pdb')
+    psf = omma.CharmmPsfFile('sEH_TPPU_system.psf')
+    pdb = omma.PDBFile('sEH_TPPU_system.pdb')
+
     print(pdb.topology)
-    topology = pdb.topology
+    topology = psf.topology
 
     # the forcefields from the OpenMM XML format
-    forcefield = omma.ForceField('amber99sb.xml', 'tip3p.xml')
+    # forcefield = omma.ForceField('amber99sb.xml', 'tip3p.xml')
+
+    # to use charmm forcefields
+    params = omma.CharmmParameterSet('top_all36_cgenff.rtf', 'par_all36_cgenff.prm',
+                                    'top_all36_prot.rtf', 'par_all36_prot.prm',
+                                    'tppu.str', 'toppar_water_ions.str')
 
     # create a system using the topology method giving it a topology and
     # the method for calculation
     system = forcefield.createSystem(topology,
-                                     nonbondedMethod=omma.PME,
-                                     nonbondedCutoff=1*unit.nanometer,
+                                     nonbondedMethod=omma.CutoffPeriodic,
+                                     nonbondedCutoff=1.0 * unit.nanometer,
                                      constraints=omma.HBonds)
 
     # instantiate an integrator with the desired properties
-    integrator = omm.LangevinIntegrator(300*unit.kelvin, 1/unit.picosecond, 0.002*unit.picoseconds)
+    integrator = omm.LangevinIntegrator(300*unit.kelvin,
+                                        1/unit.picosecond,
+                                        0.002*unit.picoseconds)
 
     # instantiate a simulation object
     simulation = omma.Simulation(topology, system, integrator)
