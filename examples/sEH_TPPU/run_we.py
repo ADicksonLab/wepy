@@ -1,8 +1,9 @@
 import multiprocessing as mulproc
 
+import numpy as np
 import simtk.openmm.app  as app
 
-from wepy.WExplore import Walker_chr
+from wepy.WExplore import Walker_chr, run_walker, Calculate
 
 print("HELLO")
 print('Reading psf file ..')
@@ -22,62 +23,67 @@ n_cycles = 2
 n_atoms = 5097
 
 initial = True
-queue = mulproc.Queue()
 manager = mulproc.Manager()
-Walkers_List = manager.list()
+walkers = manager.list()
 
+# initialize each Walker object
 for i in range (n_walkers):
     new_walker = Walker_chr()
-    new_walker.Walker_ID = i
-    new_walker.Weight = 1 / n_walkers
-    new_walker.restartpoint = None
-    Walkers_List.append(new_walker)
+    new_walker.walker_id = i
+    new_walker.weight = 1 / n_walkers
+    new_walker.restart_point = None
+    walkers.append(new_walker)
 
+# merging cutoff
+mergedist = 0.25 #nm ==  2.5 A
 
-walkerwt = [ 1/n_walkers for i in range(n_walkers)]
-mergedist = 0.25 # 2.5 A
 # Make list of Walkers
-walkerwt=[]
+walker_weight = []
+
+# main loop
 for i in range(n_cycles):
-    walkers_pool = [ run_walker(params, psf.topology, i , initial)
-                     for i in range(n_walkers) ]
+    # a list of walker processes
+    walkers_pool = [run_walker(params, psf.topology, i , initial)
+                     for i in range(n_walkers)]
 
+    # queu for putting processes to workers
     free_workers= mulproc.Queue()
-    Lock = mulproc.Semaphore (n_workers)
+    # lock for number of workers in the work pool, this is assumed to be global
+    lock = mulproc.Semaphore(n_workers)
 
-    for i in range (n_workers):
+    # putting core indices into the worker queue
+    for i in range(n_workers):
         free_workers.put(i)
 
-
+    # start all walkers
     for p in walkers_pool:
         p.start()
 
-
-    for p in walkers_pool :
+    # wait for processes to end
+    for p in walkers_pool:
         p.join()
 
+    # DEBUG
+    for w in walkers:
+        print ('Result ID= {} and Weight = {}\n'.format(w.walker_id ,w.weight))
 
-    for w in Walkers_List:
-        print ('Rsult ID= {} and Weight = {}\n'.format(w.Walker_ID ,w.Weight))
+    # no longer the first segments
     initial = False
 
-
-
+    # all to all distance matrix
     a2a = np.zeros((n_walkers,n_walkers))
 
-# Calculating a2a Distance Matrix
-
+    # Calculating a2a Distance Matrix
     for i in range(n_walkers):
-        walkerwt.append( Walkers_List[i].Weight )
+        walker_weight.append(walkers[i].weight)
         for j in range (i+1, n_walkers):
             Cal = Calculate()
-            a2a[i][j] = Cal.Calculate_Rmsd(Walkers_List[i].positions, Walkers_List[j].positions)
+            a2a[i][j] = Cal.Calculate_Rmsd(walkers[i].positions, walkers[j].positions)
 
 
-    print (a2a)
+    print(a2a)
 
-  # merge and clone!
-
+    # merge and clone!
     mcf= mergeclone.decision_maker(a2a, walkerwt, n_walkers, mergedist)
     mcf.mergeclone()
     #for i in range(n_walkers):

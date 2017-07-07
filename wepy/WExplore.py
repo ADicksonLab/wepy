@@ -21,11 +21,12 @@ import wepy.mergeclone
 #manager = mulproc.Manager()
 #Walkers_List = manager.list()
 
-class Walker_chr:
-    positions = None
-    walker_id = None
-    weight = None
-    restart_point = None
+class Walker_chr(object):
+    def __init__(self):
+        self.positions = None
+        self.walker_id = None
+        self.weight = None
+        self.restart_point = None
 
 
 class Calculate:
@@ -64,18 +65,18 @@ class Calculate:
          return self.__rmsd(traj,ref_traj,self.lig_idx)
 
 
-class run_walker( mulproc.Process):
+class Run_Walker(mulproc.Process):
 
-    def __init__(self, Params, Topology, Walker_ID, Initial):
-        mulproc.Process.__init__(self)
-        self.Params = Params
-        self.Topology = Topology
-        self.Walker_ID = Walker_ID
-        self.Worker_ID = None
-        self.initial  = Initial
-
-
-
+    def __init__(self, params, topology, walker_id, initial):
+        # I believe since you are inheriting from this you want to
+        # call the parent constructor:
+        super().__init__(self)
+        # mulproc.Process.__init__(self)
+        self.params = params
+        self.topology = topology
+        self.walker_id = walker_id
+        self.worker_id = None
+        self.initial  = initial
 
     def run(self):
         Lock.acquire()
