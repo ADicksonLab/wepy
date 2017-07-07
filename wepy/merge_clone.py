@@ -1,6 +1,7 @@
 import numpy as np
 import math
-class decision_maker:
+
+class Decision_Maker(object):
     def __init__(self, a2a, walkerwt, nwalk, mergedist):
         self.a2a = a2a
         self.walkerwt = walkerwt
@@ -9,7 +10,8 @@ class decision_maker:
         self.verbose = False
         self.amp =[ 1 for i in range(self.nwalk)]
         self.copy_struct = [ i for i in range(self.nwalk) ]
-    def mergeclone (self, ):
+
+    def merge_clone (self):
         wtfac = np.zeros(self.nwalk)
         pmin = 1e-12
         pmax = 0.1
@@ -187,17 +189,3 @@ class decision_maker:
         self.copy_struct[a] = b
         return a+b
 
-# if __name__ == '__main__':
-
-#     a2a = np.random.rand(3, 3)
-#     walkerwt = [ 1/3 ,1/3 , 1/3]
-#     amp = [ 1, 1, 1]
-#     nwalk = 3
-#     mergedist = 0.25 # 2.a A
-
-#     f = decision_maker ( a2a ,walkerwt, amp, nwalk, mergedist)
-#     f.mergeclone ()
-#     print ( f.nwalk )
-
-#     for p in f.walkerwt :
-#         print (p)

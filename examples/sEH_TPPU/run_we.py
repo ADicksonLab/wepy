@@ -4,6 +4,7 @@ import numpy as np
 import simtk.openmm.app  as app
 
 from wepy.WExplore import Walker_chr, run_walker, Calculate
+from wepy.merge_clone import Decision_Maker
 
 print("HELLO")
 print('Reading psf file ..')
@@ -38,7 +39,7 @@ for i in range (n_walkers):
 mergedist = 0.25 #nm ==  2.5 A
 
 # Make list of Walkers
-walker_weight = []
+walker_weights = []
 
 # main loop
 for i in range(n_cycles):
@@ -75,7 +76,7 @@ for i in range(n_cycles):
 
     # Calculating a2a Distance Matrix
     for i in range(n_walkers):
-        walker_weight.append(walkers[i].weight)
+        walker_weights.append(walkers[i].weight)
         for j in range (i+1, n_walkers):
             Cal = Calculate()
             a2a[i][j] = Cal.Calculate_Rmsd(walkers[i].positions, walkers[j].positions)
@@ -84,9 +85,11 @@ for i in range(n_cycles):
     print(a2a)
 
     # merge and clone!
-    mcf= mergeclone.decision_maker(a2a, walkerwt, n_walkers, mergedist)
+    mcf = Decision_Maker(a2a, walker_weights, n_walkers, mergedist)
     mcf.mergeclone()
-    #for i in range(n_walkers):
-     #   print (' WalkerId ={ }  Weight = {}  amp= {}  parent= {} '.format( i, mcf.walkerwt[i], mcf.amp[i] , mcf#.copy_struct[i]))
+    for i in range(n_walkers):
+        print(' WalkerId = {}  Weight = {}  amp = {}  parent = {} '.format(
+            i, mcf.walkerwt[i], mcf.amp[i] , mcf))
+            #.copy_struct[i]))
 
-#   print (a2a)
+    # print (a2a)
