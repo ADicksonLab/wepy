@@ -1,0 +1,12 @@
+* Custom topology and parameter files for tppu
+*
+
+stream tppu.str
+
+read sequ card
+* tppu ligand
+*
+1
+2RV
+
+
