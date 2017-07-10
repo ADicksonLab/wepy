@@ -1,36 +1,41 @@
 import numpy as np
 import math
-
-class Decision_Maker(object):
+class decision_maker:
     def __init__(self, a2a, walkerwt, nwalk, mergedist):
+        # all to all distance matrix
         self.a2a = a2a
+        # weights of the walkers
         self.walkerwt = walkerwt
+        # number of walkers
         self.nwalk = nwalk
+        # parameter for merging
         self.mergedist = mergedist
         self.verbose = False
         self.amp =[ 1 for i in range(self.nwalk)]
         self.copy_struct = [ i for i in range(self.nwalk) ]
 
-    def merge_clone (self):
+    def mergeclone (self, nobalance=False):
         wtfac = np.zeros(self.nwalk)
+        # minimum probability
         pmin = 1e-12
+        # maximum probability
         pmax = 0.1
         lpmin = math.log(pmin/100)
         dpower = 4
-        nobalance = False
 
         if not nobalance:
-         # check for previous walker exits:  clone walkers to compensate
+            # check for previous walker exits:  clone walkers to compensate (???)
             if  np.sum(self.amp) < self.nwalk :
                 nclone = self.nwalk - np.sum(self.amp)
-                (spread,wsum) = self.__calcspread(lpmin,dpower)
+                (spread, wsum) = self.__calcspread(lpmin,dpower)
                 cloneind = wsum.argmax()
                 self.amp[cloneind] += nclone
 
             # calculate initial spread function value
-            (spread,wsum) = self.__calcspread(lpmin,dpower)
-            print("Starting variance:",spread)
+            spread, wsum = self.__calcspread(lpmin, dpower)
+            print("Starting variance:", spread)
 
+            # 
             productive = 1
             while productive :
                 productive = 0
@@ -40,13 +45,17 @@ class Decision_Maker(object):
                 minwind = None
                 maxwind = None
                 for i in range (0, self.nwalk-1):
-                    # determine eligibility and find highest wsum (to clone) and lowest wsum (to merge)
-                    if self.amp[i] >= 1 or self.walkerwt[i] > pmin:  # find the most clonable walker
+                    # determine eligibility and find highest wsum (to
+                    # clone) and lowest wsum (to merge)
+                    # find the most clonable walker
+                    if self.amp[i] >= 1 or self.walkerwt[i] > pmin:
                         if wsum[i] > maxwsum:
                             maxwsum = wsum[i]
                             maxwind = i
-                    if self.amp[i] == 1 or  self.walkerwt[i] < pmax:  # find the most mergeable walker
-                        if wsum[i] < minwsum: # convert or to and  (important)
+                    # find the most mergeable walker
+                    if self.amp[i] == 1 or  self.walkerwt[i] < pmax:
+                        # convert or to and  (important)
+                        if wsum[i] < minwsum:
                             minwsum = wsum[i]
                             minwind = i
 
@@ -56,10 +65,12 @@ class Decision_Maker(object):
                 if minwind is not None and maxwind is not None and minwind != maxwind:
                     for j in range(0,self.nwalk):
                         if j != minwind and j != maxwind:
-                            if (self.a2a[minwind][j] < closedist and self.amp[j] == 1 and self.walkerwt[j] < pmax):
+                            if (self.a2a[minwind][j] < closedist and
+                                self.amp[j] == 1 and self.walkerwt[j] <
+                                pmax):
                                 closedist = self.a2a[minwind][j]
                                 closewalk = j
-            # did we find a closewalk?
+                # did we find a closewalk?
                 if minwind is not None and maxwind is not None and closewalk is not None:
                     if self.amp[minwind] != 1:
                         die("Error! minwind", minwind, "has self.amp =",self.amp[minwind])
@@ -98,23 +109,31 @@ class Decision_Maker(object):
                         self.amp[closewalk] = 1
                         self.amp[maxwind] -= 1
 
-            # end of while productive loop:  done with cloning and merging steps
+            # end of while productive loop
+            # 1. optimized spread
+            # 2. cloned and merged
+            # done with cloning and merging steps
+
             # set walkerdist arrays
             walkerdist = wsum
 
-            # Perform the cloning and merging steps
-            # start with an empty free walker array, add all walkers with amp = 0
-            freewalkers =[]
+            # redistribute weights according to cloning and merging
+            # defined in the while loop.
+
+            # start with an empty free
+            # walker array, add all walkers with amp = 0
+            freewalkers = []
             for r1walk in range(0,self.nwalk):
                 if self.amp[r1walk] == 0 :
                     freewalkers.append(r1walk)
 
-            # for each self.amp[i] > 1, clone!
-            for r1walk in range(0,self.nwalk):
+            # clone!
+            # for each self.amp[i] > 1
+            for r1walk in range(self.nwalk):
                 if self.amp[r1walk] > 1:
                     nclone = self.amp[r1walk]-1
                     inds = []
-                    for i in range(0,nclone):
+                    for i in range(nclone):
                         try:
                             tind = freewalkers.pop()
                         except:
@@ -138,7 +157,7 @@ class Decision_Maker(object):
                             for i in range(0,self.nwalk):
                                 self.a2a[tind][i] = self.a2a[r1walk][i]
                                 self.a2a[i][tind] = self.a2a[i][r1walk]
-         # done cloning and meging
+         # done cloning and merging
             if len(freewalkers) > 0:
                 raise("Error! walkers left over after merging and cloning")
 
@@ -164,6 +183,7 @@ class Decision_Maker(object):
             if wtfac[i] < 0:
                 wtfac[i] = 0
 
+        # calculate spread across all walkers
         for i in range(self.nwalk-1):
             if self.amp[i] > 0:
                 for j in range(i+1,self.nwalk):
@@ -173,7 +193,7 @@ class Decision_Maker(object):
                         wsum[i] += d * self.amp[j];
                         wsum[j] += d * self.amp[i];
 
-        return(spread,wsum)
+        return (spread, wsum)
 
     def __merge(self, i, j):
         if self.verbose:
@@ -189,3 +209,17 @@ class Decision_Maker(object):
         self.copy_struct[a] = b
         return a+b
 
+# if __name__ == '__main__':
+
+#     a2a = np.random.rand(3, 3)
+#     walkerwt = [ 1/3 ,1/3 , 1/3]
+#     amp = [ 1, 1, 1]
+#     nwalk = 3
+#     mergedist = 0.25 # 2.a A
+
+#     f = decision_maker ( a2a ,walkerwt, amp, nwalk, mergedist)
+#     f.mergeclone ()
+#     print ( f.nwalk )
+
+#     for p in f.walkerwt :
+#         print (p)

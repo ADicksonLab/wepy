@@ -6,7 +6,7 @@ import simtk.unit as unit
 
 from scoop import futures
 
-from wepy.sim_manager import SimManager
+from wepy.sim_manager import Manager
 
 ### The function for a single segment of simulation
 def run_simulation(topology, system, positions, worker_id):
@@ -95,10 +95,13 @@ if __name__ == "__main__":
 
     print("done minimizing\n")
 
-    # start a sim_manager
+    # Run a WE using the default decision model and work mapper
     num_workers = 8
     num_walkers = 8
-    sim_manager = SimManager(psf.topology, system,
-                             minimized_positions, num_workers, num_walkers)
-    # compare the results
+    # Instantiate a simulation manager
+    sim_manager = Manager(psf.topology, system, minimized_positions,
+                          num_workers, num_walkers)
+
+    # run a simulation with the manager for 3 cycles of length 1000 each
+    sim_manager.run_simulation(3, [1000, 1000, 1000])
 
