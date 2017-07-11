@@ -36,14 +36,14 @@ class WExplore2Resampler(Resampler):
         
         Newxyz = np.zeros((1,self.ref.n_atoms, 3))
         for i in range(len(Positions)):
-                  Newxyz[0,i,:] = ([Positions[i]._value[0],Positions[i]._value[1],
+            Newxyz[0,i,:] = ([Positions[i]._value[0],Positions[i]._value[1],
                                                         Positions[i]._value[2]])
 
         
         return md.Trajectory(Newxyz,self.ref.topology)
         
     def CalculateRmsd(self,ind1,ind2):
-        positions1 = Walker.[ind1][0:self.ref.n_atoms]  
+        positions1 = self.walkers[ind1][0:self.ref.n_atoms]  
         positions2 = DecisionModel[ind2][0:self.ref.n_atoms]
         ref_traj = self.__Make_Traj(positions1)
         traj = self.__Make_Traj(positions2)          
