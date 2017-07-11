@@ -3,6 +3,7 @@ import math
 import numpy as np
 import mdtarj as md
 from wepy.resampling.decision import Decision
+from wepy.walker  import walker
 class Resampler(object):
 
     def resample(self, walkers, decisions):
@@ -238,4 +239,4 @@ class WExplore2Resampler(Resampler):
                 item.weight = self.walkerwt[i]
                 self.walkers[i] = item
 
-        return self.walkers, None
+        return self.walkers, self.resampler_records
