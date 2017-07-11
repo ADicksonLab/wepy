@@ -22,9 +22,28 @@ class Manager(object):
     def run_segment(self, walkers, segment_length):
         """Run a time segment for all walkers using the available workers. """
 
+        # we need to count the number of things in the walkers without
+        # keeping them in memory, we make a class that reads all the
+        # things in the generator makes an index list and then puts
+        # the contents back into a generator
+        class CountingIterator(object):
+            def __init__(self, iterable):
+                self.indices = []
+                self.iterable = self.count(iterable)
+
+            def count(self, iterable):
+                xs = []
+                for i, x in enumerate(iterable):
+                    self.indices.append(i)
+                    xs.append(x)
+                return (x for x in xs)
+
+        counting_it = CountingIterator(walkers)
+        walkers = counting_it.iterable
+        indices = counting_it.indices
         new_walkers = list(self.map(self.runner.run_segment,
                                     walkers,
-                                    (segment_length for i in range(len(walkers)))
+                                    (segment_length for i in indices)
                                    )
                           )
 
