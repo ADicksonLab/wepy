@@ -1,89 +1,45 @@
-import simtk.openmm.app as omma
-import simtk.openmm as omm
-import simtk.unit as unit
-
 from scoop import futures
 
-from wepy.decision import NoCloneMerge, DecisionModel
-
-def run_segment(topology, system, positions, worker_id, segment_length):
-    print("starting a simulation")
-    integrator = omm.LangevinIntegrator(300*unit.kelvin,
-                                        1/unit.picosecond,
-                                        0.002*unit.picoseconds)
-    # instantiate a simulation object
-    simulation = omma.Simulation(topology, system, integrator)
-    # initialize the positions
-    simulation.context.setPositions(positions)
-    # Reporter
-    simulation.reporters.append(omma.StateDataReporter("worker_{}.log".format(worker_id),
-                                                       100,
-                                                       step=True,
-                                                       potentialEnergy=True,
-                                                       temperature=True))
-
-    # run the simulation fo the number of time steps
-    simulation.step(segment_length)
-    print("finished with simulation")
-
-    return simulation.context.getState(getPositions=True)
-
+from wepy.decision import Decision, DecisionModel
+from wepy.decision import NoCloneMerge
+from wepy.resampling import StubResampler
+from wepy.runner import NoRunner
 
 class Manager(object):
 
-    def __init__(self, topology, system, positions,
+    def __init__(self, init_walkers,
                  num_walkers, num_workers,
+                 runner=NoRunner,
                  decision_model=NoCloneMerge,
+                 resampler=StubResampler,
                  work_mapper=futures.map):
 
-        self.topology = topology
-        self.system = system
-        self.positions = positions
+        # the runner is the object that runs dynamics
+        self.runner = runner
+        # the number of walkers to use
         self.num_walkers = num_walkers
+        # TODO make this useful with SCOOP
+        # the number of CPUs/GPUs to use
         self.num_workers = num_workers
+        # the decision making class
         assert issubclass(decision_model, DecisionModel), \
             "decision_model is not a subclass of DecisionModel"
         self.decision_model = decision_model
+
+        # the resampler
+        self.resampler = resampler
+
+        # the function for running work on the workers
         self.map = work_mapper
 
-    def run_segment(self, segment_length):
+    def run_segment(self, walkers, segment_length):
         """Run a time segment for all walkers using the available workers. """
 
-        # create generators to map inputs to the function
-        # topology and system are the same for all
-        topologies_gen = (self.topology for i in range(self.num_workers))
-        systems_gen = (self.system for i in range(self.num_workers))
-
-        # the positions are different for each walker and tracked in the attribute
-        positions_gen = (self.positions for i in range(self.num_workers))
-
-        # the worker ids
-        worker_ids_gen = (i for i in range(self.num_workers))
-
-        # the segment length is also the same for a single segment but
-        # not between segments
-        segment_length_gen = (segment_length for i in range(self.num_workers))
-
-        results = list(self.map(run_segment,
-                                topologies_gen,
-                                systems_gen,
-                                positions_gen,
-                                worker_ids_gen,
-                                segment_length_gen))
+        new_walkers = list(self.map(self.runner.run_segment,
+                                    walkers,
+                                    (segment_length for i in range(self.num_workers))))
 
         return results
-
-    def compute_decisions(self, walkers):
-        return self.decision_model.decide(walkers)
-
-    def resample(self, decisions):
-        raise NotImplementedError
-
-    def write_results(self):
-        raise NotImplementedError
-
-    def report(self):
-        raise NotImplementedError
 
     def run_simulation(self, n_cycles, segment_lengths, output="memory"):
         """Run a simulation for a given number of cycles with specified
@@ -92,11 +48,22 @@ class Manager(object):
         Can either return results in memory or write to a file.
         """
 
+        resampling_records = []
+        walkers = self.init_walkers
+        walker_records = [walkers]
         for cycle_idx in range(n_cycles):
-            results = self.run_segment(segment_lengths[cycle_idx])
-            decisions = self.compute_decisions(results)
-            self.resample(decisions)
-            if output == "memory":
-                return self.report()
-            else output == "hdf5":
-                self.write_results()
+            new_walkers = self.run_segment(walkers, segment_lengths[cycle_idx])
+            decisions = self.decision_model(new_walkers)
+            resampled_walkers, cycle_resampling_records = self.resampler.resample(new_walkers,
+                                                                      decisions)
+            resampling_records.append(cycle_resampling_records)
+            walker_records.append(new_walkers)
+
+        return walker_records, resampling_records
+
+    def write_results(self):
+        raise NotImplementedError
+
+    def report(self):
+        raise NotImplementedError
+
