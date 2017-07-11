@@ -2,7 +2,7 @@ from scoop import futures
 
 from wepy.sim_manager import Manager
 from wepy.runner import NoRunner
-from wepy.decision import NoCloneMerge
+from wepy.resampling import NoResampler
 
 num_walkers = 8
 num_workers = 8
