@@ -58,3 +58,11 @@ class SimpleCloneMerge(Resampler):
             resampling_records.append(resampling_record)
 
         return new_walkers, resampling_records
+
+
+class WExplore(Resampler):
+    pass
+
+class WExplore2(Resampler):
+    # I lied Nazanin put your code here!!
+    pass

@@ -32,7 +32,7 @@ class Walker(object):
         # make the clones
         clones = []
         for i in range(number):
-            clones.append(type(self)(state, weight*split_prob))
+            clones.append(type(self)(self.state, self.weight*split_prob))
 
         return clones
 

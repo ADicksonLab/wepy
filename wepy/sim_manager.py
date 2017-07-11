@@ -39,7 +39,7 @@ class Manager(object):
                                     walkers,
                                     (segment_length for i in range(self.num_workers))))
 
-        return results
+        return new_walkers
 
     def run_simulation(self, n_cycles, segment_lengths, output="memory"):
         """Run a simulation for a given number of cycles with specified
@@ -48,16 +48,21 @@ class Manager(object):
         Can either return results in memory or write to a file.
         """
 
-        resampling_records = []
         walkers = self.init_walkers
         walker_records = [walkers]
+        resampling_records = []
         for cycle_idx in range(n_cycles):
+            # run the segment
             new_walkers = self.run_segment(walkers, segment_lengths[cycle_idx])
-            decisions = self.decision_model(new_walkers)
-            resampled_walkers, cycle_resampling_records = self.resampler.resample(new_walkers,
-                                                                      decisions)
-            resampling_records.append(cycle_resampling_records)
+            # record changes in state of the walkers
             walker_records.append(new_walkers)
+            # resample based walkers
+            resampled_walkers, cycle_resampling_records = self.resampler.resample(new_walkers)
+            # save how the walkers were resampled
+            resampling_records.append(cycle_resampling_records)
+            # prepare resampled walkers for running new state changes
+            walkers = resampled_walkers
+
 
         return walker_records, resampling_records
 

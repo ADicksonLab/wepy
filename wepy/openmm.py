@@ -35,4 +35,4 @@ class OpenMMRunner(Runner):
 class TrajWalker(Walker):
 
     def __init__(self, coordinates, weight, parent):
-        super().__init__(coordiantes, weight, parent)
+        super().__init__(coordinates, weight, parent)
