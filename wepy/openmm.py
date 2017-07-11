@@ -29,7 +29,16 @@ class OpenMMRunner(Runner):
         simulation.step(segment_length)
         print("finished with simulation")
 
-        return simulation.context.getState(getPositions=True)
+        # save:
+        # positions
+        # velocities
+        # box size
+        # box vectors
+        # temperature
+        # pressure
+        return simulation.context.getState(getPositions=True,
+                                           getVelocities=True,
+                                           getParameters=True)
 
 
 class TrajWalker(Walker):

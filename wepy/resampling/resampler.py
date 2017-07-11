@@ -63,6 +63,6 @@ class SimpleCloneMerge(Resampler):
 class WExplore(Resampler):
     pass
 
-class WExplore2(Resampler):
+class WExplore2Resampler(Resampler):
     # I lied Nazanin put your code here!!
     pass
