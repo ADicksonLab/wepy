@@ -19,7 +19,7 @@ class WExploreResampler(Resampler):
 
 class WExplore2Resampler(Resampler):
     # I lied Nazanin put your code here!!
-    def __init__(self,nwalk):
+    def __init__(self,):
         self.ref = md.load('seh_tppu_mdtraj.pdb')
         self.ref = self.ref.remove_solvent()
         self.lig_idx = self.ref.topology.select('resname "2RV"')
@@ -28,9 +28,9 @@ class WExplore2Resampler(Resampler):
         self.n_walkers = None
         self.walkerwt = []
         self.walkers = []
-        self.copy_struct = [ i for i in range(self.nwalk) ]
-        self.amp =[ 1 for i in range(self.n_walkers)]
-        self.distancearray = np.zeros((self.n_walkers, self.n_walkers))
+        self.copy_struct = []
+        self.amp =[]
+        self.distancearray = None
         self.resampler_records = []
     def __rmsd(self,traj,ref, idx):
         return np.sqrt(3*np.sum(np.square(traj.xyz[:,idx,:] - ref.xyz[:,idx,:]),
@@ -89,10 +89,8 @@ class WExplore2Resampler(Resampler):
         self.walkerwt[i] = 0
         self.amp[i] = 0
         self.amp[j] = 1
-        self.resampler_records[i][0]= Decision.SQUSH
-        self.resampler_records[i].clear()
-        self.resampler_records[i].append(j)
-        self.resampler_records[j][0] = Decision.KEEP-MERGE
+        self.resampler_records[i](Decision.SQUSH,j)
+        self.resampler_records[j][0] = (Decision.KEEP_MERGE, j)
 
 
     def __copystructure(self, a, b):
@@ -185,13 +183,14 @@ class WExplore2Resampler(Resampler):
         for r1walk in range(0,self.n_walkers):
             if self.amp[r1walk] == 0 :
                 freewalkers.append(r1walk)
+            if self.amp[r1walk] == 1 :
+                self.resampler_records[r1walk]=(Decision.NOTHING, r1walk)
 
         # for each self.amp[i] > 1, clone!
         for r1walk in range(0,self.n_walkers):
             if self.amp[r1walk] > 1:
                 nclone = self.amp[r1walk]-1
                 inds = []
-                self.resampler_records[r1walk][0] = Decision.CLONE
                 for i in range(0,nclone):
                     try:
                         tind = freewalkers.pop()
@@ -201,7 +200,7 @@ class WExplore2Resampler(Resampler):
                         raise("Error!  free walker is equal to the clone!")
                     else:
                         inds.append(tind )
-                        self.resampler_records[r1walk].append(tind)
+                self.resampler_records[r1walk]=(Decision.CLONE, inds)
 
                 newwt=self.walkerwt[r1walk]/(nclone+1)
                 self.walkerwt[r1walk] = newwt
@@ -219,11 +218,10 @@ class WExplore2Resampler(Resampler):
         self.walkers = walkers
         self.n_walkers = len(self.walkers)
         self.walkerwt = [ walker.weight for walker in self.walkers]
-        for i in range(self.n_walkers):
-            item = Decision.Nothing
-            info =[i]
-            element = [item, info]
-            self.resampler_records.append(element) 
+        self.copy_struct = [ i for i in range(self.nwalk) ]
+        self.amp =[ 1 for i in range(self.n_walkers)]
+        self.distancearray = np.zeros((self.n_walkers, self.n_walkers))
+        self.resampler_records = [() for i in range(self.n_walkers)]
         self.MakeDistanceArray()
         self.decide()
         for i in range(self.n_walkers):
