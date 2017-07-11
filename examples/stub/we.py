@@ -1,13 +1,20 @@
 from scoop import futures
 
+from wepy.walker import Walker
 from wepy.sim_manager import Manager
 from wepy.runner import NoRunner
 from wepy.resampling import NoResampler
 
-num_walkers = 8
-num_workers = 8
-manager = Manager(NoRunner, num_walkers, num_workers,
-                  decision_model=NoCloneMerge,
+# create walkers for your simulation with equal weight
+n_walkers = 8
+init_weight = 1.0 / n_walkers
+init_walkers = []
+for i in range(n_walkers):
+    init_walkers.append(Walker(i, init_weight))
+
+# create a simulation manager
+manager = Manager(init_walkers,
+                  
                   work_mapper=futures.map)
 
 num_cycles = 5

@@ -5,16 +5,16 @@ class Resampler(object):
     def resample(self, walkers, decisions):
         raise NotImplementedError
 
-class StubResampler(Resampler):
+class NoResampler(Resampler):
 
-    def resample(self, walkers, decisions):
+    def resample(self, walkers):
         return walkers
 
 # TODO
 class SimpleCloneMerge(Resampler):
     """Just clones and merges, don't rely on any specific method."""
 
-    def resample(self, walkers, decisions):
+    def resample(self, walkers):
         to_clone = []
         to_merge = []
         for walker_idx, decision in enumerate(decisions):

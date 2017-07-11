@@ -2,17 +2,15 @@ from scoop import futures
 
 from wepy.decision import Decision, DecisionModel
 from wepy.decision import NoCloneMerge
-from wepy.resampling import StubResampler
+from wepy.resampling import NoResampler
 from wepy.runner import NoRunner
 
 class Manager(object):
 
     def __init__(self, init_walkers,
-                 num_walkers, num_workers,
-                 runner=NoRunner,
-                 decision_model=NoCloneMerge,
-                 resampler=StubResampler,
-                 work_mapper=futures.map):
+                 runner = NoRunner,
+                 resampler = NoResampler,
+                 work_mapper = futures.map):
 
         # the runner is the object that runs dynamics
         self.runner = runner
