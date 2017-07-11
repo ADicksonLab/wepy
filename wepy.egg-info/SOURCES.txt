@@ -1,5 +1,4 @@
 wepy/__init__.py
-wepy/decision.py
 wepy/openmm.py
 wepy/runner.py
 wepy/sim_manager.py
@@ -9,3 +8,8 @@ wepy.egg-info/SOURCES.txt
 wepy.egg-info/dependency_links.txt
 wepy.egg-info/requires.txt
 wepy.egg-info/top_level.txt
+wepy/resampling/__init__.py
+wepy/resampling/clone_merge.py
+wepy/resampling/decision.py
+wepy/resampling/distance.py
+wepy/resampling/resampler.py

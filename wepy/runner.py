@@ -7,5 +7,5 @@ class Runner(object):
 class NoRunner(Runner):
     """ Stub class that just returns the walkers back with the same state."""
 
-    def run_segment(self, init_walkers, segment_lengths):
+    def run_segment(self, init_walkers, segment_length):
         return init_walkers

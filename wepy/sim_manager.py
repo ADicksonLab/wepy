@@ -1,14 +1,12 @@
-from scoop import futures
-
 from wepy.resampling.resampler import NoResampler
 from wepy.runner import NoRunner
 
 class Manager(object):
 
     def __init__(self, init_walkers, num_workers,
-                 runner = NoRunner,
-                 resampler = NoResampler,
-                 work_mapper = futures.map):
+                 runner = NoRunner(),
+                 resampler = NoResampler(),
+                 work_mapper = map):
 
         # the initial walkers
         self.init_walkers = init_walkers
@@ -26,7 +24,9 @@ class Manager(object):
 
         new_walkers = list(self.map(self.runner.run_segment,
                                     walkers,
-                                    (segment_length for i in range(self.num_workers))))
+                                    [segment_length for i in range(len(walkers))]
+                                   )
+                          )
 
         return new_walkers
 
