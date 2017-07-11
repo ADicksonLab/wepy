@@ -10,35 +10,32 @@ from wepy.sim_manager import Manager
 from wepy.resampling.resampler import NoResampler
 from wepy.openmm import OpenMMRunner, OpenMMWalker
 
-
-# the topology from the PSF
-psf = omma.CharmmPsfFile('sEH_TPPU_system.psf')
-
-# load the coordinates
-pdb = omma.PDBFile('sEH_TPPU_system.pdb')
-
-# to use charmm forcefields get your parameters
-params = omma.CharmmParameterSet('all36_cgenff.rtf',
-                                 'all36_cgenff.prm',
-                                 'all36_prot.rtf',
-                                 'all36_prot.prm',
-                                 'tppu.str',
-                                 'toppar_water_ions.str')
-
-# set the box size lengths and angles
-psf.setBox(82.435, 82.435, 82.435, 90, 90, 90)
-
-# create a system using the topology method giving it a topology and
-# the method for calculation
-system = psf.createSystem(params,
-                          nonbondedMethod=omma.CutoffPeriodic,
-                          nonbondedCutoff=1.0 * unit.nanometer,
-                          constraints=omma.HBonds)
-
-
-
-
 if __name__ == "__main__":
+
+    # set up the system which will be passed to the arguments of the mapped functions
+    # the topology from the PSF
+    psf = omma.CharmmPsfFile('sEH_TPPU_system.psf')
+
+    # load the coordinates
+    pdb = omma.PDBFile('sEH_TPPU_system.pdb')
+
+    # to use charmm forcefields get your parameters
+    params = omma.CharmmParameterSet('all36_cgenff.rtf',
+                                     'all36_cgenff.prm',
+                                     'all36_prot.rtf',
+                                     'all36_prot.prm',
+                                     'tppu.str',
+                                     'toppar_water_ions.str')
+
+    # set the box size lengths and angles
+    psf.setBox(82.435, 82.435, 82.435, 90, 90, 90)
+
+    # create a system using the topology method giving it a topology and
+    # the method for calculation
+    system = psf.createSystem(params,
+                              nonbondedMethod=omma.CutoffPeriodic,
+                              nonbondedCutoff=1.0 * unit.nanometer,
+                              constraints=omma.HBonds)
 
     print("\nminimizing\n")
     # set up for a short simulation to minimize and prepare
@@ -79,9 +76,10 @@ if __name__ == "__main__":
     sim_manager = Manager(init_walkers,
                           num_workers,
                           runner=runner,
-                          resampler=NoResampler(),
-                          work_mapper=map)
+                          resampler=resampler,
+                          work_mapper=scoop.futures.map)
 
     # run a simulation with the manager for 3 cycles of length 1000 each
-    sim_manager.run_simulation(3, [1000, 1000, 1000])
-
+    walker_records, resampling_records = sim_manager.run_simulation(3,
+                                                                    [1000, 1000, 1000],
+                                                                    debug_prints=True)

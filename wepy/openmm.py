@@ -27,7 +27,6 @@ class OpenMMRunner(Runner):
 
         # run the simulation segment for the number of time steps
         simulation.step(segment_length)
-        print("finished with simulation")
 
         # save the state of the system with all possible values
         new_state = simulation.context.getState(getPositions=True,
