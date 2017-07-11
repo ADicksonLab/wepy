@@ -1,20 +1,41 @@
-** Goals
+* Weighted Ensemble Python (wepy)
 
-** Rationale
+A dead simple, modular implementation and framework for running
+weighted ensemble simulations in pure python.
 
-** Broad Requirements
-1. scalable number of workers across heterogeneous hardware
-  - Achievable with SCOOP
-2. use of a proper message passing interface for communication
-   (i.e. not the filesystem)
-  - Also achieved through SCOOPs use of ZMQ
-  - Need to have WEPY attachments be able to not use the file system
-3. modular, but cohesive, with respect to binning (recursive etc.),
-   order parameter calculation, and MD engine
-4. rich non-platform specific (hdf5) trajectory datasets with API
+
+Comes equipped with support for [[https://github.com/pandegroup/openmm][OpenMM]] molecular dynamics, [[https://github.com/soravux/scoop][SCOOP]] for
+concurrent execution, the [[http://pubs.acs.org/doi/abs/10.1021/jp411479c][WExplore]] resampling algorithm, and an HDF5
+file format and library for storing and querying your WE datasets.
+
+** Installation
+
+Wepy is still in beta but you can install by cloning this repository,
+switching to the last release and installing with pip:
+
+#+BEGIN_SRC bash
+  git clone https://gitlab.com/ADicksonLab/wepy.git
+  cd wepy
+  git checkout -b master v0.2
+  pip install --user -e .
+#+END_SRC
+
+** Roadmap
+
+- [X] Weighted Ensemble Layer
+  - [X] simulation manager
+- [ ] Resampling sub-module
+  - [ ] WExplore
+  - [ ] resampling utilities
+    - [ ] cloning and merging
+    - [ ] bin mappers
+    - [ ] novelty functions
+- [X] OpenMM support
+- [X] support for any external mapping function, including SCOOP
+- [ ] HDF5 output and API
+- [ ] Command Line Interface
 
 ** Terminology
-
 
 - cycle :: the running of an MD segment and the walker resampling
            phase of a weighted ensemble run in which walkers are
@@ -22,12 +43,10 @@
            \(\tau\) time units of molecular dynamics time.
 - workers :: the number of actual computational units for doing the
              simulation.
-- particle :: the number of simulations for which dynamics is run for
-              a given cycle.
 - walker :: a state of the system along with a probability. At the
             beginning of a WE simulation probability is split evenly
             between the walkers. Walkers can be split/cloned onto
-            multiple particles and merged onto the same particle. When
+            multiple walkers and merged onto the same walkers. When
             a walker is cloned the probability of each new walker is
             split uniformly. When a walker is merged the probability
             is summed and one of the states is forgotten, or squashed,
@@ -35,93 +54,54 @@
             want to keep states that are within a particular ensemble,
             otherwise some sort of average or median state could be
             used).
+- walker slot :: a slot in the list of walkers when there is a
+                 constant number of walkers maintained throughout a
+                 simulation.
 - walker resampling :: the process of cloning and merging every cycle.
 - walker trajectory :: the list of states in the history of a
      particular walker.
-- walker trace :: the list of particles a particular walker occupied
+- walker trace :: the list of walker slots a particular walker occupied
                   during a WE run.
-- walker tree :: a tree rooted at a particular particles history and
-                 contains all the walkers that were cloned and not
-                 squashed from the root.
+- walker tree :: a tree rooted at a particular point in a walker's
+                 history and contains all the walkers that were cloned
+                 and not squashed from the root.
 
-Walker resampling is recorded as a Kx3 array where K is the net number
-of clone-merges in a single resampling. The three fields in the
-3-vector are:
-(cloned, squashed, merged)
+** Resampling data format
 
-Where cloned is the index of the particle that was cloned, squashed is
-the index of the particle that was merged but the state was forgotten,
-and merged is the index of the particle that was merged but it's state
-was retained.
+Walker resampling is to be recorded as a list of the action taken and
+the associated data. For cloning and merging there is 4 enumerated
+actions with the data associated:
+- NOTHING, walker_slot_idx :: the walker is not to be cloned or merged
+     the index is the slot it will occupy in the next step which must be open
+- CLONED, walker_slot_idxs[n_clones] :: the walker is to be cloned to
+     the given walker slots, these slots must be available
+- SQUASHED, keep_merge_walker_slot_idx :: this walker will donate it's
+     probability to another walker and "merged" but its state will be
+     lost, the index is the walker_slot_idx of the KEEP_MERGE walker
+     before resampling
+- KEEP_MERGE, walker_slot_idx :: this walker will have at least one
+     squashed walker donate its probability and be merged, the index
+     is the walker slot index it will occupy in the next cycle.
 
-** Plan
+** Architecture
 
-The overall architecture of the project is broken into three layers:
-- Weighted Ensemble Layer :: a library and framework for running
-     weighted ensemble using OpenMM for MD across hardware
-  - Components:
-    - Manager
+The overall architecture of the project is broken into separate modules:
+- Simulation Management :: a framework for running simulations, needs:
+  - Runner
+    - e.g.
       - OpenMM
-      - SCOOP, concurrency
-    - Data Writer
-- Method Layer :: the implementations of specific
-     algorithms which run on the Weighted Ensemble Layer
-  - Components that must be customized:
-    - Distance function :: function that receives the coordinates of a
-         walker and the state of the system and returns a float.
-    - Novelty function :: function that accepts the pairwise distances
-         between \(k\) walkers (as computed by the *distance function*)
-         and returns a \(k\)-vector of values between 0.0 to 1.0 for each
-         walker (the *novelty array*). 1.0 being the highest novelty and
-         0.0 being the lowest. This function takes the place of or
-         emulates the regions in more standard formulations of weighted
-         ensemble. Implemented as a model object /a la/ scikit-learn.
-    - Decision function :: function that receives the novelty array and
-         returns a \(k\)-vector of enumerated values (or ints or strings
-         corresponding to) *Clone*, *Merge*, *Nothing*.
-  - Examples:
-    - WExplore
-    - Classic WE with Rectilinear bins
-    - a user created method or prototype
+  - Resampler
+    - e.g.
+      - WExplore
+  - work mapper
+    - e.g.
+      - ~map~ python builtin
+      - ~scoop.futures.map~
+
+- Resampler :: the implementations of specific weighted ensemble
+               resampling algorithms
+- Runner :: an application which changes the state of a walker
+
 - Application Layer :: This is a convenience layer for building the
      CLI and perhaps high level functions for users to write their own
      scripts
-
-*** Weighted Ensemble Layer
-
-
-**** Manager
-
-- Dispatch workers via SCOOP
-  - this involves determining inputs from the initial state or from
-    the last segment of dynamics
-- Receive results from workers
-- Compute distances
-- Compute novelties
-- Compute decision vector
-- Apply resampling according to decision vector
-- Record results
-
-The order of operations here is:
-1. Give the manager the initial states and initialize the walker trees
-   with states and weights.
-2. The starting walker trees are recorded in the in-memory object.
-3. Backup the in-memory object to disk.
-4. The parameters for the work function are determined.
-5. Manager dispatches workers to run dynamics on these initial states
-6. When workers are complete the final states of the system are
-   returned as a python object.
-7. The manager takes the final states and passes them to the binner.
-8. The binner returns a mapping of states to bins.
-9. States are added to the walker trees and data is recorded in the
-   in-memory object.
-10. Backup the in-memory object to disk.
-11. New walker trees are passed to the balancer.
-12. The balancer returns the new set of merged and cloned walker trees
-    with new weights.
-13. The balanced walker trees are recorded in the in-memory object.
-14. Backup the in-memory object.
-15. The new parameters to the work function is determined.
-16. Work is dispatched to workers.
-17. Repeat 5 through 16 until done.
-18. When done write out the in-memory object to the disk.
