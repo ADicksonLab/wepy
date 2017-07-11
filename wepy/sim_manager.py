@@ -24,7 +24,7 @@ class Manager(object):
 
         new_walkers = list(self.map(self.runner.run_segment,
                                     walkers,
-                                    [segment_length for i in range(len(walkers))]
+                                    (segment_length for i in range(len(walkers)))
                                    )
                           )
 
