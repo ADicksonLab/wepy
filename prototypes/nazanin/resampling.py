@@ -1,70 +1,77 @@
-from wepy.walker import merge
-import math
-import numpy as np
-import mdtarj as md
-from wepy.resampling.decision import Decision
-from wepy.walker  import walker
-class Resampler(object):
+from enum import Enum
+import mdtraj as md
+import numpy as np 
+class Decision(Enum):
+    NOTHING = 0
+    CLONE = 1
+    MERGE = 2
+    SQUSH = 3
 
-    def resample(self, walkers, decisions):
+class DecisionModel(object):
+
+    def decide(self, novelties):
         raise NotImplementedError
 
-class NoResampler(Resampler):
 
-    def resample(self, walkers):
-        return walkers, None
+class NoCloneMerge(DecisionModel):
+    """Example stub for a DecisionModel subclass, always returns a NOTHING
+    decision for all inputs."""
 
-class WExploreResampler(Resampler):
-    pass
+    def decide(self, novelties):
+        return [Decision.NOTHING for i in novelties]
 
-class WExplore2Resampler(Resampler):
-    # I lied Nazanin put your code here!!
-    def __init__(self,):
+class RandomCloneMerge(DecisionModel):
+
+    def __init__(self, seed):
+        raise NotImplementedError
+
+class WExplore2(Walkers):
+    def __init__(self,nwalk):
         self.ref = md.load('seh_tppu_mdtraj.pdb')
         self.ref = self.ref.remove_solvent()
         self.lig_idx = self.ref.topology.select('resname "2RV"')
         self.b_selection = md.compute_neighbors(self.ref, 0.8, self.lig_idx)
         self.b_selection = np.delete(self.b_selection, self.lig_idx)
-        self.n_walkers = None
-        self.walkerwt = []
-        self.walkers = []
-        self.copy_struct = []
-        self.amp =[]
-        self.distancearray = None
-        self.resampler_records = []
+        self.n_walkers =len(Walkers)
+        self.walkerwt = [ wlaker.weight for walker in Walkers]
+        self.mergedist = mergedist
+        self.copy_struct = [ i for i in range(self.nwalk) ]
+        self.amp =[ 1 for i in range(self.n_walkers)]
+        self.distancearray = np.zeros((self.n_walkers, self.n_walkers)) 
+    
     def __rmsd(self,traj,ref, idx):
         return np.sqrt(3*np.sum(np.square(traj.xyz[:,idx,:] - ref.xyz[:,idx,:]),
                                 axis=(1, 2))/idx.shape[0])
 
 
     def __MakeTraj (self,Positions):
-
+        
         Newxyz = np.zeros((1,self.ref.n_atoms, 3))
         for i in range(len(Positions)):
-            Newxyz[0,i,:] = ([Positions[i]._value[0],Positions[i]._value[1],
+                  Newxyz[0,i,:] = ([Positions[i]._value[0],Positions[i]._value[1],
                                                         Positions[i]._value[2]])
 
-
+        
         return md.Trajectory(Newxyz,self.ref.topology)
-
+        
     def CalculateRmsd(self,ind1,ind2):
-        positions1 = self.walkers[ind1][0:self.ref.n_atoms]
-        positions2 = self.walkers[ind2][0:self.ref.n_atoms]
-        ref_traj = self.__MakeTraj(positions1)
-        traj = self.__MakeTraj(positions2)
-        traj=traj.superpose(ref_traj, atom_indices = self.b_selection)
-        return self.__rmsd(traj,ref_traj,self.lig_idx)
+         positions1 = Walker.[ind1][0:self.ref.n_atoms]  # ask Q????
+         positions2 = DecisionModel[ind2][0:self.ref.n_atoms]
+         ref_traj = self.__Make_Traj(positions1)
+         traj = self.__Make_Traj(positions2)          
+         traj=traj.superpose(ref_traj, atom_indices = self.b_selection)
+         return self.__rmsd(traj,ref_traj,self.lig_idx)
 
-    def MakeDistanceArray(self,):
-        for i in range(self.n_walkers):
-            for j in range (i+1, self.n_walkers):
-                self.distancearray[i][j] = self.CalculateRmsd(i, j)
+     def MakeDistanceArray(self,):
+         for i in range(self.n_walkers):
+             for j in range (i+1, n_walkers):
+                 self.distancearray[i][j] = self.CalculateRmsd(i, j)
 
-
+                 
     def __calcspread(self, lpmin, dpower):
         spread = 0
         wsum = np.zeros(self.n_walkers)
-        wtfac = np.zeros(self.n_walkers)
+        wtfac = np.zeros(self.n_walkers)                                                                               
         for i in range(self.n_walkers):
             if self.walkerwt[i] > 0 and self.amp[i] > 0:
                 wtfac[i] = math.log(self.walkerwt[i]/self.amp[i]) - lpmin
@@ -81,31 +88,27 @@ class WExplore2Resampler(Resampler):
                         spread += d * self.amp[i] * self.amp[j];
                         wsum[i] += d * self.amp[j];
                         wsum[j] += d * self.amp[i];
-
+ 
         return(spread,wsum)
-
+              
     def __merge(self, i, j):
         self.walkerwt[j] += self.walkerwt[i]
         self.walkerwt[i] = 0
         self.amp[i] = 0
         self.amp[j] = 1
-        self.resampler_records[i](Decision.SQUSH,j)
-        self.resampler_records[j][0] = (Decision.KEEP_MERGE, j)
 
 
     def __copystructure(self, a, b):
         # this function will copy the simulation details from walker a to walker b
-        self.copy_struct[a] = b
+        self.copy_struct[a] = b    
 
     def decide(self,):
+        wtfac = np.zeros(self.n_walkers)
         pmin = 1e-12
         pmax = 0.1
         lpmin = math.log(pmin/100)
-        dpower = 4
+        dpower = 4        
         productive = True
-        mergedist = 0.25
-        spread, wsum = self.__calcspread(lpmin, dpower)
-        print("Starting variance:", spread)
         while productive :
             productive = False
             # find min and max wsums, alter @self.amp
@@ -113,7 +116,7 @@ class WExplore2Resampler(Resampler):
             maxwsum = 0.0
             minwind = None
             maxwind = None
-            for i in range(0, self.n_walkers-1):
+            for i in range (0, self.n_walkers-1):
                 # determine eligibility and find highest wsum (to clone) and lowest wsum (to merge)
                 if self.amp[i] >= 1 or self.walkerwt[i] > pmin:  # find the most clonable walker
                     if wsum[i] > maxwsum:
@@ -122,15 +125,15 @@ class WExplore2Resampler(Resampler):
                 if self.amp[i] == 1 or  self.walkerwt[i] < pmax:  # find the most mergeable walker
                     if wsum[i] < minwsum: # convert or to and  (important)
                         minwsum = wsum[i]
-                        minwind = i
+                        minwind = i 
 
             # does minwind have an eligible merging partner?
-            closedist = mergedist
+            closedist = self.mergedist
             closewalk = None
             if minwind is not None and maxwind is not None and minwind != maxwind:
-                for j in range(0, self.n_walkers):
+                for j in range(0,self.n_walkers):
                     if j != minwind and j != maxwind:
-                        if self.distancearray[minwind][j]<closedist and self.amp[j] == 1 and self.walkerwt[j]<pmax :
+                        if (self.distancearray[minwind][j] < closedist and self.amp[j] == 1 and self.walkerwt[j] < pmax):
                             closedist = self.distancearray[minwind][j]
                             closewalk = j
         # did we find a closewalk?
@@ -145,7 +148,7 @@ class WExplore2Resampler(Resampler):
                 tempsum = self.walkerwt[minwind] + self.walkerwt[closewalk]
                 self.amp[minwind] = self.walkerwt[minwind]/tempsum
                 self.amp[closewalk] = self.walkerwt[closewalk]/tempsum
-                self.amp[maxwind] += 1
+                self.amp[maxwind] += 1 
 
                 # re-determine spread function, and wsum values
                 (newspread, wsum) = self.__calcspread(lpmin ,dpower)
@@ -160,7 +163,6 @@ class WExplore2Resampler(Resampler):
                     if r < self.walkerwt[closewalk]:
                         # keep closewalk, get rid of minwind
                         self.__merge(minwind,closewalk)
-                        
                     else:
                         # keep minwind, get rid of closewalk
                         self.__merge(closewalk, minwind)
@@ -180,11 +182,9 @@ class WExplore2Resampler(Resampler):
         # Perform the cloning and merging steps
         # start with an empty free walker array, add all walkers with amp = 0
         freewalkers =[]
-        for r1walk in range(0,self.n_walkers):
-            if self.amp[r1walk] == 0 :
+        for r1walk in range(0,self.n_walkers):		
+            if self.amp[r1walk] == 0 :		
                 freewalkers.append(r1walk)
-            if self.amp[r1walk] == 1 :
-                self.resampler_records[r1walk]=(Decision.NOTHING, r1walk)
 
         # for each self.amp[i] > 1, clone!
         for r1walk in range(0,self.n_walkers):
@@ -198,9 +198,8 @@ class WExplore2Resampler(Resampler):
                         raise("Error! Not enough free walkers!")
                     if r1walk == tind:
                         raise("Error!  free walker is equal to the clone!")
-                    else:
+                    else: 
                         inds.append(tind )
-                self.resampler_records[r1walk]=(Decision.CLONE, inds)
 
                 newwt=self.walkerwt[r1walk]/(nclone+1)
                 self.walkerwt[r1walk] = newwt
@@ -208,33 +207,36 @@ class WExplore2Resampler(Resampler):
                     self.walkerwt[tind]= newwt
                     walkerdist[tind]=walkerdist[r1walk]
                     self.__copystructure(r1walk,tind)
-                    # done cloning and meging
+                    if (self.verbose):
+                        print("walker",r1walk,"cloned into",tind)
+                        self.distancearray[tind][r1walk] = 0
+                        self.distancearray[r1walk][tind] = 0
+                        for i in range(0,self.n_walkers):
+                            self.distancearray[tind][i] = self.distancearray[r1walk][i]
+                            self.distancearray[i][tind] = self.distancearray[i][r1walk]
+           # done cloning and meging				
             if len(freewalkers) > 0:
                 raise("Error! walkers left over after merging and cloning")
 
-
-
-    def resample(self, walkers):
-        self.walkers = walkers
-        self.n_walkers = len(self.walkers)
-        self.walkerwt = [ walker.weight for walker in self.walkers]
-        self.copy_struct = [ i for i in range(self.nwalk) ]
-        self.amp =[ 1 for i in range(self.n_walkers)]
-        self.distancearray = np.zeros((self.n_walkers, self.n_walkers))
-        self.resampler_records = [() for i in range(self.n_walkers)]
+                
+        
+    def resampler(self,  ):
         self.MakeDistanceArray()
         self.decide()
-        for i in range(self.n_walkers):
-                item = walker()
+        for i in range(n_walkers):
+                item = Walker()
                 item.Walker_ID = i
-                # determine  parent
-                if self.copy_struct[i] != i:
-                    item.restartpoint = self.walkers[self.copy_struct[i]].restartpoint
-                    item.parent_ID = self.copy_struct[i]
+                # determine  parent  
+                if mcf.copy_struct[i] != i:
+                    item.restartpoint = Walkers_List[mcf.copy_struct[i]].restartpoint
+                    item.parent_ID = mcf.copy_struct[i]
                 else:
-                    item.restartpoint = self.walkers[i].restartpoint
+                    item.restartpoint = Walkers_List[i].restartpoint
                     item.parent_ID = i
-                item.weight = self.walkerwt[i]
-                self.walkers[i] = item
+                item.Weight = mcf.walkerwt[i]
+                Walkers_List[i] = item
 
-        return self.walkers, self.resampler_records
+        return Walker, 
+
+    pass
+

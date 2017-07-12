@@ -3,7 +3,7 @@ from enum import Enum
 class Decision(Enum):
     NOTHING = 0
     CLONE = 1
-    KEEP-MERGE = 2
+    KEEP_MERGE = 2
     SQUSH = 3
 
 class DecisionModel(object):
