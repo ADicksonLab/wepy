@@ -1,9 +1,13 @@
 from enum import Enum
 
 class Decision(Enum):
-    NOTHING = 0
-    CLONE = 1
-    MERGE = 2
+    pass
+
+class CloneMergeDecision(Decision):
+    NOTHING = 1
+    CLONE = 2
+    SQUASH = 3
+    MERGE = 4
 
 class DecisionModel(object):
 

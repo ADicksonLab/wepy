@@ -1,13 +1,23 @@
+from collections import namedtuple
+
 from wepy.walker import merge
+from wepy.resampling.decision import Decision
+
 class Resampler(object):
 
+    def __init__(self, resampling_record_type)
     def resample(self, walkers, decisions):
         raise NotImplementedError
+
+ResamplingRecord = namedtuple("ResamplingRecord", ['decision', 'value'])
 
 class NoResampler(Resampler):
 
     def resample(self, walkers):
-        return walkers, None
+
+        resampling_record = [(Decision.NOTHING, i) for i in len(walkers)]
+
+        return walkers, resampling_record
 
 class WExploreResampler(Resampler):
     pass
