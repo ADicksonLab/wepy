@@ -1,6 +1,7 @@
 from enum import Enum
 
 class Decision(Enum):
+<<<<<<< HEAD
     pass
 
 class CloneMergeDecision(Decision):
@@ -8,6 +9,12 @@ class CloneMergeDecision(Decision):
     CLONE = 2
     SQUASH = 3
     MERGE = 4
+=======
+    NOTHING = 0
+    CLONE = 1
+    KEEP_MERGE = 2
+    SQUSH = 3
+>>>>>>> master
 
 class DecisionModel(object):
 
