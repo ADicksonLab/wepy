@@ -36,5 +36,9 @@ class Walker(object):
 
         return clones
 
+    def squash(self, merge_target):
+        new_weight = self.weight + merge_target.weight
+        return type(self)(merge_target.state, new_weight)
+
     def merge(self, other_walkers):
         return merge([self]+other_walkers)
