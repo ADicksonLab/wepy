@@ -6,7 +6,6 @@ from wepy.resampling.decision import Decision
 
 class Resampler(object):
 
-    def __init__(self, resampling_record_type)
     def resample(self, walkers, decisions):
         raise NotImplementedError
 
