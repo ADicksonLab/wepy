@@ -1,4 +1,4 @@
-class SimpleCloneMerge(Resampler):
+xclass SimpleCloneMerge(Resampler):
     """Just clones and merges, don't rely on any specific method."""
 
     def resample(self, walkers):

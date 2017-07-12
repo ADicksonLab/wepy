@@ -1,3 +1,4 @@
+setup.py
 wepy/__init__.py
 wepy/openmm.py
 wepy/runner.py
