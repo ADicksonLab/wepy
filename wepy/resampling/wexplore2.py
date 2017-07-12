@@ -5,13 +5,12 @@ import mdtraj as md
 
 from wepy.walker import merge
 from wepy.resampling.decision import Decision
-from wepy.walker  import walker
 from wepy.resampling.resampler import Resampler
 
 
 class WExplore2Resampler(Resampler):
     def __init__(self,):
-        self.ref = md.load('seh_tppu_mdtraj.pdb')
+        self.ref = md.load('sEH_TPPU_system.pdb')
         self.ref = self.ref.remove_solvent()
         self.lig_idx = self.ref.topology.select('resname "2RV"')
         self.b_selection = md.compute_neighbors(self.ref, 0.8, self.lig_idx)
@@ -216,7 +215,7 @@ class WExplore2Resampler(Resampler):
         self.MakeDistanceArray()
         self.decide()
         for i in range(self.n_walkers):
-                item = walker()
+                item = self.walkers[i]
                 item.Walker_ID = i
                 # determine  parent
                 if self.copy_struct[i] != i:
