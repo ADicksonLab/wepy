@@ -25,9 +25,10 @@ class WExplore2Resampler(Resampler):
         
     def __rmsd(self, traj, ref, idx):
         return np.sqrt(3*np.sum(np.square(traj.xyz[:, idx, :] - ref.xyz[:, idx, :]),
-                                axis=(1, 2))/idx.shape[0]
+                                axis=(1, 2))/idx.shape[0])
 
-    def __Maketraj(self, positions):
+
+    def __Maketraj(self, Positions):
         Newxyz = np.zeros((1, self.ref.n_atoms, 3))
         for i in range(len(positions)):
             Newxyz[0,i,:] = ([positions[i]._value[0], positions[i]._value[1],
