@@ -22,4 +22,5 @@ manager = Manager(init_walkers,
 num_cycles = 5
 segment_lengths = [0 for i in range(num_cycles)]
 walker_history, resampling_history = manager.run_simulation(num_cycles,
-                                                            segment_lengths)
+                                                            segment_lengths,
+                                                            debug_prints=True)
