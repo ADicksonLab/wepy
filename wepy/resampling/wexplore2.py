@@ -133,7 +133,7 @@ class WExplore2Resampler(Resampler):
                 self.amp[maxwind] += 1
 
                 # re-determine spread function, and wsum values
-                (newspread, wsum) = self.__calcspread(lpm in, dpower)
+                (newspread, wsum) = self.__calcspread(lpmin, dpower)
 
                 if newspread > spread:
                     print("Variance move to", newspread, "accepted")
@@ -211,12 +211,11 @@ class WExplore2Resampler(Resampler):
                 item.Walker_ID = i
                 # determine  parent
                 if self.copy_struct[i] != i:
-                    item.restartpoint = self.walkers[self.copy_struct[i]].
-                    restartpoint
+                    item.restartpoint = self.walkers[self.copy_struct[i]].restartpoint
                     item.parent_ID = self.copy_struct[i]
                 else:
                     item.restartpoint = self.walkers[i].restartpoint
                     item.parent_ID = i
                 item.weight = self.walkerwt[i]
                 self.walkers[i] = item
-        return self.walkers, self.resampler_record
+        return self.walkers, self.resampler_records
