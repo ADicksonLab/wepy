@@ -208,7 +208,7 @@ class WExplore2Resampler(Resampler):
         self.walkers = walkers
         self.n_walkers = len(self.walkers)
         self.walkerwt = [ walker.weight for walker in self.walkers]
-        self.copy_struct = [ i for i in range(self.nwalk) ]
+        self.copy_struct = [ i for i in range(self.n_walkers) ]
         self.amp =[ 1 for i in range(self.n_walkers)]
         self.distancearray = np.zeros((self.n_walkers, self.n_walkers))
         self.resampler_records = [() for i in range(self.n_walkers)]
