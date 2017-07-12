@@ -1,7 +1,7 @@
 import math
 
 import numpy as np
-import mdtraj as md
+import mdtraj as mdj
 
 from wepy.walker import merge
 from wepy.resampling.decision import Decision
@@ -10,10 +10,10 @@ from wepy.resampling.resampler import Resampler
 
 class WExplore2Resampler(Resampler):
     def __init__(self,):
-        self.ref = md.load('sEH_TPPU_system.pdb')
+        self.ref = mdj.load('sEH_TPPU_system.pdb')
         self.ref = self.ref.remove_solvent()
         self.lig_idx = self.ref.topology.select('resname "2RV"')
-        self.b_selection = md.compute_neighbors(self.ref, 0.8, self.lig_idx)
+        self.b_selection = mdj.compute_neighbors(self.ref, 0.8, self.lig_idx)
         self.b_selection = np.delete(self.b_selection, self.lig_idx)
         self.n_walkers = None
         self.walkerwt = []
@@ -35,7 +35,7 @@ class WExplore2Resampler(Resampler):
                                                         Positions[i]._value[2]])
 
 
-        return md.Trajectory(Newxyz,self.ref.topology)
+        return mdj.Trajectory(Newxyz,self.ref.topology)
 
     def CalculateRmsd(self,ind1,ind2):
         positions1 = self.walkers[ind1][0:self.ref.n_atoms]
@@ -211,7 +211,7 @@ class WExplore2Resampler(Resampler):
         self.copy_struct = [ i for i in range(self.n_walkers) ]
         self.amp =[ 1 for i in range(self.n_walkers)]
         self.distancearray = np.zeros((self.n_walkers, self.n_walkers))
-        self.resampler_records = [() for i in range(self.n_walkers)]
+        self.resampler_records = [ None for i in range(self.n_walkers)]
         self.MakeDistanceArray()
         self.decide()
         for i in range(self.n_walkers):
