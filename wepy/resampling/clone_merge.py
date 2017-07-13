@@ -21,11 +21,10 @@ CLONE_MERGE_DECISION_INSTRUCTION_MAP = {CloneMergeDecision.NOTHING : NothingInst
                                         CloneMergeDecision.KEEP_MERGE : KeepMergeInstructionRecord}
 
 class RandomCloneMergeResampler(Resampler):
+
     def __init__(self, seed):
         self.seed = seed
         rand.seed(seed)
-
-
 
     def resample(self, walkers, debug_prints=False):
 
@@ -137,3 +136,13 @@ class RandomCloneMergeResampler(Resampler):
             # return the final state of the resampled walkers after all
             # stages, and the records of resampling
             return resampled_walkers, resampling_actions
+
+
+def clone_parent_table(clone_merge_resampling_record):
+
+    parent_table = []
+    # each cycle
+    for cycle_idx, cycle_stages in clone_merge_resampling_record:
+        # each stage in the resampling for that cycle
+        for stage_idx, stage in cycle_stages:
+            pass
