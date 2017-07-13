@@ -2,7 +2,7 @@ from collections import namedtuple
 import random as rand
 
 from wepy.walker import merge
-from wepy.resampling.decision import Decision
+from wepy.resampling.decision import CloneMergeDecision
 
 class Resampler(object):
 
@@ -17,7 +17,7 @@ class NoResampler(Resampler):
 
     def resample(self, walkers):
 
-        resampling_record = [(Decision.NOTHING, i) for i in len(walkers)]
+        resampling_record = [(CloneMergeDecision.NOTHING, i) for i in len(walkers)]
 
         return walkers, resampling_record
 
@@ -27,6 +27,7 @@ class RandomCloneMergeResampler(Resampler):
 
     def resample(self, walkers):
 
+        n_walkers = len(walkers)
         # choose number of clone-merges between 1 and 10
         n_clonemerges = rand.randint(0,10)
 
@@ -36,7 +37,7 @@ class RandomCloneMergeResampler(Resampler):
 
             # choose a random walker to clone
             clone_idx = rand.randint(0, len(walkers))
-            walker_actions[i].append(Decision.CLONE)
+            walker_actions[i].append(CloneMergeDecision.CLONE)
             clone_walker = walkers[clone_idx]
             # clone the chosen walker
             walker_clone = clone_walker.clone()
@@ -44,13 +45,13 @@ class RandomCloneMergeResampler(Resampler):
             # the walker occupying that slot will be squashed
             # can't choose the same slot it is in
             squash_idx = rand.choice(set(range(n_walkers)).difference(clone_idx))
-            walker_actions[i].append(Decision.SQUASH)
+            walker_actions[i].append(CloneMergeDecision.SQUASH)
             squash_walker = walkers[squash_idx]
 
             # find a random merge target that is not either of the
             # cloned walkers
             merge_idx = rand.choice(set(range(n_walkers)).difference([clone_idx, squash_idx]))
-            walker_actions[i].append(Decision.KEEP_MERGE)
+            walker_actions[i].append(CloneMergeDecision.KEEP_MERGE)
             merge_walker = walkers[merge_idx]
 
             # merge the squashed walker with the keep_merge walker
@@ -64,7 +65,7 @@ class RandomCloneMergeResampler(Resampler):
                 elif idx == merge_idx:
                     resampled_walkers.append(merged_walker)
                 else:
-                    resample_walkers.append(walker)
+                    resampled_walkers.append(walker)
 
 
             return resampled_walkers, resampling_records
