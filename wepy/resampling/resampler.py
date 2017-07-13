@@ -117,5 +117,5 @@ class RandomCloneMergeResampler(Resampler):
 
 
 
-        return resampled_walkers, walker_actions
+        return resampled_walkers, resampling_actions
 
