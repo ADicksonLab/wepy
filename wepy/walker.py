@@ -5,11 +5,14 @@ def merge(walkers):
 
     weights = [walker.weight for walker in walkers]
     # choose a walker according to their weights
-    keep_walker = random.choices(walkers, weights=weights)
+    keep_walker = rand.choices(walkers, weights=weights)
     # index of the kept walker
     keep_idx = walkers.index(keep_walker)
+
+    # TODO do we need this?
     # the others are "squashed" and we lose their state
     squashed_walkers = set(walkers).difference(keep_walker)
+
     # but we add their weight to the new walker
     new_weight = sum(weights)
     # create a new walker with the keep_walker state
