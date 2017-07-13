@@ -4,6 +4,8 @@ import simtk.openmm.app as omma
 import simtk.openmm as omm
 import simtk.unit as unit
 
+import mdtraj as mdj
+
 import scoop.futures
 
 from wepy.sim_manager import Manager
@@ -70,7 +72,8 @@ if __name__ == "__main__":
     runner = OpenMMRunner(system, psf.topology)
 
     # set up the Resampler (with parameters if needed)
-    resampler = WExplore2Resampler()
+    ref_traj = mdj.load('sEH_TPPU_system.pdb')
+    resampler = WExplore2Resampler(refrence_trajectory=ref_traj)
 
     # Instantiate a simulation manager
     sim_manager = Manager(init_walkers,
@@ -80,6 +83,6 @@ if __name__ == "__main__":
                           work_mapper=scoop.futures.map)
 
     # run a simulation with the manager for 3 cycles of length 1000 each
-    walker_records, resampling_records = sim_manager.run_simulation(3,
+    walker_records, resampling_records = sim_manager.run_simulation(1,
                                                                     [1000, 1000, 1000],
                                                                     debug_prints=True)

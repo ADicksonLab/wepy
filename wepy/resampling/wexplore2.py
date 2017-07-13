@@ -9,8 +9,8 @@ from wepy.resampling.resampler import Resampler
 
 
 class WExplore2Resampler(Resampler):
-    def __init__(self,):
-        self.ref = mdj.load('sEH_TPPU_system.pdb')
+    def __init__(self,refrence_trajectory):
+        self.ref = refrence_trajectory
         self.ref = self.ref.remove_solvent()
         self.lig_idx = self.ref.topology.select('resname "2RV"')
         self.b_selection = mdj.compute_neighbors(self.ref, 0.8, self.lig_idx)
@@ -18,10 +18,9 @@ class WExplore2Resampler(Resampler):
         self.n_walkers = None
         self.walkerwt = []
         self.walkers = []
-        self.copy_struct = []
         self.amp = []
         self.distancearray = None
-        self.resampler_records = []
+        self.resampling_records = []
         
     def __rmsd(self, traj, ref, idx):
         return np.sqrt(3*np.sum(np.square(traj.xyz[:, idx, :] - ref.xyz[:, idx, :]),
@@ -76,12 +75,12 @@ class WExplore2Resampler(Resampler):
         self.walkerwt[i] = 0
         self.amp[i] = 0
         self.amp[j] = 1
-        self.resampler_records[i](Decision.SQUSH, j)
-        self.resampler_records[j][0] = (Decision.KEEP_MERGE, j)
+        self.resampling_records[i](Decision.SQUSH, j)
+        self.resampling_records[j][0] = (Decision.KEEP_MERGE, j)
 
     def __copystructure(self, a, b):
         # this function will copy the simulation details from walker a to walker b
-        self.copy_struct[a] = b
+        self.walkers[b].state = self.walkers[a].state
 
     def decide(self,):
         pmin = 1e-12
@@ -168,7 +167,7 @@ class WExplore2Resampler(Resampler):
             if self.amp[r1walk] == 0:
                 freewalkers.append(r1walk)
             if self.amp[r1walk] == 1:
-                self.resampler_records[r1walk] = (Decision.NOTHING, r1walk)
+                self.resampling_records[r1walk] = (Decision.NOTHING, r1walk)
 
         # for each self.amp[i] > 1, clone!
         for r1walk in range(0, self.n_walkers):
@@ -184,7 +183,7 @@ class WExplore2Resampler(Resampler):
                         raise("Error!  free walker is equal to the clone!")
                     else:
                         inds.append(tind)
-                self.resampler_records[r1walk] = (Decision.CLONE, inds)
+                
 
                 newwt = self.walkerwt[r1walk]/(nclone+1)
                 self.walkerwt[r1walk] = newwt
@@ -193,29 +192,25 @@ class WExplore2Resampler(Resampler):
                     walkerdist[tind] = walkerdist[r1walk]
                     self.__copystructure(r1walk, tind)
                     # done cloning and meging
+                # add r1walka index just for keeping tracks of cloning
+                inds.append(r1walk)    
+                self.resampling_records[r1walk] = (Decision.CLONE, inds)    
             if len(freewalkers) > 0:
                 raise("Error! walkers left over after merging and cloning")
                 
     def resample(self, walkers):
+        print( "start resampling")
+        for w in walkers :
+            print (w.weight)
         self.walkers = walkers
         self.n_walkers = len(self.walkers)
+        print (self.n_walkers)
         self.walkerwt = [walker.weight for walker in self.walkers]
-        self.copy_struct = [i for i in range(self.n_walkers)]
         self.amp = [1 for i in range(self.n_walkers)]
         self.distancearray = np.zeros((self.n_walkers, self.n_walkers))
-        self.resampler_records = [None for i in range(self.n_walkers)]
+        self.resampling_records = [None for i in range(self.n_walkers)]
         self.MakeDistanceArray()
         self.decide()
-        for i in range(self.n_walkers):
-                item = self.walkers[i]
-                item.Walker_ID = i
-                # determine  parent
-                if self.copy_struct[i] != i:
-                    item.restartpoint = self.walkers[self.copy_struct[i]].restartpoint
-                    item.parent_ID = self.copy_struct[i]
-                else:
-                    item.restartpoint = self.walkers[i].restartpoint
-                    item.parent_ID = i
-                item.weight = self.walkerwt[i]
-                self.walkers[i] = item
-        return self.walkers, self.resampler_records
+        for w in self.walkers:
+            w.weight = self.walkerwt[i]
+        return self.walkers, self.resampling_records
