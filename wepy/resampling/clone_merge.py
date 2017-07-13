@@ -46,7 +46,7 @@ class RandomCloneMergeResampler(Resampler):
 
 
             # choose a random walker to clone
-            clone_idx = rand.randint(0, len(walkers))
+            clone_idx = rand.randint(0, len(walkers)-1)
 
             clone_walker = walkers[clone_idx]
 
@@ -131,12 +131,9 @@ class RandomCloneMergeResampler(Resampler):
                 print(walker_weight_str)
 
 
-        # return the final state of the resampled walkers after all
-        # stages, and the records of resampling
-        return resampled_walkers, resampling_actions
-
-
-
-
-
-
+        if n_clone_merges == 0:
+            return walkers, []
+        else:
+            # return the final state of the resampled walkers after all
+            # stages, and the records of resampling
+            return resampled_walkers, resampling_actions

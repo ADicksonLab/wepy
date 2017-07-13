@@ -27,14 +27,18 @@ walker_weight_str = result_template_str.format("weight",
 print(walker_weight_str)
 
 # do resampling of the initial walkers
+num_resamplings = 100
 resampled_walkers = []
 resampling_records = []
 walkers = init_walkers
-for i in range(3):
+for i in range(num_resamplings):
     print("---------------------------------------------------------------------------------------")
     print("cycle: {}".format(i))
     # do resampling
     cycle_walkers, cycle_records = resampler.resample(walkers, debug_prints=True)
+
+    # reset the walkers to these cycle walkers
+    walkers = cycle_walkers
 
     # save the walkers
     resampled_walkers.append(cycle_walkers)
