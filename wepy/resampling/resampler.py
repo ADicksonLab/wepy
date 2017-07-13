@@ -69,6 +69,3 @@ class RandomCloneMergeResampler(Resampler):
 
             return resampled_walkers, resampling_records
 
-class WExploreResampler(Resampler):
-    pass
-
