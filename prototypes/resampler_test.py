@@ -1,5 +1,5 @@
 from wepy.walker import Walker
-from wepy.resampling.resampler import RandomCloneMergeResampler
+from wepy.resampling.clone_merge import RandomCloneMergeResampler
 
 n_walkers = 8
 init_weight = 1.0 / n_walkers

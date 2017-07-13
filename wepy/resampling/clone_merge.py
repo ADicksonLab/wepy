@@ -2,7 +2,7 @@ from collections import namedtuple
 import random as rand
 
 from wepy.resampling.decision import Decision
-from wepy.resampling.resampler import Resampler
+from wepy.resampling.resampler import Resampler, ResamplingRecord
 
 class CloneMergeDecision(Decision):
     NOTHING = 1
@@ -85,12 +85,26 @@ class RandomCloneMergeResampler(Resampler):
                     # if they did not move put them back where they were
                     resampled_walkers.append(walker)
 
+            # reset the walkers for the next step as the resampled walkers
+            walkers = resampled_walkers
+
             # make the decision records for this stage of resampling
             # initialize to CloneMergeDecision.NOTHING, and their starting index
-            walker_actions = [(CloneMergeDecision.NOTHING, i) for i in range(n_walkers)]
-            walker_actions[clone_idx] = (CloneMergeDecision.CLONE, [clone_idx, squash_idx])
-            walker_actions[squash_idx] = (CloneMergeDecision.SQUASH, merge_idx)
-            walker_actions[merge_idx] = (CloneMergeDecision.KEEP_MERGE, merge_idx)
+            walker_actions = [ResamplingRecord(decision=CloneMergeDecision.NOTHING,
+                                               value=NothingInstructionRecord(slot=i))
+                              for i in range(n_walkers)]
+            # for the cloned one make a record for the instruction
+            walker_actions[clone_idx] = ResamplingRecord(
+                decision=CloneMergeDecision.CLONE,
+                value = CloneInstructionRecord(slot_a=clone_idx, slot_b=squash_idx))
+            # for the squashed walker
+            walker_actions[squash_idx] = ResamplingRecord(
+                decision=CloneMergeDecision.SQUASH,
+                value=SquashInstructionRecord(merge_slot=merge_idx))
+            # for the keep-merged walker
+            walker_actions[merge_idx] = ResamplingRecord(
+                decision=CloneMergeDecision.KEEP_MERGE,
+                value=KeepMergeInstructionRecord(slot=merge_idx))
 
             resampling_actions.append(walker_actions)
 
@@ -105,7 +119,7 @@ class RandomCloneMergeResampler(Resampler):
                     *[str(tup[0].name) for tup in walker_actions])
                 print(action_str)
                 data_str = result_template_str.format("instruct",
-                    *[str(tup[1]) for tup in walker_actions])
+                    *[','.join([str(i) for i in tup[1]]) for tup in walker_actions])
                 print(data_str)
 
                 # print the state of the walkers at this stage of resampling
@@ -117,7 +131,8 @@ class RandomCloneMergeResampler(Resampler):
                 print(walker_weight_str)
 
 
-
+        # return the final state of the resampled walkers after all
+        # stages, and the records of resampling
         return resampled_walkers, resampling_actions
 
 
