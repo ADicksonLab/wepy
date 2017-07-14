@@ -27,7 +27,7 @@ class WExplore2Resampler(Resampler):
                                 axis=(1, 2))/idx.shape[0])
 
 
-    def __Maketraj(self, Positions):
+    def __Maketraj(self, positions):
         Newxyz = np.zeros((1, self.ref.n_atoms, 3))
         for i in range(len(positions)):
             Newxyz[0,i,:] = ([positions[i]._value[0], positions[i]._value[1],
@@ -35,8 +35,8 @@ class WExplore2Resampler(Resampler):
         return mdj.Trajectory(Newxyz, self.ref.topology)
 
     def CalculateRmsd(self, ind1, ind2):
-        positions1 = self.walkers[ind1][0:self.ref.n_atoms]
-        positions2 = self.walkers[ind2][0:self.ref.n_atoms]
+        positions1 = self.walkers[ind1].positions[0:self.ref.n_atoms]
+        positions2 = self.walkers[ind2].positions[0:self.ref.n_atoms]
         ref_traj = self.__Maketraj(positions1)
         traj = self.__Maketraj(positions2)
         traj = traj.superpose(ref_traj, atom_indices = self.b_selection)
@@ -199,18 +199,21 @@ class WExplore2Resampler(Resampler):
                 raise("Error! walkers left over after merging and cloning")
                 
     def resample(self, walkers):
-        print( "start resampling")
-        for w in walkers :
-            print (w.weight)
+        
+        print ("Starting resampling") 
+
         self.walkers = walkers
         self.n_walkers = len(self.walkers)
-        print (self.n_walkers)
         self.walkerwt = [walker.weight for walker in self.walkers]
         self.amp = [1 for i in range(self.n_walkers)]
         self.distancearray = np.zeros((self.n_walkers, self.n_walkers))
         self.resampling_records = [None for i in range(self.n_walkers)]
         self.MakeDistanceArray()
         self.decide()
-        for w in self.walkers:
-            w.weight = self.walkerwt[i]
+        
+        for i in range(self.n_walkers):
+            self.walkers[i].weight = self.walkerwt[i]
+            
+        print ("Ending resampling")
+        
         return self.walkers, self.resampling_records

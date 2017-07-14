@@ -66,7 +66,7 @@ if __name__ == "__main__":
     # initial weights
     init_weight = 1.0 / num_walkers
     # make a generator for the initial walkers
-    init_walkers = (OpenMMWalker(minimized_state, init_weight) for i in range(num_walkers))
+    init_walkers = [OpenMMWalker(minimized_state, init_weight) for i in range(num_walkers)]
 
     # set up the OpenMMRunner with your system
     runner = OpenMMRunner(system, psf.topology)
@@ -80,9 +80,9 @@ if __name__ == "__main__":
                           num_workers,
                           runner=runner,
                           resampler=resampler,
-                          work_mapper=scoop.futures.map)
+                          work_mapper=map)
 
     # run a simulation with the manager for 3 cycles of length 1000 each
-    walker_records, resampling_records = sim_manager.run_simulation(1,
+    walker_records, resampling_records = sim_manager.run_simulation(3,
                                                                     [1000, 1000, 1000],
                                                                     debug_prints=True)
