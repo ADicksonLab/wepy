@@ -4,9 +4,8 @@ import numpy as np
 import mdtraj as mdj
 
 from wepy.walker import merge
-from wepy.resampling.decision import Decision
-from wepy.resampling.resampler import Resampler
-
+from wepy.resampling.clone_merge import CloneMergeDecision
+from wepy.resampling.resampler import Resampler, ResamplingRecord
 
 class WExplore2Resampler(Resampler):
     def __init__(self,refrence_trajectory):
@@ -23,23 +22,23 @@ class WExplore2Resampler(Resampler):
                                 axis=(1, 2))/idx.shape[0])
 
 
-    def __Maketraj(self, positions, topology,n_atoms):
+    def __Maketraj(self, positions):
         Newxyz = np.zeros((1, self.ref.n_atoms, 3))
         for i in range(len(positions)):
             Newxyz[0,i,:] = ([positions[i]._value[0], positions[i]._value[1],
                                                         positions[i]._value[2]])
-        return mdj.Trajectory(Newxyz, ref.topology)
+        return mdj.Trajectory(Newxyz, self.ref.topology)
 
     def CalculateRmsd(self, positions1, positions2):
-        ref = self.ref.remove_solvent()
-        lig_idx = ref.topology.select('resname "2RV"')
-        b_selection = mdj.compute_neighbors(ref, 0.8, lig_idx)
+        self.ref =self.ref.remove_solvent()
+        lig_idx = self.ref.topology.select('resname "2RV"')
+        b_selection = mdj.compute_neighbors(self.ref, 0.8, lig_idx)
         b_selection = np.delete(b_selection, lig_idx)
      
-        ref_traj = __Maketraj(positions1[0:ref.n_atoms],ref.topology,ref.n_atoms)
-        traj = __Maketraj(positions2[0:ref.n_atoms], ref.topology,ref.n_atoms)
+        ref_traj =self.__Maketraj(positions1[0:self.ref.n_atoms])
+        traj = self.__Maketraj(positions2[0:self.ref.n_atoms])
         traj = traj.superpose(ref_traj, atom_indices = b_selection)
-        return __rmsd(traj, ref_traj, lig_idx)
+        return self.__rmsd(traj, ref_traj, lig_idx)
 
     
     def __calcspread(self, lpmin, dpower):
@@ -70,8 +69,12 @@ class WExplore2Resampler(Resampler):
         self.walkerwt[i] = 0
         self.amp[i] = 0
         self.amp[j] = 1
-        self.resampling_records[i](Decision.SQUSH, j)
-        self.resampling_records[j][0] = (Decision.KEEP_MERGE, j)
+        self.resampling_records[i] = ResamplingRecord(
+                                    decision=CloneMergeDecision.SQUASH,
+                                    value = j)
+        self.resampling_records[j] = ResamplingRecord(
+                                    decision=CloneMergeDecision.KEEP_MERGE,
+                                    value = j)
 
     def __copystructure(self, a, b):
         # this function will copy the simulation details from walker a to walker b
@@ -127,7 +130,7 @@ class WExplore2Resampler(Resampler):
                 self.amp[maxwind] += 1
 
                 # re-determine spread function, and wsum values
-                (newspread, wsum) = self.__calcspread(lpmin, dpower)
+                (newspread, wsum) = __calcspread(lpmin, dpower)
 
                 if newspread > spread:
                     print("Variance move to", newspread, "accepted")
@@ -143,7 +146,7 @@ class WExplore2Resampler(Resampler):
                         # keep minwind, get rid of closewalk
                         self.__merge(closewalk, minwind)
 
-                    (newspread, wsum) = self.__calcspread(lpmin, dpower)
+                    (newspread, wsum) = __calcspread(lpmin, dpower)
                     print("variance after selection:", newspread)
                 # Not productive
                 else:
@@ -161,8 +164,7 @@ class WExplore2Resampler(Resampler):
         for r1walk in range(0, self.n_walkers):
             if self.amp[r1walk] == 0:
                 freewalkers.append(r1walk)
-            if self.amp[r1walk] == 1:
-                self.resampling_records[r1walk] = (Decision.NOTHING, r1walk)
+        
 
         # for each self.amp[i] > 1, clone!
         for r1walk in range(0, self.n_walkers):
@@ -189,7 +191,10 @@ class WExplore2Resampler(Resampler):
                     # done cloning and meging
                 # add r1walka index just for keeping tracks of cloning
                 inds.append(r1walk)    
-                self.resampling_records[r1walk] = (Decision.CLONE, inds)    
+                self.resampling_records[r1walk] = ResamplingRecord(
+                                    decision=CloneMergeDecision.CLONE,
+                                    value = inds)
+    
             if len(freewalkers) > 0:
                 raise("Error! walkers left over after merging and cloning")
                 
@@ -202,10 +207,14 @@ class WExplore2Resampler(Resampler):
         self.walkerwt = [walker.weight for walker in self.walkers]
         self.amp = [1 for i in range(self.n_walkers)]
         self.distancearray = np.zeros((self.n_walkers, self.n_walkers))
-        self.resampling_records = [None for i in range(self.n_walkers)]
+        self.resampling_records = [ResamplingRecord(decision=CloneMergeDecision.NOTHING,                                                                                                                                    value=i)
+                                   for i in range(self.n_walkers)]
+        
         for i in range(self.n_walkers):
             for j in range (i+1, self.n_walkers):
-                self.distancearray[i][j] = CalculateRmsd(self.walkers[ind1].positions, self.walkers[j].positions)
+                self.distancearray[i][j] = self.CalculateRmsd(self.walkers[i].positions, self.walkers[j].positions)
+
+                
         self.decide()
         for i in range(self.n_walkers):
             self.walkers[i].weight = self.walkerwt[i]
