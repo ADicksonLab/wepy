@@ -1,5 +1,8 @@
+import numpy as np
+
 from wepy.walker import Walker
 from wepy.resampling.clone_merge import RandomCloneMergeResampler
+from wepy.resampling.clone_merge import clone_parent_table, clone_parent_panel
 
 n_walkers = 8
 init_weight = 1.0 / n_walkers
@@ -59,3 +62,10 @@ for i in range(num_resamplings):
     walker_weight_str = result_template_str.format("weight",
         *[str(walker.weight) for walker in cycle_walkers])
     print(walker_weight_str)
+
+
+# write the output to a parent panel of all merges and clones within cycles
+parent_panel = clone_parent_panel(resampling_records)
+
+# write out the net parents for each cycle to a table
+parent_table = np.array(clone_parent_table(resampling_records))
