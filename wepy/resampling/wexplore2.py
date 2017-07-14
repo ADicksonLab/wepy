@@ -11,10 +11,6 @@ from wepy.resampling.resampler import Resampler
 class WExplore2Resampler(Resampler):
     def __init__(self,refrence_trajectory):
         self.ref = refrence_trajectory
-        self.ref = self.ref.remove_solvent()
-        self.lig_idx = self.ref.topology.select('resname "2RV"')
-        self.b_selection = mdj.compute_neighbors(self.ref, 0.8, self.lig_idx)
-        self.b_selection = np.delete(self.b_selection, self.lig_idx)
         self.n_walkers = None
         self.walkerwt = []
         self.walkers = []
@@ -27,26 +23,25 @@ class WExplore2Resampler(Resampler):
                                 axis=(1, 2))/idx.shape[0])
 
 
-    def __Maketraj(self, positions):
+    def __Maketraj(self, positions, topology,n_atoms):
         Newxyz = np.zeros((1, self.ref.n_atoms, 3))
         for i in range(len(positions)):
             Newxyz[0,i,:] = ([positions[i]._value[0], positions[i]._value[1],
                                                         positions[i]._value[2]])
-        return mdj.Trajectory(Newxyz, self.ref.topology)
+        return mdj.Trajectory(Newxyz, ref.topology)
 
-    def CalculateRmsd(self, ind1, ind2):
-        positions1 = self.walkers[ind1].positions[0:self.ref.n_atoms]
-        positions2 = self.walkers[ind2].positions[0:self.ref.n_atoms]
-        ref_traj = self.__Maketraj(positions1)
-        traj = self.__Maketraj(positions2)
-        traj = traj.superpose(ref_traj, atom_indices = self.b_selection)
-        return self.__rmsd(traj, ref_traj, self.lig_idx)
+    def CalculateRmsd(self, positions1, positions2):
+        ref = self.ref.remove_solvent()
+        lig_idx = ref.topology.select('resname "2RV"')
+        b_selection = mdj.compute_neighbors(ref, 0.8, lig_idx)
+        b_selection = np.delete(b_selection, lig_idx)
+     
+        ref_traj = __Maketraj(positions1[0:ref.n_atoms],ref.topology,ref.n_atoms)
+        traj = __Maketraj(positions2[0:ref.n_atoms], ref.topology,ref.n_atoms)
+        traj = traj.superpose(ref_traj, atom_indices = b_selection)
+        return __rmsd(traj, ref_traj, lig_idx)
 
-    def MakeDistanceArray(self,):
-        for i in range(self.n_walkers):
-            for j in range (i+1, self.n_walkers):
-                self.distancearray[i][j] = self.CalculateRmsd(i, j)
-
+    
     def __calcspread(self, lpmin, dpower):
         spread = 0
         wsum = np.zeros(self.n_walkers)
@@ -208,9 +203,10 @@ class WExplore2Resampler(Resampler):
         self.amp = [1 for i in range(self.n_walkers)]
         self.distancearray = np.zeros((self.n_walkers, self.n_walkers))
         self.resampling_records = [None for i in range(self.n_walkers)]
-        self.MakeDistanceArray()
+        for i in range(self.n_walkers):
+            for j in range (i+1, self.n_walkers):
+                self.distancearray[i][j] = CalculateRmsd(self.walkers[ind1].positions, self.walkers[j].positions)
         self.decide()
-        
         for i in range(self.n_walkers):
             self.walkers[i].weight = self.walkerwt[i]
             
