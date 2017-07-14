@@ -18,6 +18,6 @@ class NoResampler(Resampler):
     def resample(self, walkers):
 
         resampling_records = [ResamplingRecord(decision=Decision.FALSE, value=i)
-                             for i in len(walkers)]
+                             for i in range(len(walkers))]
 
         return walkers, [resampling_records]
