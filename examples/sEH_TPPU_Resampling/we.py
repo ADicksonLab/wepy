@@ -1,4 +1,5 @@
 import sys
+import multiprocessing as mulproc
 
 import simtk.openmm.app as omma
 import simtk.openmm as omm
@@ -19,7 +20,7 @@ if __name__ == "__main__":
     psf = omma.CharmmPsfFile('sEH_TPPU_system.psf')
 
     # load the coordinates
-    pdb = omma.PDBFile('sEH_TPPU_system.pdb')
+    pdb = mdj.load_pdb('sEH_TPPU_system.pdb')
 
     # to use charmm forcefields get your parameters
     params = omma.CharmmParameterSet('all36_cgenff.rtf',
@@ -48,7 +49,7 @@ if __name__ == "__main__":
     # instantiate a simulation object
     simulation = omma.Simulation(psf.topology, system, integrator)
     # initialize the positions
-    simulation.context.setPositions(pdb.positions)
+    simulation.context.setPositions(pdb.openmm_positions(frame=0))
     # minimize the energy
     simulation.minimizeEnergy()
     # run the simulation for a number of initial time steps
@@ -72,15 +73,17 @@ if __name__ == "__main__":
     runner = OpenMMRunner(system, psf.topology)
 
     # set up the Resampler (with parameters if needed)
-    ref_traj = mdj.load('sEH_TPPU_system.pdb')
-    resampler = WExplore2Resampler(refrence_trajectory=ref_traj)
+
+    resampler = WExplore2Resampler(refrence_trajectory=pdb)
+
+   
 
     # Instantiate a simulation manager
     sim_manager = Manager(init_walkers,
                           num_workers,
                           runner=runner,
                           resampler=resampler,
-                          work_mapper=map)
+                          work_mapper= map)
 
     # run a simulation with the manager for 3 cycles of length 1000 each
     walker_records, resampling_records = sim_manager.run_simulation(3,

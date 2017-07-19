@@ -43,6 +43,53 @@ class OpenMMRunner(Runner):
 
         return new_walker
 
+class OpenMMRunnerParallel(Runner):
+    
+    def __init__(self, system, topology):
+        self.system = system
+        self.topology = topology
+
+    def run_segment(self, walker, segment_length, gpu_index=0):
+
+        # instantiate a CUDA platform with gpu_index number 
+        platform = omm.Platform.getPlatformByName('CUDA')
+        platform.setPropertyDefaultValue('Precision', 'single')
+        platform.setPropertyDefaultValue('DeviceIndex',str(gpu_index))
+       # print ('gpuindex= ',gpu_index)
+        
+        # TODO can we do this outside of this?
+        # instantiate an integrator
+        integrator = omm.LangevinIntegrator(300*unit.kelvin,
+                                            1/unit.picosecond,
+                                            0.002*unit.picoseconds)
+        
+
+        print ("satrt running ", gpu_index)
+        # instantiate a simulation object
+        simulation = omma.Simulation(self.topology, self.system, integrator, platform)
+
+        # initialize the positions
+        simulation.context.setPositions(walker.positions)
+
+        # run the simulation segment for the number of time steps
+        simulation.step(segment_length)
+
+        # save the state of the system with all possible values
+        new_state = simulation.context.getState(getPositions=True,
+                                            getVelocities=True,
+                                            getParameters=True,
+                                            getParameterDerivatives=True,
+                                            getForces=True,
+                                            getEnergy=True,
+                                            enforcePeriodicBox=True
+                                            )
+
+        # create a new walker for this
+        new_walker = OpenMMWalker(new_state, walker.weight)
+        print ("finished running")
+
+        return new_walker
+ 
 
 class OpenMMWalker(Walker):
 
