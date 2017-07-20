@@ -1,6 +1,4 @@
 import sys
-import multiprocessing as mulproc
-import threading
 
 import simtk.openmm.app as omma
 import simtk.openmm as omm
@@ -8,47 +6,12 @@ import simtk.unit as unit
 
 import mdtraj as mdj
 
-import scoop.futures
+
 
 from wepy.sim_manager import Manager
 from wepy.resampling.wexplore2  import WExplore2Resampler
 from wepy.openmm import OpenMMRunner, OpenMMWalker ,OpenMMRunnerParallel
-
-
-
-class hpcc:
-    def __init__(self,n_workers):
-        
-        self.free_workers= mulproc.Queue()
-        self.lock = mulproc.Semaphore (n_workers)
-        self.results_list = mulproc.Manager().list()
-        for i in range (n_workers):         
-            self.free_workers.put(i)
-            
-    def exec_call (self,_call_, *args):
-        # gets a free GUP and calls the runable function 
-        self.lock.acquire()
-        gpuindex = self.free_workers.get()
-        args += (gpuindex,)
-        result = _call_(*args)
-        self.free_workers.put(gpuindex)
-        self.lock.release()
-        self.results_list.append(result)
-        
-    def map(self,_call_, *iterables):
-        walkers_pool = [ ]
-        
-        # create processes and start to run 
-        for args in zip(*iterables):
-            p = mulproc.Process(target=self.exec_call, args=(_call_, *args))
-            walkers_pool.append(p)
-            p.start()
-            
-        for p in walkers_pool:
-            p.join()
-
-        return self.results_list
-    
+from wepy.gpumapper import GpuMapper
     
 if __name__ == "__main__":
 
@@ -102,8 +65,8 @@ if __name__ == "__main__":
                                                   getParameters=True)
 
     # set up parameters for running the simulation
-    num_workers = 8
-    num_walkers = 8
+    num_workers = 3
+    num_walkers = 3
     # initial weights
     init_weight = 1.0 / num_walkers
      # make a generator for the in itial walkers
@@ -117,7 +80,7 @@ if __name__ == "__main__":
     resampler = WExplore2Resampler(refrence_trajectory=pdb)
 
     # instantiate a hpcc object
-    hpccmapper = hpcc (num_workers)
+    hpccmapper = GpuMapper(num_workers)
 
     # Instantiate a simulation manager
     sim_manager = Manager(init_walkers,
@@ -127,7 +90,7 @@ if __name__ == "__main__":
                           work_mapper= hpccmapper.map)
 
     # run a simulation with the manager for 3 cycles of length 1000 each
-    walker_records, resampling_records = sim_manager.run_simulation(3,
+    walker_records, resampling_records = sim_manager.run_simulation(1,
                                                                     [1000, 1000, 1000],
                                                                     debug_prints=True)
     # walker_records, resampling_records = sim_manager.run_simulation(1,
