@@ -32,6 +32,5 @@ class GpuMapper:
             
         for p in walkers_pool:
             p.join()
-
-        print ( "finshed segments")
+            
         return self.results_list

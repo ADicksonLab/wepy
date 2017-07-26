@@ -90,7 +90,7 @@ if __name__ == "__main__":
                           work_mapper= hpccmapper.map)
 
     # run a simulation with the manager for 3 cycles of length 1000 each
-    walker_records, resampling_records = sim_manager.run_simulation(1,
+    walker_records, resampling_records = sim_manager.run_simulation(3,
                                                                     [1000, 1000, 1000],
                                                                     debug_prints=True)
     # walker_records, resampling_records = sim_manager.run_simulation(1,

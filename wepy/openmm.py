@@ -64,7 +64,7 @@ class OpenMMRunnerParallel(Runner):
                                             0.002*unit.picoseconds)
         
 
-        print ("satrt running ", gpu_index)
+        
         # instantiate a simulation object
         simulation = omma.Simulation(self.topology, self.system, integrator, platform)
 
@@ -86,7 +86,7 @@ class OpenMMRunnerParallel(Runner):
 
         # create a new walker for this
         new_walker = OpenMMWalker(new_state, walker.weight)
-        print ("finished running")
+        
 
         return new_walker
  
