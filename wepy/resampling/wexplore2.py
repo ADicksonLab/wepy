@@ -1,4 +1,5 @@
 import math
+import multiprocessing as mulproc
 
 import numpy as np
 import mdtraj as mdj
@@ -29,17 +30,20 @@ class WExplore2Resampler(Resampler):
                                                         positions[i]._value[2]])
         return mdj.Trajectory(Newxyz, self.ref.topology)
 
-    def CalculateRmsd(self, positions1, positions2):
+ 
+    def CalculateRmsd(self, i, j):
         self.ref =self.ref.remove_solvent()
         lig_idx = self.ref.topology.select('resname "2RV"')
         b_selection = mdj.compute_neighbors(self.ref, 0.8, lig_idx)
         b_selection = np.delete(b_selection, lig_idx)
      
-        ref_traj =self.__Maketraj(positions1[0:self.ref.n_atoms])
-        traj = self.__Maketraj(positions2[0:self.ref.n_atoms])
+        ref_traj =self.__Maketraj(self.walkers[i].positions[0:self.ref.n_atoms])
+        traj = self.__Maketraj(self.walkers[j].positions[0:self.ref.n_atoms])
         traj = traj.superpose(ref_traj, atom_indices = b_selection)
-        return self.__rmsd(traj, ref_traj, lig_idx)
-
+        return  self.__rmsd(traj, ref_traj, lig_idx)
+ 
+    def multi_run_warpper(self, args):
+        return self.CalculateRmsd(*args)
     
     def __calcspread(self, lpmin, dpower):
         spread = 0
@@ -200,8 +204,9 @@ class WExplore2Resampler(Resampler):
                 
     def resample(self, walkers):
         
+        calc_list = []
         print ("Starting resampling") 
-
+        
         self.walkers = walkers
         self.n_walkers = len(self.walkers)
         self.walkerwt = [walker.weight for walker in self.walkers]
@@ -212,8 +217,16 @@ class WExplore2Resampler(Resampler):
         
         for i in range(self.n_walkers):
             for j in range (i+1, self.n_walkers):
-                self.distancearray[i][j] = self.CalculateRmsd(self.walkers[i].positions, self.walkers[j].positions)
+                calc_list.append((i,j))
 
+        
+        from multiprocessing import Pool
+        pool = Pool (28)
+        results = pool.map (self.multi_run_warpper, calc_list)
+        pool.close()
+        indexitem = zip(calc_list , results)
+        for index in indexitem:        
+            self.distancearray[index[0][0]][index[0][1]] = index[1]
                 
         self.decide()
         for i in range(self.n_walkers):
