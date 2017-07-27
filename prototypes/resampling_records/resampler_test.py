@@ -1,7 +1,14 @@
+import numpy as np
+
+import networkx as nx
+
 from wepy.walker import Walker
 from wepy.resampling.clone_merge import RandomCloneMergeResampler
+from wepy.resampling.clone_merge import clone_parent_table, clone_parent_panel
 
-n_walkers = 8
+from resampling_tree.tree import monte_carlo_minimization, make_graph
+
+n_walkers = 50
 init_weight = 1.0 / n_walkers
 
 init_walkers = [Walker(i, init_weight) for i in range(n_walkers)]
@@ -59,3 +66,34 @@ for i in range(num_resamplings):
     walker_weight_str = result_template_str.format("weight",
         *[str(walker.weight) for walker in cycle_walkers])
     print(walker_weight_str)
+
+
+# write the output to a parent panel of all merges and clones within cycles
+parent_panel = clone_parent_panel(resampling_records)
+
+# make a table of the net parents for each cycle to a table
+parent_table = np.array(clone_parent_table(resampling_records))
+
+# write out the table to a csv
+np.savetxt("parents.dat", parent_table)
+
+# make a weights table for the walkers
+weights = []
+for cycle in resampled_walkers:
+    cycle_weights = [walker.weight for walker in cycle]
+    weights.append(cycle_weights)
+weights = np.array(weights)
+
+# create a tree visualization
+# make a distance array of equal distances from scratch
+distances = []
+for cycle in resampled_walkers:
+    d_matrix = np.ones((len(cycle), len(cycle)))
+    distances.append(d_matrix)
+distances = np.array(distances)
+
+node_positions = monte_carlo_minimization(parent_table, distances, weights, 50, debug=True)
+nx_graph = make_graph(parent_table, node_positions,
+                          weight=weights)
+
+nx.write_gexf(nx_graph, "random_resampler_tree.gexf")
