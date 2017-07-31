@@ -12,8 +12,9 @@ class CloneMergeDecision(Decision):
 
 class RandomCloneMergeResampler(Resampler):
 
-    def __init__(self, seed):
+    def __init__(self, seed, n_resamplings=10):
         self.seed = seed
+        self.n_resamplings = n_resamplings
         rand.seed(seed)
 
     def resample(self, walkers, debug_prints=False):
@@ -21,7 +22,7 @@ class RandomCloneMergeResampler(Resampler):
         n_walkers = len(walkers)
         result_template_str = "|".join(["{:^10}" for i in range(n_walkers+1)])
         # choose number of clone-merges between 1 and 10
-        n_clone_merges = rand.randint(0,10)
+        n_clone_merges = rand.randint(0, self.n_resamplings)
 
         if debug_prints:
             print("Number of clone-merges to perform: {}".format(n_clone_merges))

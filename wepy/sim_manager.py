@@ -3,6 +3,18 @@ import sys
 from wepy.resampling.resampler import NoResampler
 from wepy.runner import NoRunner
 
+class CountingIterator(object):
+    def __init__(self, iterable):
+        self.indices = []
+        self.iterable = self.count(iterable)
+
+    def count(self, iterable):
+        xs = []
+        for i, x in enumerate(iterable):
+            self.indices.append(i)
+            xs.append(x)
+        return (x for x in xs)
+
 class Manager(object):
 
     def __init__(self, init_walkers, num_workers,
@@ -10,8 +22,9 @@ class Manager(object):
                  resampler = NoResampler(),
                  work_mapper = map):
 
-        # the initial walkers
         self.init_walkers = init_walkers
+        self.n_init_walkers = len(init_walkers)
+
         # the number of cores to use
         self.num_workers = num_workers
         # the runner is the object that runs dynamics
@@ -24,32 +37,14 @@ class Manager(object):
     def run_segment(self, walkers, segment_length, debug_prints=False):
         """Run a time segment for all walkers using the available workers. """
 
-        # we need to count the number of things in the walkers without
-        # keeping them in memory, we make a class that reads all the
-        # things in the generator makes an index list and then puts
-        # the contents back into a generator
-        class CountingIterator(object):
-            def __init__(self, iterable):
-                self.indices = []
-                self.iterable = self.count(iterable)
-
-            def count(self, iterable):
-                xs = []
-                for i, x in enumerate(iterable):
-                    self.indices.append(i)
-                    xs.append(x)
-                return (x for x in xs)
-
-        counting_it = CountingIterator(walkers)
-        walkers = counting_it.iterable
-        indices = counting_it.indices
+        num_walkers = len(walkers)
 
         if debug_prints:
             sys.stdout.write("Starting segment\n")
 
         new_walkers = list(self.map(self.runner.run_segment,
                                     walkers,
-                                    (segment_length for i in indices)
+                                    (segment_length for i in range(num_walkers))
                                    )
                           )
         if debug_prints:
@@ -65,9 +60,11 @@ class Manager(object):
         """
 
         if debug_prints:
+            result_template_str = "|".join(["{:^10}" for i in range(self.n_init_walkers + 1)])
             sys.stdout.write("Starting simulation\n")
+
         walkers = self.init_walkers
-        walker_records = [[walker for walker in walkers]]
+        walker_records = [walkers]
         resampling_records = []
         for cycle_idx in range(n_cycles):
 
@@ -81,11 +78,29 @@ class Manager(object):
             if debug_prints:
                 sys.stdout.write("End cycle {}\n".format(cycle_idx))
 
+
             # record changes in state of the walkers
             walker_records.append(new_walkers)
 
             # resample based walkers
             resampled_walkers, cycle_resampling_records = self.resampler.resample(new_walkers)
+
+            if debug_prints:
+                # print results for this cycle
+                print("Net state of walkers after resampling:")
+                print("--------------------------------------")
+                # slots
+                slot_str = result_template_str.format("slot", *[i for i in range(len(resampled_walkers))])
+                print(slot_str)
+                # states
+                walker_state_str = result_template_str.format("state",
+                    *[str(walker.state) for walker in resampled_walkers])
+                print(walker_state_str)
+                # weights
+                walker_weight_str = result_template_str.format("weight",
+                    *[str(walker.weight) for walker in resampled_walkers])
+                print(walker_weight_str)
+
             # save how the walkers were resampled
             resampling_records.append(cycle_resampling_records)
             # prepare resampled walkers for running new state changes
