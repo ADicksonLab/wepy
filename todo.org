@@ -1,0 +1,5 @@
+* HDF5
+
+** TODO write the reader for a file 
+
+- [ ] determine and set the run counter by looking at names of the runs

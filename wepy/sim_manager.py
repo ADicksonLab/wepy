@@ -90,7 +90,8 @@ class Manager(object):
                 print("Net state of walkers after resampling:")
                 print("--------------------------------------")
                 # slots
-                slot_str = result_template_str.format("slot", *[i for i in range(len(resampled_walkers))])
+                slot_str = result_template_str.format("slot",
+                                                      *[i for i in range(len(resampled_walkers))])
                 print(slot_str)
                 # states
                 walker_state_str = result_template_str.format("state",
