@@ -171,6 +171,7 @@ class OpenMMWalker(Walker):
                           in self.parameter_derivatives.items()}
         return param_arrs
 
+    def to_hdf5(self):
 
     def to_mdtraj(self):
         """ Returns an mdtraj.Trajectory object from this walker's state."""

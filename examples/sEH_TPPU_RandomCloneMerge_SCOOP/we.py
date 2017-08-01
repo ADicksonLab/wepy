@@ -1,12 +1,16 @@
 import sys
+from collections import namedtuple
 
 import numpy as np
+import pandas as pd
 
 import simtk.openmm.app as omma
 import simtk.openmm as omm
 import simtk.unit as unit
 
 import scoop.futures
+
+import mdtraj as mdj
 
 from wepy.sim_manager import Manager
 from wepy.resampling.clone_merge import RandomCloneMergeResampler
@@ -15,14 +19,20 @@ from wepy.resampling.clone_merge import clone_parent_table, clone_parent_panel
 
 from resampling_tree.tree import monte_carlo_minimization, make_graph
 
+from wepy_hdf5 import WepyHDF5, load_topo_dataset
+
 if __name__ == "__main__":
+
+    # write out an hdf5 storage of the system
+    mdj_pdb = mdj.load_pdb('sEH_TPPU_system.pdb')
+    mdj_pdb.save_hdf5('sEH_TPPU_system.h5')
 
     # set up the system which will be passed to the arguments of the mapped functions
     # the topology from the PSF
     psf = omma.CharmmPsfFile('sEH_TPPU_system.psf')
 
     # load the coordinates
-    pdb = omma.PDBFile('sEH_TPPU_system.pdb')
+    omm_pdb = omma.PDBFile('sEH_TPPU_system.pdb')
 
     # to use charmm forcefields get your parameters
     params = omma.CharmmParameterSet('all36_cgenff.rtf',
@@ -51,7 +61,7 @@ if __name__ == "__main__":
     # instantiate a simulation object
     simulation = omma.Simulation(psf.topology, system, integrator)
     # initialize the positions
-    simulation.context.setPositions(pdb.positions)
+    simulation.context.setPositions(omm_pdb.positions)
     # minimize the energy
     simulation.minimizeEnergy()
     # run the simulation for a number of initial time steps
@@ -114,6 +124,33 @@ if __name__ == "__main__":
     # write out the table to a csv
     np.savetxt("parents.dat", parent_table, fmt='%i')
 
+    # save the trajectories as hdf5 trajectories
+    walker_trajs = [walker_records[0]]
+    # the first one is the initial walkers
+    for cycle_idx, cycle in walker_records[1:]:
+
+    # make a dataframe out out of the resampling records
+    # make a new record with all the info we need across the run
+    DFResamplingRecord = namedtuple("DFResamplingRecord", ['cycle_idx', 'step_idx', 'walker_idx',
+                                              'decision', 'instruction'])
+    # make these records
+    df_recs = []
+    for cycle_idx, cycle in enumerate(resampling_records):
+        # each cycle has multiple steps of resampling
+        for step_idx, step in enumerate(cycle):
+            for walker_idx, rec in enumerate(step):
+                df_rec = DFResamplingRecord(cycle_idx=cycle_idx,
+                                            step_idx=step_idx,
+                                            walker_idx=walker_idx,
+                                            decision=rec.decision.name,
+                                            instruction=rec.instruction)
+                df_recs.append(df_rec)
+    # make a dataframe from them and write it out
+    resampling_df = pd.DataFrame(df_recs)
+    resampling_df.to_csv("resampling.csv")
+
+
+    ## tree visualization
     # make a weights table for the walkers
     weights = []
     for cycle in walker_records:
