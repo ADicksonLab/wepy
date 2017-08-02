@@ -106,9 +106,7 @@ class WExplore2Resampler(Resampler):
                 else:
                     # do nothing 
                     pass
-                walkers = resampled_walkers
-        
-        
+                walkers = resampled_walkers        
         
         if debug_prints:
             n_walkers = len(resampled_walkers)
@@ -156,8 +154,8 @@ class WExplore2Resampler(Resampler):
             # does minwind have an eligible merging partner?
             closedist = self.merge_dist
             closewalk = None
-            
-            if np.array([minwind,maxwind]).all() is not None and minwind != maxwind:
+            condition_list = np.array([i is not None for i in [minwind,maxwind]])
+            if condition_list.all() and minwind != maxwind:
                 
                 closewalk_availabe = set(range(n_walkers)).difference([minwind,maxwind])
                 closewalk_availabe = [idx for idx in closewalk_availabe
@@ -169,8 +167,8 @@ class WExplore2Resampler(Resampler):
                     except: pass
 
             # did we find a closewalk?
-            condition_list = np.array([closewalk,minwind,maxwind])                 
-            if condition_list.all() is not None:
+            condition_list = np.array([i is not None for i in [minwind,maxwind,closewalk]])
+            if condition_list.all() :
                #print ("check_list", closewalk) 
             #if minwind is not None and maxwind is not None and closewalk is not None:
                 
