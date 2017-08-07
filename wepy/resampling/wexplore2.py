@@ -163,9 +163,10 @@ class WExplore2Resampler(Resampler):
                 if len(closewalk_availabe) > 0:
                     try:
                         closedist, closewalk = min((distance_matrix[minwind][i], i) for i in closewalk_availabe
-                                                if distance_matrix[maxwind][i] < (self.merge_dist))
+                                                if distance_matrix[minwind][i] < (self.merge_dist))
                     except: pass
 
+             
             # did we find a closewalk?
             condition_list = np.array([i is not None for i in [minwind,maxwind,closewalk]])
             if condition_list.all() :
@@ -184,21 +185,28 @@ class WExplore2Resampler(Resampler):
                 if newspread > spread:
                     if debug_prints:
                         print("Variance move to", newspread, "accepted")
+                      
+                        
+                    # print ('w_minwind[{}]={}, w_closewalk [{}]={}'.format(minwind,walkerwt[minwind],
+                    #                                                    closewalk, walkerwt[closewalk]))                       
+         
                     n_clone_merges += 1    
                     productive = True
                     spread = newspread                    
                     # make a decision on which walker to keep (minwind, or closewalk)
                     
                     squash_available = [minwind, closewalk]
+                    
                     weights = [walkerwt[walker] for walker in squash_available]
+                    
                     # index of squashed walker
-                    squash_idx = rand.choices(squash_available, weights=weights).pop()
+                    keep_idx  = rand.choices(squash_available, weights=weights).pop()
                     
                     # index of the kept walker
-                    #merge_available = set(range(n_walkers)).difference({clone_idx, squash_idx})
+
                     
-                    keep_idx = set(squash_available).difference({squash_idx}).pop()
-                    # update weight
+                    squash_idx= set(squash_available).difference({keep_idx}).pop()
+                    # update weigh
                     walkerwt[keep_idx] += walkerwt[squash_idx]
                     walkerwt[squash_idx] = 0.0
 
@@ -207,12 +215,12 @@ class WExplore2Resampler(Resampler):
                     amp[keep_idx] = 1
 
                     # recording the actions
-                    walker_actions[minwind] = ResamplingRecord(
+                    walker_actions[squash_idx] = ResamplingRecord(
                                 decision=CloneMergeDecision.SQUASH,
-                                value=SquashInstructionRecord(merge_slot=closewalk))
-                    walker_actions[closewalk] = ResamplingRecord(
+                                value=SquashInstructionRecord(merge_slot=keep_idx))
+                    walker_actions[keep_idx] = ResamplingRecord(
                                 decision=CloneMergeDecision.KEEP_MERGE,
-                                value=SquashInstructionRecord(merge_slot=closewalk))
+                                value=SquashInstructionRecord(merge_slot=keep_idx))
                    # record  the clone instruction for keeping the the track of cloning
                     clone_idx = maxwind
                     walker_actions[clone_idx] = ResamplingRecord(
@@ -224,6 +232,11 @@ class WExplore2Resampler(Resampler):
 
                     if debug_prints:
                         print("variance after selection:", newspread)
+                          #print ('minwind= {}, closewalk= {} , maxwind ={}'.format(minwind,closewalk,maxwind))
+                          #print ('squash_idx ={}, keep_idx ={} ,maxwind ={}\n'.format(squash_idx,keep_idx,maxwind))
+                          
+                          
+                          
 
                 # if not productive
                 else:

@@ -77,6 +77,7 @@ class Manager(object):
             # run the segment
             new_walkers = self.run_segment(walkers, segment_lengths[cycle_idx],
                                            debug_prints=debug_prints)
+            
 
             if debug_prints:
                 sys.stdout.write("End cycle {}\n".format(cycle_idx))
@@ -85,7 +86,7 @@ class Manager(object):
             walker_records.append(new_walkers)
 
             # resample based walkers
-            resampled_walkers, cycle_resampling_records = self.resampler.resample(new_walkers)
+            resampled_walkers, cycle_resampling_records = self.resampler.resample(new_walkers,debug_prints=debug_prints)
             # save how the walkers were resampled
             resampling_records.append(cycle_resampling_records)
             # prepare resampled walkers for running new state changes

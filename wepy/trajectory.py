@@ -7,12 +7,14 @@ class trajectory_save:
         self.toplogy = topolgy
         #self.saveformat = saveformat
         
-        
+    # converts openmm_positions format to mdtraj format    
     def mdtraj_positions(self, openmm_positions):
         
         n_atoms = self.toplogy.n_atoms
+        
         xyz = np.zeros(( n_atoms, 3))
         positions = openmm_positions
+        
         
         for i in range(len(positions)):
             xyz[i,:] = ([positions[i]._value[0], positions[i]._value[1],
@@ -29,8 +31,7 @@ class trajectory_save:
         
         # make positions for every frame
         for i in range(n_frames):
-            newxyz = self.mdtraj_positions(resampled_positions[i])
-            xyz[i,:,:] = newxyz
+            xyz[i,:,:] = self.mdtraj_positions(resampled_positions[i])
         
         # make time array for trajectory
         time = np.array([i for i in range(n_frames)])

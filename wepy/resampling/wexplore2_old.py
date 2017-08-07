@@ -1,3 +1,4 @@
+
 import multiprocessing as mulproc
 import random as rand
 from itertools import combinations
@@ -136,7 +137,7 @@ class WExplore2Resampler(Resampler):
         while productive:
             productive = False
             # find min and max wsums, alter amp
-            maxwsum = 0.0
+            maxwsum = -1
             minwsum = float('inf')
             minwind = None
             maxwind = None
@@ -156,7 +157,7 @@ class WExplore2Resampler(Resampler):
             closedist = self.merge_dist
             closewalk = None
             if minwind is not None and maxwind is not None and minwind != maxwind:
-                for j in range(0, n_walkers):
+                for j in range( n_walkers):
                     if j != minwind and j != maxwind:
                         if (distance_matrix[minwind][j] < closedist and
                                                 (amp[j] == 1) and
@@ -179,14 +180,18 @@ class WExplore2Resampler(Resampler):
 
                 # re-determine spread function, and wsum values
                 newspread, wsum = self._calcspread(n_walkers, walkerwt, amp, distance_matrix)
-
+                
                 if newspread > spread:
-                    if debug_prints:
-                        print("Variance move to", newspread, "accepted")
+                    #if debug_prints:
+                        #print("Variance move to", newspread, "accepted")
+                      
+                    print ('w_minwind[{}]={}, w_closewalk[{}]={}'.format(minwind, walkerwt[minwind],
+                                                                       closewalk, walkerwt[closewalk]))  
                     productive = True
                     spread = newspread
                     
                     # make a decision on which walker to keep (minwind, or closewalk)
+                    # keeps closewalk and gets rid of minwind
                     r = rand.uniform(0.0, walkerwt[closewalk] + walkerwt[minwind])
                     if r < walkerwt[closewalk]:
 
@@ -205,7 +210,9 @@ class WExplore2Resampler(Resampler):
                         walker_actions[closewalk] = ResamplingRecord(
                                     decision=CloneMergeDecision.KEEP_MERGE,
                                     value=SquashInstructionRecord(merge_slot=closewalk))
-
+                        keep_idx = closewalk
+                        squash_idx = minwind 
+                     
                     else:
                         # keep minwind, get rid of closewalk
                         # merge the weights
@@ -224,11 +231,21 @@ class WExplore2Resampler(Resampler):
                         walker_actions[minwind] = ResamplingRecord(
                                     decision=CloneMergeDecision.KEEP_MERGE,
                                     value=SquashInstructionRecord(merge_slot=minwind))
-
+                        keep_idx = minwind
+                        squash_idx = closewalk
                     
                     newspread, wsum = self._calcspread(n_walkers, walkerwt, amp, distance_matrix)
                     if debug_prints:
-                        print("variance after selection:", newspread)
+                    #    print("variance after selection:", newspread)
+                        print ('minwind= {}, closewalk= {} , maxwind ={}'.format(minwind,closewalk,maxwind))
+                        
+                        print ('squash_idx ={}, keep_idx ={} ,maxwind ={}\n'.format(squash_idx,keep_idx,maxwind))
+
+                        
+                        
+                        
+
+
 
                 # if not productive
                 else:
