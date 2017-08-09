@@ -9,7 +9,7 @@ import mdtraj as mdj
 import scoop.futures
 
 
-from wepy.sim_manager import Manager
+from wepy.openmm_sim_manager  import Manager
 from wepy.resampling.wexplore2 import WExplore2Resampler
 from wepy.openmm import OpenMMRunner, OpenMMWalker ,OpenMMRunnerParallel
 from wepy.gpumapper import GpuMapper
@@ -54,8 +54,8 @@ def make_graph_table(resampled_walkers, resampling_records):
     for cycle in resampled_walkers:
         cycle_weights = [walker.weight for walker in cycle]
         weights.append(cycle_weights)
-    weights = np.array(weights)
 
+    weights = np.array(weights)
     # create a tree visualization
     # make a distance array of equal distances from scratch
     distances = []
@@ -123,8 +123,8 @@ if __name__ == "__main__":
                                                   getParameters=True)
  
     # set up parameters for running the simulation
-    num_workers = 8
-    num_walkers = 8
+    num_workers = 3
+    num_walkers = 3
     # initial weights
     init_weight = 1.0 / num_walkers
      # make a generator for the in itial walkers
@@ -136,10 +136,10 @@ if __name__ == "__main__":
 
     # set up the Resampler (with parameters if needed)
 
-    resampler = WExplore2Resampler(reference_traj=pdb,seed=123, pmax=0.2)
+    resampler = WExplore2Resampler(reference_traj=pdb,seed=123, pmax=0.4)
 
     # instantiate a hpcc object
-    gpumapper  = GpuMapper(num_workers)
+    #gpumapper  = GpuMapper(num_workers)
 
     # Instantiate a simulation manager
     sim_manager = Manager(init_walkers,
@@ -148,36 +148,35 @@ if __name__ == "__main__":
                           resampler=resampler,
                           work_mapper=scoop.futures.map)
     n_steps = 1000
-    n_cycles = 10
+    n_cycles = 1
 
     # run a simulation with the manager for 50 cycles of length 1000 each
     steps = [ n_steps for i in range(n_cycles)]
     walker_records, resampling_records = sim_manager.run_simulation(n_cycles,
                                                                     steps,
                                                                     debug_prints=True)
-    make_graph_table(walker_records, resampling_records)
+    # make_graph_table(walker_records, resampling_records)
     
-    make_traj = trajectory_save(pdb.topology)
+    # make_traj = trajectory_save(pdb.topology)
 
-    resampled_positions = [ [] for i in range(num_walkers)]#[init_walkers[i].positions] for i in range(num_walkers)]
+    # resampled_positions = [ [] for i in range(num_walkers)]#[init_walkers[i].positions] for i in range(num_walkers)]
 
-    for cycle_idx, cycles  in enumerate(walker_records):
+    # for cycle_idx, cycles  in enumerate(walker_records):
 
-        # trace each walker inside cycle
+    #     # trace each walker inside cycle
         
-        
-        for walker_idx, walker in enumerate(cycles):
+    #     for walker_idx, walker in enumerate(cycles):
             
-            resampled_positions[walker_idx].append(walker.positions)
+    #         resampled_positions[walker_idx].append(walker.positions)
             
-    # length  [ 82.43499756,  82.43499756,  46.0130806 ]
-    # angles =  [  79.2771759 ,   79.2771759 ,  116.62015533],
+    # # length  [ 82.43499756,  82.43499756,  46.0130806 ]
+    # # angles =  [  79.2771759 ,   79.2771759 ,  116.62015533],
     
-    #unitcell_lengths = np.array([pdb.unitcell_lengths[0] for i in range(n_cycles+1)])
+    # #unitcell_lengths = np.array([pdb.unitcell_lengths[0] for i in range(n_cycles+1)])
 
-    #unitcell_angles = np.array([pdb.unitcell_angles[0] for i in range(n_cycles+1)])
+    # #unitcell_angles = np.array([pdb.unitcell_angles[0] for i in range(n_cycles+1)])
     
-    for walker_idx in range(num_walkers):
-        make_traj.save('traj{}.h5'.format(walker_idx), resampled_positions[walker_idx],
-                       unitcell_lengths=None, unitcell_angles=None)
+    # for walker_idx in range(num_walkers):
+    #     make_traj.save('traj{}.h5'.format(walker_idx), resampled_positions[walker_idx],
+    #                    unitcell_lengths=None, unitcell_angles=None)
     
