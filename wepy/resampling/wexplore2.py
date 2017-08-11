@@ -5,15 +5,104 @@ from itertools import combinations
 from functools import partial
 
 import numpy as np
+import numpy.linalg as la
+
 import mdtraj as mdj
+import itertools as it
+
+
 
 from wepy.walker import merge
 from wepy.resampling.clone_merge import CloneMergeDecision, clone_parent_panel
 from wepy.resampling.resampler import Resampler, ResamplingRecord
 from wepy.resampling.clone_merge import NothingInstructionRecord, CloneInstructionRecord, SquashInstructionRecord 
 from wepy.resampling.clone_merge import KeepMergeInstructionRecord, CLONE_MERGE_DECISION_INSTRUCTION_MAP 
-                                     
+from wepy.boundary import BoundaryConditions
 
+
+
+
+
+class UnbindingBC(BoundaryConditions):
+    def __init__(self, initial_state=None, cutoff_distance=1.0, topology=None, ligand_idxs=None, binding_site_idxs=None):
+        assert initial_state is not None, "Must give an initial state"
+        assert topology is not None, "Must give a reference topology"
+        assert ligand_idxs is not None
+        assert binding_site_idxs is not None
+        assert type(cutoff_distance) is float
+
+        self.initial_state = initial_state
+        self.cutoff_distance = cutoff_distance
+        self.topology = topology
+
+        self.ligand_idxs = ligand_idxs
+        self.binding_site_idxs = binding_site_idxs
+    
+    def in_boundary(self, walker):
+
+        # calc box length
+        cell_lengths = np.array([[self.calc_length(v) for v in walker.box_vectors]])
+        
+        
+        # TODO order of cell angles
+        # calc angles
+        print (walker
+        cell_angles = np.array([[self.calc_angle(walker.box_vectors._value[i], walker.box_vectors._value[j])
+                                 for i, j i [(0,1), (1,2), (2,0)]]])
+
+
+
+        
+
+        
+        # make a traj out of it so we can calculate distances through the periodic boundary conditions
+        walker_traj = mdj.Trajectory(self.to_mdtraj(walker.positions), topology=self.topology,
+                                     unitcell_lengths=cell_lengths, unitcell_angles=cell_angles) 
+
+        # calculate the distances through periodic boundary conditions
+        # and get hte minimum distance
+        min_distance = np.min(mdj.compute_distances(walker_traj,
+                                                    it.product(self.ligand_idxs, self.binding_site_idxs)))
+
+        # test to see if the ligand is unbound
+        if min_distance >= self.cutoff_distance:
+            return True
+        else:
+            return False
+        
+    def calc_angle(self, v1, v2):
+        return np.degrees(np.arccos(np.dot(v1, v2)/(la.norm(v1) * la.norm(v2))))
+
+    def calc_length(self, v):
+        print ('v , norm ', v, la.norm(v))
+        return la.norm(v)
+    
+    
+    def to_mdtraj(self, positions):
+        
+        xyz = np.zeros((1, len(positions), 3))
+        
+        for i in range(len(positions)):
+            xyz[0,i,:] = ([positions[i]._value[0], positions[i]._value[1],
+                                                        positions[i]._value[2]])
+        return xyz
+
+    def warp_walkers(self, walkers):
+
+        new_walkers = []
+        warped_walkers_idxs = []
+        
+        for walker_idx, walker in enumerate(walkers):
+           if self.in_boundary(walker):
+               warped_walkers_idxs.append(walker_idx)
+               new_walkers.append(self.initial_state)
+           else:
+               new_walkers.append(walker)
+               
+        return new_walkers, warped_walkers_idxs
+
+  
+        
 class WExplore2Resampler(Resampler):
     
     def __init__(self,reference_traj, seed=None, pmin=1e-12, pmax=0.1, dpower=4, merge_dist=0.25):
@@ -36,12 +125,13 @@ class WExplore2Resampler(Resampler):
     def _maketraj(self, positions):
         Newxyz = np.zeros((1, self.ref.n_atoms, 3))
         
-        for i in range(len(positions)):
+        for i in range(self.ref.n_atoms):
             Newxyz[0,i,:] = ([positions[i]._value[0], positions[i]._value[1],
                                                         positions[i]._value[2]])
         return mdj.Trajectory(Newxyz, self.ref.topology)
         
     def selection(self,):
+        # selects atoms in protein that have less than 2.5 A distance to ligand atoms
         self.ref =self.ref.remove_solvent()
         lig_idx = self.ref.topology.select('resname "2RV"')
         b_selection = mdj.compute_neighbors(self.ref, 0.8, lig_idx)
