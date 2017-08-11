@@ -41,14 +41,14 @@ class UnbindingBC(BoundaryConditions):
     def in_boundary(self, walker):
 
         # calc box length
-        cell_lengths = np.array([[self.calc_length(v) for v in walker.box_vectors]])
+        cell_lengths = np.array([[self.calc_length(v._value) for v in walker.box_vectors]])
         
         
         # TODO order of cell angles
         # calc angles
-        print (walker
+        
         cell_angles = np.array([[self.calc_angle(walker.box_vectors._value[i], walker.box_vectors._value[j])
-                                 for i, j i [(0,1), (1,2), (2,0)]]])
+                                 for i, j in [(0,1), (1,2), (2,0)]]])
 
 
 
@@ -74,7 +74,6 @@ class UnbindingBC(BoundaryConditions):
         return np.degrees(np.arccos(np.dot(v1, v2)/(la.norm(v1) * la.norm(v2))))
 
     def calc_length(self, v):
-        print ('v , norm ', v, la.norm(v))
         return la.norm(v)
     
     

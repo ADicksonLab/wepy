@@ -1,4 +1,5 @@
 import sys
+import os
 from collections import namedtuple
 
 import numpy as np
@@ -35,8 +36,8 @@ class OpenmmManager(Manager):
             sys.stdout.write("Starting simulation\n")
         walkers = self.init_walkers
 
-        resampling_handler = pd.HDFStore('/mnt/home/nazanin/projects/wepy/examples/sEH_TPPU_NewMapper/resampling_records.h5')
-        walker_handler = h5py.File('/mnt/home/nazanin/projects/wepy/examples/sEH_TPPU_NewMapper/walkers_records.h5','w')
+        resampling_handler = pd.HDFStore(os.getcwd()+'/resampling_records.h5',mode='w')
+        walker_handler = h5py.File(os.getcwd()+'/walkers_records.h5',mode='w')
 
         for cycle_idx in range(n_cycles):
             if debug_prints:
@@ -110,7 +111,11 @@ class OpenmmManager(Manager):
 
         resampling_df = pd.DataFrame(df_recs)
  
-        hdf5_handler.put('{:0>5}'.format(cycle_idx), resampling_df, data_columns= True)
+        hdf5_handler.put('cycle_{:0>5}'.format(cycle_idx), resampling_df, data_columns= True)
+        hdf5_handler.flush(fsync=True)
+                         
+                     
+        
       
     def save_walker_records(self, walker_handler, cycle_idx, resampled_walkers):
 
@@ -123,22 +128,25 @@ class OpenmmManager(Manager):
             walker_handler.create_dataset('cycle_{:0>5}/walker_{:0>5}/weight'.format(cycle_idx,walker_idx), data=walker.weight)
             
             
-    def read_walker_data(self,):
-        walker_handler = h5py.File('/mnt/home/nazanin/projects/wepy/examples/sEH_TPPU_NewMapper/walkers_records.h5','r')
+            walker_handler.flush()
+                          
+                            
+    # def read_walker_data(self,):
+    #     walker_handler = h5py.File('/mnt/home/nazanin/projects/wepy/examples/sEH_TPPU_NewMapper/walkers_records.h5','r')
     
         
-        walker_keys = list( walker_handler.keys())
+    #     walker_keys = list( walker_handler.keys())
      
         
-        for key in walker_keys:
-           data = walker_handler.get(key)
-           print (np.array(data))
+    #     for key in walker_keys:
+    #        data = walker_handler.get(key)
+    #        print (np.array(data))
            
      
                                               
     def read_resampling_data(self,):
 
-        hdf = pd.HDFStore('/mnt/home/nazanin/projects/wepy/examples/sEH_TPPU_NewMapper/resampling_records.h5',
+        hdf = pd.HDFStore(os.getcwd()+'/resampling_records.h5',
                             mode ='r')
         keys = list (hdf.keys())
         for key in keys:
