@@ -1,5 +1,5 @@
 import h5py
-
+import json
 
 def load_dataset(path):
     return None
@@ -18,7 +18,10 @@ class TrajHDF5(object):
                  velocities_unit=None,
                  forces=None,
                  parameters=None,
-                 observables=None
+                 observables=None,
+                 forces_units=None,
+                 parameters_units=None,
+                 observables_units=None
     ):
         """Initializes a TrajHDF5 object which is a format for storing
         trajectory data in and HDF5 format file which can be used on
@@ -43,25 +46,92 @@ class TrajHDF5(object):
         self._h5 = h5
         self.closed = False
 
-        if mode in ['w', 'x'] and overwrite:
-            if topology is None:
-                raise ValueError("topology must be given for new files")
-            else:
-                # set the units
-                self.positions_units = positions_unit
-                self.time_unit = time_unit
-                self.box_vectors_unit = box_vectors_unit
-                self.velocities_unit = velocities_unit
-                # use the setters to add the data
-                self.topology = topology
-                self.positions = positions
-                self.time = time
-                self.box_vectors = box_vectors
-                self.velocities = velocities
-                self.forces = forces
-                self.parameters = parameters
-                self.observables = observables
+        # collect the non-topology attributes into a dict
+        data = {'positions' : positions,
+                'time' : time,
+                'box_vectors' : box_vectors,
+                'velocities' : velocities,
+                'forces' : forces,
+                'parameters' : parameters,
+                'observables' : observables
+               }
 
+        units = {'positions' : positions_unit,
+                 'time' : time_unit,
+                 'box_vectors' : box_vectors_unit,
+                 'velocities' : velocities_unit,
+                 'forces' : forces_units,
+                 'parameters' : parameters_units,
+                 'observables' : observables_units
+                }
+
+        # some of these data fields are mandatory and others are
+        # optional
+        self._mandatory_keys = ['positions']
+
+        # some data fields are compound and have more than one dataset
+        # associated with them
+        self._compound_keys = ['forces', 'parameters', 'observables']
+
+        if mode in ['w', 'x'] and overwrite:
+            # use the hidden init function for writing a new hdf5 file
+            self._write_init(topology, data, units)
+
+        elif mode == 'a':
+            # use the hidden init function for appending data
+            self._append_init(self, data, units)
+        else mode == 'r':
+            self._read_init(self)
+
+    def _read_init(self):
+        raise NotImplementedError
+
+    def _write_init(self, topology, data, units):
+
+        # initialize the topology flag
+        self._topology = False
+        # set the topology, will raise error internally
+        self.topology = topology
+
+        # go through each data field and add them, using the associated units
+        for key, value in data.items():
+
+            # initialize the attribute
+            attr_key = "_{}".format(key)
+            self.__dict__[attr_key] = False
+
+            # if the value is None it was not set and we should just
+            # continue without checking silently, unless it is mandatory
+            if value is None:
+                if key in self._mandatory_keys:
+                    raise ValueError("{} is mandatory and must be given a value".format(key))
+                else:
+                    continue
+
+            # try to add the data using the setter
+            try:
+                self.__setattr__(key, value)
+            except:
+                raise ValueError("{} value not valid".format(key))
+
+            ## Units
+
+            # make the key for the unit
+            if key in self._compound_keys:
+                # if it is compound name it plurally for heterogeneous data
+                unit_key = "{}_units".format(key)
+            else:
+                # or just keep it singular for homogeneous data
+                unit_key = "{}_unit".format(key)
+
+            # try to add the units
+            try:
+                self.__setattr__(unit_key, units[key])
+            except:
+                raise ValueError("{} unit not valid".format(key))
+
+    def _append_init(self, data, units):
+        raise NotImplementedError
 
     @property
     def filename(self):
@@ -85,7 +155,14 @@ class TrajHDF5(object):
 
     @topology.setter
     def topology(self, topology):
+        try:
+            json = json.loads(topology)
+            del json
+        except:
+            raise ValueError("topology must be a valid JSON string")
+
         self._h5.create_dataset('topology', data=topology)
+        self._topology = True
 
     @property
     def positions(self):
@@ -93,7 +170,9 @@ class TrajHDF5(object):
 
     @positions.setter
     def positions(self, positions):
+        assert isinstance(positions, np.ndarray), "positions must be a numpy array"
         self._h5.create_dataset('positions', data=positions)
+        self._positions = True
 
     @property
     def time(self):
@@ -101,7 +180,9 @@ class TrajHDF5(object):
 
     @time.setter
     def time(self, time):
+        assert isinstance(time, np.ndarray), "time must be a numpy array"
         self._h5.create_dataset('time', data=time)
+        self._time = True
 
     @property
     def box_vectors(self):
@@ -109,7 +190,9 @@ class TrajHDF5(object):
 
     @box_vectors.setter
     def box_vectors(self, box_vectors):
+        assert isinstance(box_vectors, np.ndarray), "box_vectors must be a numpy array"
         self._h5.create_dataset('box_vectors', data=box_vectors)
+        self._box_vectors = True
 
     @property
     def velocities(self):
@@ -117,8 +200,15 @@ class TrajHDF5(object):
 
     @velocities.setter
     def velocities(self, velocities):
+        assert isinstance(velocities, np.ndarray), "velocities must be a numpy array"
         self._h5.create_dataset('velocities', data=velocities)
+        self._velocities = True
 
+
+    ### These properties are not a simple dataset and should actually
+    ### each be groups of datasets, even though there will be a net
+    ### force we want to be able to have all forces which then the net
+    ### force will be calculated from
     @property
     def forces(self):
         return self._h5['forces']
@@ -126,6 +216,7 @@ class TrajHDF5(object):
     @forces.setter
     def forces(self, forces):
         self._h5.create_dataset('forces', data=forces)
+        self._forces = True
 
     @property
     def parameters(self):
@@ -134,6 +225,7 @@ class TrajHDF5(object):
     @parameters.setter
     def parameters(self, parameters):
         self._h5.create_dataset('parameters', data=parameters)
+        self._parameters = True
 
     @property
     def observables(self):
@@ -142,6 +234,7 @@ class TrajHDF5(object):
     @observables.setter
     def observables(self, observables):
         self._h5.create_dataset('observables', data=observables)
+        self._observables = True
 
 
 
