@@ -19,6 +19,7 @@ import networkx as nx
 
 from wepy.walker import Walker
 from wepy.resampling.clone_merge import clone_parent_table, clone_parent_panel
+
 from wepy.trajectory import trajectory_save
 
 
@@ -104,25 +105,33 @@ if __name__ == "__main__":
      # make a generator for the in itial walkers
     init_walkers = [OpenMMWalker(minimized_state, init_weight) for i in range(num_walkers)]
     print_initial_state(init_walkers, num_walkers)
-
+    
     # set up the OpenMMRunner with your system
     runner = OpenMMRunnerParallel(system, topology)
+    # selecting ligand atoms index and protien atom index and binding_site_idxs for resampler and boundary conditions
+    pdb = pdb.remove_solvent()
+    lig_idxs = pdb.topology.select('resname "2RV"')
+    atom_idxs = [atom.index for atom in pdb.topology.atoms]
+    protein_idxs = np.delete(atom_idxs, lig_idxs)
+    
+    # selects protien atoms which have less than 2.5 A from ligand atoms
+    binding_selection_idxs = mdj.compute_neighbors(pdb, 0.8, lig_idxs)
+    binding_selection_idxs = np.delete(binding_selection_idxs, lig_idxs)
+
+   
 
     # set up the Resampler (with parameters if needed)
 
-    resampler = WExplore2Resampler(pdb, pmax=0.1)
+    resampler = WExplore2Resampler(pdb, pmax=0.1, topology= pdb.topology,
+                                   ligand_idxs=lig_idxs, binding_site_idxs=binding_selection_idxs )
 
     # instantiate a hpcc object
     gpumapper  = GpuMapper(num_walkers, num_workers)
-    pdb2 = pdb
+    
     # makes ref_traj and selects lingand_atom and protein atom  indices 
-    ref_traj = pdb.remove_solvent()
-    lig_idxs = ref_traj.topology.select('resname "2RV"')
-    atom_idxs = [atom.index for atom in ref_traj.topology.atoms]
-    protein_idxs = np.delete(atom_idxs, lig_idxs)
     # instantiate a wexplore2unbindingboudaryconditiobs    
     wexplore2_ubc = UnbindingBC(initial_state=init_walkers[0], cutoff_distance=1.0,
-                                                        topology=pdb2.topology, ligand_idxs=lig_idxs,
+                                                        topology=pdb.topology, ligand_idxs=lig_idxs,
                                                         binding_site_idxs=protein_idxs)
     # Instantiate a simulation manager
     sim_manager = OpenmmManager(init_walkers,
@@ -131,12 +140,11 @@ if __name__ == "__main__":
                           resampler=resampler,
                           ubc = wexplore2_ubc,      
                           work_mapper=gpumapper.map)
-    n_steps = 1000
-    n_cycles = 2
+    n_steps = 10000
+    n_cycles = 1000
 
-    # run a simulation with the manager for 50 cycles of length 1000 each
+    # run a simulation with the manager for n_steps cycles of length 1000 each
     steps = [ n_steps for i in range(n_cycles)]
     sim_manager.run_simulation(n_cycles, 
                                steps,
-                               debug_prints=True)
-    
+                               debug_prints=False)

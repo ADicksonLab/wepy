@@ -56,7 +56,7 @@ class UnbindingBC(BoundaryConditions):
 
         
         # make a traj out of it so we can calculate distances through the periodic boundary conditions
-        walker_traj = mdj.Trajectory(self.to_mdtraj(walker.positions), topology=self.topology,
+        walker_traj = mdj.Trajectory(self.to_mdtraj(walker.positions[0:self.topology.n_atoms]), topology=self.topology,
                                      unitcell_lengths=cell_lengths, unitcell_angles=cell_angles) 
 
         # calculate the distances through periodic boundary conditions
@@ -78,10 +78,11 @@ class UnbindingBC(BoundaryConditions):
     
     
     def to_mdtraj(self, positions):
+        n_atoms = self.topology.n_atoms 
         
-        xyz = np.zeros((1, len(positions), 3))
+        xyz = np.zeros((1, n_atoms, 3))
         
-        for i in range(len(positions)):
+        for i in range(n_atoms):
             xyz[0,i,:] = ([positions[i]._value[0], positions[i]._value[1],
                                                         positions[i]._value[2]])
         return xyz
@@ -104,8 +105,8 @@ class UnbindingBC(BoundaryConditions):
         
 class WExplore2Resampler(Resampler):
     
-    def __init__(self,reference_traj, seed=None, pmin=1e-12, pmax=0.1, dpower=4, merge_dist=0.25):
-        self.ref = reference_traj
+    def __init__(self, seed=None, pmin=1e-12, pmax=0.1, dpower=4, merge_dist=0.25,
+                 topology=None, ligand_idxs=None, binding_site_idxs=None):
         self.pmin=pmin
         self.lpmin = np.log(pmin/100)        
         self.pmax=pmax
@@ -114,34 +115,30 @@ class WExplore2Resampler(Resampler):
         self.seed = seed
         if seed is not None:
             rand.seed(seed)
+        self.topology = topology
+        self.ligand_idxs = ligand_idxs
+        self.binding_site_idxs = binding_site_idxs
         
-        
-    def _rmsd(self, traj, ref, idx):
+    def rmsd(self, traj, ref, idx):
         return np.sqrt(3*np.sum(np.square(traj.xyz[:, idx, :] - ref.xyz[:, idx, :]),
                                 axis=(1, 2))/idx.shape[0])
 
 
-    def _maketraj(self, positions):
-        Newxyz = np.zeros((1, self.ref.n_atoms, 3))
+    def maketraj(self, positions):
+        n_atoms = self.topology.n_atoms
+        xyz = np.zeros((1, n_atoms, 3))
         
-        for i in range(self.ref.n_atoms):
-            Newxyz[0,i,:] = ([positions[i]._value[0], positions[i]._value[1],
+        for i in range(n_atoms):
+            xyz[0,i,:] = ([positions[i]._value[0], positions[i]._value[1],
                                                         positions[i]._value[2]])
-        return mdj.Trajectory(Newxyz, self.ref.topology)
+        return mdj.Trajectory(xyz, self.topology)
         
-    def selection(self,):
-        # selects atoms in protein that have less than 2.5 A distance to ligand atoms
-        self.ref =self.ref.remove_solvent()
-        lig_idx = self.ref.topology.select('resname "2RV"')
-        b_selection = mdj.compute_neighbors(self.ref, 0.8, lig_idx)
-        b_selection = np.delete(b_selection, lig_idx)
-        return lig_idx, b_selection 
         
-    def calculate_rmsd(self, lig_idx, b_selection, positions_a, positions_b):
-        ref_traj = self._maketraj(positions_a[0:self.ref.n_atoms])
-        traj = self._maketraj(positions_b[0:self.ref.n_atoms])
-        traj = traj.superpose(ref_traj, atom_indices=b_selection)
-        return  self._rmsd(traj, ref_traj, lig_idx)
+    def calculate_rmsd(self, positions_a, positions_b):
+        traj_a = self.maketraj(positions_a)
+        traj_b = self.maketraj(positions_b)
+        traj_b = traj_b.superpose(traj_a, atom_indices=self.binding_site_idxs)
+        return  self.rmsd(traj_a, traj_b, self.ligand_idxs)
     
     def _calcspread(self, n_walkers, walkerwt, amp, distance_matrix):
         spread = 0
@@ -367,7 +364,7 @@ class WExplore2Resampler(Resampler):
     def resample(self, walkers, debug_prints=False):
         
         
-        print ("Starting resampling") 
+        
         
         walkers = walkers
         n_walkers = len(walkers)
@@ -376,10 +373,10 @@ class WExplore2Resampler(Resampler):
 
         # calculate distance matrix
         distance_matrix = np.zeros((n_walkers,n_walkers))
-        lig_idx, b_selection = self.selection()
+        
         for i in range(n_walkers):
             for j in range(i+1, n_walkers):
-                d = self.calculate_rmsd (lig_idx, b_selection, walkers[i].positions, walkers[j].positions)
+                d = self.calculate_rmsd (walkers[i].positions[0:self.topology.n_atoms], walkers[j].positions[0:self.topology.n_atoms])
                 distance_matrix[i][j] = d
                 distance_matrix [j][i] = d                   
                                    
@@ -390,12 +387,8 @@ class WExplore2Resampler(Resampler):
         # determine cloning and merging actions to be performed, by maximizing the spread
         resampling_actions = self.decide_clone_merge(n_walkers, walkerwt, amp, distance_matrix, debug_prints=debug_prints)
 
-        if debug_prints:
-            print ("Ending resampling")
-
-        # actually do the cloning and merging of the walkers
-        resampled_walkers = self._clone_merge(walkers, resampling_actions,debug_prints)
-        if len (walkers) != len (resampled_walkers):
-            print ("Error in length")
         
-        return resampled_walkers, resampling_actions 
+        # actually do the cloning and merging of the walkers
+        walkers = self._clone_merge(walkers, resampling_actions,debug_prints)
+        
+        return walkers, resampling_actions 

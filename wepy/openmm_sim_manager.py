@@ -38,30 +38,44 @@ class OpenmmManager(Manager):
 
         resampling_handler = pd.HDFStore(os.getcwd()+'/resampling_records.h5',mode='w')
         walker_handler = h5py.File(os.getcwd()+'/walkers_records.h5',mode='w')
-
+        #save initial state
+        self.save_walker_records(walker_handler,-1, walkers)
         for cycle_idx in range(n_cycles):
             if debug_prints:
                 sys.stdout.write("Begin cycle {}\n".format(cycle_idx))
-
+                
+            sys.stdout.write("Begin cycle {}\n".format(cycle_idx))    
             # run the segment
-            new_walkers = self.run_segment(walkers, segment_lengths[cycle_idx],
+            walkers = self.run_segment(walkers, segment_lengths[cycle_idx],
                                            debug_prints=debug_prints)
 
 
             # calls wexplore2 ubinding boundary conditions
-            ubc_walkers, warped_walkers_idx = self.ubc.warp_walkers(new_walkers)
+            if debug_prints:
+                sys.stdout.write("Start  boundary Conditions")
+            
+            walkers, warped_walkers_idx = self.ubc.warp_walkers(walkers)
             
             # record changes in state of the walkers
-            
+            if debug_prints:
+                sys.stdout.write("End  BoundaryConditions")
+
 
             # resample based walkers
-            resampled_walkers, cycle_resampling_records = self.resampler.resample(ubc_walkers, debug_prints=debug_prints)
+            walkers, cycle_resampling_records = self.resampler.resample(walkers, debug_prints=debug_prints)
             # save resampling records in a hdf5 file
+            if debug_prints:
+                sys.stdout.write("Start Resampling")
+            
             self.save_resampling_records(resampling_handler, cycle_idx, cycle_resampling_records, warped_walkers_idx)
+            if debug_prints:
+                sys.stdout.write("End  Resampling")
+            
             # prepare resampled walkers for running new state changes
             # save walkers positions in a hdf5 file
-            self.save_walker_records(walker_handler, cycle_idx, resampled_walkers)
-            walkers = resampled_walkers
+            
+            self.save_walker_records(walker_handler, cycle_idx, walkers)
+            
         resampling_handler.close()
         walker_handler.close()
         if debug_prints:
@@ -131,19 +145,6 @@ class OpenmmManager(Manager):
             walker_handler.flush()
                           
                             
-    # def read_walker_data(self,):
-    #     walker_handler = h5py.File('/mnt/home/nazanin/projects/wepy/examples/sEH_TPPU_NewMapper/walkers_records.h5','r')
-    
-        
-    #     walker_keys = list( walker_handler.keys())
-     
-        
-    #     for key in walker_keys:
-    #        data = walker_handler.get(key)
-    #        print (np.array(data))
-           
-     
-                                              
     def read_resampling_data(self,):
 
         hdf = pd.HDFStore(os.getcwd()+'/resampling_records.h5',

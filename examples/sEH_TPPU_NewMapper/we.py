@@ -9,7 +9,7 @@ import mdtraj as mdj
 import scoop.futures
 
 
-from wepy.openmm_sim_manager  import Manager
+from wepy.sim_manager  import Manager
 from wepy.resampling.wexplore2 import WExplore2Resampler
 from wepy.openmm import OpenMMRunner, OpenMMWalker ,OpenMMRunnerParallel
 from wepy.gpumapper import GpuMapper
@@ -136,7 +136,23 @@ if __name__ == "__main__":
 
     # set up the Resampler (with parameters if needed)
 
-    resampler = WExplore2Resampler(reference_traj=pdb,seed=123, pmax=0.4)
+    # selecting ligand atoms index and protien atom index and binding_site_idxs for resampler and boundary conditions
+    pdb = pdb.remove_solvent()
+    lig_idxs = pdb.topology.select('resname "2RV"')
+    atom_idxs = [atom.index for atom in pdb.topology.atoms]
+    protein_idxs = np.delete(atom_idxs, lig_idxs)
+    
+    # selects protien atoms which have less than 2.5 A from ligand atoms
+    binding_selection_idxs = mdj.compute_neighbors(pdb, 0.8, lig_idxs)
+    binding_selection_idxs = np.delete(binding_selection_idxs, lig_idxs)
+
+   
+
+    # set up the Resampler (with parameters if needed)
+
+    resampler = WExplore2Resampler(pdb, pmax=0.1, topology= pdb.topology,
+                                   ligand_idxs=lig_idxs, binding_site_idxs=binding_selection_idxs )
+
 
     # instantiate a hpcc object
     #gpumapper  = GpuMapper(num_workers)
@@ -152,9 +168,9 @@ if __name__ == "__main__":
 
     # run a simulation with the manager for 50 cycles of length 1000 each
     steps = [ n_steps for i in range(n_cycles)]
-    walker_records, resampling_records = sim_manager.run_simulation(n_cycles,
-                                                                    steps,
-                                                                    debug_prints=True)
+    sim_manager.run_simulation(n_cycles,
+                               steps,
+                               debug_prints=True)
     # make_graph_table(walker_records, resampling_records)
     
     # make_traj = trajectory_save(pdb.topology)

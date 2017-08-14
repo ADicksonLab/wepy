@@ -30,12 +30,12 @@ class OpenMMRunner(Runner):
 
         # save the state of the system with all possible values
         new_state = simulation.context.getState(getPositions=True,
-                                            getVelocities=True,
+                                            getVelocities=False,
                                             getParameters=True,
-                                            getParameterDerivatives=True,
-                                            getForces=True,
-                                            getEnergy=True,
-                                            enforcePeriodicBox=True
+                                            getParameterDerivatives=False,
+                                            getForces=False,
+                                            getEnergy=False,
+                                            enforcePeriodicBox=False
                                             )
 
         # create a new walker for this
