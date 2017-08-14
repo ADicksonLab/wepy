@@ -1,5 +1,8 @@
-import h5py
 import json
+
+import numpy as np
+
+import h5py
 
 def load_dataset(path):
     return None
@@ -21,8 +24,8 @@ class TrajHDF5(object):
                  observables=None,
                  forces_units=None,
                  parameters_units=None,
-                 observables_units=None
-    ):
+                 observables_units=None):
+
         """Initializes a TrajHDF5 object which is a format for storing
         trajectory data in and HDF5 format file which can be used on
         it's own or encapsulated in a WepyHDF5 object.
@@ -45,6 +48,13 @@ class TrajHDF5(object):
         h5 = h5py.File(filename, mode)
         self._h5 = h5
         self.closed = False
+
+        # all the keys for the datasets and groups
+        self._keys = ['topology', 'positions',
+                      'time', 'box_vectors',
+                      'velocities',
+                      'forces', 'parameters',
+                      'observables']
 
         # collect the non-topology attributes into a dict
         data = {'positions' : positions,
@@ -73,18 +83,42 @@ class TrajHDF5(object):
         # associated with them
         self._compound_keys = ['forces', 'parameters', 'observables']
 
+        ## DataSet satisfaction
+        # a file which has different levels of keys can be used for
+        # different things, so we define these collections of keys,
+        # and flags to keep track of which ones this dataset
+        # satisfies, ds here stands for "dataset"
+        self._compliance_types = ['COORDS', 'TRAJ', 'RESTART', 'FORCED']
+        for key in self._compliance_types:
+            key = "_{}_DS".format(key)
+            self.__dict__[key] = False
+
+        # the minimal requirement (and need for this class) is to associate
+        # a collection of coordinates to some molecular structure (topology)
+
+        # only a collection of molecular coordinates
+        self._COORDS_keys = ['topology', 'positions']
+        # frames from an actual dynamics trajectory
+        self._TRAJ_keys = ['topology', 'positions', 'time', 'box_vectors']
+        # restart trajectories
+        self._RESTART_keys = ['topology', 'positions',
+                              'time', 'box_vectors',
+                              'velocities']
+        # simulation with external forces defined, forced trajectory
+        self._FORCED_keys = ['topology', 'positions',
+                             'time', 'box_vectors',
+                             'velocities',
+                             'forces']
+
         if mode in ['w', 'x'] and overwrite:
             # use the hidden init function for writing a new hdf5 file
             self._write_init(topology, data, units)
 
         elif mode == 'a':
             # use the hidden init function for appending data
-            self._append_init(self, data, units)
-        else mode == 'r':
-            self._read_init(self)
-
-    def _read_init(self):
-        raise NotImplementedError
+            self._append_init(data, units)
+        elif mode == 'r':
+            self._read_init()
 
     def _write_init(self, topology, data, units):
 
@@ -111,7 +145,7 @@ class TrajHDF5(object):
             # try to add the data using the setter
             try:
                 self.__setattr__(key, value)
-            except:
+            except AssertionError:
                 raise ValueError("{} value not valid".format(key))
 
             ## Units
@@ -127,11 +161,29 @@ class TrajHDF5(object):
             # try to add the units
             try:
                 self.__setattr__(unit_key, units[key])
-            except:
+            except AssertionError:
                 raise ValueError("{} unit not valid".format(key))
+
+        self._update_compliance()
 
     def _append_init(self, data, units):
         raise NotImplementedError
+
+    def _read_init(self):
+
+        # we just need to set the flags for which data is present and
+        # which is not
+        for key in self._keys:
+            flag_key = "_{}".format(key)
+            if key in list(self._h5.keys()):
+                self.__dict__[flag_key] = True
+            else:
+                self.__dict__[flag_key] = False
+
+        # update the compliance group flags
+        self._update_compliance()
+
+        # TODO units
 
     @property
     def filename(self):
@@ -145,6 +197,40 @@ class TrajHDF5(object):
     def __del__(self):
         self.close()
 
+    def _update_compliance(self):
+        """Checks whether the flags for different datasets and updates the
+        flags for the compliance groups."""
+        for compliance_type in self._compliance_types:
+            # we will get the function from the compliance type token
+            test_func_str = "check_compliance_{}".format(compliance_type)
+            test_func = self.__getattribute__(test_func_str)
+            # then test this object
+            result = test_func()
+            # and save the result
+            compliance_key = "_{}_DS".format(compliance_type)
+            self.__dict__[compliance_key] = result
+
+    def _check_compliance_keys(self, compliance_type):
+        """Checks whether the flags for the datasets have been set to True."""
+        compliance_keys_str = "_{}_keys".format(compliance_type)
+        results = []
+        for key in self.__dict__[compliance_keys_str]:
+            attr_key = "_{}".format(key)
+            results.append(self.__getattribute__(attr_key))
+        return all(results)
+
+    def check_compliance_COORDS(self):
+        return self._check_compliance_keys('COORDS')
+
+    def check_compliance_TRAJ(self):
+        return self._check_compliance_keys('TRAJ')
+
+    def check_compliance_RESTART(self):
+        return self._check_compliance_keys('RESTART')
+
+    def check_compliance_FORCED(self):
+        return self._check_compliance_keys('FORCED')
+
     @property
     def h5(self):
         return self._h5
@@ -156,9 +242,9 @@ class TrajHDF5(object):
     @topology.setter
     def topology(self, topology):
         try:
-            json = json.loads(topology)
-            del json
-        except:
+            json_d = json.loads(topology)
+            del json_d
+        except json.JSONDecodeError:
             raise ValueError("topology must be a valid JSON string")
 
         self._h5.create_dataset('topology', data=topology)
@@ -176,7 +262,10 @@ class TrajHDF5(object):
 
     @property
     def time(self):
-        return self._h5['time']
+        if self._time:
+            return self._h5['time']
+        else:
+            return None
 
     @time.setter
     def time(self, time):
@@ -186,7 +275,10 @@ class TrajHDF5(object):
 
     @property
     def box_vectors(self):
-        return self._h5['box_vectors']
+        if self._box_vectors:
+            return self._h5['box_vectors']
+        else:
+            return None
 
     @box_vectors.setter
     def box_vectors(self, box_vectors):
@@ -196,7 +288,10 @@ class TrajHDF5(object):
 
     @property
     def velocities(self):
-        return self._h5['velocities']
+        if self._velocities:
+            return self._h5['velocities']
+        else:
+            return None
 
     @velocities.setter
     def velocities(self, velocities):
@@ -211,7 +306,10 @@ class TrajHDF5(object):
     ### force will be calculated from
     @property
     def forces(self):
-        return self._h5['forces']
+        if self._forces:
+            return self._h5['forces']
+        else:
+            return None
 
     @forces.setter
     def forces(self, forces):
@@ -220,7 +318,10 @@ class TrajHDF5(object):
 
     @property
     def parameters(self):
-        return self._h5['parameters']
+        if self._parameters:
+            return self._h5['parameters']
+        else:
+            return None
 
     @parameters.setter
     def parameters(self, parameters):
@@ -229,7 +330,10 @@ class TrajHDF5(object):
 
     @property
     def observables(self):
-        return self._h5['observables']
+        if self._observables:
+            return self._h5['observables']
+        else:
+            return None
 
     @observables.setter
     def observables(self, observables):

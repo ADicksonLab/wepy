@@ -132,7 +132,7 @@ if __name__ == "__main__":
     # make a dataframe out out of the resampling records
     # make a new record with all the info we need across the run
     DFResamplingRecord = namedtuple("DFResamplingRecord", ['cycle_idx', 'step_idx', 'walker_idx',
-                                              'decision', 'instruction'])
+                                                           'decision', 'instruction'])
     # make these records
     df_recs = []
     for cycle_idx, cycle in enumerate(resampling_records):
