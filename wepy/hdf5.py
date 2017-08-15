@@ -32,20 +32,37 @@ class TrajHDF5(object):
 
         mode:
         r        Readonly, file must exist
+        r+       Read/write, file must exist
         w        Create file, truncate if exists
-        x        Create file, fail if exists
-        a        Append mode, file must exist
+        x or w-  Create file, fail if exists
+        a        Read/write if exists, create otherwise
+        c        Append (concatenate) file if exists, create otherwise,
+                   read access only to existing data,
+                   can append to existing datasets
+        c-       Append file if exists, create otherwise,
+                   read access only to existing data,
+                   cannot append to existing datasets
+
+        The c and c- modes use the h5py 'a' mode underneath and limit
+        access to data that is read in.
 
         If `overwrite` is True then the previous data will be
         re-initialized upon this constructor being called.
 
         """
-        assert mode in ['r', 'w', 'x', 'a'], "mode must be either r, w, x or a"
+        assert mode in ['r', 'r+', 'w', 'w-', 'x', 'a', 'c', 'c-'], \
+          "mode must be either 'r', 'r+', 'w', 'x', 'w-', 'a', 'c', or 'c-'"
 
         self._filename = filename
 
+        # get h5py compatible I/O mode
+        if mode in ['c', 'c-']:
+            h5py_mode = 'a'
+        else:
+            h5py_mode = mode
+
         # open the file
-        h5 = h5py.File(filename, mode)
+        h5 = h5py.File(filename, mode=h5py_mode)
         self._h5 = h5
         self.closed = False
 
@@ -110,27 +127,75 @@ class TrajHDF5(object):
                              'velocities',
                              'forces']
 
-        # the overwrite option indicates that we want to completely
-        # overwrite the old file
-        if mode in ['w', 'x'] and overwrite:
-            # use the hidden init function for writing a new hdf5 file
-            self._overwrite_init(topology, data, units)
-        # in this mode we do not completely overwrite the old file and
-        # start again but rather write over top of values if requested
-        elif mode in ['w', 'x']:
-            self._write_init(topology=topology, data=data, units=units)
-        elif mode == 'a':
+        # create file mode: 'w' will create a new file or overwrite,
+        # 'w-' and 'x' will not overwrite but will create a new file
+        if mode in ['w', 'w-', 'x']:
+            self._create_init(topology, data, units)
+
+        # read/write mode: in this mode we do not completely overwrite
+        # the old file and start again but rather write over top of
+        # values if requested
+        elif mode == 'r+':
+            self._read_write_init(topology=topology, data=data, units=units)
+
+        # append mode
+        elif mode in ['c', 'c-']:
             # use the hidden init function for appending data
             self._append_init(data, units)
+
+        # read only mode
         elif mode == 'r':
+            # if any data was given, raise an error
+            assert any([True if (value is not None) else False for key, value in data.items()]) or \
+              any([True if (value is not None) else False for key, value in units.items()]),\
+                "Data was provided for a read-only operation"
+
+            # then run the initialization process
             self._read_init()
 
+        # update the compliance type flags of the dataset
         self._update_compliance()
 
-    def _write_init(self, topology=None, data=None, units=None):
-        raise NotImplementedError("feature not finished")
+    def _read_write_init(self, topology, data, units):
+        """Write over values if given but do not reinitialize any old ones. """
 
-    def _overwrite_init(self, topology, data, units):
+        # set the flags for existing data
+        self._initialize_read_flags()
+
+        # add new data if given
+        if topology is not None:
+            self.topology = topology
+
+        for key, value in data.items():
+            # if the value is None it was not set and we should just
+            # continue without checking silently
+            if value is None:
+                continue
+            # try to add the data using the setter
+            try:
+                self.__setattr__(key, value)
+            except AssertionError:
+                raise ValueError("{} value not valid".format(key))
+
+            ## Units
+            # make the key for the unit
+            if key in self._compound_keys:
+                # if it is compound name it plurally for heterogeneous data
+                unit_key = "{}_units".format(key)
+            else:
+                # or just keep it singular for homogeneous data
+                unit_key = "{}_unit".format(key)
+
+            # try to add the units
+            try:
+                self.__setattr__(unit_key, units[key])
+            except AssertionError:
+                raise ValueError("{} unit not valid".format(key))
+
+
+    def _create_init(self, topology, data, units):
+        """Completely overwrite the data in the file. Reinitialize the values
+        and set with the new ones if given."""
 
         # initialize the topology flag
         self._topology = False
@@ -140,7 +205,8 @@ class TrajHDF5(object):
         # go through each data field and add them, using the associated units
         for key, value in data.items():
 
-            # initialize the attribute
+            ## initialize the attribute
+            # set the flag to false
             attr_key = "_{}".format(key)
             self.__dict__[attr_key] = False
 
@@ -175,9 +241,14 @@ class TrajHDF5(object):
                 raise ValueError("{} unit not valid".format(key))
 
     def _read_init(self):
-
+        """Read only mode initialization. Simply checks for the presence of
+        and sets attribute flags."""
         # we just need to set the flags for which data is present and
         # which is not
+        self._init_read_flags()
+
+    def _initialize_read_flags(self):
+        """Inspect the hdf5 object and set flags if data exists for the fields."""
         for key in self._keys:
             flag_key = "_{}".format(key)
             if key in list(self._h5.keys()):
@@ -186,6 +257,8 @@ class TrajHDF5(object):
                 self.__dict__[flag_key] = False
 
     def _append_init(self, data, units):
+        """Append mode initialization. Checks for given data and sets flags,
+        and adds new data if given."""
 
         # _read_init figures out which data is present and sets the
         # flags so we will initialize with it
