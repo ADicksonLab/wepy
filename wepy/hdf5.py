@@ -110,17 +110,27 @@ class TrajHDF5(object):
                              'velocities',
                              'forces']
 
+        # the overwrite option indicates that we want to completely
+        # overwrite the old file
         if mode in ['w', 'x'] and overwrite:
             # use the hidden init function for writing a new hdf5 file
-            self._write_init(topology, data, units)
-
+            self._overwrite_init(topology, data, units)
+        # in this mode we do not completely overwrite the old file and
+        # start again but rather write over top of values if requested
+        elif mode in ['w', 'x']:
+            self._write_init(topology=topology, data=data, units=units)
         elif mode == 'a':
             # use the hidden init function for appending data
             self._append_init(data, units)
         elif mode == 'r':
             self._read_init()
 
-    def _write_init(self, topology, data, units):
+        self._update_compliance()
+
+    def _write_init(self, topology=None, data=None, units=None):
+        raise NotImplementedError("feature not finished")
+
+    def _overwrite_init(self, topology, data, units):
 
         # initialize the topology flag
         self._topology = False
@@ -164,11 +174,6 @@ class TrajHDF5(object):
             except AssertionError:
                 raise ValueError("{} unit not valid".format(key))
 
-        self._update_compliance()
-
-    def _append_init(self, data, units):
-        raise NotImplementedError
-
     def _read_init(self):
 
         # we just need to set the flags for which data is present and
@@ -180,8 +185,42 @@ class TrajHDF5(object):
             else:
                 self.__dict__[flag_key] = False
 
-        # update the compliance group flags
-        self._update_compliance()
+    def _append_init(self, data, units):
+
+        # _read_init figures out which data is present and sets the
+        # flags so we will initialize with it
+        self._read_init()
+
+        # we go through and add given data if it is not already set,
+        # we rely on h5py to enforce write rules for append
+        for key, value in data.items():
+
+            # if the value is None it was not set and we should just
+            # continue without checking silently
+            if value is None:
+                continue
+
+            # try to add the data using the setter
+            try:
+                self.__setattr__(key, value)
+            except AssertionError:
+                raise ValueError("{} value not valid".format(key))
+
+            ## Units
+
+            # make the key for the unit
+            if key in self._compound_keys:
+                # if it is compound name it plurally for heterogeneous data
+                unit_key = "{}_units".format(key)
+            else:
+                # or just keep it singular for homogeneous data
+                unit_key = "{}_unit".format(key)
+
+            # try to add the units
+            try:
+                self.__setattr__(unit_key, units[key])
+            except AssertionError:
+                raise ValueError("{} unit not valid".format(key))
 
         # TODO units
 
