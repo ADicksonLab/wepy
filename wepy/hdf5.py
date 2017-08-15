@@ -9,7 +9,7 @@ def load_dataset(path):
 
 class TrajHDF5(object):
 
-    def __init__(self, filename, mode='x', overwrite=True,
+    def __init__(self, filename, mode='x',
                  topology=None,
                  positions=None,
                  time=None,
@@ -54,15 +54,19 @@ class TrajHDF5(object):
           "mode must be either 'r', 'r+', 'w', 'x', 'w-', 'a', 'c', or 'c-'"
 
         self._filename = filename
+        # the top level mode enforced by wepy.hdf5
+        self._wepy_mode = mode
 
         # get h5py compatible I/O mode
-        if mode in ['c', 'c-']:
+        if self._wepy_mode in ['c', 'c-']:
             h5py_mode = 'a'
         else:
-            h5py_mode = mode
+            h5py_mode = self._wepy_mode
+        # the lower level h5py mode
+        self._h5py_mode = h5py_mode
 
         # open the file
-        h5 = h5py.File(filename, mode=h5py_mode)
+        h5 = h5py.File(filename, mode=self._h5py_mode)
         self._h5 = h5
         self.closed = False
 
@@ -92,6 +96,14 @@ class TrajHDF5(object):
                  'observables' : observables_units
                 }
 
+        # initialize the exist flags, which say whether a dataset
+        # exists or not
+        self._exist_flags = {key : False for key in self._keys}
+
+        # initialize the append flags dictionary, this keeps track of
+        # whether a data field can be appended to or not
+        self._append_flags = {key : True for key in self._keys}
+
         # some of these data fields are mandatory and others are
         # optional
         self._mandatory_keys = ['positions']
@@ -100,206 +112,187 @@ class TrajHDF5(object):
         # associated with them
         self._compound_keys = ['forces', 'parameters', 'observables']
 
-        ## DataSet satisfaction
+        ## Dataset Compliances
         # a file which has different levels of keys can be used for
         # different things, so we define these collections of keys,
         # and flags to keep track of which ones this dataset
         # satisfies, ds here stands for "dataset"
         self._compliance_types = ['COORDS', 'TRAJ', 'RESTART', 'FORCED']
-        for key in self._compliance_types:
-            key = "_{}_DS".format(key)
-            self.__dict__[key] = False
-
+        self._compliance_flags = {key : False for key in self._compliance_types}
         # the minimal requirement (and need for this class) is to associate
         # a collection of coordinates to some molecular structure (topology)
-
-        # only a collection of molecular coordinates
-        self._COORDS_keys = ['topology', 'positions']
-        # frames from an actual dynamics trajectory
-        self._TRAJ_keys = ['topology', 'positions', 'time', 'box_vectors']
-        # restart trajectories
-        self._RESTART_keys = ['topology', 'positions',
-                              'time', 'box_vectors',
-                              'velocities']
-        # simulation with external forces defined, forced trajectory
-        self._FORCED_keys = ['topology', 'positions',
-                             'time', 'box_vectors',
-                             'velocities',
-                             'forces']
+        self._compliance_requirements = {'COORDS' :  ['topology', 'positions'],
+                                         'TRAJ' :    ['topology', 'positions',
+                                                      'time', 'box_vectors'],
+                                         'RESTART' : ['topology', 'positions',
+                                                      'time', 'box_vectors',
+                                                      'velocities'],
+                                         'FORCED' :  ['topology', 'positions',
+                                                      'time', 'box_vectors',
+                                                      'velocities',
+                                                      'forces']
+                                            }
 
         # create file mode: 'w' will create a new file or overwrite,
         # 'w-' and 'x' will not overwrite but will create a new file
-        if mode in ['w', 'w-', 'x']:
+        if self._wepy_mode in ['w', 'w-', 'x']:
             self._create_init(topology, data, units)
 
         # read/write mode: in this mode we do not completely overwrite
         # the old file and start again but rather write over top of
         # values if requested
-        elif mode == 'r+':
-            self._read_write_init(topology=topology, data=data, units=units)
+        elif self._wepy_mode in ['r+']:
+            self._read_write_init(topology, data, units)
+
+        # add mode: read/write create if doesn't exist
+        elif self._wepy_mode in ['a']:
+            self._add_init(topology, data, units)
 
         # append mode
-        elif mode in ['c', 'c-']:
+        elif self._wepy_mode in ['c', 'c-']:
             # use the hidden init function for appending data
-            self._append_init(data, units)
+            self._append_init(topology, data, units)
 
         # read only mode
-        elif mode == 'r':
+        elif self._wepy_mode == 'r':
             # if any data was given, raise an error
-            assert any([True if (value is not None) else False for key, value in data.items()]) or \
-              any([True if (value is not None) else False for key, value in units.items()]),\
+            assert (not any([True if (value is not None) else False for key, value in data.items()]))\
+              or (not any([True if (value is not None) else False for key, value in units.items()])),\
                 "Data was provided for a read-only operation"
 
             # then run the initialization process
             self._read_init()
 
         # update the compliance type flags of the dataset
-        self._update_compliance()
+        self._update_compliance_flags()
+
+    def _update_exist_flags(self):
+        """Inspect the hdf5 object and set flags if data exists for the fields."""
+        for key in self._keys:
+            if key in list(self._h5.keys()):
+                self._exist_flags[key] = True
+            else:
+                self._exist_flags[key] = False
+
+    def _update_append_flags(self):
+        """Sets flags to False (they are initialized to True) if the dataset
+        currently exists."""
+        for dataset_key, exist_flag in self._exist_flags.items():
+            if exist_flag:
+                self._append_flags[dataset_key] = False
+
+    def _write_datasets(self, data, units):
+
+        # go through each data field and add them, using the associated units
+        for key, value in data.items():
+
+            # if the value is None it was not set and we should just
+            # continue without checking silently, unless it is mandatory
+            if value is None:
+                continue
+
+            # try to add the data using the setter
+            try:
+                self.__setattr__(key, value)
+            except AssertionError:
+                raise ValueError("{} value not valid".format(key))
+
+            ## Units
+            # # make the key for the unit
+            # if key in self._compound_keys:
+            #     # if it is compound name it plurally for heterogeneous data
+            #     unit_key = "{}_units".format(key)
+            # else:
+            #     # or just keep it singular for homogeneous data
+            #     unit_key = "{}_unit".format(key)
+
+            # # try to add the units
+            # try:
+            #     self.__setattr__(unit_key, units[key])
+            # except AssertionError:
+            #     raise ValueError("{} unit not valid".format(key))
+
+    ### The init functions for different I/O modes
+    def _create_init(self, topology, data, units):
+        """Completely overwrite the data in the file. Reinitialize the values
+        and set with the new ones if given."""
+        # make sure the mandatory data is here
+        assert topology is not None, "Topology must be given"
+        assert data['positions'] is not None, "positions must be given"
+
+        # assign the topology
+        self.topology = topology
+
+        # write all the datasets
+        self._write_datasets(data, units)
 
     def _read_write_init(self, topology, data, units):
         """Write over values if given but do not reinitialize any old ones. """
 
         # set the flags for existing data
-        self._initialize_read_flags()
+        self._update_exist_flags()
 
-        # add new data if given
+        # add new topology if it is given
         if topology is not None:
             self.topology = topology
 
-        for key, value in data.items():
-            # if the value is None it was not set and we should just
-            # continue without checking silently
-            if value is None:
-                continue
-            # try to add the data using the setter
-            try:
-                self.__setattr__(key, value)
-            except AssertionError:
-                raise ValueError("{} value not valid".format(key))
+        # add new data if given
+        self._write_datasets(data, units)
 
-            ## Units
-            # make the key for the unit
-            if key in self._compound_keys:
-                # if it is compound name it plurally for heterogeneous data
-                unit_key = "{}_units".format(key)
-            else:
-                # or just keep it singular for homogeneous data
-                unit_key = "{}_unit".format(key)
+    def _add_init(self, topology, data, units):
+        """Create the dataset if it doesn't exist and put it in r+ mode,
+        otherwise, just open in r+ mode."""
 
-            # try to add the units
-            try:
-                self.__setattr__(unit_key, units[key])
-            except AssertionError:
-                raise ValueError("{} unit not valid".format(key))
+        # set the flags for existing data
+        self._update_exist_flags()
 
+        if not any(self._exist_flags):
+            self._create_init(topology, data, units)
+        else:
+            self._read_write_init(topology, data, units)
 
-    def _create_init(self, topology, data, units):
-        """Completely overwrite the data in the file. Reinitialize the values
-        and set with the new ones if given."""
+    def _append_init(self, topology, data, units):
+        """Append mode initialization. Checks for given data and sets flags,
+        and adds new data if given."""
 
-        # initialize the topology flag
-        self._topology = False
-        # set the topology, will raise error internally
-        self.topology = topology
+        # if the file has any data to start we write the data to it
+        if not any(self._exist_flags):
+            self.topology = topology
+            self._write_datasets(data, units)
+            if self.mode == 'c-':
+                self._update_append_flags()
+        # otherwise we first set the flags for what data was read and
+        # then add to it only
+        else:
+            # initialize the flags from the read data
+            self._update_exist_flags()
 
-        # go through each data field and add them, using the associated units
-        for key, value in data.items():
+            # restrict append permissions for those that have their flags
+            # set from the read init
+            if self.mode == 'c-':
+                self._update_append_flags()
 
-            ## initialize the attribute
-            # set the flag to false
-            attr_key = "_{}".format(key)
-            self.__dict__[attr_key] = False
-
-            # if the value is None it was not set and we should just
-            # continue without checking silently, unless it is mandatory
-            if value is None:
-                if key in self._mandatory_keys:
-                    raise ValueError("{} is mandatory and must be given a value".format(key))
-                else:
-                    continue
-
-            # try to add the data using the setter
-            try:
-                self.__setattr__(key, value)
-            except AssertionError:
-                raise ValueError("{} value not valid".format(key))
-
-            ## Units
-
-            # make the key for the unit
-            if key in self._compound_keys:
-                # if it is compound name it plurally for heterogeneous data
-                unit_key = "{}_units".format(key)
-            else:
-                # or just keep it singular for homogeneous data
-                unit_key = "{}_unit".format(key)
-
-            # try to add the units
-            try:
-                self.__setattr__(unit_key, units[key])
-            except AssertionError:
-                raise ValueError("{} unit not valid".format(key))
+            # write new datasets
+            self._write_datasets(data, units)
 
     def _read_init(self):
         """Read only mode initialization. Simply checks for the presence of
         and sets attribute flags."""
         # we just need to set the flags for which data is present and
         # which is not
-        self._init_read_flags()
-
-    def _initialize_read_flags(self):
-        """Inspect the hdf5 object and set flags if data exists for the fields."""
-        for key in self._keys:
-            flag_key = "_{}".format(key)
-            if key in list(self._h5.keys()):
-                self.__dict__[flag_key] = True
-            else:
-                self.__dict__[flag_key] = False
-
-    def _append_init(self, data, units):
-        """Append mode initialization. Checks for given data and sets flags,
-        and adds new data if given."""
-
-        # _read_init figures out which data is present and sets the
-        # flags so we will initialize with it
-        self._read_init()
-
-        # we go through and add given data if it is not already set,
-        # we rely on h5py to enforce write rules for append
-        for key, value in data.items():
-
-            # if the value is None it was not set and we should just
-            # continue without checking silently
-            if value is None:
-                continue
-
-            # try to add the data using the setter
-            try:
-                self.__setattr__(key, value)
-            except AssertionError:
-                raise ValueError("{} value not valid".format(key))
-
-            ## Units
-
-            # make the key for the unit
-            if key in self._compound_keys:
-                # if it is compound name it plurally for heterogeneous data
-                unit_key = "{}_units".format(key)
-            else:
-                # or just keep it singular for homogeneous data
-                unit_key = "{}_unit".format(key)
-
-            # try to add the units
-            try:
-                self.__setattr__(unit_key, units[key])
-            except AssertionError:
-                raise ValueError("{} unit not valid".format(key))
-
-        # TODO units
+        self._update_exist_flags()
 
     @property
     def filename(self):
         return self._filename
+
+    @property
+    def mode(self):
+        return self._wepy_mode
+
+    @property
+    def h5_mode(self):
+        return self._h5.mode
 
     def close(self):
         if not self.closed:
@@ -309,39 +302,21 @@ class TrajHDF5(object):
     def __del__(self):
         self.close()
 
-    def _update_compliance(self):
+    def _update_compliance_flags(self):
         """Checks whether the flags for different datasets and updates the
         flags for the compliance groups."""
         for compliance_type in self._compliance_types:
-            # we will get the function from the compliance type token
-            test_func_str = "check_compliance_{}".format(compliance_type)
-            test_func = self.__getattribute__(test_func_str)
-            # then test this object
-            result = test_func()
-            # and save the result
-            compliance_key = "_{}_DS".format(compliance_type)
-            self.__dict__[compliance_key] = result
+            # check if compliance for this type is met
+            result = self._check_compliance_keys(compliance_type)
+            # set the flag
+            self._compliance_flags[compliance_type] = result
 
     def _check_compliance_keys(self, compliance_type):
         """Checks whether the flags for the datasets have been set to True."""
-        compliance_keys_str = "_{}_keys".format(compliance_type)
         results = []
-        for key in self.__dict__[compliance_keys_str]:
-            attr_key = "_{}".format(key)
-            results.append(self.__getattribute__(attr_key))
+        for dataset_key in self._compliance_requirements[compliance_type]:
+            results.append(self._exist_flags[dataset_key])
         return all(results)
-
-    def check_compliance_COORDS(self):
-        return self._check_compliance_keys('COORDS')
-
-    def check_compliance_TRAJ(self):
-        return self._check_compliance_keys('TRAJ')
-
-    def check_compliance_RESTART(self):
-        return self._check_compliance_keys('RESTART')
-
-    def check_compliance_FORCED(self):
-        return self._check_compliance_keys('FORCED')
 
     @property
     def h5(self):
@@ -360,7 +335,15 @@ class TrajHDF5(object):
             raise ValueError("topology must be a valid JSON string")
 
         self._h5.create_dataset('topology', data=topology)
-        self._topology = True
+        self._exist_flags['topology'] = True
+        # if we are in strict append mode we cannot append after we create something
+        if self.mode == 'c-':
+            self._append_flags['topology'] = False
+
+    def append_dataset(self, dataset_key, data):
+        if self.mode == 'c-':
+            assert self._append_flags[dataset_key], "dataset is not available for appending to"
+        raise NotImplementedError('feature not finished')
 
     @property
     def positions(self):
@@ -370,11 +353,14 @@ class TrajHDF5(object):
     def positions(self, positions):
         assert isinstance(positions, np.ndarray), "positions must be a numpy array"
         self._h5.create_dataset('positions', data=positions)
-        self._positions = True
+        self._exist_flags['positions'] = True
+        # if we are in strict append mode we cannot append after we create something
+        if self.mode == 'c-':
+            self._append_flags['positions'] = False
 
     @property
     def time(self):
-        if self._time:
+        if self._exist_flags['time']:
             return self._h5['time']
         else:
             return None
@@ -383,11 +369,14 @@ class TrajHDF5(object):
     def time(self, time):
         assert isinstance(time, np.ndarray), "time must be a numpy array"
         self._h5.create_dataset('time', data=time)
-        self._time = True
+        self._exist_flags['time'] = True
+        # if we are in strict append mode we cannot append after we create something
+        if self.mode == 'c-':
+            self._append_flags['time'] = False
 
     @property
     def box_vectors(self):
-        if self._box_vectors:
+        if self._exist_flags['box_vectors']:
             return self._h5['box_vectors']
         else:
             return None
@@ -396,11 +385,14 @@ class TrajHDF5(object):
     def box_vectors(self, box_vectors):
         assert isinstance(box_vectors, np.ndarray), "box_vectors must be a numpy array"
         self._h5.create_dataset('box_vectors', data=box_vectors)
-        self._box_vectors = True
+        self._exist_flags['box_vectors'] = True
+        # if we are in strict append mode we cannot append after we create something
+        if self.mode == 'c-':
+            self._append_flags['box_vectors'] = False
 
     @property
     def velocities(self):
-        if self._velocities:
+        if self._exist_flags['velocities']:
             return self._h5['velocities']
         else:
             return None
@@ -409,7 +401,10 @@ class TrajHDF5(object):
     def velocities(self, velocities):
         assert isinstance(velocities, np.ndarray), "velocities must be a numpy array"
         self._h5.create_dataset('velocities', data=velocities)
-        self._velocities = True
+        self._exist_flags['velocities'] = True
+        # if we are in strict append mode we cannot append after we create something
+        if self.mode == 'c-':
+            self._append_flags['velocities'] = False
 
 
     ### These properties are not a simple dataset and should actually
@@ -418,7 +413,7 @@ class TrajHDF5(object):
     ### force will be calculated from
     @property
     def forces(self):
-        if self._forces:
+        if self._exist_flags['forces']:
             return self._h5['forces']
         else:
             return None
@@ -426,11 +421,14 @@ class TrajHDF5(object):
     @forces.setter
     def forces(self, forces):
         self._h5.create_dataset('forces', data=forces)
-        self._forces = True
+        self._exist_flags['forces'] = True
+        # if we are in strict append mode we cannot append after we create something
+        if self.mode == 'c-':
+            self._append_flags['forces'] = False
 
     @property
     def parameters(self):
-        if self._parameters:
+        if self._exist_flags['parameters']:
             return self._h5['parameters']
         else:
             return None
@@ -438,11 +436,14 @@ class TrajHDF5(object):
     @parameters.setter
     def parameters(self, parameters):
         self._h5.create_dataset('parameters', data=parameters)
-        self._parameters = True
+        self._exist_flags['parameters'] = True
+        # if we are in strict append mode we cannot append after we create something
+        if self.mode == 'c-':
+            self._append_flags['parameters'] = False
 
     @property
     def observables(self):
-        if self._observables:
+        if self._exist_flags['observables']:
             return self._h5['observables']
         else:
             return None
@@ -450,8 +451,10 @@ class TrajHDF5(object):
     @observables.setter
     def observables(self, observables):
         self._h5.create_dataset('observables', data=observables)
-        self._observables = True
-
+        self._exist_flags['observables'] = True
+        # if we are in strict append mode we cannot append after we create something
+        if self.mode == 'c-':
+            self._append_flags['observables'] = False
 
 
 class WepyHDF5(object):
