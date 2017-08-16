@@ -1,8 +1,14 @@
 import json
+from warnings import warn
 
 import numpy as np
 
 import h5py
+
+# Constants
+N_DIMS = 3
+TRAJ_DATA_FIELDS = ['positions', 'time', 'box_vectors', 'velocities',
+                    'forces', 'parameters', 'forces']
 
 def load_dataset(path):
     return None
@@ -66,8 +72,6 @@ class TrajHDF5(object):
         h5 = h5py.File(filename, mode=self._h5py_mode)
         self._h5 = h5
         self.closed = False
-
-        self.N_DIMS = 3
 
         # all the keys for the datasets and groups
         self._keys = ['topology', 'positions',
@@ -154,10 +158,10 @@ class TrajHDF5(object):
 
         # read only mode
         elif self._wepy_mode == 'r':
-            # if any data was given, raise an error
-            assert (not any([True if (value is not None) else False for key, value in data.items()]))\
-              or (not any([True if (value is not None) else False for key, value in units.items()])),\
-                "Data was provided for a read-only operation"
+            # if any data was given, warn the user
+            if (not any([True if (value is not None) else False for key, value in data.items()]))\
+              or (not any([True if (value is not None) else False for key, value in units.items()])):
+                warn("Data was provided for a read-only operation", RuntimeWarning)
 
             # then run the initialization process
             self._read_init()
@@ -286,14 +290,6 @@ class TrajHDF5(object):
     def filename(self):
         return self._filename
 
-    @property
-    def mode(self):
-        return self._wepy_mode
-
-    @property
-    def h5_mode(self):
-        return self._h5.mode
-
     def close(self):
         if not self.closed:
             self._h5.close()
@@ -302,6 +298,15 @@ class TrajHDF5(object):
     # TODO is this right? shouldn't we actually delete the data then close
     def __del__(self):
         self.close()
+
+    @property
+    def mode(self):
+        return self._wepy_mode
+
+    @property
+    def h5_mode(self):
+        return self._h5.mode
+
 
     def _update_compliance_flags(self):
         """Checks whether the flags for different datasets and updates the
@@ -357,6 +362,11 @@ class TrajHDF5(object):
         # add the new data
         dset[-new_data.shape[0]:,:] = new_data
 
+    def append_traj(self, **kwargs):
+        """ append to the trajectory as a whole """
+        assert 'positions' in kwargs.keys()
+        pass
+
     @property
     def positions(self):
 
@@ -369,11 +379,12 @@ class TrajHDF5(object):
         # get the number of atoms
         n_atoms = positions.shape[1]
 
-        self._h5.create_dataset('positions', data=positions, maxshape=(None, n_atoms, self.N_DIMS))
+        self._h5.create_dataset('positions', data=positions, maxshape=(None, n_atoms, N_DIMS))
         self._exist_flags['positions'] = True
         # if we are in strict append mode we cannot append after we create something
         if self._wepy_mode == 'c-':
             self._append_flags['positions'] = False
+
 
     @property
     def time(self):
@@ -402,7 +413,7 @@ class TrajHDF5(object):
     def box_vectors(self, box_vectors):
         assert isinstance(box_vectors, np.ndarray), "box_vectors must be a numpy array"
         self._h5.create_dataset('box_vectors', data=box_vectors,
-                                maxshape=(None, self.N_DIMS, self.N_DIMS))
+                                maxshape=(None, N_DIMS, N_DIMS))
         self._exist_flags['box_vectors'] = True
         # if we are in strict append mode we cannot append after we create something
         if self._wepy_mode == 'c-':
@@ -420,7 +431,7 @@ class TrajHDF5(object):
         assert isinstance(velocities, np.ndarray), "velocities must be a numpy array"
 
         self._h5.create_dataset('velocities', data=velocities,
-                                maxshape=(None, self.n_atoms, self.N_DIMS))
+                                maxshape=(None, self.n_atoms, N_DIMS))
         self._exist_flags['velocities'] = True
         # if we are in strict append mode we cannot append after we create something
         if self._wepy_mode == 'c-':
@@ -485,7 +496,7 @@ class TrajHDF5(object):
 
 class WepyHDF5(object):
 
-    def __init__(self, filename, mode='x'):
+    def __init__(self, filename, mode='x', topology=None):
         """Initialize a new Wepy HDF5 file. This is a file that organizes
         wepy.TrajHDF5 dataset subsets by simulations by runs and
         includes resampling records for recovering walker histories.
@@ -512,8 +523,6 @@ class WepyHDF5(object):
         assert mode in ['r', 'r+', 'w', 'w-', 'x', 'a', 'c', 'c-'], \
           "mode must be either 'r', 'r+', 'w', 'x', 'w-', 'a', 'c', or 'c-'"
 
-        self._filename = filename
-
 
         self._filename = filename
         # the top level mode enforced by wepy.hdf5
@@ -532,12 +541,14 @@ class WepyHDF5(object):
         self._h5 = h5
         self.closed = False
 
-        # all the keys for the datasets and groups
-        self._keys = ['topology', 'positions',
-                      'time', 'box_vectors',
-                      'velocities',
-                      'forces', 'parameters',
-                      'observables']
+        # counters for run and traj indexing
+        self._run_idx_counter = 0
+        # count the number of trajectories each run has
+        self._run_traj_idx_counter = {}
+
+
+        # all the keys for the top-level items in this class
+        self._keys = ['topology', 'runs', 'resampling', 'boundary_conditions']
 
         # initialize the exist flags, which say whether a dataset
         # exists or not
@@ -547,34 +558,34 @@ class WepyHDF5(object):
         # whether a data field can be appended to or not
         self._append_flags = {key : True for key in self._keys}
 
+
         # TODO Dataset Complianaces
 
         # create file mode: 'w' will create a new file or overwrite,
         # 'w-' and 'x' will not overwrite but will create a new file
         if self._wepy_mode in ['w', 'w-', 'x']:
-            self._create_init(topology, data, units)
+            self._create_init(topology)
 
         # read/write mode: in this mode we do not completely overwrite
         # the old file and start again but rather write over top of
         # values if requested
         elif self._wepy_mode in ['r+']:
-            self._read_write_init(topology, data, units)
+            self._read_write_init(topology)
 
         # add mode: read/write create if doesn't exist
         elif self._wepy_mode in ['a']:
-            self._add_init(topology, data, units)
+            self._add_init(topology)
 
         # append mode
         elif self._wepy_mode in ['c', 'c-']:
             # use the hidden init function for appending data
-            self._append_init(topology, data, units)
+            self._append_init(topology)
 
         # read only mode
         elif self._wepy_mode == 'r':
-            # if any data was given, raise an error
-            assert (not any([True if (value is not None) else False for key, value in data.items()]))\
-              or (not any([True if (value is not None) else False for key, value in units.items()])),\
-                "Data was provided for a read-only operation"
+            # if any data was given, warn the user
+            if topology is not None:
+               warn("Cannot set topology on read only", RuntimeWarning)
 
             # then run the initialization process
             self._read_init()
@@ -596,19 +607,87 @@ class WepyHDF5(object):
             if exist_flag:
                 self._append_flags[dataset_key] = False
 
+    def _create_init(self, topology):
+        """Completely overwrite the data in the file. Reinitialize the values
+        and set with the new ones if given."""
+
+        assert topology is not None, "Topology must be given"
+
+        # assign the topology
+        self.topology = topology
+
+    def _read_write_init(self, topology):
+        """Write over values if given but do not reinitialize any old ones. """
+
+        # set the flags for existing data
+        self._update_exist_flags()
+
+        # add new topology if it is given
+        if topology is not None:
+            self.topology = topology
+
+    def _add_init(self, topology):
+        """Create the dataset if it doesn't exist and put it in r+ mode,
+        otherwise, just open in r+ mode."""
+
+        # set the flags for existing data
+        self._update_exist_flags()
+
+        if not any(self._exist_flags):
+            self._create_init(topology)
+        else:
+            self._read_write_init(topology)
+
+    def _append_init(self, topology, data, units):
+        """Append mode initialization. Checks for given data and sets flags,
+        and adds new data if given."""
+
+        # if the file has any data to start we write the data to it
+        if not any(self._exist_flags):
+            self.topology = topology
+            if self._wepy_mode == 'c-':
+                self._update_append_flags()
+        # otherwise we first set the flags for what data was read and
+        # then add to it only
+        else:
+            # initialize the flags from the read data
+            self._update_exist_flags()
+
+            # restrict append permissions for those that have their flags
+            # set from the read init
+            if self._wepy_mode == 'c-':
+                self._update_append_flags()
+
+    def _read_init(self):
+        """Read only mode initialization. Simply checks for the presence of
+        and sets attribute flags."""
+        # we just need to set the flags for which data is present and
+        # which is not
+        self._update_exist_flags()
+
+
 
     @property
     def filename(self):
         return self._filename
 
-    # TODO is this right? shouldn't we actually delete the data then close
+
     def close(self):
         if not self.closed:
             self._h5.close()
             self.closed = True
 
+    # TODO is this right? shouldn't we actually delete the data then close
     def __del__(self):
         self.close()
+
+    @property
+    def mode(self):
+        return self._wepy_mode
+
+    @property
+    def h5_mode(self):
+        return self._h5.mode
 
     @property
     def h5(self):
@@ -619,21 +698,190 @@ class WepyHDF5(object):
         return self._h5['runs']
 
     @property
+    def n_runs(self):
+        return len(self._h5['runs'])
+
+    @property
+    def run_idxs(self):
+        return range(len(self._h5['runs']))
+
+
+    def run(self, run_idx):
+        return self._h5['runs/{}'.format(int(run_idx))]
+
+    def traj(self, run_idx, traj_idx):
+        return self._h5['runs/{}/{}'.format(run_idx, traj_idx)]
+
+    def n_run_trajs(self, run_idx):
+        return len(self._h5['runs/{}'.format(run_idx)])
+
+    def run_traj_idxs(self, run_idx):
+        return range(len(self._h5['runs/{}'.format(run_idx)]))
+
+    @property
+    def n_atoms(self):
+        return self.positions.shape[1]
+
+    @property
     def topology(self):
         return self._h5['topology']
 
     @topology.setter
     def topology(self, topology):
+        try:
+            json_d = json.loads(topology)
+            del json_d
+        except json.JSONDecodeError:
+            raise ValueError("topology must be a valid JSON string")
+
         self._h5.create_dataset('topology', data=topology)
+        self._exist_flags['topology'] = True
+        # if we are in strict append mode we cannot append after we create something
+        if self._wepy_mode == 'c-':
+            self._append_flags['topology'] = False
 
     def new_run(self, **kwargs):
         # create a new group named the next integer in the counter
         run_grp = self._h5.create_group('runs/{}'.format(str(self._run_idx_counter)))
-        # increment the counter
+
+        # initialize this run's counter for the number of trajectories
+        self._run_traj_idx_counter[self._run_idx_counter] = 0
+
+        # add the run idx as metadata in the run group
+        self.attrs['run_idx'] = self._run_idx_counter
+
+        # increment the run idx counter
         self._run_idx_counter += 1
 
         # add metadata if given
         for key, val in kwargs.items():
-            run_grp.attrs[key] = val
+            if key != 'run_idx':
+                run_grp.attrs[key] = val
+            else:
+                warn('run_idx metadata is set by wepy and cannot be used', RuntimeWarning)
 
         return run_grp
+
+    def add_traj(self, run_idx, weights=None, **kwargs):
+
+        # get the data from the kwargs related to making a trajectory
+        traj_data = _extract_traj_dict(**kwargs)
+
+        # positions are mandatory
+        assert 'positions' in traj_data.keys(), "positions must be given to create a trajectory"
+        assert isinstance(traj_data['positions'], np.ndarray)
+
+        # if weights are None then we assume they are 1.0
+        if weights is None:
+            weights = np.ones_like(traj_data['positions'].shape[0], dtype=float)
+        else:
+            assert isinstance(weights, np.ndarray), "weights must be a numpy.ndarray"
+            assert weights.shape[0] == traj_data['positions'].shape[0],\
+                "weights and the number of frames must be the same length"
+
+        # the rest is run-level metadata on the trajectory, not
+        # details of the MD etc. which should be in the traj_data
+        metadata = {}
+        for key, value in kwargs.items():
+            if not key in traj_data.keys():
+                metadata[key] = value
+
+
+        # make a group for this trajectory, with the current traj_idx
+        # for this run
+        traj_grp = self._h5.create_group(
+                           'runs/{run_idx}/{traj_idx}'.format(run_idx=run_idx,
+                                               traj_idx=self._run_traj_idx_counter[run_idx]))
+
+        # add the run_idx as metadata
+        traj_grp.attrs['run_idx'] = run_idx
+        # add the traj_idx as metadata
+        traj_grp.attrs['traj_idx'] = self._run_traj_idx_counter[run_idx]
+
+        # add the rest of the metadata if given
+        for key, val in metadata.items():
+            if not key in ['run_idx', 'traj_idx']:
+                traj_grp.attrs[key] = val
+            else:
+                warn("run_idx and traj_idx are used by wepy and cannot be set", RuntimeWarning)
+
+
+        # increment the traj_idx_count for this run
+        self._run_traj_idx_counter[run_idx] += 1
+
+        n_atoms = traj_data['positions'].shape[1]
+        # add datasets to the traj group
+
+        # weights
+        traj_grp.create_dataset('weights', data=weights, maxshape=(None))
+
+        # positions
+        traj_grp.create_dataset('positions', data=traj_data['positions'],
+                                maxshape=(None, n_atoms, N_DIMS))
+        # time
+        try:
+            time = traj_data['time']
+        except KeyError:
+            pass
+        else:
+            traj_grp.create_dataset('time', data=time, maxshape=(None))
+
+        # box vectors
+        try:
+            box_vectors = traj_data['box_vectors']
+        except KeyError:
+            pass
+        else:
+            traj_grp.create_dataset('box_vectors', data=box_vectors,
+                                    maxshape=(None, N_DIMS, N_DIMS))
+        # velocities
+        try:
+            velocities = traj_data['velocities']
+        except KeyError:
+            pass
+        else:
+            traj_grp.create_dataset('velocities', data=velocities,
+                                    maxshape=(None, n_atoms, N_DIMS))
+
+        # TODO set other values, forces, parameters, and observables
+
+        return traj_grp
+
+    def append_traj(self, run_idx, traj_idx, weights=None, **kwargs):
+
+
+        if self._wepy_mode == 'c-':
+            assert self._append_flags[dataset_key], "dataset is not available for appending to"
+
+        # add the weights
+        dset = self._h5['runs/{}/{}/{}'.format(run_idx, traj_idx, 'weights')]
+        # append to the dataset on the first dimension, keeping the
+        # others the same
+        dset.resize( (dset.shape[0] + new_data.shape[0], *dset.shape[1:]) )
+        # add the new data
+        dset[-new_data.shape[0]:,:] = new_data
+
+        # get the dataset
+        for key, value in kwargs.items():
+            dset = self._h5['runs/{}/{}/{}'.format(run_idx, traj_idx, key)]
+            # append to the dataset on the first dimension, keeping the
+            # others the same
+            dset.resize( (dset.shape[0] + new_data.shape[0], *dset.shape[1:]) )
+            # add the new data
+            dset[-new_data.shape[0]:,:] = new_data
+
+
+    def add_resampling_records(self, run_idx):
+        pass
+
+
+
+def _extract_traj_dict(**kwargs):
+    traj_data = {}
+    for field in TRAJ_DATA_FIELDS:
+        try:
+            traj_data[field] = kwargs[field]
+        except KeyError:
+            pass
+
+    return traj_data

@@ -51,6 +51,37 @@ class OpenMMWalker(Walker):
     def __init__(self, state, weight):
         super().__init__(state, weight)
 
+        self._keys = ['positions', 'velocities', 'forces', 'kinetic_energy',
+                      'potential_energy', 'time', 'box_vectors', 'box_volume',
+                      'parameters', 'parameter_derivatives']
+
+    def keys(self):
+        return self._keys
+
+    def __getitem__(self, key):
+        if key == 'positions':
+            return self.state.getPositions()
+        elif key == 'velocities':
+            return self.state.getVelocities()
+        elif key == 'forces':
+            return self.state.getForces()
+        elif key == 'kinetic_energy':
+            return self.state.getKineticEnergy()
+        elif key == 'potential_energy':
+            return self.state.getPotentialEnergy()
+        elif key == 'time':
+            return self.state.getTime()
+        elif key == 'box_vectors':
+            return self.getPeriodicBoxVectors()
+        elif key == 'box_volume':
+            return self.getPeriodicBoxVolume()
+        elif key == 'parameters':
+            return self.getParameters()
+        elif key == 'parameter_derivatives':
+            return self.getEnergyParameterDerivatives()
+        else:
+            raise KeyError('{} not an OpenMMWalker attribute')
+
     @property
     def positions(self):
         return self.state.getPositions()

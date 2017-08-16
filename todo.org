@@ -19,3 +19,19 @@ get all values for a collection of indices, with fancy slicing
 ** TODO sparse velocities etc. across trajectory                    :feature:
 
 ** TODO comliance infrastructure                                    :feature:
+
+** TODO units in TrajHDF5                                              :core:
+
+** TODO simulation reproducibility metadata                         :feature:
+
+** TODO setters for forces, parameters, and observables                :core:
+
+THis needs to be in both HDF5 classes
+
+** TODO get number of atoms from the topology                 :core:topology:
+
+** TODO context manager capable                                     :feature:
+
+** TODO traj object for trajs in WepyHDF5                              :core:
+
+This would have the same API as the TrajHDF5 object.
