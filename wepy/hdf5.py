@@ -46,9 +46,6 @@ class TrajHDF5(object):
         The c and c- modes use the h5py 'a' mode underneath and limit
         access to data that is read in.
 
-        If `overwrite` is True then the previous data will be
-        re-initialized upon this constructor being called.
-
         """
         assert mode in ['r', 'r+', 'w', 'w-', 'x', 'a', 'c', 'c-'], \
           "mode must be either 'r', 'r+', 'w', 'x', 'w-', 'a', 'c', or 'c-'"
@@ -69,6 +66,8 @@ class TrajHDF5(object):
         h5 = h5py.File(filename, mode=self._h5py_mode)
         self._h5 = h5
         self.closed = False
+
+        self.N_DIMS = 3
 
         # all the keys for the datasets and groups
         self._keys = ['topology', 'positions',
@@ -166,6 +165,7 @@ class TrajHDF5(object):
         # update the compliance type flags of the dataset
         self._update_compliance_flags()
 
+
     def _update_exist_flags(self):
         """Inspect the hdf5 object and set flags if data exists for the fields."""
         for key in self._keys:
@@ -259,7 +259,7 @@ class TrajHDF5(object):
         if not any(self._exist_flags):
             self.topology = topology
             self._write_datasets(data, units)
-            if self.mode == 'c-':
+            if self._wepy_mode == 'c-':
                 self._update_append_flags()
         # otherwise we first set the flags for what data was read and
         # then add to it only
@@ -269,7 +269,7 @@ class TrajHDF5(object):
 
             # restrict append permissions for those that have their flags
             # set from the read init
-            if self.mode == 'c-':
+            if self._wepy_mode == 'c-':
                 self._update_append_flags()
 
             # write new datasets
@@ -299,6 +299,7 @@ class TrajHDF5(object):
             self._h5.close()
             self.closed = True
 
+    # TODO is this right? shouldn't we actually delete the data then close
     def __del__(self):
         self.close()
 
@@ -337,25 +338,41 @@ class TrajHDF5(object):
         self._h5.create_dataset('topology', data=topology)
         self._exist_flags['topology'] = True
         # if we are in strict append mode we cannot append after we create something
-        if self.mode == 'c-':
+        if self._wepy_mode == 'c-':
             self._append_flags['topology'] = False
 
-    def append_dataset(self, dataset_key, data):
-        if self.mode == 'c-':
+    @property
+    def n_atoms(self):
+        return self.positions.shape[1]
+
+    def append_dataset(self, dataset_key, new_data):
+        if self._wepy_mode == 'c-':
             assert self._append_flags[dataset_key], "dataset is not available for appending to"
-        raise NotImplementedError('feature not finished')
+
+        # get the dataset
+        dset = self._h5[dataset_key]
+        # append to the dataset on the first dimension, keeping the
+        # others the same
+        dset.resize( (dset.shape[0] + new_data.shape[0], *dset.shape[1:]) )
+        # add the new data
+        dset[-new_data.shape[0]:,:] = new_data
 
     @property
     def positions(self):
+
         return self._h5['positions']
 
     @positions.setter
     def positions(self, positions):
         assert isinstance(positions, np.ndarray), "positions must be a numpy array"
-        self._h5.create_dataset('positions', data=positions)
+
+        # get the number of atoms
+        n_atoms = positions.shape[1]
+
+        self._h5.create_dataset('positions', data=positions, maxshape=(None, n_atoms, self.N_DIMS))
         self._exist_flags['positions'] = True
         # if we are in strict append mode we cannot append after we create something
-        if self.mode == 'c-':
+        if self._wepy_mode == 'c-':
             self._append_flags['positions'] = False
 
     @property
@@ -368,10 +385,10 @@ class TrajHDF5(object):
     @time.setter
     def time(self, time):
         assert isinstance(time, np.ndarray), "time must be a numpy array"
-        self._h5.create_dataset('time', data=time)
+        self._h5.create_dataset('time', data=time, maxshape=(None))
         self._exist_flags['time'] = True
         # if we are in strict append mode we cannot append after we create something
-        if self.mode == 'c-':
+        if self._wepy_mode == 'c-':
             self._append_flags['time'] = False
 
     @property
@@ -384,10 +401,11 @@ class TrajHDF5(object):
     @box_vectors.setter
     def box_vectors(self, box_vectors):
         assert isinstance(box_vectors, np.ndarray), "box_vectors must be a numpy array"
-        self._h5.create_dataset('box_vectors', data=box_vectors)
+        self._h5.create_dataset('box_vectors', data=box_vectors,
+                                maxshape=(None, self.N_DIMS, self.N_DIMS))
         self._exist_flags['box_vectors'] = True
         # if we are in strict append mode we cannot append after we create something
-        if self.mode == 'c-':
+        if self._wepy_mode == 'c-':
             self._append_flags['box_vectors'] = False
 
     @property
@@ -400,10 +418,12 @@ class TrajHDF5(object):
     @velocities.setter
     def velocities(self, velocities):
         assert isinstance(velocities, np.ndarray), "velocities must be a numpy array"
-        self._h5.create_dataset('velocities', data=velocities)
+
+        self._h5.create_dataset('velocities', data=velocities,
+                                maxshape=(None, self.n_atoms, self.N_DIMS))
         self._exist_flags['velocities'] = True
         # if we are in strict append mode we cannot append after we create something
-        if self.mode == 'c-':
+        if self._wepy_mode == 'c-':
             self._append_flags['velocities'] = False
 
 
@@ -420,11 +440,13 @@ class TrajHDF5(object):
 
     @forces.setter
     def forces(self, forces):
-        self._h5.create_dataset('forces', data=forces)
-        self._exist_flags['forces'] = True
-        # if we are in strict append mode we cannot append after we create something
-        if self.mode == 'c-':
-            self._append_flags['forces'] = False
+        raise NotImplementedError
+
+        # self._h5.create_dataset('forces', data=forces)
+        # self._exist_flags['forces'] = True
+        # # if we are in strict append mode we cannot append after we create something
+        # if self._wepy_mode == 'c-':
+        #     self._append_flags['forces'] = False
 
     @property
     def parameters(self):
@@ -435,11 +457,13 @@ class TrajHDF5(object):
 
     @parameters.setter
     def parameters(self, parameters):
-        self._h5.create_dataset('parameters', data=parameters)
-        self._exist_flags['parameters'] = True
-        # if we are in strict append mode we cannot append after we create something
-        if self.mode == 'c-':
-            self._append_flags['parameters'] = False
+        raise NotImplementedError
+
+        # self._h5.create_dataset('parameters', data=parameters)
+        # self._exist_flags['parameters'] = True
+        # # if we are in strict append mode we cannot append after we create something
+        # if self._wepy_mode == 'c-':
+        #     self._append_flags['parameters'] = False
 
     @property
     def observables(self):
@@ -450,53 +474,134 @@ class TrajHDF5(object):
 
     @observables.setter
     def observables(self, observables):
-        self._h5.create_dataset('observables', data=observables)
-        self._exist_flags['observables'] = True
-        # if we are in strict append mode we cannot append after we create something
-        if self.mode == 'c-':
-            self._append_flags['observables'] = False
+        raise NotImplementedError
+
+        # self._h5.create_dataset('observables', data=observables)
+        # self._exist_flags['observables'] = True
+        # # if we are in strict append mode we cannot append after we create something
+        # if self._wepy_mode == 'c-':
+        #     self._append_flags['observables'] = False
 
 
 class WepyHDF5(object):
 
-    def __init__(self, filename, mode='x', topology=None, overwrite=True):
+    def __init__(self, filename, mode='x'):
         """Initialize a new Wepy HDF5 file. This is a file that organizes
         wepy.TrajHDF5 dataset subsets by simulations by runs and
         includes resampling records for recovering walker histories.
 
         mode:
         r        Readonly, file must exist
+        r+       Read/write, file must exist
         w        Create file, truncate if exists
-        x        Create file, fail if exists
-        a        Append mode, file must exist
+        x or w-  Create file, fail if exists
+        a        Read/write if exists, create otherwise
+        c        Append (concatenate) file if exists, create otherwise,
+                   read access only to existing data,
+                   can append to existing datasets
+        c-       Append file if exists, create otherwise,
+                   read access only to existing data,
+                   cannot append to existing datasets
 
-        If `overwrite` is True then the previous data will be
-        re-initialized upon this constructor being called.
+        The c and c- modes use the h5py 'a' mode underneath and limit
+        access to data that is read in.
+
 
         """
-        assert mode in ['r', 'w', 'x', 'a'], "mode must be either r, w, x or a"
+
+        assert mode in ['r', 'r+', 'w', 'w-', 'x', 'a', 'c', 'c-'], \
+          "mode must be either 'r', 'r+', 'w', 'x', 'w-', 'a', 'c', or 'c-'"
 
         self._filename = filename
 
+
+        self._filename = filename
+        # the top level mode enforced by wepy.hdf5
+        self._wepy_mode = mode
+
+        # get h5py compatible I/O mode
+        if self._wepy_mode in ['c', 'c-']:
+            h5py_mode = 'a'
+        else:
+            h5py_mode = self._wepy_mode
+        # the lower level h5py mode
+        self._h5py_mode = h5py_mode
+
         # open the file
-        h5 = h5py.File(filename, mode)
+        h5 = h5py.File(filename, mode=self._h5py_mode)
         self._h5 = h5
         self.closed = False
 
-        if mode in ['w', 'x'] and overwrite:
-            self._runs = self._h5.create_group('runs')
-            # this keeps track of the number of runs. The current
-            # value will be the name of the next run that is added,
-            # and this should be incremented when that happens
-            self._run_idx_counter = 0
-            if topology:
-                self.topology = topology
+        # all the keys for the datasets and groups
+        self._keys = ['topology', 'positions',
+                      'time', 'box_vectors',
+                      'velocities',
+                      'forces', 'parameters',
+                      'observables']
+
+        # initialize the exist flags, which say whether a dataset
+        # exists or not
+        self._exist_flags = {key : False for key in self._keys}
+
+        # initialize the append flags dictionary, this keeps track of
+        # whether a data field can be appended to or not
+        self._append_flags = {key : True for key in self._keys}
+
+        # TODO Dataset Complianaces
+
+        # create file mode: 'w' will create a new file or overwrite,
+        # 'w-' and 'x' will not overwrite but will create a new file
+        if self._wepy_mode in ['w', 'w-', 'x']:
+            self._create_init(topology, data, units)
+
+        # read/write mode: in this mode we do not completely overwrite
+        # the old file and start again but rather write over top of
+        # values if requested
+        elif self._wepy_mode in ['r+']:
+            self._read_write_init(topology, data, units)
+
+        # add mode: read/write create if doesn't exist
+        elif self._wepy_mode in ['a']:
+            self._add_init(topology, data, units)
+
+        # append mode
+        elif self._wepy_mode in ['c', 'c-']:
+            # use the hidden init function for appending data
+            self._append_init(topology, data, units)
+
+        # read only mode
+        elif self._wepy_mode == 'r':
+            # if any data was given, raise an error
+            assert (not any([True if (value is not None) else False for key, value in data.items()]))\
+              or (not any([True if (value is not None) else False for key, value in units.items()])),\
+                "Data was provided for a read-only operation"
+
+            # then run the initialization process
+            self._read_init()
+
+        # TODO update the compliance type flags of the dataset
+
+    def _update_exist_flags(self):
+        """Inspect the hdf5 object and set flags if data exists for the fields."""
+        for key in self._keys:
+            if key in list(self._h5.keys()):
+                self._exist_flags[key] = True
+            else:
+                self._exist_flags[key] = False
+
+    def _update_append_flags(self):
+        """Sets flags to False (they are initialized to True) if the dataset
+        currently exists."""
+        for dataset_key, exist_flag in self._exist_flags.items():
+            if exist_flag:
+                self._append_flags[dataset_key] = False
 
 
     @property
     def filename(self):
         return self._filename
 
+    # TODO is this right? shouldn't we actually delete the data then close
     def close(self):
         if not self.closed:
             self._h5.close()
