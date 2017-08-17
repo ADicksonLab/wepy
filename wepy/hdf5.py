@@ -159,8 +159,8 @@ class TrajHDF5(object):
         # read only mode
         elif self._wepy_mode == 'r':
             # if any data was given, warn the user
-            if (not any([True if (value is not None) else False for key, value in data.items()]))\
-              or (not any([True if (value is not None) else False for key, value in units.items()])):
+            if (any([False if (value is None) else True for key, value in data.items()]))\
+              or (any([False if (value is None) else True for key, value in units.items()])):
                 warn("Data was provided for a read-only operation", RuntimeWarning)
 
             # then run the initialization process
@@ -694,6 +694,13 @@ class WepyHDF5(object):
         return self._h5
 
     @property
+    def metadata(self):
+        return dict(self._h5.attrs)
+
+    def add_metadata(self, key, value):
+        self._h5.attrs[key] = value
+
+    @property
     def runs(self):
         return self._h5['runs']
 
@@ -748,7 +755,7 @@ class WepyHDF5(object):
         self._run_traj_idx_counter[self._run_idx_counter] = 0
 
         # add the run idx as metadata in the run group
-        self.attrs['run_idx'] = self._run_idx_counter
+        self._h5['runs/{}'.format(self._run_idx_counter)].attrs['run_idx'] = self._run_idx_counter
 
         # increment the run idx counter
         self._run_idx_counter += 1
@@ -771,12 +778,14 @@ class WepyHDF5(object):
         assert 'positions' in traj_data.keys(), "positions must be given to create a trajectory"
         assert isinstance(traj_data['positions'], np.ndarray)
 
+        n_frames = traj_data['positions'].shape[0]
+
         # if weights are None then we assume they are 1.0
         if weights is None:
-            weights = np.ones_like(traj_data['positions'].shape[0], dtype=float)
+            weights = np.ones(n_frames, dtype=float)
         else:
             assert isinstance(weights, np.ndarray), "weights must be a numpy.ndarray"
-            assert weights.shape[0] == traj_data['positions'].shape[0],\
+            assert weights.shape[0] == n_frames,\
                 "weights and the number of frames must be the same length"
 
         # the rest is run-level metadata on the trajectory, not
@@ -813,7 +822,7 @@ class WepyHDF5(object):
         # add datasets to the traj group
 
         # weights
-        traj_grp.create_dataset('weights', data=weights, maxshape=(None))
+        traj_grp.create_dataset('weights', data=weights, maxshape=(None,))
 
         # positions
         traj_grp.create_dataset('positions', data=traj_data['positions'],
@@ -824,7 +833,7 @@ class WepyHDF5(object):
         except KeyError:
             pass
         else:
-            traj_grp.create_dataset('time', data=time, maxshape=(None))
+            traj_grp.create_dataset('time', data=time, maxshape=(None,))
 
         # box vectors
         try:
@@ -849,27 +858,54 @@ class WepyHDF5(object):
 
     def append_traj(self, run_idx, traj_idx, weights=None, **kwargs):
 
-
         if self._wepy_mode == 'c-':
             assert self._append_flags[dataset_key], "dataset is not available for appending to"
 
+        # get trajectory data from the kwargs
+        traj_data = _extract_traj_dict(**kwargs)
+
+        # number of frames to add
+        n_new_frames = traj_data['positions'].shape[0]
+
+        # if weights are None then we assume they are 1.0
+        if weights is None:
+            weights = np.ones(n_new_frames, dtype=float)
+        else:
+            assert isinstance(weights, np.ndarray), "weights must be a numpy.ndarray"
+            assert weights.shape[0] == n_new_frames,\
+                "weights and the number of frames must be the same length"
+
+        # get the trajectory group
+        traj_grp = self._h5['runs/{}/{}'.format(run_idx, traj_idx)]
+
         # add the weights
-        dset = self._h5['runs/{}/{}/{}'.format(run_idx, traj_idx, 'weights')]
+        dset = traj_grp['weights']
+
         # append to the dataset on the first dimension, keeping the
-        # others the same
-        dset.resize( (dset.shape[0] + new_data.shape[0], *dset.shape[1:]) )
+        # others the same, if they exist
+        if len(dset.shape) > 1:
+            dset.resize( (dset.shape[0] + n_new_frames, *dset.shape[1:]) )
+        else:
+            dset.resize( (dset.shape[0] + n_new_frames, ) )
+
         # add the new data
-        dset[-new_data.shape[0]:,:] = new_data
+        dset[-n_new_frames:, ...] = weights
 
         # get the dataset
         for key, value in kwargs.items():
-            dset = self._h5['runs/{}/{}/{}'.format(run_idx, traj_idx, key)]
-            # append to the dataset on the first dimension, keeping the
-            # others the same
-            dset.resize( (dset.shape[0] + new_data.shape[0], *dset.shape[1:]) )
-            # add the new data
-            dset[-new_data.shape[0]:,:] = new_data
 
+            # get the dataset handle
+            dset = self._h5['runs/{}/{}/{}'.format(run_idx, traj_idx, key)]
+
+            # append to the dataset on the first dimension, keeping the
+            # others the same, if they exist
+            if len(dset.shape) > 1:
+                dset.resize( (dset.shape[0] + n_new_frames, *dset.shape[1:]) )
+            else:
+                dset.resize( (dset.shape[0] + n_new_frames, ) )
+
+            # add the new data
+            dset[-n_new_frames:, ...] = value
 
     def add_resampling_records(self, run_idx):
         pass

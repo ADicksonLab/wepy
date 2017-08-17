@@ -1,4 +1,6 @@
-from wepy.reporter import FileReporter
+import numpy as np
+
+from wepy.reporter.reporter import FileReporter
 from wepy.hdf5 import WepyHDF5
 
 class WepyHDF5Reporter(FileReporter):
@@ -12,7 +14,7 @@ class WepyHDF5Reporter(FileReporter):
     def init(self):
 
         # open and initialize the HDF5 file
-        self.wepy_h5 = WepyHDF5(self.file_path, self._tmp_topology, mode=self.mode)
+        self.wepy_h5 = WepyHDF5(self.file_path, topology=self._tmp_topology, mode=self.mode)
         # save space and delete the temp topology from the attributes
         del self._tmp_topology
 
@@ -32,10 +34,21 @@ class WepyHDF5Reporter(FileReporter):
                 self.wepy_h5.append_traj(self.wepy_run_idx, walker_idx,
                                          weights=np.array([walker.weight]),
                                          **walker)
+            # start a new trajectory
             else:
-                # start a new trajectory
+
+                # collect data
+                walker_data = {}
+                for key, value in walker.dict().items():
+                    # if the result is None exclude it from the data
+                    if value is not None:
+                        walker_data[key] = np.array([value])
+
                 traj_grp = self.wepy_h5.add_traj(self.wepy_run_idx, weights=np.array([walker.weight]),
-                                                 **walker)
+                                                 **walker_data)
                 # add as metadata the cycle idx where this walker started
                 traj_grp.attrs['starting_cycle_idx'] = cycle_idx
 
+
+    def cleanup(self):
+        self.wepy_h5.close()

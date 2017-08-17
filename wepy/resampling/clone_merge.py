@@ -4,6 +4,10 @@ import random as rand
 from wepy.resampling.decision import Decision
 from wepy.resampling.resampler import Resampler, ResamplingRecord
 
+# the minimum number of walkers needed to perform clones one at a
+# time
+MIN_N_WALKERS = 3
+
 class CloneMergeDecision(Decision):
     NOTHING = 1
     CLONE = 2
@@ -20,6 +24,11 @@ class RandomCloneMergeResampler(Resampler):
     def resample(self, walkers, debug_prints=False):
 
         n_walkers = len(walkers)
+
+        # check to make sure there is enough walkers to clone and merge
+        if n_walkers < MIN_N_WALKERS:
+            raise TypeError("There must be at least 3 walkers to do cloning and merging")
+
         result_template_str = "|".join(["{:^10}" for i in range(n_walkers+1)])
         # choose number of clone-merges between 1 and 10
         n_clone_merges = rand.randint(0, self.n_resamplings)

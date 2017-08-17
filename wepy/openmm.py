@@ -55,36 +55,53 @@ class OpenMMWalker(Walker):
                       'potential_energy', 'time', 'box_vectors', 'box_volume',
                       'parameters', 'parameter_derivatives']
 
+    def dict(self):
+        """return a dict of the values."""
+        return {'positions' : self.positions_values(),
+                'velocities' : self.velocities_values(),
+                'forces' : self.forces_values(),
+                'kinetic_energy' : self.kinetic_energy_value(),
+                'potential_energy' : self.potential_energy_value(),
+                'time' : self.time_value(),
+                'box_vectors' : self.box_vectors_values(),
+                'box_volume' : self.box_volume_value(),
+                'parameters' : self.parameters_values(),
+                'parameter_derivatives' : self.parameter_derivatives_values()
+                    }
+
     def keys(self):
         return self._keys
 
-    def __getitem__(self, key):
-        if key == 'positions':
-            return self.state.getPositions()
-        elif key == 'velocities':
-            return self.state.getVelocities()
-        elif key == 'forces':
-            return self.state.getForces()
-        elif key == 'kinetic_energy':
-            return self.state.getKineticEnergy()
-        elif key == 'potential_energy':
-            return self.state.getPotentialEnergy()
-        elif key == 'time':
-            return self.state.getTime()
-        elif key == 'box_vectors':
-            return self.getPeriodicBoxVectors()
-        elif key == 'box_volume':
-            return self.getPeriodicBoxVolume()
-        elif key == 'parameters':
-            return self.getParameters()
-        elif key == 'parameter_derivatives':
-            return self.getEnergyParameterDerivatives()
-        else:
-            raise KeyError('{} not an OpenMMWalker attribute')
+    # def __getitem__(self, key):
+    #     if key == 'positions':
+    #         return self.state.getPositions()
+    #     elif key == 'velocities':
+    #         return self.state.getVelocities()
+    #     elif key == 'forces':
+    #         return self.state.getForces()
+    #     elif key == 'kinetic_energy':
+    #         return self.state.getKineticEnergy()
+    #     elif key == 'potential_energy':
+    #         return self.state.getPotentialEnergy()
+    #     elif key == 'time':
+    #         return self.state.getTime()
+    #     elif key == 'box_vectors':
+    #         return self.getPeriodicBoxVectors()
+    #     elif key == 'box_volume':
+    #         return self.getPeriodicBoxVolume()
+    #     elif key == 'parameters':
+    #         return self.getParameters()
+    #     elif key == 'parameter_derivatives':
+    #         return self.getEnergyParameterDerivatives()
+    #     else:
+    #         raise KeyError('{} not an OpenMMWalker attribute')
 
     @property
     def positions(self):
-        return self.state.getPositions()
+        try:
+            return self.state.getPositions()
+        except TypeError:
+            return None
 
     @property
     def positions_unit(self):
@@ -95,7 +112,10 @@ class OpenMMWalker(Walker):
 
     @property
     def velocities(self):
-        return self.state.getVelocities()
+        try:
+            return self.state.getVelocities()
+        except TypeError:
+            return None
 
     @property
     def velocities_unit(self):
@@ -106,7 +126,10 @@ class OpenMMWalker(Walker):
 
     @property
     def forces(self):
-        return self.state.getForces()
+        try:
+            return self.state.getForces()
+        except TypeError:
+            return None
 
     @property
     def forces_unit(self):
@@ -117,7 +140,10 @@ class OpenMMWalker(Walker):
 
     @property
     def kinetic_energy(self):
-        return self.state.getKineticEnergy()
+        try:
+            return self.state.getKineticEnergy()
+        except TypeError:
+            return None
 
     @property
     def kinetic_energy_unit(self):
@@ -128,7 +154,10 @@ class OpenMMWalker(Walker):
 
     @property
     def potential_energy(self):
-        return self.state.getPotentialEnergy()
+        try:
+            return self.state.getPotentialEnergy()
+        except TypeError:
+            return None
 
     @property
     def potential_energy_unit(self):
@@ -139,7 +168,10 @@ class OpenMMWalker(Walker):
 
     @property
     def time(self):
-        return self.state.getTime()
+        try:
+            return self.state.getTime()
+        except TypeError:
+            return None
 
     @property
     def time_unit(self):
@@ -150,7 +182,10 @@ class OpenMMWalker(Walker):
 
     @property
     def box_vectors(self):
-        return self.state.getPeriodicBoxVectors()
+        try:
+            return self.state.getPeriodicBoxVectors()
+        except TypeError:
+            return None
 
     @property
     def box_vectors_unit(self):
@@ -161,7 +196,10 @@ class OpenMMWalker(Walker):
 
     @property
     def box_volume(self):
-        return self.state.getPeriodicBoxVolume()
+        try:
+            return self.state.getPeriodicBoxVolume()
+        except TypeError:
+            return None
 
     @property
     def box_volume_unit(self):
@@ -172,7 +210,10 @@ class OpenMMWalker(Walker):
 
     @property
     def parameters(self):
-        return self.state.getParameters()
+        try:
+            return self.state.getParameters()
+        except TypeError:
+            return None
 
     # TODO test this, this is jsut a guess because I don't use parameters
     @property
@@ -184,11 +225,19 @@ class OpenMMWalker(Walker):
     def parameters_values(self):
         param_arrs = {key : np.array(val.value_in_unit(val.unit)) for key, val
                           in self.parameters.items()}
-        return param_arrs
+
+        # return None if there is nothing in this
+        if len(param_arrs) == 0:
+            return None
+        else:
+            return param_arrs
 
     @property
     def parameter_derivatives(self):
-        return self.state.getEnergyParameterDerivatives()
+        try:
+            return self.state.getEnergyParameterDerivatives()
+        except TypeError:
+            return None
 
     # TODO test this, this is jsut a guess because I don't use parameters
     @property
@@ -200,9 +249,12 @@ class OpenMMWalker(Walker):
     def parameter_derivatives_values(self):
         param_arrs = {key : np.array(val.value_in_unit(val.unit)) for key, val
                           in self.parameter_derivatives.items()}
-        return param_arrs
 
-    def to_hdf5(self):
+        # return None if there is nothing in this
+        if len(param_arrs) == 0:
+            return None
+        else:
+            return param_arrs
 
     def to_mdtraj(self):
         """ Returns an mdtraj.Trajectory object from this walker's state."""

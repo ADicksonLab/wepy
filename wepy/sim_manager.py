@@ -18,7 +18,7 @@ class CountingIterator(object):
 
 class Manager(object):
 
-    def __init__(self, init_walkers, num_workers,
+    def __init__(self, init_walkers, num_workers=None,
                  runner = NoRunner(),
                  resampler = NoResampler(),
                  work_mapper = map,
@@ -36,7 +36,7 @@ class Manager(object):
         # the function for running work on the workers
         self.map = work_mapper
         # the method for writing output
-        self.report = reporter
+        self.reporter = reporter
 
     def run_segment(self, walkers, segment_length, debug_prints=False):
         """Run a time segment for all walkers using the available workers. """
@@ -71,8 +71,7 @@ class Manager(object):
         self.reporter.init()
 
         walkers = self.init_walkers
-        walker_records = [walkers]
-        resampling_records = []
+        # the main cycle loop
         for cycle_idx in range(n_cycles):
 
             if debug_prints:
@@ -112,5 +111,7 @@ class Manager(object):
             # prepare resampled walkers for running new state changes
             walkers = resampled_walkers
 
+        # cleanup things associated with the reporter
+        self.reporter.cleanup()
 
-        return walker_records, resampling_records
+        return True
