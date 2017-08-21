@@ -1,3 +1,4 @@
+from collections import Iterable
 import json
 from warnings import warn
 
@@ -364,7 +365,7 @@ class TrajHDF5(object):
 
     def append_traj(self, **kwargs):
         """ append to the trajectory as a whole """
-        assert 'positions' in kwargs.keys()
+        assert 'positions' in kwargs
         pass
 
     @property
@@ -769,13 +770,50 @@ class WepyHDF5(object):
 
         return run_grp
 
+    def init_run_resampling(self, run_idx, decision_enum, instruction_dtypes):
+
+        run_grp = self.run(run_idx)
+
+        # init a resampling group
+        # initialize the resampling group
+        res_grp = run_grp.create_group('resampling')
+        # initialize the records and data groups
+        rec_grp = res_grp.create_group('records')
+        data_grp = res_grp.create_group('data')
+
+        # save the decision as a mapping in it's own group
+        decision_map = {decision.name : decision.value for decision in decision_enum}
+        decision_grp = res_grp.create_group('decision')
+        for decision in decision_enum:
+            decision_grp.create_dataset(decision.name, data=decision.value)
+
+        # initialize the decision types as datasets, using the
+        # instruction dtypes to set the size of them
+        for decision in decision_enum:
+
+            instruct_dtype = instruction_dtypes[decision.name]
+            # validate the instruction dtype for whether it is
+            # variable or fixed length
+            variable_length = _instruction_is_variable_length(instruct_dtype)
+            # if it is fixed length we have to break up the decision
+            # into multiple groups which are dynamically created if necessary
+            if variable_length:
+                # TODO
+                pass
+            # the datatype is simple and we can initialize the dataset now
+            else:
+                # we need to create a compound datatype
+                dt = _make_numpy_instruction_dtype(instruct_dtype)
+                # then make the group with that datatype, which can be extended
+                rec_group.create_dataset(decision.name, dtype=dt, maxshape=(None, len(instruct_dtype)))
+
     def add_traj(self, run_idx, weights=None, **kwargs):
 
         # get the data from the kwargs related to making a trajectory
         traj_data = _extract_traj_dict(**kwargs)
 
         # positions are mandatory
-        assert 'positions' in traj_data.keys(), "positions must be given to create a trajectory"
+        assert 'positions' in traj_data, "positions must be given to create a trajectory"
         assert isinstance(traj_data['positions'], np.ndarray)
 
         n_frames = traj_data['positions'].shape[0]
@@ -792,7 +830,7 @@ class WepyHDF5(object):
         # details of the MD etc. which should be in the traj_data
         metadata = {}
         for key, value in kwargs.items():
-            if not key in traj_data.keys():
+            if not key in traj_data:
                 metadata[key] = value
 
 
@@ -907,8 +945,16 @@ class WepyHDF5(object):
             # add the new data
             dset[-n_new_frames:, ...] = value
 
-    def add_resampling_records(self, run_idx):
-        pass
+    def add_resampling_records(self, run_idx, resampling_records):
+
+        # get the run group
+        run_grp = self.run(run_idx)
+        # get the resampling group
+        resampling_grp = run_grp['resampling']
+        # records group
+        rec_grp = resampling_grp['records']
+
+        # each resampling record
 
 
 
@@ -921,3 +967,31 @@ def _extract_traj_dict(**kwargs):
             pass
 
     return traj_data
+
+INSTRUCTION_TYPES = ['VARIABLE', 'FIXED']
+
+def _instruction_is_variable_length(instruction_dtype):
+
+    # examine it for usage of Nones
+    variable_length = False
+    for i, token in enumerate(instruction_dtype):
+        if isinstance(token, Iterable):
+            if token[0] is None:
+                # check whether the None is in the right place, i.e. last position
+                if i = len(instruction_dtype - 1):
+                    raise TypeError("None (variable length) field must be the"
+                                    "last token in the instruction dtype dict")
+                else:
+                    variable_length = True
+
+    return variable_length
+
+
+def _make_numpy_instruction_dtype(instruction_dtype):
+
+    dtype_map = [('cycle_idx', np.int), ('step_idx', np.int), ('walker_idx', np.int)]
+    for i, token in enumerate(instruction_dtype):
+        dtype_map.append( (str(i), token) )
+
+    return np.dtype(dtype_map)
+

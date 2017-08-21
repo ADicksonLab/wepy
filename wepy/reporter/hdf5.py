@@ -5,11 +5,13 @@ from wepy.hdf5 import WepyHDF5
 
 class WepyHDF5Reporter(FileReporter):
 
-    def __init__(self, file_path, topology, mode='a'):
+    def __init__(self, file_path, decisions, instruction_dtypes, topology, mode='a'):
 
         super().__init__(file_path, mode=mode)
         self.wepy_run_idx = None
         self._tmp_topology = topology
+        self.decisions = decisions
+        self.instruction_dtypes = instruction_dtypes
 
     def init(self):
 
@@ -20,9 +22,13 @@ class WepyHDF5Reporter(FileReporter):
 
         # initialize a new run
         run_grp = self.wepy_h5.new_run()
+        self.run_grp = run_grp
         self.wepy_run_idx = run_grp.attrs['run_idx']
 
-    def report(self, cycle_idx, walkers, resampling_records):
+        # initialize the resampling group within this run
+        self.wepy_h5.init_run_resampling(self.decisions, self.instruction_dtypes)
+
+    def report(self, cycle_idx, walkers, resampling_records, resampling_data):
 
         n_walkers = len(walkers)
 
@@ -48,6 +54,12 @@ class WepyHDF5Reporter(FileReporter):
                                                  **walker_data)
                 # add as metadata the cycle idx where this walker started
                 traj_grp.attrs['starting_cycle_idx'] = cycle_idx
+
+        # add resampling records
+        self.add_resampling_records(self.wepy_run_idx, resampling_records)
+
+        # add the resampling data
+        self.add_resampling_data(self.wepy_run_idx, resampling_data)
 
 
     def cleanup(self):

@@ -1,6 +1,8 @@
 from collections import namedtuple
 import random as rand
 
+import numpy as np
+
 from wepy.resampling.decision import Decision
 from wepy.resampling.resampler import Resampler, ResamplingRecord
 
@@ -8,18 +10,31 @@ from wepy.resampling.resampler import Resampler, ResamplingRecord
 # time
 MIN_N_WALKERS = 3
 
+# the decision enumeration
 class CloneMergeDecision(Decision):
     NOTHING = 1
     CLONE = 2
     SQUASH = 3
     KEEP_MERGE = 4
 
+CLONE_MERGE_INSTRUCTION_DTYPES = {CloneMergeDecision.NOTHING.name : (np.int),
+                                  CloneMergeDecision.CLONE.name : ( (None, np.int) ),
+                                  CloneMergeDecision.SQUASH.name : (np.int),
+                                  CloneMergeDecision.KEEP_MERGE.name : (np.int),
+                                 }
+
 class RandomCloneMergeResampler(Resampler):
+
+    # constants for the class
+    DECISION = CloneMergeDecision
+    INSTRUCTION_DTYPES = CLONE_MERGE_INSTRUCTION_DTYPES
 
     def __init__(self, seed, n_resamplings=10):
         self.seed = seed
-        self.n_resamplings = n_resamplings
         rand.seed(seed)
+        self.n_resamplings = n_resamplings
+
+
 
     def resample(self, walkers, debug_prints=False):
 
@@ -137,12 +152,14 @@ class RandomCloneMergeResampler(Resampler):
                 print(walker_weight_str)
 
 
+        # return values: resampled_walkers, resampler_records, resampling_data
+        # we return no extra data from this resampler
         if n_clone_merges == 0:
-            return walkers, []
+            return walkers, [], []
         else:
             # return the final state of the resampled walkers after all
             # stages, and the records of resampling
-            return resampled_walkers, resampling_actions
+            return resampled_walkers, resampling_actions, []
 
 def clone_parent_panel(clone_merge_resampling_record):
     # only the parents from the last stage of a cycle resampling

@@ -12,6 +12,7 @@ import simtk.unit as unit
 import mdtraj as mdj
 
 from wepy.sim_manager import Manager
+from wepy.resampling.clone_merge import CloneMergeDecision, CLONE_MERGE_INSTRUCTION_DTYPES
 from wepy.resampling.clone_merge import RandomCloneMergeResampler
 from wepy.openmm import OpenMMRunner, OpenMMWalker
 from wepy.reporter.hdf5 import WepyHDF5Reporter
@@ -109,9 +110,14 @@ if __name__ == "__main__":
     top_str = top_h5['topology'][0].decode()
     top_h5.close()
 
+    # we also need to give the reporter the decision types and the
+    # instruction datatypes for the resampler we are using.
+    decision = resampler.DECISION
+    instruction_dtypes = resampler.INSTRUCTION_DTYPES
+
     # make a reporter for recording an HDF5 file for the simulation
     report_path = 'wepy_results.h5'
-    reporter = WepyHDF5Reporter(report_path, top_str, mode='w')
+    reporter = WepyHDF5Reporter(report_path, decision, instruction_dtypes, top_str, mode='w')
 
     # Instantiate a simulation manager
     sim_manager = Manager(init_walkers,
@@ -122,7 +128,7 @@ if __name__ == "__main__":
 
 
     # run a simulation with the manager for 3 cycles of length 1000 each
-    sim_manager.run_simulation(1, [1000])
+    sim_manager.run_simulation(2, [1000, 2000])
 
     # # write the output to a parent panel of all merges and clones within cycles
     # parent_panel = clone_parent_panel(resampling_records)

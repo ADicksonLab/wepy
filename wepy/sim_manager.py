@@ -84,9 +84,12 @@ class Manager(object):
             if debug_prints:
                 sys.stdout.write("End cycle {}\n".format(cycle_idx))
 
+            # apply rules of boundary conditions
+
 
             # resample based walkers
-            resampled_walkers, cycle_resampling_records = self.resampler.resample(new_walkers)
+            resampled_walkers, resampling_records, resampling_data =\
+                                                            self.resampler.resample(new_walkers)
 
             if debug_prints:
                 # print results for this cycle
@@ -106,7 +109,7 @@ class Manager(object):
                 print(walker_weight_str)
 
             # report results to the reporter
-            self.reporter.report(cycle_idx, new_walkers, cycle_resampling_records)
+            self.reporter.report(cycle_idx, new_walkers, resampling_records, resampling_data)
 
             # prepare resampled walkers for running new state changes
             walkers = resampled_walkers

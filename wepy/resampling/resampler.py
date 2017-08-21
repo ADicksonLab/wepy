@@ -20,4 +20,5 @@ class NoResampler(Resampler):
         resampling_records = [ResamplingRecord(decision=Decision.FALSE, value=i)
                              for i in range(len(walkers))]
 
-        return walkers, [resampling_records]
+        # return values: resampled walkers, resampling records, resampling data
+        return walkers, [resampling_records], []
