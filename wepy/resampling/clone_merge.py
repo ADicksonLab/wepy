@@ -17,10 +17,10 @@ class CloneMergeDecision(Decision):
     SQUASH = 3
     KEEP_MERGE = 4
 
-CLONE_MERGE_INSTRUCTION_DTYPES = {CloneMergeDecision.NOTHING.name : (np.int),
-                                  CloneMergeDecision.CLONE.name : ( (None, np.int) ),
-                                  CloneMergeDecision.SQUASH.name : (np.int),
-                                  CloneMergeDecision.KEEP_MERGE.name : (np.int),
+CLONE_MERGE_INSTRUCTION_DTYPES = {CloneMergeDecision.NOTHING.name : [('pos', np.int)],
+                                  CloneMergeDecision.CLONE.name : [(None, np.int)],
+                                  CloneMergeDecision.SQUASH.name : [('merge_to', np.int)],
+                                  CloneMergeDecision.KEEP_MERGE.name : [('pos', np.int)],
                                  }
 
 class RandomCloneMergeResampler(Resampler):

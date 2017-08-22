@@ -562,7 +562,7 @@ class WepyHDF5(object):
         # for each run there will be a special mapping for the
         # instruction dtypes which we need for a single session,
         # stored here organized by run (int) as the key
-        self._instruction_dtype_tokens = {}
+        self.instruction_dtypes_tokens = {}
 
         # TODO Dataset Complianaces
 
@@ -774,12 +774,12 @@ class WepyHDF5(object):
 
         return run_grp
 
-    def init_run_resampling(self, run_idx, decision_enum, instruction_dtypes):
+    def init_run_resampling(self, run_idx, decision_enum, instruction_dtypes_tokens):
 
         run_grp = self.run(run_idx)
 
-        # save the instruction_dtypes in the object
-        self._instruction_dtype_tokens[run_idx] = instruction_dtypes
+        # save the instruction_dtypes_tokens in the object
+        self.instruction_dtypes_tokens[run_idx] = instruction_dtypes_tokens
 
         # init a resampling group
         # initialize the resampling group
@@ -791,7 +791,7 @@ class WepyHDF5(object):
         # save the decision as a mapping in it's own group
         decision_map = {decision.name : decision.value for decision in decision_enum}
         decision_grp = res_grp.create_group('decision')
-        decision_enum_group = decision_grp.create_group('enum')
+        decision_enum_grp = decision_grp.create_group('enum')
         for decision in decision_enum:
             decision_enum_grp.create_dataset(decision.name, data=decision.value)
 
@@ -802,10 +802,10 @@ class WepyHDF5(object):
         # instruction dtypes to set the size of them
         for decision in decision_enum:
 
-            instruct_dtype = instruction_dtypes[decision.name]
+            instruct_dtype_tokens = self.instruction_dtypes_tokens[run_idx][decision.name]
             # validate the instruction dtype for whether it is
             # variable or fixed length
-            variable_length = _instruction_is_variable_length(instruct_dtype)
+            variable_length = _instruction_is_variable_length(instruct_dtype_tokens)
             # if it is fixed length we have to break up the decision
             # into multiple groups which are dynamically created if necessary
             if variable_length:
@@ -823,15 +823,15 @@ class WepyHDF5(object):
             else:
                 # we need to create a compound datatype
                 # make a proper dtype out of the instruct_dtype tuple
-                instruct_dtype = np.dtype(instruct_dtype)
+                instruct_dtype = np.dtype(instruct_dtype_tokens)
                 # then pass that to the instruction dtype maker
                 dt = _make_numpy_instruction_dtype(instruct_dtype)
                 # then make the group with that datatype, which can be extended
-                rec_group.create_dataset(decision.name, (0,) dtype=dt, maxshape=(None,)))
+                rec_grp.create_dataset(decision.name, (0,), dtype=dt, maxshape=(None,))
 
         # another group in the decision group that keeps track of flags for variable lengths
         varlength_grp = decision_grp.create_group('variable_length')
-        for decision_name, flag for is_variable_lengths.items():
+        for decision_name, flag in is_variable_lengths.items():
             varlength_grp.create_dataset(decision_name, data=flag)
 
     def add_traj(self, run_idx, weights=None, **kwargs):
@@ -1029,7 +1029,7 @@ class WepyHDF5(object):
 
             # we first need to make a proper dtype from the instruction record
             # fetch the instruct dtype tuple
-            instruct_dtype_tokens = self._instruction_dtype_tokens[run_idx]
+            instruct_dtype_tokens = self.instruction_dtypes_tokens[run_idx][decision_key]
             dt = _make_numpy_varlength_instruction_dtype(instruct_dtype)
 
             # make the dataset with the given dtype
@@ -1087,24 +1087,23 @@ def _extract_traj_dict(**kwargs):
 
 INSTRUCTION_TYPES = ['VARIABLE', 'FIXED']
 
-def _instruction_is_variable_length(instruction_dtype):
+def _instruction_is_variable_length(instruction_dtype_tokens):
 
-    # examine it for usage of Nones
+    # examine it for usage of Nones in field names of struct dtype tokens
     variable_length = False
-    for i, token in enumerate(instruction_dtype):
-        if isinstance(token, Iterable):
-            if token[0] is None:
-                # check whether the None is in the right place, i.e. last position
-                if i = len(instruction_dtype - 1):
-                    raise TypeError("None (variable length) field must be the"
-                                    "last token in the instruction dtype dict")
-                else:
-                    variable_length = True
+    for i, token in enumerate(instruction_dtype_tokens):
+        if token[0] is None:
+            # check whether the None is in the right place, i.e. last position
+            if i == len(instruction_dtype_tokens) - 1:
+                raise TypeError("None (variable length) field must be the"
+                                "last token in the instruction dtype dict")
+            else:
+                variable_length = True
 
     return variable_length
 
 
-def _make_numpy_instruction_dtype(instruction_dtype):
+def _make_numpy_instruction_dtype(instruct_dtype):
 
     dtype_map = [('cycle_idx', np.int), ('step_idx', np.int), ('walker_idx', np.int),
                      ('instruction', instruct_dtype)]
@@ -1118,12 +1117,11 @@ def _make_numpy_varlength_instruction_dtype(varlength_instruct_type, varlength_w
     dtype_tokens = []
     for token in varlength_instruct_type:
         # if this is the None token
-        if isinstance(token, Iterable):
-            if token[0] is None:
-                # we replace it with multiple tokens of the type given
-                # in the tokens tuple
-                for i in range(varlength_width):
-                    dtype_tokens.append(token[1])
+        if token[0] is None:
+            # we replace it with multiple tokens of the type given
+            # in the tokens tuple
+            for i in range(varlength_width):
+                dtype_tokens.append((str(i), token[1]))
         else:
             dtype_tokens.append(token)
 
