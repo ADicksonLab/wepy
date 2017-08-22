@@ -92,22 +92,6 @@ switching to the last release and installing with pip:
                  history and contains all the walkers that were cloned
                  and not squashed from the root.
 
-** Resampling data format
-
-Walker resampling is to be recorded as a list of the action taken and
-the associated data. For cloning and merging there is 4 enumerated
-actions with the data associated:
-- NOTHING, walker_slot_idx :: the walker is not to be cloned or merged
-     the index is the slot it will occupy in the next step which must be open
-- CLONED, walker_slot_idxs[n_clones] :: the walker is to be cloned to
-     the given walker slots, these slots must be available
-- SQUASHED, keep_merge_walker_slot_idx :: this walker will donate it's
-     probability to another walker and "merged" but its state will be
-     lost, the index is the walker_slot_idx of the KEEP_MERGE walker
-     before resampling
-- KEEP_MERGE, walker_slot_idx :: this walker will have at least one
-     squashed walker donate its probability and be merged, the index
-     is the walker slot index it will occupy in the next cycle.
 
 ** Architecture
 
