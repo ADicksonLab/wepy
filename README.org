@@ -32,7 +32,8 @@ switching to the last release and installing with pip:
 
 - [X] Weighted Ensemble Layer
   - [X] simulation manager
-- [ ] Resampling sub-module
+- [-] Resampling sub-module
+  - [X] Random clone-merge resampler
   - [ ] WExplore
   - [ ] resampling utilities
     - [ ] cloning and merging
@@ -49,8 +50,28 @@ switching to the last release and installing with pip:
            phase of a weighted ensemble run in which walkers are
            cloned and merged. Walker resampling occurs every
            \(\tau\) time units of molecular dynamics time.
-- workers :: the number of actual computational units for doing the
-             simulation.
+- segment :: the dynamics run in a single cycle
+- resampling :: the process of reweighting walkers so that the
+                distribution of walkers in space is optimized while
+                still maintaining the same probability distribution;
+                accomplished through cloning and merging in
+                traditional weighted ensemble
+- steps :: resampling for a single cycle may be done in multiple
+           steps
+
+- clone walker :: a walker is split into \(n\) different walkers each
+                  with \(1/n\) weight
+
+- squash walker :: when \(N\), the total number of walkers in a
+                   sampling run, is constrained cloned walkers need to
+                   be accomodated by forcing other walkers to be
+                   merged. Squashed walkers have their state thrown
+                   out but contribute their weight to another
+                   'keep-merge' walker
+
+- keep-merge walker :: during a merge of multiple walkers this is the
+                       walker whose state is retained.
+
 - walker :: a state of the system along with a probability. At the
             beginning of a WE simulation probability is split evenly
             between the walkers. Walkers can be split/cloned onto
@@ -65,11 +86,8 @@ switching to the last release and installing with pip:
 - walker slot :: a slot in the list of walkers when there is a
                  constant number of walkers maintained throughout a
                  simulation.
-- walker resampling :: the process of cloning and merging every cycle.
 - walker trajectory :: the list of states in the history of a
-     particular walker.
-- walker trace :: the list of walker slots a particular walker occupied
-                  during a WE run.
+                       particular walker.
 - walker tree :: a tree rooted at a particular point in a walker's
                  history and contains all the walkers that were cloned
                  and not squashed from the root.
