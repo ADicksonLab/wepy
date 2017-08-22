@@ -559,6 +559,10 @@ class WepyHDF5(object):
         # whether a data field can be appended to or not
         self._append_flags = {key : True for key in self._keys}
 
+        # for each run there will be a special mapping for the
+        # instruction dtypes which we need for a single session,
+        # stored here organized by run (int) as the key
+        self._instruction_dtype_tokens = {}
 
         # TODO Dataset Complianaces
 
@@ -774,6 +778,9 @@ class WepyHDF5(object):
 
         run_grp = self.run(run_idx)
 
+        # save the instruction_dtypes in the object
+        self._instruction_dtype_tokens[run_idx] = instruction_dtypes
+
         # init a resampling group
         # initialize the resampling group
         res_grp = run_grp.create_group('resampling')
@@ -784,8 +791,12 @@ class WepyHDF5(object):
         # save the decision as a mapping in it's own group
         decision_map = {decision.name : decision.value for decision in decision_enum}
         decision_grp = res_grp.create_group('decision')
+        decision_enum_group = decision_grp.create_group('enum')
         for decision in decision_enum:
-            decision_grp.create_dataset(decision.name, data=decision.value)
+            decision_enum_grp.create_dataset(decision.name, data=decision.value)
+
+        # initialize a mapping for whether decision has a variable length instruction type
+        is_variable_lengths = {decision.name : False for decision in decision_enum}
 
         # initialize the decision types as datasets, using the
         # instruction dtypes to set the size of them
@@ -798,14 +809,30 @@ class WepyHDF5(object):
             # if it is fixed length we have to break up the decision
             # into multiple groups which are dynamically created if necessary
             if variable_length:
-                # TODO
-                pass
+                # record this in the mapping that will be stored in the file
+                is_variable_lengths[decision.name] = True
+
+                # create a group for this decision
+                instruct_grp = rec_group.create_group(decision.name)
+
+                # in the group we start a dataset that keeps track of
+                # which width datasets have been initialized
+                instruct_grp.create_dataset('_initialized', (0,), dtype=np.int, maxshape=(None,))
+
             # the datatype is simple and we can initialize the dataset now
             else:
                 # we need to create a compound datatype
+                # make a proper dtype out of the instruct_dtype tuple
+                instruct_dtype = np.dtype(instruct_dtype)
+                # then pass that to the instruction dtype maker
                 dt = _make_numpy_instruction_dtype(instruct_dtype)
                 # then make the group with that datatype, which can be extended
-                rec_group.create_dataset(decision.name, dtype=dt, maxshape=(None, len(instruct_dtype)))
+                rec_group.create_dataset(decision.name, (0,) dtype=dt, maxshape=(None,)))
+
+        # another group in the decision group that keeps track of flags for variable lengths
+        varlength_grp = decision_grp.create_group('variable_length')
+        for decision_name, flag for is_variable_lengths.items():
+            varlength_grp.create_dataset(decision_name, data=flag)
 
     def add_traj(self, run_idx, weights=None, **kwargs):
 
@@ -954,8 +981,98 @@ class WepyHDF5(object):
         # records group
         rec_grp = resampling_grp['records']
 
-        # each resampling record
+        # loop through each cycle
+        for cycle_idx, cycle_steps in enumerate(resampling_records):
+            # go through each step
+            for step_idx, step in enumerate(cycle_steps):
+                # for each decision and instruction record add the instruction record
+                for traj_idx, decision in enumerate(step):
+                    walker_idx = self._traj_walker_idx(run_idx, traj_idx)
+                    decision_key = decision[0]
+                    instruct_record = decision[1]
+                    self.add_instruction_record(run_idx, decision_key,
+                                                cycle_idx, step_idx, walker_idx,
+                                                instruct_record)
 
+    def add_instruction_record(self, run_idx, decision_key,
+                               cycle_idx, step_idx, walker_idx,
+                               instruct_record):
+
+        run_grp = self.run(run_idx)
+        varlengths = self._instruction_varlength_flags(run_idx)
+
+        # we need to treat variable length decision instructions
+        # differently than fixed width
+
+        # test whether the decision has a variable width instruction format
+        if varlengths[decision_key]:
+            self._add_varlength_instruction_record(run_idx, decision_key,
+                                                   cycle_idx, step_idx, walker_idx,
+                                                   instruct_record)
+        else:
+            self._add_fixed_width_instruction_record(run_idx, decision_key,
+                                                     cycle_idx, step_idx, walker_idx,
+                                                     instruct_record)
+
+    def _add_varlength_instruction_record(self, run_idx, decision_key,
+                                          cycle_idx, step_idx, walker_idx,
+                                          instruct_record):
+        # the isntruction record group
+        instruct_grp = self._h5['runs/{}/resampling/records/{}'.format(run_idx, decision_key)]
+        # the dataset of initialized datasets for different widths
+        widths_dset = instruct_grp['_initialized']
+
+        # see if we have a dataset with the width already intialized
+        if not len(instruct_record) in widths_dset:
+            # we don't have a dataset so create it
+            # create the datatype for the dataset
+
+            # we first need to make a proper dtype from the instruction record
+            # fetch the instruct dtype tuple
+            instruct_dtype_tokens = self._instruction_dtype_tokens[run_idx]
+            dt = _make_numpy_varlength_instruction_dtype(instruct_dtype)
+
+            # make the dataset with the given dtype
+            instruct_grp.create_dataset(str(len(instruct_record)), (0,), dtype=dt, maxshape=(None,))
+
+        # add the record to the dataset
+        self._append_instruct_records(dset, instruct_record)
+
+
+    def _add_fixed_width_instruction_record(self, run_idx, decision_key,
+                                            cycle_idx, step_idx, walker_idx,
+                                            instruct_record):
+        # the decision dataset
+        dset = self._h5['runs/{}/resampling/records/{}'.format(run_idx, decision_key)]
+        # make an appropriate record
+        record = (cycle_idx, step_idx, walker_idx, instruct_record)
+        # add the record to the dataset
+        self._append_instruct_records(dset, [record])
+
+    def _append_instruct_records(self, dset, records):
+        n_records = len(records)
+        dset.resize( (dset.shape[0] + n_records, ) )
+        dset[-n_records:] = records
+
+    def decision(self, run_idx):
+        return self._h5['runs/{}/resampling/decision'.format(run_idx)]
+
+    def decision_enum(self, run_idx):
+
+        enum_grp = self._h5['runs/{}/resampling/decision/enum'.format(run_idx)]
+        enum = {}
+        for decision_name, dset in enum_grp.items():
+            enum[decision_name] = dset
+
+        return enum
+
+    def _instruction_varlength_flags(self, run_idx):
+        varlength_grp = self._h5['runs/{}/resampling/decision/variable_length'.format(run_idx)]
+        varlength = {}
+        for decision_name, dset in varlength_grp.items():
+            varlength[decision_name] = dset
+
+        return varlength
 
 
 def _extract_traj_dict(**kwargs):
@@ -989,9 +1106,29 @@ def _instruction_is_variable_length(instruction_dtype):
 
 def _make_numpy_instruction_dtype(instruction_dtype):
 
-    dtype_map = [('cycle_idx', np.int), ('step_idx', np.int), ('walker_idx', np.int)]
-    for i, token in enumerate(instruction_dtype):
-        dtype_map.append( (str(i), token) )
+    dtype_map = [('cycle_idx', np.int), ('step_idx', np.int), ('walker_idx', np.int),
+                     ('instruction', instruct_dtype)]
 
     return np.dtype(dtype_map)
 
+def _make_numpy_varlength_instruction_dtype(varlength_instruct_type, varlength_width):
+
+    # replace the (None, type) token with several tokens from the
+    # given length
+    dtype_tokens = []
+    for token in varlength_instruct_type:
+        # if this is the None token
+        if isinstance(token, Iterable):
+            if token[0] is None:
+                # we replace it with multiple tokens of the type given
+                # in the tokens tuple
+                for i in range(varlength_width):
+                    dtype_tokens.append(token[1])
+        else:
+            dtype_tokens.append(token)
+
+    # make a numpy dtype from it
+    instruct_record_dtype = np.dtype(dtype_tokens)
+
+    # make a full instruction dtype from this and return it
+    return self._make_numpy_instruction_dtype(instruct_record_dtype)
