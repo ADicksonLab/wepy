@@ -122,7 +122,11 @@ class OpenMMWalker(Walker):
         return self.velocities.unit
 
     def velocities_values(self):
-        return np.array(self.velocities.value_in_unit(self.velocities_unit))
+        velocities = self.velocities
+        if velocities is None:
+            return None
+        else:
+            return np.array(self.velocities.value_in_unit(self.velocities_unit))
 
     @property
     def forces(self):
@@ -136,7 +140,11 @@ class OpenMMWalker(Walker):
         return self.forces.unit
 
     def forces_values(self):
-        return np.array(self.forces.value_in_unit(self.forces_unit))
+        forces = self.forces
+        if forces is None:
+            return None
+        else:
+            return np.array(self.forces.value_in_unit(self.forces_unit))
 
     @property
     def kinetic_energy(self):
@@ -150,7 +158,11 @@ class OpenMMWalker(Walker):
         return self.kinetic_energy.unit
 
     def kinetic_energy_value(self):
-        return self.kinetic_energy.value_in_unit(self.kinetic_energy_unit)
+        kinetic_energy = self.kinetic_energy
+        if kinetic_energy is None:
+            return None
+        else:
+            return np.array(self.kinetic_energy.value_in_unit(self.kinetic_energy_unit))
 
     @property
     def potential_energy(self):
@@ -164,7 +176,11 @@ class OpenMMWalker(Walker):
         return self.potential_energy.unit
 
     def potential_energy_value(self):
-        return self.potential_energy.value_in_unit(self.potential_energy_unit)
+        potential_energy = self.potential_energy
+        if potential_energy is None:
+            return None
+        else:
+            return np.array(self.potential_energy.value_in_unit(self.potential_energy_unit))
 
     @property
     def time(self):
@@ -178,7 +194,11 @@ class OpenMMWalker(Walker):
         return self.time.unit
 
     def time_value(self):
-        return self.time.value_in_unit(self.time_unit)
+        time = self.time
+        if time is None:
+            return None
+        else:
+            return np.array(self.time.value_in_unit(self.time_unit))
 
     @property
     def box_vectors(self):
@@ -192,7 +212,11 @@ class OpenMMWalker(Walker):
         return self.box_vectors.unit
 
     def box_vectors_values(self):
-        return np.array(self.box_vectors.value_in_unit(self.box_vectors_unit))
+        box_vectors = self.box_vectors
+        if box_vectors is None:
+            return None
+        else:
+            return np.array(self.box_vectors.value_in_unit(self.box_vectors_unit))
 
     @property
     def box_volume(self):
@@ -206,7 +230,11 @@ class OpenMMWalker(Walker):
         return self.box_volume.unit
 
     def box_volume_value(self):
-        return self.box_volume.value_in_unit(self.box_volume_unit)
+        box_volume = self.box_volume
+        if box_volume is None:
+            return None
+        else:
+            return np.array(self.box_volume.value_in_unit(self.box_volume_unit))
 
     @property
     def parameters(self):
@@ -223,6 +251,9 @@ class OpenMMWalker(Walker):
 
     # TODO test this, this is jsut a guess because I don't use parameters
     def parameters_values(self):
+        if self.parameters is None:
+            return None
+
         param_arrs = {key : np.array(val.value_in_unit(val.unit)) for key, val
                           in self.parameters.items()}
 
@@ -247,6 +278,10 @@ class OpenMMWalker(Walker):
 
     # TODO test this, this is jsut a guess because I don't use parameter_derivatives
     def parameter_derivatives_values(self):
+
+        if self.parameter_derivatives is None:
+            return None
+
         param_arrs = {key : np.array(val.value_in_unit(val.unit)) for key, val
                           in self.parameter_derivatives.items()}
 

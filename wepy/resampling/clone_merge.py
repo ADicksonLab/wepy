@@ -44,11 +44,12 @@ class RandomCloneMergeResampler(Resampler):
         if n_walkers < MIN_N_WALKERS:
             raise TypeError("There must be at least 3 walkers to do cloning and merging")
 
-        result_template_str = "|".join(["{:^10}" for i in range(n_walkers+1)])
+
         # choose number of clone-merges between 1 and 10
         n_clone_merges = rand.randint(0, self.n_resamplings)
 
         if debug_prints:
+            result_template_str = "|".join(["{:^10}" for i in range(n_walkers+1)])
             print("Number of clone-merges to perform: {}".format(n_clone_merges))
 
         resampling_actions = []
@@ -104,21 +105,21 @@ class RandomCloneMergeResampler(Resampler):
 
             # make the decision records for this stage of resampling
             # initialize to CloneMergeDecision.NOTHING, and their starting index
-            walker_actions = [ResamplingRecord(decision = CloneMergeDecision.NOTHING,
-                                               instruction = i)
+            walker_actions = [ResamplingRecord(decision = CloneMergeDecision.NOTHING.value,
+                                               instruction = (i,))
                               for i in range(n_walkers)]
             # for the cloned one make a record for the instruction
             walker_actions[clone_idx] = ResamplingRecord(
-                decision = CloneMergeDecision.CLONE,
-                instruction = (clone_idx, squash_idx))
+                decision = CloneMergeDecision.CLONE.value,
+                instruction = (clone_idx, squash_idx,))
             # for the squashed walker
             walker_actions[squash_idx] = ResamplingRecord(
-                decision=CloneMergeDecision.SQUASH,
-                instruction=merge_idx)
+                decision=CloneMergeDecision.SQUASH.value,
+                instruction=(merge_idx,))
             # for the keep-merged walker
             walker_actions[merge_idx] = ResamplingRecord(
-                decision=CloneMergeDecision.KEEP_MERGE,
-                instruction=merge_idx)
+                decision=CloneMergeDecision.KEEP_MERGE.value,
+                instruction=(merge_idx,))
 
             resampling_actions.append(walker_actions)
 

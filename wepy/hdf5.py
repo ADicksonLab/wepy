@@ -9,7 +9,9 @@ import h5py
 # Constants
 N_DIMS = 3
 TRAJ_DATA_FIELDS = ['positions', 'time', 'box_vectors', 'velocities',
-                    'forces', 'parameters', 'forces']
+                    'parameters', 'forces', 'kinetic_energy', 'potential_energy',
+                    'box_volume', 'parameters', 'parameter_derivatives', 'observables']
+INSTRUCTION_TYPES = ['VARIABLE', 'FIXED']
 
 def load_dataset(path):
     return None
@@ -542,11 +544,24 @@ class WepyHDF5(object):
         self._h5 = h5
         self.closed = False
 
+        ### WepyHDF5 specific variables
+
         # counters for run and traj indexing
         self._run_idx_counter = 0
         # count the number of trajectories each run has
         self._run_traj_idx_counter = {}
 
+        # the counter for the cycle the records are on, incremented
+        # each time the add_cycle_resampling_records is called
+        self._current_resampling_rec_cycle = 0
+
+        # for each run there will be a special mapping for the
+        # instruction dtypes which we need for a single session,
+        # stored here organized by run (int) as the key
+        self.instruction_dtypes_tokens = {}
+
+
+        ### HDF5 file wrapper specific variables
 
         # all the keys for the top-level items in this class
         self._keys = ['topology', 'runs', 'resampling', 'boundary_conditions']
@@ -559,10 +574,6 @@ class WepyHDF5(object):
         # whether a data field can be appended to or not
         self._append_flags = {key : True for key in self._keys}
 
-        # for each run there will be a special mapping for the
-        # instruction dtypes which we need for a single session,
-        # stored here organized by run (int) as the key
-        self.instruction_dtypes_tokens = {}
 
         # TODO Dataset Complianaces
 
@@ -722,13 +733,16 @@ class WepyHDF5(object):
         return self._h5['runs/{}'.format(int(run_idx))]
 
     def traj(self, run_idx, traj_idx):
-        return self._h5['runs/{}/{}'.format(run_idx, traj_idx)]
+        return self._h5['runs/{}/trajectories/{}'.format(run_idx, traj_idx)]
+
+    def run_trajs(self, run_idx):
+        return self._h5['runs/{}/trajectories'.format(run_idx)]
 
     def n_run_trajs(self, run_idx):
-        return len(self._h5['runs/{}'.format(run_idx)])
+        return len(self._h5['runs/{}/trajectories'.format(run_idx)])
 
     def run_traj_idxs(self, run_idx):
-        return range(len(self._h5['runs/{}'.format(run_idx)]))
+        return range(len(self._h5['runs/{}/trajectories'.format(run_idx)]))
 
     @property
     def n_atoms(self):
@@ -764,6 +778,9 @@ class WepyHDF5(object):
 
         # increment the run idx counter
         self._run_idx_counter += 1
+
+        # initialize the walkers group
+        traj_grp = run_grp.create_group('trajectories')
 
         # add metadata if given
         for key, val in kwargs.items():
@@ -813,7 +830,7 @@ class WepyHDF5(object):
                 is_variable_lengths[decision.name] = True
 
                 # create a group for this decision
-                instruct_grp = rec_group.create_group(decision.name)
+                instruct_grp = rec_grp.create_group(decision.name)
 
                 # in the group we start a dataset that keeps track of
                 # which width datasets have been initialized
@@ -864,8 +881,7 @@ class WepyHDF5(object):
         # make a group for this trajectory, with the current traj_idx
         # for this run
         traj_grp = self._h5.create_group(
-                           'runs/{run_idx}/{traj_idx}'.format(run_idx=run_idx,
-                                               traj_idx=self._run_traj_idx_counter[run_idx]))
+                           'runs/{}/trajectories/{}'.format(run_idx, self._run_traj_idx_counter[run_idx]))
 
         # add the run_idx as metadata
         traj_grp.attrs['run_idx'] = run_idx
@@ -917,7 +933,60 @@ class WepyHDF5(object):
             traj_grp.create_dataset('velocities', data=velocities,
                                     maxshape=(None, n_atoms, N_DIMS))
 
+        # TODO update for multiple forces
+        # forces
+        try:
+            forces = traj_data['forces']
+        except KeyError:
+            pass
+        else:
+            traj_grp.create_dataset('forces', data=forces,
+                                    maxshape=(None, n_atoms, N_DIMS))
+
         # TODO set other values, forces, parameters, and observables
+
+        # potential energy
+        try:
+            potential_energy = traj_data['potential_energy']
+        except KeyError:
+            pass
+        else:
+            traj_grp.create_dataset('potential_energy', data=potential_energy,
+                                    maxshape=(None,))
+
+        # kinetic energy
+        try:
+            kinetic_energy = traj_data['kinetic_energy']
+        except KeyError:
+            pass
+        else:
+            traj_grp.create_dataset('kinetic_energy', data=kinetic_energy,
+                                    maxshape=(None,))
+
+        # box volume
+        try:
+            box_volume = traj_data['box_volume']
+        except KeyError:
+            pass
+        else:
+            traj_grp.create_dataset('box_volume', data=box_volume,
+                                    maxshape=(None,))
+
+        # parameters
+        try:
+            parameters = traj_data['parameters']
+        except KeyError:
+            pass
+        else:
+            traj_grp.create_group('parameters')
+
+        # parameter_derivatives
+        try:
+            parameter_derivatives = traj_data['parameter_derivatives']
+        except KeyError:
+            pass
+        else:
+            traj_grp.create_group('parameter_derivatives')
 
         return traj_grp
 
@@ -941,7 +1010,7 @@ class WepyHDF5(object):
                 "weights and the number of frames must be the same length"
 
         # get the trajectory group
-        traj_grp = self._h5['runs/{}/{}'.format(run_idx, traj_idx)]
+        traj_grp = self._h5['runs/{}/trajectories/{}'.format(run_idx, traj_idx)]
 
         # add the weights
         dset = traj_grp['weights']
@@ -959,8 +1028,12 @@ class WepyHDF5(object):
         # get the dataset
         for key, value in kwargs.items():
 
+            # if there is no value for a key just ignore it
+            if value is None:
+                continue
+
             # get the dataset handle
-            dset = self._h5['runs/{}/{}/{}'.format(run_idx, traj_idx, key)]
+            dset = self._h5['runs/{}/trajectories/{}/{}'.format(run_idx, traj_idx, key)]
 
             # append to the dataset on the first dimension, keeping the
             # others the same, if they exist
@@ -972,7 +1045,7 @@ class WepyHDF5(object):
             # add the new data
             dset[-n_new_frames:, ...] = value
 
-    def add_resampling_records(self, run_idx, resampling_records):
+    def add_cycle_resampling_records(self, run_idx, cycle_resampling_records):
 
         # get the run group
         run_grp = self.run(run_idx)
@@ -981,18 +1054,30 @@ class WepyHDF5(object):
         # records group
         rec_grp = resampling_grp['records']
 
-        # loop through each cycle
-        for cycle_idx, cycle_steps in enumerate(resampling_records):
-            # go through each step
-            for step_idx, step in enumerate(cycle_steps):
-                # for each decision and instruction record add the instruction record
-                for traj_idx, decision in enumerate(step):
-                    walker_idx = self._traj_walker_idx(run_idx, traj_idx)
-                    decision_key = decision[0]
-                    instruct_record = decision[1]
-                    self.add_instruction_record(run_idx, decision_key,
-                                                cycle_idx, step_idx, walker_idx,
-                                                instruct_record)
+        # the cycle you are on for cycle resampling records, this is
+        # automatically updated
+        cycle_idx = self._current_resampling_rec_cycle
+
+        # the mapping of decision values to names
+        decision_value_names = self.decision_value_names(run_idx)
+
+        # go through each step
+        for step_idx, step in enumerate(cycle_resampling_records):
+            # for each decision and instruction record add the instruction record
+            for walker_idx, resampling_rec in enumerate(step):
+                # the value for the decision, (an int)
+                decision_value = resampling_rec.decision
+                # get the string name for this
+                decision_key = decision_value_names[decision_value]
+                # a tuple for the instruction record
+                instruct_record = resampling_rec.instruction
+                # add this record to the data
+                self.add_instruction_record(run_idx, decision_key,
+                                            cycle_idx, step_idx, walker_idx,
+                                            instruct_record)
+
+        # update the current cycle idx
+        self._current_resampling_rec_cycle += 1
 
     def add_instruction_record(self, run_idx, decision_key,
                                cycle_idx, step_idx, walker_idx,
@@ -1005,7 +1090,7 @@ class WepyHDF5(object):
         # differently than fixed width
 
         # test whether the decision has a variable width instruction format
-        if varlengths[decision_key]:
+        if varlengths[decision_key][()]:
             self._add_varlength_instruction_record(run_idx, decision_key,
                                                    cycle_idx, step_idx, walker_idx,
                                                    instruct_record)
@@ -1022,21 +1107,35 @@ class WepyHDF5(object):
         # the dataset of initialized datasets for different widths
         widths_dset = instruct_grp['_initialized']
 
+        # the width of this record
+        instruct_width = len(instruct_record)
+
         # see if we have a dataset with the width already intialized
-        if not len(instruct_record) in widths_dset:
+        if not instruct_width in widths_dset[:]:
             # we don't have a dataset so create it
             # create the datatype for the dataset
 
             # we first need to make a proper dtype from the instruction record
             # fetch the instruct dtype tuple
             instruct_dtype_tokens = self.instruction_dtypes_tokens[run_idx][decision_key]
-            dt = _make_numpy_varlength_instruction_dtype(instruct_dtype)
+            dt = _make_numpy_varlength_instruction_dtype(instruct_dtype_tokens, instruct_width)
 
             # make the dataset with the given dtype
-            instruct_grp.create_dataset(str(len(instruct_record)), (0,), dtype=dt, maxshape=(None,))
+            dset = instruct_grp.create_dataset(str(len(instruct_record)), (0,),
+                                               dtype=dt, maxshape=(None,))
 
+            # record it in the initialized list
+            widths_dset.resize( (widths_dset.shape[0] + 1, ) )
+            widths_dset[-1] = instruct_width
+
+        # if it exists get a reference to the dataset according to length
+        else:
+            dset = instruct_grp[str(len(instruct_record))]
+
+        # make the complete record to add to the dataset
+        record = (cycle_idx, step_idx, walker_idx, instruct_record)
         # add the record to the dataset
-        self._append_instruct_records(dset, instruct_record)
+        self._append_instruct_records(dset, [record])
 
 
     def _add_fixed_width_instruction_record(self, run_idx, decision_key,
@@ -1052,7 +1151,12 @@ class WepyHDF5(object):
     def _append_instruct_records(self, dset, records):
         n_records = len(records)
         dset.resize( (dset.shape[0] + n_records, ) )
+        records_arr = np.array(records, dtype=dset.dtype)
         dset[-n_records:] = records
+
+
+    def resampling(self, run_idx):
+        return self._h5['runs/{}/resampling'.format(run_idx)]
 
     def decision(self, run_idx):
         return self._h5['runs/{}/resampling/decision'.format(run_idx)]
@@ -1066,6 +1170,18 @@ class WepyHDF5(object):
 
         return enum
 
+    def decision_value_names(self, run_idx):
+        enum_grp = self._h5['runs/{}/resampling/decision/enum'.format(run_idx)]
+        rev_enum = {}
+        for decision_name, dset in enum_grp.items():
+            value = dset[()]
+            rev_enum[value] = decision_name
+
+        return rev_enum
+
+    def resampling_records_grp(self, run_idx):
+        return self._h5['runs/{}/resampling/records'.format(run_idx)]
+
     def _instruction_varlength_flags(self, run_idx):
         varlength_grp = self._h5['runs/{}/resampling/decision/variable_length'.format(run_idx)]
         varlength = {}
@@ -1073,6 +1189,7 @@ class WepyHDF5(object):
             varlength[decision_name] = dset
 
         return varlength
+
 
 
 def _extract_traj_dict(**kwargs):
@@ -1085,7 +1202,7 @@ def _extract_traj_dict(**kwargs):
 
     return traj_data
 
-INSTRUCTION_TYPES = ['VARIABLE', 'FIXED']
+
 
 def _instruction_is_variable_length(instruction_dtype_tokens):
 
@@ -1094,7 +1211,7 @@ def _instruction_is_variable_length(instruction_dtype_tokens):
     for i, token in enumerate(instruction_dtype_tokens):
         if token[0] is None:
             # check whether the None is in the right place, i.e. last position
-            if i == len(instruction_dtype_tokens) - 1:
+            if i != len(instruction_dtype_tokens) - 1:
                 raise TypeError("None (variable length) field must be the"
                                 "last token in the instruction dtype dict")
             else:
@@ -1129,4 +1246,4 @@ def _make_numpy_varlength_instruction_dtype(varlength_instruct_type, varlength_w
     instruct_record_dtype = np.dtype(dtype_tokens)
 
     # make a full instruction dtype from this and return it
-    return self._make_numpy_instruction_dtype(instruct_record_dtype)
+    return _make_numpy_instruction_dtype(instruct_record_dtype)

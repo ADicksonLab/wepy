@@ -114,7 +114,10 @@ if __name__ == "__main__":
 
     # make a reporter for recording an HDF5 file for the simulation
     report_path = 'wepy_results.h5'
-    reporter = WepyHDF5Reporter(report_path, top_str, mode='w')
+    reporter = WepyHDF5Reporter(report_path,
+                                resampler.DECISION,
+                                resampler.INSTRUCTION_DTYPES,
+                                top_str, mode='w')
 
     # Instantiate a simulation manager
     sim_manager = Manager(init_walkers,
@@ -126,6 +129,7 @@ if __name__ == "__main__":
 
 
     # run a simulation with the manager for 3 cycles of length 1000 each
+    print("Running simulation")
     sim_manager.run_simulation(3, [1000, 1000, 1000])
 
     # # write the output to a parent panel of all merges and clones within cycles

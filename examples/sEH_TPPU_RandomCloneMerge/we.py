@@ -119,6 +119,7 @@ if __name__ == "__main__":
     report_path = 'wepy_results.h5'
     reporter = WepyHDF5Reporter(report_path, decision, instruction_dtypes, top_str, mode='w')
 
+
     # Instantiate a simulation manager
     sim_manager = Manager(init_walkers,
                           runner=runner,
