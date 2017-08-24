@@ -1,3 +1,52 @@
+** Terminology
+
+- cycle :: the running of an MD segment and the walker resampling
+           phase of a weighted ensemble run in which walkers are
+           cloned and merged. Walker resampling occurs every
+           \(\tau\) time units of molecular dynamics time.
+- segment :: the dynamics run in a single cycle
+- resampling :: the process of reweighting walkers so that the
+                distribution of walkers in space is optimized while
+                still maintaining the same probability distribution;
+                accomplished through cloning and merging in
+                traditional weighted ensemble
+- steps :: resampling for a single cycle may be done in multiple
+           steps
+
+- clone walker :: a walker is split into \(n\) different walkers each
+                  with \(1/n\) weight
+
+- squash walker :: when \(N\), the total number of walkers in a
+                   sampling run, is constrained cloned walkers need to
+                   be accomodated by forcing other walkers to be
+                   merged. Squashed walkers have their state thrown
+                   out but contribute their weight to another
+                   'keep-merge' walker
+
+- keep-merge walker :: during a merge of multiple walkers this is the
+                       walker whose state is retained.
+
+- walker :: a state of the system along with a probability. At the
+            beginning of a WE simulation probability is split evenly
+            between the walkers. Walkers can be split/cloned onto
+            multiple walkers and merged onto the same walkers. When
+            a walker is cloned the probability of each new walker is
+            split uniformly. When a walker is merged the probability
+            is summed and one of the states is forgotten, or squashed,
+            leaving only one conformation (this is only the case if we
+            want to keep states that are within a particular ensemble,
+            otherwise some sort of average or median state could be
+            used).
+- walker slot :: a slot in the list of walkers when there is a
+                 constant number of walkers maintained throughout a
+                 simulation.
+- walker trajectory :: the list of states in the history of a
+                       particular walker.
+- walker tree :: a tree rooted at a particular point in a walker's
+                 history and contains all the walkers that were cloned
+                 and not squashed from the root.
+
+
 ** Resampling data format
 
 Walker resampling is to be recorded as a list of the action taken and

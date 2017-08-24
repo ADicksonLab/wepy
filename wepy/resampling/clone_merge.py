@@ -29,9 +29,10 @@ class RandomCloneMergeResampler(Resampler):
     DECISION = CloneMergeDecision
     INSTRUCTION_DTYPES = CLONE_MERGE_INSTRUCTION_DTYPES
 
-    def __init__(self, seed, n_resamplings=10):
-        self.seed = seed
-        rand.seed(seed)
+    def __init__(self, seed=None, n_resamplings=10):
+        if seed is not None:
+            self.seed = seed
+            rand.seed(seed)
         self.n_resamplings = n_resamplings
 
 

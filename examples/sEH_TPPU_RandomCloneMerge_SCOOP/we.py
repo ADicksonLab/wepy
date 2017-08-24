@@ -26,9 +26,18 @@ from resampling_tree.tree import monte_carlo_minimization, make_graph
 
 if __name__ == "__main__":
 
+    #### SETUP: skip this for understanding -----------------------------------------
+
     # write out an hdf5 storage of the system
     mdj_pdb = mdj.load_pdb('sEH_TPPU_system.pdb')
     mdj_pdb.save_hdf5('sEH_TPPU_system.h5')
+
+    # we need a JSON string for now in the topology section of the
+    # HDF5 so we just load the topology from the hdf5 file
+    top_h5 = h5py.File("sEH_TPPU_system.h5")
+    # it is in bytes so we need to decode to a string, which is in JSON format
+    top_str = top_h5['topology'][0].decode()
+    top_h5.close()
 
     # set up the system which will be passed to the arguments of the mapped functions
     # the topology from the PSF
@@ -76,41 +85,21 @@ if __name__ == "__main__":
                                                   getVelocities=True,
                                                   getParameters=True)
 
+
+    #### END SETUP -----------------------------------------------------------------
+
     # set up parameters for running the simulation
-    num_workers = 8
     num_walkers = 8
-    # initial weights
+    # initial weights, split equally between the walkers
     init_weight = 1.0 / num_walkers
-    # make a generator for the initial walkers
+    # make the initial walkers
     init_walkers = [OpenMMWalker(minimized_state, init_weight) for i in range(num_walkers)]
-
-    # make a template string for pretty printing results as we go
-    result_template_str = "|".join(["{:^10}" for i in range(num_walkers + 1)])
-
-    # print the initial walkers
-    print("The initial walkers:")
-    # slots
-    slot_str = result_template_str.format("slot", *[i for i in range(num_walkers)])
-    print(slot_str)
-    # weights
-    walker_weight_str = result_template_str.format("weight",
-        *[str(init_weight) for i in range(num_walkers)])
-    print(walker_weight_str)
 
     # set up the OpenMMRunner with your system
     runner = OpenMMRunner(system, psf.topology)
 
-
     # set up the RandomResampler with the same random seed
-    seed = 3247862378
-    resampler = RandomCloneMergeResampler(3247862378)
-
-    # we need a JSON string for now in the topology section of the
-    # HDF5 so we just load the topology from the hdf5 file
-    top_h5 = h5py.File("sEH_TPPU_system.h5")
-    # it is in bytes so we need to decode to a string, which is in JSON format
-    top_str = top_h5['topology'][0].decode()
-    top_h5.close()
+    resampler = RandomCloneMergeResampler()
 
     # make a reporter for recording an HDF5 file for the simulation
     report_path = 'wepy_results.h5'
@@ -121,9 +110,9 @@ if __name__ == "__main__":
 
     # Instantiate a simulation manager
     sim_manager = Manager(init_walkers,
-                          num_workers,
                           runner=runner,
                           resampler=resampler,
+                          # the mapper may be swapped out for simply `map`
                           work_mapper=scoop.futures.map,
                           reporter=reporter)
 
@@ -132,59 +121,5 @@ if __name__ == "__main__":
     print("Running simulation")
     sim_manager.run_simulation(3, [1000, 1000, 1000])
 
-    # # write the output to a parent panel of all merges and clones within cycles
-    # parent_panel = clone_parent_panel(resampling_records)
+    # your data should be in the 'wepy_results.h5'
 
-    # # make a table of the net parents for each cycle to a table
-    # parent_table = np.array(clone_parent_table(resampling_records))
-
-    # # write out the table to a csv
-    # np.savetxt("parents.dat", parent_table, fmt='%i')
-
-    # # save the trajectories as hdf5 trajectories
-    # walker_trajs = [walker_records[0]]
-    # # the first one is the initial walkers
-    # for cycle_idx, cycle in walker_records[1:]:
-
-    # # make a dataframe out out of the resampling records
-    # # make a new record with all the info we need across the run
-    # DFResamplingRecord = namedtuple("DFResamplingRecord", ['cycle_idx', 'step_idx', 'walker_idx',
-    #                                                        'decision', 'instruction'])
-    # # make these records
-    # df_recs = []
-    # for cycle_idx, cycle in enumerate(resampling_records):
-    #     # each cycle has multiple steps of resampling
-    #     for step_idx, step in enumerate(cycle):
-    #         for walker_idx, rec in enumerate(step):
-    #             df_rec = DFResamplingRecord(cycle_idx=cycle_idx,
-    #                                         step_idx=step_idx,
-    #                                         walker_idx=walker_idx,
-    #                                         decision=rec.decision.name,
-    #                                         instruction=rec.instruction)
-    #             df_recs.append(df_rec)
-    # # make a dataframe from them and write it out
-    # resampling_df = pd.DataFrame(df_recs)
-    # resampling_df.to_csv("resampling.csv")
-
-
-    # ## tree visualization
-    # # make a weights table for the walkers
-    # weights = []
-    # for cycle in walker_records:
-    #     cycle_weights = [walker.weight for walker in cycle]
-    #     weights.append(cycle_weights)
-    # weights = np.array(weights)
-
-    # # create a tree visualization
-    # # make a distance array of equal distances from scratch
-    # distances = []
-    # for cycle in walker_records:
-    #     d_matrix = np.ones((len(cycle), len(cycle)))
-    #     distances.append(d_matrix)
-    # distances = np.array(distances)
-
-    # node_positions = monte_carlo_minimization(parent_table, distances, weights, 50, debug=True)
-    # nx_graph = make_graph(parent_table, node_positions,
-    #                           weight=weights)
-
-    # nx.write_gexf(nx_graph, "random_resampler_tree.gexf")
