@@ -3,10 +3,18 @@
 A dead simple, modular implementation and framework for running
 weighted ensemble simulations in pure python.
 
+The goal of the architecture is that it should be highly modular to
+allow extension, but provide a "killer app" for most uses that just
+works, no questions asked.
 
 Comes equipped with support for [[https://github.com/pandegroup/openmm][OpenMM]] molecular dynamics, [[https://github.com/soravux/scoop][SCOOP]] for
 concurrent execution, the [[http://pubs.acs.org/doi/abs/10.1021/jp411479c][WExplore]] resampling algorithm, and an HDF5
-file format and library for storing and querying your WE datasets.
+file format and library for storing and querying your WE datasets that
+can be used from the command line.
+
+The deeper architecture of ~wepy~ is intended to be loosely coupled,
+so that unforeseen use cases can be accomodated, but tightly
+integrated for the most common of use cases, i.e. molecular dynamics.
 
 ** Installation
 
@@ -24,7 +32,8 @@ switching to the last release and installing with pip:
 
 - [X] Weighted Ensemble Layer
   - [X] simulation manager
-- [ ] Resampling sub-module
+- [-] Resampling sub-module
+  - [X] Random clone-merge resampler
   - [ ] WExplore
   - [ ] resampling utilities
     - [ ] cloning and merging
@@ -41,8 +50,28 @@ switching to the last release and installing with pip:
            phase of a weighted ensemble run in which walkers are
            cloned and merged. Walker resampling occurs every
            \(\tau\) time units of molecular dynamics time.
-- workers :: the number of actual computational units for doing the
-             simulation.
+- segment :: the dynamics run in a single cycle
+- resampling :: the process of reweighting walkers so that the
+                distribution of walkers in space is optimized while
+                still maintaining the same probability distribution;
+                accomplished through cloning and merging in
+                traditional weighted ensemble
+- steps :: resampling for a single cycle may be done in multiple
+           steps
+
+- clone walker :: a walker is split into \(n\) different walkers each
+                  with \(1/n\) weight
+
+- squash walker :: when \(N\), the total number of walkers in a
+                   sampling run, is constrained cloned walkers need to
+                   be accomodated by forcing other walkers to be
+                   merged. Squashed walkers have their state thrown
+                   out but contribute their weight to another
+                   'keep-merge' walker
+
+- keep-merge walker :: during a merge of multiple walkers this is the
+                       walker whose state is retained.
+
 - walker :: a state of the system along with a probability. At the
             beginning of a WE simulation probability is split evenly
             between the walkers. Walkers can be split/cloned onto
@@ -57,51 +86,37 @@ switching to the last release and installing with pip:
 - walker slot :: a slot in the list of walkers when there is a
                  constant number of walkers maintained throughout a
                  simulation.
-- walker resampling :: the process of cloning and merging every cycle.
 - walker trajectory :: the list of states in the history of a
-     particular walker.
-- walker trace :: the list of walker slots a particular walker occupied
-                  during a WE run.
+                       particular walker.
 - walker tree :: a tree rooted at a particular point in a walker's
                  history and contains all the walkers that were cloned
                  and not squashed from the root.
 
-** Resampling data format
-
-Walker resampling is to be recorded as a list of the action taken and
-the associated data. For cloning and merging there is 4 enumerated
-actions with the data associated:
-- NOTHING, walker_slot_idx :: the walker is not to be cloned or merged
-     the index is the slot it will occupy in the next step which must be open
-- CLONED, walker_slot_idxs[n_clones] :: the walker is to be cloned to
-     the given walker slots, these slots must be available
-- SQUASHED, keep_merge_walker_slot_idx :: this walker will donate it's
-     probability to another walker and "merged" but its state will be
-     lost, the index is the walker_slot_idx of the KEEP_MERGE walker
-     before resampling
-- KEEP_MERGE, walker_slot_idx :: this walker will have at least one
-     squashed walker donate its probability and be merged, the index
-     is the walker slot index it will occupy in the next cycle.
 
 ** Architecture
 
 The overall architecture of the project is broken into separate modules:
 - Simulation Management :: a framework for running simulations, needs:
-  - Runner
+  - Runner :: module that implements whatever dynamics you want to run
     - e.g.
       - OpenMM
-  - Resampler
+  - Resampler :: the key functionality of the Weighted Ensemble
+                 resampling procedure is implemented here
     - e.g.
       - WExplore
-  - work mapper
+  - work mapper :: a function that implements the map function that
+                   allows for arbitrary methods of parallelization
     - e.g.
       - ~map~ python builtin
       - ~scoop.futures.map~
+  - Reporter :: Responsible for the collection and saving of data from wepy runs
+    - e.g. HDF5 or plaintext
+  - BoundaryConditions :: describes and performs boundary condition
+       transformations as the simulation progresses
+  - simulation manager :: coordinates all of these components to run simulations
 
-- Resampler :: the implementations of specific weighted ensemble
-               resampling algorithms
-- Runner :: an application which changes the state of a walker
-
+- helper sub-modules will make the construction of new simulation
+  management modules easier and standardized
 - Application Layer :: This is a convenience layer for building the
      CLI and perhaps high level functions for users to write their own
      scripts
