@@ -165,21 +165,20 @@ class WExplore2Resampler(Resampler):
 
 
     def _clone_merge(self, walkers, clone_merge_resampling_record, debug_prints):
-         
         
-        resampled_walkers = walkers
+        resampled_walkers = walkers.copy()
         # each stage in the resampling for that cycle
         for stage_idx, stage in enumerate(clone_merge_resampling_record):
             # the rest of the stages parents are based on the previous stage
             for parent_idx, resampling_record in enumerate(stage):
                 # do merging                
-                if resampling_record.decision is CloneMergeDecision.KEEP_MERGE:
+                if resampling_record.decision is CloneMergeDecision.SQUASH:
                     
-                    squash_walker = walkers[resampling_record.value[0]]
-                    merge_walker = walkers[parent_idx] 
+                    squash_walker = walkers[parent_idx]
+                    merge_walker =  walkers[resampling_record.value[0]]
                     merged_walker = squash_walker.squash(merge_walker)
-                    resampled_walkers[parent_idx] = merged_walker
-                    
+                    resampled_walkers[resampling_record.value[0]] = merged_walker
+                  
                 elif resampling_record.decision  is CloneMergeDecision.CLONE:
                     
                      clone_walker = walkers[resampling_record.value[0]]
@@ -187,31 +186,37 @@ class WExplore2Resampler(Resampler):
                      resampled_walkers [parent_idx] = cloned_walkers.pop()
                      resampled_walkers [resampling_record.value[1]] = cloned_walkers.pop()
                      
-                elif resampling_record.decision in [CloneMergeDecision.SQUASH, CloneMergeDecision.NOTHING] :
+                elif resampling_record.decision in [CloneMergeDecision.KEEP_MERGE, CloneMergeDecision.NOTHING] :
                     pass
                 else:
                     # do nothing 
                     pass
-                walkers = resampled_walkers        
-        
+            walkers = resampled_walkers.copy()
+
+        weights = []
         if debug_prints:
             n_walkers = len(resampled_walkers)
             result_template_str = "|".join(["{:^10}" for i in range(n_walkers+1)])
             walker_weight_str = result_template_str.format("weight",
                     *[str(walker.weight) for walker in resampled_walkers])
             print(walker_weight_str)
+            for walker in resampled_walkers:
+                weights.append(walker.weight)
+            
                     
-                
+        print ('walkers weight sume (end)=', np.array(weights).sum())        
         return resampled_walkers 
                 
  
     def decide_clone_merge(self, n_walkers, walkerwt, amp, distance_matrix, debug_prints=False):
 
+        spreads =[] 
         resampling_actions = []
         # initialize the actions to nothing, will be overwritten
         
         # calculate the initial spread which will be optimized
         spread, wsum = self._calcspread(n_walkers, walkerwt, amp, distance_matrix)
+        spreads.append(spread)
 
         # maximize the variance through cloning and merging
         if debug_prints:
@@ -267,6 +272,7 @@ class WExplore2Resampler(Resampler):
 
                 # re-determine spread function, and wsum values
                 newspread, wsum = self._calcspread(n_walkers, walkerwt, amp, distance_matrix)
+                spreads.append(newspread)
 
                 if newspread > spread:
                     if debug_prints:
@@ -315,11 +321,11 @@ class WExplore2Resampler(Resampler):
                     resampling_actions.append(walker_actions)
                     # new spread for satrting new stage
                     newspread, wsum = self._calcspread(n_walkers, walkerwt, amp, distance_matrix)
-
+                    spreads.append(newspread) 
                     if debug_prints:
                         print("variance after selection:", newspread)
-                          #print ('minwind= {}, closewalk= {} , maxwind ={}'.format(minwind,closewalk,maxwind))
-                          #print ('squash_idx ={}, keep_idx ={} ,maxwind ={}\n'.format(squash_idx,keep_idx,maxwind))
+                          
+                          
                           
                           
                           
@@ -330,13 +336,13 @@ class WExplore2Resampler(Resampler):
                     amp[closewalk] = 1
                     amp[maxwind] -= 1
                     
-        if debug_prints:
-            self.print_actions(n_walkers, resampling_actions)
+        # if debug_prints:
+        #     self.print_actions(n_walkers, resampling_actions)
         # return the final state of the resampled walkers after all
         if n_clone_merges == 0:
-            return[]
+            return[], spreads
         else:
-            return  resampling_actions
+            return  resampling_actions, spreads
 
     def print_actions(self, n_walkers, clone_merge_resampling_record):
         
@@ -363,10 +369,6 @@ class WExplore2Resampler(Resampler):
 
     def resample(self, walkers, debug_prints=False):
         
-        
-        
-        
-        walkers = walkers
         n_walkers = len(walkers)
         walkerwt = [walker.weight for walker in walkers]
         amp = [1 for i in range(n_walkers)]
@@ -385,10 +387,10 @@ class WExplore2Resampler(Resampler):
             print (distance_matrix)
 
         # determine cloning and merging actions to be performed, by maximizing the spread
-        resampling_actions = self.decide_clone_merge(n_walkers, walkerwt, amp, distance_matrix, debug_prints=debug_prints)
+        resampling_actions, spreads = self.decide_clone_merge(n_walkers, walkerwt, amp, distance_matrix, debug_prints=debug_prints)
 
         
         # actually do the cloning and merging of the walkers
-        walkers = self._clone_merge(walkers, resampling_actions,debug_prints)
+        resampled_walkers = self._clone_merge(walkers, resampling_actions,debug_prints)
         
-        return walkers, resampling_actions 
+        return resampled_walkers, resampling_actions, distance_matrix, spreads 

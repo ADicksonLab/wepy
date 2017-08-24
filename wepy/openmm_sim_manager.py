@@ -38,6 +38,7 @@ class OpenmmManager(Manager):
 
         resampling_handler = pd.HDFStore(os.getcwd()+'/resampling_records.h5',mode='w')
         walker_handler = h5py.File(os.getcwd()+'/walkers_records.h5',mode='w')
+        dist_handler = h5py.File(os.getcwd()+'/dist_records.h5',mode='w')
         #save initial state
         self.save_walker_records(walker_handler,-1, walkers)
         for cycle_idx in range(n_cycles):
@@ -46,6 +47,7 @@ class OpenmmManager(Manager):
                 
             sys.stdout.write("Begin cycle {}\n".format(cycle_idx))    
             # run the segment
+
             walkers = self.run_segment(walkers, segment_lengths[cycle_idx],
                                            debug_prints=debug_prints)
 
@@ -54,15 +56,18 @@ class OpenmmManager(Manager):
             if debug_prints:
                 sys.stdout.write("Start  boundary Conditions")
             
-            walkers, warped_walkers_idx = self.ubc.warp_walkers(walkers)
+            resampled_walkers, warped_walkers_idx = self.ubc.warp_walkers(walkers)
             
             # record changes in state of the walkers
             if debug_prints:
                 sys.stdout.write("End  BoundaryConditions")
+                print ('warped_walkers=',warped_walkers_idx)
 
 
             # resample based walkers
-            walkers, cycle_resampling_records = self.resampler.resample(walkers, debug_prints=debug_prints)
+            resampled_walkers, cycle_resampling_records, distance_matrix, spreads = self.resampler.resample(resampled_walkers,
+                                                                                                  debug_prints=debug_prints)
+            self.save_dist_records(dist_handler,cycle_idx, distance_matrix, spreads)
             # save resampling records in a hdf5 file
             if debug_prints:
                 sys.stdout.write("Start Resampling")
@@ -74,10 +79,12 @@ class OpenmmManager(Manager):
             # prepare resampled walkers for running new state changes
             # save walkers positions in a hdf5 file
             
-            self.save_walker_records(walker_handler, cycle_idx, walkers)
+            self.save_walker_records(walker_handler, cycle_idx, resampled_walkers)
+            walkers = resampled_walkers.copy()
             
         resampling_handler.close()
         walker_handler.close()
+        dist_handler.close()
         if debug_prints:
             sys.stdout.write("End cycle {}\n".format(cycle_idx))
         
@@ -154,7 +161,11 @@ class OpenmmManager(Manager):
             df = hdf.get(key)
             print (df)
         hdf.close()
- 
+        
+    def save_dist_records(self, dist_handler,cycle_idx, distance_matrix, spreads):
+        dist_handler.create_dataset('cycle_{:0>5}/dist_matrix'.format(cycle_idx), data=distance_matrix)
+        dist_handler.create_dataset('cycle_{:0>5}/spreads'.format(cycle_idx), data=np.array(spreads))        
+        
         
         
         
