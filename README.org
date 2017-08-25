@@ -30,6 +30,12 @@ switching to the last release and installing with pip:
 
 PyPI and Anaconda repos are planned.
 
+The only absolutely necessary dependencies are ~numpy~ and ~h5py~,
+which are used in the core classes.
+
+The default ~Runner~ is ~OpenMM~ and parallel ~work_mapper~ is
+~SCOOP~, which should also be installed automatically when following
+these instructions (defined in ~setup.py~).
 
 ** Roadmap
 

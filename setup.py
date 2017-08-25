@@ -7,8 +7,9 @@ setup(
     packages=find_packages(),
     include_package_data=True,
     install_requires=[
-        'openmm',
         'numpy',
-        'mdtraj'
+        'h5py',
+        'openmm',
+        'scoop'
     ],
 )
