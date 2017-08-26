@@ -15,8 +15,9 @@ import itertools as it
 from wepy.walker import merge
 from wepy.resampling.clone_merge import CloneMergeDecision, clone_parent_panel
 from wepy.resampling.resampler import Resampler, ResamplingRecord
-from wepy.resampling.clone_merge import NothingInstructionRecord, CloneInstructionRecord, SquashInstructionRecord 
-from wepy.resampling.clone_merge import KeepMergeInstructionRecord, CLONE_MERGE_DECISION_INSTRUCTION_MAP 
+from wepy.resampling.clone_merge import NothingInstructionRecord, CloneInstructionRecord, SquashInstructionRecord
+from wepy.resampling.clone_merge import KeepMergeInstructionRecord, CLONE_MERGE_DECISION_INSTRUCTION_MAP
+#from wepy.resampling.clone_merge import CloneMergeDecision, CLONE_MERGE_INSTRUCT_DTYPES
 from wepy.boundary import BoundaryConditions
 
 
@@ -66,9 +67,9 @@ class UnbindingBC(BoundaryConditions):
 
         # test to see if the ligand is unbound
         if min_distance >= self.cutoff_distance:
-            return True
+            return True, min_distance
         else:
-            return False
+            return False, min_distance
         
     def calc_angle(self, v1, v2):
         return np.degrees(np.arccos(np.dot(v1, v2)/(la.norm(v1) * la.norm(v2))))
@@ -90,21 +91,28 @@ class UnbindingBC(BoundaryConditions):
     def warp_walkers(self, walkers):
 
         new_walkers = []
-        warped_walkers_idxs = []
+        warped_walkers_records = []
+        min_distances = []
         
         for walker_idx, walker in enumerate(walkers):
-           if self.in_boundary(walker):
-               warped_walkers_idxs.append(walker_idx)
+            unbinding, min_distance = self.in_boundary(walker)
+            min_distances.append(min_distance)
+            if unbinding:
+               warped_walkers_idxs.append( (walker_idx, (0,)) )
                new_walkers.append(self.initial_state)
-           else:
-               new_walkers.append(walker)
-               
-        return new_walkers, warped_walkers_idxs
+            else:
+                new_walkers.append(walker)
+
+        data = {'min_distances' : np.array(min_distances)}      
+        return new_walkers, warped_walkers_records, data
 
   
         
 class WExplore2Resampler(Resampler):
-    
+
+    #DECISION = CloneMergeDecision
+    #INSTRUCT_DTYPES = CLONE_MERGE_INSTRUCT_DTYPES
+
     def __init__(self, seed=None, pmin=1e-12, pmax=0.1, dpower=4, merge_dist=0.25,
                  topology=None, ligand_idxs=None, binding_site_idxs=None):
         self.pmin=pmin
@@ -340,9 +348,9 @@ class WExplore2Resampler(Resampler):
         #     self.print_actions(n_walkers, resampling_actions)
         # return the final state of the resampled walkers after all
         if n_clone_merges == 0:
-            return[], spreads
+            return([walker_actions]), spreads[-1]
         else:
-            return  resampling_actions, spreads
+            return  resampling_actions, spreads[-1]
 
     def print_actions(self, n_walkers, clone_merge_resampling_record):
         
@@ -387,10 +395,11 @@ class WExplore2Resampler(Resampler):
             print (distance_matrix)
 
         # determine cloning and merging actions to be performed, by maximizing the spread
-        resampling_actions, spreads = self.decide_clone_merge(n_walkers, walkerwt, amp, distance_matrix, debug_prints=debug_prints)
+        resampling_actions, spread = self.decide_clone_merge(n_walkers, walkerwt, amp, distance_matrix, debug_prints=debug_prints)
 
         
         # actually do the cloning and merging of the walkers
         resampled_walkers = self._clone_merge(walkers, resampling_actions,debug_prints)
-        
-        return resampled_walkers, resampling_actions, distance_matrix, spreads 
+
+        data = {'distance_matrix' : distance_matrix, 'spread' : np.array([spread]) }
+        return resampled_walkers, resampling_actions, data

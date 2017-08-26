@@ -30,7 +30,7 @@ class OpenMMRunner(Runner):
 
         # save the state of the system with all possible values
         new_state = simulation.context.getState(getPositions=True,
-                                            getVelocities=False,
+                                            getVelocities=True,
                                             getParameters=True,
                                             getParameterDerivatives=False,
                                             getForces=False,

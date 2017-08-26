@@ -45,7 +45,7 @@ class OpenmmManager(Manager):
             if debug_prints:
                 sys.stdout.write("Begin cycle {}\n".format(cycle_idx))
                 
-            sys.stdout.write("Begin cycle {}\n".format(cycle_idx))    
+    
             # run the segment
 
             walkers = self.run_segment(walkers, segment_lengths[cycle_idx],
@@ -55,24 +55,27 @@ class OpenmmManager(Manager):
             # calls wexplore2 ubinding boundary conditions
             if debug_prints:
                 sys.stdout.write("Start  boundary Conditions")
+                
             
-            resampled_walkers, warped_walkers_idx = self.ubc.warp_walkers(walkers)
-            
+            resampled_walkers, warped_walkers_records, ubc_data= self.ubc.warp_walkers(walkers)
+            # ubc_data is min_distances
             # record changes in state of the walkers
             if debug_prints:
                 sys.stdout.write("End  BoundaryConditions")
-                print ('warped_walkers=',warped_walkers_idx)
+                print ('warped_walkers=',warped_walkers_records)
 
-
-            # resample based walkers
-            resampled_walkers, cycle_resampling_records, distance_matrix, spreads = self.resampler.resample(resampled_walkers,
-                                                                                                  debug_prints=debug_prints)
-            self.save_dist_records(dist_handler,cycle_idx, distance_matrix, spreads)
-            # save resampling records in a hdf5 file
             if debug_prints:
                 sys.stdout.write("Start Resampling")
+                
+
+            # resample based walkers
+            resampled_walkers, cycle_resampling_records, resample_data = self.resampler.resample(resampled_walkers,
+                                                                                                 debug_prints=debug_prints)
+            # resample_data includes distance_matrix and last_spread
+            self.save_dist_records(dist_handler,cycle_idx, resample_data, ubc_data)
+            # save resampling records in a hdf5 file
             
-            self.save_resampling_records(resampling_handler, cycle_idx, cycle_resampling_records, warped_walkers_idx)
+            self.save_resampling_records(resampling_handler, cycle_idx, cycle_resampling_records, warped_walkers_records)
             if debug_prints:
                 sys.stdout.write("End  Resampling")
             
@@ -81,19 +84,18 @@ class OpenmmManager(Manager):
             
             self.save_walker_records(walker_handler, cycle_idx, resampled_walkers)
             walkers = resampled_walkers.copy()
-            
+        # saving last velocities
+        
+        for walker_idx, walker  in enumerate(resampled_walkers):
+            walker_handler.create_dataset('cycle_{:0>5}/walker_{:0>5}/velocities'.format(cycle_idx,walker_idx),
+                                            data = self.mdtraj_positions(walker.velocities))            
         resampling_handler.close()
         walker_handler.close()
         dist_handler.close()
         if debug_prints:
             sys.stdout.write("End cycle {}\n".format(cycle_idx))
-        
-        
-    
-        if debug_prints:
-            self.read_resampling_data()
-#            self.read_walker_data()
 
+            
     def mdtraj_positions(self, openmm_positions):
         
         n_atoms = len (openmm_positions)
@@ -108,17 +110,20 @@ class OpenmmManager(Manager):
 
         return xyz
          
-    def save_resampling_records(self, hdf5_handler, cycle_idx, cycle_resampling_records, warped_walkers_idx):
+    def save_resampling_records(self, hdf5_handler, cycle_idx, cycle_resampling_records, warped_walkers_records):
 
         # save resampling records in table format in a hdf5 file
         DFResamplingRecord = namedtuple("DFResamplingRecord", ['cycle_idx', 'step_idx', 'walker_idx',
                                                                'decision','instruction','warped_walker'])
         df_recs = []
-        
+        warped_walkers_idxs =[]
+        for record in warped_walkers_records:
+            warped_walkers_idxs.append(record[0])
+            
         for step_idx, step in enumerate(cycle_resampling_records):
             for walker_idx, rec in enumerate(step):
                 
-                if  walker_idx  in warped_walkers_idx:
+                if  walker_idx  in warped_walkers_idxs:
                     decision = True
                 else:
                     decision = False
@@ -162,9 +167,11 @@ class OpenmmManager(Manager):
             print (df)
         hdf.close()
         
-    def save_dist_records(self, dist_handler,cycle_idx, distance_matrix, spreads):
-        dist_handler.create_dataset('cycle_{:0>5}/dist_matrix'.format(cycle_idx), data=distance_matrix)
-        dist_handler.create_dataset('cycle_{:0>5}/spreads'.format(cycle_idx), data=np.array(spreads))        
+    def save_dist_records(self, dist_handler,cycle_idx, resample_data, ubc_data):
+        dist_handler.create_dataset('cycle_{:0>5}/dist_matrix'.format(cycle_idx), data=resample_data['distance_matrix'])
+        dist_handler.create_dataset('cycle_{:0>5}/spread'.format(cycle_idx), data=resample_data['spread'])
+        dist_handler.create_dataset('cycle_{:0>5}/min_distances'.format(cycle_idx), data=ubc_data['min_distances'])        
+        dist_handler.flush()
         
         
         

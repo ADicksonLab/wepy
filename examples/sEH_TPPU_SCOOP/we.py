@@ -9,6 +9,10 @@ import scoop.futures
 from wepy.sim_manager import Manager
 from wepy.resampling.resampler import NoResampler
 from wepy.openmm import OpenMMRunner, OpenMMWalker
+<<<<<<< Updated upstream:examples/sEH_TPPU_SCOOP/we.py
+=======
+from wepy.reporter.hdf5 import WepyHDF5Reporter
+>>>>>>> Stashed changes:examples/sEH_TPPU_RandomCloneMerge_SCOOP/we.py
 
 if __name__ == "__main__":
 
