@@ -21,9 +21,6 @@ from wepy.reporter.hdf5 import WepyHDF5Reporter
 from wepy.resampling.clone_merge import clone_parent_table, clone_parent_panel
 
 
-from resampling_tree.tree import monte_carlo_minimization, make_graph
-
-
 if __name__ == "__main__":
 
     #### SETUP: skip this for understanding -----------------------------------------
