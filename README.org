@@ -24,7 +24,7 @@ switching to the last release and installing with pip:
 #+BEGIN_SRC bash
   git clone https://gitlab.com/ADicksonLab/wepy.git
   cd wepy
-  git checkout -b master v0.2
+  git checkout -b master v0.2-beta
   pip install --user -e .
 #+END_SRC
 
