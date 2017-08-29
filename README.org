@@ -22,7 +22,7 @@ Wepy is still in beta but you can install by cloning this repository,
 switching to the last release and installing with pip:
 
 #+BEGIN_SRC bash
-  git clone https://gitlab.com/ADicksonLab/wepy.git
+  git clone https://github.com/ADicksonLab/wepy
   cd wepy
   git checkout -b master v0.2-beta
   pip install --user -e .
