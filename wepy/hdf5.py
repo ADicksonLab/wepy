@@ -184,6 +184,7 @@ class TrajHDF5(object):
         return self
 
     def __exit__(self, exc_type, exc_value, exc_tb):
+        self._h5.flush()
         self.close()
 
 
@@ -591,8 +592,6 @@ class WepyHDF5(object):
         with h5py.File(filename, mode=self._h5py_mode) as h5:
             self._h5 = h5
 
-
-
             # create file mode: 'w' will create a new file or overwrite,
             # 'w-' and 'x' will not overwrite but will create a new file
             if self._wepy_mode in ['w', 'w-', 'x']:
@@ -622,6 +621,8 @@ class WepyHDF5(object):
                 # then run the initialization process
                 self._read_init()
 
+            self._h5.flush()
+
         # should be closed after initialization
         self.closed = False
 
@@ -635,6 +636,7 @@ class WepyHDF5(object):
         return self
 
     def __exit__(self, exc_type, exc_value, exc_tb):
+        self._h5.flush()
         self.close()
 
     def _update_exist_flags(self):
