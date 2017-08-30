@@ -26,9 +26,11 @@ from wepy.boundary_conditions.boundary import NoBC
 
 class OpenMMRunner(Runner):
 
-    def __init__(self, system, topology):
+    def __init__(self, system, topology, platform=None):
         self.system = system
         self.topology = topology
+        self.platform = platform
+
 
     def run_segment(self, walker, segment_length):
 
@@ -38,8 +40,15 @@ class OpenMMRunner(Runner):
                                             1/unit.picosecond,
                                             0.002*unit.picoseconds)
 
-        # instantiate a simulation object
-        simulation = omma.Simulation(self.topology, self.system, integrator)
+        # if a platform was given we use it to make a Simulation object
+        if self.platform is not None:
+            # make a platform object
+            platform = omm.Platform.getPlatformByName('OpenCL')
+            # instantiate a simulation object
+            simulation = omma.Simulation(self.topology, self.system, integrator, platform)
+        # otherwise just use the default or environmentally defined one
+        else:
+            simulation = omma.Simulation(self.topology, self.system, integrator)
 
         # initialize the positions
         simulation.context.setPositions(walker.positions)
@@ -140,29 +149,29 @@ class OpenMMWalker(Walker):
     def keys(self):
         return self._keys
 
-    # def __getitem__(self, key):
-    #     if key == 'positions':
-    #         return self.state.getPositions()
-    #     elif key == 'velocities':
-    #         return self.state.getVelocities()
-    #     elif key == 'forces':
-    #         return self.state.getForces()
-    #     elif key == 'kinetic_energy':
-    #         return self.state.getKineticEnergy()
-    #     elif key == 'potential_energy':
-    #         return self.state.getPotentialEnergy()
-    #     elif key == 'time':
-    #         return self.state.getTime()
-    #     elif key == 'box_vectors':
-    #         return self.getPeriodicBoxVectors()
-    #     elif key == 'box_volume':
-    #         return self.getPeriodicBoxVolume()
-    #     elif key == 'parameters':
-    #         return self.getParameters()
-    #     elif key == 'parameter_derivatives':
-    #         return self.getEnergyParameterDerivatives()
-    #     else:
-    #         raise KeyError('{} not an OpenMMWalker attribute')
+    def __getitem__(self, key):
+        if key == 'positions':
+            return self.positions_values()
+        elif key == 'velocities':
+            return self.velocities_values
+        elif key == 'forces':
+            return self.forces_values()
+        elif key == 'kinetic_energy':
+            return self.kinetic_energy_value()
+        elif key == 'potential_energy':
+            return self.potential_energy_value()
+        elif key == 'time':
+            return self.time_value()
+        elif key == 'box_vectors':
+            return self.box_vectors_values()
+        elif key == 'box_volume':
+            return self.box_volume_value()
+        elif key == 'parameters':
+            return self.parameters_values()
+        elif key == 'parameter_derivatives':
+            return self.parameter_derivatives_values()
+        else:
+            raise KeyError('{} not an OpenMMWalker attribute')
 
     @property
     def positions(self):

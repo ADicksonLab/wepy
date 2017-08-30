@@ -20,44 +20,50 @@ class WepyHDF5Reporter(FileReporter):
         # save space and delete the temp topology from the attributes
         del self._tmp_topology
 
-        # initialize a new run
-        run_grp = self.wepy_h5.new_run()
-        self.run_grp = run_grp
-        self.wepy_run_idx = run_grp.attrs['run_idx']
+        # initialize a new run in a context
+        with self.wepy_h5 as wepy_h5:
+            run_grp = wepy_h5.new_run()
+            self.wepy_run_idx = run_grp.attrs['run_idx']
 
-        # initialize the resampling group within this run
-        self.wepy_h5.init_run_resampling(self.wepy_run_idx, self.decisions, self.instruction_dtypes)
+            # initialize the resampling group within this run
+            wepy_h5.init_run_resampling(self.wepy_run_idx,
+                                   self.decisions,
+                                   self.instruction_dtypes)
 
-    def report(self, cycle_idx, walkers, resampling_records, resampling_data):
+
+    def report(self, cycle_idx, walkers, resampling_records, resampling_data,
+               debug_prints=False):
 
         n_walkers = len(walkers)
 
-        # add trajectory data for the walkers
-        for walker_idx, walker in enumerate(walkers):
+        with self.wepy_h5 as wepy_h5:
 
-            # collect data from walker
-            walker_data = {}
-            for key, value in walker.dict().items():
-                # if the result is None exclude it from the data
-                if value is not None:
-                    walker_data[key] = np.array([value])
+            # add trajectory data for the walkers
+            for walker_idx, walker in enumerate(walkers):
 
-            # check to see if the walker has a trajectory in the run
-            if walker_idx in self.wepy_h5.run_traj_idxs(self.wepy_run_idx):
-                # if it does then append to the trajectory
-                self.wepy_h5.append_traj(self.wepy_run_idx, walker_idx,
-                                         weights=np.array([walker.weight]),
-                                         **walker_data)
-            # start a new trajectory
-            else:
-                # add the traj for the walker with the data
-                traj_grp = self.wepy_h5.add_traj(self.wepy_run_idx, weights=np.array([walker.weight]),
-                                                 **walker_data)
-                # add as metadata the cycle idx where this walker started
-                traj_grp.attrs['starting_cycle_idx'] = cycle_idx
+                # collect data from walker
+                walker_data = {}
+                for key, value in walker.dict().items():
+                    # if the result is None exclude it from the data
+                    if value is not None:
+                        walker_data[key] = np.array([value])
 
-        # add resampling records
-        self.wepy_h5.add_cycle_resampling_records(self.wepy_run_idx, resampling_records)
+                # check to see if the walker has a trajectory in the run
+                if walker_idx in wepy_h5.run_traj_idxs(self.wepy_run_idx):
+                    # if it does then append to the trajectory
+                    wepy_h5.append_traj(self.wepy_run_idx, walker_idx,
+                                             weights=np.array([walker.weight]),
+                                             **walker_data)
+                # start a new trajectory
+                else:
+                    # add the traj for the walker with the data
+                    traj_grp = wepy_h5.add_traj(self.wepy_run_idx, weights=np.array([walker.weight]),
+                                                     **walker_data)
+                    # add as metadata the cycle idx where this walker started
+                    traj_grp.attrs['starting_cycle_idx'] = cycle_idx
+
+            # add resampling records
+            wepy_h5.add_cycle_resampling_records(self.wepy_run_idx, resampling_records)
 
         # TODO
         # add the resampling data
@@ -65,4 +71,7 @@ class WepyHDF5Reporter(FileReporter):
 
 
     def cleanup(self):
-        self.wepy_h5.close()
+
+        # it should be already closed at this point but just in case
+        if not self.wepy_h5.closed:
+            self.wepy_h5.close()

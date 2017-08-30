@@ -71,10 +71,6 @@ class TrajHDF5(object):
         # the lower level h5py mode
         self._h5py_mode = h5py_mode
 
-        # open the file
-        h5 = h5py.File(filename, mode=self._h5py_mode)
-        self._h5 = h5
-        self.closed = False
 
         # all the keys for the datasets and groups
         self._keys = ['topology', 'positions',
@@ -139,38 +135,56 @@ class TrajHDF5(object):
                                                       'forces']
                                             }
 
-        # create file mode: 'w' will create a new file or overwrite,
-        # 'w-' and 'x' will not overwrite but will create a new file
-        if self._wepy_mode in ['w', 'w-', 'x']:
-            self._create_init(topology, data, units)
+        # open the file in a context and initialize
+        with h5py.File(filename, mode=self._h5py_mode) as h5:
+            self._h5 = h5
 
-        # read/write mode: in this mode we do not completely overwrite
-        # the old file and start again but rather write over top of
-        # values if requested
-        elif self._wepy_mode in ['r+']:
-            self._read_write_init(topology, data, units)
 
-        # add mode: read/write create if doesn't exist
-        elif self._wepy_mode in ['a']:
-            self._add_init(topology, data, units)
+            # create file mode: 'w' will create a new file or overwrite,
+            # 'w-' and 'x' will not overwrite but will create a new file
+            if self._wepy_mode in ['w', 'w-', 'x']:
+                self._create_init(topology, data, units)
 
-        # append mode
-        elif self._wepy_mode in ['c', 'c-']:
-            # use the hidden init function for appending data
-            self._append_init(topology, data, units)
+            # read/write mode: in this mode we do not completely overwrite
+            # the old file and start again but rather write over top of
+            # values if requested
+            elif self._wepy_mode in ['r+']:
+                self._read_write_init(topology, data, units)
 
-        # read only mode
-        elif self._wepy_mode == 'r':
-            # if any data was given, warn the user
-            if (any([False if (value is None) else True for key, value in data.items()]))\
-              or (any([False if (value is None) else True for key, value in units.items()])):
-                warn("Data was provided for a read-only operation", RuntimeWarning)
+            # add mode: read/write create if doesn't exist
+            elif self._wepy_mode in ['a']:
+                self._add_init(topology, data, units)
 
-            # then run the initialization process
-            self._read_init()
+            # append mode
+            elif self._wepy_mode in ['c', 'c-']:
+                # use the hidden init function for appending data
+                self._append_init(topology, data, units)
+
+            # read only mode
+            elif self._wepy_mode == 'r':
+                # if any data was given, warn the user
+                if (any([False if (value is None) else True for key, value in data.items()]))\
+                  or (any([False if (value is None) else True for key, value in units.items()])):
+                    warn("Data was provided for a read-only operation", RuntimeWarning)
+
+                # then run the initialization process
+                self._read_init()
+
+        # the file should be closed after this
+        self.closed = True
 
         # update the compliance type flags of the dataset
         self._update_compliance_flags()
+
+    # context manager methods
+
+    def __enter__(self):
+        self._h5 = h5py.File(self._filename)
+        self.closed = False
+        return self
+
+    def __exit__(self, exc_type, exc_value, exc_tb):
+        self.close()
 
 
     def _update_exist_flags(self):
@@ -539,10 +553,6 @@ class WepyHDF5(object):
         # the lower level h5py mode
         self._h5py_mode = h5py_mode
 
-        # open the file
-        h5 = h5py.File(filename, mode=self._h5py_mode)
-        self._h5 = h5
-        self.closed = False
 
         ### WepyHDF5 specific variables
 
@@ -577,36 +587,55 @@ class WepyHDF5(object):
 
         # TODO Dataset Complianaces
 
-        # create file mode: 'w' will create a new file or overwrite,
-        # 'w-' and 'x' will not overwrite but will create a new file
-        if self._wepy_mode in ['w', 'w-', 'x']:
-            self._create_init(topology)
+        # open the file
+        with h5py.File(filename, mode=self._h5py_mode) as h5:
+            self._h5 = h5
 
-        # read/write mode: in this mode we do not completely overwrite
-        # the old file and start again but rather write over top of
-        # values if requested
-        elif self._wepy_mode in ['r+']:
-            self._read_write_init(topology)
 
-        # add mode: read/write create if doesn't exist
-        elif self._wepy_mode in ['a']:
-            self._add_init(topology)
 
-        # append mode
-        elif self._wepy_mode in ['c', 'c-']:
-            # use the hidden init function for appending data
-            self._append_init(topology)
+            # create file mode: 'w' will create a new file or overwrite,
+            # 'w-' and 'x' will not overwrite but will create a new file
+            if self._wepy_mode in ['w', 'w-', 'x']:
+                self._create_init(topology)
 
-        # read only mode
-        elif self._wepy_mode == 'r':
-            # if any data was given, warn the user
-            if topology is not None:
-               warn("Cannot set topology on read only", RuntimeWarning)
+            # read/write mode: in this mode we do not completely overwrite
+            # the old file and start again but rather write over top of
+            # values if requested
+            elif self._wepy_mode in ['r+']:
+                self._read_write_init(topology)
 
-            # then run the initialization process
-            self._read_init()
+            # add mode: read/write create if doesn't exist
+            elif self._wepy_mode in ['a']:
+                self._add_init(topology)
+
+            # append mode
+            elif self._wepy_mode in ['c', 'c-']:
+                # use the hidden init function for appending data
+                self._append_init(topology)
+
+            # read only mode
+            elif self._wepy_mode == 'r':
+                # if any data was given, warn the user
+                if topology is not None:
+                   warn("Cannot set topology on read only", RuntimeWarning)
+
+                # then run the initialization process
+                self._read_init()
+
+        # should be closed after initialization
+        self.closed = False
 
         # TODO update the compliance type flags of the dataset
+
+    # context manager methods
+
+    def __enter__(self):
+        self._h5 = h5py.File(self._filename)
+        self.closed = False
+        return self
+
+    def __exit__(self, exc_type, exc_value, exc_tb):
+        self.close()
 
     def _update_exist_flags(self):
         """Inspect the hdf5 object and set flags if data exists for the fields."""

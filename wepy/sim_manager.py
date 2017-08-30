@@ -19,8 +19,9 @@ class CountingIterator(object):
 class Manager(object):
 
     def __init__(self, init_walkers, num_workers=None,
-                 runner = NoRunner(),
-                 resampler = NoResampler(),
+                 runner = None,
+                 resampler = None,
+                 boundary_conditions = None,
                  work_mapper = map,
                  reporter = None):
 
@@ -33,6 +34,8 @@ class Manager(object):
         self.runner = runner
         # the resampler
         self.resampler = resampler
+        # object for boundary conditions
+        self.boundary_conditions = boundary_conditions
         # the function for running work on the workers
         self.map = work_mapper
         # the method for writing output
@@ -89,7 +92,8 @@ class Manager(object):
 
             # resample walkers
             resampled_walkers, resampling_records, resampling_data =\
-                                                            self.resampler.resample(new_walkers)
+                           self.resampler.resample(new_walkers,
+                                                   debug_prints=debug_prints)
 
             if debug_prints:
                 # print results for this cycle
@@ -109,7 +113,8 @@ class Manager(object):
                 print(walker_weight_str)
 
             # report results to the reporter
-            self.reporter.report(cycle_idx, new_walkers, resampling_records, resampling_data)
+            self.reporter.report(cycle_idx, new_walkers, resampling_records, resampling_data,
+                                 debug_prints=debug_prints)
 
             # prepare resampled walkers for running new state changes
             walkers = resampled_walkers
