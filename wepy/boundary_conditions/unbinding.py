@@ -1,4 +1,4 @@
-from wepy.boundary_conditions.boundary_conditions import BoundaryConditions
+from wepy.boundary_conditions.boundary import BoundaryConditions
 
 UNBINDING_INSTRUCT_DTYPE = [('target', int)]
 

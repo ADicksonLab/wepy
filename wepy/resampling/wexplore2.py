@@ -7,22 +7,15 @@ import numpy.linalg as la
 
 import mdtraj as mdj
 
-
-
-
-from wepy.walker import merge
-from wepy.resampling.clone_merge import CloneMergeDecision, clone_parent_panel
 from wepy.resampling.resampler import Resampler, ResamplingRecord
-from wepy.resampling.clone_merge import NothingInstructionRecord, CloneInstructionRecord, SquashInstructionRecord
-from wepy.resampling.clone_merge import KeepMergeInstructionRecord, CLONE_MERGE_DECISION_INSTRUCTION_MAP
-from wepy.resampling.clone_merge import CloneMergeDecision, CLONE_MERGE_INSTRUCT_DTYPES
-from wepy.boundary import BoundaryConditions
-
+from wepy.resampling.clone_merge import NothingInstructionRecord, CloneInstructionRecord,\
+                                         SquashInstructionRecord, KeepMergeInstructionRecord
+from wepy.resampling.clone_merge import CloneMergeDecision, CLONE_MERGE_INSTRUCTION_DTYPES
 
 class WExplore2Resampler(Resampler):
 
     DECISION = CloneMergeDecision
-    INSTRUCT_DTYPES = CLONE_MERGE_INSTRUCT_DTYPES
+    INSTRUCT_DTYPES = CLONE_MERGE_INSTRUCTION_DTYPES
 
     def __init__(self, seed=None, pmin=1e-12, pmax=0.1, dpower=4, merge_dist=0.25,
                  topology=None, ligand_idxs=None, binding_site_idxs=None):
@@ -151,14 +144,15 @@ class WExplore2Resampler(Resampler):
                               for i in range(n_walkers)]
 
             # selects a walker with minimum wsum and a walker with maximum wsum
-            try:
-                maxvalue, maxwind = max((value, i) for i,value in enumerate(wsum)
-                                        if amp[i] >= 1 and (walkerwt[i] > self.pmin))
-            except: pass
-            try:
-                minvalue, minwind = min((value, i) for i,value in enumerate(wsum)
-                                        if amp[i] == 1 and (walkerwt[i]  < self.pmax))
-            except: pass
+            max_tups = [(value, i) for i, value in enumerate(wsum)
+                                     if (amp[i] >= 1) and (walkerwt[i] > self.pmin)]
+            if len(max_tups):
+                maxvalue, maxwind = max(value_tups)
+
+            min_tups = [(value, i) for i,value in enumerate(wsum)
+                                    if amp[i] == 1 and (walkerwt[i]  < self.pmax)]
+            if len(min_tups) > 0:
+                minvalue, minwind = min(min_tups)
 
             # does minwind have an eligible merging partner?
             closedist = self.merge_dist
@@ -170,10 +164,10 @@ class WExplore2Resampler(Resampler):
                 closewalk_availabe = [idx for idx in closewalk_availabe
                                       if amp[idx]==1 and (walkerwt[idx] < self.pmax)]
                 if len(closewalk_availabe) > 0:
-                    try:
-                        closedist, closewalk = min((distance_matrix[minwind][i], i) for i in closewalk_availabe
-                                                if distance_matrix[minwind][i] < (self.merge_dist))
-                    except: pass
+                    tups = [(distance_matrix[minwind][i], i) for i in closewalk_availabe
+                                            if distance_matrix[minwind][i] < (self.merge_dist)]
+                    if len(tups) > 0:
+                        closedist, closewalk = min(tups)
 
 
             # did we find a closewalk?

@@ -1,6 +1,8 @@
 from collections import namedtuple
 import random as rand
 
+import numpy as np
+
 from wepy.resampling.decision import Decision
 from wepy.resampling.resampler import Resampler, ResamplingRecord
 
@@ -14,6 +16,12 @@ NothingInstructionRecord = namedtuple("NothingInstructionRecord", ['slot'])
 CloneInstructionRecord = namedtuple("CloneInstructionRecord", ['slot_a', 'slot_b'])
 SquashInstructionRecord = namedtuple("SquashInstructionRecord", ['merge_slot'])
 KeepMergeInstructionRecord = namedtuple("KeepMergeInstructionRecord", ['slot'])
+
+CLONE_MERGE_INSTRUCTION_DTYPES = {CloneMergeDecision.NOTHING.name : [('pos', np.int)],
+                                  CloneMergeDecision.CLONE.name : [(None, np.int)],
+                                  CloneMergeDecision.SQUASH.name : [('merge_to', np.int)],
+                                  CloneMergeDecision.KEEP_MERGE.name : [('pos', np.int)],
+                                 }
 
 CLONE_MERGE_DECISION_INSTRUCTION_MAP = {CloneMergeDecision.NOTHING : NothingInstructionRecord,
                                         CloneMergeDecision.CLONE : CloneInstructionRecord,

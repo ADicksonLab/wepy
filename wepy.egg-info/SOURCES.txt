@@ -9,8 +9,13 @@ wepy.egg-info/SOURCES.txt
 wepy.egg-info/dependency_links.txt
 wepy.egg-info/requires.txt
 wepy.egg-info/top_level.txt
+wepy/bc/__init__.py
+wepy/bc/boundary.py
+wepy/bc/unbinding.py
 wepy/resampling/__init__.py
 wepy/resampling/clone_merge.py
 wepy/resampling/decision.py
-wepy/resampling/distance.py
 wepy/resampling/resampler.py
+wepy/resampling/wexplore2.py
+wepy/work_mapper/__init__.py
+wepy/work_mapper/gpu.py
