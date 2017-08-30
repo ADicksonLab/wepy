@@ -1,3 +1,4 @@
+import numpy as np
 
 import simtk.openmm.app as omma
 import simtk.openmm as omm
@@ -118,45 +119,252 @@ class OpenMMWalker(Walker):
     def __init__(self, state, weight):
         super().__init__(state, weight)
 
+        self._keys = ['positions', 'velocities', 'forces', 'kinetic_energy',
+                      'potential_energy', 'time', 'box_vectors', 'box_volume',
+                      'parameters', 'parameter_derivatives']
+
+    def dict(self):
+        """return a dict of the values."""
+        return {'positions' : self.positions_values(),
+                'velocities' : self.velocities_values(),
+                'forces' : self.forces_values(),
+                'kinetic_energy' : self.kinetic_energy_value(),
+                'potential_energy' : self.potential_energy_value(),
+                'time' : self.time_value(),
+                'box_vectors' : self.box_vectors_values(),
+                'box_volume' : self.box_volume_value(),
+                'parameters' : self.parameters_values(),
+                'parameter_derivatives' : self.parameter_derivatives_values()
+                    }
+
+    def keys(self):
+        return self._keys
+
+    # def __getitem__(self, key):
+    #     if key == 'positions':
+    #         return self.state.getPositions()
+    #     elif key == 'velocities':
+    #         return self.state.getVelocities()
+    #     elif key == 'forces':
+    #         return self.state.getForces()
+    #     elif key == 'kinetic_energy':
+    #         return self.state.getKineticEnergy()
+    #     elif key == 'potential_energy':
+    #         return self.state.getPotentialEnergy()
+    #     elif key == 'time':
+    #         return self.state.getTime()
+    #     elif key == 'box_vectors':
+    #         return self.getPeriodicBoxVectors()
+    #     elif key == 'box_volume':
+    #         return self.getPeriodicBoxVolume()
+    #     elif key == 'parameters':
+    #         return self.getParameters()
+    #     elif key == 'parameter_derivatives':
+    #         return self.getEnergyParameterDerivatives()
+    #     else:
+    #         raise KeyError('{} not an OpenMMWalker attribute')
+
     @property
     def positions(self):
-        return self.state.getPositions()
+        try:
+            return self.state.getPositions()
+        except TypeError:
+            return None
+
+    @property
+    def positions_unit(self):
+        return self.positions.unit
+
+    def positions_values(self):
+        return np.array(self.positions.value_in_unit(self.positions_unit))
 
     @property
     def velocities(self):
-        return self.state.getVelocities()
+        try:
+            return self.state.getVelocities()
+        except TypeError:
+            return None
+
+    @property
+    def velocities_unit(self):
+        return self.velocities.unit
+
+    def velocities_values(self):
+        velocities = self.velocities
+        if velocities is None:
+            return None
+        else:
+            return np.array(self.velocities.value_in_unit(self.velocities_unit))
 
     @property
     def forces(self):
-        return self.state.getForces()
+        try:
+            return self.state.getForces()
+        except TypeError:
+            return None
+
+    @property
+    def forces_unit(self):
+        return self.forces.unit
+
+    def forces_values(self):
+        forces = self.forces
+        if forces is None:
+            return None
+        else:
+            return np.array(self.forces.value_in_unit(self.forces_unit))
 
     @property
     def kinetic_energy(self):
-        return self.state.getKineticEnergy()
+        try:
+            return self.state.getKineticEnergy()
+        except TypeError:
+            return None
+
+    @property
+    def kinetic_energy_unit(self):
+        return self.kinetic_energy.unit
+
+    def kinetic_energy_value(self):
+        kinetic_energy = self.kinetic_energy
+        if kinetic_energy is None:
+            return None
+        else:
+            return np.array(self.kinetic_energy.value_in_unit(self.kinetic_energy_unit))
 
     @property
     def potential_energy(self):
-        return self.state.getPotentialEnergy()
+        try:
+            return self.state.getPotentialEnergy()
+        except TypeError:
+            return None
+
+    @property
+    def potential_energy_unit(self):
+        return self.potential_energy.unit
+
+    def potential_energy_value(self):
+        potential_energy = self.potential_energy
+        if potential_energy is None:
+            return None
+        else:
+            return np.array(self.potential_energy.value_in_unit(self.potential_energy_unit))
 
     @property
     def time(self):
-        return self.state.getTime()
+        try:
+            return self.state.getTime()
+        except TypeError:
+            return None
+
+    @property
+    def time_unit(self):
+        return self.time.unit
+
+    def time_value(self):
+        time = self.time
+        if time is None:
+            return None
+        else:
+            return np.array(self.time.value_in_unit(self.time_unit))
 
     @property
     def box_vectors(self):
-        return self.state.getPeriodicBoxVectors()
+        try:
+            return self.state.getPeriodicBoxVectors()
+        except TypeError:
+            return None
+
+    @property
+    def box_vectors_unit(self):
+        return self.box_vectors.unit
+
+    def box_vectors_values(self):
+        box_vectors = self.box_vectors
+        if box_vectors is None:
+            return None
+        else:
+            return np.array(self.box_vectors.value_in_unit(self.box_vectors_unit))
 
     @property
     def box_volume(self):
-        return self.state.getPeriodicBoxVolume()
+        try:
+            return self.state.getPeriodicBoxVolume()
+        except TypeError:
+            return None
+
+    @property
+    def box_volume_unit(self):
+        return self.box_volume.unit
+
+    def box_volume_value(self):
+        box_volume = self.box_volume
+        if box_volume is None:
+            return None
+        else:
+            return np.array(self.box_volume.value_in_unit(self.box_volume_unit))
 
     @property
     def parameters(self):
-        return self.state.getParameters()
+        try:
+            return self.state.getParameters()
+        except TypeError:
+            return None
+
+    # TODO test this, this is jsut a guess because I don't use parameters
+    @property
+    def parameters_unit(self):
+        param_units = {key : val.unit for key, val in self.parameters.items()}
+        return param_units
+
+    # TODO test this, this is jsut a guess because I don't use parameters
+    def parameters_values(self):
+        if self.parameters is None:
+            return None
+
+        param_arrs = {key : np.array(val.value_in_unit(val.unit)) for key, val
+                          in self.parameters.items()}
+
+        # return None if there is nothing in this
+        if len(param_arrs) == 0:
+            return None
+        else:
+            return param_arrs
 
     @property
     def parameter_derivatives(self):
-        return self.state.getEnergyParameterDerivatives()
+        try:
+            return self.state.getEnergyParameterDerivatives()
+        except TypeError:
+            return None
+
+    # TODO test this, this is jsut a guess because I don't use parameters
+    @property
+    def parameter_derivatives_unit(self):
+        param_units = {key : val.unit for key, val in self.parameter_derivatives.items()}
+        return param_units
+
+    # TODO test this, this is jsut a guess because I don't use parameter_derivatives
+    def parameter_derivatives_values(self):
+
+        if self.parameter_derivatives is None:
+            return None
+
+        param_arrs = {key : np.array(val.value_in_unit(val.unit)) for key, val
+                          in self.parameter_derivatives.items()}
+
+        # return None if there is nothing in this
+        if len(param_arrs) == 0:
+            return None
+        else:
+            return param_arrs
+
+    def to_mdtraj(self):
+        """ Returns an mdtraj.Trajectory object from this walker's state."""
+        raise NotImplementedError
+        import mdtraj as mdj
+        return mdj.Trajectory(self.positions_values,
+                              time=self.time_value, unitcell_vectors=self.box_vectors)
 
 # class OpenMMManager(Manager):
 #     def __init__(self, init_walkers, num_workers,

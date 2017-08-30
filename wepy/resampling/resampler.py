@@ -9,7 +9,7 @@ class Resampler(object):
     def resample(self, walkers, decisions):
         raise NotImplementedError
 
-ResamplingRecord = namedtuple("ResamplingRecord", ['decision', 'value'])
+ResamplingRecord = namedtuple("ResamplingRecord", ['decision', 'instruction'])
 
 
 # stubs and examples of resamplers for testing purposes
@@ -20,4 +20,5 @@ class NoResampler(Resampler):
         resampling_records = [ResamplingRecord(decision=Decision.FALSE, value=i)
                              for i in range(len(walkers))]
 
-        return walkers, [resampling_records]
+        # return values: resampled walkers, resampling records, resampling data
+        return walkers, [resampling_records], []

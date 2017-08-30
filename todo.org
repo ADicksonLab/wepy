@@ -1,0 +1,41 @@
+* HDF5
+
+** TODO write the reader for a file 
+
+- [ ] determine and set the run counter by looking at names of the runs
+
+** TODO __del__ operator correctly                                     :core:
+
+** TODO implement chunking strategies                               :feature:
+
+- [ ] protein, ligand, solvent
+- [ ] ligand, binding-site
+
+
+** TODO full slice across datasets in TrajHDF5                      :feature:
+
+get all values for a collection of indices, with fancy slicing
+
+** TODO sparse velocities etc. across trajectory                    :feature:
+
+** TODO comliance infrastructure                                    :feature:
+
+** TODO units in TrajHDF5                                              :core:
+
+** TODO simulation reproducibility metadata                         :feature:
+
+** TODO setters for forces, parameters, and observables                :core:
+
+THis needs to be in both HDF5 classes
+
+** TODO get number of atoms from the topology                 :core:topology:
+
+** TODO context manager capable                                     :feature:
+
+** TODO traj object for trajs in WepyHDF5                              :core:
+
+This would have the same API as the TrajHDF5 object.
+
+** TODO allow for arbitrary number of frames to be saved in HDF5 traj part :core:
+
+** TODO proper addition of forces to allow for multiple sets of forces :core:
