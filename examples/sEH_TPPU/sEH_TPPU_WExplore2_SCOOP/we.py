@@ -108,7 +108,11 @@ if __name__ == "__main__":
     reporter = WepyHDF5Reporter(report_path, mode='w',
                                 decisions=resampler.DECISION,
                                 instruction_dtypes=resampler.INSTRUCTION_DTYPES,
-                                bc_dtype=ubc.WARP_INSTRUCT_DTYPE,
+                                resampling_aux_dtypes=None,
+                                resampling_aux_shapes=None,
+                                warp_dtype=ubc.WARP_INSTRUCT_DTYPE,
+                                warp_aux_dtypes=ubc.WARP_AUX_DTYPES,
+                                warp_aux_shapes=ubc.WARP_AUX_SHAPES,
                                 topology=sEH_TPPU_system_top_json)
 
     # Instantiate a simulation manager

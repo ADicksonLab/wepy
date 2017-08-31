@@ -7,7 +7,9 @@ class WepyHDF5Reporter(FileReporter):
 
     def __init__(self, file_path, mode='a',
                  decisions=None, instruction_dtypes=None,
-                 bc_dtype=None,
+                 resampling_aux_dtypes=None, resampling_aux_shapes=None,
+                 warp_dtype=None,
+                 warp_aux_dtypes=None, warp_aux_shapes=None,
                  topology=None):
 
         super().__init__(file_path, mode=mode)
@@ -15,7 +17,11 @@ class WepyHDF5Reporter(FileReporter):
         self._tmp_topology = topology
         self.decisions = decisions
         self.instruction_dtypes = instruction_dtypes
-        self.bc_dtype = bc_dtype
+        self.warp_dtype = warp_dtype
+        self.resampling_aux_dtypes = resampling_aux_dtypes
+        self.resampling_aux_shapes = resampling_aux_shapes
+        self.warp_aux_dtypes = warp_aux_dtypes
+        self.warp_aux_shapes = warp_aux_shapes
 
     def init(self):
 
@@ -31,16 +37,20 @@ class WepyHDF5Reporter(FileReporter):
 
             # initialize the resampling group within this run
             wepy_h5.init_run_resampling(self.wepy_run_idx,
-                                   self.decisions,
-                                   self.instruction_dtypes)
+                                        self.decisions,
+                                        self.instruction_dtypes,
+                                        resampling_aux_dtypes=self.resampling_aux_dtypes,
+                                        resampling_aux_shapes=self.resampling_aux_shapes)
 
             # initialize the boundary condition group within this run
-            wepy_h5.init_run_bc(self.wepy_run_idx, self.bc_dtype)
+            wepy_h5.init_run_warp(self.wepy_run_idx, self.warp_dtype,
+                                  warp_aux_dtypes=self.warp_aux_dtypes,
+                                  warp_aux_shapes=self.warp_aux_shapes)
 
 
     def report(self, cycle_idx, walkers,
-               warp_records, warp_data,
-               resampling_records, resampling_data,
+               warp_records, warp_aux_data,
+               resampling_records, resampling_aux_data,
                debug_prints=False):
 
         n_walkers = len(walkers)
@@ -75,14 +85,14 @@ class WepyHDF5Reporter(FileReporter):
             # add warp records from boundary conditions
             wepy_h5.add_cycle_warp_records(self.wepy_run_idx, warp_records)
 
+            # add warp data
+            wepy_h5.add_cycle_warp_aux_data(self.wepy_run_idx, warp_aux_data)
+
             # add resampling records
             wepy_h5.add_cycle_resampling_records(self.wepy_run_idx, resampling_records)
 
-        # TODO
-        # add the warp data
-        # self.add_cycle_warp_data(self.wepy_run_idx, warp_data)
-        # add the resampling data
-        # self.add_resampling_data(self.wepy_run_idx, resampling_data)
+            # add resampling data
+            wepy_h5.add_cycle_resampling_aux_data(self.wepy_run_idx, resampling_aux_data)
 
 
     def cleanup(self):
