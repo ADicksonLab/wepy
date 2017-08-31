@@ -571,15 +571,26 @@ class WepyHDF5(object):
         # stored here organized by run (int) as the key
         self.instruction_dtypes_tokens = {}
 
+        # the dtypes for the resampling auxiliary data
+        self.resampling_aux_dtypes = None
+        self.resampling_aux_shapes = None
+        # whether or not the auxiliary datasets have been initialized
+        self._resampling_aux_init = False
+
         # initialize the attribute for the dtype for the boundary
         # conditions warp records
-        self.bc_dtype = None
+        self.warp_dtype = None
 
+        # the dtypes for the boundary conditions auxiliary data
+        self.warp_aux_dtypes = None
+        self.warp_aux_shapes = None
+        # whether or not the auxiliary datasets have been initialized
+        self._warp_aux_init = False
 
         ### HDF5 file wrapper specific variables
 
         # all the keys for the top-level items in this class
-        self._keys = ['topology', 'runs', 'resampling', 'boundary_conditions']
+        self._keys = ['topology', 'runs', 'resampling', 'warping']
 
         # initialize the exist flags, which say whether a dataset
         # exists or not
@@ -832,7 +843,8 @@ class WepyHDF5(object):
 
         return run_grp
 
-    def init_run_resampling(self, run_idx, decision_enum, instruction_dtypes_tokens):
+    def init_run_resampling(self, run_idx, decision_enum, instruction_dtypes_tokens,
+                            resampling_aux_dtypes=None, resampling_aux_shapes=None):
 
         run_grp = self.run(run_idx)
 
@@ -844,7 +856,7 @@ class WepyHDF5(object):
         res_grp = run_grp.create_group('resampling')
         # initialize the records and data groups
         rec_grp = res_grp.create_group('records')
-        data_grp = res_grp.create_group('data')
+
 
         # save the decision as a mapping in it's own group
         decision_map = {decision.name : decision.value for decision in decision_enum}
@@ -892,23 +904,84 @@ class WepyHDF5(object):
         for decision_name, flag in is_variable_lengths.items():
             varlength_grp.create_dataset(decision_name, data=flag)
 
-    def init_run_bc(self, run_idx, bc_dtype):
+
+        # initialize the auxiliary data group
+        aux_grp = res_grp.create_group('aux_data')
+        # if dtypes and shapes for aux dtypes are given create them,
+        # if only one is given raise an error, if neither are given
+        # just ignore this, it can be set when the first batch of aux
+        # data is given, which will have a dtype and shape already given
+        if (resampling_aux_dtypes is not None) and (resampling_aux_shapes is not None):
+            # initialize the dtype and shapes for them
+            self.resampling_aux_dtypes = {}
+            self.resampling_aux_shapes = {}
+            for key, dtype in resampling_aux_dtypes.items():
+                # the shape of the dataset is needed too, for setting the maxshape
+                shape = resampling_aux_shapes[key]
+                # set them in the attributes
+                self.resampling_aux_dtypes[key] = dtype
+                self.resampling_aux_shapes[key] = shape
+                # create the dataset with nothing in it
+                aux_grp.create_dataset(key, (0, *[0 for i in shape]), dtype=dtype,
+                                       maxshape=(None, *shape))
+
+            # raise a flag that this is set
+            self._resampling_aux_init = True
+        elif (resampling_aux_dtypes is None) and (resampling_aux_shapes is None):
+            # if they are both not given just ignore this part
+            pass
+        else:
+            if resampling_aux_dtypes is None:
+                raise ValueError("shapes were given but not dtypes")
+            else:
+                raise ValueError("dtypes were given but not shapes")
+
+
+    def init_run_warp(self, run_idx, warp_dtype, warp_aux_dtypes=None, warp_aux_shapes=None):
 
         run_grp = self.run(run_idx)
 
         # save the dtype
-        self.bc_dtype = bc_dtype
+        self.warp_dtype = warp_dtype
 
         # initialize the groups
-        bc_grp = run_grp.create_group('boundary_conditions')
-        # the data group can hold compatible numpy arrays by key
-        data_grp = bc_grp.create_group('data')
+        warp_grp = run_grp.create_group('warping')
 
         # the records themselves are a dataset so we make the full
         # dtype with the cycle and walker idx
-        dt = _make_numpy_warp_dtype(self.bc_dtype)
+        dt = _make_numpy_warp_dtype(self.warp_dtype)
         # make the dataset to be resizable
-        rec_dset = bc_grp.create_dataset('records', (0,), dtype=dt, maxshape=(None,))
+        rec_dset = warp_grp.create_dataset('records', (0,), dtype=dt, maxshape=(None,))
+
+        # initialize the auxiliary data group
+        # the data group can hold compatible numpy arrays by key
+        aux_grp = warp_grp.create_group('aux_data')
+        # if dtypes and shapes for aux dtypes are given create them,
+        # if only one is given raise an error, if neither are given
+        # just ignore this, it can be set when the first batch of aux
+        # data is given, which will have a dtype and shape already given
+        if (warp_aux_dtypes is not None) and (warp_aux_shapes is not None):
+            # initialize the dtype and shapes for them
+            self.warp_aux_dtypes = {}
+            self.warp_aux_shapes = {}
+            for key, dtype in warp_aux_dtypes.items():
+                # the shape of the dataset is needed too, for setting the maxshape
+                shape = warp_aux_shapes[key]
+                # set them in the attributes
+                self.warp_aux_dtypes[key] = dtype
+                self.warp_aux_shapes[key] = shape
+                # create the dataset
+                aux_grp.create_dataset(key, (0, *[0 for i in shape]), dtype=dtype,
+                                           maxshape=(None, *shape))
+
+        elif (warp_aux_dtypes is None) and (warp_aux_shapes is None):
+            # if they are both not given just ignore this part
+            pass
+        else:
+            if warp_aux_dtypes is None:
+                raise ValueError("shapes were given but not dtypes")
+            else:
+                raise ValueError("dtypes were given but not shapes")
 
 
     def add_traj(self, run_idx, weights=None, **kwargs):
@@ -1215,6 +1288,36 @@ class WepyHDF5(object):
         dset[-n_records:] = records
 
 
+    def add_cycle_resampling_aux_data(self, run_idx, resampling_data):
+
+        data_grp = self._h5['runs/{}/resampling/aux_data'.format(run_idx)]
+
+        # if the datasets were not initialized add the new data
+        if self._resampling_aux_init:
+
+            for key, aux_data in resampling_data.items():
+                # get the dataset
+                dset = data_grp[key]
+                # add the new data
+                dset.resize( (dset.shape[0] + 1, *aux_data.shape) )
+                dset[-1] = np.array([aux_data])
+
+        # if the datasets were not initialized initialize them with
+        # the incoming dataset
+        else:
+            # initialize the dicts for the dtypes and shapes
+            self.resampling_aux_dtypes = {}
+            self.resampling_aux_shapes = {}
+            for key, aux_data in resampling_data.items():
+                data_grp.create_dataset(key, data=np.array([aux_data]), dtype=aux_data.dtype,
+                                       maxshape=(None, *aux_data.shape))
+                # save the dtype and shape
+                self.resampling_aux_dtypes[key] = aux_data.dtype
+                self.resampling_aux_shapes[key] = aux_data.shape
+                self._resampling_aux_init = True
+
+
+
     def resampling(self, run_idx):
         return self._h5['runs/{}/resampling'.format(run_idx)]
 
@@ -1252,7 +1355,7 @@ class WepyHDF5(object):
 
     def add_cycle_warp_records(self, run_idx, warp_records):
 
-        rec_dset = self._h5['runs/{}/boundary_conditions/records'.format(run_idx)]
+        rec_dset = self._h5['runs/{}/warping/records'.format(run_idx)]
         cycle_idx = self._current_resampling_rec_cycle
 
         # make the records for what is stored in the dset
@@ -1261,6 +1364,33 @@ class WepyHDF5(object):
         # add them to the dset
         self._append_instruct_records(rec_dset, cycle_records)
 
+    def add_cycle_warp_aux_data(self, run_idx, warp_aux_data):
+
+        data_grp = self._h5['runs/{}/resampling/aux_data'.format(run_idx)]
+
+        # if the datasets were not initialized add the new data
+        if self._warp_aux_init:
+
+            for key, aux_data in warp_aux_data.items():
+                # get the dataset
+                dset = data_grp[key]
+                # add the new data
+                dset.resize( (dset.shape[0] + 1, *aux_data.shape) )
+                dset[-1] = np.array([aux_data])
+
+        # if the datasets were not initialized initialize them with
+        # the incoming dataset
+        else:
+            # initialize the dicts for the dtypes and shapes
+            self.warp_aux_dtypes = {}
+            self.warp_aux_shapes = {}
+            for key, aux_data in warp_aux_data.items():
+                data_grp.create_dataset(key, data=np.array([aux_data]), dtype=aux_data.dtype,
+                                       maxshape=(None, *aux_data.shape))
+                # save the dtype and shape
+                self.warp_aux_dtypes[key] = aux_data.dtype
+                self.warp_aux_shapes[key] = aux_data.shape
+                self._warp_aux_init = True
 
 def _extract_traj_dict(**kwargs):
     traj_data = {}

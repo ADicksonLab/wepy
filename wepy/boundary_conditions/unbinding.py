@@ -9,9 +9,15 @@ from wepy.boundary_conditions.boundary import BoundaryConditions
 
 UNBINDING_INSTRUCT_DTYPE = np.dtype([('target', int)])
 
+UNBINDING_AUX_DTYPES = {'passage_time' : np.float}
+UNBINDING_AUX_SHAPES = {'passage_time' : (1,)}
+
 class UnbindingBC(BoundaryConditions):
 
     WARP_INSTRUCT_DTYPE = UNBINDING_INSTRUCT_DTYPE
+
+    WARP_AUX_DTYPES = UNBINDING_AUX_DTYPES
+    WARP_AUX_SHAPES = UNBINDING_AUX_SHAPES
 
     def __init__(self, initial_state=None,
                  cutoff_distance=1.0,
