@@ -627,8 +627,8 @@ class WepyHDF5(object):
 
             self._h5.flush()
 
-        # should be closed after initialization
-        self.closed = False
+        # should be closed after initialization unless it is read and/or readwrite
+        self.closed = True
 
         # TODO update the compliance type flags of the dataset
 
@@ -722,6 +722,12 @@ class WepyHDF5(object):
     def filename(self):
         return self._filename
 
+    def open(self):
+        if self.closed:
+            self._h5 = h5py.File(self._filename, self._h5py_mode)
+            self._closed = False
+        else:
+            raise IOError("This file is already open")
 
     def close(self):
         if not self.closed:
@@ -900,7 +906,7 @@ class WepyHDF5(object):
 
         # the records themselves are a dataset so we make the full
         # dtype with the cycle and walker idx
-        dt = self._make_numpy_warp_dtype(self.bc_dtype)
+        dt = _make_numpy_warp_dtype(self.bc_dtype)
         # make the dataset to be resizable
         rec_dset = bc_grp.create_dataset('records', (0,), dtype=dt, maxshape=(None,))
 

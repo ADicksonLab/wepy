@@ -5,7 +5,10 @@ from wepy.hdf5 import WepyHDF5
 
 class WepyHDF5Reporter(FileReporter):
 
-    def __init__(self, file_path, decisions, instruction_dtypes, bc_dtype, topology, mode='a'):
+    def __init__(self, file_path, mode='a',
+                 decisions=None, instruction_dtypes=None,
+                 bc_dtype=None,
+                 topology=None):
 
         super().__init__(file_path, mode=mode)
         self.wepy_run_idx = None

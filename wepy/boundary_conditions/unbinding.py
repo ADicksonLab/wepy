@@ -1,4 +1,9 @@
+import itertools as it
+
 import numpy as np
+import numpy.linalg as la
+
+import mdtraj as mdj
 
 from wepy.boundary_conditions.boundary import BoundaryConditions
 
@@ -6,7 +11,7 @@ UNBINDING_INSTRUCT_DTYPE = np.dtype([('target', int)])
 
 class UnbindingBC(BoundaryConditions):
 
-    WAPR_INSTRUCT_DTYPE = UNBINDING_INSTRUCT_DTYPE
+    WARP_INSTRUCT_DTYPE = UNBINDING_INSTRUCT_DTYPE
 
     def __init__(self, initial_state=None,
                  cutoff_distance=1.0,
@@ -46,7 +51,7 @@ class UnbindingBC(BoundaryConditions):
                            positions[i]._value[2]])
         return xyz
 
-    def _calc_min_distance(walker):
+    def _calc_min_distance(self, walker):
         # convert box_vectors to angles and lengths for mdtraj
         # calc box length
         cell_lengths = np.array([[self._calc_length(v._value) for v in walker.box_vectors]])
