@@ -39,3 +39,7 @@ This would have the same API as the TrajHDF5 object.
 ** TODO allow for arbitrary number of frames to be saved in HDF5 traj part :core:
 
 ** TODO proper addition of forces to allow for multiple sets of forces :core:
+
+** TODO allow for passing in of real np.dtypes to resampling records   :core:
+
+special handling for the variable length "tokens"

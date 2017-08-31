@@ -87,8 +87,10 @@ class Manager(object):
             if debug_prints:
                 sys.stdout.write("End cycle {}\n".format(cycle_idx))
 
-            # apply rules of boundary conditions
-
+            # apply rules of boundary conditions and warp walkers through space
+            warped_walkers, warped_walker_records, warp_data = \
+                           self.boundary_conditions.warp_walkers(new_walkers,
+                                                                 debug_prints=debug_prints)
 
             # resample walkers
             resampled_walkers, resampling_records, resampling_data =\
@@ -113,7 +115,9 @@ class Manager(object):
                 print(walker_weight_str)
 
             # report results to the reporter
-            self.reporter.report(cycle_idx, new_walkers, resampling_records, resampling_data,
+            self.reporter.report(cycle_idx, new_walkers,
+                                 warped_walker_records, warp_data,
+                                 resampling_records, resampling_data,
                                  debug_prints=debug_prints)
 
             # prepare resampled walkers for running new state changes

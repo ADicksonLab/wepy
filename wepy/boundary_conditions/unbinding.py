@@ -1,6 +1,8 @@
+import numpy as np
+
 from wepy.boundary_conditions.boundary import BoundaryConditions
 
-UNBINDING_INSTRUCT_DTYPE = [('target', int)]
+UNBINDING_INSTRUCT_DTYPE = np.dtype([('target', int)])
 
 class UnbindingBC(BoundaryConditions):
 
@@ -80,7 +82,7 @@ class UnbindingBC(BoundaryConditions):
 
         return unbound, min_distance
 
-    def warp_walkers(self, walkers):
+    def warp_walkers(self, walkers, debug_prints=False):
 
         new_walkers = []
         warped_walkers_records = []

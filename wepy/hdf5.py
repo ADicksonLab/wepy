@@ -571,6 +571,10 @@ class WepyHDF5(object):
         # stored here organized by run (int) as the key
         self.instruction_dtypes_tokens = {}
 
+        # initialize the attribute for the dtype for the boundary
+        # conditions warp records
+        self.bc_dtype = None
+
 
         ### HDF5 file wrapper specific variables
 
@@ -881,6 +885,25 @@ class WepyHDF5(object):
         varlength_grp = decision_grp.create_group('variable_length')
         for decision_name, flag in is_variable_lengths.items():
             varlength_grp.create_dataset(decision_name, data=flag)
+
+    def init_run_bc(self, run_idx, bc_dtype):
+
+        run_grp = self.run(run_idx)
+
+        # save the dtype
+        self.bc_dtype = bc_dtype
+
+        # initialize the groups
+        bc_grp = run_grp.create_group('boundary_conditions')
+        # the data group can hold compatible numpy arrays by key
+        data_grp = bc_grp.create_group('data')
+
+        # the records themselves are a dataset so we make the full
+        # dtype with the cycle and walker idx
+        dt = self._make_numpy_warp_dtype(self.bc_dtype)
+        # make the dataset to be resizable
+        rec_dset = bc_grp.create_dataset('records', (0,), dtype=dt, maxshape=(None,))
+
 
     def add_traj(self, run_idx, weights=None, **kwargs):
 
@@ -1221,6 +1244,16 @@ class WepyHDF5(object):
 
         return varlength
 
+    def add_cycle_warp_records(self, run_idx, warp_records):
+
+        rec_dset = self._h5['runs/{}/boundary_conditions/records'.format(run_idx)]
+        cycle_idx = self._current_resampling_rec_cycle
+
+        # make the records for what is stored in the dset
+        cycle_records = [(cycle_idx, *warp_record) for warp_record in warp_records]
+
+        # add them to the dset
+        self._append_instruct_records(rec_dset, cycle_records)
 
 
 def _extract_traj_dict(**kwargs):
@@ -1254,6 +1287,13 @@ def _instruction_is_variable_length(instruction_dtype_tokens):
 def _make_numpy_instruction_dtype(instruct_dtype):
 
     dtype_map = [('cycle_idx', np.int), ('step_idx', np.int), ('walker_idx', np.int),
+                     ('instruction', instruct_dtype)]
+
+    return np.dtype(dtype_map)
+
+def _make_numpy_warp_dtype(instruct_dtype):
+
+    dtype_map = [('cycle_idx', np.int), ('walker_idx', np.int),
                      ('instruction', instruct_dtype)]
 
     return np.dtype(dtype_map)
