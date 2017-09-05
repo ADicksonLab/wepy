@@ -1,0 +1,38 @@
+#    -*- mode: org -*-
+
+
+Archived entries from file /home/salotz/Dropbox/devel/wepy/todo.org
+
+
+* DONE write the reader for a file 
+  :PROPERTIES:
+  :ARCHIVE_TIME: 2017-09-05 Tue 16:46
+  :ARCHIVE_FILE: ~/Dropbox/devel/wepy/todo.org
+  :ARCHIVE_OLPATH: HDF5
+  :ARCHIVE_CATEGORY: todo
+  :ARCHIVE_TODO: DONE
+  :END:
+
+- [ ] determine and set the run counter by looking at names of the runs
+
+
+* DONE context manager capable                                      :feature:
+  :PROPERTIES:
+  :ARCHIVE_TIME: 2017-09-05 Tue 16:46
+  :ARCHIVE_FILE: ~/Dropbox/devel/wepy/todo.org
+  :ARCHIVE_OLPATH: HDF5
+  :ARCHIVE_CATEGORY: todo
+  :ARCHIVE_TODO: DONE
+  :END:
+
+
+* __del__ operator correctly                                           :core:
+  :PROPERTIES:
+  :ARCHIVE_TIME: 2017-09-05 Tue 16:46
+  :ARCHIVE_FILE: ~/Dropbox/devel/wepy/todo.org
+  :ARCHIVE_OLPATH: HDF5
+  :ARCHIVE_CATEGORY: todo
+  :END:
+
+I think this is done correctly...
+
