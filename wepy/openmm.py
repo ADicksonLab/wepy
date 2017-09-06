@@ -29,9 +29,8 @@ class OpenMMRunner(Runner):
     def __init__(self, system, topology, platform=None):
         self.system = system
         self.topology = topology
-        self.platform = platform
-
-
+        self.platform_name = platform
+        
     def run_segment(self, walker, segment_length, **kwargs):
 
         # TODO can we do this outside of this?
@@ -39,32 +38,26 @@ class OpenMMRunner(Runner):
         integrator = omm.LangevinIntegrator(300*unit.kelvin,
                                             1/unit.picosecond,
                                             0.002*unit.picoseconds)
-
+        
         # if a platform was given we use it to make a Simulation object
-        if self.platform is not None:
+        if self.platform_name is not None and kwargs:
             # make a platform object
-            platform = omm.Platform.getPlatformByName('OpenCL')
+            platform = omm.Platform.getPlatformByName(self.platform_name)
+            platform.setPropertyDefaultValue('Precision', 'mixed')
+            platform.setPropertyDefaultValue('DeviceIndex',str(kwargs['gpu_index']))
+            # instantiate a simulation object
+            
             # instantiate a simulation object
             simulation = omma.Simulation(self.topology, self.system, integrator, platform)
         # Otherwise just use the default or environmentally defined one
         else:
             simulation = omma.Simulation(self.topology, self.system, integrator)
 
-
-        if kwargs:
-            # make a platform object
-            platform = omm.Platform.getPlatformByName('CUDA')
-            # set properties for this platform
-            platform.setPropertyDefaultValue('Precision', 'mixed')
-            platform.setPropertyDefaultValue('DeviceIndex',str(kwargs['gpu_index']))
-            # instantiate a simulation object
-            simulation = omma.Simulation(self.topology, self.system, integrator, platform)
-
         # initialize the positions
         simulation.context.setPositions(walker.positions)
 
         # initialize the velocities
-        simulation.context.setPositions(walker.velocities)
+        simulation.context.setVelocities(walker.velocities)
 
         
         # Run the simulation segment for the number of time steps

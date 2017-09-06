@@ -14,15 +14,15 @@ class GpuMapper:
     def exec_call(self,_call_, index, *args):
         # gets a free GUP and calls the runable function
         self.lock.acquire()
-        gpuindex = self.free_workers.get()
-        args += (gpuindex,)
-        result = _call_(*args)
+        gpu_index = self.free_workers.get()
+        #args += (gpuindex,)
+        result = _call_(*args, gpu_index=gpu_index)
         # check for validation of MD simulation
         #if result is None:
          #  self.tasks.put(mulproc.Process(target=self.exec_call, args=(_call_,index,*args)))
 
         #else :
-        self.free_workers.put(gpuindex)
+        self.free_workers.put(gpu_index)
         self.results_list[index] = result
         self.lock.release()
 
