@@ -635,7 +635,19 @@ class TrajHDF5(object):
 
 class WepyHDF5(object):
 
-    def __init__(self, filename, mode='x', topology=None):
+    def __init__(self, filename, mode='x', topology=None,
+                 positions_unit = None,
+                 velocities_unit = None,
+                 box_vectors_unit = None,
+                 time_unit = None,
+                 kinetic_energy_unit = None,
+                 potential_energy_unit = None,
+                 box_volume_unit = None,
+                 forces_unit = None,
+                 parameters_units = None,
+                 parameter_derivatives_units = None,
+                 observables_units = None,
+                ):
         """Initialize a new Wepy HDF5 file. This is a file that organizes
         wepy.TrajHDF5 dataset subsets by simulations by runs and
         includes resampling records for recovering walker histories.
@@ -677,6 +689,19 @@ class WepyHDF5(object):
 
 
         ### WepyHDF5 specific variables
+
+        # units
+        self.positions_unit = positions_unit
+        self.velocities_unit = velocities_unit
+        self.box_vectors_unit = box_vectors_unit
+        self.time_unit = time_unit
+        self.kinetic_energy_unit = kinetic_energy_unit
+        self.potential_energy_unit = potential_energy_unit
+        self.box_volume_unit = box_volume_unit
+        self.forces_unit = force_units
+        self.parameters_units = parameters_units
+        self.parameter_derivatives_units = parameter_derivatives_units
+        self.observables_units = observables_units
 
         # counters for run and traj indexing
         self._run_idx_counter = 0

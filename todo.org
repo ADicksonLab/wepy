@@ -23,9 +23,15 @@ This would have the same API as the TrajHDF5 object.
 
 ** TODO [#B] restarting simulations, multiple runs                     :core:
 
-** TODO [#A] units in HDF5                                             :core:
+** TODO [#A] save supposed-units in HDF5                               :core:
 
 This will just involve saving the string that can be read by most systems.
+
+** TODO [#C] only accept Quantity type objects that match/convert units :feature:
+
+This will require choosing a unit library:
+- simtk.units
+- pint
 
 ** TODO [#C] HDF5 topology                                    :core:topology:
 
