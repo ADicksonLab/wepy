@@ -11,10 +11,8 @@ N_DIMS = 3
 TRAJ_DATA_FIELDS = ['positions', 'time', 'box_vectors', 'velocities',
                     'parameters', 'forces', 'kinetic_energy', 'potential_energy',
                     'box_volume', 'parameters', 'parameter_derivatives', 'observables']
-INSTRUCTION_TYPES = ['VARIABLE', 'FIXED']
 
-def load_dataset(path):
-    return None
+INSTRUCTION_TYPES = ['VARIABLE', 'FIXED']
 
 class TrajHDF5(object):
 
@@ -22,17 +20,25 @@ class TrajHDF5(object):
                  topology=None,
                  positions=None,
                  time=None,
+                 kinetic_energy=None,
+                 potential_energy=None,
+                 box_volume=None,
                  box_vectors=None,
                  velocities=None,
                  positions_unit=None,
                  time_unit=None,
+                 kinetic_energy_unit=None,
+                 potential_energy_unit=None,
+                 box_volume_unit=None,
                  box_vectors_unit=None,
                  velocities_unit=None,
                  forces=None,
                  parameters=None,
+                 parameter_derivatives=None,
                  observables=None,
                  forces_units=None,
                  parameters_units=None,
+                 parameter_derivatives_units=None,
                  observables_units=None):
 
         """Initializes a TrajHDF5 object which is a format for storing
@@ -73,46 +79,56 @@ class TrajHDF5(object):
 
 
         # all the keys for the datasets and groups
-        self._keys = ['topology', 'positions',
-                      'time', 'box_vectors',
-                      'velocities',
-                      'forces', 'parameters',
-                      'observables']
+        self._keys = ['topology', 'positions', 'velocities',
+                      'box_vectors',
+                      'time', 'box_volume', 'kinetic_energy', 'potential_energy',
+                      'forces', 'parameters', 'parameter_derivatives', 'observables']
 
         # collect the non-topology attributes into a dict
         data = {'positions' : positions,
                 'time' : time,
+                'box_volume' : box_volume,
+                'kinetic_energy' : kinetic_energy,
+                'potential_energy' : potential_energy,
                 'box_vectors' : box_vectors,
                 'velocities' : velocities,
                 'forces' : forces,
                 'parameters' : parameters,
+                'parameter_derivatives' : parameter_derivatives,
                 'observables' : observables
                }
 
         units = {'positions' : positions_unit,
                  'time' : time_unit,
+                 'box_volume_unit' : box_volume_unit,
+                 'kinetic_energy_unit' : kinetic_energy_unit,
+                 'potential_energy_unit' : potential_energy_unit,
                  'box_vectors' : box_vectors_unit,
                  'velocities' : velocities_unit,
                  'forces' : forces_units,
                  'parameters' : parameters_units,
+                 'parameter_derivatives_units' : parameter_derivatives_units,
                  'observables' : observables_units
                 }
+
+        # some data fields are compound and have more than one dataset
+        # associated with them
+        self._compound_keys = ['forces', 'parameters', 'parameter_derivatives', 'observables']
 
         # initialize the exist flags, which say whether a dataset
         # exists or not
         self._exist_flags = {key : False for key in self._keys}
+        self._compound_exist_flags = {key : {} for key in self._compound_keys}
 
         # initialize the append flags dictionary, this keeps track of
         # whether a data field can be appended to or not
         self._append_flags = {key : True for key in self._keys}
+        self._compound_append_flags = {key : {} for key in self._compound_keys}
 
         # some of these data fields are mandatory and others are
         # optional
         self._mandatory_keys = ['positions']
 
-        # some data fields are compound and have more than one dataset
-        # associated with them
-        self._compound_keys = ['forces', 'parameters', 'observables']
 
         ## Dataset Compliances
         # a file which has different levels of keys can be used for
@@ -245,6 +261,10 @@ class TrajHDF5(object):
         # assign the topology
         self.topology = topology
 
+        # initialize the compound dataset groups
+        for key in self._compound_keys:
+            self._h5.create_group(key)
+
         # write all the datasets
         self._write_datasets(data, units)
 
@@ -307,6 +327,13 @@ class TrajHDF5(object):
     @property
     def filename(self):
         return self._filename
+
+    def open(self):
+        if self.closed:
+            self._h5 = h5py.File(self._filename, self._h5py_mode)
+            self._closed = False
+        else:
+            raise IOError("This file is already open")
 
     def close(self):
         if not self.closed:
@@ -421,6 +448,54 @@ class TrajHDF5(object):
             self._append_flags['time'] = False
 
     @property
+    def box_volume(self):
+        if self._exist_flags['box_volume']:
+            return self._h5['box_volume']
+        else:
+            return None
+
+    @box_volume.setter
+    def box_volume(self, box_volume):
+        assert isinstance(box_volume, np.ndarray), "box_volume must be a numpy array"
+        self._h5.create_dataset('box_volume', data=box_volume, maxshape=(None))
+        self._exist_flags['box_volume'] = True
+        # if we are in strict append mode we cannot append after we create something
+        if self._wepy_mode == 'c-':
+            self._append_flags['box_volume'] = False
+
+    @property
+    def kinetic_energy(self):
+        if self._exist_flags['kinetic_energy']:
+            return self._h5['kinetic_energy']
+        else:
+            return None
+
+    @kinetic_energy.setter
+    def kinetic_energy(self, kinetic_energy):
+        assert isinstance(kinetic_energy, np.ndarray), "kinetic_energy must be a numpy array"
+        self._h5.create_dataset('kinetic_energy', data=kinetic_energy, maxshape=(None))
+        self._exist_flags['kinetic_energy'] = True
+        # if we are in strict append mode we cannot append after we create something
+        if self._wepy_mode == 'c-':
+            self._append_flags['kinetic_energy'] = False
+
+    @property
+    def potential_energy(self):
+        if self._exist_flags['potential_energy']:
+            return self._h5['potential_energy']
+        else:
+            return None
+
+    @potential_energy.setter
+    def potential_energy(self, potential_energy):
+        assert isinstance(potential_energy, np.ndarray), "potential_energy must be a numpy array"
+        self._h5.create_dataset('potential_energy', data=potential_energy, maxshape=(None))
+        self._exist_flags['potential_energy'] = True
+        # if we are in strict append mode we cannot append after we create something
+        if self._wepy_mode == 'c-':
+            self._append_flags['potential_energy'] = False
+
+    @property
     def box_vectors(self):
         if self._exist_flags['box_vectors']:
             return self._h5['box_vectors']
@@ -468,14 +543,19 @@ class TrajHDF5(object):
             return None
 
     @forces.setter
-    def forces(self, forces):
-        raise NotImplementedError
+    def forces(self, forces_dict):
 
-        # self._h5.create_dataset('forces', data=forces)
-        # self._exist_flags['forces'] = True
-        # # if we are in strict append mode we cannot append after we create something
-        # if self._wepy_mode == 'c-':
-        #     self._append_flags['forces'] = False
+        forces_grp = self._h5['forces']
+        for key, values in forces_dict.items():
+            forces_grp.create_dataset(key, data=values,
+                                    maxshape=(None, self.n_atoms, N_DIMS))
+            self._compound_exist_flags['forces'][key] = True
+            # if we are in strict append mode we cannot append after we create something
+            if self._wepy_mode == 'c-':
+                self._compound_append_flags['forces'][key] = False
+
+    def set_force(self, force_key, forces):
+        self.forces[{force_key : forces}]
 
     @property
     def parameters(self):
@@ -485,14 +565,42 @@ class TrajHDF5(object):
             return None
 
     @parameters.setter
-    def parameters(self, parameters):
-        raise NotImplementedError
+    def parameters(self, parameters_dict):
 
-        # self._h5.create_dataset('parameters', data=parameters)
-        # self._exist_flags['parameters'] = True
-        # # if we are in strict append mode we cannot append after we create something
-        # if self._wepy_mode == 'c-':
-        #     self._append_flags['parameters'] = False
+        parameters_grp = self._h5['parameters']
+        for key, values in parameters_dict.items():
+            parameters_grp.create_dataset(key, data=values,
+                                    maxshape=(None, self.n_atoms, N_DIMS))
+            self._compound_exist_flags['parameters'][key] = True
+            # if we are in strict append mode we cannot append after we create something
+            if self._wepy_mode == 'c-':
+                self._compound_append_flags['parameters'][key] = False
+
+    def set_parameter(self, parameter_key, parameters):
+        self.parameters[{parameter_key : parameters}]
+
+    @property
+    def parameter_derivatives(self):
+        if self._exist_flags['parameter_derivatives']:
+            return self._h5['parameter_derivatives']
+        else:
+            return None
+
+    @parameter_derivatives.setter
+    def parameter_derivatives(self, parameter_derivatives_dict):
+
+        parameter_derivatives_grp = self._h5['parameter_derivatives']
+        for key, values in parameter_derivatives_dict.items():
+            parameter_derivatives_grp.create_dataset(key, data=values,
+                                    maxshape=(None, self.n_atoms, N_DIMS))
+            self._compound_exist_flags['parameter_derivatives'][key] = True
+            # if we are in strict append mode we cannot append after we create something
+            if self._wepy_mode == 'c-':
+                self._compound_append_flags['parameter_derivatives'][key] = False
+
+    def set_parameter_derivative(self, parameter_derivative_key, parameter_derivatives):
+        self.parameter_derivatives[{parameter_derivative_key : parameter_derivatives}]
+
 
     @property
     def observables(self):
@@ -502,14 +610,20 @@ class TrajHDF5(object):
             return None
 
     @observables.setter
-    def observables(self, observables):
-        raise NotImplementedError
+    def observables(self, observables_dict):
 
-        # self._h5.create_dataset('observables', data=observables)
-        # self._exist_flags['observables'] = True
-        # # if we are in strict append mode we cannot append after we create something
-        # if self._wepy_mode == 'c-':
-        #     self._append_flags['observables'] = False
+        observables_grp = self._h5['observables']
+        for key, values in observables_dict.items():
+            observables_grp.create_dataset(key, data=values,
+                                    maxshape=(None, self.n_atoms, N_DIMS))
+            self._compound_exist_flags['observables'][key] = True
+            # if we are in strict append mode we cannot append after we create something
+            if self._wepy_mode == 'c-':
+                self._compound_append_flags['observables'][key] = False
+
+    def set_observable(self, observable_key, observables):
+        self.observables[{observable_key : observables}]
+
 
 
 class WepyHDF5(object):
