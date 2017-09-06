@@ -27,10 +27,6 @@ This would have the same API as the TrajHDF5 object.
 
 This will just involve saving the string that can be read by most systems.
 
-** TODO [#A] setters for forces, parameters, and observables           :core:
-
-THis needs to be in both HDF5 classes
-
 ** TODO [#C] HDF5 topology                                    :core:topology:
 
 This needs to be developed.

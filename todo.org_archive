@@ -36,3 +36,15 @@ Archived entries from file /home/salotz/Dropbox/devel/wepy/todo.org
 
 I think this is done correctly...
 
+
+* DONE [#A] setters for forces, parameters, and observables            :core:
+  :PROPERTIES:
+  :ARCHIVE_TIME: 2017-09-06 Wed 13:35
+  :ARCHIVE_FILE: ~/Dropbox/devel/wepy/todo.org
+  :ARCHIVE_OLPATH: HDF5
+  :ARCHIVE_CATEGORY: todo
+  :ARCHIVE_TODO: DONE
+  :END:
+
+THis needs to be in both HDF5 classes
+

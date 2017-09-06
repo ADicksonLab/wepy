@@ -50,8 +50,8 @@ class OpenMMRunner(Runner):
         else:
             simulation = omma.Simulation(self.topology, self.system, integrator)
 
-        # initialize the positions
-        simulation.context.setPositions(walker.positions)
+        # set the state to the context from the walker
+        simulation.context.setState(walker.state)
 
         # run the simulation segment for the number of time steps
         simulation.step(segment_length)
