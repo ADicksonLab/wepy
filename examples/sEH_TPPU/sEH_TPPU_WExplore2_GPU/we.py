@@ -18,7 +18,7 @@ from wepy.openmm import OpenMMRunner, OpenMMWalker
 from wepy.boundary_conditions.unbinding import UnbindingBC
 from wepy.reporter.hdf5 import WepyHDF5Reporter
 from wepy.hdf5 import TrajHDF5
-from wepy.work_mapper.gpu import GpuMapper
+from wepy.work_mapper.gpu import GPUMapper
 
 def make_initial_minimized_state():
     psf = omma.CharmmPsfFile('../sEH_TPPU_system.psf')
@@ -26,7 +26,6 @@ def make_initial_minimized_state():
     # load the coordinates
     pdb = mdj.load_pdb('../sEH_TPPU_system.pdb')
 
-    
     # to use charmm forcefields get your parameters
     params = omma.CharmmParameterSet('../all36_cgenff.rtf',
                                      '../all36_cgenff.prm',
@@ -34,26 +33,24 @@ def make_initial_minimized_state():
                                      '../all36_prot.prm',
                                      '../tppu.str',
                                      '../toppar_water_ions.str')
-    
+
     # set the box size lengths and angles
     psf.setBox(82.435, 82.435, 82.435, 90, 90, 90)
 
         # create a system using the topology method giving it a topology and
         # the method for calculation
     system = psf.createSystem(params,
-                                  nonbondedMethod=omma.CutoffPeriodic,
-                                   nonbondedCutoff=1.0 * unit.nanometer,
-                                  constraints=omma.HBonds)
-    topology = psf.topology
-        
-    print("\nminimizing\n")
+                              nonbondedMethod=omma.CutoffPeriodic,
+                              nonbondedCutoff=1.0 * unit.nanometer,
+                              constraints=omma.HBonds)
+
     # set up for a short simulation to minimize and prepare
     # instantiate an integrator
     integrator = omm.LangevinIntegrator(300*unit.kelvin,
                                             1/unit.picosecond,
                                             0.002*unit.picoseconds)
-    # instantiate a OpenCL platform, in other platforms we can not have multiple simulation context 
-    platform = omm.Platform.getPlatformByName('OpenCL') 
+    # instantiate a OpenCL platform, in other platforms we can not have multiple simulation context
+    platform = omm.Platform.getPlatformByName('OpenCL')
 
      # instantiate a simulation object
     simulation = omma.Simulation(psf.topology, system, integrator,platform)
@@ -75,8 +72,6 @@ def make_initial_minimized_state():
 
 
 if __name__ == "__main__":
-
-    #### SETUP -----------------------------------------
     # load a json string of the topology
     with open("../sEH_TPPU_system.top.json", mode='r') as rf:
         sEH_TPPU_system_top_json = rf.read()
@@ -102,9 +97,30 @@ if __name__ == "__main__":
     # atoms in the crystal structure
     binding_selection_idxs = mdj.compute_neighbors(pdb, 0.8, lig_idxs)
     binding_selection_idxs = np.delete(binding_selection_idxs, lig_idxs)
-    
-    # minimize the system 
-    minimized_state, system, psf, pdb = make_initial_minimized_state()
+
+    # create a system for use in OpenMM
+
+    # load the psf which is needed for making a system in OpenMM with
+    # CHARMM force fields
+    psf = omma.CharmmPsfFile('../sEH_TPPU_system.psf')
+
+    # set the box size lengths and angles
+    psf.setBox(82.435, 82.435, 82.435, 90, 90, 90)
+
+    # to use charmm forcefields get your parameters
+    params = omma.CharmmParameterSet('../all36_cgenff.rtf',
+                                     '../all36_cgenff.prm',
+                                     '../all36_prot.rtf',
+                                     '../all36_prot.prm',
+                                     '../tppu.str',
+                                     '../toppar_water_ions.str')
+
+    # create a system using the topology method giving it a topology and
+    # the method for calculation
+    system = psf.createSystem(params,
+                              nonbondedMethod=omma.CutoffPeriodic,
+                              nonbondedCutoff=1.0 * unit.nanometer,
+                              constraints=omma.HBonds)
 
     # set the string identifier for the platform to be used by openmm
     platform = 'CUDA'
@@ -152,7 +168,7 @@ if __name__ == "__main__":
     # instantiate a hpcc object
     #TODO change the num_workers to the list of GUP indicies are available
     num_workers = 3
-    gpumapper  = GpuMapper(num_walkers, num_workers)
+    gpumapper  = GPUMapper(num_walkers, num_workers)
 
     # Instantiate a simulation manager
     sim_manager = Manager(init_walkers,
