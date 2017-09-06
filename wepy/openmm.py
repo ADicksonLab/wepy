@@ -30,25 +30,30 @@ class OpenMMRunner(Runner):
         self.system = system
         self.topology = topology
         self.platform_name = platform
-        
+
     def run_segment(self, walker, segment_length, **kwargs):
 
-        # TODO can we do this outside of this?
         # instantiate an integrator
         integrator = omm.LangevinIntegrator(300*unit.kelvin,
                                             1/unit.picosecond,
                                             0.002*unit.picoseconds)
-        
+
         # if a platform was given we use it to make a Simulation object
-        if self.platform_name is not None and kwargs:
+        if self.platform_name is not None:
+            platform = omm.Platform.getPlatformByName(self.platform_name)
+            simulation = omma.Simulation(self.topology, self.system, integrator, platform)
+
+        # if the platform is for GPUs and we have gpu indices we need
+        # to set further options in the platform
+        elif self.platform_name in ['CUDA', 'OpenCL'] and 'gpu_index' in kwargs:
             # make a platform object
             platform = omm.Platform.getPlatformByName(self.platform_name)
             platform.setPropertyDefaultValue('Precision', 'mixed')
             platform.setPropertyDefaultValue('DeviceIndex',str(kwargs['gpu_index']))
-            # instantiate a simulation object
-            
+
             # instantiate a simulation object
             simulation = omma.Simulation(self.topology, self.system, integrator, platform)
+
         # Otherwise just use the default or environmentally defined one
         else:
             simulation = omma.Simulation(self.topology, self.system, integrator)
@@ -56,10 +61,6 @@ class OpenMMRunner(Runner):
         # set the state to the context from the walker
         simulation.context.setState(walker.state)
 
-        # initialize the velocities
-        simulation.context.setVelocities(walker.velocities)
-
-        
         # Run the simulation segment for the number of time steps
         simulation.step(segment_length)
 
@@ -78,7 +79,7 @@ class OpenMMRunner(Runner):
 
         return new_walker
 
-    
+
 
 class OpenMMWalker(Walker):
 
