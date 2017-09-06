@@ -160,6 +160,13 @@ class TrajHDF5(object):
             # 'w-' and 'x' will not overwrite but will create a new file
             if self._wepy_mode in ['w', 'w-', 'x']:
                 self._create_init(topology, data, units)
+                # once we have run the creation we change the mode for
+                # opening h5py to read/write (non-creation) so that it
+                # doesn't overwrite the WepyHDF5 object when we reopen
+                # a WepyHDF5 which was constructed in a create
+                # mode. We preserve the original mode given to
+                # WepyHDF5 but just change the internals
+                self._h5py_mode = 'r+'
 
             # read/write mode: in this mode we do not completely overwrite
             # the old file and start again but rather write over top of
@@ -195,7 +202,7 @@ class TrajHDF5(object):
     # context manager methods
 
     def __enter__(self):
-        self._h5 = h5py.File(self._filename)
+        self._h5 = h5py.File(self._filename, mode=self._h5py_mode)
         self.closed = False
         return self
 
@@ -330,7 +337,7 @@ class TrajHDF5(object):
 
     def open(self):
         if self.closed:
-            self._h5 = h5py.File(self._filename, self._h5py_mode)
+            self._h5 = h5py.File(self._filename, mode=self._h5py_mode)
             self._closed = False
         else:
             raise IOError("This file is already open")
@@ -714,7 +721,6 @@ class WepyHDF5(object):
         # whether a data field can be appended to or not
         self._append_flags = {key : True for key in self._keys}
 
-
         # TODO Dataset Complianaces
 
         # open the file
@@ -752,8 +758,14 @@ class WepyHDF5(object):
 
             self._h5.flush()
 
+            # set the h5py mode to the value in the actual h5py.File
+            # object after creation
+            self._h5py_mode = self._h5.mode
+
+
         # should be closed after initialization unless it is read and/or readwrite
         self.closed = True
+
 
         # TODO update the compliance type flags of the dataset
 
@@ -1163,6 +1175,31 @@ class WepyHDF5(object):
         else:
             traj_grp.create_dataset('time', data=time, maxshape=(None,))
 
+        # box_volume
+        try:
+            box_volume = traj_data['box_volume']
+        except KeyError:
+            pass
+        else:
+            traj_grp.create_dataset('box_volume', data=box_volume, maxshape=(None,))
+
+        # kinetic_energy
+        try:
+            kinetic_energy = traj_data['kinetic_energy']
+        except KeyError:
+            pass
+        else:
+            traj_grp.create_dataset('kinetic_energy', data=kinetic_energy, maxshape=(None,))
+
+        # potential_energy
+        try:
+            potential_energy = traj_data['potential_energy']
+        except KeyError:
+            pass
+        else:
+            traj_grp.create_dataset('potential_energy', data=potential_energy, maxshape=(None,))
+
+
         # box vectors
         try:
             box_vectors = traj_data['box_vectors']
@@ -1180,44 +1217,18 @@ class WepyHDF5(object):
             traj_grp.create_dataset('velocities', data=velocities,
                                     maxshape=(None, n_atoms, N_DIMS))
 
-        # TODO update for multiple forces
         # forces
         try:
             forces = traj_data['forces']
         except KeyError:
             pass
         else:
-            traj_grp.create_dataset('forces', data=forces,
-                                    maxshape=(None, n_atoms, N_DIMS))
-
-        # TODO set other values, forces, parameters, and observables
-
-        # potential energy
-        try:
-            potential_energy = traj_data['potential_energy']
-        except KeyError:
-            pass
-        else:
-            traj_grp.create_dataset('potential_energy', data=potential_energy,
-                                    maxshape=(None,))
-
-        # kinetic energy
-        try:
-            kinetic_energy = traj_data['kinetic_energy']
-        except KeyError:
-            pass
-        else:
-            traj_grp.create_dataset('kinetic_energy', data=kinetic_energy,
-                                    maxshape=(None,))
-
-        # box volume
-        try:
-            box_volume = traj_data['box_volume']
-        except KeyError:
-            pass
-        else:
-            traj_grp.create_dataset('box_volume', data=box_volume,
-                                    maxshape=(None,))
+            # create a group for multiple forces
+            forces_grp = traj_grp.create_group('forces')
+            for key, values in forces.items():
+                # make each dataset for the forces
+                forces_grp.create_dataset(key, data=values,
+                                        maxshape=(None, self.n_atoms, N_DIMS))
 
         # parameters
         try:
@@ -1225,7 +1236,10 @@ class WepyHDF5(object):
         except KeyError:
             pass
         else:
-            traj_grp.create_group('parameters')
+            parameters_grp = traj_grp.create_group('parameters')
+            for key, values in parameters.items():
+                parameters_grp.create_dataset(key, data=values,
+                                        maxshape=(None, self.n_atoms, N_DIMS))
 
         # parameter_derivatives
         try:
@@ -1233,7 +1247,22 @@ class WepyHDF5(object):
         except KeyError:
             pass
         else:
-            traj_grp.create_group('parameter_derivatives')
+            parameter_derivatives_grp = traj_grp.create_group('parameter_derivatives')
+            for key, values in parameter_derivatives.items():
+                parameter_derivatives_grp.create_dataset(key, data=values,
+                                        maxshape=(None, self.n_atoms, N_DIMS))
+
+        # observables
+        try:
+            observables = traj_data['observables']
+        except KeyError:
+            pass
+        else:
+            observables_grp = traj_grp.create_group('observables')
+            for key, values in observables.items():
+                observables_grp.create_dataset(key, data=values,
+                                        maxshape=(None, *values.shape[1:]))
+
 
         return traj_grp
 
@@ -1272,25 +1301,46 @@ class WepyHDF5(object):
         # add the new data
         dset[-n_new_frames:, ...] = weights
 
-        # get the dataset
-        for key, value in kwargs.items():
+        # get the dataset/group
+        for key, value in traj_data.items():
 
             # if there is no value for a key just ignore it
             if value is None:
                 continue
 
-            # get the dataset handle
-            dset = self._h5['runs/{}/trajectories/{}/{}'.format(run_idx, traj_idx, key)]
+            # figure out if it is a dataset or a group (compound data like observables)
+            thing = self._h5['runs/{}/trajectories/{}/{}'.format(run_idx, traj_idx, key)]
+            if isinstance(thing, h5py.Group):
+                # it is a group
+                group = thing
 
-            # append to the dataset on the first dimension, keeping the
-            # others the same, if they exist
-            if len(dset.shape) > 1:
-                dset.resize( (dset.shape[0] + n_new_frames, *dset.shape[1:]) )
+                # go through the fields given
+                for dset_key, dset_value in value.items():
+                    # get that dataset
+                    dset = group[dset_key]
+
+                    # append to the dataset on the first dimension, keeping the
+                    # others the same, if they exist
+                    if len(dset.shape) > 1:
+                        dset.resize( (dset.shape[0] + n_new_frames, *dset.shape[1:]) )
+                    else:
+                        dset.resize( (dset.shape[0] + n_new_frames, ) )
+
+                    # add the new data
+                    dset[-n_new_frames:, ...] = dset_value
             else:
-                dset.resize( (dset.shape[0] + n_new_frames, ) )
+                # it is just a dataset
+                dset = thing
 
-            # add the new data
-            dset[-n_new_frames:, ...] = value
+                # append to the dataset on the first dimension, keeping the
+                # others the same, if they exist
+                if len(dset.shape) > 1:
+                    dset.resize( (dset.shape[0] + n_new_frames, *dset.shape[1:]) )
+                else:
+                    dset.resize( (dset.shape[0] + n_new_frames, ) )
+
+                # add the new data
+                dset[-n_new_frames:, ...] = value
 
     def add_cycle_resampling_records(self, run_idx, cycle_resampling_records):
 
