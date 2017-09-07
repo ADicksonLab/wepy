@@ -8,15 +8,22 @@ import h5py
 
 # Constants
 N_DIMS = 3
-TRAJ_DATA_FIELDS = ['positions', 'time', 'box_vectors', 'velocities',
-                    'parameters', 'forces', 'kinetic_energy', 'potential_energy',
-                    'box_volume', 'parameters', 'parameter_derivatives', 'observables']
+TRAJ_DATA_FIELDS = ('positions', 'time', 'box_vectors', 'velocities',
+                    'forces', 'kinetic_energy', 'potential_energy',
+                    'box_volume', 'parameters', 'parameter_derivatives', 'observables')
+TRAJ_UNIT_FIELDS = ['positions_unit', 'time_unit', 'box_vectors_unit',
+                    'velocities_unit',
+                    'forces_unit',
+                    'box_volume_unit', 'kinetic_energy_unit', 'potential_energy_unit',
+                    'parameters_units', 'parameter_derivatives_units', 'observables_units']
+
+DATA_UNIT_MAP = {}
 
 INSTRUCTION_TYPES = ['VARIABLE', 'FIXED']
 
 class TrajHDF5(object):
 
-    def __init__(self, filename, mode='x',
+    def __init__(self, filename, mode='x', **kwargs):
                  topology=None,
                  positions=None,
                  time=None,
@@ -85,50 +92,10 @@ class TrajHDF5(object):
                       'forces', 'parameters', 'parameter_derivatives', 'observables']
 
         # collect the non-topology attributes into a dict
-        data = {'positions' : positions,
-                'time' : time,
-                'box_volume' : box_volume,
-                'kinetic_energy' : kinetic_energy,
-                'potential_energy' : potential_energy,
-                'box_vectors' : box_vectors,
-                'velocities' : velocities,
-                'forces' : forces,
-                'parameters' : parameters,
-                'parameter_derivatives' : parameter_derivatives,
-                'observables' : observables
-               }
+        traj_data = _extract_dict(TRAJ_DATA_FIELDS, kwargs)
 
-        units = {'positions' : positions_unit,
-                 'time' : time_unit,
-                 'box_volume_unit' : box_volume_unit,
-                 'kinetic_energy_unit' : kinetic_energy_unit,
-                 'potential_energy_unit' : potential_energy_unit,
-                 'box_vectors' : box_vectors_unit,
-                 'velocities' : velocities_unit,
-                 'forces' : forces_units,
-                 'parameters' : parameters_units,
-                 'parameter_derivatives_units' : parameter_derivatives_units,
-                 'observables' : observables_units
-                }
-
-        # some data fields are compound and have more than one dataset
-        # associated with them
-        self._compound_keys = ['forces', 'parameters', 'parameter_derivatives', 'observables']
-
-        # initialize the exist flags, which say whether a dataset
-        # exists or not
-        self._exist_flags = {key : False for key in self._keys}
-        self._compound_exist_flags = {key : {} for key in self._compound_keys}
-
-        # initialize the append flags dictionary, this keeps track of
-        # whether a data field can be appended to or not
-        self._append_flags = {key : True for key in self._keys}
-        self._compound_append_flags = {key : {} for key in self._compound_keys}
-
-        # some of these data fields are mandatory and others are
-        # optional
-        self._mandatory_keys = ['positions']
-
+        # units
+        units = _extract_dict(TRAJ_UNIT_KEYS, kwargs)
 
         ## Dataset Compliances
         # a file which has different levels of keys can be used for
@@ -226,7 +193,7 @@ class TrajHDF5(object):
             if exist_flag:
                 self._append_flags[dataset_key] = False
 
-    def _write_datasets(self, data, units):
+    def _write_datasets(self, data):
 
         # go through each data field and add them, using the associated units
         for key, value in data.items():
@@ -242,20 +209,16 @@ class TrajHDF5(object):
             except AssertionError:
                 raise ValueError("{} value not valid".format(key))
 
-            ## Units
-            # # make the key for the unit
-            # if key in self._compound_keys:
-            #     # if it is compound name it plurally for heterogeneous data
-            #     unit_key = "{}_units".format(key)
-            # else:
-            #     # or just keep it singular for homogeneous data
-            #     unit_key = "{}_unit".format(key)
+    def _write_units(self, units):
 
-            # # try to add the units
-            # try:
-            #     self.__setattr__(unit_key, units[key])
-            # except AssertionError:
-            #     raise ValueError("{} unit not valid".format(key))
+        for key, unit in units.items():
+
+            if unit is None:
+                continue
+
+            # if the data is compound set compound units
+            if 
+            
 
     ### The init functions for different I/O modes
     def _create_init(self, topology, data, units):
@@ -275,20 +238,15 @@ class TrajHDF5(object):
         # write all the datasets
         self._write_datasets(data, units)
 
-    def _read_write_init(self, topology, data, units):
+        # write the units
+
+    def _read_write_init(self):
         """Write over values if given but do not reinitialize any old ones. """
 
         # set the flags for existing data
         self._update_exist_flags()
 
-        # add new topology if it is given
-        if topology is not None:
-            self.topology = topology
-
-        # add new data if given
-        self._write_datasets(data, units)
-
-    def _add_init(self, topology, data, units):
+    def _add_init(self):
         """Create the dataset if it doesn't exist and put it in r+ mode,
         otherwise, just open in r+ mode."""
 
@@ -300,29 +258,18 @@ class TrajHDF5(object):
         else:
             self._read_write_init(topology, data, units)
 
-    def _append_init(self, topology, data, units):
+    def _append_init(self):
+
         """Append mode initialization. Checks for given data and sets flags,
         and adds new data if given."""
 
-        # if the file has any data to start we write the data to it
-        if not any(self._exist_flags):
-            self.topology = topology
-            self._write_datasets(data, units)
-            if self._wepy_mode == 'c-':
-                self._update_append_flags()
-        # otherwise we first set the flags for what data was read and
-        # then add to it only
-        else:
-            # initialize the flags from the read data
-            self._update_exist_flags()
+        # initialize the flags from the read data
+        self._update_exist_flags()
 
-            # restrict append permissions for those that have their flags
-            # set from the read init
-            if self._wepy_mode == 'c-':
-                self._update_append_flags()
-
-            # write new datasets
-            self._write_datasets(data, units)
+        # restrict append permissions for those that have their flags
+        # set from the read init
+        if self._wepy_mode == 'c-':
+            self._update_append_flags()
 
     def _read_init(self):
         """Read only mode initialization. Simply checks for the presence of
@@ -1138,7 +1085,7 @@ class WepyHDF5(object):
     def add_traj(self, run_idx, weights=None, **kwargs):
 
         # get the data from the kwargs related to making a trajectory
-        traj_data = _extract_traj_dict(**kwargs)
+        traj_data = _extract_dict(TRAJ_DATA_FIELDS, **kwargs)
 
         # positions are mandatory
         assert 'positions' in traj_data, "positions must be given to create a trajectory"
@@ -1297,7 +1244,7 @@ class WepyHDF5(object):
             assert self._append_flags[dataset_key], "dataset is not available for appending to"
 
         # get trajectory data from the kwargs
-        traj_data = _extract_traj_dict(**kwargs)
+        traj_data = _extract_dict(TRAJ_DATA_FIELDS, **kwargs)
 
         # number of frames to add
         n_new_frames = traj_data['positions'].shape[0]
@@ -1581,16 +1528,15 @@ class WepyHDF5(object):
                 self.warp_aux_shapes[key] = aux_data.shape
                 self._warp_aux_init = True
 
-def _extract_traj_dict(**kwargs):
+def _extract_dict(keys, **kwargs):
     traj_data = {}
-    for field in TRAJ_DATA_FIELDS:
+    for field in keys:
         try:
             traj_data[field] = kwargs[field]
         except KeyError:
             pass
 
     return traj_data
-
 
 
 def _instruction_is_variable_length(instruction_dtype_tokens):
