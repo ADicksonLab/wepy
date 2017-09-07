@@ -44,13 +44,9 @@ class OpenMMRunner(Runner):
             # get the platform by its name to use
             platform = omm.Platform.getPlatformByName(self.platform_name)
             # set properties from the kwargs if they apply to the platform
-<<<<<<< HEAD
-            for key in kwargs:
-=======
             for key, value in kwargs.items():
->>>>>>> origin/master
                 if key in platform.getPropertyNames():
-                    platform.setPropertyDefaultValue(key, str(kwargs[key]))
+                    platform.setPropertyDefaultValue(key, value)
 
             # instantiate a simulation object
             simulation = omma.Simulation(self.topology, self.system, integrator, platform)
