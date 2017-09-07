@@ -75,6 +75,11 @@ if __name__ == "__main__":
     # set the string identifier for the platform to be used by openmm
     platform = 'CUDA'
 
+    # make an integrator object
+    integrator = omm.LangevinIntegrator(300*unit.kelvin,
+                                            1/unit.picosecond,
+                                            0.002*unit.picoseconds)
+
     #### END SETUP -----------------------------------------------------------------
 
     # set up the OpenMMRunner with your system
