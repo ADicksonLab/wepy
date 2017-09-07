@@ -197,18 +197,17 @@ class WExplore2Resampler(Resampler):
                     productive = True
                     spread = newspread
                     # make a decision on which walker to keep (minwind, or closewalk)
-
-                    squash_available = [minwind, closewalk]
-
-                    weights = [walkerwt[walker] for walker in squash_available]
-
-                    # index of squashed walker
-                    keep_idx  = rand.choices(squash_available, weights=weights).pop()
-
-                    # index of the kept walker
-
-
-                    squash_idx= set(squash_available).difference({keep_idx}).pop()
+                    r = rand.uniform(0.0, walkerwt[closewalk] + walkerwt[minwind])
+                     # keeps closewalk and gets rid of minwind
+                    if r < walkerwt[closewalk]:
+                        keep_idx = closewalk
+                        squash_idx = minwind
+                        
+                    # keep minwind, get rid of closewalk
+                    else:
+                        keep_idx = minwind
+                        squash_idx = closewalk
+                        
                     # update weigh
                     walkerwt[keep_idx] += walkerwt[squash_idx]
                     walkerwt[squash_idx] = 0.0
