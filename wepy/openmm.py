@@ -44,7 +44,7 @@ class OpenMMRunner(Runner):
             # get the platform by its name to use
             platform = omm.Platform.getPlatformByName(self.platform_name)
             # set properties from the kwargs if they apply to the platform
-            for key, value in kwargs:
+            for key, value in kwargs.items():
                 if key in platform.getPropertyNames():
                     platform.setPropertyDefaultValue(key, value)
 
