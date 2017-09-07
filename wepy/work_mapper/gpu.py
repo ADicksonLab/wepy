@@ -6,7 +6,7 @@ class GPUMapper(object):
 
         # TODO add comments describing what is going on
         self.free_workers= mulproc.Queue()
-        self.lock = mulproc.Semaphore (n_workers)
+        self.lock = mulproc.Semaphore(n_workers)
         self.results_list = mulproc.Manager().list()
         for i in range(n_walkers):
             self.results_list.append(None)
@@ -17,7 +17,7 @@ class GPUMapper(object):
         # gets a free GPU and calls the runnable function
         self.lock.acquire()
         gpu_index = self.free_workers.get()
-        result = _call_(*args, DeviceIndex=gpu_index)
+        result = _call_(*args, DeviceIndex=str(gpu_index))
 
         self.free_workers.put(gpu_index)
         self.results_list[index] = result
