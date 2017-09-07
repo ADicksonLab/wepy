@@ -17,7 +17,7 @@ class GPUMapper(object):
         # gets a free GPU and calls the runnable function
         self.lock.acquire()
         gpu_index = self.free_workers.get()
-        result = _call_(*args, gpu_index=gpu_index)
+        result = _call_(*args, DeviceIndex=gpu_index)
 
         self.free_workers.put(gpu_index)
         self.results_list[index] = result
