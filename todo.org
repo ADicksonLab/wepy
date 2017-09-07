@@ -1,36 +1,16 @@
 * HDF5
 
-** TODO [#C] implement chunking strategies                          :feature:
+** TODO [#A] sparse velocities etc. across trajectory                  :core:
 
-- [ ] protein, ligand, solvent
-- [ ] ligand, binding-site
-
-Do this when necessary
-
-** TODO [#B] full slice across datasets in TrajHDF5                 :feature:
-
-get all values for a collection of indices, with fancy slicing
-
-** TODO [#C] compliance infrastructure                              :feature:
-
-** TODO [#C] simulation reproducibility metadata                    :feature:
-
-** TODO [#C] traj object for trajs in WepyHDF5                      :feature:
-
-This would have the same API as the TrajHDF5 object.
-
-** TODO [#B] sparse velocities etc. across trajectory                  :core:
-
-** TODO [#B] restarting simulations, multiple runs                     :core:
+** TODO [#A] restarting simulations, multiple runs                     :core:
 
 ** TODO [#A] units in HDF5                                             :core:
 
 This will just involve saving the string that can be read by most systems.
 
-** TODO [#C] HDF5 topology                                    :core:topology:
+** TODO [#B] full slice across datasets in TrajHDF5                 :feature:
 
-This needs to be developed.
-- JSON represenation also capable to be converted to and from
+get all values for a collection of indices, with fancy slicing
 
 ** TODO [#B] allow for arbitrary number of frames to be saved in HDF5 traj part :core:
 
@@ -40,3 +20,23 @@ This needs to be developed.
 special handling for the variable length "tokens"
 
 ** TODO [#B] original WExplore algorithm                            :feature:
+** TODO [#C] implement chunking strategies                          :feature:
+
+- [ ] protein, ligand, solvent
+- [ ] ligand, binding-site
+
+Do this when necessary
+
+** TODO [#C] compliance infrastructure                              :feature:
+
+** TODO [#C] simulation reproducibility metadata                    :feature:
+
+** TODO [#C] traj object for trajs in WepyHDF5                      :feature:
+
+This would have the same API as the TrajHDF5 object.
+
+** TODO [#C] HDF5 topology                                    :core:topology:
+
+This needs to be developed.
+- JSON represenation also capable to be converted to and from
+

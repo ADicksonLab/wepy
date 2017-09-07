@@ -33,6 +33,7 @@ class OpenMMRunner(Runner):
 
     def run_segment(self, walker, segment_length, **kwargs):
 
+        # TODO move this out to the constructor
         # instantiate an integrator
         integrator = omm.LangevinIntegrator(300*unit.kelvin,
                                             1/unit.picosecond,
@@ -40,16 +41,12 @@ class OpenMMRunner(Runner):
 
         # if a platform was given we use it to make a Simulation object
         if self.platform_name is not None:
+            # get the platform by its name to use
             platform = omm.Platform.getPlatformByName(self.platform_name)
-            simulation = omma.Simulation(self.topology, self.system, integrator, platform)
-
-        # if the platform is for GPUs and we have gpu indices we need
-        # to set further options in the platform
-        elif self.platform_name in ['CUDA', 'OpenCL'] and 'gpu_index' in kwargs:
-            # make a platform object
-            platform = omm.Platform.getPlatformByName(self.platform_name)
-            platform.setPropertyDefaultValue('Precision', 'mixed')
-            platform.setPropertyDefaultValue('DeviceIndex',str(kwargs['gpu_index']))
+            # set properties from the kwargs if they apply to the platform
+            for key, value in kwargs:
+                if key in platform.getPropertyNames():
+                    platform.setPropertyDefaultValue(key, value)
 
             # instantiate a simulation object
             simulation = omma.Simulation(self.topology, self.system, integrator, platform)

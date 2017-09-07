@@ -10,6 +10,8 @@ import simtk.unit as unit
 
 import scoop.futures
 
+import pynvml as nvml
+
 import mdtraj as mdj
 
 from wepy.sim_manager import Manager
@@ -20,58 +22,11 @@ from wepy.reporter.hdf5 import WepyHDF5Reporter
 from wepy.hdf5 import TrajHDF5
 from wepy.work_mapper.gpu import GPUMapper
 
-def make_initial_minimized_state():
-    psf = omma.CharmmPsfFile('../sEH_TPPU_system.psf')
-
-    # load the coordinates
-    pdb = mdj.load_pdb('../sEH_TPPU_system.pdb')
-
-    # to use charmm forcefields get your parameters
-    params = omma.CharmmParameterSet('../all36_cgenff.rtf',
-                                     '../all36_cgenff.prm',
-                                     '../all36_prot.rtf',
-                                     '../all36_prot.prm',
-                                     '../tppu.str',
-                                     '../toppar_water_ions.str')
-
-    # set the box size lengths and angles
-    psf.setBox(82.435, 82.435, 82.435, 90, 90, 90)
-
-        # create a system using the topology method giving it a topology and
-        # the method for calculation
-    system = psf.createSystem(params,
-                              nonbondedMethod=omma.CutoffPeriodic,
-                              nonbondedCutoff=1.0 * unit.nanometer,
-                              constraints=omma.HBonds)
-
-    # set up for a short simulation to minimize and prepare
-    # instantiate an integrator
-    integrator = omm.LangevinIntegrator(300*unit.kelvin,
-                                            1/unit.picosecond,
-                                            0.002*unit.picoseconds)
-    # instantiate a OpenCL platform, in other platforms we can not have multiple simulation context
-    platform = omm.Platform.getPlatformByName('OpenCL')
-
-     # instantiate a simulation object
-    simulation = omma.Simulation(psf.topology, system, integrator,platform)
-    # initialize the positions
-    simulation.context.setPositions(pdb.openmm_positions(frame=0))
-    # minimize the energy
-    simulation.minimizeEnergy()
-    # run the simulation for a number of initial time steps
-    simulation.step(1000)
-    print("done minimizing\n")
-
-        # get the initial state from the context
-    minimized_state = simulation.context.getState(getPositions=True,
-                                                  getVelocities=True,
-
-                                                  getParameters=True)
-    print ('finished initialization')
-    return minimized_state, system, psf, pdb
-
 
 if __name__ == "__main__":
+
+    # SETUP ------------------------------------------------------
+
     # load a json string of the topology
     with open("../sEH_TPPU_system.top.json", mode='r') as rf:
         sEH_TPPU_system_top_json = rf.read()
@@ -165,9 +120,9 @@ if __name__ == "__main__":
                                 warp_aux_shapes=ubc.WARP_AUX_SHAPES,
                                 topology=sEH_TPPU_system_top_json)
 
-    # instantiate a hpcc object
-    #TODO change the num_workers to the list of GUP indicies are available
-    num_workers = 3
+
+    # create a work mapper for NVIDIA GPUs for a GPU cluster
+    num_workers = 1
     gpumapper  = GPUMapper(num_walkers, num_workers)
 
     # Instantiate a simulation manager
