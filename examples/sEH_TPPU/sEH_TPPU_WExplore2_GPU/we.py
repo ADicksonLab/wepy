@@ -10,7 +10,7 @@ import simtk.unit as unit
 
 import scoop.futures
 
-import pynvml as nvml
+#import pynvml as nvml
 
 import mdtraj as mdj
 
