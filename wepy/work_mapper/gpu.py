@@ -5,7 +5,7 @@ class GPUMapper(object):
     def __init__(self, n_walkers, n_workers):
 
         # TODO add comments describing what is going on
-        self.free_workers= mulproc.Queue()
+        self.free_workers = mulproc.Queue()
         self.lock = mulproc.Semaphore(n_workers)
         self.results_list = mulproc.Manager().list()
         for i in range(n_walkers):
