@@ -12,6 +12,10 @@ from wepy.resampling.clone_merge import NothingInstructionRecord, CloneInstructi
                                          SquashInstructionRecord, KeepMergeInstructionRecord
 from wepy.resampling.clone_merge import CloneMergeDecision, CLONE_MERGE_INSTRUCTION_DTYPES
 
+
+def choices(population, weights=None):
+    raise NotImplementedError
+
 class WExplore2Resampler(Resampler):
 
     DECISION = CloneMergeDecision
@@ -172,8 +176,6 @@ class WExplore2Resampler(Resampler):
             # did we find a closewalk?
             condition_list = np.array([i is not None for i in [minwind,maxwind,closewalk]])
             if condition_list.all() :
-               #print ("check_list", closewalk)
-            #if minwind is not None and maxwind is not None and closewalk is not None:
 
                 # change amp
                 tempsum = walkerwt[minwind] + walkerwt[closewalk]
@@ -189,26 +191,23 @@ class WExplore2Resampler(Resampler):
                     if debug_prints:
                         print("Variance move to", newspread, "accepted")
 
-
-                    # print ('w_minwind[{}]={}, w_closewalk [{}]={}'.format(minwind,walkerwt[minwind],
-                    #                                                    closewalk, walkerwt[closewalk]))
-
                     n_clone_merges += 1
                     productive = True
                     spread = newspread
+
                     # make a decision on which walker to keep (minwind, or closewalk)
                     r = rand.uniform(0.0, walkerwt[closewalk] + walkerwt[minwind])
                      # keeps closewalk and gets rid of minwind
                     if r < walkerwt[closewalk]:
                         keep_idx = closewalk
                         squash_idx = minwind
-                        
+
                     # keep minwind, get rid of closewalk
                     else:
                         keep_idx = minwind
                         squash_idx = closewalk
-                        
-                    # update weigh
+
+                    # update weight
                     walkerwt[keep_idx] += walkerwt[squash_idx]
                     walkerwt[squash_idx] = 0.0
 
@@ -235,20 +234,12 @@ class WExplore2Resampler(Resampler):
                     if debug_prints:
                         print("variance after selection:", newspread)
 
-
-
-
-
-
                 # if not productive
                 else:
                     amp[minwind] = 1
                     amp[closewalk] = 1
                     amp[maxwind] -= 1
 
-        # if debug_prints:
-        #     self.print_actions(n_walkers, resampling_actions)
-        # return the final state of the resampled walkers after all
         if n_clone_merges == 0:
             return([walker_actions]), spreads[-1]
         else:
@@ -274,7 +265,7 @@ class WExplore2Resampler(Resampler):
                                                     *[str(tup[0].name) for tup in walker_actions])
             print(action_str)
             data_str = result_template_str.format("instruct",
-                                                  *[','.join([str(i) for i in tup[1]]) for tup in walker_actions])
+                                *[','.join([str(i) for i in tup[1]]) for tup in walker_actions])
             print(data_str)
 
     def resample(self, walkers, debug_prints=False):
