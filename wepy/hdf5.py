@@ -89,6 +89,11 @@ class TrajHDF5(object):
         # units
         units = _extract_dict(TRAJ_UNIT_FIELDS, **kwargs)
 
+        # warn about unknown kwargs
+        for key in kwargs.keys():
+            if not (key in TRAJ_DATA_FIELDS) and not (key in TRAJ_UNIT_FIELDS):
+                warn("kwarg {} not recognized and was ignored".format(key), RuntimeWarning)
+
         # append the exist flags
         self._exist_flags = {key : False for key in TRAJ_DATA_FIELDS}
         self._compound_exist_flags = {key : {} for key in COMPOUND_DATA_FIELDS}
@@ -640,6 +645,11 @@ class WepyHDF5(object):
         # units
         units = _extract_dict(TRAJ_UNIT_FIELDS, **kwargs)
 
+        # warn about unknown kwargs
+        for key in kwargs.keys():
+            if not (key in TRAJ_DATA_FIELDS) and not (key in TRAJ_UNIT_FIELDS):
+                warn("kwarg {} not recognized and was ignored".format(key), RuntimeWarning)
+
         # counters for run and traj indexing
         self._run_idx_counter = 0
         # count the number of trajectories each run has
@@ -1105,6 +1115,12 @@ class WepyHDF5(object):
         # get the data from the kwargs related to making a trajectory
         traj_data = _extract_dict(TRAJ_DATA_FIELDS, **kwargs)
 
+        # warn about unknown kwargs
+        for key in kwargs.keys():
+            if not (key in TRAJ_DATA_FIELDS) and not (key in TRAJ_UNIT_FIELDS):
+                warn("kwarg {} not recognized and was ignored".format(key), RuntimeWarning)
+
+
         # positions are mandatory
         assert 'positions' in traj_data, "positions must be given to create a trajectory"
         assert isinstance(traj_data['positions'], np.ndarray)
@@ -1263,6 +1279,11 @@ class WepyHDF5(object):
 
         # get trajectory data from the kwargs
         traj_data = _extract_dict(TRAJ_DATA_FIELDS, **kwargs)
+
+        # warn about unknown kwargs
+        for key in kwargs.keys():
+            if not (key in TRAJ_DATA_FIELDS) and not (key in TRAJ_UNIT_FIELDS):
+                warn("kwarg {} not recognized and was ignored".format(key), RuntimeWarning)
 
         # number of frames to add
         n_new_frames = traj_data['positions'].shape[0]
@@ -1555,6 +1576,14 @@ def _extract_dict(keys, **kwargs):
             pass
 
     return traj_data
+
+# this is just a prototype, code was copied into where it needs to be
+# as it is difficult to figure out which function received the kwargs,
+# i.e. passing the function being called to a function it is calling.
+def _warn_unknown_kwargs(**kwargs):
+    for key in kwargs.keys():
+        if not (key in TRAJ_DATA_FIELDS) and not (key in TRAJ_UNIT_FIELDS):
+            warn("kwarg {} not recognized and was ignored".format(key), RuntimeWarning)
 
 
 def _instruction_is_variable_length(instruction_dtype_tokens):
