@@ -87,21 +87,21 @@ class WExplore2Resampler(Resampler):
             # the rest of the stages parents are based on the previous stage
             for parent_idx, resampling_record in enumerate(stage):
                 # do merging
-                if resampling_record.decision is CloneMergeDecision.SQUASH:
+                if resampling_record.decision is CloneMergeDecision.SQUASH.value:
 
                     squash_walker = walkers[parent_idx]
                     merge_walker =  walkers[resampling_record.value[0]]
                     merged_walker = squash_walker.squash(merge_walker)
                     resampled_walkers[resampling_record.value[0]] = merged_walker
 
-                elif resampling_record.decision  is CloneMergeDecision.CLONE:
+                elif resampling_record.decision  is CloneMergeDecision.CLONE.value:
 
                      clone_walker = walkers[resampling_record.value[0]]
                      cloned_walkers = clone_walker.clone()
                      resampled_walkers [parent_idx] = cloned_walkers.pop()
                      resampled_walkers [resampling_record.value[1]] = cloned_walkers.pop()
 
-                elif resampling_record.decision in [CloneMergeDecision.KEEP_MERGE, CloneMergeDecision.NOTHING] :
+                elif resampling_record.decision in [CloneMergeDecision.KEEP_MERGE.value, CloneMergeDecision.NOTHING.value] :
                     pass
                 else:
                     # do nothing
