@@ -127,8 +127,8 @@ if __name__ == "__main__":
 
 
     # create a work mapper for NVIDIA GPUs for a GPU cluster
-    num_workers = 1
-    gpumapper  = GPUMapper(num_walkers, num_workers)
+    num_workers = 2
+    gpumapper  = GPUMapper(num_walkers, n_workers=num_workers)
 
     # Instantiate a simulation manager
     sim_manager = Manager(init_walkers,
