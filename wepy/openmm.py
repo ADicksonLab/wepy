@@ -30,7 +30,7 @@ class OpenMMRunner(Runner):
         self.system = system
         self.topology = topology
         self.integrator = integrator
-        self.platform = platform
+        self.platform_name = platform
 
     def run_segment(self, walker, segment_length, **kwargs):
 
