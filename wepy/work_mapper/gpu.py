@@ -2,10 +2,10 @@ import multiprocessing as mulproc
 
 class GPUMapper(object):
 
-    def __init__(self, n_walkers, gpu_indices):
+    def __init__(self, n_walkers, n_workers):
 
-        self.gpu_indices = gpu_indices
-        self.n_workers = len(gpu_indices)
+        self.n_workers = n_workers
+        self.gpu_indices = range(n_workers)
 
         # TODO add comments describing what is going on
         self.free_workers = mulproc.Queue()
