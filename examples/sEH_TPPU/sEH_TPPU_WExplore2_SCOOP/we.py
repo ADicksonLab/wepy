@@ -83,7 +83,7 @@ if __name__ == "__main__":
     #### END SETUP -----------------------------------------------------------------
 
     # set up the OpenMMRunner with your system
-    runner = OpenMMRunner(system, psf.topology, platform=platform)
+    runner = OpenMMRunner(system, psf.topology, integrator, platform=platform)
 
     # set up parameters for running the simulation
     num_walkers = 4

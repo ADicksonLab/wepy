@@ -76,6 +76,11 @@ if __name__ == "__main__":
     # set the string identifier for the platform to be used by openmm
     platform = 'CUDA'
 
+    # make an integrator object
+    integrator = omm.LangevinIntegrator(300*unit.kelvin,
+                                            1/unit.picosecond,
+                                            0.002*unit.picoseconds)
+
     #### END SETUP -----------------------------------------------------------------
 
     # set up parameters for running the simulation
@@ -86,7 +91,7 @@ if __name__ == "__main__":
     init_walkers = [OpenMMWalker(omm_state, init_weight) for i in range(num_walkers)]
 
     # set up the OpenMMRunner with your system
-    runner = OpenMMRunner(system, psf.topology)
+    runner = OpenMMRunner(system, psf.topology, integrator, platform=platform)
 
     # makes ref_traj and selects lingand_atom and protein atom  indices
     # instantiate a wexplore2 unbindingboudaryconditiobs
