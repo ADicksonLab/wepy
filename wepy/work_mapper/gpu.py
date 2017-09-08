@@ -27,7 +27,7 @@ class GPUMapper(object):
         # platform
         result = _call_(*args, DeviceIndex=str(gpu_idx))
 
-        self.free_workers.put(worker_index)
+        self.free_workers.put(worker_idx)
         self.results_list[index] = result
         self.lock.release()
 
