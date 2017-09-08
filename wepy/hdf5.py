@@ -297,7 +297,7 @@ class TrajHDF5(object):
     def open(self):
         if self.closed:
             self._h5 = h5py.File(self._filename, mode=self._h5py_mode)
-            self._closed = False
+            self.closed = False
         else:
             raise IOError("This file is already open")
 
@@ -594,19 +594,7 @@ class TrajHDF5(object):
 
 class WepyHDF5(object):
 
-    def __init__(self, filename, mode='x', topology=None,
-                 positions_unit = None,
-                 velocities_unit = None,
-                 box_vectors_unit = None,
-                 time_unit = None,
-                 kinetic_energy_unit = None,
-                 potential_energy_unit = None,
-                 box_volume_unit = None,
-                 forces_unit = None,
-                 parameters_units = None,
-                 parameter_derivatives_units = None,
-                 observables_units = None,
-                ):
+    def __init__(self, filename, mode='x', topology=None, **kwargs):
         """Initialize a new Wepy HDF5 file. This is a file that organizes
         wepy.TrajHDF5 dataset subsets by simulations by runs and
         includes resampling records for recovering walker histories.
@@ -650,17 +638,7 @@ class WepyHDF5(object):
         ### WepyHDF5 specific variables
 
         # units
-        self.positions_unit = positions_unit
-        self.velocities_unit = velocities_unit
-        self.box_vectors_unit = box_vectors_unit
-        self.time_unit = time_unit
-        self.kinetic_energy_unit = kinetic_energy_unit
-        self.potential_energy_unit = potential_energy_unit
-        self.box_volume_unit = box_volume_unit
-        self.forces_unit = force_units
-        self.parameters_units = parameters_units
-        self.parameter_derivatives_units = parameter_derivatives_units
-        self.observables_units = observables_units
+        units = _extract_dict(TRAJ_UNIT_FIELDS, **kwargs)
 
         # counters for run and traj indexing
         self._run_idx_counter = 0
@@ -714,22 +692,22 @@ class WepyHDF5(object):
             # create file mode: 'w' will create a new file or overwrite,
             # 'w-' and 'x' will not overwrite but will create a new file
             if self._wepy_mode in ['w', 'w-', 'x']:
-                self._create_init(topology)
+                self._create_init(topology, units)
 
             # read/write mode: in this mode we do not completely overwrite
             # the old file and start again but rather write over top of
             # values if requested
             elif self._wepy_mode in ['r+']:
-                self._read_write_init(topology)
+                self._read_write_init()
 
             # add mode: read/write create if doesn't exist
             elif self._wepy_mode in ['a']:
-                self._add_init(topology)
+                self._add_init(topology, units)
 
             # append mode
             elif self._wepy_mode in ['c', 'c-']:
                 # use the hidden init function for appending data
-                self._append_init(topology)
+                self._append_init()
 
             # read only mode
             elif self._wepy_mode == 'r':
@@ -779,7 +757,7 @@ class WepyHDF5(object):
             if exist_flag:
                 self._append_flags[dataset_key] = False
 
-    def _create_init(self, topology):
+    def _create_init(self, topology, units):
         """Completely overwrite the data in the file. Reinitialize the values
         and set with the new ones if given."""
 
@@ -788,17 +766,45 @@ class WepyHDF5(object):
         # assign the topology
         self.topology = topology
 
-    def _read_write_init(self, topology):
+        # initialize the units group
+        unit_grp = self._h5.create_group('units')
+
+        # initialize the compound unit groups
+        for field in COMPOUND_UNIT_FIELDS:
+            unit_grp.create_group(field)
+
+        # make a mapping of the unit kwarg keys to the keys used in
+        # datastructure and the COMPOUND  key lists
+        unit_key_map = {unit_key : field for field, unit_key in DATA_UNIT_MAP}
+
+        # set the units
+        for unit_key, unit_value in units.items():
+
+            # get the field name for the unit
+            field = unit_key_map[unit_key]
+
+            # ignore the field if not given
+            if unit_value is None:
+                continue
+
+            # if the units are compound then set compound units
+            if field in COMPOUND_UNIT_FIELDS:
+                # get the unit group
+                cmp_grp = unit_grp[field]
+                # set all the units in the dict for this compound key
+                for cmp_key, cmp_value in unit_value.items():
+                    cmp_grp.create_dataset(cmp_key, data=cmp_value)
+
+            # its a simple data type
+            else:
+                unit_grp.create_dataset(field, data=unit_value)
+
+    def _read_write_init(self):
         """Write over values if given but do not reinitialize any old ones. """
 
-        # set the flags for existing data
-        self._update_exist_flags()
+        self._read_init()
 
-        # add new topology if it is given
-        if topology is not None:
-            self.topology = topology
-
-    def _add_init(self, topology):
+    def _add_init(self, topology, units):
         """Create the dataset if it doesn't exist and put it in r+ mode,
         otherwise, just open in r+ mode."""
 
@@ -808,9 +814,9 @@ class WepyHDF5(object):
         if not any(self._exist_flags):
             self._create_init(topology)
         else:
-            self._read_write_init(topology)
+            self._read_write_init()
 
-    def _append_init(self, topology, data, units):
+    def _append_init(self):
         """Append mode initialization. Checks for given data and sets flags,
         and adds new data if given."""
 
@@ -846,7 +852,7 @@ class WepyHDF5(object):
     def open(self):
         if self.closed:
             self._h5 = h5py.File(self._filename, self._h5py_mode)
-            self._closed = False
+            self.closed = False
         else:
             raise IOError("This file is already open")
 
