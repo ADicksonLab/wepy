@@ -2,7 +2,10 @@ import multiprocessing as mulproc
 
 class GPUMapper(object):
 
-    def __init__(self, n_walkers, n_workers):
+    def __init__(self, n_walkers, gpu_indices):
+
+        self.gpu_indices = gpu_indices
+        self.n_workers = len(gpu_indices)
 
         # TODO add comments describing what is going on
         self.free_workers = mulproc.Queue()
@@ -14,12 +17,17 @@ class GPUMapper(object):
             self.free_workers.put(i)
 
     def exec_call(self, _call_, index, *args):
-        # gets a free GPU and calls the runnable function
+        # gets a free worker
         self.lock.acquire()
-        gpu_index = self.free_workers.get()
-        result = _call_(*args, DeviceIndex=str(gpu_index))
+        worker_idx = self.free_workers.get()
+        # convert this to an available GPU index
+        gpu_idx = self.gpu_indices[worker_idx]
 
-        self.free_workers.put(gpu_index)
+        # call the function setting the appropriate properties of the
+        # platform
+        result = _call_(*args, DeviceIndex=str(gpu_idx))
+
+        self.free_workers.put(worker_index)
         self.results_list[index] = result
         self.lock.release()
 
@@ -32,7 +40,7 @@ class GPUMapper(object):
 
         for args in zip(*iterables):
             walkers_pool.append(mulproc.Process(target=self.exec_call,
-                                                args=(_call_,index,*args)))
+                                                args=(_call_, index, *args)))
             index += 1
 
         for p in walkers_pool:
