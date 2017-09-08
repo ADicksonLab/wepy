@@ -9,11 +9,11 @@ class GPUMapper(object):
 
         # TODO add comments describing what is going on
         self.free_workers = mulproc.Queue()
-        self.lock = mulproc.Semaphore(n_workers)
+        self.lock = mulproc.Semaphore(self.n_workers)
         self.results_list = mulproc.Manager().list()
         for i in range(n_walkers):
             self.results_list.append(None)
-        for i in range (n_workers):
+        for i in range(self.n_workers):
             self.free_workers.put(i)
 
     def exec_call(self, _call_, index, *args):
