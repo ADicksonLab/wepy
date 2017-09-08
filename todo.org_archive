@@ -48,3 +48,15 @@ I think this is done correctly...
 
 THis needs to be in both HDF5 classes
 
+
+* DONE [#A] units in HDF5                                              :core:
+  :PROPERTIES:
+  :ARCHIVE_TIME: 2017-09-08 Fri 17:46
+  :ARCHIVE_FILE: ~/Dropbox/devel/wepy/todo.org
+  :ARCHIVE_OLPATH: HDF5
+  :ARCHIVE_CATEGORY: todo
+  :ARCHIVE_TODO: DONE
+  :END:
+
+This will just involve saving the string that can be read by most systems.
+
