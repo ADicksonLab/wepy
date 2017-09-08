@@ -21,12 +21,20 @@ special handling for the variable length "tokens"
 ** TODO [#B] original WExplore algorithm                            :feature:
 ** TODO [#C] implement chunking strategies                          :feature:
 
+<<<<<<< HEAD
 - [ ] protein, ligand, solvent
 - [ ] ligand, binding-site
-
-Do this when necessary
+=======
 
 ** TODO [#C] compliance infrastructure                              :feature:
+
+** TODO [#C] only accept Quantity type objects that match/convert units :feature:
+
+This will require choosing a unit library:
+- simtk.units
+- pint
+
+** TODO [#C] HDF5 topology                                    :core:topology:
 
 ** TODO [#C] simulation reproducibility metadata                    :feature:
 
