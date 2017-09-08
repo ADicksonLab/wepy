@@ -11,15 +11,26 @@ N_DIMS = 3
 TRAJ_DATA_FIELDS = ('positions', 'time', 'box_vectors', 'velocities',
                     'forces', 'kinetic_energy', 'potential_energy',
                     'box_volume', 'parameters', 'parameter_derivatives', 'observables')
-TRAJ_UNIT_FIELDS = ['positions_unit', 'time_unit', 'box_vectors_unit',
+TRAJ_UNIT_FIELDS = ('positions_unit', 'time_unit', 'box_vectors_unit',
                     'velocities_unit',
                     'forces_unit',
                     'box_volume_unit', 'kinetic_energy_unit', 'potential_energy_unit',
-                    'parameters_units', 'parameter_derivatives_units', 'observables_units']
+                    'parameters_units', 'parameter_derivatives_units', 'observables_units')
 
-DATA_UNIT_MAP = {}
+DATA_UNIT_MAP = (('positions', 'positions_unit'),
+                 ('time', 'time_unit'),
+                 ('box_vectors', 'box_vectors_unit'),
+                 ('velocities', 'velocities_unit'),
+                 ('forces', 'forces_unit'),
+                 ('box_volume', 'box_volume_unit'),
+                 ('kinetic_energy', 'kinetic_energy_unit'),
+                 ('potential_energy', 'potential_energy_unit'),
+                 ('parameters', 'parameters_units'),
+                 ('parameter_derivatives', 'parameter_derivatives_units'),
+                 ('observables', 'observables_units')
+                )
 
-INSTRUCTION_TYPES = ['VARIABLE', 'FIXED']
+INSTRUCTION_TYPES = ('VARIABLE', 'FIXED')
 
 class TrajHDF5(object):
 
