@@ -34,7 +34,12 @@ traj_h5 = TrajHDF5('test_traj.h5', mode='w',
                    time_unit='second',
                    box_vectors_unit=box_vectors_unit,
                    # compound data
-                   forces={'nonsense_forces' : np.zeros_like(positions)})
+                   forces={'nonsense_forces' : np.zeros_like(positions)},
+                   force_unit='newton',
+                   observables={'nonsense' : positions.sum(axis=2)},
+                   # compound units
+                   observables_units={'nonsense' : 'nilmeters'}
+                   )
 
 traj_h5 = TrajHDF5('test_traj.h5', mode='r')
 

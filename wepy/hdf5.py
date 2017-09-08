@@ -90,10 +90,12 @@ class TrajHDF5(object):
         units = _extract_dict(TRAJ_UNIT_FIELDS, **kwargs)
 
         # append the exist flags
-        self._exist_flags = [False for key in TRAJ_DATA_FIELDS]
+        self._exist_flags = {key : False for key in TRAJ_DATA_FIELDS}
+        self._compound_exist_flags = {key : {} for key in COMPOUND_DATA_FIELDS}
 
         # initialize the append flags
-        self._append_flags = [True for key in TRAJ_DATA_FIELDS]
+        self._append_flags = {key : True for key in TRAJ_DATA_FIELDS}
+        self._compound_append_flags = {key : {} for key in COMPOUND_DATA_FIELDS}
 
         ## Dataset Compliances
         # a file which has different levels of keys can be used for
@@ -203,12 +205,12 @@ class TrajHDF5(object):
         unit_grp = self._h5.create_group('units')
 
         # initialize the compound dataset groups
-        for key in COMPOUND_DATA_FIELDS:
-            self._h5.create_group(key)
+        for field in COMPOUND_DATA_FIELDS:
+            self._h5.create_group(field)
 
         # initialize the compound unit groups
-        for key in COMPOUND_UNIT_FIELDS:
-            unit_grp.create_group(key)
+        for field in COMPOUND_UNIT_FIELDS:
+            unit_grp.create_group(field)
 
         # set the data fields using their setters
         for key, value in data.items():
@@ -225,23 +227,31 @@ class TrajHDF5(object):
                 raise ValueError("{} value not valid".format(key))
 
 
+        # make a mapping of the unit kwarg keys to the keys used in
+        # datastructure and the COMPOUND  key lists
+        unit_key_map = {unit_key : field for field, unit_key in DATA_UNIT_MAP}
+
         # set the units
-        for key, unit in units.items():
+        for unit_key, unit_value in units.items():
+
+            # get the field name for the unit
+            field = unit_key_map[unit_key]
 
             # ignore the field if not given
-            if unit is None:
+            if unit_value is None:
                 continue
 
-            # if the units are compound set compound units
-            if key in COMPOUND_UNIT_FIELDS:
+            # if the units are compound then set compound units
+            if field in COMPOUND_UNIT_FIELDS:
                 # get the unit group
-                cmp_grp = unit_grp[key]
+                cmp_grp = unit_grp[field]
                 # set all the units in the dict for this compound key
-                for cmp_key, cmp_value in unit.items():
+                for cmp_key, cmp_value in unit_value.items():
                     cmp_grp.create_dataset(cmp_key, data=cmp_value)
+
             # its a simple data type
             else:
-                unit_grp.create_dataset(key, data=unit)
+                unit_grp.create_dataset(field, data=unit_value)
 
     def _read_write_init(self):
         """Write over values if given but do not reinitialize any old ones. """
@@ -526,7 +536,7 @@ class TrajHDF5(object):
         parameters_grp = self._h5['parameters']
         for key, values in parameters_dict.items():
             parameters_grp.create_dataset(key, data=values,
-                                    maxshape=(None, self.n_atoms, N_DIMS))
+                                    maxshape=(None, *values.shape[1:]))
             self._compound_exist_flags['parameters'][key] = True
             # if we are in strict append mode we cannot append after we create something
             if self._wepy_mode == 'c-':
@@ -548,7 +558,7 @@ class TrajHDF5(object):
         parameter_derivatives_grp = self._h5['parameter_derivatives']
         for key, values in parameter_derivatives_dict.items():
             parameter_derivatives_grp.create_dataset(key, data=values,
-                                    maxshape=(None, self.n_atoms, N_DIMS))
+                                    maxshape=(None, *values.shape[1:]))
             self._compound_exist_flags['parameter_derivatives'][key] = True
             # if we are in strict append mode we cannot append after we create something
             if self._wepy_mode == 'c-':
@@ -571,7 +581,7 @@ class TrajHDF5(object):
         observables_grp = self._h5['observables']
         for key, values in observables_dict.items():
             observables_grp.create_dataset(key, data=values,
-                                    maxshape=(None, self.n_atoms, N_DIMS))
+                                    maxshape=(None, *values.shape[1:]))
             self._compound_exist_flags['observables'][key] = True
             # if we are in strict append mode we cannot append after we create something
             if self._wepy_mode == 'c-':
