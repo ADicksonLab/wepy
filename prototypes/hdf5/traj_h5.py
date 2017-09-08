@@ -22,7 +22,6 @@ box_vectors_q = [traj.openmm_boxes(i) for i in range(traj.n_frames)]
 box_vectors = np.array([e._value for e in box_vectors_q])
 box_vectors_unit = box_vectors_q[0].unit.get_name()
 
-import ipdb; ipdb.set_trace()
 traj_h5 = TrajHDF5('test_traj.h5', mode='w',
                    # topology
                    topology=top_str,
