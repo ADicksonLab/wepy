@@ -1143,15 +1143,17 @@ class WepyHDF5(object):
                 metadata[key] = value
 
 
+        # current traj_idx
+        traj_idx = self._run_traj_idx_counter[run_idx]
         # make a group for this trajectory, with the current traj_idx
         # for this run
         traj_grp = self._h5.create_group(
-                           'runs/{}/trajectories/{}'.format(run_idx, self._run_traj_idx_counter[run_idx]))
+                        'runs/{}/trajectories/{}'.format(run_idx, traj_idx))
 
         # add the run_idx as metadata
         traj_grp.attrs['run_idx'] = run_idx
         # add the traj_idx as metadata
-        traj_grp.attrs['traj_idx'] = self._run_traj_idx_counter[run_idx]
+        traj_grp.attrs['traj_idx'] = traj_idx
 
         # add the rest of the metadata if given
         for key, val in metadata.items():
@@ -1173,104 +1175,138 @@ class WepyHDF5(object):
         # positions
         traj_grp.create_dataset('positions', data=traj_data['positions'],
                                 maxshape=(None, n_atoms, N_DIMS))
-        # time
-        try:
-            time = traj_data['time']
-        except KeyError:
-            pass
-        else:
-            traj_grp.create_dataset('time', data=time, maxshape=(None,))
 
-        # box_volume
-        try:
-            box_volume = traj_data['box_volume']
-        except KeyError:
-            pass
-        else:
-            traj_grp.create_dataset('box_volume', data=box_volume, maxshape=(None,))
+        # attempt to get values from the traj_data then add it as a dataset
+        for key, value in traj_data.items():
+            try:
+                data = traj_data[key]
+            except KeyError:
+                pass
+            else:
+                if key in COMPOUND_DATA_FIELDS:
+                    _add_compound_traj_data(run_idx, traj_idx, key, data)
+                else:
+                    _add_traj_data(run_idx, traj_idx, key, data)
+        # # time
+        # try:
+        #     time = traj_data['time']
+        # except KeyError:
+        #     pass
+        # else:
+        #     traj_grp.create_dataset('time', data=time, maxshape=(None,))
 
-        # kinetic_energy
-        try:
-            kinetic_energy = traj_data['kinetic_energy']
-        except KeyError:
-            pass
-        else:
-            traj_grp.create_dataset('kinetic_energy', data=kinetic_energy, maxshape=(None,))
+        # # box_volume
+        # try:
+        #     box_volume = traj_data['box_volume']
+        # except KeyError:
+        #     pass
+        # else:
+        #     traj_grp.create_dataset('box_volume', data=box_volume, maxshape=(None,))
 
-        # potential_energy
-        try:
-            potential_energy = traj_data['potential_energy']
-        except KeyError:
-            pass
-        else:
-            traj_grp.create_dataset('potential_energy', data=potential_energy, maxshape=(None,))
+        # # kinetic_energy
+        # try:
+        #     kinetic_energy = traj_data['kinetic_energy']
+        # except KeyError:
+        #     pass
+        # else:
+        #     traj_grp.create_dataset('kinetic_energy', data=kinetic_energy, maxshape=(None,))
+
+        # # potential_energy
+        # try:
+        #     potential_energy = traj_data['potential_energy']
+        # except KeyError:
+        #     pass
+        # else:
+        #     traj_grp.create_dataset('potential_energy', data=potential_energy, maxshape=(None,))
 
 
-        # box vectors
-        try:
-            box_vectors = traj_data['box_vectors']
-        except KeyError:
-            pass
-        else:
-            traj_grp.create_dataset('box_vectors', data=box_vectors,
-                                    maxshape=(None, N_DIMS, N_DIMS))
-        # velocities
-        try:
-            velocities = traj_data['velocities']
-        except KeyError:
-            pass
-        else:
-            traj_grp.create_dataset('velocities', data=velocities,
-                                    maxshape=(None, n_atoms, N_DIMS))
+        # # box vectors
+        # try:
+        #     box_vectors = traj_data['box_vectors']
+        # except KeyError:
+        #     pass
+        # else:
+        #     traj_grp.create_dataset('box_vectors', data=box_vectors,
+        #                             maxshape=(None, N_DIMS, N_DIMS))
+        # # velocities
+        # try:
+        #     velocities = traj_data['velocities']
+        # except KeyError:
+        #     pass
+        # else:
+        #     traj_grp.create_dataset('velocities', data=velocities,
+        #                             maxshape=(None, n_atoms, N_DIMS))
 
-        # forces
-        try:
-            forces = traj_data['forces']
-        except KeyError:
-            pass
-        else:
-            # create a group for multiple forces
-            forces_grp = traj_grp.create_group('forces')
-            for key, values in forces.items():
-                # make each dataset for the forces
-                forces_grp.create_dataset(key, data=values,
-                                        maxshape=(None, self.n_atoms, N_DIMS))
+        # # forces
+        # try:
+        #     forces = traj_data['forces']
+        # except KeyError:
+        #     pass
+        # else:
+        #     # create a group for multiple forces
+        #     forces_grp = traj_grp.create_group('forces')
+        #     for key, values in forces.items():
+        #         # make each dataset for the forces
+        #         forces_grp.create_dataset(key, data=values,
+        #                                 maxshape=(None, self.n_atoms, N_DIMS))
 
-        # parameters
-        try:
-            parameters = traj_data['parameters']
-        except KeyError:
-            pass
-        else:
-            parameters_grp = traj_grp.create_group('parameters')
-            for key, values in parameters.items():
-                parameters_grp.create_dataset(key, data=values,
-                                        maxshape=(None, self.n_atoms, N_DIMS))
+        # # parameters
+        # try:
+        #     parameters = traj_data['parameters']
+        # except KeyError:
+        #     pass
+        # else:
+        #     parameters_grp = traj_grp.create_group('parameters')
+        #     for key, values in parameters.items():
+        #         parameters_grp.create_dataset(key, data=values,
+        #                                 maxshape=(None, self.n_atoms, N_DIMS))
 
-        # parameter_derivatives
-        try:
-            parameter_derivatives = traj_data['parameter_derivatives']
-        except KeyError:
-            pass
-        else:
-            parameter_derivatives_grp = traj_grp.create_group('parameter_derivatives')
-            for key, values in parameter_derivatives.items():
-                parameter_derivatives_grp.create_dataset(key, data=values,
-                                        maxshape=(None, self.n_atoms, N_DIMS))
+        # # parameter_derivatives
+        # try:
+        #     parameter_derivatives = traj_data['parameter_derivatives']
+        # except KeyError:
+        #     pass
+        # else:
+        #     parameter_derivatives_grp = traj_grp.create_group('parameter_derivatives')
+        #     for key, values in parameter_derivatives.items():
+        #         parameter_derivatives_grp.create_dataset(key, data=values,
+        #                                 maxshape=(None, self.n_atoms, N_DIMS))
 
-        # observables
-        try:
-            observables = traj_data['observables']
-        except KeyError:
-            pass
-        else:
-            observables_grp = traj_grp.create_group('observables')
-            for key, values in observables.items():
-                observables_grp.create_dataset(key, data=values,
-                                        maxshape=(None, *values.shape[1:]))
+        # # observables
+        # try:
+        #     observables = traj_data['observables']
+        # except KeyError:
+        #     pass
+        # else:
+        #     observables_grp = traj_grp.create_group('observables')
+        #     for key, values in observables.items():
+        #         observables_grp.create_dataset(key, data=values,
+        #                                 maxshape=(None, *values.shape[1:]))
 
 
         return traj_grp
+
+    def _add_traj_data(self, run_idx, traj_idx, key, data):
+
+        # get the traj group
+        traj_grp = self._h5.create_group(
+                        'runs/{}/trajectories/{}'.format(run_idx, self._run_traj_idx_counter[run_idx]))
+        # create the dataset
+        traj_grp.create_dataset(key, data=data, maxshape=(None, *data.shape[1:]))
+
+    def _add_compound_traj_data(self, run_idx, traj_idx, key, data):
+
+        # get the traj group
+        traj_grp = self._h5.create_group(
+                        'runs/{}/trajectories/{}'.format(run_idx, self._run_traj_idx_counter[run_idx]))
+
+        # create a group for this group of datasets
+        cmpd_grp = traj_grp.create_group(key)
+        # make a dataset for each dataset in this group
+        for key, values in data.items():
+            parameter_derivatives_grp.create_dataset(key, data=values,
+                                    maxshape=(None, *values.shape[1:]))
+
 
     def append_traj(self, run_idx, traj_idx, weights=None, **kwargs):
 
