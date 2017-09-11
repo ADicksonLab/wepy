@@ -1173,7 +1173,7 @@ class WepyHDF5(object):
         traj_grp.create_dataset('weights', data=weights, maxshape=(None,))
 
         # positions
-        traj_grp.create_dataset('positions', data=traj_data['positions'],
+        traj_grp.create_dataset('positions', data=traj_data.pop('positions'),
                                 maxshape=(None, n_atoms, N_DIMS))
 
         # attempt to get values from the traj_data then add it as a dataset
@@ -1184,9 +1184,9 @@ class WepyHDF5(object):
                 pass
             else:
                 if key in COMPOUND_DATA_FIELDS:
-                    _add_compound_traj_data(run_idx, traj_idx, key, data)
+                    self._add_compound_traj_data(run_idx, traj_idx, key, data)
                 else:
-                    _add_traj_data(run_idx, traj_idx, key, data)
+                    self._add_traj_data(run_idx, traj_idx, key, data)
         # # time
         # try:
         #     time = traj_data['time']
@@ -1289,16 +1289,14 @@ class WepyHDF5(object):
     def _add_traj_data(self, run_idx, traj_idx, key, data):
 
         # get the traj group
-        traj_grp = self._h5.create_group(
-                        'runs/{}/trajectories/{}'.format(run_idx, self._run_traj_idx_counter[run_idx]))
+        traj_grp = self._h5['runs/{}/trajectories/{}'.format(run_idx, traj_idx)]
         # create the dataset
         traj_grp.create_dataset(key, data=data, maxshape=(None, *data.shape[1:]))
 
     def _add_compound_traj_data(self, run_idx, traj_idx, key, data):
 
         # get the traj group
-        traj_grp = self._h5.create_group(
-                        'runs/{}/trajectories/{}'.format(run_idx, self._run_traj_idx_counter[run_idx]))
+        traj_grp = self._h5['runs/{}/trajectories/{}'.format(run_idx, traj_idx)]
 
         # create a group for this group of datasets
         cmpd_grp = traj_grp.create_group(key)
