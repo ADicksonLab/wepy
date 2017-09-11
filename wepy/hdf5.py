@@ -32,7 +32,7 @@ DATA_UNIT_MAP = (('positions', 'positions_unit'),
                 )
 
 # some fields have more than one dataset associated with them
-COMPOUND_DATA_FIELDS = ('forces', 'parameters', 'parameter_derivatives', 'observables')
+COMPOUND_DATA_FIELDS = ('parameters', 'parameter_derivatives', 'observables')
 COMPOUND_UNIT_FIELDS = ('parameters', 'parameter_derivatives', 'observables')
 
 INSTRUCTION_TYPES = ('VARIABLE', 'FIXED')

@@ -23,6 +23,15 @@ from wepy.resampling.resampler import NoResampler
 from wepy.runner import NoRunner
 from wepy.boundary_conditions.boundary import NoBC
 
+GET_STATE_KWARG_DEFAULTS = (('getPositions', True),
+                            ('getVelocities', True),
+                            ('getForces', True),
+                            ('getEnergy', True),
+                            ('getParameters', True),
+                            ('getParameterDerivatives', True),
+                            ('enforcePeriodicBox', True),)
+                            # TODO unsure of how to use this kwarg
+                            #('groups') )
 
 class OpenMMRunner(Runner):
 
@@ -32,7 +41,13 @@ class OpenMMRunner(Runner):
         self.integrator = integrator
         self.platform_name = platform
 
-    def run_segment(self, walker, segment_length, **kwargs):
+    def run_segment(self, walker, segment_length, getState_kwargs=None, **kwargs):
+
+        # set the kwargs that will be passed to getState
+        tmp_getState_kwargs = getState_kwargs
+        getState_kwargs = dict(GET_STATE_KWARG_DEFAULTS)
+        if tmp_getState_kwargs is not None:
+            getState_kwargs.update(tmp_getState_kwargs)
 
         # if a platform was given we use it to make a Simulation object
         if self.platform_name is not None:
@@ -56,20 +71,12 @@ class OpenMMRunner(Runner):
         simulation.step(segment_length)
 
         # save the state of the system with all possible values
-        new_state = simulation.context.getState(getPositions=True,
-                                            getVelocities=True,
-                                            getParameters=True,
-                                            getParameterDerivatives=False,
-                                            getForces=False,
-                                            getEnergy=False,
-                                            enforcePeriodicBox=False
-                                            )
+        new_state = simulation.context.getState(**getState_kwargs)
 
         # create a new walker for this
         new_walker = OpenMMWalker(new_state, walker.weight)
 
         return new_walker
-
 
 
 class OpenMMWalker(Walker):

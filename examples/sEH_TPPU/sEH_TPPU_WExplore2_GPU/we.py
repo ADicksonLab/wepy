@@ -77,10 +77,17 @@ if __name__ == "__main__":
                               nonbondedCutoff=1.0 * unit.nanometer,
                               constraints=omma.HBonds)
 
-    # set the string identifier for the platform to be used by openmm
-    platform = 'CUDA'
+    # make this a constant temperature and pressure simulation at 1.0
+    # atm, 300 K, with volume move attempts every 50 steps
+    barostat = omm.MonteCarloBarostat(1.0*unit.atmosphere, 300.0*unit.kelvin, 50)
 
-    # make an integrator object
+    # add it as a "Force" to the system
+    system.addForce(barostat)
+
+    # set the string identifier for the platform to be used by openmm
+    platform = 'OpenCL'
+
+    # make an integrator object that is constant temperature
     integrator = omm.LangevinIntegrator(300*unit.kelvin,
                                             1/unit.picosecond,
                                             0.002*unit.picoseconds)
@@ -127,7 +134,7 @@ if __name__ == "__main__":
 
 
     # create a work mapper for NVIDIA GPUs for a GPU cluster
-    num_workers = 2
+    num_workers = 1
     gpumapper  = GPUMapper(num_walkers, n_workers=num_workers)
 
     # Instantiate a simulation manager
@@ -143,6 +150,7 @@ if __name__ == "__main__":
     # run a simulation with the manager for n_steps cycles of length 1000 each
     steps = [ n_steps for i in range(n_cycles)]
     print("Running simulation")
+    import ipdb; ipdb.set_trace()
     sim_manager.run_simulation(n_cycles,
                                steps,
                                debug_prints=True)
