@@ -91,22 +91,57 @@ class UnbindingBC(BoundaryConditions):
         if min_distance >= self.cutoff_distance:
             unbound = True
 
-        return unbound, min_distance
+        boundary_data = {'min_distance' : min_distance}
+
+        return unbound, boundary_data
+
+    def warp(self, walker):
+
+        # we always start at the initial state
+        warped_walker = self.initial_state
+        # thus there is only one record
+        warp_record = (0,)
+        # collect the passage time
+        warp_data = {'passage_time' : walker.time_value()}
+
+        return warped_walker, warp_record, warp_data
 
     def warp_walkers(self, walkers, debug_prints=False):
 
         new_walkers = []
         warped_walkers_records = []
-        min_distances = []
+
+        # boundary data is collected for each walker every cycle
+        cycle_boundary_data = defaultdict(list)
+        # warp data is collected each time a warp occurs
+        cycle_warp_data = defaultdict(list)
 
         for walker_idx, walker in enumerate(walkers):
-            unbinding, min_distance = self.check_boundaries(walker)
-            min_distances.append(min_distance)
-            if unbinding:
-               warped_walkers_records.append( (walker_idx, (0,)) )
-               new_walkers.append(self.initial_state)
+            # check if it is unbound, also gives the minimum distance
+            # between guest and host
+            unbound, boundary_data = self.check_boundaries(walker)
+
+            # add boundary data for this walker
+            for key, value in boundary_data.items():
+                cycle_boundary_data[key].append(value)
+
+            # if the walker is unbound we need to warp it
+            if unbound:
+                # warp the walker
+                warped_walker, warp_record, warp_data = self.warp(walker)
+
+                # save it in the list of new walkers to return
+                new_walkers.append(self.initial_state)
+
+                # save the record of the walker
+                warped_walkers_records.append( (walker_idx, warp_record) )
+
+                # save warp data
+                for key, value in warp_data.items():
+                    cycle_warp_data[key].append(value)
+
+            # no warping so just return the original walker
             else:
                 new_walkers.append(walker)
 
-        data = {'min_distances' : np.array(min_distances)}
-        return new_walkers, warped_walkers_records, data
+        return new_walkers, warped_walkers_records, boundary_data, warp_data
