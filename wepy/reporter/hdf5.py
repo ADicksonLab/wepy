@@ -10,7 +10,8 @@ class WepyHDF5Reporter(FileReporter):
                  resampling_aux_dtypes=None, resampling_aux_shapes=None,
                  warp_dtype=None,
                  warp_aux_dtypes=None, warp_aux_shapes=None,
-                 topology=None):
+                 topology=None,
+                 units=None):
 
         super().__init__(file_path, mode=mode)
         self.wepy_run_idx = None
@@ -22,6 +23,7 @@ class WepyHDF5Reporter(FileReporter):
         self.resampling_aux_shapes = resampling_aux_shapes
         self.warp_aux_dtypes = warp_aux_dtypes
         self.warp_aux_shapes = warp_aux_shapes
+        self.units = units
 
     def init(self):
 

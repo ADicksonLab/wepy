@@ -59,6 +59,9 @@ if __name__ == "__main__":
                                   nonbondedMethod=omma.CutoffPeriodic,
                                    nonbondedCutoff=1.0 * unit.nanometer,
                                   constraints=omma.HBonds)
+    # we want to have constant pressure
+    barostat = omm.MonteCarloBarostat(1.0*unit.atmosphere, 300.0*unit.kelvin, 50)
+
     topology = psf.topology
 
     print("\nminimizing\n")
@@ -82,19 +85,13 @@ if __name__ == "__main__":
     # get the initial state from the context
     minimized_state = simulation.context.getState(getPositions=True,
                                                   getVelocities=True,
-                                                  getParameters=True)
+                                                  getParameters=True,
+                                                  getForces=True,
+                                                  getEnergy=True,
+                                                  getParameterDerivatives=True)
 
     # pickle it for use in seeding simulations
     with open("initial_openmm_state.pkl", mode='wb') as wf:
         pickle.dump(minimized_state, wf)
 
-    # make a walker out of it for convenience
-    init_walker = OpenMMWalker(minimized_state, 1.)
-
-    # save it as a TrajHDF5
-    min_state_h5 = TrajHDF5('initial_state.traj.h5', mode='w',
-                              topology=top_str,
-                              positions=np.array([init_walker.positions_values()]),
-                              box_vectors=np.array([init_walker.box_vectors_values()])
-                             )
     print ('finished initialization')
