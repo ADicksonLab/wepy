@@ -33,6 +33,21 @@ GET_STATE_KWARG_DEFAULTS = (('getPositions', True),
                             # TODO unsure of how to use this kwarg
                             #('groups') )
 
+
+
+UNITS = (('positions', unit.nanometer),
+         ('time', unit.picosecond),
+         ('box_vectors', unit.nanometer),
+         ('velocities', unit.nanometer/unit.picosecond),
+         ('forces', unit.kilojoule / (unit.nanometer * unit.mole)),
+         ('box_volume', unit.nanometer),
+         ('kinetic_energy', unit.kilojoule / unit.mole),
+         ('potential_energy', unit.kilojoule / unit.mole),
+         ('parameters', 'parameters_units'),
+         ('parameter_derivatives', 'parameter_derivatives_units'),
+        )
+
+
 class OpenMMRunner(Runner):
 
     def __init__(self, system, topology, integrator, platform=None):
