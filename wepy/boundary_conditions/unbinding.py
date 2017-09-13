@@ -1,4 +1,5 @@
 import itertools as it
+from collections import defaultdict
 
 import numpy as np
 import numpy.linalg as la
@@ -144,4 +145,5 @@ class UnbindingBC(BoundaryConditions):
             else:
                 new_walkers.append(walker)
 
-        return new_walkers, warped_walkers_records, boundary_data, warp_data
+        return new_walkers, warped_walkers_records, \
+                 cycle_boundary_data, cycle_warp_data

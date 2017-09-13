@@ -8,10 +8,6 @@ import simtk.openmm.app as omma
 import simtk.openmm as omm
 import simtk.unit as unit
 
-import scoop.futures
-
-#import pynvml as nvml
-
 import mdtraj as mdj
 
 from wepy.sim_manager import Manager

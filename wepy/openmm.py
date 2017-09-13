@@ -1,3 +1,5 @@
+from copy import copy
+
 import numpy as np
 
 import simtk.openmm.app as omma
@@ -74,10 +76,12 @@ class OpenMMRunner(Runner):
                     platform.setPropertyDefaultValue(key, value)
 
             # instantiate a simulation object
-            simulation = omma.Simulation(self.topology, self.system, self.integrator, platform)
+            simulation = omma.Simulation(self.topology, self.system,
+                                         copy(self.integrator), platform)
         # otherwise just use the default or environmentally defined one
         else:
-            simulation = omma.Simulation(self.topology, self.system, self.integrator)
+            simulation = omma.Simulation(self.topology, self.system,
+                                         copy(self.integrator))
 
         # set the state to the context from the walker
         simulation.context.setState(walker.state)

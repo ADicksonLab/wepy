@@ -88,7 +88,7 @@ class Manager(object):
                 sys.stdout.write("End cycle {}\n".format(cycle_idx))
 
             # apply rules of boundary conditions and warp walkers through space
-            warped_walkers, warped_walker_records, warp_aux_data = \
+            warped_walkers, warped_walker_records, boundary_data, warp_data = \
                            self.boundary_conditions.warp_walkers(new_walkers,
                                                                  debug_prints=debug_prints)
 
