@@ -665,20 +665,26 @@ class WepyHDF5(object):
         self.instruction_dtypes_tokens = {}
 
         # the dtypes for the resampling auxiliary data
-        self.resampling_aux_dtypes = None
-        self.resampling_aux_shapes = None
+        self.resampling_aux_dtypes = {}
+        self.resampling_aux_shapes = {}
         # whether or not the auxiliary datasets have been initialized
-        self._resampling_aux_init = False
+        self._resampling_aux_init = []
 
         # initialize the attribute for the dtype for the boundary
         # conditions warp records
         self.warp_dtype = None
 
-        # the dtypes for the boundary conditions auxiliary data
-        self.warp_aux_dtypes = None
-        self.warp_aux_shapes = None
+        # the dtypes for warping auxiliary data
+        self.warp_aux_dtypes = {}
+        self.warp_aux_shapes = {}
         # whether or not the auxiliary datasets have been initialized
-        self._warp_aux_init = False
+        self._warp_aux_init = []
+
+        # the dtypes for the boundary conditions auxiliary data
+        self.bc_aux_dtypes = {}
+        self.bc_aux_shapes = {}
+        # whether or not the auxiliary datasets have been initialized
+        self._bc_aux_init = []
 
         ### HDF5 file wrapper specific variables
 
@@ -1051,8 +1057,9 @@ class WepyHDF5(object):
                 aux_grp.create_dataset(key, (0, *[0 for i in shape]), dtype=dtype,
                                        maxshape=(None, *shape))
 
-            # raise a flag that this is set
-            self._resampling_aux_init = True
+            # set the flags for these as initialized
+            self._resampling_aux_init.extend(resampling_aux_dtypes.keys())
+
         elif (resampling_aux_dtypes is None) and (resampling_aux_shapes is None):
             # if they are both not given just ignore this part
             pass
@@ -1082,6 +1089,7 @@ class WepyHDF5(object):
         # initialize the auxiliary data group
         # the data group can hold compatible numpy arrays by key
         aux_grp = warp_grp.create_group('aux_data')
+
         # if dtypes and shapes for aux dtypes are given create them,
         # if only one is given raise an error, if neither are given
         # just ignore this, it can be set when the first batch of aux
@@ -1100,11 +1108,59 @@ class WepyHDF5(object):
                 aux_grp.create_dataset(key, (0, *[0 for i in shape]), dtype=dtype,
                                            maxshape=(None, *shape))
 
+            # set the flags for these as initialized
+            self._warp_aux_init.extend(warp_aux_dtypes.keys())
+
         elif (warp_aux_dtypes is None) and (warp_aux_shapes is None):
             # if they are both not given just ignore this part
             pass
         else:
             if warp_aux_dtypes is None:
+                raise ValueError("shapes were given but not dtypes")
+            else:
+                raise ValueError("dtypes were given but not shapes")
+
+    def init_run_bc(self, run_idx, bc_aux_dtypes=None, bc_aux_shapes=None):
+
+        run_grp = self.run(run_idx)
+
+        # initialize the groups
+        bc_grp = run_grp.create_group('boundary_conditions')
+
+        # TODO no records yet, this would be for storing data about
+        # the boundary conditions themselves, i.e. the starting data
+        # or dynamic BCs
+
+        # initialize the auxiliary data group
+        # the data group can hold compatible numpy arrays by key
+        aux_grp = bc_grp.create_group('aux_data')
+        # if dtypes and shapes for aux dtypes are given create them,
+        # if only one is given raise an error, if neither are given
+        # just ignore this, it can be set when the first batch of aux
+        # data is given, which will have a dtype and shape already given
+        if (bc_aux_dtypes is not None) and (bc_aux_shapes is not None):
+            # initialize the dtype and shapes for them
+            self.bc_aux_dtypes = {}
+            self.bc_aux_shapes = {}
+            for key, dtype in bc_aux_dtypes.items():
+                # the shape of the dataset is needed too, for setting the maxshape
+                shape = bc_aux_shapes[key]
+                # set them in the attributes
+                self.bc_aux_dtypes[key] = dtype
+                self.bc_aux_shapes[key] = shape
+                # create the dataset
+                aux_grp.create_dataset(key, (0, *[0 for i in shape]), dtype=dtype,
+                                           maxshape=(None, *shape))
+
+            # set the flags for these as initialized
+            self._bc_aux_init.extend(bc_aux_dtypes.keys())
+
+
+        elif (bc_aux_dtypes is None) and (bc_aux_shapes is None):
+            # if they are both not given just ignore this part
+            pass
+        else:
+            if bc_aux_dtypes is None:
                 raise ValueError("shapes were given but not dtypes")
             else:
                 raise ValueError("dtypes were given but not shapes")
@@ -1401,35 +1457,31 @@ class WepyHDF5(object):
         dset[-n_records:] = records
 
 
-    def add_cycle_resampling_aux_data(self, run_idx, resampling_data):
+    def add_cycle_resampling_aux_data(self, run_idx, resampling_aux_data):
 
         data_grp = self._h5['runs/{}/resampling/aux_data'.format(run_idx)]
 
-        # if the datasets were not initialized add the new data
-        if self._resampling_aux_init:
+        # if the datasets were initialized just add the new data
+        for key, aux_data in resampling_aux_data.items():
 
-            for key, aux_data in resampling_data.items():
+            if key in self._resampling_aux_init:
+
                 # get the dataset
                 dset = data_grp[key]
                 # add the new data
                 dset.resize( (dset.shape[0] + 1, *aux_data.shape) )
                 dset[-1] = np.array([aux_data])
 
-        # if the datasets were not initialized initialize them with
-        # the incoming dataset
-        else:
-            # initialize the dicts for the dtypes and shapes
-            self.resampling_aux_dtypes = {}
-            self.resampling_aux_shapes = {}
-            for key, aux_data in resampling_data.items():
-                data_grp.create_dataset(key, data=np.array([aux_data]), dtype=aux_data.dtype,
-                                       maxshape=(None, *aux_data.shape))
-                # save the dtype and shape
-                self.resampling_aux_dtypes[key] = aux_data.dtype
-                self.resampling_aux_shapes[key] = aux_data.shape
-                self._resampling_aux_init = True
-
-
+            # if the datasets were not initialized initialize them with
+            # the incoming dataset
+            else:
+                for key, aux_data in resampling_aux_data.items():
+                    data_grp.create_dataset(key, data=np.array([aux_data]), dtype=aux_data.dtype,
+                                           maxshape=(None, *aux_data.shape))
+                    # save the dtype and shape
+                    self.resampling_aux_dtypes[key] = aux_data.dtype
+                    self.resampling_aux_shapes[key] = aux_data.shape
+                    self._resampling_aux_init.append(key)
 
     def resampling(self, run_idx):
         return self._h5['runs/{}/resampling'.format(run_idx)]
@@ -1479,31 +1531,59 @@ class WepyHDF5(object):
 
     def add_cycle_warp_aux_data(self, run_idx, warp_aux_data):
 
-        data_grp = self._h5['runs/{}/resampling/aux_data'.format(run_idx)]
+        data_grp = self._h5['runs/{}/warping/aux_data'.format(run_idx)]
 
-        # if the datasets were not initialized add the new data
-        if self._warp_aux_init:
+        # if the datasets were initialized just add the new data
+        for key, aux_data in warp_aux_data.items():
 
-            for key, aux_data in warp_aux_data.items():
+            if key in self._warp_aux_init:
+
+                # get the dataset
+                dset = data_grp[key]
+                # add the new data, this is not on a cycle basis like
+                # bc or resampling and is lined up with the warp
+                # records along their first axis, so we resize for all
+                # new additions
+                dset.resize( (dset.shape[0] + aux_data.shape[0], *aux_data.shape[1:]) )
+                dset[-aux_data.shape[0]] = np.array([aux_data])
+
+            # if the datasets were not initialized initialize them with
+            # the incoming dataset
+            else:
+                for key, aux_data in warp_aux_data.items():
+                    data_grp.create_dataset(key, data=np.array([aux_data]), dtype=aux_data.dtype,
+                                           maxshape=(None, *aux_data.shape))
+                    # save the dtype and shape
+                    self.warp_aux_dtypes[key] = aux_data.dtype
+                    self.warp_aux_shapes[key] = aux_data.shape
+                    self._warp_aux_init.append(key)
+
+    def add_cycle_bc_aux_data(self, run_idx, bc_aux_data):
+
+        data_grp = self._h5['runs/{}/boundary_conditions/aux_data'.format(run_idx)]
+
+        # if the datasets were initialized just add the new data
+        for key, aux_data in bc_aux_data.items():
+
+            if key in self._bc_aux_init:
+
                 # get the dataset
                 dset = data_grp[key]
                 # add the new data
                 dset.resize( (dset.shape[0] + 1, *aux_data.shape) )
                 dset[-1] = np.array([aux_data])
 
-        # if the datasets were not initialized initialize them with
-        # the incoming dataset
-        else:
-            # initialize the dicts for the dtypes and shapes
-            self.warp_aux_dtypes = {}
-            self.warp_aux_shapes = {}
-            for key, aux_data in warp_aux_data.items():
-                data_grp.create_dataset(key, data=np.array([aux_data]), dtype=aux_data.dtype,
-                                       maxshape=(None, *aux_data.shape))
-                # save the dtype and shape
-                self.warp_aux_dtypes[key] = aux_data.dtype
-                self.warp_aux_shapes[key] = aux_data.shape
-                self._warp_aux_init = True
+            # if the datasets were not initialized initialize them with
+            # the incoming dataset
+            else:
+                for key, aux_data in bc_aux_data.items():
+                    data_grp.create_dataset(key, data=np.array([aux_data]), dtype=aux_data.dtype,
+                                           maxshape=(None, *aux_data.shape))
+                    # save the dtype and shape
+                    self.bc_aux_dtypes[key] = aux_data.dtype
+                    self.bc_aux_shapes[key] = aux_data.shape
+                    self._bc_aux_init.append(key)
+
 
 def _extract_dict(keys, **kwargs):
     traj_data = {}

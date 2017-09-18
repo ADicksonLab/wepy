@@ -1,3 +1,4 @@
+import sys
 import itertools as it
 from collections import defaultdict
 
@@ -8,17 +9,13 @@ import mdtraj as mdj
 
 from wepy.boundary_conditions.boundary import BoundaryConditions
 
-UNBINDING_INSTRUCT_DTYPE = np.dtype([('target', int)])
-
-UNBINDING_AUX_DTYPES = {'passage_time' : np.float}
-UNBINDING_AUX_SHAPES = {'passage_time' : (1,)}
 
 class UnbindingBC(BoundaryConditions):
 
-    WARP_INSTRUCT_DTYPE = UNBINDING_INSTRUCT_DTYPE
+    WARP_INSTRUCT_DTYPE = np.dtype([('target', int)])
 
-    WARP_AUX_DTYPES = UNBINDING_AUX_DTYPES
-    WARP_AUX_SHAPES = UNBINDING_AUX_SHAPES
+    WARP_AUX_DTYPES = {'passage_time' : np.float}
+    WARP_AUX_SHAPES = {'passage_time' : (1,)}
 
     def __init__(self, initial_state=None,
                  cutoff_distance=1.0,
@@ -111,6 +108,7 @@ class UnbindingBC(BoundaryConditions):
 
         new_walkers = []
         warped_walkers_records = []
+        cycle_bc_records = []
 
         # boundary data is collected for each walker every cycle
         cycle_boundary_data = defaultdict(list)
@@ -141,9 +139,19 @@ class UnbindingBC(BoundaryConditions):
                 for key, value in warp_data.items():
                     cycle_warp_data[key].append(value)
 
+                # DEBUG
+                if debug_prints:
+                    sys.stdout.write('EXIT POINT observed at {} s\n'.format(warp_data['passage_time']))
+
             # no warping so just return the original walker
             else:
                 new_walkers.append(walker)
 
-        return new_walkers, warped_walkers_records, \
-                 cycle_boundary_data, cycle_warp_data
+        # convert aux datas to np.arrays
+        for key, value in cycle_warp_data.items():
+            cycle_warp_data[key] = np.array([value])
+        for key, value in cycle_boundary_data.items():
+            cycle_boundary_data[key] = np.array(value)
+
+        return new_walkers, warped_walkers_records, cycle_warp_data, \
+                 cycle_bc_records, cycle_boundary_data

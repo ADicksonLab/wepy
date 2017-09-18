@@ -88,9 +88,14 @@ class Manager(object):
                 sys.stdout.write("End cycle {}\n".format(cycle_idx))
 
             # apply rules of boundary conditions and warp walkers through space
-            warped_walkers, warped_walker_records, boundary_data, warp_data = \
-                           self.boundary_conditions.warp_walkers(new_walkers,
-                                                                 debug_prints=debug_prints)
+            bc_results  = self.boundary_conditions.warp_walkers(new_walkers,
+                                                        debug_prints=debug_prints)
+
+            warped_walkers = bc_results[0]
+            warp_records = bc_results[1]
+            warp_aux_data = bc_results[2]
+            bc_records = bc_results[3]
+            bc_aux_data = bc_results[4]
 
             # resample walkers
             resampled_walkers, resampling_records, resampling_aux_data =\
@@ -116,7 +121,8 @@ class Manager(object):
 
             # report results to the reporter
             self.reporter.report(cycle_idx, new_walkers,
-                                 warped_walker_records, warp_aux_data,
+                                 warp_records, warp_aux_data,
+                                 bc_records, bc_aux_data,
                                  resampling_records, resampling_aux_data,
                                  debug_prints=debug_prints)
 

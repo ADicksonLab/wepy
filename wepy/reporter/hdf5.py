@@ -10,6 +10,8 @@ class WepyHDF5Reporter(FileReporter):
                  resampling_aux_dtypes=None, resampling_aux_shapes=None,
                  warp_dtype=None,
                  warp_aux_dtypes=None, warp_aux_shapes=None,
+                 bc_dtype=None,
+                 bc_aux_dtypes=None, bc_aux_shapes=None,
                  topology=None,
                  units=None):
 
@@ -19,10 +21,13 @@ class WepyHDF5Reporter(FileReporter):
         self.decisions = decisions
         self.instruction_dtypes = instruction_dtypes
         self.warp_dtype = warp_dtype
+        self.bc_dtype = bc_dtype
         self.resampling_aux_dtypes = resampling_aux_dtypes
         self.resampling_aux_shapes = resampling_aux_shapes
         self.warp_aux_dtypes = warp_aux_dtypes
         self.warp_aux_shapes = warp_aux_shapes
+        self.bc_aux_dtypes = bc_aux_dtypes
+        self.bc_aux_shapes = bc_aux_shapes
         self.units = units
 
     def init(self):
@@ -49,9 +54,16 @@ class WepyHDF5Reporter(FileReporter):
                                   warp_aux_dtypes=self.warp_aux_dtypes,
                                   warp_aux_shapes=self.warp_aux_shapes)
 
+            # initialize the boundary condition group within this run
+            wepy_h5.init_run_bc(self.wepy_run_idx,
+                                  bc_aux_dtypes=self.bc_aux_dtypes,
+                                  bc_aux_shapes=self.bc_aux_shapes)
+
+
 
     def report(self, cycle_idx, walkers,
                warp_records, warp_aux_data,
+               bc_records, bc_aux_data,
                resampling_records, resampling_aux_data,
                debug_prints=False):
 
@@ -89,6 +101,12 @@ class WepyHDF5Reporter(FileReporter):
 
             # add warp data
             wepy_h5.add_cycle_warp_aux_data(self.wepy_run_idx, warp_aux_data)
+
+            # TODO add boundary condition records
+            # wepy_h5.add_bc_records(self.wepy_run_idx, bc_records)
+
+            # add the auxiliary data from checking boundary conditions
+            wepy_h5.add_cycle_bc_aux_data(self.wepy_run_idx, bc_aux_data)
 
             # add resampling records
             wepy_h5.add_cycle_resampling_records(self.wepy_run_idx, resampling_records)
