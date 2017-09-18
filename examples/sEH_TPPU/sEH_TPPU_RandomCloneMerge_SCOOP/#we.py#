@@ -1,8 +1,10 @@
+import sys
+from collections import namedtuple
 import pickle
 
-import h5py
 import numpy as np
 import pandas as pd
+import h5py
 
 import simtk.openmm.app as omma
 import simtk.openmm as omm
@@ -10,23 +12,17 @@ import simtk.unit as unit
 
 import scoop.futures
 
-#import pynvml as nvml
-
 import mdtraj as mdj
 
 from wepy.sim_manager import Manager
-from wepy.resampling.wexplore2 import WExplore2Resampler
+from wepy.resampling.clone_merge import RandomCloneMergeResampler
 from wepy.openmm import OpenMMRunner, OpenMMWalker
-from wepy.boundary_conditions.unbinding import UnbindingBC
 from wepy.reporter.hdf5 import WepyHDF5Reporter
-from wepy.hdf5 import TrajHDF5
-from wepy.work_mapper.gpu import GPUMapper
-from wepy.distance_functions.openmm_distance import OpenMMDistance
+from wepy.boundary_conditions.unbinding import UnbindingBC
 
 if __name__ == "__main__":
 
-    # SETUP ------------------------------------------------------
-
+    #### SETUP -----------------------------------------
     # load a json string of the topology
     with open("../sEH_TPPU_system.top.json", mode='r') as rf:
         sEH_TPPU_system_top_json = rf.read()
@@ -77,43 +73,25 @@ if __name__ == "__main__":
                               nonbondedCutoff=1.0 * unit.nanometer,
                               constraints=omma.HBonds)
 
-    # make this a constant temperature and pressure simulation at 1.0
-    # atm, 300 K, with volume move attempts every 50 steps
-    barostat = omm.MonteCarloBarostat(1.0*unit.atmosphere, 300.0*unit.kelvin, 50)
-
-    # add it as a "Force" to the system
-    system.addForce(barostat)
-
     # set the string identifier for the platform to be used by openmm
     platform = 'CUDA'
 
-    # make an integrator object that is constant temperature
+    # make an integrator object
     integrator = omm.LangevinIntegrator(300*unit.kelvin,
                                             1/unit.picosecond,
                                             0.002*unit.picoseconds)
 
     #### END SETUP -----------------------------------------------------------------
 
-    # set up the OpenMMRunner with your system
-    runner = OpenMMRunner(system, psf.topology, integrator, platform=platform)
-
     # set up parameters for running the simulation
     num_walkers = 8
-    # initial weights
+    # initial weights, split equally between the walkers
     init_weight = 1.0 / num_walkers
-
-    # a list of the initial walkers
+    # make the initial walkers
     init_walkers = [OpenMMWalker(omm_state, init_weight) for i in range(num_walkers)]
 
-    # set up the disatnce function for WExplore2 Resampler
-    disatnce_function = OpenMMDistance(topology=pdb.top,
-                                       ligand_idxs=lig_idxs,
-                                       binding_site_idxs=binding_selection_idxs)
-
-    # set up the WExplore2 Resampler with the parameters
-    resampler = WExplore2Resampler(pmax=0.2,
-                                   # algorithm parameters
-                                   distance_function=disatnce_function)
+    # set up the OpenMMRunner with your system
+    runner = OpenMMRunner(system, psf.topology, integrator, platform=platform)
 
     # makes ref_traj and selects lingand_atom and protein atom  indices
     # instantiate a wexplore2 unbindingboudaryconditiobs
@@ -123,38 +101,30 @@ if __name__ == "__main__":
                       ligand_idxs=lig_idxs,
                       binding_site_idxs=protein_idxs)
 
+    # set up the RandomResampler with the same random seed
+    resampler = RandomCloneMergeResampler()
+
     # instantiate a reporter for HDF5
     report_path = 'wepy_results.h5'
     reporter = WepyHDF5Reporter(report_path, mode='w',
                                 decisions=resampler.DECISION,
                                 instruction_dtypes=resampler.INSTRUCTION_DTYPES,
-                                resampling_aux_dtypes=None,
-                                resampling_aux_shapes=None,
-                                warp_dtype=ubc.WARP_INSTRUCT_DTYPE,
-                                warp_aux_dtypes=ubc.WARP_AUX_DTYPES,
-                                warp_aux_shapes=ubc.WARP_AUX_SHAPES,
+                                bc_dtype=ubc.WARP_INSTRUCT_DTYPE,
                                 topology=sEH_TPPU_system_top_json)
-
-
-    # create a work mapper for NVIDIA GPUs for a GPU cluster
-    num_workers = 8
-    gpumapper  = GPUMapper(num_walkers, n_workers=num_workers)
 
     # Instantiate a simulation manager
     sim_manager = Manager(init_walkers,
                           runner=runner,
-                          resampler=resampler,
                           boundary_conditions=ubc,
-                          work_mapper=gpumapper.map,
+                          resampler=resampler,
+                          # the mapper may be swapped out for simply `map`
+                          work_mapper=scoop.futures.map,
                           reporter=reporter)
-    n_steps = 100
-    n_cycles = 2
 
-    # run a simulation with the manager for n_steps cycles of length 1000 each
-    steps = [ n_steps for i in range(n_cycles)]
+
+    # run a simulation with the manager for 3 cycles of length 1000 each
     print("Running simulation")
-    sim_manager.run_simulation(n_cycles,
-                               steps,
-                               debug_prints=True)
+    sim_manager.run_simulation(3, [1000, 1000, 1000])
 
     # your data should be in the 'wepy_results.h5'
+
