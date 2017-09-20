@@ -1545,7 +1545,7 @@ class WepyHDF5(object):
                 # records along their first axis, so we resize for all
                 # new additions
                 dset.resize( (dset.shape[0] + aux_data.shape[0], *aux_data.shape[1:]) )
-                dset[-aux_data.shape[0]] = np.array([aux_data])
+                dset[-aux_data.shape[0]:] = aux_data
 
             # if the datasets were not initialized initialize them with
             # the incoming dataset

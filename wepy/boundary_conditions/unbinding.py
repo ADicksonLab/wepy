@@ -14,7 +14,7 @@ class UnbindingBC(BoundaryConditions):
 
     WARP_INSTRUCT_DTYPE = np.dtype([('target', int)])
 
-    WARP_AUX_DTYPES = {'passage_time' : np.float}
+    WARP_AUX_DTYPES = {'passage_time' :  np.float}
     WARP_AUX_SHAPES = {'passage_time' : (1,)}
 
     def __init__(self, initial_state=None,
@@ -100,7 +100,7 @@ class UnbindingBC(BoundaryConditions):
         # thus there is only one record
         warp_record = (0,)
         # collect the passage time
-        warp_data = {'passage_time' : walker.time_value()}
+        warp_data = {'passage_time' : np.array([walker.time_value()])}
 
         return warped_walker, warp_record, warp_data
 
@@ -149,7 +149,7 @@ class UnbindingBC(BoundaryConditions):
 
         # convert aux datas to np.arrays
         for key, value in cycle_warp_data.items():
-            cycle_warp_data[key] = np.array([value])
+            cycle_warp_data[key] = np.array(value)
         for key, value in cycle_boundary_data.items():
             cycle_boundary_data[key] = np.array(value)
 

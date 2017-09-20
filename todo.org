@@ -1,3 +1,6 @@
+* Simulation manager architecture
+
+** TODO [#B] allow for resampler to get information on the whole tree of data :feature:
 * HDF5
 
 ** TODO [#A] sparse velocities etc. across trajectory                  :core:

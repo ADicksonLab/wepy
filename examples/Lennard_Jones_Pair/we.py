@@ -43,10 +43,7 @@ if __name__ == "__main__":
     thermostat = omm.AndersenThermostat(300.0 * unit.kelvin, 1/unit.picosecond)
     barostat = omm.MonteCarloBarostat(1.0*unit.atmosphere, 300.0*unit.kelvin, 50)
 
-    if platform:
-        runner = OpenMMRunner(test_sys.system, test_sys.topology, integrator, platform=platform)
-    else:
-        runner = OpenMMRunner(test_sys.system, test_sys.topology, integrator)
+    runner = OpenMMRunner(test_sys.system, test_sys.topology, integrator, platform='Reference')
 
     num_walkers = 10
     init_weight = 1.0 / num_walkers

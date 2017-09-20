@@ -96,11 +96,14 @@ class WepyHDF5Reporter(FileReporter):
                     traj_grp.attrs['starting_cycle_idx'] = cycle_idx
 
 
-            # add warp records from boundary conditions
-            wepy_h5.add_cycle_warp_records(self.wepy_run_idx, warp_records)
 
-            # add warp data
-            wepy_h5.add_cycle_warp_aux_data(self.wepy_run_idx, warp_aux_data)
+            # if there was warping done by the boundary conditions save those records
+            if len(warp_records) > 0:
+                # add warp records
+                wepy_h5.add_cycle_warp_records(self.wepy_run_idx, warp_records)
+
+                # add warp data
+                wepy_h5.add_cycle_warp_aux_data(self.wepy_run_idx, warp_aux_data)
 
             # TODO add boundary condition records
             # wepy_h5.add_bc_records(self.wepy_run_idx, bc_records)
