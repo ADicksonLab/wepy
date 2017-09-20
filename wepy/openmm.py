@@ -1,3 +1,5 @@
+from copy import copy
+
 import numpy as np
 
 import simtk.openmm.app as omma
@@ -33,6 +35,21 @@ GET_STATE_KWARG_DEFAULTS = (('getPositions', True),
                             # TODO unsure of how to use this kwarg
                             #('groups') )
 
+
+
+UNITS = (('positions', unit.nanometer),
+         ('time', unit.picosecond),
+         ('box_vectors', unit.nanometer),
+         ('velocities', unit.nanometer/unit.picosecond),
+         ('forces', unit.kilojoule / (unit.nanometer * unit.mole)),
+         ('box_volume', unit.nanometer),
+         ('kinetic_energy', unit.kilojoule / unit.mole),
+         ('potential_energy', unit.kilojoule / unit.mole),
+         ('parameters', 'parameters_units'),
+         ('parameter_derivatives', 'parameter_derivatives_units'),
+        )
+
+
 class OpenMMRunner(Runner):
 
     def __init__(self, system, topology, integrator, platform=None):
@@ -59,10 +76,12 @@ class OpenMMRunner(Runner):
                     platform.setPropertyDefaultValue(key, value)
 
             # instantiate a simulation object
-            simulation = omma.Simulation(self.topology, self.system, self.integrator, platform)
+            simulation = omma.Simulation(self.topology, self.system,
+                                         copy(self.integrator), platform)
         # otherwise just use the default or environmentally defined one
         else:
-            simulation = omma.Simulation(self.topology, self.system, self.integrator)
+            simulation = omma.Simulation(self.topology, self.system,
+                                         copy(self.integrator))
 
         # set the state to the context from the walker
         simulation.context.setState(walker.state)

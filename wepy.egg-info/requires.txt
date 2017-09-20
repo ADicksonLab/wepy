@@ -1,3 +1,4 @@
-openmm
 numpy
-mdtraj
+h5py
+openmm
+scoop

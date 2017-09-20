@@ -1,0 +1,20 @@
+{"chains":
+ [
+  {"residues":
+   [
+       {"index": 0, "name": "LJ0", "atoms":
+        [
+         {"index": 0, "name": "lj0", "element": "Lj"}
+        ]
+       },
+
+       {"index": 0, "name": "LJ1", "atoms":
+        [
+         {"index": 0, "name": "lj1", "element": "Lj"}
+        ]
+       }
+
+   ]
+  }
+ ]
+}

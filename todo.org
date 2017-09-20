@@ -1,3 +1,6 @@
+* Simulation manager architecture
+
+** TODO [#B] allow for resampler to get information on the whole tree of data :feature:
 * HDF5
 
 ** TODO [#A] sparse velocities etc. across trajectory                  :core:
@@ -44,3 +47,7 @@ This would have the same API as the TrajHDF5 object.
 This needs to be developed.
 - JSON represenation also capable to be converted to and from
 
+
+** TODO [#B] add records for the boundary conditions                   :core:
+This needs to be implemented in the WepyHDF5 and in the actual
+boundary conditions class.
