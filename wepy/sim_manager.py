@@ -119,7 +119,7 @@ class Manager(object):
                     *[str(walker.weight) for walker in resampled_walkers])
                 print(walker_weight_str)
                 #print warped_walker_records
-                print ("warped walkers List:", warped_walker_records)
+                print ("warped walkers List:", warp_records)
             # report results to the reporter
             self.reporter.report(cycle_idx, new_walkers,
                                  warp_records, warp_aux_data,

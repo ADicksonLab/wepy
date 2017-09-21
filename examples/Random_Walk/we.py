@@ -1,6 +1,8 @@
+import os
 import sys
-import numpy as np
 
+import numpy as np
+import h5py
 import scoop.futures
 
 from wepy.resampling.wexplore2 import WExplore2Resampler
@@ -10,6 +12,16 @@ from wepy.distance_functions.randomwalk_distance import RandomWalkDistance
 from wepy.reporter.hdf5 import WepyHDF5Reporter
 from wepy.sim_manager import Manager
 
+
+
+# define a function for saving datat in hdf5 file
+def save_data(file_handler,cycle_idx, resampled_walkers, resampling_records):
+    
+     for walker_idx, walker in enumerate(resampled_walkers):
+         file_handler.create_dataset('cycle_{:0>5}/walker_{:0>5}/positions'.format(cycle_idx,walker_idx),
+                                     data = walker.positions)
+         file_handler.create_dataset('cycle_{:0>5}/walker_{:0>5}/weight'.format(cycle_idx,walker_idx), data=walker.weight)
+                     
 
 if __name__ == "__main__":
 
@@ -51,7 +63,10 @@ if __name__ == "__main__":
     if debug_prints:
         result_template_str = "|".join(["{:^10}" for i in range(num_walkers + 1)])
         sys.stdout.write("Starting simulation\n")
-    
+
+
+    # create a hdf5 file to write
+    h5file_handler = h5py.File(os.getcwd()+'/wepy_results.h5',mode='w')
     for cycle_idx in range(n_cycles):
 
         if debug_prints:
@@ -140,5 +155,4 @@ if __name__ == "__main__":
     
     
     
-
  
