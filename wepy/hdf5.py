@@ -43,7 +43,7 @@ INSTRUCTION_TYPES = ('VARIABLE', 'FIXED')
 # different things, so we define these collections of keys,
 # and flags to keep track of which ones this dataset
 # satisfies, ds here stands for "dataset"
-COMPLIANCE_TAGS = ['COORDS', 'TRAJ', 'RESTART', 'FORCED']
+COMPLIANCE_TAGS = ['COORDS', 'TRAJ', 'RESTART']
 
 # the minimal requirement (and need for this class) is to associate
 # a collection of coordinates to some molecular structure (topology)
@@ -197,6 +197,7 @@ class TrajHDF5(object):
     def _create_init(self, topology, data, units):
         """Completely overwrite the data in the file. Reinitialize the values
         and set with the new ones if given."""
+
         # make sure the mandatory data is here
         assert topology is not None, "Topology must be given"
         assert data['positions'] is not None, "positions must be given"
@@ -205,31 +206,26 @@ class TrajHDF5(object):
         # assign the topology
         self.topology = topology
 
+
+        # positions
+        positions = data.pop('positions')
+        self.h5.create_dataset('positions', data=positions,
+                                maxshape=(None, *positions.shape[1:]))
+
+        # add data depending on whether it is compound or not
+        for key, value in data.items():
+            if key in COMPOUND_DATA_FIELDS:
+                self._add_compound_traj_data(key, value)
+            else:
+                self._add_traj_data(key, value)
+
+
         # initialize the units group
         unit_grp = self._h5.create_group('units')
-
-        # initialize the compound dataset groups
-        for field in COMPOUND_DATA_FIELDS:
-            self._h5.create_group(field)
 
         # initialize the compound unit groups
         for field in COMPOUND_UNIT_FIELDS:
             unit_grp.create_group(field)
-
-        # set the data fields using their setters
-        for key, value in data.items():
-
-            # if the value is None it was not set and we should just
-            # continue without checking silently, unless it is mandatory
-            if value is None:
-                continue
-
-            # try to add the data using the setter
-            try:
-                self.__setattr__(key, value)
-            except AssertionError:
-                raise ValueError("{} value not valid".format(key))
-
 
         # make a mapping of the unit kwarg keys to the keys used in
         # datastructure and the COMPOUND  key lists
@@ -247,8 +243,8 @@ class TrajHDF5(object):
 
             # if the units are compound then set compound units
             if field in COMPOUND_UNIT_FIELDS:
-                # get the unit group
                 cmp_grp = unit_grp[field]
+
                 # set all the units in the dict for this compound key
                 for cmp_key, cmp_value in unit_value.items():
                     cmp_grp.create_dataset(cmp_key, data=cmp_value)
@@ -293,6 +289,22 @@ class TrajHDF5(object):
         # we just need to set the flags for which data is present and
         # which is not
         self._update_exist_flags()
+
+
+    def _add_compound_traj_data(self, key, data):
+
+        # create a group for this group of datasets
+        cmpd_grp = self.h5.create_group(key)
+        # make a dataset for each dataset in this group
+        for key, values in data.items():
+            parameter_derivatives_grp.create_dataset(key, data=values,
+                                    maxshape=(None, *values.shape[1:]))
+
+    def _add_traj_data(self, key, data):
+
+        # create the dataset
+        self.h5.create_dataset(key, data=data, maxshape=(None, *data.shape[1:]))
+
 
     @property
     def filename(self):
@@ -1319,17 +1331,13 @@ class WepyHDF5(object):
         traj_grp.create_dataset('positions', data=traj_data.pop('positions'),
                                 maxshape=(None, n_atoms, N_DIMS))
 
-        # attempt to get values from the traj_data then add it as a dataset
+        # add data depending whether it is compound or not
         for key, value in traj_data.items():
-            try:
-                data = traj_data[key]
-            except KeyError:
-                pass
+            if key in COMPOUND_DATA_FIELDS:
+                self._add_compound_traj_data(run_idx, traj_idx, key, value)
             else:
-                if key in COMPOUND_DATA_FIELDS:
-                    self._add_compound_traj_data(run_idx, traj_idx, key, data)
-                else:
-                    self._add_traj_data(run_idx, traj_idx, key, data)
+                self._add_traj_data(run_idx, traj_idx, key, value)
+
 
         return traj_grp
 
@@ -1693,20 +1701,26 @@ class WepyHDF5(object):
                 else:
                     traj_data[thing_key] = traj_grp[thing_key][:]
 
+        # the mapping of common keys to the transfer keys
+        unit_key_map = dict(DATA_UNIT_MAP)
+
         unit_grp = self.h5['units']
         units = {}
+        # go through each unit and add them to the dictionary changing
+        # the name back to the unit key
         for unit_key in list(unit_grp):
+            unit_transfer_key = unit_key_map[unit_key]
             if unit_key in TRAJ_DATA_FIELDS:
                 # handle compound units
                 if unit_key in COMPOUND_UNIT_FIELDS:
-                    units[unit_key] = {}
+                    units[unit_transfer_key] = {}
                     for cmp_key in list(unit_grp[unit_key]):
-                        units[unit_key][cmp_key] = unit_grp[unit_key][cmp_key]
+                        units[unit_transfer_key][cmp_key] = unit_grp[unit_key][cmp_key]
                 # simple units
                 else:
-                    units[unit_key] = unit_grp[unit_key][()]
+                    units[unit_transfer_key] = unit_grp[unit_key][()]
 
-        traj_h5 = TrajHDF5(filepath, mode=mode, topology=self.topology, **traj_data)
+        traj_h5 = TrajHDF5(filepath, mode=mode, topology=self.topology[()], **traj_data, **units)
 
         return traj_h5
 
