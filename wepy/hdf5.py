@@ -35,6 +35,12 @@ DATA_UNIT_MAP = (('positions', 'positions_unit'),
 COMPOUND_DATA_FIELDS = ('parameters', 'parameter_derivatives', 'observables')
 COMPOUND_UNIT_FIELDS = ('parameters', 'parameter_derivatives', 'observables')
 
+# some fields can have sparse data, non-sparse data must be all the
+# same shape and larger than sparse arrays. Sparse arrays have an
+# associated index with them aligning them to the non-sparse datasets
+SPARSE_DATA_FIELDS = ('velocities', 'forces', 'kinetic_energy', 'potential_energy',
+                      'box_volume', 'parameters', 'parameter_derivatives', 'observables')
+
 # decision instructions can be variable or fixed width
 INSTRUCTION_TYPES = ('VARIABLE', 'FIXED')
 
