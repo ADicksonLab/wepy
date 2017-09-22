@@ -17,6 +17,7 @@ import mdtraj as mdj
 from wepy.sim_manager import Manager
 from wepy.resampling.clone_merge import RandomCloneMergeResampler
 from wepy.openmm import OpenMMRunner, OpenMMWalker
+from wepy.openmm import UNITS
 from wepy.reporter.hdf5 import WepyHDF5Reporter
 from wepy.boundary_conditions.unbinding import UnbindingBC
 
@@ -104,13 +105,27 @@ if __name__ == "__main__":
     # set up the RandomResampler with the same random seed
     resampler = RandomCloneMergeResampler()
 
+
+    # make a dictionary of units for adding to the HDF5
+    units = {}
+    for key, value in dict(UNITS).items():
+        try:
+            unit_name = value.get_name()
+        except AttributeError:
+            print("not a unit")
+            unit_name = False
+
+        if unit_name:
+            units[key] = unit_name
+
     # instantiate a reporter for HDF5
     report_path = 'wepy_results.h5'
     reporter = WepyHDF5Reporter(report_path, mode='w',
                                 decisions=resampler.DECISION,
                                 instruction_dtypes=resampler.INSTRUCTION_DTYPES,
                                 bc_dtype=ubc.WARP_INSTRUCT_DTYPE,
-                                topology=sEH_TPPU_system_top_json)
+                                topology=sEH_TPPU_system_top_json,
+                                units=units)
 
     # Instantiate a simulation manager
     sim_manager = Manager(init_walkers,

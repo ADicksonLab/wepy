@@ -37,16 +37,16 @@ GET_STATE_KWARG_DEFAULTS = (('getPositions', True),
 
 
 
-UNITS = (('positions', unit.nanometer),
-         ('time', unit.picosecond),
-         ('box_vectors', unit.nanometer),
-         ('velocities', unit.nanometer/unit.picosecond),
-         ('forces', unit.kilojoule / (unit.nanometer * unit.mole)),
-         ('box_volume', unit.nanometer),
-         ('kinetic_energy', unit.kilojoule / unit.mole),
-         ('potential_energy', unit.kilojoule / unit.mole),
-         ('parameters', 'parameters_units'),
-         ('parameter_derivatives', 'parameter_derivatives_units'),
+UNITS = (('positions_unit', unit.nanometer),
+         ('time_unit', unit.picosecond),
+         ('box_vectors_unit', unit.nanometer),
+         ('velocities_unit', unit.nanometer/unit.picosecond),
+         ('forces_unit', unit.kilojoule / (unit.nanometer * unit.mole)),
+         ('box_volume_unit', unit.nanometer),
+         ('kinetic_energy_unit', unit.kilojoule / unit.mole),
+         ('potential_energy_unit', unit.kilojoule / unit.mole),
+         ('parameters_units', {}),
+         ('parameter_derivatives_units', {}),
         )
 
 
