@@ -96,7 +96,10 @@ class UnbindingBC(BoundaryConditions):
     def warp(self, walker):
 
         # we always start at the initial state
-        warped_walker = self.initial_state
+        warped_state = self.initial_state
+        # set the initial state into a new walker object with the same
+        # weight
+        warped_walker = type(walker)(state=warped_state, weight=walker.weight)
         # thus there is only one record
         warp_record = (0,)
         # collect the passage time

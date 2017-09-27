@@ -111,7 +111,7 @@ if __name__ == "__main__":
     # makes ref_traj and selects lingand_atom and protein atom  indices
     # instantiate a wexplore2 unbindingboudaryconditiobs
     ubc = UnbindingBC(cutoff_distance=1.0,
-                      initial_state=init_walkers[0],
+                      initial_state=init_walkers[0].state,
                       topology=pdb.topology,
                       ligand_idxs=lig_idxs,
                       binding_site_idxs=protein_idxs)
