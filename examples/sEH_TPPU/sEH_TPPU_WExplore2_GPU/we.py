@@ -39,16 +39,18 @@ if __name__ == "__main__":
 
     # selecting ligand and protein binding site atom indices for
     # resampler and boundary conditions
-    pdb = pdb.remove_solvent()
     lig_idxs = pdb.topology.select('resname "2RV"')
-    atom_idxs = [atom.index for atom in pdb.topology.atoms]
-    protein_idxs = np.delete(atom_idxs, lig_idxs)
+    protein_idxs = np.array([atom.index for atom in pdb.topology.atoms if atom.residue.is_protein])
+
 
     # selects protien atoms which have less than 2.5 A from ligand
     # atoms in the crystal structure
-    binding_selection_idxs = mdj.compute_neighbors(pdb, 0.8, lig_idxs)
-    binding_selection_idxs = np.delete(binding_selection_idxs, lig_idxs)
 
+    # selects all atoms that have less than 2.5 A from ligand
+    neighbors_idxs = mdj.compute_neighbors(pdb, 0.8, lig_idxs)
+    # selects protein atoms from neighbors list
+    binding_selection_idxs = np.intersect1d(neighbors_idxs, protein_idxs)
+   
     # create a system for use in OpenMM
 
     # load the psf which is needed for making a system in OpenMM with
@@ -102,7 +104,7 @@ if __name__ == "__main__":
     init_walkers = [OpenMMWalker(omm_state, init_weight) for i in range(num_walkers)]
 
     # set up the disatnce function for WExplore2 Resampler
-    disatnce_function = OpenMMDistance(topology=pdb.top,
+    disatnce_function = OpenMMDistance(topology=pdb.topology,
                                        ligand_idxs=lig_idxs,
                                        binding_site_idxs=binding_selection_idxs)
 
