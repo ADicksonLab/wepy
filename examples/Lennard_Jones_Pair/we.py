@@ -104,5 +104,4 @@ if __name__ == "__main__":
     steps = [n_steps for i in range(n_cycles)]
     print("Running Simulation")
 
-    import ipdb; ipdb.set_trace()
     sim_manager.run_simulation(n_cycles, steps, debug_prints=True)

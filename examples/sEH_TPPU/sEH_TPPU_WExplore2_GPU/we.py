@@ -42,13 +42,16 @@ if __name__ == "__main__":
     # resampler and boundary conditions
     pdb = pdb.remove_solvent()
     lig_idxs = pdb.topology.select('resname "2RV"')
+    print("Ligand: {}".format(','.join([str(idx) for idx in lig_idxs])))
     atom_idxs = [atom.index for atom in pdb.topology.atoms]
     protein_idxs = np.delete(atom_idxs, lig_idxs)
+
 
     # selects protien atoms which have less than 2.5 A from ligand
     # atoms in the crystal structure
     binding_selection_idxs = mdj.compute_neighbors(pdb, 0.8, lig_idxs)
     binding_selection_idxs = np.delete(binding_selection_idxs, lig_idxs)
+    print("Protein: {}".format(','.join([str(idx) for idx in binding_selection_idxs])))
 
     # create a system for use in OpenMM
 

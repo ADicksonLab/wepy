@@ -1,10 +1,23 @@
 from collections import Iterable
 import json
 from warnings import warn
+import operator
 
 import numpy as np
 
 import h5py
+
+# optional dependencies
+try:
+    import mdtraj as mdj
+    import mdtraj.core.element as elem
+except ModuleNotFoundError:
+    warn("mdtraj is not installed and that functionality will not work", RuntimeWarning)
+
+try:
+    import pandas as pd
+except ModuleNotFoundError:
+    warn("pandas is not installed and that functionality will not work", RuntimeWarning)
 
 # Constants
 N_DIMS = 3
@@ -366,7 +379,7 @@ class TrajHDF5(object):
 
     @property
     def topology(self):
-        return self._h5['topology']
+        return self._h5['topology'][()]
 
     @topology.setter
     def topology(self, topology):
@@ -553,154 +566,21 @@ class TrajHDF5(object):
         else:
             return None
 
+    def to_mdtraj(self):
 
+        topology = _json_to_mdtraj_topology(self.topology)
 
-    # TODO these should be deprecated to match the API in WepyHDF5
-    def append_dataset(self, dataset_key, new_data):
-        if self._wepy_mode == 'c-':
-            assert self._append_flags[dataset_key], "dataset is not available for appending to"
+        positions = self.h5['positions'][:]
+        time = self.h5['time'][:]
+        box_vectors = self.h5['box_vectors'][:]
+        unitcell_lengths, unitcell_angles = _box_vectors_to_lengths_angles()
 
-        # get the dataset
-        dset = self._h5[dataset_key]
-        # append to the dataset on the first dimension, keeping the
-        # others the same
-        dset.resize( (dset.shape[0] + new_data.shape[0], *dset.shape[1:]) )
-        # add the new data
-        dset[-new_data.shape[0]:,:] = new_data
+        traj = mdj.Trajectory(positions, topology,
+                       time=time,
+                       unitcell_lengths=unitcell_lengths, unitcell_angles=unitcell_angles)
 
-    @observables.setter
-    def observables(self, observables_dict):
+        return traj
 
-        observables_grp = self._h5['observables']
-        for key, values in observables_dict.items():
-            observables_grp.create_dataset(key, data=values,
-                                    maxshape=(None, *values.shape[1:]))
-            self._compound_exist_flags['observables'][key] = True
-            # if we are in strict append mode we cannot append after we create something
-            if self._wepy_mode == 'c-':
-                self._compound_append_flags['observables'][key] = False
-
-    def set_observable(self, observable_key, observables):
-        self.observables[{observable_key : observables}]
-
-
-    @parameter_derivatives.setter
-    def parameter_derivatives(self, parameter_derivatives_dict):
-
-        parameter_derivatives_grp = self._h5['parameter_derivatives']
-        for key, values in parameter_derivatives_dict.items():
-            parameter_derivatives_grp.create_dataset(key, data=values,
-                                    maxshape=(None, *values.shape[1:]))
-            self._compound_exist_flags['parameter_derivatives'][key] = True
-            # if we are in strict append mode we cannot append after we create something
-            if self._wepy_mode == 'c-':
-                self._compound_append_flags['parameter_derivatives'][key] = False
-
-    def set_parameter_derivative(self, parameter_derivative_key, parameter_derivatives):
-        self.parameter_derivatives[{parameter_derivative_key : parameter_derivatives}]
-
-    @parameters.setter
-    def parameters(self, parameters_dict):
-
-        parameters_grp = self._h5['parameters']
-        for key, values in parameters_dict.items():
-            parameters_grp.create_dataset(key, data=values,
-                                    maxshape=(None, *values.shape[1:]))
-            self._compound_exist_flags['parameters'][key] = True
-            # if we are in strict append mode we cannot append after we create something
-            if self._wepy_mode == 'c-':
-                self._compound_append_flags['parameters'][key] = False
-
-    def set_parameter(self, parameter_key, parameters):
-        self.parameters[{parameter_key : parameters}]
-
-    @forces.setter
-    def forces(self, forces_dict):
-
-        forces_grp = self._h5['forces']
-        for key, values in forces_dict.items():
-            forces_grp.create_dataset(key, data=values,
-                                    maxshape=(None, self.n_atoms, N_DIMS))
-            self._compound_exist_flags['forces'][key] = True
-            # if we are in strict append mode we cannot append after we create something
-            if self._wepy_mode == 'c-':
-                self._compound_append_flags['forces'][key] = False
-
-    def set_force(self, force_key, forces):
-        self.forces[{force_key : forces}]
-
-    @velocities.setter
-    def velocities(self, velocities):
-        assert isinstance(velocities, np.ndarray), "velocities must be a numpy array"
-
-        self._h5.create_dataset('velocities', data=velocities,
-                                maxshape=(None, self.n_atoms, N_DIMS))
-        self._exist_flags['velocities'] = True
-        # if we are in strict append mode we cannot append after we create something
-        if self._wepy_mode == 'c-':
-            self._append_flags['velocities'] = False
-
-    @box_vectors.setter
-    def box_vectors(self, box_vectors):
-        assert isinstance(box_vectors, np.ndarray), "box_vectors must be a numpy array"
-        self._h5.create_dataset('box_vectors', data=box_vectors,
-                                maxshape=(None, N_DIMS, N_DIMS))
-        self._exist_flags['box_vectors'] = True
-        # if we are in strict append mode we cannot append after we create something
-        if self._wepy_mode == 'c-':
-            self._append_flags['box_vectors'] = False
-
-    @potential_energy.setter
-    def potential_energy(self, potential_energy):
-        assert isinstance(potential_energy, np.ndarray), "potential_energy must be a numpy array"
-        self._h5.create_dataset('potential_energy', data=potential_energy, maxshape=(None))
-        self._exist_flags['potential_energy'] = True
-        # if we are in strict append mode we cannot append after we create something
-        if self._wepy_mode == 'c-':
-            self._append_flags['potential_energy'] = False
-
-    @kinetic_energy.setter
-    def kinetic_energy(self, kinetic_energy):
-        assert isinstance(kinetic_energy, np.ndarray), "kinetic_energy must be a numpy array"
-        self._h5.create_dataset('kinetic_energy', data=kinetic_energy, maxshape=(None))
-        self._exist_flags['kinetic_energy'] = True
-        # if we are in strict append mode we cannot append after we create something
-        if self._wepy_mode == 'c-':
-            self._append_flags['kinetic_energy'] = False
-
-
-    @box_volume.setter
-    def box_volume(self, box_volume):
-        assert isinstance(box_volume, np.ndarray), "box_volume must be a numpy array"
-        self._h5.create_dataset('box_volume', data=box_volume, maxshape=(None))
-        self._exist_flags['box_volume'] = True
-        # if we are in strict append mode we cannot append after we create something
-        if self._wepy_mode == 'c-':
-            self._append_flags['box_volume'] = False
-
-
-    @time.setter
-    def time(self, time):
-        assert isinstance(time, np.ndarray), "time must be a numpy array"
-        self._h5.create_dataset('time', data=time, maxshape=(None))
-        self._exist_flags['time'] = True
-        # if we are in strict append mode we cannot append after we create something
-        if self._wepy_mode == 'c-':
-            self._append_flags['time'] = False
-
-
-    @positions.setter
-    def positions(self, positions):
-        assert isinstance(positions, np.ndarray), "positions must be a numpy array"
-
-        # get the number of atoms
-        n_atoms = positions.shape[1]
-
-        self._h5.create_dataset('positions', data=positions, maxshape=(None, n_atoms, N_DIMS))
-        self._exist_flags['positions'] = True
-        # if we are in strict append mode we cannot append after we create something
-        if self._wepy_mode == 'c-':
-            self._append_flags['positions'] = False
 
 class WepyHDF5(object):
 
@@ -1039,7 +919,7 @@ class WepyHDF5(object):
 
     @property
     def topology(self):
-        return self._h5['topology']
+        return self._h5['topology'][()]
 
     @topology.setter
     def topology(self, topology):
@@ -1269,7 +1149,6 @@ class WepyHDF5(object):
                 raise ValueError("shapes were given but not dtypes")
             else:
                 raise ValueError("dtypes were given but not shapes")
-
 
     def add_traj(self, run_idx, weights=None, **kwargs):
 
@@ -1726,9 +1605,26 @@ class WepyHDF5(object):
                 else:
                     units[unit_transfer_key] = unit_grp[unit_key][()]
 
-        traj_h5 = TrajHDF5(filepath, mode=mode, topology=self.topology[()], **traj_data, **units)
+        traj_h5 = TrajHDF5(filepath, mode=mode, topology=self.topology, **traj_data, **units)
 
         return traj_h5
+
+
+    def to_mdtraj(self, run_idx, traj_idx):
+
+        topology = _json_to_mdtraj_topology(self.topology)
+
+        traj_grp = self.traj(run_idx, traj_idx)
+        positions = traj_grp['positions'][:]
+        time = traj_grp['time'][:]
+        box_vectors = traj_grp['box_vectors'][:]
+        unitcell_lengths, unitcell_angles = _box_vectors_to_lengths_angles(box_vectors)
+
+        traj = mdj.Trajectory(positions, topology,
+                       time=time,
+                       unitcell_lengths=unitcell_lengths, unitcell_angles=unitcell_angles)
+
+        return traj
 
 
 def _extract_dict(keys, **kwargs):
@@ -1800,3 +1696,55 @@ def _make_numpy_varlength_instruction_dtype(varlength_instruct_type, varlength_w
 
     # make a full instruction dtype from this and return it
     return _make_numpy_instruction_dtype(instruct_record_dtype)
+
+def _json_to_mdtraj_topology(json_string):
+
+    topology_dict = json.loads(json_string)
+
+    topology = mdj.Topology()
+
+    for chain_dict in sorted(topology_dict['chains'], key=operator.itemgetter('index')):
+        chain = topology.add_chain()
+        for residue_dict in sorted(chain_dict['residues'], key=operator.itemgetter('index')):
+            try:
+                resSeq = residue_dict["resSeq"]
+            except KeyError:
+                resSeq = None
+                warnings.warn(
+                    'No resSeq information found in HDF file, defaulting to zero-based indices')
+            try:
+                segment_id = residue_dict["segmentID"]
+            except KeyError:
+                segment_id = ""
+            residue = topology.add_residue(residue_dict['name'], chain,
+                                           resSeq=resSeq, segment_id=segment_id)
+            for atom_dict in sorted(residue_dict['atoms'], key=operator.itemgetter('index')):
+                try:
+                    element = elem.get_by_symbol(atom_dict['element'])
+                except KeyError:
+                    element = elem.virtual
+                topology.add_atom(atom_dict['name'], element, residue)
+
+    atoms = list(topology.atoms)
+    for index1, index2 in topology_dict['bonds']:
+        topology.add_bond(atoms[index1], atoms[index2])
+
+    return topology
+
+def _box_vectors_to_lengths_angles(box_vectors):
+
+    unitcell_lengths = np.array([np.linalg.norm(frame_v) for frame_v in box_vectors])
+    unitcell_angles = []
+    for vs in box_vectors:
+
+        angles = np.array([np.degrees(
+                            np.arccos(np.dot(vs[i], vs[j])/(np.linalg.norm(vs[i]) * np.linalg.norm(vs[j]))))
+                           for i, j in [(0,1), (1,2), (2,0)]])
+
+        unitcell_angles.append(angles)
+
+    unitcell_angles = np.array(unitcell_angles)
+
+    return unitcell_lengths, unitcell_angles
+
+
