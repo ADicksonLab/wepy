@@ -14,8 +14,8 @@ class UnbindingBC(BoundaryConditions):
 
     WARP_INSTRUCT_DTYPE = np.dtype([('target', int)])
 
-    WARP_AUX_DTYPES = {'passage_time' :  np.float}
-    WARP_AUX_SHAPES = {'passage_time' : (1,)}
+    WARP_AUX_DTYPES = {'passage_time' :  np.float, 'warped_walker_weight' : np.float}
+    WARP_AUX_SHAPES = {'passage_time' : (1,), 'warped_walker_weight' : (1,)}
 
     def __init__(self, initial_state=None,
                  cutoff_distance=1.0,
@@ -68,7 +68,7 @@ class UnbindingBC(BoundaryConditions):
 
         # make a traj out of it so we can calculate distances through
         # the periodic boundary conditions
-        walker_traj = mdj.Trajectory(self._pos_to_array(walker.positions[0:self.topology.n_atoms]),
+        walker_traj = mdj.Trajectory(self._pos_to_array(walker.positions),
                                      topology=self.topology,
                                      unitcell_lengths=cell_lengths,
                                      unitcell_angles=cell_angles)
@@ -103,7 +103,8 @@ class UnbindingBC(BoundaryConditions):
         # thus there is only one record
         warp_record = (0,)
         # collect the passage time
-        warp_data = {'passage_time' : np.array([walker.time_value()])}
+        warp_data = {'passage_time' : np.array([walker.time_value()]),
+                     'warped_walker_weight' : np.array([walker.weight])}
 
         return warped_walker, warp_record, warp_data
 
