@@ -97,13 +97,19 @@ class UnbindingBC(BoundaryConditions):
 
         # we always start at the initial state
         warped_state = self.initial_state
+
         # set the initial state into a new walker object with the same
         # weight
         warped_walker = type(walker)(state=warped_state, weight=walker.weight)
+
         # thus there is only one record
         warp_record = (0,)
+
         # collect the passage time
-        warp_data = {'passage_time' : np.array([walker.time_value()])}
+        time = walker.time_value()
+
+        # make the warp data mapping
+        warp_data = {'passage_time' : np.array([time])}
 
         return warped_walker, warp_record, warp_data
 
@@ -144,7 +150,7 @@ class UnbindingBC(BoundaryConditions):
 
                 # DEBUG
                 if debug_prints:
-                    sys.stdout.write('EXIT POINT observed at {} s\n'.format(warp_data['passage_time']))
+                    sys.stdout.write('EXIT POINT observed at {} \n'.format(warp_data['passage_time']))
 
             # no warping so just return the original walker
             else:

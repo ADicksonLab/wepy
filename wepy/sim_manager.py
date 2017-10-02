@@ -87,19 +87,41 @@ class Manager(object):
             if debug_prints:
                 sys.stdout.write("End cycle {}\n".format(cycle_idx))
 
-            # apply rules of boundary conditions and warp walkers through space
-            bc_results  = self.boundary_conditions.warp_walkers(new_walkers,
-                                                        debug_prints=debug_prints)
+            # boundary conditions should be optional;
 
-            warped_walkers = bc_results[0]
-            warp_records = bc_results[1]
-            warp_aux_data = bc_results[2]
-            bc_records = bc_results[3]
-            bc_aux_data = bc_results[4]
+            # initialize the warped walkers to the new_walkers and
+            # change them later if need be
+            warped_walkers = new_walkers
+            warp_records = []
+            warp_aux_data = []
+            bc_records = []
+            bc_aux_data = []
+            if self.boundary_conditions is not None:
+
+                # apply rules of boundary conditions and warp walkers through space
+                bc_results  = self.boundary_conditions.warp_walkers(new_walkers,
+                                                            debug_prints=debug_prints)
+
+                # warping results
+                warped_walkers = bc_results[0]
+                warp_records = bc_results[1]
+                warp_aux_data = bc_results[2]
+
+                if debug_prints:
+                    if len(warp_records) > 0:
+                        print("Returned warp record in cycle {}".format(cycle_idx))
+
+                    if len(warp_aux_data) > 0:
+                        print("Returned warp aux_data in cycle {}".format(cycle_idx))
+
+
+                # boundary conditions checking results
+                bc_records = bc_results[3]
+                bc_aux_data = bc_results[4]
 
             # resample walkers
             resampled_walkers, resampling_records, resampling_aux_data =\
-                           self.resampler.resample(new_walkers,
+                           self.resampler.resample(warped_walkers,
                                                    debug_prints=debug_prints)
 
             if debug_prints:

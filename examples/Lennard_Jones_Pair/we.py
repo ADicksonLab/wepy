@@ -66,7 +66,7 @@ if __name__ == "__main__":
     with open(json_top_path, 'r') as rf:
         json_str_top = rf.read()
 
-    report_path = 'wepy_results.h5'
+    report_path = 'results.wepy.h5'
     reporter = WepyHDF5Reporter(report_path, mode='w',
                                 decisions=resampler.DECISION,
                                 instruction_dtypes=resampler.INSTRUCTION_DTYPES,
