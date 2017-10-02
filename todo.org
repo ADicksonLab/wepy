@@ -13,7 +13,7 @@ get all values for a collection of indices, with fancy slicing
 
 ** TODO [#B] allow for arbitrary number of frames to be saved in HDF5 traj part :core:
 
-
+** TODO [#B] add method for iterating over runs and trajectories in correct order :feature:
 ** TODO [#B] allow for passing in of real np.dtypes to resampling records :core:
 
 special handling for the variable length "tokens"
