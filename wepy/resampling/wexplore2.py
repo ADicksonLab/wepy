@@ -36,7 +36,7 @@ class WExplore2Resampler(Resampler):
         self.binding_site_idxs = binding_site_idxs
 
     def rmsd(self, traj, ref, idx):
-        return np.sqrt(3*np.sum(np.square(traj.xyz[:, idx, :] - ref.xyz[:, idx, :]),
+        return np.sqrt(np.sum(np.square(traj.xyz[:, idx, :] - ref.xyz[:, idx, :]),
                                 axis=(1, 2))/idx.shape[0])
 
     def maketraj(self, positions):
