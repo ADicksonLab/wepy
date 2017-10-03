@@ -573,7 +573,7 @@ class TrajHDF5(object):
         positions = self.h5['positions'][:]
         time = self.h5['time'][:]
         box_vectors = self.h5['box_vectors'][:]
-        unitcell_lengths, unitcell_angles = _box_vectors_to_lengths_angles()
+        unitcell_lengths, unitcell_angles = _box_vectors_to_lengths_angles(box_vectors)
 
         traj = mdj.Trajectory(positions, topology,
                        time=time,
@@ -1733,12 +1733,16 @@ def _json_to_mdtraj_topology(json_string):
 
 def _box_vectors_to_lengths_angles(box_vectors):
 
-    unitcell_lengths = np.array([np.linalg.norm(frame_v) for frame_v in box_vectors])
+    unitcell_lengths = []
+    for basis in box_vectors:
+        unitcell_lengths.append(np.array([np.linalg.norm(frame_v) for frame_v in basis]))
+
     unitcell_angles = []
     for vs in box_vectors:
 
         angles = np.array([np.degrees(
-                            np.arccos(np.dot(vs[i], vs[j])/(np.linalg.norm(vs[i]) * np.linalg.norm(vs[j]))))
+                            np.arccos(np.dot(vs[i], vs[j])/
+                                      (np.linalg.norm(vs[i]) * np.linalg.norm(vs[j]))))
                            for i, j in [(0,1), (1,2), (2,0)]])
 
         unitcell_angles.append(angles)
