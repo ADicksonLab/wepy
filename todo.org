@@ -5,11 +5,23 @@
 
 ** TODO [#A] sparse velocities etc. across trajectory                  :core:
 ** TODO [#A] restarting simulations, multiple runs                     :core:
-
+** TODO [#A] implement SWMR                                         :feature:
 
 ** TODO [#B] full slice across datasets in TrajHDF5                 :feature:
 
 get all values for a collection of indices, with fancy slicing
+
+Call it a cycle cross section.
+
+Should be a function for each field of a run to get the cycle data:
+- cycle_resampling(run_idx, cycle_idxs)
+- cycle_boundary_conditions(run_idx, cycle_idxs)
+- cycle_warping(run_idx, cycle_idxs)
+- cycle_trajectories(run_idx, cycle_idxs)
+- cycle_cross_section(run_idx, cycle_idxs, fields=['trajectories', 'resampling',
+                                                   'boundary_conditions', 'warping'])
+  - which calls the other functions based on what they are.
+
 
 ** TODO [#B] allow for arbitrary number of frames to be saved in HDF5 traj part :core:
 

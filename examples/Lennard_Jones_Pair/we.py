@@ -21,14 +21,8 @@ import scoop.futures
 
 if __name__ == "__main__":
 
-    report_path = sys.argv[1]
-    n_steps = int(sys.argv[2])
-    n_cycles = int(sys.argv[3])
-
-    try:
-        platform = sys.argv[4]
-    except IndexError:
-        platform = False
+    n_steps = int(sys.argv[1])
+    n_cycles = int(sys.argv[2])
 
     test_sys = LennardJonesPair()
 
@@ -65,7 +59,6 @@ if __name__ == "__main__":
     with open(json_top_path, 'r') as rf:
         json_str_top = rf.read()
 
-
     # make a dictionary of units for adding to the HDF5
     units = {}
     for key, value in dict(UNITS).items():
@@ -78,7 +71,7 @@ if __name__ == "__main__":
         if unit_name:
             units[key] = unit_name
 
-
+    report_path = 'results.wepy.h5'
     reporter = WepyHDF5Reporter(report_path, mode='w',
                                 decisions=resampler.DECISION,
                                 instruction_dtypes=resampler.INSTRUCTION_DTYPES,
