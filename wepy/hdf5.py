@@ -77,6 +77,13 @@ class TrajHDF5(object):
         self._h5py_mode = h5py_mode
 
 
+        # set the number of dimensions to use
+        self.n_dims = N_DIMS
+        if 'n_dims' in kwargs:
+            assert isinstance(kwargs['n_dims'], int), "n_dims must be an integer"
+            assert kwargs['n_dims'] > 0, "n_dims must be a positive integer"
+            self.n_dims = kwargs['n_dims']
+
         # all the keys for the datasets and groups
         self._keys = ['topology', 'positions', 'velocities',
                       'box_vectors',
@@ -395,7 +402,7 @@ class TrajHDF5(object):
         # get the number of atoms
         n_atoms = positions.shape[1]
 
-        self._h5.create_dataset('positions', data=positions, maxshape=(None, n_atoms, N_DIMS))
+        self._h5.create_dataset('positions', data=positions, maxshape=(None, n_atoms, self.n_dims))
         self._exist_flags['positions'] = True
         # if we are in strict append mode we cannot append after we create something
         if self._wepy_mode == 'c-':
@@ -477,7 +484,7 @@ class TrajHDF5(object):
     def box_vectors(self, box_vectors):
         assert isinstance(box_vectors, np.ndarray), "box_vectors must be a numpy array"
         self._h5.create_dataset('box_vectors', data=box_vectors,
-                                maxshape=(None, N_DIMS, N_DIMS))
+                                maxshape=(None, self.n_dims, self.n_dims))
         self._exist_flags['box_vectors'] = True
         # if we are in strict append mode we cannot append after we create something
         if self._wepy_mode == 'c-':
@@ -495,7 +502,7 @@ class TrajHDF5(object):
         assert isinstance(velocities, np.ndarray), "velocities must be a numpy array"
 
         self._h5.create_dataset('velocities', data=velocities,
-                                maxshape=(None, self.n_atoms, N_DIMS))
+                                maxshape=(None, self.n_atoms, self.n_dims))
         self._exist_flags['velocities'] = True
         # if we are in strict append mode we cannot append after we create something
         if self._wepy_mode == 'c-':
@@ -519,7 +526,7 @@ class TrajHDF5(object):
         forces_grp = self._h5['forces']
         for key, values in forces_dict.items():
             forces_grp.create_dataset(key, data=values,
-                                    maxshape=(None, self.n_atoms, N_DIMS))
+                                    maxshape=(None, self.n_atoms, self.n_dims))
             self._compound_exist_flags['forces'][key] = True
             # if we are in strict append mode we cannot append after we create something
             if self._wepy_mode == 'c-':
@@ -1230,7 +1237,7 @@ class WepyHDF5(object):
 
         # positions
         traj_grp.create_dataset('positions', data=traj_data.pop('positions'),
-                                maxshape=(None, n_atoms, N_DIMS))
+                                maxshape=(None, n_atoms, self.n_dims))
 
         # attempt to get values from the traj_data then add it as a dataset
         for key, value in traj_data.items():
