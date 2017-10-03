@@ -409,11 +409,9 @@ class TrajHDF5(object):
         return self.positions.shape[1]
 
 
-    def append_traj(self, **kwargs):
+    def extend_traj(self, **kwargs):
         """ append to the trajectory as a whole """
 
-        # assert we meet minimum compliance
-        # assert 'positions' in kwargs
 
         if self._wepy_mode == 'c-':
             assert self._append_flags[dataset_key], "dataset is not available for appending to"
@@ -425,6 +423,13 @@ class TrajHDF5(object):
         for key in kwargs.keys():
             if not (key in TRAJ_DATA_FIELDS) and not (key in TRAJ_UNIT_FIELDS):
                 warn("kwarg {} not recognized and was ignored".format(key), RuntimeWarning)
+
+        # assess compliance types
+        compliance_tags = _compliance(traj_data)
+
+        # assert we meet minimum compliance
+        assert COORDS in compliance_tags, "Appended data must minimally be COORDS compliant"
+
 
         # number of frames to add
         n_new_frames = traj_data['positions'].shape[0]
@@ -452,6 +457,8 @@ class TrajHDF5(object):
 
         # add the new data
         dset[-n_new_frames:, ...] = weights
+
+        # add the rest of the traj_data
 
         # get the dataset/group
         for key, value in traj_data.items():
@@ -1261,7 +1268,7 @@ class WepyHDF5(object):
                                     maxshape=(None, *values.shape[1:]))
 
 
-    def append_traj(self, run_idx, traj_idx, weights=None, **kwargs):
+    def extend_traj(self, run_idx, traj_idx, weights=None, **kwargs):
 
         if self._wepy_mode == 'c-':
             assert self._append_flags[dataset_key], "dataset is not available for appending to"
@@ -1767,3 +1774,24 @@ def _box_vectors_to_lengths_angles(box_vectors):
     return unitcell_lengths, unitcell_angles
 
 
+def _compliance(traj_data):
+    """Given a dictionary of trajectory data it returns the
+       COMPLIANCE_TAGS that the data satisfies. """
+
+    compliance_dict = dict(COMPLIANCE_REQUIREMENTS)
+
+    fields = set()
+    for field, value in traj_data.keys():
+        # check to make sure the value actually has something in it
+        if (value is not None) and len(value > 0):
+            fields.update(field)
+
+    compliances = []
+    for compliance_tag, compliance_fields in compliance_dict.items():
+        compliance_fields = set(compliance_fields)
+        # if the fields are a superset of the compliance fields for
+        # this compliance type then it satisfies it
+        if fields.issuperset(compliance_fields):
+            compliances.append(compliance_tag)
+
+    return compliances
