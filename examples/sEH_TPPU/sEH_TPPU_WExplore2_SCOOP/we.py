@@ -15,6 +15,7 @@ import mdtraj as mdj
 from wepy.sim_manager import Manager
 from wepy.resampling.wexplore2 import WExplore2Resampler
 from wepy.openmm import OpenMMRunner, OpenMMWalker
+from wepy.openmm import UNITS
 from wepy.boundary_conditions.unbinding import UnbindingBC
 from wepy.reporter.hdf5 import WepyHDF5Reporter
 from wepy.hdf5 import TrajHDF5
@@ -108,6 +109,19 @@ if __name__ == "__main__":
                       ligand_idxs=lig_idxs,
                       binding_site_idxs=protein_idxs)
 
+
+    # make a dictionary of units for adding to the HDF5
+    units = {}
+    for key, value in dict(UNITS).items():
+        try:
+            unit_name = value.get_name()
+        except AttributeError:
+            print("not a unit")
+            unit_name = False
+
+        if unit_name:
+            units[key] = unit_name
+
     # instantiate a reporter for HDF5
     report_path = 'wepy_results.h5'
     reporter = WepyHDF5Reporter(report_path, mode='w',
@@ -118,7 +132,8 @@ if __name__ == "__main__":
                                 warp_dtype=ubc.WARP_INSTRUCT_DTYPE,
                                 warp_aux_dtypes=ubc.WARP_AUX_DTYPES,
                                 warp_aux_shapes=ubc.WARP_AUX_SHAPES,
-                                topology=sEH_TPPU_system_top_json)
+                                topology=sEH_TPPU_system_top_json,
+                                units=units)
 
     # Instantiate a simulation manager
     sim_manager = Manager(init_walkers,

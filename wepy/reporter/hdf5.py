@@ -33,7 +33,8 @@ class WepyHDF5Reporter(FileReporter):
     def init(self):
 
         # open and initialize the HDF5 file
-        self.wepy_h5 = WepyHDF5(self.file_path, topology=self._tmp_topology, mode=self.mode)
+        self.wepy_h5 = WepyHDF5(self.file_path, mode=self.mode,
+                                topology=self._tmp_topology,  **self.units)
         # save space and delete the temp topology from the attributes
         del self._tmp_topology
 

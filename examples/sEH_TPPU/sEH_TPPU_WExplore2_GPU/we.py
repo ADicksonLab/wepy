@@ -13,6 +13,7 @@ import mdtraj as mdj
 from wepy.sim_manager import Manager
 from wepy.resampling.wexplore2 import WExplore2Resampler
 from wepy.openmm import OpenMMRunner, OpenMMWalker
+from wepy.openmm import UNITS
 from wepy.boundary_conditions.unbinding import UnbindingBC
 from wepy.reporter.hdf5 import WepyHDF5Reporter
 from wepy.hdf5 import TrajHDF5
@@ -41,13 +42,16 @@ if __name__ == "__main__":
     # resampler and boundary conditions
     pdb = pdb.remove_solvent()
     lig_idxs = pdb.topology.select('resname "2RV"')
+    print("Ligand: {}".format(','.join([str(idx) for idx in lig_idxs])))
     atom_idxs = [atom.index for atom in pdb.topology.atoms]
     protein_idxs = np.delete(atom_idxs, lig_idxs)
+
 
     # selects protien atoms which have less than 2.5 A from ligand
     # atoms in the crystal structure
     binding_selection_idxs = mdj.compute_neighbors(pdb, 0.8, lig_idxs)
     binding_selection_idxs = np.delete(binding_selection_idxs, lig_idxs)
+    print("Protein: {}".format(','.join([str(idx) for idx in binding_selection_idxs])))
 
     # create a system for use in OpenMM
 
@@ -116,6 +120,19 @@ if __name__ == "__main__":
                       ligand_idxs=lig_idxs,
                       binding_site_idxs=protein_idxs)
 
+
+    # make a dictionary of units for adding to the HDF5
+    units = {}
+    for key, value in dict(UNITS).items():
+        try:
+            unit_name = value.get_name()
+        except AttributeError:
+            print("not a unit")
+            unit_name = False
+
+        if unit_name:
+            units[key] = unit_name
+
     # instantiate a reporter for HDF5
     report_path = 'wepy_results.h5'
     reporter = WepyHDF5Reporter(report_path, mode='w',
@@ -126,7 +143,8 @@ if __name__ == "__main__":
                                 warp_dtype=ubc.WARP_INSTRUCT_DTYPE,
                                 warp_aux_dtypes=ubc.WARP_AUX_DTYPES,
                                 warp_aux_shapes=ubc.WARP_AUX_SHAPES,
-                                topology=sEH_TPPU_system_top_json)
+                                topology=sEH_TPPU_system_top_json,
+                                units=units)
 
 
     # create a work mapper for NVIDIA GPUs for a GPU cluster
