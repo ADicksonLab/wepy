@@ -47,7 +47,7 @@ if __name__ == "__main__":
 
     # selects protien atoms which have less than 2.5 A from ligand
     # atoms in the crystal structure
-    # selects all atoms that have less than 2.5 A from ligand
+    
     neighbors_idxs = mdj.compute_neighbors(pdb, 0.8, lig_idxs)
     # selects protein atoms from neighbors list
     binding_selection_idxs = np.intersect1d(neighbors_idxs, protein_idxs)

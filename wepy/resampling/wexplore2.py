@@ -32,7 +32,6 @@ class WExplore2Resampler(Resampler):
         self.distance_function = distance_function
         if seed is not None:
             rand.seed(seed)
-
     def _calcspread(self, n_walkers, walkerwt, amp, distance_matrix):
         spread = 0
         wsum = np.zeros(n_walkers)
