@@ -8,6 +8,8 @@ import h5py
 
 # Constants
 N_DIMS = 3
+
+# lists of keys etc.
 TRAJ_DATA_FIELDS = ('positions', 'time', 'box_vectors', 'velocities',
                     'forces', 'kinetic_energy', 'potential_energy',
                     'box_volume', 'parameters', 'parameter_derivatives', 'observables')
@@ -646,6 +648,12 @@ class WepyHDF5(object):
         # the lower level h5py mode
         self._h5py_mode = h5py_mode
 
+        # set the number of dimensions to use
+        self.n_dims = N_DIMS
+        if 'n_dims' in kwargs:
+            assert isinstance(kwargs['n_dims'], int), "n_dims must be an integer"
+            assert kwargs['n_dims'] > 0, "n_dims must be a positive integer"
+            self.n_dims = kwargs['n_dims']
 
         ### WepyHDF5 specific variables
 
