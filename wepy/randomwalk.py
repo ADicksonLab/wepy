@@ -106,37 +106,37 @@ class State(object):
         else:
             return 0
     
-class RW_Results(object):
-    def __init_(self, filehandler , runs_num ,cycles_num, dimension):
-        self.filehandler = filehandler
-        
-    def _getposition(self,):
-    def _getweight(self,):
+# class RW_Results(object):
+#     def __init_(self, filehandler , runs_num ,cycles_num, dimension):
+#         self.filehandler = filehandler
+    
+#     # def _getposition(self,):
+#     # def _getweight(self,):
 
         
-    # claculating target probability of position x 
-    def Pt(self, x):
-        return (2/3) * np.power(1/3 ,x)
+#     # claculating target probability of position x 
+#     def Pt(self, x):
+#         return (2/3) * np.power(1/3 ,x)
 
 
-    #calculating predicted probability of position x
-    def P(self, x):
-        Sum = 0
-        for cycle_idx in range(cycles_num):
-            for walker_idx in range(walkers_num):
-                for d in range(dimension):
-                    Sum = self.weight[walker_idx] * kronecker_delta(x -
-                                                                    self.position(walker_idx, d))
-        return float(Sum / (cycles_num * walkers_num * dimension))
+#     #calculating predicted probability of position x
+#     def P(self, x):
+#         Sum = 0
+#         for cycle_idx in range(cycles_num):
+#             for walker_idx in range(walkers_num):
+#                 for d in range(dimension):
+#                     Sum = self.weight[walker_idx] * kronecker_delta(x -
+#                                                                     self.position(walker_idx, d))
+#         return float(Sum / (cycles_num * walkers_num * dimension))
 
     
-    # Measure accuracy 
-    def accuracy(self, x):
+#     # Measure accuracy 
+#     def accuracy(self, x):
 
-        if np.log(self.P(x)) > 2* np.log(self.Pt(x)):
-            return 1+( np.log(self.Pt(x)) - np.log(self.P(x)))/np.log(self.Pt(x))
-        else :
-            return 0
+#         if np.log(self.P(x)) > 2* np.log(self.Pt(x)):
+#             return 1+( np.log(self.Pt(x)) - np.log(self.P(x)))/np.log(self.Pt(x))
+#         else :
+#             return 0
 
         
                        
