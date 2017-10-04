@@ -59,7 +59,7 @@ if __name__ == "__main__":
     psf = omma.CharmmPsfFile('../sEH_TPPU_system.psf')
 
     # set the box size lengths and angles
-    psf.setBox(82.435, 82.435, 82.435, 90, 90, 90)
+    psf.setBox(8.2435*unit.nanometer, 8.2435*unit.nanometer, 8.2435*unit.nanometer, 90.0*unit.degree, 90.0*unit.degree, 90.0*unit.degree)
 
     # to use charmm forcefields get your parameters
     params = omma.CharmmParameterSet('../all36_cgenff.rtf',
