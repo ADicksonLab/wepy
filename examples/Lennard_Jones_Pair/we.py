@@ -13,6 +13,7 @@ import mdtraj as mdj
 from wepy.sim_manager import Manager
 from wepy.resampling.wexplore2 import WExplore2Resampler
 from wepy.openmm import OpenMMRunner, OpenMMWalker
+from wepy.openmm import UNITS, GET_STATE_KWARG_DEFAULTS
 from wepy.boundary_conditions.unbinding import UnbindingBC
 from wepy.reporter.hdf5 import WepyHDF5Reporter
 
@@ -23,22 +24,14 @@ if __name__ == "__main__":
     n_steps = int(sys.argv[1])
     n_cycles = int(sys.argv[2])
 
-    try:
-        platform = sys.argv[3]
-    except IndexError:
-        platform = False
-
     test_sys = LennardJonesPair()
 
     integrator = omm.VerletIntegrator(2*unit.femtoseconds)
     context = omm.Context(test_sys.system, copy(integrator))
     context.setPositions(test_sys.positions)
-    init_state = context.getState(getPositions=True,
-                                  getVelocities=True,
-                                  getParameters=True,
-                                  getForces=True,
-                                  getEnergy=True,
-                                  getParameterDerivatives=True)
+
+    get_state_kwargs = dict(GET_STATE_KWARG_DEFAULTS)
+    init_state = context.getState(**get_state_kwargs)
 
     thermostat = omm.AndersenThermostat(300.0 * unit.kelvin, 1/unit.picosecond)
     barostat = omm.MonteCarloBarostat(1.0*unit.atmosphere, 300.0*unit.kelvin, 50)
@@ -66,6 +59,18 @@ if __name__ == "__main__":
     with open(json_top_path, 'r') as rf:
         json_str_top = rf.read()
 
+    # make a dictionary of units for adding to the HDF5
+    units = {}
+    for key, value in dict(UNITS).items():
+        try:
+            unit_name = value.get_name()
+        except AttributeError:
+            print("not a unit")
+            unit_name = False
+
+        if unit_name:
+            units[key] = unit_name
+
     report_path = 'results.wepy.h5'
     reporter = WepyHDF5Reporter(report_path, mode='w',
                                 decisions=resampler.DECISION,
@@ -76,7 +81,8 @@ if __name__ == "__main__":
                                 bc_dtype=None,
                                 bc_aux_dtypes=None,
                                 bc_aux_shapes=None,
-                                topology=json_str_top)
+                                topology=json_str_top,
+                                units=units)
 
     sim_manager = Manager(init_walkers,
                           runner=runner,
@@ -90,4 +96,5 @@ if __name__ == "__main__":
 
     steps = [n_steps for i in range(n_cycles)]
     print("Running Simulation")
+
     sim_manager.run_simulation(n_cycles, steps, debug_prints=True)
