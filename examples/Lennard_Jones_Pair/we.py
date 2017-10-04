@@ -13,7 +13,7 @@ import mdtraj as mdj
 from wepy.sim_manager import Manager
 from wepy.resampling.wexplore2 import WExplore2Resampler
 from wepy.openmm import OpenMMRunner, OpenMMWalker
-from wepy.openmm import UNITS, GET_STATE_KWARG_DEFAULTS
+from wepy.openmm import UNIT_NAMES, GET_STATE_KWARG_DEFAULTS
 from wepy.boundary_conditions.unbinding import UnbindingBC
 from wepy.reporter.hdf5 import WepyHDF5Reporter
 
@@ -60,16 +60,7 @@ if __name__ == "__main__":
         json_str_top = rf.read()
 
     # make a dictionary of units for adding to the HDF5
-    units = {}
-    for key, value in dict(UNITS).items():
-        try:
-            unit_name = value.get_name()
-        except AttributeError:
-            print("not a unit")
-            unit_name = False
-
-        if unit_name:
-            units[key] = unit_name
+    units = dict(UNIT_NAMES)
 
     report_path = 'results.wepy.h5'
     reporter = WepyHDF5Reporter(report_path, mode='w',

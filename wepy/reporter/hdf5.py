@@ -28,7 +28,12 @@ class WepyHDF5Reporter(FileReporter):
         self.warp_aux_shapes = warp_aux_shapes
         self.bc_aux_dtypes = bc_aux_dtypes
         self.bc_aux_shapes = bc_aux_shapes
-        self.units = units
+
+        # if units were given add them otherwise set as an empty dictionary
+        if units is None:
+            self.units = {}
+        else:
+            self.units = units
 
     def init(self):
 

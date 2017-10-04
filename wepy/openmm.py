@@ -45,8 +45,16 @@ UNITS = (('positions_unit', unit.nanometer),
          ('box_volume_unit', unit.nanometer),
          ('kinetic_energy_unit', unit.kilojoule / unit.mole),
          ('potential_energy_unit', unit.kilojoule / unit.mole),
-         ('parameters_units', {}),
-         ('parameter_derivatives_units', {}),
+        )
+
+UNIT_NAMES = (('positions_unit', unit.nanometer.get_name()),
+         ('time_unit', unit.picosecond.get_name()),
+         ('box_vectors_unit', unit.nanometer.get_name()),
+         ('velocities_unit', (unit.nanometer/unit.picosecond).get_name()),
+         ('forces_unit', (unit.kilojoule / (unit.nanometer * unit.mole)).get_name()),
+         ('box_volume_unit', unit.nanometer.get_name()),
+         ('kinetic_energy_unit', (unit.kilojoule / unit.mole).get_name()),
+         ('potential_energy_unit', (unit.kilojoule / unit.mole).get_name()),
         )
 
 
