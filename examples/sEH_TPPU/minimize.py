@@ -51,7 +51,7 @@ if __name__ == "__main__":
                                      'toppar_water_ions.str')
 
     # set the box size lengths and angles
-    psf.setBox(82.435, 82.435, 82.435, 90, 90, 90)
+    psf.setBox(8.2435*unit.nanometer, 8.2435*unit.nanometer, 8.2435*unit.nanometer, 90*unit.degree, 90*unit.degree, 90*unit.degree)
 
     # create a system using the topology method giving it a topology and
     # the method for calculation
@@ -70,7 +70,8 @@ if __name__ == "__main__":
     integrator = omm.LangevinIntegrator(300*unit.kelvin,
                                             1/unit.picosecond,
                                             0.002*unit.picoseconds)
-    platform = omm.Platform.getPlatformByName('OpenCL')
+    platform = omm.Platform.getPlatformByName('CUDA')
+#    platform = omm.Platform.getPlatformByName('Reference')
 
     # instantiate a simulation object
     simulation = omma.Simulation(psf.topology, system, integrator, platform)
@@ -78,6 +79,7 @@ if __name__ == "__main__":
     simulation.context.setPositions(pdb.openmm_positions(frame=0))
     # minimize the energy
     simulation.minimizeEnergy()
+
     # run the simulation for a number of initial time steps
     simulation.step(1000)
     print("done minimizing\n")
