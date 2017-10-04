@@ -63,3 +63,11 @@ This needs to be developed.
 ** TODO [#B] add records for the boundary conditions                   :core:
 This needs to be implemented in the WepyHDF5 and in the actual
 boundary conditions class.
+
+** TODO [#C] save weights on export_traj to TrajHDF5                :feature:
+
+Save them in the observables.
+
+Do we save them automatically?
+as an option?
+- [X] Or must be done manually?

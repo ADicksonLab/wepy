@@ -171,7 +171,7 @@ class TrajHDF5(object):
             # the old file and start again but rather write over top of
             # values if requested
             elif self._wepy_mode in ['r+']:
-                self._read_write_init(topology)
+                self._read_write_init()
 
             # add mode: read/write create if doesn't exist
             elif self._wepy_mode in ['a']:
@@ -180,7 +180,7 @@ class TrajHDF5(object):
             # append mode
             elif self._wepy_mode in ['c', 'c-']:
                 # use the hidden init function for appending data
-                self._append_init(topology)
+                self._append_init()
 
             # read only mode
             elif self._wepy_mode == 'r':
@@ -426,39 +426,13 @@ class TrajHDF5(object):
 
         # assess compliance types
         compliance_tags = _compliance(traj_data)
-
         # assert we meet minimum compliance
-        assert COORDS in compliance_tags, "Appended data must minimally be COORDS compliant"
-
+        assert 'COORDS' in compliance_tags, "Appended data must minimally be COORDS compliant"
 
         # number of frames to add
         n_new_frames = traj_data['positions'].shape[0]
 
-        # if weights are None then we assume they are 1.0
-        if weights is None:
-            weights = np.ones(n_new_frames, dtype=float)
-        else:
-            assert isinstance(weights, np.ndarray), "weights must be a numpy.ndarray"
-            assert weights.shape[0] == n_new_frames,\
-                "weights and the number of frames must be the same length"
-
-        # get the trajectory group
-        traj_grp = self._h5['runs/{}/trajectories/{}'.format(run_idx, traj_idx)]
-
-        # add the weights
-        dset = traj_grp['weights']
-
-        # append to the dataset on the first dimension, keeping the
-        # others the same, if they exist
-        if len(dset.shape) > 1:
-            dset.resize( (dset.shape[0] + n_new_frames, *dset.shape[1:]) )
-        else:
-            dset.resize( (dset.shape[0] + n_new_frames, ) )
-
-        # add the new data
-        dset[-n_new_frames:, ...] = weights
-
-        # add the rest of the traj_data
+        # add trajectory data for each field
 
         # get the dataset/group
         for key, value in traj_data.items():
@@ -468,7 +442,7 @@ class TrajHDF5(object):
                 continue
 
             # figure out if it is a dataset or a group (compound data like observables)
-            thing = self._h5['runs/{}/trajectories/{}/{}'.format(run_idx, traj_idx, key)]
+            thing = self._h5[key]
             if isinstance(thing, h5py.Group):
 
                 # it is a group
@@ -1781,10 +1755,10 @@ def _compliance(traj_data):
     compliance_dict = dict(COMPLIANCE_REQUIREMENTS)
 
     fields = set()
-    for field, value in traj_data.keys():
+    for field, value in traj_data.items():
         # check to make sure the value actually has something in it
         if (value is not None) and len(value > 0):
-            fields.update(field)
+            fields.add(field)
 
     compliances = []
     for compliance_tag, compliance_fields in compliance_dict.items():
