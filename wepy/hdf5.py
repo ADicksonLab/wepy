@@ -1752,6 +1752,8 @@ def _box_vectors_to_lengths_angles(box_vectors):
     for basis in box_vectors:
         unitcell_lengths.append(np.array([np.linalg.norm(frame_v) for frame_v in basis]))
 
+    unitcell_lengths = np.array(unitcell_lengths)
+
     unitcell_angles = []
     for vs in box_vectors:
 
