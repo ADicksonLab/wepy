@@ -580,7 +580,8 @@ class TrajHDF5(object):
         topology = _json_to_mdtraj_topology(self.topology)
 
         positions = self.h5['positions'][:]
-        time = self.h5['time'][:]
+        # reshape for putting into mdtraj
+        time = self.h5['time'][:, 0]
         box_vectors = self.h5['box_vectors'][:]
         unitcell_lengths, unitcell_angles = _box_vectors_to_lengths_angles(box_vectors)
 
@@ -953,11 +954,20 @@ class WepyHDF5(object):
         except json.JSONDecodeError:
             raise ValueError("topology must be a valid JSON string")
 
-        self._h5.create_dataset('topology', data=topology)
-        self._exist_flags['topology'] = True
-        # if we are in strict append mode we cannot append after we create something
-        if self._wepy_mode == 'c-':
-            self._append_flags['topology'] = False
+        # check to see if this is the initial setting of it
+        if not self._exist_flags['topology']:
+            self._h5.create_dataset('topology', data=topology)
+            self._exist_flags['topology'] = True
+            # if we are in strict append mode we cannot append after we create something
+            if self._wepy_mode == 'c-':
+                self._append_flags['topology'] = False
+
+        # if not replace the old one if we are in a non-concatenate write mode
+        elif self._wepy_mode in ['w', 'r+', 'x', 'w-', 'a']:
+            self._h5['topology'][()] = topology
+        else:
+            raise IOError("In mode {} and cannot modify topology".format(self._wepy_mode))
+
 
     def new_run(self, **kwargs):
         # create a new group named the next integer in the counter
@@ -1689,14 +1699,22 @@ class WepyHDF5(object):
         return traj_h5
 
 
-    def to_mdtraj(self, run_idx, traj_idx):
+    def to_mdtraj(self, run_idx, traj_idx, frames=None):
 
         topology = _json_to_mdtraj_topology(self.topology)
 
         traj_grp = self.traj(run_idx, traj_idx)
-        positions = traj_grp['positions'][:]
-        time = traj_grp['time'][:]
-        box_vectors = traj_grp['box_vectors'][:]
+
+        # get the data for all or for the frames specified
+        if frames is None:
+            positions = traj_grp['positions'][:]
+            time = traj_grp['time'][:, 0]
+            box_vectors = traj_grp['box_vectors'][:]
+        else:
+            positions = traj_grp['positions'][frames]
+            time = traj_grp['time'][frames][:, 0]
+            box_vectors = traj_grp['box_vectors'][frames]
+
         unitcell_lengths, unitcell_angles = _box_vectors_to_lengths_angles(box_vectors)
 
         traj = mdj.Trajectory(positions, topology,

@@ -89,10 +89,11 @@ class WepyHDF5Reporter(FileReporter):
 
                 # collect data from walker
                 walker_data = {}
-                for key, value in walker.dict().items():
+                # iterate through the feature vectors
+                for key, vector in walker.dict().items():
                     # if the result is None exclude it from the data
-                    if value is not None:
-                        walker_data[key] = np.array([value])
+                    if vector is not None:
+                        walker_data[key] = np.array([vector])
 
                 # check to see if the walker has a trajectory in the run
                 if walker_idx in wepy_h5.run_traj_idxs(self.wepy_run_idx):
