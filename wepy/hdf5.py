@@ -910,10 +910,6 @@ class WepyHDF5(object):
         return self._h5['runs']
 
     @property
-    def run_idxs(self):
-        return [int(key) for key in self._h5['runs']]
-
-    @property
     def runs(self):
         return self.h5['runs'].values()
 
@@ -1592,13 +1588,19 @@ class WepyHDF5(object):
                     self.bc_aux_shapes[key] = aux_data.shape
                     self._bc_aux_init.append(key)
 
-    def iter_trajs(self):
-        """ Generator for all of the trajectories in the dataset across all runs."""
-        for run in self.runs:
-            for traj in run['trajectories'].values():
-                yield traj
+    def iter_trajs(self, idxs=False):
+        """Generator for all of the trajectories in the dataset across all
+        runs. If idxs=True will return a tuple of (run_idx, traj_idx). """
+        for run_idx in self.run_idxs:
+            run = self.run(run_idx)
+            for traj_idx in range(len(run['trajectories'])):
+                traj = self.traj(run_idx, traj_idx)
+                if idxs:
+                    yield (run_idx, traj_idx), traj
+                else:
+                    yield traj
 
-    def iter_trajs_field(self, field):
+    def iter_trajs_field(self, field, idxs=False):
         """Generator for all of the specified non-compound fields
         h5py.Datasets for all trajectories in the dataset across all
         runs. For fields within parameters, parameter_derivatives, and
@@ -1606,13 +1608,22 @@ class WepyHDF5(object):
 
         """
 
-        for traj in self.iter_trajs():
+        for idx_tup, traj in self.iter_trajs(idxs=True):
+            run_idx, traj_idx = idx_tup
+
             try:
-                yield traj[field]
+                dset = traj[field]
             except KeyError:
                 warn("field \"{}\" not found in \"{}\"".format(field, traj.name), RuntimeWarning)
+                dset = None
 
-    def iter_trajs_compound_field(self, grp, field):
+            if idxs:
+                yield (run_idx, traj_idx), dset
+            else:
+                yield dset
+
+
+    def iter_trajs_compound_field(self, grp, field, idxs=False):
         """Generator for all of the specified non-compound fields
         h5py.Datasets for all trajectories in the dataset across all
         runs. For fields within parameters, parameter_derivatives, and
@@ -1620,16 +1631,18 @@ class WepyHDF5(object):
 
         """
 
-        for traj in self.iter_trajs():
+        for idx_tup, traj in self.iter_trajs(idxs=True):
+            run_idx, traj_idx = idx_tup
             try:
-                yield traj["{}/{}".format(grp, field)]
+                dset = traj["{}/{}".format(grp, field)]
             except KeyError:
                 warn("field \"{}\" not found in \"{}\"".format(field, traj.name))
+                dset = None
 
-    @classmethod
-    def _get_run_from_path(hdf5_path):
-        # split the string into
-
+            if idxs:
+                yield (run_idx, traj_idx), dset
+            else:
+                yield dset
 
     def export_traj(self, run_idx, traj_idx, filepath, mode='x'):
         """Write a single trajectory from the WepyHDF5 container to a TrajHDF5
