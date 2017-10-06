@@ -650,7 +650,8 @@ class WepyHDF5(object):
             if not (key in TRAJ_DATA_FIELDS) and not (key in TRAJ_UNIT_FIELDS):
                 warn("kwarg {} not recognized and was ignored".format(key), RuntimeWarning)
 
-        # counters for run and traj indexing
+        # counter for the new runs, specific constructors will update
+        # this if needed
         self._run_idx_counter = 0
         # count the number of trajectories each run has
         self._run_traj_idx_counter = {}
@@ -820,6 +821,10 @@ class WepyHDF5(object):
 
         self._read_init()
 
+        # set the counter for runs based on the groups already present
+        for run_grp in enumerate(self.h5['runs']):
+            self._run_idx_counter += 1
+
     def _add_init(self, topology, units):
         """Create the dataset if it doesn't exist and put it in r+ mode,
         otherwise, just open in r+ mode."""
@@ -901,8 +906,16 @@ class WepyHDF5(object):
         self._h5.attrs[key] = value
 
     @property
-    def runs(self):
+    def run_keys(self):
         return self._h5['runs']
+
+    @property
+    def run_idxs(self):
+        return [int(key) for key in self._h5['runs']]
+
+    @property
+    def runs(self):
+        return self.h5['runs'].values()
 
     @property
     def n_runs(self):
@@ -1579,6 +1592,44 @@ class WepyHDF5(object):
                     self.bc_aux_shapes[key] = aux_data.shape
                     self._bc_aux_init.append(key)
 
+    def iter_trajs(self):
+        """ Generator for all of the trajectories in the dataset across all runs."""
+        for run in self.runs:
+            for traj in run['trajectories'].values():
+                yield traj
+
+    def iter_trajs_field(self, field):
+        """Generator for all of the specified non-compound fields
+        h5py.Datasets for all trajectories in the dataset across all
+        runs. For fields within parameters, parameter_derivatives, and
+        observables use `iter_compound_fields`.
+
+        """
+
+        for traj in self.iter_trajs():
+            try:
+                yield traj[field]
+            except KeyError:
+                warn("field \"{}\" not found in \"{}\"".format(field, traj.name), RuntimeWarning)
+
+    def iter_trajs_compound_field(self, grp, field):
+        """Generator for all of the specified non-compound fields
+        h5py.Datasets for all trajectories in the dataset across all
+        runs. For fields within parameters, parameter_derivatives, and
+        observables use `iter_compound_fields`.
+
+        """
+
+        for traj in self.iter_trajs():
+            try:
+                yield traj["{}/{}".format(grp, field)]
+            except KeyError:
+                warn("field \"{}\" not found in \"{}\"".format(field, traj.name))
+
+    @classmethod
+    def _get_run_from_path(hdf5_path):
+        # split the string into
+
 
     def export_traj(self, run_idx, traj_idx, filepath, mode='x'):
         """Write a single trajectory from the WepyHDF5 container to a TrajHDF5
@@ -1767,5 +1818,3 @@ def _box_vectors_to_lengths_angles(box_vectors):
     unitcell_angles = np.array(unitcell_angles)
 
     return unitcell_lengths, unitcell_angles
-
-

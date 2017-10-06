@@ -40,8 +40,9 @@ class WepyHDF5Reporter(FileReporter):
         # open and initialize the HDF5 file
         self.wepy_h5 = WepyHDF5(self.file_path, mode=self.mode,
                                 topology=self._tmp_topology,  **self.units)
+
         # save space and delete the temp topology from the attributes
-        del self._tmp_topology
+        # del self._tmp_topology
 
         # initialize a new run in a context
         with self.wepy_h5 as wepy_h5:
@@ -64,6 +65,12 @@ class WepyHDF5Reporter(FileReporter):
             wepy_h5.init_run_bc(self.wepy_run_idx,
                                   bc_aux_dtypes=self.bc_aux_dtypes,
                                   bc_aux_shapes=self.bc_aux_shapes)
+
+        # if this was opened in a truncation mode, we don't want to
+        # overwrite old runs with future calls to init(). so we
+        # change the mode to read/write 'r+'
+        if self.mode == 'w':
+            self.mode = 'r+'
 
 
 

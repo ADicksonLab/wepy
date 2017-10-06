@@ -21,8 +21,9 @@ import scoop.futures
 
 if __name__ == "__main__":
 
-    n_steps = int(sys.argv[1])
-    n_cycles = int(sys.argv[2])
+    n_runs = int(sys.argv[1])
+    n_steps = int(sys.argv[2])
+    n_cycles = int(sys.argv[3])
 
     test_sys = LennardJonesPair()
 
@@ -63,6 +64,7 @@ if __name__ == "__main__":
     units = dict(UNIT_NAMES)
 
     report_path = 'results.wepy.h5'
+    # open it in truncate mode first, then switch after first run
     reporter = WepyHDF5Reporter(report_path, mode='w',
                                 decisions=resampler.DECISION,
                                 instruction_dtypes=resampler.INSTRUCTION_DTYPES,
@@ -86,6 +88,10 @@ if __name__ == "__main__":
     print("Number of cycles: {}".format(n_cycles))
 
     steps = [n_steps for i in range(n_cycles)]
-    print("Running Simulation")
+    print("Running Simulations")
 
-    sim_manager.run_simulation(n_cycles, steps, debug_prints=True)
+    for run_idx in range(n_runs):
+        print("Starting run: {}".format(run_idx))
+        sim_manager.run_simulation(n_cycles, steps, debug_prints=True)
+        print("Finished run: {}".format(run_idx))
+
