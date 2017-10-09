@@ -29,8 +29,8 @@ if __name__ == "__main__":
 
     # run this example with -m scoop , without scoop your program does not work    
     #initialize RandomWalkers
-    num_walkers = 8
-    dimension = 2
+    num_walkers = 48
+    dimension = 8
 
     # set up initial state for walkers
     positions = np.zeros((dimension))
@@ -63,12 +63,13 @@ if __name__ == "__main__":
 
     walkers = init_walkers
     report_path = 'wepy_results'
-    reporter = WepyHDF5Reporter(report_path, mode='w',
+    reporter = WepyHDF5Reporter(report_path, mode='w', 
                                 decisions=resampler.DECISION,
                                 instruction_dtypes=resampler.INSTRUCTION_DTYPES,
                                 resampling_aux_dtypes=None,
                                 resampling_aux_shapes=None,
-                                topology='{}')
+                                topology='{}',
+                                n_dims=dimension)
 
 
     # running the simulation
@@ -89,52 +90,6 @@ if __name__ == "__main__":
 
 
     
-
-    # # create a hdf5 file to write
-    # h5file_handler = h5py.File(os.getcwd()+'/wepy_results.h5',mode='w')
-    # for dimension in dimensions:
-         
-    #      for cycle_idx in range(n_cycles):
-
-    #          if debug_prints:
-    #              sys.stdout.write("Begin cycle {}\n".format(cycle_idx))
-
-    #          #run the segment
-
-    #          new_walkers = list(map(runner.run_segment,
-    #                                               walkers,
-    #                                               (segment_length for i in range(num_walkers)
-    #                                               )
-    #                          ))
-
-    #          if debug_prints:
-    #              sys.stdout.write("End cycle {}\n".format(cycle_idx))
-    #              # resample walkers
-    #          resampled_walkers, resampling_records, resampling_aux_data = resampler.resample(new_walkers,
-    #                                                                                         debug_prints=debug_prints)
-
-    #          if debug_prints:
-    #              # print results for this cycle
-    #              print("Net state of walkers after resampling:")
-    #              print("--------------------------------------")
-    #              # slots
-    #              slot_str = result_template_str.format("slot",
-    #                                                    *[i for i in range(len(resampled_walkers))])
-    #              print(slot_str)
-    #              # states
-    #              walker_state_str = result_template_str.format("state",
-    #                  *[str(walker.state) for walker in resampled_walkers])
-    #              print(walker_state_str)
-    #              # weights
-    #              walker_weight_str = result_template_str.format("weight",
-    #                  *[str(walker.weight) for walker in resampled_walkers])
-    #              print(walker_weight_str)
-    #              #print warped_walker_records
-
-    #          # report results to the reporter
-
-    #          # prepare resampled walkers for running new state changes
-    #          walkers = resampled_walkers
 
              
     

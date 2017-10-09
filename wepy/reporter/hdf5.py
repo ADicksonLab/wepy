@@ -13,7 +13,8 @@ class WepyHDF5Reporter(FileReporter):
                  bc_dtype=None,
                  bc_aux_dtypes=None, bc_aux_shapes=None,
                  topology=None,
-                 units=None):
+                 units=None,
+                 **kwargs):
 
         super().__init__(file_path, mode=mode)
         self.wepy_run_idx = None
@@ -28,6 +29,8 @@ class WepyHDF5Reporter(FileReporter):
         self.warp_aux_shapes = warp_aux_shapes
         self.bc_aux_dtypes = bc_aux_dtypes
         self.bc_aux_shapes = bc_aux_shapes
+        self.kwargs = kwargs
+    
 
         # if units were given add them otherwise set as an empty dictionary
         if units is None:
@@ -39,7 +42,7 @@ class WepyHDF5Reporter(FileReporter):
 
         # open and initialize the HDF5 file
         self.wepy_h5 = WepyHDF5(self.file_path, mode=self.mode,
-                                topology=self._tmp_topology,  **self.units)
+                                topology=self._tmp_topology,  **self.units, **self.kwargs)
         # save space and delete the temp topology from the attributes
         del self._tmp_topology
 
