@@ -1799,11 +1799,61 @@ class WepyHDF5(object):
 
         if idxs:
             if traj_sel is None:
-                traj_sel = self.traj_run_idx_tuples()
+                traj_sel = self.run_traj_idx_tuples()
             return zip(traj_sel, results)
         else:
             return results
 
+    def compute_observable(self, func, *args,
+                           map_func=map, traj_sel=None, save_to_hdf5=None, idxs=False):
+        """Compute an observable on the trajectory data according to a
+        function. Optionally save that data in the observables data group for
+        the trajectory.
+        """
+
+        if save_to_hdf5 is not None:
+            assert self.mode in ['w', 'w-', 'x', 'r+', 'c', 'c-'],\
+                "File must be in a write mode"
+            assert isinstance(save_to_hdf5, str),\
+                "`save_to_hdf5` should be the field name to save the data in the `observables` group in each trajectory"
+            field_name=save_to_hdf5
+
+            # DEBUG enforce this until sparse trajectories are implemented
+            # assert traj_sel is None, "no selections until sparse trajectory data is implemented"
+
+        results = self.traj_map(func, *args, map_func=map_func, traj_sel=traj_sel, idxs=True)
+
+        # if we are saving this to the trajectories observables add it as a dataset
+        if save_to_hdf5:
+            for idx_tup, obs_values in results:
+                run_idx, traj_idx = idx_tup
+                # try to get the observables group or make it if it doesn't exist
+                try:
+                    obs_grp = self.traj(run_idx, traj_idx)['observables']
+                except KeyError:
+                    obs_grp = self.traj(run_idx, traj_idx).create_group('observables')
+
+                # try to create the dataset
+                try:
+                    obs_grp.create_dataset(field_name, data=obs_values)
+                # if it fails we either overwrite or raise an error
+                except RuntimeError:
+                    # if we are in a permissive write mode we delete the
+                    # old dataset and add the new one, overwriting old data
+                    if self.mode in ['w', 'w-', 'x', 'r+']:
+                        del obs_grp[field_name]
+                        obs_grp.create_dataset(field_name, data=obs_values)
+                    # this will happen in 'c' and 'c-' modes
+                    else:
+                        raise RuntimeError(
+                            "Dataset already exists and file is in concatenate mode ('c' or 'c-')")
+
+        # otherwise just return it
+        else:
+            if idxs:
+                return results
+            else:
+                return (obs_values for idxs, obs_values in results)
 
     def export_traj(self, run_idx, traj_idx, filepath, mode='x'):
         """Write a single trajectory from the WepyHDF5 container to a TrajHDF5
