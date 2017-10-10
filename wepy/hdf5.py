@@ -1704,7 +1704,7 @@ class WepyHDF5(object):
             else:
                 yield dset
 
-    def run_map(self, func, *args, map_func=map, idxs=False, run_sel=None, **kwargs):
+    def run_map(self, func, *args, map_func=map, idxs=False, run_sel=None):
         """Function for mapping work onto trajectories in the WepyHDF5 file
            object. The call to iter_runs is run with `idxs=False`.
 
@@ -1736,31 +1736,19 @@ class WepyHDF5(object):
         mapped_args = []
         for arg in args:
             # if it is a sequence or generator we keep just pass it to the mapper
-            if isinstance(arg, Sequence):
-                assert len(arg) == self.n_trajs, \
+            if isinstance(arg, Sequence) and not isinstance(arg, str):
+                assert len(arg) == self.n_runs, \
                     "argument Sequence has fewer number of args then trajectories"
                 mapped_args.append(arg)
             # if it is not a sequence or generator we make a generator out
             # of it to map as inputs
             else:
-                mapped_arg = (arg for i in range(self.n_trajs))
+                mapped_arg = (arg for i in range(self.n_runs))
                 mapped_args.append(mapped_arg)
 
-        mapped_kwargs = {}
-        for key, arg in kwargs:
-            # if it is a sequence or generator we keep just pass it to the mapper
-            if isinstance(arg, Sequence) or isinstance(arg, GeneratorType):
-                assert len(arg) == self.n_trajs,\
-                  "keyword argument Sequence has fewer number of args then trajectories"
-                mapped_kwargs[key] = arg
-            # if it is not a sequence or generator we make a generator out
-            # of it to map as inputs
-            else:
-                mapped_arg = (arg for i in range(self.n_trajs))
-                mapped_args[key] = arg
 
         results = map_func(func, self.iter_runs(idxs=False, run_sel=run_sel),
-                           *mapped_args, **mapped_kwargs)
+                           *mapped_args)
 
         if idxs:
             if run_sel is None:
@@ -1770,7 +1758,7 @@ class WepyHDF5(object):
             return results
 
 
-    def traj_map(self, func, *args, map_func=map, **kwargs):
+    def traj_map(self, func, *args, map_func=map, idxs=False, traj_sel=None):
         """Function for mapping work onto trajectories in the WepyHDF5 file object.
 
         func : the function that will be mapped to trajectory groups
@@ -1798,7 +1786,7 @@ class WepyHDF5(object):
         mapped_args = []
         for arg in args:
             # if it is a sequence or generator we keep just pass it to the mapper
-            if isinstance(arg, Sequence):
+            if isinstance(arg, Sequence) and not isinstance(arg, str):
                 assert len(arg) == self.n_trajs, "Sequence has fewer"
                 mapped_args.append(arg)
             # if it is not a sequence or generator we make a generator out
@@ -1807,18 +1795,14 @@ class WepyHDF5(object):
                 mapped_arg = (arg for i in range(self.n_trajs))
                 mapped_args.append(mapped_arg)
 
-        mapped_kwargs = {}
-        for key, arg in kwargs:
-            # if it is a sequence or generator we keep just pass it to the mapper
-            if isinstance(arg, Sequence) or isinstance(arg, GeneratorType):
-                mapped_kwargs[key] = arg
-            # if it is not a sequence or generator we make a generator out
-            # of it to map as inputs
-            else:
-                mapped_arg = (arg for i in range(self.n_trajs))
-                mapped_args[key] = arg
+        results = map_func(func, self.iter_trajs(traj_sel=traj_sel), *mapped_args)
 
-        results = map_func(func, self.iter_trajs(), *mapped_args, **mapped_kwargs)
+        if idxs:
+            if traj_sel is None:
+                traj_sel = self.traj_run_idx_tuples()
+            return zip(traj_sel, results)
+        else:
+            return results
 
 
     def export_traj(self, run_idx, traj_idx, filepath, mode='x'):
