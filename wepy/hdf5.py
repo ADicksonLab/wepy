@@ -931,6 +931,7 @@ class WepyHDF5(object):
     def traj(self, run_idx, traj_idx):
         return self._h5['runs/{}/trajectories/{}'.format(run_idx, traj_idx)]
 
+
     def run_trajs(self, run_idx):
         return self._h5['runs/{}/trajectories'.format(run_idx)]
 
@@ -947,6 +948,11 @@ class WepyHDF5(object):
                 tups.append((run_idx, traj_idx))
 
         return tups
+
+    @property
+    def n_trajs(self):
+        return len(list(self.run_traj_idx_tuples()))
+
 
     @property
     def n_atoms(self):
@@ -1698,106 +1704,121 @@ class WepyHDF5(object):
             else:
                 yield dset
 
-def run_map(self, func, *args, map_func=map, run_sel=None, **kwargs):
-    """Function for mapping work onto trajectories in the WepyHDF5 file object.
+    def run_map(self, func, *args, map_func=map, idxs=False, run_sel=None, **kwargs):
+        """Function for mapping work onto trajectories in the WepyHDF5 file
+           object. The call to iter_runs is run with `idxs=False`.
 
-    func : the function that will be mapped to trajectory groups
+        func : the function that will be mapped to trajectory groups
 
-    map_func : the function that maps the function. This is where
-                    parallelization occurs if desired.  Defaults to
-                    the serial python map function.
+        map_func : the function that maps the function. This is where
+                        parallelization occurs if desired.  Defaults to
+                        the serial python map function.
 
-    traj_sel : a trajectory selection. This is a valid `traj_sel`
-    argument for the `iter_trajs` function.
+        traj_sel : a trajectory selection. This is a valid `traj_sel`
+        argument for the `iter_trajs` function.
 
-    *args : additional arguments to the function. If this is an
-             iterable it will be assumed that it is the appropriate
-             length for the number of trajectories, WARNING: this will
-             not be checked and could result in a run time
-             error. Otherwise single values will be automatically
-             mapped to all trajectories.
+        idxs : if True results contain [(run_idx, result),...], if False
+        returns [result,...]
 
-    **kwargs : same as *args, but will pass all kwargs to the func.
+        *args : additional arguments to the function. If this is an
+                 iterable it will be assumed that it is the appropriate
+                 length for the number of trajectories, WARNING: this will
+                 not be checked and could result in a run time
+                 error. Otherwise single values will be automatically
+                 mapped to all trajectories.
 
-    """
+        **kwargs : same as *args, but will pass all kwargs to the func.
 
-    # check the args and kwargs to see if they need expanded for
-    # mapping inputs
-    mapped_args = []
-    for arg in args:
-        # if it is a sequence or generator we keep just pass it to the mapper
-        if isinstance(arg, Sequence):
-            assert len(arg) == self.n_trajs, "Sequence has fewer"
-            mapped_args.append(arg)
-        # if it is not a sequence or generator we make a generator out
-        # of it to map as inputs
+        """
+
+        # check the args and kwargs to see if they need expanded for
+        # mapping inputs
+        mapped_args = []
+        for arg in args:
+            # if it is a sequence or generator we keep just pass it to the mapper
+            if isinstance(arg, Sequence):
+                assert len(arg) == self.n_trajs, \
+                    "argument Sequence has fewer number of args then trajectories"
+                mapped_args.append(arg)
+            # if it is not a sequence or generator we make a generator out
+            # of it to map as inputs
+            else:
+                mapped_arg = (arg for i in range(self.n_trajs))
+                mapped_args.append(mapped_arg)
+
+        mapped_kwargs = {}
+        for key, arg in kwargs:
+            # if it is a sequence or generator we keep just pass it to the mapper
+            if isinstance(arg, Sequence) or isinstance(arg, GeneratorType):
+                assert len(arg) == self.n_trajs,\
+                  "keyword argument Sequence has fewer number of args then trajectories"
+                mapped_kwargs[key] = arg
+            # if it is not a sequence or generator we make a generator out
+            # of it to map as inputs
+            else:
+                mapped_arg = (arg for i in range(self.n_trajs))
+                mapped_args[key] = arg
+
+        results = map_func(func, self.iter_runs(idxs=False, run_sel=run_sel),
+                           *mapped_args, **mapped_kwargs)
+
+        if idxs:
+            if run_sel is None:
+                run_sel = self.run_idxs
+            return zip(run_sel, results)
         else:
-            mapped_arg = (arg for i in range(self.n_trajs))
-            mapped_args.append(mapped_arg)
-
-    mapped_kwargs = {}
-    for key, arg in kwargs:
-        # if it is a sequence or generator we keep just pass it to the mapper
-        if isinstance(arg, Sequence) or isinstance(arg, GeneratorType):
-            mapped_kwargs[key] = arg
-        # if it is not a sequence or generator we make a generator out
-        # of it to map as inputs
-        else:
-            mapped_arg = (arg for i in range(self.n_trajs))
-            mapped_args[key] = arg
-
-    results = map_func(func, self.iter_runs(run_sel=run_sel), *mapped_args, **mapped_kwargs)
+            return results
 
 
-def traj_map(self, func, *args, map_func=map, **kwargs):
-    """Function for mapping work onto trajectories in the WepyHDF5 file object.
+    def traj_map(self, func, *args, map_func=map, **kwargs):
+        """Function for mapping work onto trajectories in the WepyHDF5 file object.
 
-    func : the function that will be mapped to trajectory groups
+        func : the function that will be mapped to trajectory groups
 
-    map_func : the function that maps the function. This is where
-                    parallelization occurs if desired.  Defaults to
-                    the serial python map function.
+        map_func : the function that maps the function. This is where
+                        parallelization occurs if desired.  Defaults to
+                        the serial python map function.
 
-    traj_sel : a trajectory selection. This is a valid `traj_sel`
-    argument for the `iter_trajs` function.
+        traj_sel : a trajectory selection. This is a valid `traj_sel`
+        argument for the `iter_trajs` function.
 
-    *args : additional arguments to the function. If this is an
-             iterable it will be assumed that it is the appropriate
-             length for the number of trajectories, WARNING: this will
-             not be checked and could result in a run time
-             error. Otherwise single values will be automatically
-             mapped to all trajectories.
+        *args : additional arguments to the function. If this is an
+                 iterable it will be assumed that it is the appropriate
+                 length for the number of trajectories, WARNING: this will
+                 not be checked and could result in a run time
+                 error. Otherwise single values will be automatically
+                 mapped to all trajectories.
 
-    **kwargs : same as *args, but will pass all kwargs to the func.
+        **kwargs : same as *args, but will pass all kwargs to the func.
 
-    """
+        """
 
-    # check the args and kwargs to see if they need expanded for
-    # mapping inputs
-    mapped_args = []
-    for arg in args:
-        # if it is a sequence or generator we keep just pass it to the mapper
-        if isinstance(arg, Sequence):
-            assert len(arg) == self.n_trajs, "Sequence has fewer"
-            mapped_args.append(arg)
-        # if it is not a sequence or generator we make a generator out
-        # of it to map as inputs
-        else:
-            mapped_arg = (arg for i in range(self.n_trajs))
-            mapped_args.append(mapped_arg)
+        # check the args and kwargs to see if they need expanded for
+        # mapping inputs
+        mapped_args = []
+        for arg in args:
+            # if it is a sequence or generator we keep just pass it to the mapper
+            if isinstance(arg, Sequence):
+                assert len(arg) == self.n_trajs, "Sequence has fewer"
+                mapped_args.append(arg)
+            # if it is not a sequence or generator we make a generator out
+            # of it to map as inputs
+            else:
+                mapped_arg = (arg for i in range(self.n_trajs))
+                mapped_args.append(mapped_arg)
 
-    mapped_kwargs = {}
-    for key, arg in kwargs:
-        # if it is a sequence or generator we keep just pass it to the mapper
-        if isinstance(arg, Sequence) or isinstance(arg, GeneratorType):
-            mapped_kwargs[key] = arg
-        # if it is not a sequence or generator we make a generator out
-        # of it to map as inputs
-        else:
-            mapped_arg = (arg for i in range(self.n_trajs))
-            mapped_args[key] = arg
+        mapped_kwargs = {}
+        for key, arg in kwargs:
+            # if it is a sequence or generator we keep just pass it to the mapper
+            if isinstance(arg, Sequence) or isinstance(arg, GeneratorType):
+                mapped_kwargs[key] = arg
+            # if it is not a sequence or generator we make a generator out
+            # of it to map as inputs
+            else:
+                mapped_arg = (arg for i in range(self.n_trajs))
+                mapped_args[key] = arg
 
-    results = map_func(func, self.iter_trajs(), *mapped_args, **mapped_kwargs)
+        results = map_func(func, self.iter_trajs(), *mapped_args, **mapped_kwargs)
 
 
     def export_traj(self, run_idx, traj_idx, filepath, mode='x'):
