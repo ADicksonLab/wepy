@@ -1,4 +1,6 @@
-from collections import Iterable
+from collections import Iterable, Sequence
+from types import GeneratorType
+
 import json
 from warnings import warn
 import operator
@@ -938,6 +940,14 @@ class WepyHDF5(object):
     def run_traj_idxs(self, run_idx):
         return range(len(self._h5['runs/{}/trajectories'.format(run_idx)]))
 
+    def run_traj_idx_tuples(self):
+        tups = []
+        for run_idx in self.run_idxs:
+            for traj_idx in self.run_traj_idxs(run_idx):
+                tups.append((run_idx, traj_idx))
+
+        return tups
+
     @property
     def n_atoms(self):
         return self.positions.shape[1]
@@ -1598,19 +1608,53 @@ class WepyHDF5(object):
                     self.bc_aux_shapes[key] = aux_data.shape
                     self._bc_aux_init.append(key)
 
-    def iter_trajs(self, idxs=False):
-        """Generator for all of the trajectories in the dataset across all
-        runs. If idxs=True will return a tuple of (run_idx, traj_idx). """
-        for run_idx in self.run_idxs:
-            run = self.run(run_idx)
-            for traj_idx in range(len(run['trajectories'])):
-                traj = self.traj(run_idx, traj_idx)
-                if idxs:
-                    yield (run_idx, traj_idx), traj
-                else:
-                    yield traj
+    def iter_runs(self, idxs=False, run_sel=None):
+        """Iterate through runs.
 
-    def iter_trajs_field(self, field, idxs=False):
+        idxs : if True returns `(run_idx, run_group)`, False just `run_group`
+
+        run_sel : if True will iterate over a subset of runs. Possible
+        values are an iterable of indices of runs to iterate over.
+
+        """
+
+        if run_sel is None:
+            run_sel = self.run_idxs
+
+        for run_idx in self.run_idxs:
+            if run_idx in run_sel:
+                run = self.run(run_idx)
+                if idxs:
+                    yield run_idx, run
+                else:
+                    yield run
+
+    def iter_trajs(self, idxs=False, traj_sel=None):
+        """Generator for all of the trajectories in the dataset across all
+        runs. If idxs=True will return a tuple of (run_idx, traj_idx).
+
+        run_sel : if True will iterate over a subset of
+        trajectories. Possible values are an iterable of `(run_idx,
+        traj_idx)` tuples.
+
+        """
+
+
+        # set the selection of trajectories to iterate over
+        if traj_sel is None:
+            idx_tups = self.run_traj_idx_tuples()
+        else:
+            idx_tups = traj_sel
+
+        # get each traj for each idx_tup and yield them for the generator
+        for run_idx, traj_idx in idx_tups:
+            traj = self.traj(run_idx, traj_idx)
+            if idxs:
+                yield (run_idx, traj_idx), traj
+            else:
+                yield traj
+
+    def iter_trajs_field(self, field, idxs=False, traj_sel=None):
         """Generator for all of the specified non-compound fields
         h5py.Datasets for all trajectories in the dataset across all
         runs. For fields within parameters, parameter_derivatives, and
@@ -1618,7 +1662,7 @@ class WepyHDF5(object):
 
         """
 
-        for idx_tup, traj in self.iter_trajs(idxs=True):
+        for idx_tup, traj in self.iter_trajs(idxs=True, traj_sel=traj_sel):
             run_idx, traj_idx = idx_tup
 
             try:
@@ -1633,7 +1677,7 @@ class WepyHDF5(object):
                 yield dset
 
 
-    def iter_trajs_compound_field(self, grp, field, idxs=False):
+    def iter_trajs_compound_field(self, grp, field, idxs=False, traj_sel=None):
         """Generator for all of the specified non-compound fields
         h5py.Datasets for all trajectories in the dataset across all
         runs. For fields within parameters, parameter_derivatives, and
@@ -1641,7 +1685,7 @@ class WepyHDF5(object):
 
         """
 
-        for idx_tup, traj in self.iter_trajs(idxs=True):
+        for idx_tup, traj in self.iter_trajs(idxs=True, traj_sel=traj_sel):
             run_idx, traj_idx = idx_tup
             try:
                 dset = traj["{}/{}".format(grp, field)]
@@ -1653,6 +1697,108 @@ class WepyHDF5(object):
                 yield (run_idx, traj_idx), dset
             else:
                 yield dset
+
+def run_map(self, func, *args, map_func=map, run_sel=None, **kwargs):
+    """Function for mapping work onto trajectories in the WepyHDF5 file object.
+
+    func : the function that will be mapped to trajectory groups
+
+    map_func : the function that maps the function. This is where
+                    parallelization occurs if desired.  Defaults to
+                    the serial python map function.
+
+    traj_sel : a trajectory selection. This is a valid `traj_sel`
+    argument for the `iter_trajs` function.
+
+    *args : additional arguments to the function. If this is an
+             iterable it will be assumed that it is the appropriate
+             length for the number of trajectories, WARNING: this will
+             not be checked and could result in a run time
+             error. Otherwise single values will be automatically
+             mapped to all trajectories.
+
+    **kwargs : same as *args, but will pass all kwargs to the func.
+
+    """
+
+    # check the args and kwargs to see if they need expanded for
+    # mapping inputs
+    mapped_args = []
+    for arg in args:
+        # if it is a sequence or generator we keep just pass it to the mapper
+        if isinstance(arg, Sequence):
+            assert len(arg) == self.n_trajs, "Sequence has fewer"
+            mapped_args.append(arg)
+        # if it is not a sequence or generator we make a generator out
+        # of it to map as inputs
+        else:
+            mapped_arg = (arg for i in range(self.n_trajs))
+            mapped_args.append(mapped_arg)
+
+    mapped_kwargs = {}
+    for key, arg in kwargs:
+        # if it is a sequence or generator we keep just pass it to the mapper
+        if isinstance(arg, Sequence) or isinstance(arg, GeneratorType):
+            mapped_kwargs[key] = arg
+        # if it is not a sequence or generator we make a generator out
+        # of it to map as inputs
+        else:
+            mapped_arg = (arg for i in range(self.n_trajs))
+            mapped_args[key] = arg
+
+    results = map_func(func, self.iter_runs(run_sel=run_sel), *mapped_args, **mapped_kwargs)
+
+
+def traj_map(self, func, *args, map_func=map, **kwargs):
+    """Function for mapping work onto trajectories in the WepyHDF5 file object.
+
+    func : the function that will be mapped to trajectory groups
+
+    map_func : the function that maps the function. This is where
+                    parallelization occurs if desired.  Defaults to
+                    the serial python map function.
+
+    traj_sel : a trajectory selection. This is a valid `traj_sel`
+    argument for the `iter_trajs` function.
+
+    *args : additional arguments to the function. If this is an
+             iterable it will be assumed that it is the appropriate
+             length for the number of trajectories, WARNING: this will
+             not be checked and could result in a run time
+             error. Otherwise single values will be automatically
+             mapped to all trajectories.
+
+    **kwargs : same as *args, but will pass all kwargs to the func.
+
+    """
+
+    # check the args and kwargs to see if they need expanded for
+    # mapping inputs
+    mapped_args = []
+    for arg in args:
+        # if it is a sequence or generator we keep just pass it to the mapper
+        if isinstance(arg, Sequence):
+            assert len(arg) == self.n_trajs, "Sequence has fewer"
+            mapped_args.append(arg)
+        # if it is not a sequence or generator we make a generator out
+        # of it to map as inputs
+        else:
+            mapped_arg = (arg for i in range(self.n_trajs))
+            mapped_args.append(mapped_arg)
+
+    mapped_kwargs = {}
+    for key, arg in kwargs:
+        # if it is a sequence or generator we keep just pass it to the mapper
+        if isinstance(arg, Sequence) or isinstance(arg, GeneratorType):
+            mapped_kwargs[key] = arg
+        # if it is not a sequence or generator we make a generator out
+        # of it to map as inputs
+        else:
+            mapped_arg = (arg for i in range(self.n_trajs))
+            mapped_args[key] = arg
+
+    results = map_func(func, self.iter_trajs(), *mapped_args, **mapped_kwargs)
+
 
     def export_traj(self, run_idx, traj_idx, filepath, mode='x'):
         """Write a single trajectory from the WepyHDF5 container to a TrajHDF5

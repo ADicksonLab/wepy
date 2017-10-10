@@ -63,3 +63,9 @@ This needs to be developed.
 ** TODO [#B] add records for the boundary conditions                   :core:
 This needs to be implemented in the WepyHDF5 and in the actual
 boundary conditions class.
+
+** TODO [#C] add support for trajectory total ordering              :feature:
+
+That means a single unique positive integer index for every trajectory in the whole file.
+
+Support this as an trajectory selector in the iter_trajs.
