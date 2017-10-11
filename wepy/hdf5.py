@@ -1686,51 +1686,6 @@ class WepyHDF5(object):
             else:
                 yield dsets
 
-    # TODO DEPRECATE replaced by `iter_trajs_fields`
-    def iter_trajs_field(self, field, idxs=False, traj_sel=None):
-        """Generator for all of the specified non-compound fields
-        h5py.Datasets for all trajectories in the dataset across all
-        runs. For fields within parameters, parameter_derivatives, and
-        observables use `iter_compound_fields`.
-
-        """
-
-        for idx_tup, traj in self.iter_trajs(idxs=True, traj_sel=traj_sel):
-            run_idx, traj_idx = idx_tup
-
-            try:
-                dset = traj[field]
-            except KeyError:
-                warn("field \"{}\" not found in \"{}\"".format(field, traj.name), RuntimeWarning)
-                dset = None
-
-            if idxs:
-                yield (run_idx, traj_idx), dset
-            else:
-                yield dset
-
-
-    # TODO DEPRECATE replaced by `iter_trajs_fields`
-    def iter_trajs_compound_field(self, grp, field, idxs=False, traj_sel=None):
-        """Generator for all of the specified non-compound fields
-        h5py.Datasets for all trajectories in the dataset across all
-        runs. For fields within parameters, parameter_derivatives, and
-        observables use `iter_compound_fields`.
-
-        """
-
-        for idx_tup, traj in self.iter_trajs(idxs=True, traj_sel=traj_sel):
-            run_idx, traj_idx = idx_tup
-            try:
-                dset = traj["{}/{}".format(grp, field)]
-            except KeyError:
-                warn("field \"{}\" not found in \"{}\"".format(field, traj.name))
-                dset = None
-
-            if idxs:
-                yield (run_idx, traj_idx), dset
-            else:
-                yield dset
 
     def run_map(self, func, *args, map_func=map, idxs=False, run_sel=None):
         """Function for mapping work onto trajectories in the WepyHDF5 file
@@ -1939,6 +1894,20 @@ class WepyHDF5(object):
             else:
                 return (obs_values for idxs, obs_values in results)
 
+    def join(self, other_h5):
+        """Given another WepyHDF5 file object does a left join on this
+        file. Renumbering the runs starting from this file.
+        """
+
+        with other_h5 as h5:
+            for run_idx in h5.run_idxs:
+                # the other run group handle
+                other_run = h5.run(run_idx)
+                # copy this run to this file in the next run_idx group
+                self.h5.copy(other_run, 'runs/{}'.format(self._run_idx_counter))
+                # increment the run_idx counter
+                self._run_idx_counter += 1
+
     def export_traj(self, run_idx, traj_idx, filepath, mode='x'):
         """Write a single trajectory from the WepyHDF5 container to a TrajHDF5
         file object. Returns the handle to the new file."""
@@ -2134,3 +2103,6 @@ def _box_vectors_to_lengths_angles(box_vectors):
     unitcell_angles = np.array(unitcell_angles)
 
     return unitcell_lengths, unitcell_angles
+
+def concat(wepy_h5s):
+    pass
