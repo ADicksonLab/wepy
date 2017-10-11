@@ -33,7 +33,7 @@ if __name__ == "__main__":
     dimension = 8
 
     # set up initial state for walkers
-    positions = np.zeros((dimension))
+    positions = np.zeros((1, dimension))
     time = 0
     init_state = State(positions, dimension)
     
@@ -57,7 +57,7 @@ if __name__ == "__main__":
 
     # instantiate a wexplore2 unbindingboudaryconditiobs
 
-    n_cycles = 3
+    n_cycles = 2000
     segment_length = 10000
     debug_prints = True
 
@@ -78,11 +78,10 @@ if __name__ == "__main__":
                           resampler=resampler,
                           work_mapper=scoop.futures.map,
                           reporter=reporter)
-    n_steps = 10000
-    n_cycles = 100
+
 
     # run a simulation with the manager for n_steps cycles of length 1000 each
-    steps = [ n_steps for i in range(n_cycles)]
+    steps = [ segment_length for i in range(n_cycles)]
     print("Running simulation")
     sim_manager.run_simulation(n_cycles,
                                steps,

@@ -15,20 +15,21 @@ class RandomWalkRunner(Runner):
         
     
     def walk(self, positions):
-        new_positions = positions
+        new_positions = positions.copy()
+        
         for dimension in range(self.dimension):
                 r = rand.uniform(0,1)
                  # produce  a random number to chose beween increasing or decreasing position
                  
                 if r < self.probability:
-                    new_positions[dimension] += 1
+                    new_positions[0][dimension] += 1
                      
                 else:
-                    new_positions[dimension] -=1
+                    new_positions[0][dimension] -=1
 
                 # implement the boundary condition for movement, movement to -1 are rejected
-                if new_positions[dimension] < 0:
-                    new_positions[dimension] = 0
+                if new_positions [0][dimension] < 0:
+                    new_positions[0][dimension] = 0
                     
         return new_positions
                

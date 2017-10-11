@@ -580,7 +580,8 @@ class TrajHDF5(object):
         topology = _json_to_mdtraj_topology(self.topology)
 
         positions = self.h5['positions'][:]
-        time = self.h5['time'][:]
+        # reshape for putting into mdtraj
+        time = self.h5['time'][:, 0]
         box_vectors = self.h5['box_vectors'][:]
         unitcell_lengths, unitcell_angles = _box_vectors_to_lengths_angles(box_vectors)
 
@@ -650,7 +651,8 @@ class WepyHDF5(object):
             if not (key in TRAJ_DATA_FIELDS) and not (key in TRAJ_UNIT_FIELDS):
                 warn("kwarg {} not recognized and was ignored".format(key), RuntimeWarning)
 
-        # counters for run and traj indexing
+        # counter for the new runs, specific constructors will update
+        # this if needed
         self._run_idx_counter = 0
         # count the number of trajectories each run has
         self._run_traj_idx_counter = {}
@@ -820,6 +822,10 @@ class WepyHDF5(object):
 
         self._read_init()
 
+        # set the counter for runs based on the groups already present
+        for run_grp in enumerate(self.h5['runs']):
+            self._run_idx_counter += 1
+
     def _add_init(self, topology, units):
         """Create the dataset if it doesn't exist and put it in r+ mode,
         otherwise, just open in r+ mode."""
@@ -901,8 +907,12 @@ class WepyHDF5(object):
         self._h5.attrs[key] = value
 
     @property
-    def runs(self):
+    def run_keys(self):
         return self._h5['runs']
+
+    @property
+    def runs(self):
+        return self.h5['runs'].values()
 
     @property
     def n_runs(self):
@@ -944,11 +954,20 @@ class WepyHDF5(object):
         except json.JSONDecodeError:
             raise ValueError("topology must be a valid JSON string")
 
-        self._h5.create_dataset('topology', data=topology)
-        self._exist_flags['topology'] = True
-        # if we are in strict append mode we cannot append after we create something
-        if self._wepy_mode == 'c-':
-            self._append_flags['topology'] = False
+        # check to see if this is the initial setting of it
+        if not self._exist_flags['topology']:
+            self._h5.create_dataset('topology', data=topology)
+            self._exist_flags['topology'] = True
+            # if we are in strict append mode we cannot append after we create something
+            if self._wepy_mode == 'c-':
+                self._append_flags['topology'] = False
+
+        # if not replace the old one if we are in a non-concatenate write mode
+        elif self._wepy_mode in ['w', 'r+', 'x', 'w-', 'a']:
+            self._h5['topology'][()] = topology
+        else:
+            raise IOError("In mode {} and cannot modify topology".format(self._wepy_mode))
+
 
     def new_run(self, **kwargs):
         # create a new group named the next integer in the counter
@@ -1226,9 +1245,8 @@ class WepyHDF5(object):
 
         # weights
         traj_grp.create_dataset('weights', data=weights, maxshape=(None,))
-
         # positions
-        print(n_atoms, self.n_dims)
+        
         traj_grp.create_dataset('positions', data=traj_data.pop('positions'),
                                 maxshape=(None, n_atoms, self.n_dims))
 
@@ -1580,6 +1598,61 @@ class WepyHDF5(object):
                     self.bc_aux_shapes[key] = aux_data.shape
                     self._bc_aux_init.append(key)
 
+    def iter_trajs(self, idxs=False):
+        """Generator for all of the trajectories in the dataset across all
+        runs. If idxs=True will return a tuple of (run_idx, traj_idx). """
+        for run_idx in self.run_idxs:
+            run = self.run(run_idx)
+            for traj_idx in range(len(run['trajectories'])):
+                traj = self.traj(run_idx, traj_idx)
+                if idxs:
+                    yield (run_idx, traj_idx), traj
+                else:
+                    yield traj
+
+    def iter_trajs_field(self, field, idxs=False):
+        """Generator for all of the specified non-compound fields
+        h5py.Datasets for all trajectories in the dataset across all
+        runs. For fields within parameters, parameter_derivatives, and
+        observables use `iter_compound_fields`.
+
+        """
+
+        for idx_tup, traj in self.iter_trajs(idxs=True):
+            run_idx, traj_idx = idx_tup
+
+            try:
+                dset = traj[field]
+            except KeyError:
+                warn("field \"{}\" not found in \"{}\"".format(field, traj.name), RuntimeWarning)
+                dset = None
+
+            if idxs:
+                yield (run_idx, traj_idx), dset
+            else:
+                yield dset
+
+
+    def iter_trajs_compound_field(self, grp, field, idxs=False):
+        """Generator for all of the specified non-compound fields
+        h5py.Datasets for all trajectories in the dataset across all
+        runs. For fields within parameters, parameter_derivatives, and
+        observables use `iter_compound_fields`.
+
+        """
+
+        for idx_tup, traj in self.iter_trajs(idxs=True):
+            run_idx, traj_idx = idx_tup
+            try:
+                dset = traj["{}/{}".format(grp, field)]
+            except KeyError:
+                warn("field \"{}\" not found in \"{}\"".format(field, traj.name))
+                dset = None
+
+            if idxs:
+                yield (run_idx, traj_idx), dset
+            else:
+                yield dset
 
     def export_traj(self, run_idx, traj_idx, filepath, mode='x'):
         """Write a single trajectory from the WepyHDF5 container to a TrajHDF5
@@ -1626,14 +1699,22 @@ class WepyHDF5(object):
         return traj_h5
 
 
-    def to_mdtraj(self, run_idx, traj_idx):
+    def to_mdtraj(self, run_idx, traj_idx, frames=None):
 
         topology = _json_to_mdtraj_topology(self.topology)
 
         traj_grp = self.traj(run_idx, traj_idx)
-        positions = traj_grp['positions'][:]
-        time = traj_grp['time'][:]
-        box_vectors = traj_grp['box_vectors'][:]
+
+        # get the data for all or for the frames specified
+        if frames is None:
+            positions = traj_grp['positions'][:]
+            time = traj_grp['time'][:, 0]
+            box_vectors = traj_grp['box_vectors'][:]
+        else:
+            positions = traj_grp['positions'][frames]
+            time = traj_grp['time'][frames][:, 0]
+            box_vectors = traj_grp['box_vectors'][frames]
+
         unitcell_lengths, unitcell_angles = _box_vectors_to_lengths_angles(box_vectors)
 
         traj = mdj.Trajectory(positions, topology,
@@ -1753,6 +1834,8 @@ def _box_vectors_to_lengths_angles(box_vectors):
     for basis in box_vectors:
         unitcell_lengths.append(np.array([np.linalg.norm(frame_v) for frame_v in basis]))
 
+    unitcell_lengths = np.array(unitcell_lengths)
+
     unitcell_angles = []
     for vs in box_vectors:
 
@@ -1766,5 +1849,3 @@ def _box_vectors_to_lengths_angles(box_vectors):
     unitcell_angles = np.array(unitcell_angles)
 
     return unitcell_lengths, unitcell_angles
-
-
