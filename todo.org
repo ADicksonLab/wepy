@@ -69,3 +69,7 @@ boundary conditions class.
 That means a single unique positive integer index for every trajectory in the whole file.
 
 Support this as an trajectory selector in the iter_trajs.
+
+** TODO [#A] fix compute observable to write feature vector style      :core:
+
+** TODO [#B] deprecate the old redundant iter functions
