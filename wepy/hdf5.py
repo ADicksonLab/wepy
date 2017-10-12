@@ -1921,8 +1921,8 @@ class WepyHDF5(object):
         # if we are saving this to the trajectories observables add it as a dataset
         if save_to_hdf5:
 
-        if debug_prints:
-            print("Finished calculations saving them to HDF5")
+            if debug_prints:
+                print("Finished calculations saving them to HDF5")
 
             for idx_tup, obs_values in results:
                 run_idx, traj_idx = idx_tup
