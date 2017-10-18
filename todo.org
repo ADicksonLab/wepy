@@ -7,6 +7,10 @@
 ** TODO [#A] restarting simulations, multiple runs                     :core:
 ** TODO [#A] implement SWMR                                         :feature:
 
+** TODO [#A] fix compute observable to write feature vector style      :core:
+
+
+
 ** TODO [#B] full slice across datasets in TrajHDF5                 :feature:
 
 get all values for a collection of indices, with fancy slicing
@@ -22,15 +26,21 @@ Should be a function for each field of a run to get the cycle data:
                                                    'boundary_conditions', 'warping'])
   - which calls the other functions based on what they are.
 
-
 ** TODO [#B] allow for arbitrary number of frames to be saved in HDF5 traj part :core:
-
 ** TODO [#B] add method for iterating over runs and trajectories in correct order :feature:
 ** TODO [#B] allow for passing in of real np.dtypes to resampling records :core:
 
 special handling for the variable length "tokens"
 
 ** TODO [#B] original WExplore algorithm                            :feature:
+** TODO [#B] add records for the boundary conditions                   :core:
+This needs to be implemented in the WepyHDF5 and in the actual
+boundary conditions class.
+
+** TODO [#B] deprecate the old redundant iter functions
+
+
+
 ** TODO [#C] implement chunking strategies                          :feature:
 
 <<<<<<< HEAD
@@ -59,17 +69,9 @@ This would have the same API as the TrajHDF5 object.
 This needs to be developed.
 - JSON represenation also capable to be converted to and from
 
-
-** TODO [#B] add records for the boundary conditions                   :core:
-This needs to be implemented in the WepyHDF5 and in the actual
-boundary conditions class.
-
 ** TODO [#C] add support for trajectory total ordering              :feature:
 
 That means a single unique positive integer index for every trajectory in the whole file.
 
 Support this as an trajectory selector in the iter_trajs.
 
-** TODO [#A] fix compute observable to write feature vector style      :core:
-
-** TODO [#B] deprecate the old redundant iter functions
