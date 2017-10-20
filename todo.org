@@ -38,6 +38,18 @@ sparse indexes, `_sparse_idxs`, which will have a structure the same
 as the main traj group and the datasets will just be the cycles for
 which the data for each is assigned.
 
+To implement this as an API however I will have to make methods which
+access it and create the array with the fill values and the mask as a
+masked array. 
+
+Then this will have to be used in different situations appropriately.
+
+What are the situations where this will complicate things??
+- computing values
+
+
+
+
 ** TODO [#A] restarting simulations, multiple runs                     :core:
 ** TODO [#A] implement SWMR                                         :feature:
 
