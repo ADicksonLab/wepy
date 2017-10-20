@@ -60,3 +60,24 @@ THis needs to be in both HDF5 classes
 
 This will just involve saving the string that can be read by most systems.
 
+
+* DONE [#B] add method for iterating over runs and trajectories in correct order :feature:
+  :PROPERTIES:
+  :ARCHIVE_TIME: 2017-10-20 Fri 13:50
+  :ARCHIVE_FILE: ~/Dropbox/devel/wepy/todo.org
+  :ARCHIVE_OLPATH: HDF5
+  :ARCHIVE_CATEGORY: todo
+  :ARCHIVE_TODO: DONE
+  :END:
+
+* DONE [#B] deprecate the old redundant iter functions
+  :PROPERTIES:
+  :ARCHIVE_TIME: 2017-10-20 Fri 13:51
+  :ARCHIVE_FILE: ~/Dropbox/devel/wepy/todo.org
+  :ARCHIVE_OLPATH: HDF5
+  :ARCHIVE_CATEGORY: todo
+  :ARCHIVE_TODO: DONE
+  :END:
+
+
+
