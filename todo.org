@@ -11,6 +11,19 @@
 
 
 
+
+** TODO [#B] concat function                                        :feature:
+
+I want to have a concat function similar to other major libraries that
+puts runs from different simulations together. The specifications I
+want it to have are:
+
+- options for inplace and copying
+  - inplace on a 'master' file object, probably the first in the list passed.
+  - another option (True by default) which deletes the members of the
+    concat after a successful concatenation
+  - make a copy of the new file and leave all the others untouched
+
 ** TODO [#B] full slice across datasets in TrajHDF5                 :feature:
 
 get all values for a collection of indices, with fancy slicing
