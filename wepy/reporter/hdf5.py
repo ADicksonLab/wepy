@@ -28,15 +28,21 @@ class WepyHDF5Reporter(FileReporter):
         self.warp_aux_shapes = warp_aux_shapes
         self.bc_aux_dtypes = bc_aux_dtypes
         self.bc_aux_shapes = bc_aux_shapes
-        self.units = units
+
+        # if units were given add them otherwise set as an empty dictionary
+        if units is None:
+            self.units = {}
+        else:
+            self.units = units
 
     def init(self):
 
         # open and initialize the HDF5 file
         self.wepy_h5 = WepyHDF5(self.file_path, mode=self.mode,
                                 topology=self._tmp_topology,  **self.units)
+
         # save space and delete the temp topology from the attributes
-        del self._tmp_topology
+        # del self._tmp_topology
 
         # initialize a new run in a context
         with self.wepy_h5 as wepy_h5:
@@ -60,6 +66,12 @@ class WepyHDF5Reporter(FileReporter):
                                   bc_aux_dtypes=self.bc_aux_dtypes,
                                   bc_aux_shapes=self.bc_aux_shapes)
 
+        # if this was opened in a truncation mode, we don't want to
+        # overwrite old runs with future calls to init(). so we
+        # change the mode to read/write 'r+'
+        if self.mode == 'w':
+            self.mode = 'r+'
+
 
 
     def report(self, cycle_idx, walkers,
@@ -77,10 +89,11 @@ class WepyHDF5Reporter(FileReporter):
 
                 # collect data from walker
                 walker_data = {}
-                for key, value in walker.dict().items():
+                # iterate through the feature vectors
+                for key, vector in walker.dict().items():
                     # if the result is None exclude it from the data
-                    if value is not None:
-                        walker_data[key] = np.array([value])
+                    if vector is not None:
+                        walker_data[key] = np.array([vector])
 
                 # check to see if the walker has a trajectory in the run
                 if walker_idx in wepy_h5.run_traj_idxs(self.wepy_run_idx):

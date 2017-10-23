@@ -1,4 +1,6 @@
-from collections import Iterable
+from collections import Iterable, Sequence
+from types import GeneratorType
+
 import json
 from warnings import warn
 import operator
@@ -561,7 +563,8 @@ class TrajHDF5(object):
         topology = _json_to_mdtraj_topology(self.topology)
 
         positions = self.h5['positions'][:]
-        time = self.h5['time'][:]
+        # reshape for putting into mdtraj
+        time = self.h5['time'][:, 0]
         box_vectors = self.h5['box_vectors'][:]
         unitcell_lengths, unitcell_angles = _box_vectors_to_lengths_angles(box_vectors)
 
@@ -631,7 +634,8 @@ class WepyHDF5(object):
             if not (key in TRAJ_DATA_FIELDS) and not (key in TRAJ_UNIT_FIELDS):
                 warn("kwarg {} not recognized and was ignored".format(key), RuntimeWarning)
 
-        # counters for run and traj indexing
+        # counter for the new runs, specific constructors will update
+        # this if needed
         self._run_idx_counter = 0
         # count the number of trajectories each run has
         self._run_traj_idx_counter = {}
@@ -801,6 +805,10 @@ class WepyHDF5(object):
 
         self._read_init()
 
+        # set the counter for runs based on the groups already present
+        for run_grp in enumerate(self.h5['runs']):
+            self._run_idx_counter += 1
+
     def _add_init(self, topology, units):
         """Create the dataset if it doesn't exist and put it in r+ mode,
         otherwise, just open in r+ mode."""
@@ -882,8 +890,12 @@ class WepyHDF5(object):
         self._h5.attrs[key] = value
 
     @property
-    def runs(self):
+    def run_keys(self):
         return self._h5['runs']
+
+    @property
+    def runs(self):
+        return self.h5['runs'].values()
 
     @property
     def n_runs(self):
@@ -900,6 +912,7 @@ class WepyHDF5(object):
     def traj(self, run_idx, traj_idx):
         return self._h5['runs/{}/trajectories/{}'.format(run_idx, traj_idx)]
 
+
     def run_trajs(self, run_idx):
         return self._h5['runs/{}/trajectories'.format(run_idx)]
 
@@ -908,6 +921,19 @@ class WepyHDF5(object):
 
     def run_traj_idxs(self, run_idx):
         return range(len(self._h5['runs/{}/trajectories'.format(run_idx)]))
+
+    def run_traj_idx_tuples(self):
+        tups = []
+        for run_idx in self.run_idxs:
+            for traj_idx in self.run_traj_idxs(run_idx):
+                tups.append((run_idx, traj_idx))
+
+        return tups
+
+    @property
+    def n_trajs(self):
+        return len(list(self.run_traj_idx_tuples()))
+
 
     @property
     def n_atoms(self):
@@ -925,11 +951,20 @@ class WepyHDF5(object):
         except json.JSONDecodeError:
             raise ValueError("topology must be a valid JSON string")
 
-        self._h5.create_dataset('topology', data=topology)
-        self._exist_flags['topology'] = True
-        # if we are in strict append mode we cannot append after we create something
-        if self._wepy_mode == 'c-':
-            self._append_flags['topology'] = False
+        # check to see if this is the initial setting of it
+        if not self._exist_flags['topology']:
+            self._h5.create_dataset('topology', data=topology)
+            self._exist_flags['topology'] = True
+            # if we are in strict append mode we cannot append after we create something
+            if self._wepy_mode == 'c-':
+                self._append_flags['topology'] = False
+
+        # if not replace the old one if we are in a non-concatenate write mode
+        elif self._wepy_mode in ['w', 'r+', 'x', 'w-', 'a']:
+            self._h5['topology'][()] = topology
+        else:
+            raise IOError("In mode {} and cannot modify topology".format(self._wepy_mode))
+
 
     def new_run(self, **kwargs):
         # create a new group named the next integer in the counter
@@ -1560,6 +1595,326 @@ class WepyHDF5(object):
                     self.bc_aux_shapes[key] = aux_data.shape
                     self._bc_aux_init.append(key)
 
+    def iter_runs(self, idxs=False, run_sel=None):
+        """Iterate through runs.
+
+        idxs : if True returns `(run_idx, run_group)`, False just `run_group`
+
+        run_sel : if True will iterate over a subset of runs. Possible
+        values are an iterable of indices of runs to iterate over.
+
+        """
+
+        if run_sel is None:
+            run_sel = self.run_idxs
+
+        for run_idx in self.run_idxs:
+            if run_idx in run_sel:
+                run = self.run(run_idx)
+                if idxs:
+                    yield run_idx, run
+                else:
+                    yield run
+
+    def iter_trajs(self, idxs=False, traj_sel=None):
+        """Generator for all of the trajectories in the dataset across all
+        runs. If idxs=True will return a tuple of (run_idx, traj_idx).
+
+        run_sel : if True will iterate over a subset of
+        trajectories. Possible values are an iterable of `(run_idx,
+        traj_idx)` tuples.
+
+        """
+
+
+        # set the selection of trajectories to iterate over
+        if traj_sel is None:
+            idx_tups = self.run_traj_idx_tuples()
+        else:
+            idx_tups = traj_sel
+
+        # get each traj for each idx_tup and yield them for the generator
+        for run_idx, traj_idx in idx_tups:
+            traj = self.traj(run_idx, traj_idx)
+            if idxs:
+                yield (run_idx, traj_idx), traj
+            else:
+                yield traj
+
+    def iter_trajs_fields(self, fields, idxs=False, traj_sel=None, debug_prints=False):
+        """Generator for all of the specified non-compound fields
+        h5py.Datasets for all trajectories in the dataset across all
+        runs. Fields is a list of valid relative paths to datasets in
+        the trajectory groups.
+
+        """
+
+        for idx_tup, traj in self.iter_trajs(idxs=True, traj_sel=traj_sel):
+            run_idx, traj_idx = idx_tup
+
+            dsets = {}
+
+            # DEBUG if we ask for debug prints send in the run and
+            # traj index so the function can print this out
+            if debug_prints:
+                dsets['run_idx'] = run_idx
+                dsets['traj_idx'] = traj_idx
+
+            for field in fields:
+                try:
+                    dset = traj[field][:]
+                except KeyError:
+                    warn("field \"{}\" not found in \"{}\"".format(field, traj.name), RuntimeWarning)
+                    dset = None
+
+                dsets[field] = dset
+
+            if idxs:
+                yield (run_idx, traj_idx), dsets
+            else:
+                yield dsets
+
+
+    def run_map(self, func, *args, map_func=map, idxs=False, run_sel=None):
+        """Function for mapping work onto trajectories in the WepyHDF5 file
+           object. The call to iter_runs is run with `idxs=False`.
+
+        func : the function that will be mapped to trajectory groups
+
+        map_func : the function that maps the function. This is where
+                        parallelization occurs if desired.  Defaults to
+                        the serial python map function.
+
+        traj_sel : a trajectory selection. This is a valid `traj_sel`
+        argument for the `iter_trajs` function.
+
+        idxs : if True results contain [(run_idx, result),...], if False
+        returns [result,...]
+
+        *args : additional arguments to the function. If this is an
+                 iterable it will be assumed that it is the appropriate
+                 length for the number of trajectories, WARNING: this will
+                 not be checked and could result in a run time
+                 error. Otherwise single values will be automatically
+                 mapped to all trajectories.
+
+        **kwargs : same as *args, but will pass all kwargs to the func.
+
+        """
+
+        # check the args and kwargs to see if they need expanded for
+        # mapping inputs
+        mapped_args = []
+        for arg in args:
+            # if it is a sequence or generator we keep just pass it to the mapper
+            if isinstance(arg, Sequence) and not isinstance(arg, str):
+                assert len(arg) == self.n_runs, \
+                    "argument Sequence has fewer number of args then trajectories"
+                mapped_args.append(arg)
+            # if it is not a sequence or generator we make a generator out
+            # of it to map as inputs
+            else:
+                mapped_arg = (arg for i in range(self.n_runs))
+                mapped_args.append(mapped_arg)
+
+
+        results = map_func(func, self.iter_runs(idxs=False, run_sel=run_sel),
+                           *mapped_args)
+
+        if idxs:
+            if run_sel is None:
+                run_sel = self.run_idxs
+            return zip(run_sel, results)
+        else:
+            return results
+
+
+    def traj_map(self, func, *args, map_func=map, idxs=False, traj_sel=None):
+        """Function for mapping work onto trajectories in the WepyHDF5 file object.
+
+        func : the function that will be mapped to trajectory groups
+
+        map_func : the function that maps the function. This is where
+                        parallelization occurs if desired.  Defaults to
+                        the serial python map function.
+
+        traj_sel : a trajectory selection. This is a valid `traj_sel`
+        argument for the `iter_trajs` function.
+
+        *args : additional arguments to the function. If this is an
+                 iterable it will be assumed that it is the appropriate
+                 length for the number of trajectories, WARNING: this will
+                 not be checked and could result in a run time
+                 error. Otherwise single values will be automatically
+                 mapped to all trajectories.
+
+        """
+
+        # check the args and kwargs to see if they need expanded for
+        # mapping inputs
+        mapped_args = []
+        for arg in args:
+            # if it is a sequence or generator we keep just pass it to the mapper
+            if isinstance(arg, Sequence) and not isinstance(arg, str):
+                assert len(arg) == self.n_trajs, "Sequence has fewer"
+                mapped_args.append(arg)
+            # if it is not a sequence or generator we make a generator out
+            # of it to map as inputs
+            else:
+                mapped_arg = (arg for i in range(self.n_trajs))
+                mapped_args.append(mapped_arg)
+
+        results = map_func(func, self.iter_trajs(traj_sel=traj_sel), *mapped_args)
+
+        if idxs:
+            if traj_sel is None:
+                traj_sel = self.run_traj_idx_tuples()
+            return zip(traj_sel, results)
+        else:
+            return results
+
+    def traj_fields_map(self, func, fields, *args, map_func=map, idxs=False, traj_sel=None,
+                        debug_prints=False):
+        """Function for mapping work onto field of trajectories in the
+        WepyHDF5 file object. Similar to traj_map, except `h5py.Group`
+        objects cannot be pickled for message passing. So we select
+        the fields to serialize instead and pass the `numpy.ndarray`s
+        to have the work mapped to them.
+
+        func : the function that will be mapped to trajectory groups
+
+        fields : list of fields that will be serialized into a dictionary
+                 and passed to the map function. These must be valid
+                 `h5py` path strings relative to the trajectory
+                 group. These include the standard fields like
+                 'positions' and 'weights', as well as compound paths
+                 e.g. 'observables/sasa'.
+
+        map_func : the function that maps the function. This is where
+                        parallelization occurs if desired.  Defaults to
+                        the serial python map function.
+
+        traj_sel : a trajectory selection. This is a valid `traj_sel`
+        argument for the `iter_trajs` function.
+
+        *args : additional arguments to the function. If this is an
+                 iterable it will be assumed that it is the appropriate
+                 length for the number of trajectories, WARNING: this will
+                 not be checked and could result in a run time
+                 error. Otherwise single values will be automatically
+                 mapped to all trajectories.
+
+        """
+
+        # check the args and kwargs to see if they need expanded for
+        # mapping inputs
+        mapped_args = []
+        for arg in args:
+            # if it is a sequence or generator we keep just pass it to the mapper
+            if isinstance(arg, Sequence) and not isinstance(arg, str):
+                assert len(arg) == self.n_trajs, "Sequence has fewer"
+                mapped_args.append(arg)
+            # if it is not a sequence or generator we make a generator out
+            # of it to map as inputs
+            else:
+                mapped_arg = (arg for i in range(self.n_trajs))
+                mapped_args.append(mapped_arg)
+
+        results = map_func(func, self.iter_trajs_fields(fields, traj_sel=traj_sel, idxs=False,
+                                                        debug_prints=debug_prints),
+                           *mapped_args)
+
+        if idxs:
+            if traj_sel is None:
+                traj_sel = self.run_traj_idx_tuples()
+            return zip(traj_sel, results)
+        else:
+            return results
+
+
+    def compute_observable(self, func, fields, *args,
+                           map_func=map, traj_sel=None, save_to_hdf5=None, idxs=False,
+                           debug_prints=False):
+        """Compute an observable on the trajectory data according to a
+        function. Optionally save that data in the observables data group for
+        the trajectory.
+        """
+
+        if save_to_hdf5 is not None:
+            assert self.mode in ['w', 'w-', 'x', 'r+', 'c', 'c-'],\
+                "File must be in a write mode"
+            assert isinstance(save_to_hdf5, str),\
+                "`save_to_hdf5` should be the field name to save the data in the `observables` group in each trajectory"
+            field_name=save_to_hdf5
+
+            # DEBUG enforce this until sparse trajectories are implemented
+            # assert traj_sel is None, "no selections until sparse trajectory data is implemented"
+
+        results = self.traj_fields_map(func, fields, *args,
+                                       map_func=map_func, traj_sel=traj_sel, idxs=True,
+                                       debug_prints=debug_prints)
+
+        # if we are saving this to the trajectories observables add it as a dataset
+        if save_to_hdf5:
+
+            if debug_prints:
+                print("Finished calculations saving them to HDF5")
+
+            for idx_tup, obs_values in results:
+                run_idx, traj_idx = idx_tup
+
+                if debug_prints:
+                    print("Saving run {} traj {} observables/{}".format(run_idx, traj_idx, field_name))
+
+                # try to get the observables group or make it if it doesn't exist
+                try:
+                    obs_grp = self.traj(run_idx, traj_idx)['observables']
+                except KeyError:
+
+                    if debug_prints:
+                        print("Group uninitialized. Initializing.")
+
+                    obs_grp = self.traj(run_idx, traj_idx).create_group('observables')
+
+                # try to create the dataset
+                try:
+                    obs_grp.create_dataset(field_name, data=obs_values)
+                # if it fails we either overwrite or raise an error
+                except RuntimeError:
+                    # if we are in a permissive write mode we delete the
+                    # old dataset and add the new one, overwriting old data
+                    if self.mode in ['w', 'w-', 'x', 'r+']:
+
+                        if debug_prints:
+                            print("Dataset already present. Overwriting.")
+
+                        del obs_grp[field_name]
+                        obs_grp.create_dataset(field_name, data=obs_values)
+                    # this will happen in 'c' and 'c-' modes
+                    else:
+                        raise RuntimeError(
+                            "Dataset already exists and file is in concatenate mode ('c' or 'c-')")
+
+        # otherwise just return it
+        else:
+            if idxs:
+                return results
+            else:
+                return (obs_values for idxs, obs_values in results)
+
+    def join(self, other_h5):
+        """Given another WepyHDF5 file object does a left join on this
+        file. Renumbering the runs starting from this file.
+        """
+
+        with other_h5 as h5:
+            for run_idx in h5.run_idxs:
+                # the other run group handle
+                other_run = h5.run(run_idx)
+                # copy this run to this file in the next run_idx group
+                self.h5.copy(other_run, 'runs/{}'.format(self._run_idx_counter))
+                # increment the run_idx counter
+                self._run_idx_counter += 1
 
     def export_traj(self, run_idx, traj_idx, filepath, mode='x'):
         """Write a single trajectory from the WepyHDF5 container to a TrajHDF5
@@ -1606,14 +1961,22 @@ class WepyHDF5(object):
         return traj_h5
 
 
-    def to_mdtraj(self, run_idx, traj_idx):
+    def to_mdtraj(self, run_idx, traj_idx, frames=None):
 
         topology = _json_to_mdtraj_topology(self.topology)
 
         traj_grp = self.traj(run_idx, traj_idx)
-        positions = traj_grp['positions'][:]
-        time = traj_grp['time'][:]
-        box_vectors = traj_grp['box_vectors'][:]
+
+        # get the data for all or for the frames specified
+        if frames is None:
+            positions = traj_grp['positions'][:]
+            time = traj_grp['time'][:, 0]
+            box_vectors = traj_grp['box_vectors'][:]
+        else:
+            positions = traj_grp['positions'][frames]
+            time = traj_grp['time'][frames][:, 0]
+            box_vectors = traj_grp['box_vectors'][frames]
+
         unitcell_lengths, unitcell_angles = _box_vectors_to_lengths_angles(box_vectors)
 
         traj = mdj.Trajectory(positions, topology,
@@ -1733,6 +2096,8 @@ def _box_vectors_to_lengths_angles(box_vectors):
     for basis in box_vectors:
         unitcell_lengths.append(np.array([np.linalg.norm(frame_v) for frame_v in basis]))
 
+    unitcell_lengths = np.array(unitcell_lengths)
+
     unitcell_angles = []
     for vs in box_vectors:
 
@@ -1747,25 +2112,6 @@ def _box_vectors_to_lengths_angles(box_vectors):
 
     return unitcell_lengths, unitcell_angles
 
-
-def _compliance(traj_data):
-    """Given a dictionary of trajectory data it returns the
-       COMPLIANCE_TAGS that the data satisfies. """
-
-    compliance_dict = dict(COMPLIANCE_REQUIREMENTS)
-
-    fields = set()
-    for field, value in traj_data.items():
-        # check to make sure the value actually has something in it
-        if (value is not None) and len(value > 0):
-            fields.add(field)
-
-    compliances = []
-    for compliance_tag, compliance_fields in compliance_dict.items():
-        compliance_fields = set(compliance_fields)
-        # if the fields are a superset of the compliance fields for
-        # this compliance type then it satisfies it
-        if fields.issuperset(compliance_fields):
-            compliances.append(compliance_tag)
-
-    return compliances
+# see TODO
+def concat(wepy_h5s):
+    pass

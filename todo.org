@@ -4,10 +4,88 @@
 * HDF5
 
 ** TODO [#A] sparse velocities etc. across trajectory                  :core:
+
+How to actually implement this?
+
+In the end we want an array to be smaller than the max size array for
+a trajectory which has the length equal to the number of cycles.
+
+That means that we will store only a subset of the values.
+
+In HDF5 we cannot store nans so we just store the values we are
+given. Then in another array we need to store the cycle idxs for which
+they are a part of.
+
+I was considering using NaNs to deal with the missing values but I
+think NaNs are used for when computations return bad values. So I will
+scrap thata. Usually people associate nans with bad things and we
+aren't doing bad things.
+
+So I will combine the cycle idxs for the given data and return a
+masked array.
+
+However I think I will use nans when you return the actual masked
+array so that if there is a mistake or someone mucks with the array it
+will actually point to something being wrong.
+
+Okay so after looking at masked arrays, I think it is a good
+idea. Becasue for one using nan as the value under the mask could also
+be a value in the valid array, due to an error or something so having
+the mask explicitly defined will raise no ambiguities.
+
+To implement the sparse idxs I will have a 'hidden' group which is the
+sparse indexes, `_sparse_idxs`, which will have a structure the same
+as the main traj group and the datasets will just be the cycles for
+which the data for each is assigned.
+
+To implement this as an API however I will have to make methods which
+access it and create the array with the fill values and the mask as a
+masked array. 
+
+Then this will have to be used in different situations appropriately.
+
+What are the situations where this will complicate things??
+- computing values
+
+
+
+
 ** TODO [#A] restarting simulations, multiple runs                     :core:
 ** TODO [#A] implement SWMR                                         :feature:
 
-** TODO [#B] full slice across datasets in TrajHDF5                 :feature:
+** TODO [#A] fix compute observable to write feature vector style      :core:
+
+
+
+
+
+** TODO [#C] use h5py variable length datasets instead of my solution :feature:backend:
+
+Didn't know this was a feature of h5py and am curious to see how this
+is implemented underneath and whether it is an hdf5 standard thing.
+
+H5py is not the only library we want to be read this data from.
+
+** TODO [#C] use h5py enumeration type instead of my solution :feature:backend:
+
+** TODO [#B] implement run cycle slice                  :feature:api:nazanin:
+
+** TODO [#B] implement run cycle map function           :feature:nazanin:api:
+
+** TODO [#B] implement run cycle compute observables    :feature:nazanin:api:
+** TODO [#B] concat function                                    :feature:api:
+
+I want to have a concat function similar to other major libraries that
+puts runs from different simulations together. The specifications I
+want it to have are:
+
+- options for inplace and copying
+  - inplace on a 'master' file object, probably the first in the list passed.
+  - another option (True by default) which deletes the members of the
+    concat after a successful concatenation
+  - make a copy of the new file and leave all the others untouched
+
+** TODO [#B] full slice across datasets in TrajHDF5             :feature:api:
 
 get all values for a collection of indices, with fancy slicing
 
@@ -23,24 +101,25 @@ Should be a function for each field of a run to get the cycle data:
   - which calls the other functions based on what they are.
 
 
-** TODO [#B] allow for arbitrary number of frames to be saved in HDF5 traj part :core:
 
-** TODO [#B] add method for iterating over runs and trajectories in correct order :feature:
-** TODO [#B] allow for passing in of real np.dtypes to resampling records :core:
+** TODO [#B] allow for arbitrary number of frames to be saved in HDF5 traj part :core:
+** TODO [#B] allow for passing in of real np.dtypes to resampling records :core:api:
 
 special handling for the variable length "tokens"
 
-** TODO [#B] original WExplore algorithm                            :feature:
-** TODO [#C] implement chunking strategies                          :feature:
+** TODO [#B] original WExplore algorithm                :feature:application:
+** TODO [#B] add records for the boundary conditions               :core:api:
+This needs to be implemented in the WepyHDF5 and in the actual
+boundary conditions class.
 
-<<<<<<< HEAD
+** TODO [#C] implement chunking strategies                      :feature:api:
+
 - [ ] protein, ligand, solvent
 - [ ] ligand, binding-site
-=======
 
-** TODO [#C] compliance infrastructure                              :feature:
+** TODO [#C] compliance infrastructure                          :feature:api:
 
-** TODO [#C] only accept Quantity type objects that match/convert units :feature:
+** TODO [#C] only accept Quantity type objects that match/convert units :feature:api:
 
 This will require choosing a unit library:
 - simtk.units
@@ -48,16 +127,22 @@ This will require choosing a unit library:
 
 ** TODO [#C] HDF5 topology                                    :core:topology:
 
-** TODO [#C] simulation reproducibility metadata                    :feature:
+** TODO [#C] simulation reproducibility metadata                :feature:api:
 
-** TODO [#C] traj object for trajs in WepyHDF5                      :feature:
+** TODO [#C] traj object for trajs in WepyHDF5                  :feature:api:
 
 This would have the same API as the TrajHDF5 object.
 
-** TODO [#C] HDF5 topology                                    :core:topology:
+** TODO [#C] HDF5 topology                                :core:topology:api:
 
 This needs to be developed.
 - JSON represenation also capable to be converted to and from
+
+** TODO [#C] add support for trajectory total ordering          :feature:api:
+
+That means a single unique positive integer index for every trajectory in the whole file.
+
+Support this as an trajectory selector in the iter_trajs.
 
 
 ** TODO [#B] add records for the boundary conditions                   :core:

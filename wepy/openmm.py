@@ -45,8 +45,16 @@ UNITS = (('positions_unit', unit.nanometer),
          ('box_volume_unit', unit.nanometer),
          ('kinetic_energy_unit', unit.kilojoule / unit.mole),
          ('potential_energy_unit', unit.kilojoule / unit.mole),
-         ('parameters_units', {}),
-         ('parameter_derivatives_units', {}),
+        )
+
+UNIT_NAMES = (('positions_unit', unit.nanometer.get_name()),
+         ('time_unit', unit.picosecond.get_name()),
+         ('box_vectors_unit', unit.nanometer.get_name()),
+         ('velocities_unit', (unit.nanometer/unit.picosecond).get_name()),
+         ('forces_unit', (unit.kilojoule / (unit.nanometer * unit.mole)).get_name()),
+         ('box_volume_unit', unit.nanometer.get_name()),
+         ('kinetic_energy_unit', (unit.kilojoule / unit.mole).get_name()),
+         ('potential_energy_unit', (unit.kilojoule / unit.mole).get_name()),
         )
 
 
@@ -214,7 +222,7 @@ class OpenMMWalker(Walker):
         if kinetic_energy is None:
             return None
         else:
-            return np.array(self.kinetic_energy.value_in_unit(self.kinetic_energy_unit))
+            return np.array([self.kinetic_energy.value_in_unit(self.kinetic_energy_unit)])
 
     @property
     def potential_energy(self):
@@ -232,7 +240,7 @@ class OpenMMWalker(Walker):
         if potential_energy is None:
             return None
         else:
-            return np.array(self.potential_energy.value_in_unit(self.potential_energy_unit))
+            return np.array([self.potential_energy.value_in_unit(self.potential_energy_unit)])
 
     @property
     def time(self):
@@ -250,7 +258,7 @@ class OpenMMWalker(Walker):
         if time is None:
             return None
         else:
-            return np.array(self.time.value_in_unit(self.time_unit))
+            return np.array([self.time.value_in_unit(self.time_unit)])
 
     @property
     def box_vectors(self):
@@ -286,7 +294,7 @@ class OpenMMWalker(Walker):
         if box_volume is None:
             return None
         else:
-            return np.array(self.box_volume.value_in_unit(self.box_volume_unit))
+            return np.array([self.box_volume.value_in_unit(self.box_volume_unit)])
 
     @property
     def parameters(self):
@@ -347,5 +355,6 @@ class OpenMMWalker(Walker):
         """ Returns an mdtraj.Trajectory object from this walker's state."""
         raise NotImplementedError
         import mdtraj as mdj
+        # resize the time to a 1D vector
         return mdj.Trajectory(self.positions_values,
-                              time=self.time_value, unitcell_vectors=self.box_vectors)
+                              time=self.time_value[:,0], unitcell_vectors=self.box_vectors)

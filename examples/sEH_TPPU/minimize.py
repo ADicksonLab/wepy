@@ -37,10 +37,26 @@ if __name__ == "__main__":
     top_h5.close()
 
     os.remove("tmp_mdtraj_system.h5")
-
     # write the JSON topology out
     with open("sEH_TPPU_system.top.json", mode='w') as json_wf:
         json_wf.write(top_str)
+
+
+    # do the same for the nowater version which is used for analysis
+    nowater_pdb = mdj.load_pdb('nowater_sEH_TPPU.pdb')
+    # write out an hdf5 storage of the system
+    nowater_pdb.save_hdf5('tmp_mdtraj_nowater.h5')
+    nowater_top_h5 = h5py.File("tmp_mdtraj_nowater.h5")
+    # it is in bytes so we need to decode to a string, which is in JSON format
+    nowater_top_str = nowater_top_h5['topology'][0].decode()
+    nowater_top_h5.close()
+    os.remove("tmp_mdtraj_nowater.h5")
+
+    # write the JSON topology out
+    with open("sEH_TPPU_nowater.top.json", mode='w') as json_wf:
+        json_wf.write(nowater_top_str)
+
+
 
     # to use charmm forcefields get your parameters
     params = omma.CharmmParameterSet('all36_cgenff.rtf',
@@ -51,7 +67,7 @@ if __name__ == "__main__":
                                      'toppar_water_ions.str')
 
     # set the box size lengths and angles
-    psf.setBox(82.435, 82.435, 82.435, 90, 90, 90)
+    psf.setBox(8.2435*unit.nanometer, 8.2435*unit.nanometer, 8.2435*unit.nanometer, 90*unit.degree, 90*unit.degree, 90*unit.degree)
 
     # create a system using the topology method giving it a topology and
     # the method for calculation
@@ -71,6 +87,7 @@ if __name__ == "__main__":
                                             1/unit.picosecond,
                                             0.002*unit.picoseconds)
     platform = omm.Platform.getPlatformByName('OpenCL')
+#    platform = omm.Platform.getPlatformByName('Reference')
 
     # instantiate a simulation object
     simulation = omma.Simulation(psf.topology, system, integrator, platform)
@@ -78,6 +95,7 @@ if __name__ == "__main__":
     simulation.context.setPositions(pdb.openmm_positions(frame=0))
     # minimize the energy
     simulation.minimizeEnergy()
+
     # run the simulation for a number of initial time steps
     simulation.step(1000)
     print("done minimizing\n")
