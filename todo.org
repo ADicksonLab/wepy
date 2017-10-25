@@ -47,8 +47,203 @@ Then this will have to be used in different situations appropriately.
 What are the situations where this will complicate things??
 - computing values
 
+Ok so what are the actual methods that need to be modified to add this?
+
+Ok well lets consider the function signature I was developing before:
 
 
+Here is the extended discussion I had with myself on this topic:
+
+#+BEGIN_QUOTE
+    Option 1:
+
+    I could make the field a group instead of a dataset.  In that group
+    you would have the sparse data in a dataset and another dataset for
+    the indices they correspond to.
+
+    Pros:
+    - index and data are together
+    - cleaner top-level hierarchy
+
+    Cons:
+    - more difficult to implement because we have to separate handling of
+      these types and added to the compound types this becomes pretty tricky
+
+    Option 2:
+
+    Other option is just to hold the indices somewhere else at the top
+    level and then have the keys the same for the sparse datasets.
+
+    Pros:
+    - easier to implement
+    - possibly less bug prone
+
+
+    Cons:
+    - for someone browsing the datastructure it is more difficult to
+      figure out what is going on, i.e. less semantic
+    - more complex implementation of API
+
+
+    I am leaning more on the side of Option 1. That is because it seems
+    more proper. Because then datasets are atomic and don't have
+    far-reaching dependencies across the hierarchy. If a dataset has
+    value-added complexity it is it's burden to implement it and not the
+    burden of somewhere else in the data structure to keep track of it.
+
+    It will be a little bit more complex to handle those types and would
+    involve, flags at the top level.
+
+    That is okay once it is debugged, but something may crop up.
+
+    In Option 2 lets say someone doesn't like my API and just wants to use
+    the HDF5 file directly. Then it might not be obviouis where that stuff
+    is.
+
+    And really the difference between 1 and 2 is just some implementation
+    of the API.
+
+    SO really I should consider the API.
+
+    What are the use cases for TrajHDF5
+
+    One use case is just dumping a trajectory from memory into the file.
+
+    In this case to have sparse data you would likely have multiple arrays
+    so you might do something like
+
+    #+BEGIN_SRC python
+      TrajHDF5(positions, velocities=sparse_velocities, velocities_idxs=velocities_idxs)
+    #+END_SRC
+
+
+    Where if velocities receives an array smaller than positions it knows
+    it is sparse and will raise an error if it also doesn't get
+    velocities_idxs, or if it gets velocities idxs it will assum
+    velocities is sparse.
+
+    The other method is the reporter where you are adding data to the HDF5
+    incrementally.
+
+    In my code now I have an `append` function which really in relation to
+    python analogies is an `extend`.
+
+    So lets consider the append first because it is similar.
+
+    You might add a single frame of coordinates this way without velocities.
+    #+BEGIN_SRC python
+      traj_h5.append(positions)
+    #+END_SRC
+
+
+    then in a subsequent step you add velocities.
+
+
+    #+BEGIN_SRC python
+      traj_h5.append(positions, velocities=velocities)
+    #+END_SRC
+
+    Then it knows what index to mark down for the velocities.
+
+    For the extend it is the same way except we will probably want to
+    assume that when we add a block of values that they are
+    homogeneous. That is we don't extend our trajectory with 10 frames of
+    positions and 5 frames of trajectories at once.
+
+    I.e. extends are atomic in type.
+
+    So you would have to break it up into multiple extends.
+
+    Now that is nice but resizing HDF5 datasets can be costly in time. So
+    we might want to add an advanced option to allow for this.
+
+
+    This would look like the constructor:
+    #+BEGIN_SRC python
+      traj_h5.extend(positions, velocities=sparse_velocities, velocities_idxs=velocities_idxs)
+    #+END_SRC
+
+
+    In this case the `velocities_idxs` would be the indices relative to
+    the positions passed in.
+
+    THey would then have to be converted to the indices in the hdf5 positions then added.
+
+    Ok I think that is the way to go for the API then.
+
+
+    Ok I also think I will go with Option 1 then because that is what my
+    gut wants to do.
+
+#+END_QUOTE
+
+
+I want to further think about this. How do we create a sparse dataset?
+Should it be defined at the initialization of the run?
+
+Pro:
+- don't have to handle and restructure the HDF5 during runtime
+  - faster
+  - less code
+  - less complicated
+  - less errors
+- no strange behavior
+- explicit
+- can be wrapped in general use settings
+  - e.g. you select a compliance level, and then set frequency of
+    saves in an interface then it does the rest
+
+Con:
+- have to specify up front
+  - less user-friendly
+  - lots of kwargs in run intialization
+
+I think its better to specify up front.
+
+But we could use dynamic sparsity as a fault tolerance mechanism....
+
+Well for that we could just make all things sparse and then leave it
+up to the user to make sure they aren't skipping positions etc.
+
+That could be a FAULT_TOLERANCE sparsity settings package.
+
+Ok I will make it so you have to specify it up front.
+
+How to handle compound sparse data. I think that observables should be
+default sparse and parameters by default not sparse. Or For simplicity
+they both are default dense (not sparse).
+
+Well in any case how should this be specified?
+
+Ok finished for the constructor of TrajHDF5 for sparse fields given in
+the constructor.
+
+Need to do this for the extend method now though.
+
+Then should analyze the get methods and accomodate.
+
+Ok I got the compound fields working as well.
+
+Well since I don't have any specific methods for getting data it isn't
+a problem. I suppose that was because there wasn't anything particular
+about getting the data before, so that new methods are warranted here
+because of sparse trajectories.
+
+I will do the extend method now.
+
+Ok the issue here is that it is using outdated methods for extend: it
+checks to see if the value is a group for if it is compound or
+not. This will be a problem for sparse data.
+
+It is probably just okay to do a rewrite and plunder snippets where
+they can be useful.
+
+This will involve:
+- update_sparse_flags function to be called when a read file object is
+  made that can detect based on structure of the field (or perhaps
+  flags in the file itself)
+- usage of compound group flags to get wether a field is compound or
+  not
 
 ** TODO [#A] restarting simulations, multiple runs                     :core:
 ** TODO [#A] implement SWMR                                         :feature:
