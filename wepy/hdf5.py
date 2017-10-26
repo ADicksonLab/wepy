@@ -327,6 +327,43 @@ class TrajHDF5(object):
             if exist_flag:
                 self._append_flags[dataset_key] = False
 
+    def _update_sparse_flags(self):
+        """Inspect the hdf5 object and set flags for sparse data fields."""
+
+        for field_name in TRAJ_DATA_FIELDS:
+
+            # get the field and skip this field if it hasn't been made
+            # yet
+            try:
+                field = self.h5[field_name]
+            except KeyError:
+                continue
+
+            # if it is compound look at its subfields
+            if field_name in COMPOUND_DATA_FIELDS:
+                for subfield_name in list(field):
+                    subfield = field[subfield_name]
+                    # check if the subfield is sparse
+                    if self._is_sparse_field(subfield):
+                        # set the flag if it is
+                        self._sparse_field_flags['/'.join([field_name, subfield_name])] = True
+            # it is a simple field
+            else:
+                # check if it is a sparse field
+                if self._is_sparse_field(field):
+                    # set the flag to true if it is
+                    self._sparse_field_flags[field_name] = True
+
+
+    @staticmethod
+    def _is_sparse_field(field):
+        if isinstance(field, h5py.Group):
+            if set(list(field)).intersection(['data', '_sparse_idxs']):
+                return True
+            else:
+                return False
+        else:
+            return False
 
     ### The init functions for different I/O modes
     def _create_init(self, topology, data, units, sparse_idxs=None):
@@ -409,6 +446,8 @@ class TrajHDF5(object):
 
         # set the flags for existing data
         self._update_exist_flags()
+        # update the sparse data flags
+        self._update_sparse_flags()
 
         if not any(self._exist_flags):
             self._create_init(topology, data, units)
@@ -422,6 +461,8 @@ class TrajHDF5(object):
 
         # initialize the flags from the read data
         self._update_exist_flags()
+        # update the sparse data flags
+        self._update_sparse_flags()
 
         # restrict append permissions for those that have their flags
         # set from the read init
@@ -435,6 +476,9 @@ class TrajHDF5(object):
         # which is not
         self._update_exist_flags()
 
+        # update the sparse data flags
+        self._update_sparse_flags()
+
 
     def _add_compound_traj_data(self, key, data, sparse_idxs=None):
 
@@ -442,6 +486,12 @@ class TrajHDF5(object):
         cmpd_grp = self.h5.create_group(key)
         # make a dataset for each dataset in this group
         for sub_key, values in data.items():
+
+            assert len(values.shape) > 1, \
+                "datasets must be feature vectors thus having more than 1 dimension"
+
+            # check the flags for if this compound field is sparse
+            # using the pathlike string notation
             if (self._sparse_field_flags['/'.join([key, sub_key])]):
                 assert sparse_idxs[sub_key] is not None, \
                     "sparse_idxs must be given if this is a sparse field"
@@ -460,6 +510,9 @@ class TrajHDF5(object):
                                         maxshape=(None, *values.shape[1:]))
 
     def _add_traj_data(self, key, data, sparse_idxs=None):
+
+        assert len(data.shape) > 1, \
+            "datasets must be feature vectors thus having more than 1 dimension"
 
         # if it is a sparse dataset we need to add the data and add
         # the idxs in a group
@@ -491,6 +544,8 @@ class TrajHDF5(object):
         if not self.closed:
             self._h5.close()
             self.closed = True
+        else:
+            warn("File already closed")
 
     # TODO is this right? shouldn't we actually delete the data then close
     def __del__(self):
@@ -550,6 +605,54 @@ class TrajHDF5(object):
     def n_atoms(self):
         return self.positions.shape[1]
 
+    @staticmethod
+    def _extend_field(field, values):
+
+        # make sure this is a feature vector
+        assert len(values.shape) > 1, \
+            "values must be a feature vector with the same number of dimensions as the dataset"
+        # make sure the new data has the right dimensions
+        assert values.shape[1:] == field.shape[1:], \
+            "field feature dimensions must be the same, i.e. all but the first dimension"
+
+        # number of new frames
+        n_new_frames = values.shape[0]
+
+        # append to the dataset on the first dimension, keeping the
+        # others the same, these must be feature vectors and therefore
+        # must exist
+        field.resize( (field.shape[0] + n_new_frames, *field.shape[1:]) )
+        # add the new data
+        field[-n_new_frames:, ...] = values
+
+    @staticmethod
+    def _extend_sparse_field(field, values, sparse_idxs):
+        field_data = field['data']
+        field_sparse_idxs = field['_sparse_idxs']
+
+        # make sure this is a feature vector
+        assert len(values.shape) > 1, \
+            "values must be a feature vector with the same number of dimensions as the dataset"
+        # make sure the new data has the right dimensions
+        assert values.shape[1:] == field_data.shape[1:], \
+            "field feature dimensions must be the same, i.e. all but the first dimension"
+
+        # number of new frames
+        n_new_frames = values.shape[0]
+
+        # append to the dataset on the first dimension, keeping the
+        # others the same, these must be feature vectors and therefore
+        # must exist
+        field_data.resize( (field_data.shape[0] + n_new_frames, *field_data.shape[1:]) )
+        # add the new data
+        field_data[-n_new_frames:, ...] = values
+
+        # add the sparse idxs in the same way
+        field_sparse_idxs.resize( (field_sparse_idxs.shape[0] + n_new_frames,
+                                   *field_sparse_idxs.shape[1:]) )
+        # add the new data
+        field_sparse_idxs[-n_new_frames:, ...] = sparse_idxs
+
 
     def extend(self, **kwargs):
         """ append to the trajectory as a whole """
@@ -560,9 +663,6 @@ class TrajHDF5(object):
 
         # get trajectory data from the kwargs
         traj_data = _extract_dict(TRAJ_DATA_FIELDS, **kwargs)
-
-        # sparse data idxs
-        sparse_data_idxs = _extract_dict(SPARSE_IDX_KEYS, **kwargs)
 
         # warn about unknown kwargs
         test_fields = list(TRAJ_DATA_FIELDS) + list(TRAJ_UNIT_FIELDS) + list(SPARSE_IDX_KEYS)
@@ -579,60 +679,54 @@ class TrajHDF5(object):
 
         # TODO check other compliances for this dataset
 
-
-        # if any sparse data idxs were given we need to handle this.
-        # add the idxs to the _sparse_idxs for this data
-        for sparse_key, sparse_idxs in sparse_data_idxs.items():
-            # assert that this is a sparse field
-            assert self._sparse_field_flags[sparse_key], \
-                "{} is not a sparse field".format(sparse_key)
-
         # number of frames to add
         n_new_frames = traj_data['positions'].shape[0]
+
+        # number of frames already in the trajectory
+        n_old_frames = self.h5['positions'].shape[0]
+
+        # calculate the new sparse idxs
+        sparse_idxs = np.array(range(n_old_frames, n_old_frames + n_new_frames))
 
         # add trajectory data for each field
 
         # get the dataset/group
-        for key, value in traj_data.items():
+        for field_name, value in traj_data.items():
 
-            # if there is no value for a key just ignore it
+            # if there is no value for a field_name just ignore it
             if value is None:
                 continue
 
-            # figure out if it is a dataset or a group (compound data like observables)
-            thing = self._h5[key]
-            if isinstance(thing, h5py.Group):
+            # handle the field based no if it is compound or not
 
-                # it is a group
-                group = thing
+            # if it is a compound field
+            if field_name in COMPOUND_DATA_FIELDS:
+
+                cmpd_field = self._h5[field_name]
 
                 # go through the fields given
-                for dset_key, dset_value in value.items():
+                for subfield_name, subfield_value in value.items():
                     # get that dataset
-                    dset = group[dset_key]
-
-                    # append to the dataset on the first dimension, keeping the
-                    # others the same, if they exist
-                    if len(dset.shape) > 1:
-                        dset.resize( (dset.shape[0] + n_new_frames, *dset.shape[1:]) )
+                    subfield = cmpd_field[subfield_name]
+                    # check if it is a sparse field or not
+                    if self._sparse_field_flags['/'.join([field_name, subfield_name])]:
+                        self._extend_sparse_field(subfield, subfield_value, sparse_idxs)
+                    # it is not
                     else:
-                        dset.resize( (dset.shape[0] + n_new_frames, ) )
+                        self._extend_field(subfield, subfield_value)
 
-                    # add the new data
-                    dset[-n_new_frames:, ...] = dset_value
+            # it is a simple field
             else:
-                # it is just a dataset
-                dset = thing
+                field = self._h5[field_name]
 
-                # append to the dataset on the first dimension, keeping the
-                # others the same, if they exist
-                if len(dset.shape) > 1:
-                    dset.resize( (dset.shape[0] + n_new_frames, *dset.shape[1:]) )
+                # check if it is a sparse field
+                if self._sparse_field_flags[field_name]:
+                    # extend the sparse field specifically
+                    self._extend_sparse_field(field, value, sparse_idxs)
+
+                # if not just extend to it directly
                 else:
-                    dset.resize( (dset.shape[0] + n_new_frames, ) )
-
-                # add the new data
-                dset[-n_new_frames:, ...] = value
+                    self._extend_field(field, value)
 
     @property
     def positions(self):
@@ -2277,10 +2371,15 @@ def _check_data_compliance(traj_data, compliance_requirements=COMPLIANCE_REQUIRE
     compliance_dict = dict(compliance_requirements)
 
     fields = set()
-    for field, value in traj_data.keys():
+    for field, value in traj_data.items():
+
+        # don't check observables
+        if field in ['observables']:
+            continue
+
         # check to make sure the value actually has something in it
-        if (value is not None) and len(value > 0):
-            fields.update(field)
+        if (value is not None) and len(value) > 0:
+            fields.update([field])
 
     compliances = []
     for compliance_tag, compliance_fields in compliance_dict.items():

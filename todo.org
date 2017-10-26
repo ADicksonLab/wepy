@@ -239,11 +239,23 @@ It is probably just okay to do a rewrite and plunder snippets where
 they can be useful.
 
 This will involve:
-- update_sparse_flags function to be called when a read file object is
+- [X] update_sparse_flags function to be called when a read file object is
   made that can detect based on structure of the field (or perhaps
   flags in the file itself)
-- usage of compound group flags to get wether a field is compound or
-  not
+- [ ] usage of compound group flags to get wether a field is compound
+  or not. DONT need this because we know which ones are compound based
+  on the CONSTANT flags for compound groups.
+
+Extend function finished.
+
+Now I need to decide on the access methods. This will involve getting
+data out as a masked array from sparse datasets.
+
+This will probably be a function like ~traj_h5.get_field(field_name)~ or
+~traj_h5.field(field_name)~ that returns an array.
+
+Also would like to have access methods so that you can directly access
+them as properties like ~traj_h5.positions~ and ~traj_h5.velocities~.
 
 ** TODO [#A] restarting simulations, multiple runs                     :core:
 ** TODO [#A] implement SWMR                                         :feature:
