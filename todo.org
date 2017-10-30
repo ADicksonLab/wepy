@@ -257,6 +257,26 @@ This will probably be a function like ~traj_h5.get_field(field_name)~ or
 Also would like to have access methods so that you can directly access
 them as properties like ~traj_h5.positions~ and ~traj_h5.velocities~.
 
+*** TODO [#A] get method for sparse trajectories                       :core:
+
+Analyzing behavior and appropriateness of the masked array for this
+purpose.
+
+One thing I have noticed that is unfavorable is that when you perform
+an operation with a validity domain that can return invalid values
+(i.e. log and divide) that instead of returning a masked array with
+the same mask it will mask the invalid values. This is bad behavior
+for calculating things like energies where I want to know where it
+fails and use a fill value for those. In this implementation it
+convolutes what is actually being masked and unmasked but invalid
+values.
+
+*** TODO [#A] ensure that all fields have correct lengths              :core:
+
+This means having the number of frames known and not adding different
+size datasets on construction (without sparsity), and not allowing
+different size datasets at all on extends.
+
 ** TODO [#A] restarting simulations, multiple runs                     :core:
 ** TODO [#A] implement SWMR                                         :feature:
 

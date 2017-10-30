@@ -728,6 +728,47 @@ class TrajHDF5(object):
                 else:
                     self._extend_field(field, value)
 
+
+    # TODO change this when positions are sparse
+    @property
+    def n_frames(self):
+        return self.h5['positions'].shape[0]
+
+    def _get_sparse_field(self, field):
+
+        filled_data = np.full( (self.n_frames, *data.shape[1:]), np.nan)
+        filled_data[field['_sparse_idxs'][:]] = field['data']
+
+        mask
+
+        return np.ma.masked_array(filled_data)
+
+    def get_field(self, field_name):
+        """Returns a numpy array for the given field."""
+
+        assert isinstance(field_name, str), "field_name must be a string"
+
+        # if the field is a compound name split it into the main field
+        # and the subfield
+        if '/' in field_name:
+            field_name, subfield_name = field_name.split('/')
+
+        # make sure the string is a field
+        assert field_name in TRAJ_DATA_FIELDS, \
+            "the field name ({}) is not a valid field".format(field_name)
+
+        # get the field or subfield
+        field = self.h5[field_name]
+
+        # determine if it is sparse
+        if self._sparse_field_flags[field_name]:
+            # get the sparse field as a masked array
+            return self._get_sparse_field(field)
+        # it is not, just slice out the data
+        else:
+            return field[:]
+
+
     @property
     def positions(self):
 
