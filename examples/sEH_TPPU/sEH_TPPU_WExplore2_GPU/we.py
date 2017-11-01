@@ -18,7 +18,6 @@ from wepy.boundary_conditions.unbinding import UnbindingBC
 from wepy.reporter.hdf5 import WepyHDF5Reporter
 from wepy.hdf5 import TrajHDF5
 from wepy.work_mapper.gpu import GPUMapper
-from wepy.distance_functions.openmm_distance import OpenMMDistance
 
 if __name__ == "__main__":
 
@@ -47,11 +46,11 @@ if __name__ == "__main__":
 
     # selects protien atoms which have less than 2.5 A from ligand
     # atoms in the crystal structure
-    
+
     neighbors_idxs = mdj.compute_neighbors(pdb, 0.8, lig_idxs)
     # selects protein atoms from neighbors list
     binding_selection_idxs = np.intersect1d(neighbors_idxs, protein_idxs)
-   
+
     # create a system for use in OpenMM
 
     # load the psf which is needed for making a system in OpenMM with
@@ -104,15 +103,12 @@ if __name__ == "__main__":
     # a list of the initial walkers
     init_walkers = [OpenMMWalker(omm_state, init_weight) for i in range(num_walkers)]
 
-    # set up the disatnce function for WExplore2 Resampler
-    disatnce_function = OpenMMDistance(topology=pdb.topology,
-                                       ligand_idxs=lig_idxs,
-                                       binding_site_idxs=binding_selection_idxs)
-
     # set up the WExplore2 Resampler with the parameters
-    resampler = WExplore2Resampler(pmax=0.2,
+    resampler = WExplore2Resampler(topology=pdb.topology,
+                                   ligand_idxs=lig_idxs,
+                                   binding_site_idxs=binding_selection_idxs,
                                    # algorithm parameters
-                                   distance_function=disatnce_function)
+                                   pmax=0.1)
 
     # makes ref_traj and selects lingand_atom and protein atom  indices
     # instantiate a wexplore2 unbindingboudaryconditiobs
