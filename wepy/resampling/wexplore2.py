@@ -8,15 +8,16 @@ import numpy.linalg as la
 import mdtraj as mdj
 
 from wepy.resampling.resampler import Resampler, ResamplingRecord
-from wepy.resampling.clone_merge import NothingInstructionRecord, CloneInstructionRecord,\?
+from wepy.resampling.clone_merge import NothingInstructionRecord, CloneInstructionRecord,\
                                          SquashInstructionRecord, KeepMergeInstructionRecord
 from wepy.resampling.clone_merge import CloneMergeDecision, CLONE_MERGE_INSTRUCTION_DTYPES
 
 class OpenMMDistance(object):
-    def __init__(self, topology= None, ligand_idxs=None, binding_site_idxs=None):
+    def __init__(self, topology= None, ligand_idxs=None, binding_site_idxs=None, alt_maps=None):
         self.topology = topology
         self.ligand_idxs = ligand_idxs
         self.binding_site_idxs = binding_site_idxs
+        self.alt_maps = alt_maps
 
 
     def _calc_angle(self, v1, v2):
@@ -112,8 +113,18 @@ class OpenMMDistance(object):
                 target_traj = self.maketraj(walkers[j])
                 target_traj = target_traj.superpose(ref_traj, atom_indices=self.binding_site_idxs)
                 d = self.rmsd(target_traj, ref_traj, self.ligand_idxs)
+                if self.alt_maps is not None:
+                    # loop over all alternative maps, find the smallest distance
+                    dmin = d
+                    for amap in self.alt_maps:
+                        target_traj = target_traj.superpose(ref_traj, atom_indices=self.binding_site_idxs, ref_atom_indices=amap)
+                        d = self.rmsd(target_traj, ref_traj, self.ligand_idxs)
+                        if d < dmin:
+                            dmin = d
+                    d = dmin
+                            
                 distance_matrix[i][j] = d
-                distance_matrix [j][i] = d
+                distance_matrix[j][i] = d
 
         return distance_matrix
 
@@ -126,7 +137,7 @@ class WExplore2Resampler(Resampler):
     INSTRUCTION_DTYPES = CLONE_MERGE_INSTRUCTION_DTYPES
 
     def __init__(self, seed=None, pmin=1e-12, pmax=0.1, dpower=4, merge_dist=0.25,
-                 topology=None, ligand_idxs=None, binding_site_idxs=None):
+                 topology=None, ligand_idxs=None, binding_site_idxs=None, alternative_maps=None):
         self.pmin=pmin
         self.lpmin = np.log(pmin/100)
         self.pmax=pmax
@@ -138,7 +149,8 @@ class WExplore2Resampler(Resampler):
         self.topology = topology
         self.ligand_idxs = ligand_idxs
         self.binding_site_idxs = binding_site_idxs
-
+        self.alt_maps = alternative_maps
+        
     def _calcspread(self, n_walkers, walkerwt, amp, distance_matrix):
         spread = 0
         wsum = np.zeros(n_walkers)
@@ -359,7 +371,7 @@ class WExplore2Resampler(Resampler):
         amp = [1 for i in range(n_walkers)]
 
         # calculate distance matrix
-        distance_function = OpenMMDistance(self.topology, self.ligand_idxs, self.binding_site_idxs)
+        distance_function = OpenMMDistance(self.topology, self.ligand_idxs, self.binding_site_idxs, self.alt_maps)
         distance_matrix = distance_function.distance(walkers)
 
 
