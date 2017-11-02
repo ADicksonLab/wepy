@@ -8,8 +8,8 @@ import numpy.linalg as la
 import mdtraj as mdj
 
 from wepy.resampling.resampler import Resampler, ResamplingRecord
-from wepy.resampling.clone_merge import NothingInstructionRecord, CloneInstructionRecord,\?
-                                         SquashInstructionRecord, KeepMergeInstructionRecord
+from wepy.resampling.clone_merge import NothingInstructionRecord, CloneInstructionRecord,
+                                        SquashInstructionRecord, KeepMergeInstructionRecord
 from wepy.resampling.clone_merge import CloneMergeDecision, CLONE_MERGE_INSTRUCTION_DTYPES
 
 class OpenMMDistance(object):
