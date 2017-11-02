@@ -1,6 +1,4 @@
-import multiprocessing as mulproc
 import random as rand
-import itertools as it
 
 import numpy as np
 import numpy.linalg as la
@@ -8,7 +6,7 @@ import numpy.linalg as la
 import mdtraj as mdj
 
 from wepy.resampling.resampler import Resampler, ResamplingRecord
-from wepy.resampling.clone_merge import NothingInstructionRecord, CloneInstructionRecord,
+from wepy.resampling.clone_merge import NothingInstructionRecord, CloneInstructionRecord,\
                                         SquashInstructionRecord, KeepMergeInstructionRecord
 from wepy.resampling.clone_merge import CloneMergeDecision, CLONE_MERGE_INSTRUCTION_DTYPES
 
@@ -117,9 +115,6 @@ class OpenMMDistance(object):
 
         return distance_matrix
 
-def choices(population, weights=None):
-    raise NotImplementedError
-
 class WExplore2Resampler(Resampler):
 
     DECISION = CloneMergeDecision
@@ -138,6 +133,8 @@ class WExplore2Resampler(Resampler):
         self.topology = topology
         self.ligand_idxs = ligand_idxs
         self.binding_site_idxs = binding_site_idxs
+        self.distance_function = OpenMMDistance(self.topology,
+                                                self.ligand_idxs, self.binding_site_idxs)
 
     def _calcspread(self, n_walkers, walkerwt, amp, distance_matrix):
         spread = 0
@@ -185,7 +182,8 @@ class WExplore2Resampler(Resampler):
                      resampled_walkers [parent_idx] = cloned_walkers.pop()
                      resampled_walkers [resampling_record.instruction[1]] = cloned_walkers.pop()
 
-                elif resampling_record.decision in [CloneMergeDecision.KEEP_MERGE.value, CloneMergeDecision.NOTHING.value] :
+                elif resampling_record.decision in [CloneMergeDecision.KEEP_MERGE.value,
+                                                    CloneMergeDecision.NOTHING.value] :
                     pass
                 else:
                     # do nothing
@@ -329,29 +327,6 @@ class WExplore2Resampler(Resampler):
         else:
             return  resampling_actions, spreads[-1]
 
-    def print_actions(self, n_walkers, clone_merge_resampling_record):
-
-
-        result_template_str = "|".join(["{:^10}" for i in range(n_walkers+1)])
-
-        print("---------------------")
-
-        # walker slot indices
-        slot_str = result_template_str.format("slot", *[i for i in range(n_walkers)])
-        print(slot_str)
-
-        for stage_idx, walker_actions in enumerate(clone_merge_resampling_record):
-            print("Resampling Stage: {}".format(stage_idx))
-            print("---------------------")
-
-            # the resampling actions
-            action_str = result_template_str.format("decision",
-                                                    *[str(tup[0].name) for tup in walker_actions])
-            print(action_str)
-            data_str = result_template_str.format("instruct",
-                                *[','.join([str(i) for i in tup[1]]) for tup in walker_actions])
-            print(data_str)
-
     def resample(self, walkers, debug_prints=False):
 
         n_walkers = len(walkers)
@@ -359,13 +334,12 @@ class WExplore2Resampler(Resampler):
         amp = [1 for i in range(n_walkers)]
 
         # calculate distance matrix
-        distance_function = OpenMMDistance(self.topology, self.ligand_idxs, self.binding_site_idxs)
-        distance_matrix = distance_function.distance(walkers)
+        distance_matrix = self.distance_function.distance(walkers)
 
 
         if debug_prints:
-            print ("distance_matrix")
-            print (distance_matrix)
+            print("distance_matrix")
+            print(distance_matrix)
 
         # determine cloning and merging actions to be performed, by maximizing the spread
         resampling_actions, spread = self.decide_clone_merge(n_walkers, walkerwt,
@@ -374,7 +348,7 @@ class WExplore2Resampler(Resampler):
 
 
         # actually do the cloning and merging of the walkers
-        resampled_walkers = self._clone_merge(walkers, resampling_actions, debug_prints)
+        resampled_walkers = self._clone_merge(walkers, resampling_actions, debug_prints=debug_prints)
 
-        data = {'distance_matrix' : distance_matrix, 'spread' : np.array([spread]) }
+        data = {'distance_matrix' : distance_matrix, 'spread' : np.array([spread])}
         return resampled_walkers, resampling_actions, data

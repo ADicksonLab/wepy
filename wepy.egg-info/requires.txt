@@ -1,4 +1,0 @@
-numpy
-h5py
-openmm
-scoop
