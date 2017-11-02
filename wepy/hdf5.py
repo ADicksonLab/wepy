@@ -1261,8 +1261,8 @@ class WepyHDF5(object):
 
         # weights
         traj_grp.create_dataset('weights', data=weights, maxshape=(None,))
-
         # positions
+
         traj_grp.create_dataset('positions', data=traj_data.pop('positions'),
                                 maxshape=(None, n_atoms, self.n_dims))
 
