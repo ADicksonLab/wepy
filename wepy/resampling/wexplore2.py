@@ -43,41 +43,47 @@ class OpenMMDistance(object):
     def move_ligand(self, positions, boxsize_x, boxsize_y, boxsize_z):
         positions = np.copy(positions)
 
-        ligand_center = [np.array((0.0,0.0,0.0))]
-        binding_site_center = [np.array((0.0,0.0,0.0))]
+        changed = True
+        while changed:
+            ligand_center = [np.array((0.0,0.0,0.0))]
+            binding_site_center = [np.array((0.0,0.0,0.0))]
 
-        # calculate center of mass ligand
-        for idx in self.ligand_idxs:
-            ligand_center += positions[:, idx, :]
+            # calculate center of mass ligand
+            for idx in self.ligand_idxs:
+                ligand_center += positions[:, idx, :]
 
-        ligand_center = ligand_center/len(self.ligand_idxs)
+            ligand_center = ligand_center/len(self.ligand_idxs)
 
-        for idx in self.binding_site_idxs:
-            binding_site_center += positions[:, idx, :]
+            for idx in self.binding_site_idxs:
+                binding_site_center += positions[:, idx, :]
 
-        binding_site_center = binding_site_center/len(self.binding_site_idxs)
+            binding_site_center = binding_site_center/len(self.binding_site_idxs)
 
-        diff = ligand_center - binding_site_center
+            diff = ligand_center - binding_site_center
 
-        V = [np.array((0.0, 0.0, 0.0))]
-         # x direction
-        if diff[0][0] > boxsize_x /2 :
-            V[0][0] = boxsize_x /2
-        elif  diff[0][0] < -boxsize_x /2 :
-            V[0][0] = -boxsize_x/2
+            V = [np.array((0.0, 0.0, 0.0))]
+            # x direction
+            if diff[0][0] > boxsize_x /2 :
+                V[0][0] = -boxsize_x
+            elif  diff[0][0] < -boxsize_x /2 :
+                V[0][0] = boxsize_x
             #  y direction
-        if diff[0][1] > boxsize_y/2 :
-            V[0][1] = boxsize_y/2
-        elif  diff[0][1] < -boxsize_y/2 :
-            V[0][1] = -boxsize_y/2
+            if diff[0][1] > boxsize_y/2 :
+                V[0][1] = -boxsize_y
+            elif  diff[0][1] < -boxsize_y/2 :
+                V[0][1] = boxsize_y
             # z direction
-        if diff[0][2] > boxsize_z /2 :
-            V[0][2] = boxsize_z /2
-        elif  diff[0][1] < -boxsize_z /2 :
-            V[0][2] = -boxsize_z/2
+            if diff[0][2] > boxsize_z /2 :
+                V[0][2] = -boxsize_z
+            elif  diff[0][1] < -boxsize_z /2 :
+                V[0][2] = boxsize_z
             # translate  ligand
-        for idx in self.ligand_idxs:
-           positions[:, idx, :] += V
+            if abs(V[0]).sum() > 0:
+                for idx in self.ligand_idxs:
+                    positions[:, idx, :] += V
+                changed = True
+            else:
+                changed = False
 
         return positions
 
