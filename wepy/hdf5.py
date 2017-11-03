@@ -736,12 +736,18 @@ class TrajHDF5(object):
 
     def _get_sparse_field(self, field):
 
+        data = field['data'][:]
+        sparse_idxs = field['_sparse_idxs'][:]
+
         filled_data = np.full( (self.n_frames, *data.shape[1:]), np.nan)
-        filled_data[field['_sparse_idxs'][:]] = field['data']
+        filled_data[sparse_idxs] = data
 
-        mask
+        mask = np.full( (self.n_frames, *data.shape[1:]), True)
+        mask[sparse_idxs] = False
 
-        return np.ma.masked_array(filled_data)
+        masked_array = np.ma.masked_array(filled_data, mask=mask)
+
+        return masked_array
 
     def get_field(self, field_name):
         """Returns a numpy array for the given field."""

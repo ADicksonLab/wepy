@@ -2,6 +2,11 @@
 
 ** TODO [#B] allow for resampler to get information on the whole tree of data :feature:
 * HDF5
+** TODO [#B] check file is correct
+
+I noticed that constructing a WepyHDF5 object from a TrajHDF5 file
+there is no complaint. There should be.
+
 
 ** TODO [#A] sparse velocities etc. across trajectory                  :core:
 
