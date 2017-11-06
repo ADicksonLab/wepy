@@ -51,7 +51,7 @@ if __name__ == "__main__":
                                    pmax=0.1)
 
     ubc = UnbindingBC(cutoff_distance=0.5,
-                      initial_state=init_walkers[0],
+                      initial_state=init_walkers[0].state,
                       topology=mdtraj_topology,
                       ligand_idxs=np.array(test_sys.ligand_indices),
                       binding_site_idxs=np.array(test_sys.receptor_indices))
