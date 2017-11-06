@@ -1852,7 +1852,9 @@ class WepyHDF5(object):
 
 
     def compute_observable(self, func, fields, *args,
-                           map_func=map, traj_sel=None, save_to_hdf5=None, idxs=False,
+                           map_func=map,
+                           traj_sel=None,
+                           save_to_hdf5=None, idxs=False, return_results=True,
                            debug_prints=False):
         """Compute an observable on the trajectory data according to a
         function. Optionally save that data in the observables data group for
@@ -1869,21 +1871,18 @@ class WepyHDF5(object):
             # DEBUG enforce this until sparse trajectories are implemented
             # assert traj_sel is None, "no selections until sparse trajectory data is implemented"
 
-        results = self.traj_fields_map(func, fields, *args,
+        for result in self.traj_fields_map(func, fields, *args,
                                        map_func=map_func, traj_sel=traj_sel, idxs=True,
-                                       debug_prints=debug_prints)
+                                       debug_prints=debug_prints):
+            idx_tup, obs_value = result
+            run_idx, traj_idx = idx_tup
 
-        # if we are saving this to the trajectories observables add it as a dataset
-        if save_to_hdf5:
-
-            if debug_prints:
-                print("Finished calculations saving them to HDF5")
-
-            for idx_tup, obs_values in results:
-                run_idx, traj_idx = idx_tup
+            # if we are saving this to the trajectories observables add it as a dataset
+            if save_to_hdf5:
 
                 if debug_prints:
-                    print("Saving run {} traj {} observables/{}".format(run_idx, traj_idx, field_name))
+                    print("Saving run {} traj {} observables/{}".format(
+                        run_idx, traj_idx, field_name))
 
                 # try to get the observables group or make it if it doesn't exist
                 try:
@@ -1897,7 +1896,7 @@ class WepyHDF5(object):
 
                 # try to create the dataset
                 try:
-                    obs_grp.create_dataset(field_name, data=obs_values)
+                    obs_grp.create_dataset(field_name, data=obs_value)
                 # if it fails we either overwrite or raise an error
                 except RuntimeError:
                     # if we are in a permissive write mode we delete the
@@ -1908,18 +1907,18 @@ class WepyHDF5(object):
                             print("Dataset already present. Overwriting.")
 
                         del obs_grp[field_name]
-                        obs_grp.create_dataset(field_name, data=obs_values)
+                        obs_grp.create_dataset(field_name, data=obs_value)
                     # this will happen in 'c' and 'c-' modes
                     else:
                         raise RuntimeError(
                             "Dataset already exists and file is in concatenate mode ('c' or 'c-')")
 
-        # otherwise just return it
-        else:
-            if idxs:
-                return results
-            else:
-                return (obs_values for idxs, obs_values in results)
+            # also return it if requested
+            if return_results:
+                if idxs:
+                    yield idx_tup, obs_value
+                else:
+                    yield obs_value
 
     def join(self, other_h5):
         """Given another WepyHDF5 file object does a left join on this
