@@ -1,11 +1,17 @@
+import geomm.recentering
+import geomm.rmsd
+
 import multiprocessing as mulproc
 import random as rand
 import itertools as it
+from copy import copy
+from copy import deepcopy
 
 import numpy as np
 import numpy.linalg as la
 
 import mdtraj as mdj
+import simtk.unit as unit
 
 from wepy.resampling.resampler import Resampler, ResamplingRecord
 from wepy.resampling.clone_merge import NothingInstructionRecord, CloneInstructionRecord,\
@@ -18,7 +24,8 @@ class OpenMMDistance(object):
         self.ligand_idxs = ligand_idxs
         self.binding_site_idxs = binding_site_idxs
         self.alt_maps = alt_maps
-
+        # alt_maps are alternative mappings to the binding site
+        # this program now assumes that all alternative maps
 
     def _calc_angle(self, v1, v2):
         return np.degrees(np.arccos(np.dot(v1, v2)/(la.norm(v1) * la.norm(v2))))
@@ -26,113 +33,59 @@ class OpenMMDistance(object):
     def _calc_length(self, v):
         return la.norm(v)
 
-    def _pos_to_array(self, positions):
-        n_atoms = self.topology.n_atoms
+    def _xyz_from_walkers(self, walkers, keep_atoms=[]):
+        if len(keep_atoms) == 0:
+            keep_atoms = range(np.shape(walkers[0].positions)[0])
+            
+        return np.stack(([np.array(w.positions.value_in_unit(unit.nanometer))[keep_atoms,:] for w in walkers]),axis=0)
 
-        xyz = np.zeros((1, n_atoms, 3))
-
-        for i in range(n_atoms):
-            xyz[0,i,:] = ([positions[i]._value[0],
-                           positions[i]._value[1],
-                           positions[i]._value[2]])
-        return xyz
-
-    def rmsd(self, traj, ref, idx):
-        return np.sqrt(np.sum(np.square(traj.xyz[:, idx, :] - ref.xyz[:, idx, :]),
-                                axis=(1, 2))/idx.shape[0])
-    def move_ligand(self, positions, boxsize_x, boxsize_y, boxsize_z):
-        positions = np.copy(positions)
-
-        changed = True
-        while changed:
-            ligand_center = [np.array((0.0,0.0,0.0))]
-            binding_site_center = [np.array((0.0,0.0,0.0))]
-
-            # calculate center of mass ligand
-            for idx in self.ligand_idxs:
-                ligand_center += positions[:, idx, :]
-
-            ligand_center = ligand_center/len(self.ligand_idxs)
-
-            for idx in self.binding_site_idxs:
-                binding_site_center += positions[:, idx, :]
-
-            binding_site_center = binding_site_center/len(self.binding_site_idxs)
-
-            diff = ligand_center - binding_site_center
-
-            V = [np.array((0.0, 0.0, 0.0))]
-            # x direction
-            if diff[0][0] > boxsize_x /2 :
-                V[0][0] = -boxsize_x
-            elif  diff[0][0] < -boxsize_x /2 :
-                V[0][0] = boxsize_x
-            #  y direction
-            if diff[0][1] > boxsize_y/2 :
-                V[0][1] = -boxsize_y
-            elif  diff[0][1] < -boxsize_y/2 :
-                V[0][1] = boxsize_y
-            # z direction
-            if diff[0][2] > boxsize_z /2 :
-                V[0][2] = -boxsize_z
-            elif  diff[0][1] < -boxsize_z /2 :
-                V[0][2] = boxsize_z
-            # translate  ligand
-            if abs(V[0]).sum() > 0:
-                for idx in self.ligand_idxs:
-                    positions[:, idx, :] += V
-                changed = True
-            else:
-                changed = False
-
-        return positions
-
-    def maketraj(self, walker):
-        # convert box_vectors to angles and lengths for mdtraj
-        # calc box length
-        cell_lengths = np.array([[self._calc_length(v._value) for v in walker.box_vectors]])
-
-        # TODO order of cell angles
-        # calc angles
-        cell_angles = np.array([[self._calc_angle(walker.box_vectors._value[i],
-                                                 walker.box_vectors._value[j])
-                                 for i, j in [(0,1), (1,2), (2,0)]]])
-
-        # moves ligand inside the box
-        positions = self.move_ligand(self._pos_to_array(walker.positions),
-                                     cell_lengths[0][0], cell_lengths[0][1], cell_lengths[0][2])
-
-        # make a traj out of it so we can calculate distances through
-        # the periodic boundary conditions
-        walker_traj = mdj.Trajectory(positions,
-                                     topology=self.topology,
-                                     unitcell_lengths=cell_lengths,
-                                     unitcell_angles=cell_angles)
-        return  walker_traj
-
+    def _box_from_walkers(self, walkers):
+        return np.stack(([np.array([la.norm(v._value) for v in w.box_vectors]) for w in walkers]),axis=0)
+        
     def distance(self, walkers):
         num_walkers = len(walkers)
         distance_matrix = np.zeros((num_walkers, num_walkers))
-        for i in range(num_walkers):
-            ref_traj = self.maketraj(walkers[i])
-            for j in range(i+1, num_walkers):
-                target_traj = self.maketraj(walkers[j])
-                target_traj = target_traj.superpose(ref_traj, atom_indices=self.binding_site_idxs)
-                d = self.rmsd(target_traj, ref_traj, self.ligand_idxs)
-                if self.alt_maps is not None:
-                    # loop over all alternative maps, find the smallest distance
-                    dmin = d
-                    for amap in self.alt_maps:
-                        target_traj = target_traj.superpose(ref_traj, atom_indices=self.binding_site_idxs, ref_atom_indices=amap)
-                        d = self.rmsd(target_traj, ref_traj, self.ligand_idxs)
-                        if d < dmin:
-                            dmin = d
-                    d = dmin
-                            
-                distance_matrix[i][j] = d
-                distance_matrix[j][i] = d
 
-        return distance_matrix
+        small_lig_idxs = np.array(range(len(self.ligand_idxs)))
+        small_bs_idxs = np.array(range(len(self.ligand_idxs),len(self.ligand_idxs)+len(self.binding_site_idxs)))
+        keep_atoms = np.concatenate((self.ligand_idxs,self.binding_site_idxs),axis=0)
+        
+        small_pos = self._xyz_from_walkers(walkers,keep_atoms)
+        box_lengths = self._box_from_walkers(walkers)
+        newpos_small = geomm.recentering.recenter_receptor_ligand(small_pos,box_lengths,ligand_idxs=small_lig_idxs,receptor_idxs=small_bs_idxs)
+
+        small_top = self.topology.subset(keep_atoms)
+        traj_rec = mdj.Trajectory(newpos_small,small_top)
+
+        traj_rec.superpose(traj_rec,atom_indices=small_bs_idxs)
+        d = np.zeros((num_walkers,num_walkers))
+        for i in range(num_walkers-1):
+            d[i][i] = 0
+            for j in range(i+1,num_walkers):
+                d[i][j] = geomm.rmsd.rmsd_one_frame(traj_rec.xyz[i],traj_rec.xyz[j],small_lig_idxs)
+                d[j][i] = d[i][j]
+
+        if self.alt_maps is not None:
+            # figure out the "small" alternative maps
+            small_alt_maps = deepcopy(self.alt_maps)
+            for i, a in enumerate(small_alt_maps):
+                for j, e in enumerate(a):
+                    try:
+                        small_alt_maps[i][j] = self.binding_site_idxs.index(e)
+                    except:
+                        raise Exception('Alternative maps are assumed to be permutations of existing binding site indices')
+
+            for alt_map in small_alt_maps:
+                alt_traj_rec = mdj.Trajectory(newpos_small,small_top)
+                alt_traj_rec.superpose(alt_traj_rec,atom_indices=small_bs_idxs,ref_atom_indices=alt_map)
+                for i in range(num_walkers-1):
+                    for j in range(i+1,num_walkers):
+                        dtest = geomm.rmsd.rmsd_one_frame(traj_rec.xyz[i],alt_traj_rec.xyz[j],small_lig_idxs)
+                        if dtest < d[i][j]:
+                            d[i][j] = dtest
+                            d[j][i] = dtest
+        
+        return d
 
 def choices(population, weights=None):
     raise NotImplementedError

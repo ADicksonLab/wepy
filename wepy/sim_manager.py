@@ -1,4 +1,5 @@
 import sys
+import time
 import os.path as osp
 
 from wepy.resampling.resampler import NoResampler
@@ -79,13 +80,16 @@ class Manager(object):
 
             if debug_prints:
                 sys.stdout.write("Begin cycle {}\n".format(cycle_idx))
-
+                start_time = time.time()
+                
             # run the segment
             new_walkers = self.run_segment(walkers, segment_lengths[cycle_idx],
                                            debug_prints=debug_prints)
 
             if debug_prints:
                 sys.stdout.write("End cycle {}\n".format(cycle_idx))
+                end_time = time.time()
+                sys.stdout.write("Time spent on dynamics {}\n".format(end_time-start_time))
 
             # boundary conditions should be optional;
 
@@ -119,11 +123,19 @@ class Manager(object):
                 bc_records = bc_results[3]
                 bc_aux_data = bc_results[4]
 
+
+            if debug_prints:
+                start_time = time.time()
+                
             # resample walkers
             resampled_walkers, resampling_records, resampling_aux_data =\
                            self.resampler.resample(warped_walkers,
                                                    debug_prints=debug_prints)
 
+            if debug_prints:
+                end_time = time.time()
+                sys.stdout.write("Resampling time {}\n".format(end_time-start_time))
+                
             if debug_prints:
                 # print results for this cycle
                 print("Net state of walkers after resampling:")
