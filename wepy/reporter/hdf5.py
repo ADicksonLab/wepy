@@ -126,7 +126,7 @@ class WepyHDF5Reporter(FileReporter):
             # TODO add boundary condition records
             # wepy_h5.add_bc_records(self.wepy_run_idx, bc_records)
             # if there is any boundary conditions function
-            if len(bc_aux_data)>0:
+            if len(bc_aux_data) > 0:
                 # add the auxiliary data from checking boundary conditions
                 wepy_h5.add_cycle_bc_aux_data(self.wepy_run_idx, bc_aux_data)
 

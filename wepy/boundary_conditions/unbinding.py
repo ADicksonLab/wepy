@@ -106,8 +106,12 @@ class UnbindingBC(BoundaryConditions):
 
         # collect the passage time
 
+        # time is returned as an array because it is a feature of the
+        # walker, and domain specific. I.e. domain specific values are
+        # of type `array` while weights will always be floats in all
+        # applications.
         time = walker.time_value()
-        warp_data = {'passage_time' : np.array([time]),
+        warp_data = {'passage_time' : time,
                      'warped_walker_weight' : np.array([walker.weight])}
 
         # make the warp data mapping
@@ -137,6 +141,7 @@ class UnbindingBC(BoundaryConditions):
 
             # if the walker is unbound we need to warp it
             if unbound:
+                # import ipdb; ipdb.set_trace()
                 # warp the walker
                 warped_walker, warp_record, warp_data = self.warp(walker)
 
@@ -152,8 +157,10 @@ class UnbindingBC(BoundaryConditions):
 
                 # DEBUG
                 if debug_prints:
-                    sys.stdout.write('EXIT POINT observed at {} \n'.format(warp_data['passage_time']))
-                    sys.stdout.write('Warped Walker Weight = {} \n'.format(warp_data['warped_walker_weight']))
+                    sys.stdout.write('EXIT POINT observed at {} \n'.format(
+                        warp_data['passage_time']))
+                    sys.stdout.write('Warped Walker Weight = {} \n'.format(
+                        warp_data['warped_walker_weight']))
 
             # no warping so just return the original walker
             else:
