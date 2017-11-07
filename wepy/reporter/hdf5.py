@@ -102,13 +102,13 @@ class WepyHDF5Reporter(FileReporter):
                 # check to see if the walker has a trajectory in the run
                 if walker_idx in wepy_h5.run_traj_idxs(self.wepy_run_idx):
                     # if it does then append to the trajectory
-                    wepy_h5.append_traj(self.wepy_run_idx, walker_idx,
+                    wepy_h5.extend_traj(self.wepy_run_idx, walker_idx,
                                              weights=np.array([[walker.weight]]),
                                              **walker_data)
                 # start a new trajectory
                 else:
                     # add the traj for the walker with the data
-                    traj_grp = wepy_h5.add_traj(self.wepy_run_idx, weights=np.array([walker.weight]),
+                    traj_grp = wepy_h5.add_traj(self.wepy_run_idx, weights=np.array([[walker.weight]]),
                                                      **walker_data)
                     # add as metadata the cycle idx where this walker started
                     traj_grp.attrs['starting_cycle_idx'] = cycle_idx

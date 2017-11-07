@@ -48,6 +48,8 @@ DATA_UNIT_MAP = (('positions', 'positions_unit'),
                  ('observables', 'observables_units')
                 )
 
+WEIGHT_SHAPE = (1,)
+
 # some fields have more than one dataset associated with them
 COMPOUND_DATA_FIELDS = ('parameters', 'parameter_derivatives', 'observables')
 COMPOUND_UNIT_FIELDS = ('parameters', 'parameter_derivatives', 'observables')
@@ -1260,7 +1262,7 @@ class WepyHDF5(object):
         # add datasets to the traj group
 
         # weights
-        traj_grp.create_dataset('weights', data=weights, maxshape=(None,))
+        traj_grp.create_dataset('weights', data=weights, maxshape=(None, *WEIGHT_SHAPE))
         # positions
 
         traj_grp.create_dataset('positions', data=traj_data.pop('positions'),
