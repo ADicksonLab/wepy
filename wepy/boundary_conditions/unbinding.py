@@ -111,7 +111,7 @@ class UnbindingBC(BoundaryConditions):
                      'warped_walker_weight' : np.array([walker.weight])}
 
         # make the warp data mapping
-   
+
 
         return warped_walker, warp_record, warp_data
 
@@ -140,8 +140,8 @@ class UnbindingBC(BoundaryConditions):
                 # warp the walker
                 warped_walker, warp_record, warp_data = self.warp(walker)
 
-                # save it in the list of new walkers to return
-                new_walkers.append(self.initial_state)
+                # save warped_walker in the list of new walkers to return
+                new_walkers.append(warped_walker)
 
                 # save the record of the walker
                 warped_walkers_records.append( (walker_idx, warp_record) )
