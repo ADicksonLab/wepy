@@ -1,6 +1,8 @@
 import sys
 import time
+import os
 import os.path as osp
+import pickle
 
 from wepy.resampling.resampler import NoResampler
 from wepy.runner import NoRunner
@@ -24,7 +26,8 @@ class Manager(object):
                  resampler = None,
                  boundary_conditions = None,
                  work_mapper = map,
-                 reporter = None):
+                 reporter = None,
+                 backup_freq = None):
 
         self.init_walkers = init_walkers
         self.n_init_walkers = len(init_walkers)
@@ -41,6 +44,8 @@ class Manager(object):
         self.map = work_mapper
         # the method for writing output
         self.reporter = reporter
+        # the frequency for which to pkl all walkers
+        self.backup_freq = backup_freq
 
     def run_segment(self, walkers, segment_length, debug_prints=False):
         """Run a time segment for all walkers using the available workers. """
@@ -162,6 +167,21 @@ class Manager(object):
 
             # prepare resampled walkers for running new state changes
             walkers = resampled_walkers
+
+            if self.backup_freq != None:
+                if cycle_idx % self.backup_freq == 0:
+                    # pkl walkers
+                    pklname = "walker_backup_" + str(cycle_idx) + ".pkl"
+                    with open(pklname, 'wb') as f:
+                        pickle.dump(walkers, f, pickle.HIGHEST_PROTOCOL)
+
+                    # remove old pickle (but keep two at all times)
+                    idx = cycle_idx - 2*self.backup_freq
+                    oldpkl = "walker_backup_" + str(idx) + ".pkl"
+                    try:
+                        os.remove(oldpkl)
+                    except OSError:
+                        pass
 
         # cleanup things associated with the reporter
         self.reporter.cleanup()
