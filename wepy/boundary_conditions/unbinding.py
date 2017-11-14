@@ -141,7 +141,7 @@ class UnbindingBC(BoundaryConditions):
                 warped_walker, warp_record, warp_data = self.warp(walker)
 
                 # save it in the list of new walkers to return
-                new_walkers.append(self.initial_state)
+                new_walkers.append(warped_walker)
 
                 # save the record of the walker
                 warped_walkers_records.append( (walker_idx, warp_record) )
