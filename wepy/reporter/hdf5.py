@@ -30,7 +30,7 @@ class WepyHDF5Reporter(FileReporter):
         self.bc_aux_dtypes = bc_aux_dtypes
         self.bc_aux_shapes = bc_aux_shapes
         self.kwargs = kwargs
-    
+
 
         # if units were given add them otherwise set as an empty dictionary
         if units is None:
@@ -102,13 +102,13 @@ class WepyHDF5Reporter(FileReporter):
                 # check to see if the walker has a trajectory in the run
                 if walker_idx in wepy_h5.run_traj_idxs(self.wepy_run_idx):
                     # if it does then append to the trajectory
-                    wepy_h5.append_traj(self.wepy_run_idx, walker_idx,
-                                             weights=np.array([walker.weight]),
+                    wepy_h5.extend_traj(self.wepy_run_idx, walker_idx,
+                                             weights=np.array([[walker.weight]]),
                                              **walker_data)
                 # start a new trajectory
                 else:
                     # add the traj for the walker with the data
-                    traj_grp = wepy_h5.add_traj(self.wepy_run_idx, weights=np.array([walker.weight]),
+                    traj_grp = wepy_h5.add_traj(self.wepy_run_idx, weights=np.array([[walker.weight]]),
                                                      **walker_data)
                     # add as metadata the cycle idx where this walker started
                     traj_grp.attrs['starting_cycle_idx'] = cycle_idx
@@ -126,7 +126,7 @@ class WepyHDF5Reporter(FileReporter):
             # TODO add boundary condition records
             # wepy_h5.add_bc_records(self.wepy_run_idx, bc_records)
             # if there is any boundary conditions function
-            if len(bc_aux_data)>0:
+            if len(bc_aux_data) > 0:
                 # add the auxiliary data from checking boundary conditions
                 wepy_h5.add_cycle_bc_aux_data(self.wepy_run_idx, bc_aux_data)
 

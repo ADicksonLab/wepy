@@ -48,6 +48,8 @@ DATA_UNIT_MAP = (('positions', 'positions_unit'),
                  ('observables', 'observables_units')
                 )
 
+WEIGHT_SHAPE = (1,)
+
 # some fields have more than one dataset associated with them
 COMPOUND_DATA_FIELDS = ('parameters', 'parameter_derivatives', 'observables')
 COMPOUND_UNIT_FIELDS = ('parameters', 'parameter_derivatives', 'observables')
@@ -1260,9 +1262,9 @@ class WepyHDF5(object):
         # add datasets to the traj group
 
         # weights
-        traj_grp.create_dataset('weights', data=weights, maxshape=(None,))
+        traj_grp.create_dataset('weights', data=weights, maxshape=(None, *WEIGHT_SHAPE))
         # positions
-        
+
         traj_grp.create_dataset('positions', data=traj_data.pop('positions'),
                                 maxshape=(None, n_atoms, self.n_dims))
 
@@ -1660,7 +1662,7 @@ class WepyHDF5(object):
             else:
                 yield traj
 
-    def iter_trajs_fields(self, fields, idxs=False, traj_sel=None):
+    def iter_trajs_fields(self, fields, idxs=False, traj_sel=None, debug_prints=False):
         """Generator for all of the specified non-compound fields
         h5py.Datasets for all trajectories in the dataset across all
         runs. Fields is a list of valid relative paths to datasets in
@@ -1672,6 +1674,13 @@ class WepyHDF5(object):
             run_idx, traj_idx = idx_tup
 
             dsets = {}
+
+            # DEBUG if we ask for debug prints send in the run and
+            # traj index so the function can print this out
+            if debug_prints:
+                dsets['run_idx'] = run_idx
+                dsets['traj_idx'] = traj_idx
+
             for field in fields:
                 try:
                     dset = traj[field][:]
@@ -1686,51 +1695,6 @@ class WepyHDF5(object):
             else:
                 yield dsets
 
-    # TODO DEPRECATE replaced by `iter_trajs_fields`
-    def iter_trajs_field(self, field, idxs=False, traj_sel=None):
-        """Generator for all of the specified non-compound fields
-        h5py.Datasets for all trajectories in the dataset across all
-        runs. For fields within parameters, parameter_derivatives, and
-        observables use `iter_compound_fields`.
-
-        """
-
-        for idx_tup, traj in self.iter_trajs(idxs=True, traj_sel=traj_sel):
-            run_idx, traj_idx = idx_tup
-
-            try:
-                dset = traj[field]
-            except KeyError:
-                warn("field \"{}\" not found in \"{}\"".format(field, traj.name), RuntimeWarning)
-                dset = None
-
-            if idxs:
-                yield (run_idx, traj_idx), dset
-            else:
-                yield dset
-
-
-    # TODO DEPRECATE replaced by `iter_trajs_fields`
-    def iter_trajs_compound_field(self, grp, field, idxs=False, traj_sel=None):
-        """Generator for all of the specified non-compound fields
-        h5py.Datasets for all trajectories in the dataset across all
-        runs. For fields within parameters, parameter_derivatives, and
-        observables use `iter_compound_fields`.
-
-        """
-
-        for idx_tup, traj in self.iter_trajs(idxs=True, traj_sel=traj_sel):
-            run_idx, traj_idx = idx_tup
-            try:
-                dset = traj["{}/{}".format(grp, field)]
-            except KeyError:
-                warn("field \"{}\" not found in \"{}\"".format(field, traj.name))
-                dset = None
-
-            if idxs:
-                yield (run_idx, traj_idx), dset
-            else:
-                yield dset
 
     def run_map(self, func, *args, map_func=map, idxs=False, run_sel=None):
         """Function for mapping work onto trajectories in the WepyHDF5 file
@@ -1830,7 +1794,8 @@ class WepyHDF5(object):
         else:
             return results
 
-    def traj_fields_map(self, func, fields, *args, map_func=map, idxs=False, traj_sel=None):
+    def traj_fields_map(self, func, fields, *args, map_func=map, idxs=False, traj_sel=None,
+                        debug_prints=False):
         """Function for mapping work onto field of trajectories in the
         WepyHDF5 file object. Similar to traj_map, except `h5py.Group`
         objects cannot be pickled for message passing. So we select
@@ -1876,7 +1841,8 @@ class WepyHDF5(object):
                 mapped_arg = (arg for i in range(self.n_trajs))
                 mapped_args.append(mapped_arg)
 
-        results = map_func(func, self.iter_trajs_fields(fields, traj_sel=traj_sel, idxs=False),
+        results = map_func(func, self.iter_trajs_fields(fields, traj_sel=traj_sel, idxs=False,
+                                                        debug_prints=debug_prints),
                            *mapped_args)
 
         if idxs:
@@ -1888,7 +1854,10 @@ class WepyHDF5(object):
 
 
     def compute_observable(self, func, fields, *args,
-                           map_func=map, traj_sel=None, save_to_hdf5=None, idxs=False):
+                           map_func=map,
+                           traj_sel=None,
+                           save_to_hdf5=None, idxs=False, return_results=True,
+                           debug_prints=False):
         """Compute an observable on the trajectory data according to a
         function. Optionally save that data in the observables data group for
         the trajectory.
@@ -1904,40 +1873,68 @@ class WepyHDF5(object):
             # DEBUG enforce this until sparse trajectories are implemented
             # assert traj_sel is None, "no selections until sparse trajectory data is implemented"
 
-        results = self.traj_fields_map(func, fields, *args,
-                                       map_func=map_func, traj_sel=traj_sel, idxs=True)
+        for result in self.traj_fields_map(func, fields, *args,
+                                       map_func=map_func, traj_sel=traj_sel, idxs=True,
+                                       debug_prints=debug_prints):
+            idx_tup, obs_value = result
+            run_idx, traj_idx = idx_tup
 
-        # if we are saving this to the trajectories observables add it as a dataset
-        if save_to_hdf5:
-            for idx_tup, obs_values in results:
-                run_idx, traj_idx = idx_tup
+            # if we are saving this to the trajectories observables add it as a dataset
+            if save_to_hdf5:
+
+                if debug_prints:
+                    print("Saving run {} traj {} observables/{}".format(
+                        run_idx, traj_idx, field_name))
+
                 # try to get the observables group or make it if it doesn't exist
                 try:
                     obs_grp = self.traj(run_idx, traj_idx)['observables']
                 except KeyError:
+
+                    if debug_prints:
+                        print("Group uninitialized. Initializing.")
+
                     obs_grp = self.traj(run_idx, traj_idx).create_group('observables')
 
                 # try to create the dataset
                 try:
-                    obs_grp.create_dataset(field_name, data=obs_values)
+                    obs_grp.create_dataset(field_name, data=obs_value)
                 # if it fails we either overwrite or raise an error
                 except RuntimeError:
                     # if we are in a permissive write mode we delete the
                     # old dataset and add the new one, overwriting old data
                     if self.mode in ['w', 'w-', 'x', 'r+']:
+
+                        if debug_prints:
+                            print("Dataset already present. Overwriting.")
+
                         del obs_grp[field_name]
-                        obs_grp.create_dataset(field_name, data=obs_values)
+                        obs_grp.create_dataset(field_name, data=obs_value)
                     # this will happen in 'c' and 'c-' modes
                     else:
                         raise RuntimeError(
                             "Dataset already exists and file is in concatenate mode ('c' or 'c-')")
 
-        # otherwise just return it
-        else:
-            if idxs:
-                return results
-            else:
-                return (obs_values for idxs, obs_values in results)
+            # also return it if requested
+            if return_results:
+                if idxs:
+                    yield idx_tup, obs_value
+                else:
+                    yield obs_value
+
+    def join(self, other_h5):
+        """Given another WepyHDF5 file object does a left join on this
+        file. Renumbering the runs starting from this file.
+        """
+
+        with other_h5 as h5:
+            for run_idx in h5.run_idxs:
+                # the other run group handle
+                other_run = h5.run(run_idx)
+                # copy this run to this file in the next run_idx group
+                self.h5.copy(other_run, 'runs/{}'.format(self._run_idx_counter))
+                # increment the run_idx counter
+                self._run_idx_counter += 1
 
     def export_traj(self, run_idx, traj_idx, filepath, mode='x'):
         """Write a single trajectory from the WepyHDF5 container to a TrajHDF5
@@ -2134,3 +2131,7 @@ def _box_vectors_to_lengths_angles(box_vectors):
     unitcell_angles = np.array(unitcell_angles)
 
     return unitcell_lengths, unitcell_angles
+
+# see TODO
+def concat(wepy_h5s):
+    pass

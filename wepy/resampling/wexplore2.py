@@ -15,7 +15,7 @@ import simtk.unit as unit
 
 from wepy.resampling.resampler import Resampler, ResamplingRecord
 from wepy.resampling.clone_merge import NothingInstructionRecord, CloneInstructionRecord,\
-                                         SquashInstructionRecord, KeepMergeInstructionRecord
+                                        SquashInstructionRecord, KeepMergeInstructionRecord
 from wepy.resampling.clone_merge import CloneMergeDecision, CLONE_MERGE_INSTRUCTION_DTYPES
 
 class OpenMMDistance(object):
@@ -87,9 +87,6 @@ class OpenMMDistance(object):
         
         return d
 
-def choices(population, weights=None):
-    raise NotImplementedError
-
 class WExplore2Resampler(Resampler):
 
     DECISION = CloneMergeDecision
@@ -108,8 +105,9 @@ class WExplore2Resampler(Resampler):
         self.topology = topology
         self.ligand_idxs = ligand_idxs
         self.binding_site_idxs = binding_site_idxs
-        self.alt_maps = alternative_maps
-        
+        self.distance_function = OpenMMDistance(self.topology,
+                                                self.ligand_idxs, self.binding_site_idxs, alternative_maps)
+
     def _calcspread(self, n_walkers, walkerwt, amp, distance_matrix):
         spread = 0
         wsum = np.zeros(n_walkers)
@@ -156,7 +154,8 @@ class WExplore2Resampler(Resampler):
                      resampled_walkers [parent_idx] = cloned_walkers.pop()
                      resampled_walkers [resampling_record.instruction[1]] = cloned_walkers.pop()
 
-                elif resampling_record.decision in [CloneMergeDecision.KEEP_MERGE.value, CloneMergeDecision.NOTHING.value] :
+                elif resampling_record.decision in [CloneMergeDecision.KEEP_MERGE.value,
+                                                    CloneMergeDecision.NOTHING.value] :
                     pass
                 else:
                     # do nothing
@@ -348,29 +347,6 @@ class WExplore2Resampler(Resampler):
         else:
             return resampling_actions, spreads[-1], new_wt, new_amp
 
-    def print_actions(self, n_walkers, clone_merge_resampling_record):
-
-
-        result_template_str = "|".join(["{:^10}" for i in range(n_walkers+1)])
-
-        print("---------------------")
-
-        # walker slot indices
-        slot_str = result_template_str.format("slot", *[i for i in range(n_walkers)])
-        print(slot_str)
-
-        for stage_idx, walker_actions in enumerate(clone_merge_resampling_record):
-            print("Resampling Stage: {}".format(stage_idx))
-            print("---------------------")
-
-            # the resampling actions
-            action_str = result_template_str.format("decision",
-                                                    *[str(tup[0].name) for tup in walker_actions])
-            print(action_str)
-            data_str = result_template_str.format("instruct",
-                                *[','.join([str(i) for i in tup[1]]) for tup in walker_actions])
-            print(data_str)
-
     def resample(self, walkers, debug_prints=False):
 
         n_walkers = len(walkers)
@@ -378,13 +354,11 @@ class WExplore2Resampler(Resampler):
         amp = [1 for i in range(n_walkers)]
 
         # calculate distance matrix
-        distance_function = OpenMMDistance(self.topology, self.ligand_idxs, self.binding_site_idxs, self.alt_maps)
-        distance_matrix = distance_function.distance(walkers)
-
+        distance_matrix = self.distance_function.distance(walkers)
 
         if debug_prints:
-            print ("distance_matrix")
-            print (distance_matrix)
+            print("distance_matrix")
+            print(distance_matrix)
 
         # determine cloning and merging actions to be performed, by maximizing the spread
         resampling_actions, spread, new_wt, new_amp = self.decide_clone_merge(n_walkers, walkerwt,
@@ -395,4 +369,5 @@ class WExplore2Resampler(Resampler):
         resampled_walkers = self._clone_merge_even(walkers, resampling_actions, debug_prints, new_wt, new_amp)
         
         data = {'distance_matrix' : distance_matrix, 'spread' : np.array([spread]) }
+
         return resampled_walkers, resampling_actions, data
