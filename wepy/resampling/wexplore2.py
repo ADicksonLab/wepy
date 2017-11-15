@@ -249,7 +249,7 @@ class WExplore2Resampler(Resampler):
             # selects a walker with minimum wsum and a walker with maximum wsum
             # walker with the highest wsum (distance to other walkers) will be tagged for cloning (stored in maxwind)
             max_tups = [(value, i) for i, value in enumerate(wsum)
-                        if (new_amp[i] >= 1) and (new_wt[i]/new_amp[i] > self.pmin)]
+                        if (new_amp[i] >= 1) and (new_wt[i]/(new_amp[i] + 1) > self.pmin)]
             if len(max_tups):
                 maxvalue, maxwind = max(max_tups)
                 

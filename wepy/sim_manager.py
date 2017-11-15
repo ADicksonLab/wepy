@@ -65,7 +65,7 @@ class Manager(object):
 
         return new_walkers
 
-    def run_simulation(self, n_cycles, segment_lengths, debug_prints=False):
+    def run_simulation(self, n_cycles, segment_lengths, debug_prints=False,start_cycle=0):
         """Run a simulation for a given number of cycles with specified
         lengths of MD segments in between.
 
@@ -81,7 +81,7 @@ class Manager(object):
 
         walkers = self.init_walkers
         # the main cycle loop
-        for cycle_idx in range(n_cycles):
+        for cycle_idx in range(start_cycle,n_cycles):
 
             if debug_prints:
                 sys.stdout.write("Begin cycle {}\n".format(cycle_idx))
