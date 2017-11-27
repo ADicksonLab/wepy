@@ -1,104 +1,72 @@
 import sys
 import itertools as it
 from collections import defaultdict
+from random import random
 
 import numpy as np
 import numpy.linalg as la
+from numpy.random import choice
 
 import mdtraj as mdj
 
 from wepy.boundary_conditions.boundary import BoundaryConditions
+from wepy.resampling.wexplore2 import OpenMMRebindingDistance
 
-class UnbindingBC(BoundaryConditions):
+class RebindingBC(BoundaryConditions):
 
     WARP_INSTRUCT_DTYPE = np.dtype([('target', int)])
 
     WARP_AUX_DTYPES = {'cycle' : np.int, 'passage_time' :  np.float, 'warped_walker_weight' : np.float}
     WARP_AUX_SHAPES = {'cycle' : (1,), 'passage_time' : (1,), 'warped_walker_weight' : (1,)}
 
-    def __init__(self, initial_state=None,
-                 cutoff_distance=1.0,
+    def __init__(self, initial_states=None,
+                 initial_weights=None,
+                 cutoff_distance=0.2,
                  topology=None,
                  ligand_idxs=None,
-                 binding_site_idxs=None):
+                 binding_site_idxs=None,
+                 comp_xyz=None,
+                 alternative_maps=None):
 
         # test input
-        assert initial_state is not None, "Must give an initial state"
+        assert initial_states is not None, "Must give a set of initial states"
         assert topology is not None, "Must give a reference topology"
+        assert comp_xyz is not None, "Must give coordinates for bound state"
         assert ligand_idxs is not None
         assert binding_site_idxs is not None
         assert type(cutoff_distance) is float
 
-        self.initial_state = initial_state
+        self.initial_states = initial_states
+        if initial_weights is None:
+            self.initial_weights = np.array([1] * len(initial_states))
+        else:
+            self.initial_weights = initial_weights
         self.cutoff_distance = cutoff_distance
         self.topology = topology
 
-        self.ligand_idxs = ligand_idxs
-        self.binding_site_idxs = binding_site_idxs
+        self.native_distance = OpenMMRebindingDistance(topology=topology,
+                                                       ligand_idxs=ligand_idxs,
+                                                       binding_site_idxs=binding_site_idxs,
+                                                       alt_maps=alternative_maps,
+                                                       comp_xyz=comp_xyz)                                                       
 
-    def _calc_angle(self, v1, v2):
-        return np.degrees(np.arccos(np.dot(v1, v2)/(la.norm(v1) * la.norm(v2))))
+    def check_boundaries(self, nat_rmsd):
 
-    def _calc_length(self, v):
-        return la.norm(v)
+        # test to see if the ligand is re-bound
+        rebound = False
+        if nat_rmsd <= self.cutoff_distance:
+            rebound = True
 
+        boundary_data = {'nat_rmsd' : nat_rmsd}
 
-    def _pos_to_array(self, positions):
-        n_atoms = self.topology.n_atoms
-
-        xyz = np.zeros((1, n_atoms, 3))
-
-        for i in range(n_atoms):
-            xyz[0,i,:] = ([positions[i]._value[0],
-                           positions[i]._value[1],
-                           positions[i]._value[2]])
-        return xyz
-
-    def _calc_min_distance(self, walker):
-        # convert box_vectors to angles and lengths for mdtraj
-        # calc box length
-        cell_lengths = np.array([[self._calc_length(v._value) for v in walker.box_vectors]])
-
-        # TODO order of cell angles
-        # calc angles
-        cell_angles = np.array([[self._calc_angle(walker.box_vectors._value[i],
-                                                 walker.box_vectors._value[j])
-                                 for i, j in [(0,1), (1,2), (2,0)]]])
-
-        # make a traj out of it so we can calculate distances through
-        # the periodic boundary conditions
-        walker_traj = mdj.Trajectory(self._pos_to_array(walker.positions),
-                                     topology=self.topology,
-                                     unitcell_lengths=cell_lengths,
-                                     unitcell_angles=cell_angles)
-
-        # calculate the distances through periodic boundary conditions
-        # and get hte minimum distance
-        min_distance = np.min(mdj.compute_distances(walker_traj,
-                                                    it.product(self.ligand_idxs,
-                                                               self.binding_site_idxs)))
-        return min_distance
-
-    def check_boundaries(self, walker):
-
-        min_distance = self._calc_min_distance(walker)
-
-        # test to see if the ligand is unbound
-        unbound = False
-        if min_distance >= self.cutoff_distance:
-            unbound = True
-
-        boundary_data = {'min_distance' : min_distance}
-
-        return unbound, boundary_data
+        return rebound, boundary_data
 
     def warp(self, walker, cycle):
 
-        # we always start at the initial state
-        warped_state = self.initial_state
+        # choose a state randomly from the set of initial states
+        warped_state = choice(self.initial_states, 1, p=self.initial_weights/np.sum(self.initial_weights))[0]
 
-        # set the initial state into a new walker object with the same
-        # weight
+        # set the initial state into a new walker object with the same weight
         warped_walker = type(walker)(state=warped_state, weight=walker.weight)
 
         # thus there is only one record
@@ -130,17 +98,19 @@ class UnbindingBC(BoundaryConditions):
         # warp data is collected each time a warp occurs
         cycle_warp_data = defaultdict(list)
 
+        native_rmsds = self.native_distance.get_rmsd_native(walkers)
+        
         for walker_idx, walker in enumerate(walkers):
             # check if it is unbound, also gives the minimum distance
             # between guest and host
-            unbound, boundary_data = self.check_boundaries(walker)
+            rebound, boundary_data = self.check_boundaries(native_rmsds[walker_idx])
 
             # add boundary data for this walker
             for key, value in boundary_data.items():
                 cycle_boundary_data[key].append(value)
 
             # if the walker is unbound we need to warp it
-            if unbound:
+            if rebound:
                 # import ipdb; ipdb.set_trace()
                 # warp the walker
                 warped_walker, warp_record, warp_data = self.warp(walker,cycle)
@@ -157,7 +127,7 @@ class UnbindingBC(BoundaryConditions):
 
                 # DEBUG
                 if debug_prints:
-                    sys.stdout.write('EXIT POINT observed at {} \n'.format(
+                    sys.stdout.write('REBINDING observed at {} \n'.format(
                         warp_data['passage_time']))
                     sys.stdout.write('Warped Walker Weight = {} \n'.format(
                         warp_data['warped_walker_weight']))

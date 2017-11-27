@@ -109,7 +109,7 @@ class Manager(object):
 
                 # apply rules of boundary conditions and warp walkers through space
                 bc_results  = self.boundary_conditions.warp_walkers(new_walkers,
-                                                            debug_prints=debug_prints)
+                                                                    debug_prints=debug_prints,cycle=cycle_idx)
 
                 # warping results
                 warped_walkers = bc_results[0]
