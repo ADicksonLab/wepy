@@ -111,7 +111,7 @@ class UnbindingBC(BoundaryConditions):
         # of type `array` while weights will always be floats in all
         # applications.
         time = walker.time_value()
-        warp_data = {'cycle' : cycle, 'passage_time' : time,
+        warp_data = {'cycle' : np.array([cycle]), 'passage_time' : time,
                      'warped_walker_weight' : np.array([walker.weight])}
 
         # make the warp data mapping
