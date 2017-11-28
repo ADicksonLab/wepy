@@ -102,7 +102,7 @@ class WepyHDF5Reporter(FileReporter):
                 # check to see if the walker has a trajectory in the run
                 if walker_idx in wepy_h5.run_traj_idxs(self.wepy_run_idx):
                     # if it does then append to the trajectory
-                    wepy_h5.append_traj(self.wepy_run_idx, walker_idx,
+                    wepy_h5.extend_traj(self.wepy_run_idx, walker_idx,
                                              weights=np.array([[walker.weight]]),
                                              **walker_data)
                 # start a new trajectory
