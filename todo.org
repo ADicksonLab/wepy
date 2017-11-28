@@ -7,7 +7,6 @@
 I noticed that constructing a WepyHDF5 object from a TrajHDF5 file
 there is no complaint. There should be.
 
-
 ** TODO [#A] sparse velocities etc. across trajectory                  :core:
 
 How to actually implement this?
@@ -262,7 +261,7 @@ This will probably be a function like ~traj_h5.get_field(field_name)~ or
 Also would like to have access methods so that you can directly access
 them as properties like ~traj_h5.positions~ and ~traj_h5.velocities~.
 
-*** TODO [#A] get method for sparse trajectories                       :core:
+*** DONE [#A] TrajHDF5 get method for sparse trajectories              :core:
 
 Analyzing behavior and appropriateness of the masked array for this
 purpose.
@@ -276,11 +275,75 @@ fails and use a fill value for those. In this implementation it
 convolutes what is actually being masked and unmasked but invalid
 values.
 
-*** TODO [#A] ensure that all fields have correct lengths              :core:
+This is how it is implemented though.
+
+*** DONE [#A] TrajHDF5 ensure that all fields have correct lengths     :core:
 
 This means having the number of frames known and not adding different
 size datasets on construction (without sparsity), and not allowing
 different size datasets at all on extends.
+
+**** DONE [#A] for the TrajHDF5 constructor
+
+*** TODO [#A] initialize sparse_fields in constructor if no data given :core:
+After correcting some more core issues I now have the problem of
+specificying a field as sparse without giving any data in the
+constructor.
+
+Because the init function sub-constructor is doing this how will I
+tell it to do that?
+
+I could just initialize all the fields from the start. This would work
+for velocities or main fields but not for observables and other compound fields.
+
+I don't have a function to initialize a dataset as empty but maybe I should.
+
+This requires knowing both the shape and the dtype... annoying..
+
+Is it worth it??
+
+For velocities etc. it is okay because it will be the same as the
+positions or can be defined in the class or object or module
+
+For other things (like in observables) it cannot and in other places
+we have made this something that can be defined or not depending on if
+it is important or not. For instance in auxiliary data.
+
+Here what to do?
+
+I think it should at least be possible to create the dataset when you
+first add (extend) to the data if it doesn't exist but has been
+defined as sparse.
+
+Key things should be initialized at the start to make sure they aren't
+written in a bad way. i.e. velocities. Okay define them in the module.
+
+Number of spatial dimensions is an object variable defaulting to the
+module one.
+
+So I guess that means the velocity shape should be an object value.
+
+other ones:
+- time : module constant
+- box_vectors : object constant with module default
+- velocities : derived from positions
+- forces : derived from positions
+- kinetic_energy : module constant
+- potential_energy : module constant
+- box_volume : module constant
+- parameters : not defined in module
+- parameter_derivatives : not defined in module
+- observables : not defined in module
+
+well actually we really need the rank of the feature to initialize the
+dataset shape. We do need the actual dimensions for the maxshape which
+is important but ranks can all be given (except for compounds in the
+module level).
+
+*** TODO [#A] WepyHDF5 get method for sparse trajectories              :core:
+*** DONE [#A] WepyHDF5 ensure that all fields have correct lengths     :core:
+
+
 
 ** TODO [#A] restarting simulations, multiple runs                     :core:
 ** TODO [#A] implement SWMR                                         :feature:
