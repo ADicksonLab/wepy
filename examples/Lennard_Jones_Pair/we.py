@@ -27,7 +27,11 @@ if __name__ == "__main__":
 
     test_sys = LennardJonesPair()
 
-    integrator = omm.VerletIntegrator(2*unit.femtoseconds)
+#    integrator = omm.VerletIntegrator(2*unit.femtoseconds)
+    integrator = omm.LangevinIntegrator(300*unit.kelvin,
+                                        1/unit.picosecond,
+                                        0.002*unit.picoseconds)
+
     context = omm.Context(test_sys.system, copy(integrator))
     context.setPositions(test_sys.positions)
 
@@ -48,7 +52,8 @@ if __name__ == "__main__":
     resampler = WExplore2Resampler(topology=mdtraj_topology,
                                    ligand_idxs=np.array(test_sys.ligand_indices),
                                    binding_site_idxs=np.array(test_sys.receptor_indices),
-                                   pmax=0.1)
+                                   pmax=1.0,
+                                   merge_dist=100.)
 
     ubc = UnbindingBC(cutoff_distance=0.5,
                       initial_state=init_walkers[0].state,
