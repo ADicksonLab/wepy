@@ -340,6 +340,114 @@ dataset shape. We do need the actual dimensions for the maxshape which
 is important but ranks can all be given (except for compounds in the
 module level).
 
+Maybe we don't need the ranks because we can just set them from
+changing the values of the shape tuples.
+
+I will keep them though it will still be useful.
+
+Forgot about dtypes.
+
+How to handle those.
+
+Well I kind of want to hardcode those except that I am thinking about
+test kinds of systems like the randomwalk example.
+
+This would have discrete values for positions, time, etc.
+
+This requires some thinking because the 'box_vectors' attribute would
+not be really a consideration.
+
+Maybe I could do a similar thing to mastic and have the constants for
+MD in another file which is used as default but not necessarily.
+
+I don't want to go down to far down this rabbit hole and it is
+probably better to have an example in front of me to design against
+than just guess.
+
+Again this is also just for initializing fields without any data to go
+with them. So what are the cases this would actually happen?
+
+- Sparse fields for non-MD data.
+- I suppose if we want to give the option to initialize fields 
+
+The latter would require a set of methods to do so. Maybe this is a
+good idea to write because I could use it here.
+
+Something like:
+
+#+BEGIN_SRC python
+  def _init_field(self, field_path, feature_shape, dtype):
+      # get the group to put the field under and the name to use
+      grp, field_name = self.get_path_grp(field_path)
+
+      grp.create_dataset(field_name, (0, *[0 for i in feature_shape]), dtype=dtype,
+                         maxshape=(None, *feature_shape))
+#+END_SRC
+
+And then we would just have to manage how to feature_shape and dtype
+are passed to this.
+
+The rank constants might be useful but only in determining the shape
+perhaps.
+
+THere is definitely a lot of simplification that could be done with
+the compound groups with the invention of the pattern I used in the
+`_get_field_path_grp` method.
+
+#+BEGIN_SRC python
+      def _get_field_path_grp(self, field_path):
+          """Given a field path for the trajectory returns the group the field's
+          dataset goes in and the key for the field name in that group.
+
+          The field path for a simple field is just the name of the
+          field and for a compound field it is the compound field group
+          name with the subfield separated by a '/' like
+          'observables/observable1' where 'observables' is the compound
+          field group and 'observable1' is the subfield name.
+
+          """
+
+          # check if it is compound
+          if '/' in field_path:
+              # split it
+              grp_name, field_name = field_path.split('/')
+              # get the hdf5 group
+              grp = self.h5[grp]
+          # its simple so just return the root group and the original path
+          else:
+              grp = self.h5
+              field_name = field_path
+
+          return grp, field_name
+
+#+END_SRC
+
+This means you don't have to have a special case in every method just
+for compound groups. You simply pass around the values for the very
+simple paths and call this method and then do what you need to do on
+the returned hdf5 group instead of iterating again through a
+sub-dictionary just for the compound groups.
+
+I wonder if there is a Type in strict type languages for this kind of
+behavior where the key can be nested itself, beyond a string convention.
+
+Okay I got a good framework that allows passing in shapes and dtypes
+but will revert to the default if not given.
+
+It doesn't allow you to do default plus other stuff. Nuts to people
+like that. Just do the whole thing yourself then.
+
+But it actually needs to initialize these as sparse datasets not normal ones.
+
+Right now I wrote the init function to do just a normal dataset which
+receives a field path so it works for compound fields.
+
+How to get it to recognize sparse fields? It should be an
+attribute. It could also go on flags passed in but I will try the
+attribute first since it is a hidden class method.
+
+Ok the sparse_field method has two sub-methods to distinguish.
+
 *** TODO [#A] WepyHDF5 get method for sparse trajectories              :core:
 *** DONE [#A] WepyHDF5 ensure that all fields have correct lengths     :core:
 
