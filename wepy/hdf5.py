@@ -51,6 +51,18 @@ FIELD_FEATURE_SHAPES = (('time', (1,)),
                              ('potential_energy', (1,)),
                             )
 
+FIELD_FEATURE_DTYPES = (('positions', np.float),
+                        ('velocities', np.float),
+                        ('forces', np.float),
+                        ('time', np.float),
+                        ('box_vectors', np.float),
+                        ('box_volume', np.float),
+                        ('kinetic_energy', np.float),
+                        ('potential_energy', np.float),
+                        )
+
+
+
 # Positions (and thus velocities and forces) are determined by the
 # N_DIMS (which can be customized) and more importantly the number of
 # particles which is always different. All the others are always wacky
@@ -167,30 +179,10 @@ class TrajHDF5(object):
         self._h5py_mode = h5py_mode
 
 
-        # set the number of dimensions to use.
-        # initialize to the 3D default
-        self.n_dims = N_DIMS
-        # but if a different one is given go with that
-        if 'n_dims' in kwargs:
-            assert isinstance(kwargs['n_dims'], int), "n_dims must be an integer"
-            assert kwargs['n_dims'] > 0, "n_dims must be a positive integer"
-            self.n_dims = kwargs['n_dims']
-
-        # if the field_feature_shapes and _dtypes were given for the
-        # ability to initialize fields without data (used for sparse
-        # values with no data on construction) we want to set them as
-        # given or using the module defaults if not.
-        if feature_shapes and feature_dtypes:
-            self.field_feature_shapes = feature_shapes
-            self.field_feature_dtypes = feature_dtypes
-        else:
-            warn("Either feature_shapes or feature_dtypes was not given so setting these as defaults",
-                 RuntimeWarning)
-
-            # use the default settings for this module
-            self._set_default_init_field_attributes()
-
-
+        # set hidden feature shapes and dtype, which are only
+        # referenced if needed in the create constructor
+        self._field_feature_shapes = feature_shapes
+        self._field_feature_dtypes = feature_dtypes
 
         # all the keys for the datasets and groups
         self._keys = ['topology', 'positions', 'velocities',
@@ -201,12 +193,9 @@ class TrajHDF5(object):
         # collect the non-topology attributes into a dict
         traj_data = _extract_dict(TRAJ_DATA_FIELDS, **kwargs)
 
-        # get the number of frames from the length of the positions
-        # array
-        self.n_frames = traj_data['positions'].shape[0]
 
-        # get the number of coordinates of positions, i.e. n_atoms
-        self.n_coords = traj_data['positions'].shape[1]
+        # TODO warn of unused keyword arguments for this mode
+
 
         # units
         units = _extract_dict(TRAJ_UNIT_FIELDS, **kwargs)
@@ -225,6 +214,8 @@ class TrajHDF5(object):
         if sparse_fields is not None:
             # make a set of the defined sparse fields, if given
             sparse_field_paths = set(sparse_fields)
+        else:
+            sparse_field_paths = set([])
 
         # go through the idxs given to the constructor for different
         # fields, and add them to the sparse fields list (if they
@@ -264,41 +255,13 @@ class TrajHDF5(object):
                     sparse_idxs = sparse_obj
                     sparse_field_idxs[sparse_field] = sparse_idxs
                     # add this field to the set of sparse fields
-                    sparse_fields.add(sparse_field)
+                    sparse_field_paths.add(sparse_field)
 
 
         # set the flags for all of the sparse fields either specified
         # or given cycle indices for
-        for key in sparse_fields:
+        for key in sparse_field_paths:
             self._sparse_field_flags[key] = True
-
-        # make a list of the field paths
-        field_paths = []
-        for field_name, field_obj in traj_data.items():
-            if field_name in COMPOUND_DATA_FIELDS:
-                for subfield in self.h5[field_name]:
-                    field_path = field_name + '/' + subfield
-                    field_paths.append(field_path)
-            else:
-                field_paths.append(field_name)
-
-        # check to make sure all the fields of data are the same
-        # length as the positions, unless they have sparse idxs
-        # if the field has not been marked as sparse then it can't
-        # have a different number of frames
-        for field_path in field_paths:
-            # get the field data from traj_data
-            if not self._sparse_field_flags[field_path]:
-                if '/' in field_path:
-                    field_name, subfield_name = field_path.split('/')
-                    field_data = traj_data[field_name][subfield_name]
-                else:
-                    field_data = traj_data[field_path]
-
-                # test the shape of it to make sure it is okay
-                assert field_data.shape[0] == self.n_frames, \
-                    "field data for {} has different number of frames {} and is not sparse".format(
-                        field_name, field_data.shape[0])
 
 
         # warn about unknown kwargs
@@ -320,6 +283,7 @@ class TrajHDF5(object):
         self._compliance_flags = {tag : False for tag, requirements in COMPLIANCE_REQUIREMENTS}
 
         # open the file in a context and initialize
+        self.closed = True
         with h5py.File(filename, mode=self._h5py_mode) as h5:
             self._h5 = h5
 
@@ -327,6 +291,7 @@ class TrajHDF5(object):
             # create file mode: 'w' will create a new file or overwrite,
             # 'w-' and 'x' will not overwrite but will create a new file
             if self._wepy_mode in ['w', 'w-', 'x']:
+
                 self._create_init(topology, traj_data, units,
                                   sparse_idxs=sparse_field_idxs, sparse_fields=sparse_field_paths)
                 # once we have run the creation we change the mode for
@@ -438,9 +403,67 @@ class TrajHDF5(object):
         assert data['positions'] is not None, "positions must be given"
         assert units['positions_unit'] is not None, "positions unit must be given"
 
+        # check to make sure all the fields of data are the same
+        # length as the positions, unless they have sparse idxs
+        # if the field has not been marked as sparse then it can't
+        # have a different number of frames
+
+        # attributes needed just for construction
+
+        # get the number of frames by referencing the positions
+        self._n_frames = data['positions'].shape[0]
+
+        # get the number of coordinates of positions, i.e. n_atoms
+        self._n_coords = data['positions'].shape[1]
+
+        # get the number of dimensions
+        self._n_dims = data['positions'].shape[2]
+
+
+        # TODO get rid of this when traj_data has keys of pathlikes
+
+        # make a list of the field paths
+        field_paths = []
+        for field_name, field_obj in data.items():
+            if field_name in COMPOUND_DATA_FIELDS:
+                for subfield in self.h5[field_name]:
+                    field_path = field_name + '/' + subfield
+                    field_paths.append(field_path)
+            else:
+                field_paths.append(field_name)
+
+        # check each other field to this number
+        for field_path in field_paths:
+            # get the field data from data
+            if not self._sparse_field_flags[field_path]:
+                if '/' in field_path:
+                    field_name, subfield_name = field_path.split('/')
+                    field_data = data[field_name][subfield_name]
+                else:
+                    field_data = data[field_path]
+
+                # test the shape of it to make sure it is okay
+                assert field_data.shape[0] == self._n_frames, \
+                    "field data for {} has different number of frames {} and is not sparse".format(
+                        field_name, field_data.shape[0])
+
+
+        # if the field_feature_shapes and _dtypes were given for the
+        # ability to initialize fields without data (used for sparse
+        # values with no data on construction) we want to set them as
+        # given or using the module defaults if not.
+        if self._field_feature_shapes and self._field_feature_dtypes:
+            self.field_feature_shapes = feature_shapes
+            self.field_feature_dtypes = feature_dtypes
+        else:
+            warn("Either feature_shapes or feature_dtypes was not given so setting these as defaults",
+                 RuntimeWarning)
+            # use the default settings for this module
+            self._set_default_init_field_attributes()
+
+
         # assign the topology
         self.topology = topology
-
 
         # positions
         positions = data.pop('positions')
@@ -585,9 +608,9 @@ class TrajHDF5(object):
             self._init_sparse_field(field_path, feature_shape, dtype)
         else:
             # it is not a sparse field (AKA simple)
-            self._init_simple_field(field_path, feature_shape, dtype)
+            self._init_contiguous_field(field_path, feature_shape, dtype)
 
-    def _init_simple_field(self, field_path, feature_shape, dtype):
+    def _init_contiguous_field(self, field_path, feature_shape, dtype):
         # get the group to put the field under and the name to use
         grp, field_name = self._get_field_path_grp(field_path)
 
@@ -624,7 +647,7 @@ class TrajHDF5(object):
 
         # we use the module defaults for the datasets to initialize them
         field_feature_shapes = dict(FIELD_FEATURE_SHAPES)
-        field_feature_dtype = dict(FIELD_FEATURE_DTYPES)
+        field_feature_dtypes = dict(FIELD_FEATURE_DTYPES)
 
         # feature shapes for positions and positions-like fields are
         # not known at the module level due to different number of
@@ -632,10 +655,10 @@ class TrajHDF5(object):
         # (default 3 spatial). We set them now that we know this
         # information.
         # add the postitions shape
-        field_feature_shapes['positions'] = (self.n_coords, self.n_dims)
+        field_feature_shapes['positions'] = (self._n_coords, self._n_dims)
         # add the positions-like field shapes (velocities and forces) as the same
         for poslike_field in POSITIONS_LIKE_FIELDS:
-            field_feature_shapes[poslike_field] = (self.n_coords, self.n_dims)
+            field_feature_shapes[poslike_field] = (self._n_coords, self._n_dims)
 
         # set the attributes
         self.field_feature_shapes = field_feature_shapes
@@ -763,8 +786,16 @@ class TrajHDF5(object):
             self._append_flags['topology'] = False
 
     @property
+    def n_frames(self):
+        return self.positions.shape[0]
+
+    @property
     def n_atoms(self):
         return self.positions.shape[1]
+
+    @property
+    def n_dims(self):
+        return self.positions.shape[2]
 
     @property
     def fields(self):
@@ -785,19 +816,40 @@ class TrajHDF5(object):
         # make sure this is a feature vector
         assert len(values.shape) > 1, \
             "values must be a feature vector with the same number of dimensions as the dataset"
-        # make sure the new data has the right dimensions
-        assert values.shape[1:] == field.shape[1:], \
-            "field feature dimensions must be the same, i.e. all but the first dimension"
 
         # number of new frames
         n_new_frames = values.shape[0]
 
-        # append to the dataset on the first dimension, keeping the
-        # others the same, these must be feature vectors and therefore
-        # must exist
-        field.resize( (field.shape[0] + n_new_frames, *field.shape[1:]) )
-        # add the new data
-        field[-n_new_frames:, ...] = values
+        # check the field to make sure it is not empty
+        if all([i == 0 for i in field.shape]):
+
+            # check the feature shape against the maxshape which gives
+            # the feature dimensions for an empty dataset
+            assert values.shape[1:] == field.maxshape[1:], \
+                "field feature dimensions must be the same, i.e. all but the first dimension"
+
+            # if it is empty resize it to make an array the size of
+            # the new values with the maxshape for the feature
+            # dimensions
+            feature_dims = field.maxshape[1:]
+            field.resize( (n_new_frames, *feature_dims) )
+
+            # set the new data to this
+            field[0:, ...] = values
+
+        else:
+            # make sure the new data has the right dimensions against
+            # the shape it already has
+            assert values.shape[1:] == field.shape[1:], \
+                "field feature dimensions must be the same, i.e. all but the first dimension"
+
+
+            # append to the dataset on the first dimension, keeping the
+            # others the same, these must be feature vectors and therefore
+            # must exist
+            field.resize( (field.shape[0] + n_new_frames, *field.shape[1:]) )
+            # add the new data
+            field[-n_new_frames:, ...] = values
 
     @staticmethod
     def _extend_sparse_field(field, values, sparse_idxs):
@@ -863,6 +915,10 @@ class TrajHDF5(object):
         sparse_idxs = np.array(range(n_old_frames, n_old_frames + n_new_frames))
 
         # add trajectory data for each field
+
+        # TODO change this to use the field path pattern once the
+        # 'traj_data' is changed to a single level dictionary using
+        # field paths
 
         # get the dataset/group
         for field_name, value in traj_data.items():
@@ -1084,11 +1140,11 @@ class WepyHDF5(object):
         self._h5py_mode = h5py_mode
 
         # set the number of dimensions to use
-        self.n_dims = N_DIMS
+        self._n_dims = N_DIMS
         if 'n_dims' in kwargs:
             assert isinstance(kwargs['n_dims'], int), "n_dims must be an integer"
             assert kwargs['n_dims'] > 0, "n_dims must be a positive integer"
-            self.n_dims = kwargs['n_dims']
+            self._n_dims = kwargs['n_dims']
 
         ### WepyHDF5 specific variables
 

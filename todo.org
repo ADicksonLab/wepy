@@ -448,6 +448,31 @@ attribute first since it is a hidden class method.
 
 Ok the sparse_field method has two sub-methods to distinguish.
 
+Okay Now I need to make sure that the anonymous fields that come in at
+runtime are also accomodated.
+
+Testing my previous changes and now we have the problem that when we
+want to actually add data to the thing the shape is all wrong since it
+is empty and only has the same rank.
+
+So we need to add to the extend function the case where the dataset is
+empty.
+
+Is that right?? I think so. The 'add' functions are for when you want
+to set it all at once or want to initialize it with a big chunk of data.
+
+Perhaps that could be integrated into an initialization scheme
+together with the empty initializers. I think that the 'add' functions
+really are the ones that should change and not the initialization
+stuff I just wrote. Plus the initialization stuff is using more
+elegant patterns that those should copy anyways :P
+
+So lets just make a case in the extend (and if append ever exists) to
+set to resize to the maxshape then set the data.
+
+*** TODO [#A] Rename simple referring to non-sparse contiguous to be more literate
+and not collide with the usage with simple as meaning not-compound.
+
 *** TODO [#A] WepyHDF5 get method for sparse trajectories              :core:
 *** DONE [#A] WepyHDF5 ensure that all fields have correct lengths     :core:
 
