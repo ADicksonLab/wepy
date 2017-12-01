@@ -99,9 +99,11 @@ COMPOUND_UNIT_FIELDS = ('parameters', 'parameter_derivatives', 'observables')
 SPARSE_DATA_FIELDS = ('velocities', 'forces', 'kinetic_energy', 'potential_energy',
                       'box_volume', 'parameters', 'parameter_derivatives', 'observables')
 
-SPARSE_IDX_KEYS = ('velocities_idxs', 'forces_idxs',
+SPARSE_IDX_KEYS = ('box_vectors_idxs', 'time_idxs',
+                   'velocities_idxs', 'forces_idxs',
                    'kinetic_energy_idxs', 'potential_energy_idxs',
-                   'box_volume_idxs', 'parameters_idxs',
+                   'box_volume_idxs',
+                   'parameters_idxs',
                    'parameter_derivatives_idxs', 'observables_idxs')
 
 SPARSE_DATA_MAP = (('positions', 'positions_idxs'),
@@ -292,6 +294,7 @@ class TrajHDF5(object):
             # 'w-' and 'x' will not overwrite but will create a new file
             if self._wepy_mode in ['w', 'w-', 'x']:
 
+                import ipdb; ipdb.set_trace()
                 self._create_init(topology, traj_data, units,
                                   sparse_idxs=sparse_field_idxs, sparse_fields=sparse_field_paths)
                 # once we have run the creation we change the mode for
@@ -453,13 +456,31 @@ class TrajHDF5(object):
         # values with no data on construction) we want to set them as
         # given or using the module defaults if not.
         if self._field_feature_shapes and self._field_feature_dtypes:
+
             self.field_feature_shapes = feature_shapes
             self.field_feature_dtypes = feature_dtypes
+
+            # if there were sparse fields specified that were not
+            # given shapes we set them as None for both shape and
+            # dtype
+            for sparse_field in sparse_fields:
+                if (not sparse_field in self.field_feature_shapes) or \
+                   (not sparse_field in self.field_feature_dtypes):
+                    self.field_feature_shapes[sparse_field] = None
+                    self.field_feature_dtypes[sparse_field] = None
         else:
             warn("Either feature_shapes or feature_dtypes was not given so setting these as defaults",
                  RuntimeWarning)
             # use the default settings for this module
             self._set_default_init_field_attributes()
+
+            # set the fields for which there was no defaults given, as
+            # None to indicate they are created at runtime
+            for sparse_field in sparse_fields:
+                if (not sparse_field in self.field_feature_shapes) or \
+                   (not sparse_field in self.field_feature_dtypes):
+                    self.field_feature_shapes[sparse_field] = None
+                    self.field_feature_dtypes[sparse_field] = None
 
 
         # assign the topology
@@ -590,7 +611,7 @@ class TrajHDF5(object):
             # split it
             grp_name, field_name = field_path.split('/')
             # get the hdf5 group
-            grp = self.h5[grp]
+            grp = self.h5[grp_name]
         # its simple so just return the root group and the original path
         else:
             grp = self.h5
@@ -621,18 +642,37 @@ class TrajHDF5(object):
 
 
     def _init_sparse_field(self, field_path, feature_shape, dtype):
-        # get the group to put the field under and the name to use
-        grp, field_name = self._get_field_path_grp(field_path)
 
-        # make the group for the sparse data
-        sparse_grp = grp.create_group(field_name)
 
-        # create the dataset for the feature data
-        sparse_grp.create_dataset('data', (0, *[0 for i in feature_shape]), dtype=dtype,
-                           maxshape=(None, *feature_shape))
+        # if it is and the field_path is compound we need to
+        # initialize the outer group if it doesn't exist
+        if '/' in field_path:
+            # parse group name
+            grp_name, subfield_name = field_path.split('/')
+            # check to see if the grp_name exists as an hdf5 group
+            if not grp_name in self.h5:
+                # it is not created so create it
+                self.h5.create_group(grp_name)
 
-        # create the dataset for the sparse indices
-        sparse_grp.create_dataset('_sparse_idxs', (0,), maxshape=(None,))
+        # check to see that neither the feature_shape and dtype are
+        # None which indicates it is a runtime defined value and
+        # should be ignored here
+        if (feature_shape is None) or (dtype is None):
+            # do nothing
+            pass
+        else:
+            # get the group to put the field under and the name to use
+            grp, field_name = self._get_field_path_grp(field_path)
+
+            # make the group for the sparse data
+            sparse_grp = grp.create_group(field_name)
+
+            # create the dataset for the feature data
+            sparse_grp.create_dataset('data', (0, *[0 for i in feature_shape]), dtype=dtype,
+                               maxshape=(None, *feature_shape))
+
+            # create the dataset for the sparse indices
+            sparse_grp.create_dataset('_sparse_idxs', (0,), dtype=np.int, maxshape=(None,))
 
 
     def _init_fields(self, field_paths, field_feature_shapes, field_feature_dtypes):
@@ -859,19 +899,39 @@ class TrajHDF5(object):
         # make sure this is a feature vector
         assert len(values.shape) > 1, \
             "values must be a feature vector with the same number of dimensions as the dataset"
-        # make sure the new data has the right dimensions
-        assert values.shape[1:] == field_data.shape[1:], \
-            "field feature dimensions must be the same, i.e. all but the first dimension"
 
         # number of new frames
         n_new_frames = values.shape[0]
 
-        # append to the dataset on the first dimension, keeping the
-        # others the same, these must be feature vectors and therefore
-        # must exist
-        field_data.resize( (field_data.shape[0] + n_new_frames, *field_data.shape[1:]) )
-        # add the new data
-        field_data[-n_new_frames:, ...] = values
+        if all([i == 0 for i in field_data.shape]):
+
+
+            # check the feature shape against the maxshape which gives
+            # the feature dimensions for an empty dataset
+            assert values.shape[1:] == field_data.maxshape[1:], \
+                "field feature dimensions must be the same, i.e. all but the first dimension"
+
+            # if it is empty resize it to make an array the size of
+            # the new values with the maxshape for the feature
+            # dimensions
+            feature_dims = field_data.maxshape[1:]
+            field_data.resize( (n_new_frames, *feature_dims) )
+
+            # set the new data to this
+            field_data[0:, ...] = values
+
+        else:
+
+            # make sure the new data has the right dimensions
+            assert values.shape[1:] == field_data.shape[1:], \
+                "field feature dimensions must be the same, i.e. all but the first dimension"
+
+            # append to the dataset on the first dimension, keeping the
+            # others the same, these must be feature vectors and therefore
+            # must exist
+            field_data.resize( (field_data.shape[0] + n_new_frames, *field_data.shape[1:]) )
+            # add the new data
+            field_data[-n_new_frames:, ...] = values
 
         # add the sparse idxs in the same way
         field_sparse_idxs.resize( (field_sparse_idxs.shape[0] + n_new_frames,

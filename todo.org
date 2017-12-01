@@ -470,7 +470,31 @@ elegant patterns that those should copy anyways :P
 So lets just make a case in the extend (and if append ever exists) to
 set to resize to the maxshape then set the data.
 
-*** TODO [#A] Rename simple referring to non-sparse contiguous to be more literate
+That worked out easily enough.
+
+Moving ont o handle things passed in at runtime that are not
+initialized from settings given at the beginning.
+
+had to add some checking in the init sparse field function.
+
+I check to see if it is compound and make the group for the subfield
+if it doesn't exist.
+
+Then if it is a runtime defined sparse field value (no initialization)
+we don't try to initialize it here.
+
+Actually taht is stupid. We should just not call this function if that
+is the case and handle it in the function that is calling this one.
+
+Fixed some things with initializing groups for compound fields.
+
+Now I am at an error which I can move forward with initializing at run
+time for a compound sparse field which is not specified at the
+beginning.
+
+
+
+*** DONE [#A] Rename simple referring to non-sparse contiguous to be more literate
 and not collide with the usage with simple as meaning not-compound.
 
 *** TODO [#A] WepyHDF5 get method for sparse trajectories              :core:
