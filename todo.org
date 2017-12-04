@@ -505,8 +505,86 @@ Fixed get_field. Was not working with compound paths.
 **** DONE [#A] Rename simple referring to non-sparse contiguous to be more literate
 and not collide with the usage with simple as meaning not-compound.
 
+**** TODO [#A] set sparse field flags for non-creation constructors
 
 *** TODO [#A] WepyHDF5 sparse trajectories
+
+Need to think about where to keep the flags, shape, and dtype data
+that were used in TrajHDF5.
+
+kwargs:
+- sparse_fields :: the list of fields that should be allowed to be sparse
+- feature_shapes :: specifying non-default shapes for initializing datasets
+- feature_dtypes :: specifying non-default dtypes for initializing datasets
+
+"private" attributes:
+- self._field_feature_shapes :: used temporarily for the sub-init
+     creation constructor for setting custom shapes for initialization
+- self._field_feature_dtypes :: ditto but for dtypes
+- self._sparse_field_flags :: sets flags for which values are sparse
+     and which ones aren't
+
+I need to think about at what level these things can be set. Should
+they apply to the whole file across all trajectories or can they be
+set for each trajectory.
+
+The shapes and dtypes should definitely not be able to change across
+trajectories.
+
+I could see maybe wanting to make something sparse for only certain
+trajectories but you gain little by removing sparse-ability of a
+field. Namely, the checking of size matching the positions for number
+of frames. So I think it's okay to just set it across all trajectories
+and if you wanna keep all of them do so. And that way you don't mess
+up important stuff (box_vectors) for other trajectories by
+accidentally making it sparse and forgetting stuff.
+
+The difference with the self._field_feature_shapes and
+self._field_feature_dtypes in TrajHDF5 is that they are only needed
+for the create constructor whereas in WepyHDF5 they need to hang
+around for the creation of any trajectory...
+
+That means they need to be saved in the file.... :( or be derived from
+existing trajectories!
+
+Well what if none were created... That is different than all the other
+times where we could do that. Well I guess it's not too hard to do
+that in a private data section in the HDF5 file.
+
+The sparse field flags will also need to be saved in case no data was
+recordedq for a field before a new object is made.
+
+Waht to call the section in HDF5 for settings.
+- [ ] _config
+- [X] _settings
+- [ ] _metadata
+
+Lets just go with settings.
+
+Well I have run into the need for a decent topology now!!!
+
+In TrajHDF5 I could rely on there always being some positions data for
+me to pull out the number of atoms so I could provision the default
+shapes etc. Now there is none with WepyHDF5 on construction. I can
+just use the default dimensions in the module but the number of
+atoms...
+
+Okay I could find a way to get them out of the topology... even though
+I don't want to because it will be wasted code...
+
+That wasn't so bad. lol I suppose I have reason to be scared. Although
+I have to say I hate the residue thing. Really hate it... and
+chains. Unnecessary levels of and non-semantic levels of iteration
+necessary.
+
+**** DONE [#A] save field_feature_shapes and field_feature_dtypes in HDF5
+
+- [X] make a section for saving this kind of settings data
+- [X] subsection for these
+
+**** DONE [#A] save the sparse_field flags in the HDF5
+
+
 **** DONE [#A] WepyHDF5 ensure that all fields have correct lengths    :core:
 **** TODO [#A] WepyHDF5 initialize sparse_fields in constructor if no data given
 **** TODO [#A] WepyHDF5 get method for sparse trajectories             :core:

@@ -456,17 +456,14 @@ class TrajHDF5(object):
         # given or using the module defaults if not.
         if self._field_feature_shapes and self._field_feature_dtypes:
 
-            self.field_feature_shapes = feature_shapes
-            self.field_feature_dtypes = feature_dtypes
-
             # if there were sparse fields specified that were not
             # given shapes we set them as None for both shape and
             # dtype
             for sparse_field in sparse_fields:
-                if (not sparse_field in self.field_feature_shapes) or \
-                   (not sparse_field in self.field_feature_dtypes):
-                    self.field_feature_shapes[sparse_field] = None
-                    self.field_feature_dtypes[sparse_field] = None
+                if (not sparse_field in self._field_feature_shapes) or \
+                   (not sparse_field in self._field_feature_dtypes):
+                    self._field_feature_shapes[sparse_field] = None
+                    self._field_feature_dtypes[sparse_field] = None
         else:
             warn("Either feature_shapes or feature_dtypes was not given so setting these as defaults",
                  RuntimeWarning)
@@ -476,10 +473,10 @@ class TrajHDF5(object):
             # set the fields for which there was no defaults given, as
             # None to indicate they are created at runtime
             for sparse_field in sparse_fields:
-                if (not sparse_field in self.field_feature_shapes) or \
-                   (not sparse_field in self.field_feature_dtypes):
-                    self.field_feature_shapes[sparse_field] = None
-                    self.field_feature_dtypes[sparse_field] = None
+                if (not sparse_field in self._field_feature_shapes) or \
+                   (not sparse_field in self._field_feature_dtypes):
+                    self._field_feature_shapes[sparse_field] = None
+                    self._field_feature_dtypes[sparse_field] = None
 
 
         # assign the topology
@@ -510,9 +507,9 @@ class TrajHDF5(object):
         # get the sparse field datasets that haven't been initialized
         uninit_sparse_fields = set(sparse_fields).difference(list(sparse_idxs.keys()))
         # the shapes
-        uninit_sparse_shapes = [self.field_feature_shapes[field] for field in uninit_sparse_fields]
+        uninit_sparse_shapes = [self._field_feature_shapes[field] for field in uninit_sparse_fields]
         # the dtypes
-        uninit_sparse_dtypes = [self.field_feature_dtypes[field] for field in uninit_sparse_fields]
+        uninit_sparse_dtypes = [self._field_feature_dtypes[field] for field in uninit_sparse_fields]
         # initialize the sparse fields in the hdf5
         self._init_fields(uninit_sparse_fields, uninit_sparse_shapes, uninit_sparse_dtypes)
 
@@ -700,8 +697,8 @@ class TrajHDF5(object):
             field_feature_shapes[poslike_field] = (self._n_coords, self._n_dims)
 
         # set the attributes
-        self.field_feature_shapes = field_feature_shapes
-        self.field_feature_dtypes = field_feature_dtypes
+        self._field_feature_shapes = field_feature_shapes
+        self._field_feature_dtypes = field_feature_dtypes
 
     def _add_traj_data(self, key, data, sparse_idxs=None):
 
@@ -1181,7 +1178,10 @@ class TrajHDF5(object):
 
 class WepyHDF5(object):
 
-    def __init__(self, filename, mode='x', topology=None, **kwargs):
+    def __init__(self, filename, topology=None, mode='x',
+                 sparse_fields=None,
+                 feature_shapes=None, feature_dtypes=None,
+                 **kwargs):
         """Initialize a new Wepy HDF5 file. This is a file that organizes
         wepy.TrajHDF5 dataset subsets by simulations by runs and
         includes resampling records for recovering walker histories.
@@ -1221,17 +1221,42 @@ class WepyHDF5(object):
         # the lower level h5py mode
         self._h5py_mode = h5py_mode
 
-        # set the number of dimensions to use
-        self._n_dims = N_DIMS
-        if 'n_dims' in kwargs:
-            assert isinstance(kwargs['n_dims'], int), "n_dims must be an integer"
-            assert kwargs['n_dims'] > 0, "n_dims must be a positive integer"
-            self._n_dims = kwargs['n_dims']
+
+        # set hidden feature shapes and dtype, which are only
+        # referenced if needed when trajectories are created. These
+        # will be saved in the settings section in the actual HDF5
+        # file
+        self._field_feature_shapes = feature_shapes
+        self._field_feature_dtypes = feature_dtypes
 
         ### WepyHDF5 specific variables
 
         # units
         units = _extract_dict(TRAJ_UNIT_FIELDS, **kwargs)
+
+        # sparse fields
+
+        # initialize the sparse field flags to False
+        self._sparse_field_flags = {}
+        for key in TRAJ_DATA_FIELDS:
+            # skip compound fields. They will get path-like keys
+            # e.g. 'observables/observable1' when they are added
+            if key not in COMPOUND_DATA_FIELDS:
+                self._sparse_field_flags[key] = False
+
+
+        # save the sparse fields as a private variable for use in the
+        # create constructor
+        self._sparse_fields = sparse_fields
+
+
+        # set the flags for sparse data that will be allowed in this
+        # object from the sparse field flags or recognize it from the
+        # idxs passed in
+        if self._sparse_fields is not None:
+            # set flags to True for those specified to be sparse
+            for key in self._sparse_fields:
+                self._sparse_field_flags[key] = True
 
         # warn about unknown kwargs
         for key in kwargs.keys():
@@ -1371,6 +1396,13 @@ class WepyHDF5(object):
         # assign the topology
         self.topology = topology
 
+        # attributes needed just for construction
+
+
+
+        # initialize the settings group
+        settings_grp = self._h5.create_group('_settings')
+
         # initialize the units group
         unit_grp = self._h5.create_group('units')
 
@@ -1403,6 +1435,78 @@ class WepyHDF5(object):
             # its a simple data type
             else:
                 unit_grp.create_dataset(field, data=unit_value)
+
+
+        # sparse fields
+        if self._sparse_fields is not None:
+            # make a dataset for the sparse fields allowed.  this requires
+            # a 'special' datatype for variable length strings. This is
+            # supported by HDF5 but not numpy.
+            vlen_str_dt = h5py.special_dtype(vlen=str)
+
+            # create the dataset with empty values for the length of the
+            # sparse fields given
+            sparse_fields_ds = settings_grp.create_dataset('sparse_fields',
+                                                           (len(self._sparse_fields),),
+                                                           dtype=vlen_str_dt)
+
+            # set the flags
+            for i, sparse_field in enumerate(self._sparse_fields):
+                sparse_fields_ds[i] = sparse_field
+
+
+        # field feature shapes and dtypes
+
+        # if the field_feature_shapes and _dtypes were given for the
+        # ability to initialize fields without data (used for sparse
+        # values with no data on construction) we want to set them as
+        # given or using the module defaults if not.
+        if self._field_feature_shapes and self._field_feature_dtypes:
+
+            # if there were sparse fields specified that were not
+            # given shapes we set them as None for both shape and
+            # dtype
+            for sparse_field in self._sparse_fields:
+                if (not sparse_field in self._field_feature_shapes) or \
+                   (not sparse_field in self._field_feature_dtypes):
+                    self._field_feature_shapes[sparse_field] = None
+                    self._field_feature_dtypes[sparse_field] = None
+
+            # save the field feature shapes and dtypes by making a new
+            # group and putting the shapes as a dataset for each field
+            shapes_grp = settings_grp.create_group('field_feature_shapes')
+            for field_path, field_shape in self._field_feature_shapes.items():
+                if field_shape is None:
+                    # set it as a dimensionless array of NaN
+                    field_shape = np.array(np.nan)
+
+                shapes_grp.create_dataset(field_path, data=field_shape)
+
+            dtypes_grp = settings_grp.create_group('field_feature_dtypes')
+            for field_path, field_dtype in self._field_feature_dtypes.items():
+                if field_dtype is None:
+                    dt_str = 'None'
+                else:
+                    # make a json string of the datatype that can be read in again
+                    dt_str = json.dumps(field_dtype.descr)
+
+                dtypes_grp.create_dataset(field_path, data=dt_str)
+
+        else:
+            warn("Either feature_shapes or feature_dtypes was not given so setting these as defaults",
+                 RuntimeWarning)
+
+            # use the default settings for this module
+            self._set_default_init_field_attributes()
+
+            # set the fields for which there was no defaults given, as
+            # None to indicate they are created at runtime
+            for sparse_field in self._sparse_fields:
+                if (not sparse_field in self._field_feature_shapes) or \
+                   (not sparse_field in self._field_feature_dtypes):
+                    self._field_feature_shapes[sparse_field] = None
+                    self._field_feature_dtypes[sparse_field] = None
+
 
     def _read_write_init(self):
         """Write over values if given but do not reinitialize any old ones. """
@@ -1453,6 +1557,36 @@ class WepyHDF5(object):
         self._update_exist_flags()
 
 
+    def _set_default_init_field_attributes(self):
+        """Sets the feature_shapes and feature_dtypes to be the default for
+        this module. These will be used to initialize field datasets when no
+        given during construction (i.e. for sparse values)"""
+
+        # we use the module defaults for the datasets to initialize them
+        field_feature_shapes = dict(FIELD_FEATURE_SHAPES)
+        field_feature_dtypes = dict(FIELD_FEATURE_DTYPES)
+
+
+        # get the number of coordinates of positions, i.e. n_atoms
+        # from the topology
+        self._n_coords = _json_top_atom_count(self.topology)
+        # get the number of dimensions as a default
+        self._n_dims = N_DIMS
+
+        # feature shapes for positions and positions-like fields are
+        # not known at the module level due to different number of
+        # coordinates (number of atoms) and number of dimensions
+        # (default 3 spatial). We set them now that we know this
+        # information.
+        # add the postitions shape
+        field_feature_shapes['positions'] = (self._n_coords, self._n_dims)
+        # add the positions-like field shapes (velocities and forces) as the same
+        for poslike_field in POSITIONS_LIKE_FIELDS:
+            field_feature_shapes[poslike_field] = (self._n_coords, self._n_dims)
+
+        # set the attributes
+        self._field_feature_shapes = field_feature_shapes
+        self._field_feature_dtypes = field_feature_dtypes
 
     @property
     def filename(self):
@@ -1541,7 +1675,8 @@ class WepyHDF5(object):
 
     @property
     def n_atoms(self):
-        return self.positions.shape[1]
+        top_json_str = self.topology
+        return _json_top_atom_count(top_json_str)
 
     @property
     def topology(self):
@@ -2692,6 +2827,16 @@ def _json_to_mdtraj_topology(json_string):
         topology.add_bond(atoms[index1], atoms[index2])
 
     return topology
+
+def _json_top_atom_count(json_str):
+    top_d = json.loads(json_str)
+    atom_count = 0
+    atom_count = 0
+    for chain in top_d['chains']:
+        for residue in chain['residues']:
+            atom_count += len(residue['atoms'])
+
+    return atom_count
 
 def _box_vectors_to_lengths_angles(box_vectors):
 
