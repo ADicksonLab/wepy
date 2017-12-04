@@ -261,7 +261,8 @@ This will probably be a function like ~traj_h5.get_field(field_name)~ or
 Also would like to have access methods so that you can directly access
 them as properties like ~traj_h5.positions~ and ~traj_h5.velocities~.
 
-*** DONE [#A] TrajHDF5 get method for sparse trajectories              :core:
+*** DONE TrajHDF5 sparse trajectories
+**** DONE [#A] TrajHDF5 get method for sparse trajectories             :core:
 
 Analyzing behavior and appropriateness of the masked array for this
 purpose.
@@ -277,7 +278,7 @@ values.
 
 This is how it is implemented though.
 
-*** DONE [#A] TrajHDF5 ensure that all fields have correct lengths     :core:
+**** DONE [#A] TrajHDF5 ensure that all fields have correct lengths    :core:
 
 This means having the number of frames known and not adding different
 size datasets on construction (without sparsity), and not allowing
@@ -285,7 +286,7 @@ different size datasets at all on extends.
 
 **** DONE [#A] for the TrajHDF5 constructor
 
-*** TODO [#A] initialize sparse_fields in constructor if no data given :core:
+**** DONE [#A] initialize sparse_fields in constructor if no data given :core:
 After correcting some more core issues I now have the problem of
 specificying a field as sparse without giving any data in the
 constructor.
@@ -492,13 +493,23 @@ Now I am at an error which I can move forward with initializing at run
 time for a compound sparse field which is not specified at the
 beginning.
 
+That was easy!! Just added an if that checks to see if it was
+initialized and then uses the init function to initialize it.
 
+Then normal extend can be used.
 
-*** DONE [#A] Rename simple referring to non-sparse contiguous to be more literate
+Is that it?? what other possibilities are there?
+
+Fixed get_field. Was not working with compound paths.
+
+**** DONE [#A] Rename simple referring to non-sparse contiguous to be more literate
 and not collide with the usage with simple as meaning not-compound.
 
-*** TODO [#A] WepyHDF5 get method for sparse trajectories              :core:
-*** DONE [#A] WepyHDF5 ensure that all fields have correct lengths     :core:
+
+*** TODO [#A] WepyHDF5 sparse trajectories
+**** DONE [#A] WepyHDF5 ensure that all fields have correct lengths    :core:
+**** TODO [#A] WepyHDF5 initialize sparse_fields in constructor if no data given
+**** TODO [#A] WepyHDF5 get method for sparse trajectories             :core:
 
 
 

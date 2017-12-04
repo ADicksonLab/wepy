@@ -294,7 +294,6 @@ class TrajHDF5(object):
             # 'w-' and 'x' will not overwrite but will create a new file
             if self._wepy_mode in ['w', 'w-', 'x']:
 
-                import ipdb; ipdb.set_trace()
                 self._create_init(topology, traj_data, units,
                                   sparse_idxs=sparse_field_idxs, sparse_fields=sparse_field_paths)
                 # once we have run the creation we change the mode for
@@ -994,8 +993,27 @@ class TrajHDF5(object):
 
                 cmpd_field = self._h5[field_name]
 
+
                 # go through the fields given
                 for subfield_name, subfield_value in value.items():
+
+                    # before attempting to retrieve the field in the
+                    # compound group we have to handle the case where the
+                    # subfield has not been initialized at all yet. This
+                    # is allowed for ad hoc runtime addition of sparse
+                    # data, where we don't require the specification
+                    # beforehand of the dataset shape and dtype.
+
+                    # check if the field exists
+                    if not subfield_name in cmpd_field:
+                        # it doesn't exist so first initialize the
+                        # dataset using the properties of the data given
+                        field_path = field_name + '/' + subfield_name
+                        feature_shape = subfield_value.shape[1:]
+                        # initialize
+                        self._init_field(field_path, feature_shape, subfield_value.dtype)
+
+
                     # get that dataset
                     subfield = cmpd_field[subfield_name]
                     # check if it is a sparse field or not
@@ -1034,25 +1052,29 @@ class TrajHDF5(object):
 
         return masked_array
 
-    def get_field(self, field_name):
+    def get_field(self, field_path):
         """Returns a numpy array for the given field."""
 
-        assert isinstance(field_name, str), "field_name must be a string"
+        assert isinstance(field_path, str), "field_path must be a string"
 
         # if the field is a compound name split it into the main field
         # and the subfield
-        if '/' in field_name:
-            field_name, subfield_name = field_name.split('/')
+        if '/' in field_path:
+            field_name, subfield_name = field_path.split('/')
 
-        # make sure the string is a field
+        # make sure the field_name is valid
         assert field_name in TRAJ_DATA_FIELDS, \
             "the field name ({}) is not a valid field".format(field_name)
 
-        # get the field or subfield
-        field = self.h5[field_name]
+        # get the group for the field and the field name for that
+        # group. Takes into account compound fields
+        grp, field_name = self._get_field_path_grp(field_path)
+
+        # get the field
+        field = grp[field_name]
 
         # determine if it is sparse
-        if self._sparse_field_flags[field_name]:
+        if self._sparse_field_flags[field_path]:
             # get the sparse field as a masked array
             return self._get_sparse_field(field)
         # it is not, just slice out the data
