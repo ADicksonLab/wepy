@@ -51,14 +51,14 @@ FIELD_FEATURE_SHAPES = (('time', (1,)),
                              ('potential_energy', (1,)),
                             )
 
-FIELD_FEATURE_DTYPES = (('positions', np.float),
-                        ('velocities', np.float),
-                        ('forces', np.float),
-                        ('time', np.float),
-                        ('box_vectors', np.float),
-                        ('box_volume', np.float),
-                        ('kinetic_energy', np.float),
-                        ('potential_energy', np.float),
+FIELD_FEATURE_DTYPES = (('positions', np.dtype(np.float)),
+                        ('velocities', np.dtype(np.float)),
+                        ('forces', np.dtype(np.float)),
+                        ('time', np.dtype(np.float)),
+                        ('box_vectors', np.dtype(np.float)),
+                        ('box_volume', np.dtype(np.float)),
+                        ('kinetic_energy', np.dtype(np.float)),
+                        ('potential_energy', np.dtype(np.float)),
                         )
 
 
@@ -1398,10 +1398,9 @@ class WepyHDF5(object):
 
         # attributes needed just for construction
 
-
-
         # initialize the settings group
         settings_grp = self._h5.create_group('_settings')
+
 
         # initialize the units group
         unit_grp = self._h5.create_group('units')
@@ -1457,55 +1456,57 @@ class WepyHDF5(object):
 
         # field feature shapes and dtypes
 
-        # if the field_feature_shapes and _dtypes were given for the
-        # ability to initialize fields without data (used for sparse
-        # values with no data on construction) we want to set them as
-        # given or using the module defaults if not.
-        if self._field_feature_shapes and self._field_feature_dtypes:
+        # initialize to the defaults
+        self._set_default_init_field_attributes()
 
-            # if there were sparse fields specified that were not
-            # given shapes we set them as None for both shape and
-            # dtype
+
+        # if there were sparse fields specified that were not
+        # given shapes we set them as None for both shape and
+        # dtype
+        if self._sparse_fields is not None:
             for sparse_field in self._sparse_fields:
+                # if the sparse field is not in the passed in
+                # field_feature_shapes/dtypes and is not set by
+                # default set it to None
                 if (not sparse_field in self._field_feature_shapes) or \
-                   (not sparse_field in self._field_feature_dtypes):
+                   (not sparse_field in self._field_feature_dtypes) or \
+                   (not sparse_field in self.field_feature_shapes) or \
+                   (not sparse_field in self.field_feature_dtypes):
+                    # set to None
                     self._field_feature_shapes[sparse_field] = None
                     self._field_feature_dtypes[sparse_field] = None
 
-            # save the field feature shapes and dtypes by making a new
-            # group and putting the shapes as a dataset for each field
-            shapes_grp = settings_grp.create_group('field_feature_shapes')
-            for field_path, field_shape in self._field_feature_shapes.items():
-                if field_shape is None:
-                    # set it as a dimensionless array of NaN
-                    field_shape = np.array(np.nan)
+        if (self._field_feature_shapes is not None) and\
+           (self._field_feature_dtypes is not None):
 
-                shapes_grp.create_dataset(field_path, data=field_shape)
+            # overwrite the defaults
+            self.field_feature_shapes.update(self._field_feature_shapes)
+            self.field_feature_dtypes.update(self._field_feature_dtypes)
 
-            dtypes_grp = settings_grp.create_group('field_feature_dtypes')
-            for field_path, field_dtype in self._field_feature_dtypes.items():
-                if field_dtype is None:
-                    dt_str = 'None'
-                else:
-                    # make a json string of the datatype that can be read in again
-                    dt_str = json.dumps(field_dtype.descr)
+        # save the field feature shapes and dtypes by making a new
+        # group and putting the shapes as a dataset for each field
+        shapes_grp = settings_grp.create_group('field_feature_shapes')
+        for field_path, field_shape in self.field_feature_shapes.items():
+            if field_shape is None:
+                # set it as a dimensionless array of NaN
+                field_shape = np.array(np.nan)
 
-                dtypes_grp.create_dataset(field_path, data=dt_str)
+            shapes_grp.create_dataset(field_path, data=field_shape)
 
-        else:
-            warn("Either feature_shapes or feature_dtypes was not given so setting these as defaults",
-                 RuntimeWarning)
+        dtypes_grp = settings_grp.create_group('field_feature_dtypes')
+        for field_path, field_dtype in self.field_feature_dtypes.items():
+            if field_dtype is None:
+                dt_str = 'None'
+            else:
+                # make a json string of the datatype that can be read in again
+                dt_str = json.dumps(field_dtype.descr)
 
-            # use the default settings for this module
-            self._set_default_init_field_attributes()
+            dtypes_grp.create_dataset(field_path, data=dt_str)
 
-            # set the fields for which there was no defaults given, as
-            # None to indicate they are created at runtime
-            for sparse_field in self._sparse_fields:
-                if (not sparse_field in self._field_feature_shapes) or \
-                   (not sparse_field in self._field_feature_dtypes):
-                    self._field_feature_shapes[sparse_field] = None
-                    self._field_feature_dtypes[sparse_field] = None
+
+        # save the number of dimensions and number of atoms in settings
+        settings_grp.create_dataset('n_dims', data=np.array(self._n_dims))
+        settings_grp.create_dataset('n_atoms', data=np.array(self._n_coords))
 
 
     def _read_write_init(self):
@@ -1556,6 +1557,31 @@ class WepyHDF5(object):
         # which is not
         self._update_exist_flags()
 
+    def _get_field_path_grp(self, run_idx, traj_idx, field_path):
+        """Given a field path for the trajectory returns the group the field's
+        dataset goes in and the key for the field name in that group.
+
+        The field path for a simple field is just the name of the
+        field and for a compound field it is the compound field group
+        name with the subfield separated by a '/' like
+        'observables/observable1' where 'observables' is the compound
+        field group and 'observable1' is the subfield name.
+
+        """
+
+        # check if it is compound
+        if '/' in field_path:
+            # split it
+            grp_name, field_name = field_path.split('/')
+            # get the hdf5 group
+            grp = self.h5['runs/{}/trajectories/{}/{}'.format(run_idx, traj_idx, grp_name)]
+        # its simple so just return the root group and the original path
+        else:
+            grp = self.h5
+            field_name = field_path
+
+        return grp, field_name
+
 
     def _set_default_init_field_attributes(self):
         """Sets the feature_shapes and feature_dtypes to be the default for
@@ -1585,8 +1611,8 @@ class WepyHDF5(object):
             field_feature_shapes[poslike_field] = (self._n_coords, self._n_dims)
 
         # set the attributes
-        self._field_feature_shapes = field_feature_shapes
-        self._field_feature_dtypes = field_feature_dtypes
+        self.field_feature_shapes = field_feature_shapes
+        self.field_feature_dtypes = field_feature_dtypes
 
     @property
     def filename(self):
@@ -1672,11 +1698,17 @@ class WepyHDF5(object):
     def n_trajs(self):
         return len(list(self.run_traj_idx_tuples()))
 
+    @property
+    def settings(self):
+        return NotImplementedError
 
     @property
     def n_atoms(self):
-        top_json_str = self.topology
-        return _json_top_atom_count(top_json_str)
+        return self.h5['_settings/n_atoms'][()]
+
+    @property
+    def n_dims(self):
+        return self.h5['_settings/n_dims'][()]
 
     @property
     def topology(self):
@@ -1976,7 +2008,14 @@ class WepyHDF5(object):
         # increment the traj_idx_count for this run
         self._run_traj_idx_counter[run_idx] += 1
 
-        n_atoms = traj_data['positions'].shape[1]
+        # check to make sure the positions are the right shape
+        assert traj_data['positions'].shape[1] == self.n_atoms, \
+            "positions given have different number of atoms: {}, should be {}".format(
+                pos_n_atoms, self.n_atoms)
+        assert traj_data['positions'].shape[2] == self.n_dims, \
+            "positions given have different number of dims: {}, should be {}".format(
+                pos_n_dims, self.n_dims)
+
         # add datasets to the traj group
 
         # weights
@@ -1984,10 +2023,16 @@ class WepyHDF5(object):
         # positions
 
         traj_grp.create_dataset('positions', data=traj_data.pop('positions'),
-                                maxshape=(None, n_atoms, self.n_dims))
+                                maxshape=(None, self.n_atoms, self.n_dims))
 
         # add data depending whether it is compound or not
         for key, value in traj_data.items():
+
+            # get the group the field goes in
+            grp, field_name = self._get_field_path_grp(run_idx, traj_idx, )
+
+            # add the data
+
             if key in COMPOUND_DATA_FIELDS:
                 self._add_compound_traj_data(run_idx, traj_idx, key, value)
             else:

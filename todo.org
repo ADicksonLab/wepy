@@ -588,8 +588,9 @@ necessary.
 **** DONE [#A] WepyHDF5 ensure that all fields have correct lengths    :core:
 **** TODO [#A] WepyHDF5 initialize sparse_fields in constructor if no data given
 **** TODO [#A] WepyHDF5 get method for sparse trajectories             :core:
+** TODO [#A] explicit passing of dictionaries for traj_data etc.       :core:
 
-
+accept keywords: data, units, sparse_idxs
 
 ** TODO [#A] restarting simulations, multiple runs                     :core:
 ** TODO [#A] implement SWMR                                         :feature:
