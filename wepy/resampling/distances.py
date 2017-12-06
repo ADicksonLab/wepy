@@ -1,3 +1,6 @@
+from copy import copy
+from copy import deepcopy
+
 import numpy as np
 import numpy.linalg as la
 import simtk.unit as unit

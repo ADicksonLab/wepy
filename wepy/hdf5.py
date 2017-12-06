@@ -1827,23 +1827,9 @@ class WepyHDF5(object):
 
         """
 
-        # check the args and kwargs to see if they need expanded for
-        # mapping inputs
-        mapped_args = []
-        for arg in args:
-            # if it is a sequence or generator we keep just pass it to the mapper
-            if isinstance(arg, Sequence) and not isinstance(arg, str):
-                assert len(arg) == self.n_trajs, "Sequence has fewer"
-                mapped_args.append(arg)
-            # if it is not a sequence or generator we make a generator out
-            # of it to map as inputs
-            else:
-                mapped_arg = (arg for i in range(self.n_trajs))
-                mapped_args.append(mapped_arg)
-
         results = map_func(func, self.iter_trajs_fields(fields, traj_sel=traj_sel, idxs=False,
                                                         debug_prints=debug_prints),
-                           *mapped_args)
+                           *args)
 
         if idxs:
             if traj_sel is None:
@@ -1875,7 +1861,7 @@ class WepyHDF5(object):
 
         for result in self.traj_fields_map(func, fields, *args,
                                        map_func=map_func, traj_sel=traj_sel, idxs=True,
-                                       debug_prints=debug_prints):
+                                           debug_prints=debug_prints):
             idx_tup, obs_value = result
             run_idx, traj_idx = idx_tup
 

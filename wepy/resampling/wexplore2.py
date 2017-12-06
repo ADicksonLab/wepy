@@ -1,8 +1,6 @@
 import multiprocessing as mulproc
 import random as rand
 import itertools as it
-from copy import copy
-from copy import deepcopy
 
 import numpy as np
 
