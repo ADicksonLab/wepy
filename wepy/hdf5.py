@@ -305,6 +305,7 @@ class TrajHDF5(object):
 
         # initialize the settings group
         settings_grp = self._h5.create_group('_settings')
+        self._h5.create_group('observables')
 
         # assign the topology
         self.topology = topology
@@ -322,7 +323,8 @@ class TrajHDF5(object):
             # sparse fields given
             sparse_fields_ds = settings_grp.create_dataset('sparse_fields',
                                                            (len(self._sparse_fields),),
-                                                           dtype=vlen_str_dt)
+                                                           dtype=vlen_str_dt,
+                                                           maxshape=(None,))
 
             # set the flags
             for i, sparse_field in enumerate(self._sparse_fields):
@@ -365,8 +367,8 @@ class TrajHDF5(object):
         if (self._field_feature_shapes_kwarg is not None) and\
            (self._field_feature_dtypes_kwarg is not None):
 
-            self.field_feature_shapes.update(self._field_feature_shapes_kwarg)
-            self.field_feature_dtypes.update(self._field_feature_dtypes_kwarg)
+            self._field_feature_shapes.update(self._field_feature_shapes_kwarg)
+            self._field_feature_dtypes.update(self._field_feature_dtypes_kwarg)
 
         # save the number of dimensions and number of atoms in settings
         settings_grp.create_dataset('n_dims', data=np.array(self._n_dims))
@@ -376,15 +378,15 @@ class TrajHDF5(object):
         # set to None so that it will be set at runtime
         if self.sparse_fields is not None:
             for sparse_field in self.sparse_fields:
-                if (not sparse_field in self.field_feature_shapes) or \
-                   (not sparse_field in self.field_feature_dtypes):
-                    self.field_feature_shapes[sparse_field] = None
-                    self.field_feature_dtypes[sparse_field] = None
+                if (not sparse_field in self._field_feature_shapes) or \
+                   (not sparse_field in self._field_feature_dtypes):
+                    self._field_feature_shapes[sparse_field] = None
+                    self._field_feature_dtypes[sparse_field] = None
 
 
         # save the field feature shapes and dtypes in the settings group
         shapes_grp = settings_grp.create_group('field_feature_shapes')
-        for field_path, field_shape in self.field_feature_shapes.items():
+        for field_path, field_shape in self._field_feature_shapes.items():
             if field_shape is None:
                 # set it as a dimensionless array of NaN
                 field_shape = np.array(np.nan)
@@ -392,7 +394,7 @@ class TrajHDF5(object):
             shapes_grp.create_dataset(field_path, data=field_shape)
 
         dtypes_grp = settings_grp.create_group('field_feature_dtypes')
-        for field_path, field_dtype in self.field_feature_dtypes.items():
+        for field_path, field_dtype in self._field_feature_dtypes.items():
             if field_dtype is None:
                 dt_str = 'None'
             else:
@@ -424,9 +426,9 @@ class TrajHDF5(object):
         # get the sparse field datasets that haven't been initialized
         uninit_sparse_fields = set(self.sparse_fields).difference(list(sparse_idxs.keys()))
         # the shapes
-        uninit_sparse_shapes = [self.field_feature_shapes[field] for field in uninit_sparse_fields]
+        uninit_sparse_shapes = [self._field_feature_shapes[field] for field in uninit_sparse_fields]
         # the dtypes
-        uninit_sparse_dtypes = [self.field_feature_dtypes[field] for field in uninit_sparse_fields]
+        uninit_sparse_dtypes = [self._field_feature_dtypes[field] for field in uninit_sparse_fields]
         # initialize the sparse fields in the hdf5
         self._init_fields(uninit_sparse_fields, uninit_sparse_shapes, uninit_sparse_dtypes)
 
@@ -514,7 +516,8 @@ class TrajHDF5(object):
         """Initialize a data field in the trajectory to be empty but
         resizeable."""
 
-        # check whether this is a sparse field and create it appropriately
+        # check whether this is a sparse field and create it
+        # appropriately
         if field_path in self.sparse_fields:
             # it is a sparse field
             self._init_sparse_field(field_path, feature_shape, dtype)
@@ -523,12 +526,10 @@ class TrajHDF5(object):
             self._init_contiguous_field(field_path, feature_shape, dtype)
 
     def _init_contiguous_field(self, field_path, feature_shape, dtype):
-        # get the group to put the field under and the name to use
-        grp, field_name = self._get_field_path_grp(field_path)
 
         # create the empty dataset in the correct group, setting
         # maxshape so it can be resized for new feature vectors to be added
-        grp.create_dataset(field_name, (0, *[0 for i in feature_shape]), dtype=dtype,
+        self._h5.create_dataset(field_path, (0, *[0 for i in feature_shape]), dtype=dtype,
                            maxshape=(None, *feature_shape))
 
 
@@ -583,8 +584,8 @@ class TrajHDF5(object):
             field_feature_shapes[poslike_field] = (self._n_coords, self._n_dims)
 
         # set the attributes
-        self.field_feature_shapes = field_feature_shapes
-        self.field_feature_dtypes = field_feature_dtypes
+        self._field_feature_shapes = field_feature_shapes
+        self._field_feature_dtypes = field_feature_dtypes
 
     def _add_traj_data(self, field_path, data, sparse_idxs=None):
 
@@ -680,6 +681,16 @@ class TrajHDF5(object):
     @property
     def sparse_fields(self):
         return self.h5['_settings/sparse_fields'][:]
+
+    @property
+    def field_feature_shapes(self):
+        shapes_grp = self.h5['_settings/field_feature_shapes']
+        return {field_path : shape_ds[()] for field_path, shape_ds in shapes_grp.items()}
+
+    @property
+    def field_feature_dtypes(self):
+        dtypes_grp = self.h5['_settings/field_feature_dtypes']
+        return {field_path : dtype_ds[()] for field_path, dtype_ds in dtypes_grp.items()}
 
     @property
     def n_frames(self):
@@ -819,7 +830,8 @@ class TrajHDF5(object):
         # number of frames to add
         n_new_frames = traj_data['positions'].shape[0]
 
-        # calculate the new sparse idxs
+        # calculate the new sparse idxs for sparse fields that may be
+        # being added
         sparse_idxs = np.array(range(self.n_frames, self.n_frames + n_new_frames))
 
         # add trajectory data for each field
@@ -829,6 +841,39 @@ class TrajHDF5(object):
             if not field_path in self._h5:
                 feature_shape = field_data.shape[1:]
                 feature_dtype = field_data.dtype
+
+                # not specified as sparse_field, no settings
+                if (not field_path in self.field_feature_shapes) and \
+                     (not field_path in self.field_feature_dtypes) and \
+                     not field_path in self.sparse_fields:
+                    ## only save if it is an observable
+                    is_observable = False
+                    if '/' in field_path:
+                        group_name = field_path.split('/')[0]
+                        if group_name == 'observables':
+                            is_observable = True
+                    if is_observable:
+                          warn("the field '{}' was received but not previously specified"
+                               " but is being added because it is in observables.".format(field_path))
+                          ## save sparse_field flag, shape, and dtype
+                          self._add_sparse_field_flag(field_path)
+                          self._add_field_feature_shape(field_path, feature_shape)
+                          feature_dtype_str = json.dumps(feature_dtype.descr)
+                          self._add_field_feature_dtype(field_path, feature_dtype_str)
+                    else:
+                        raise ValueError("the field '{}' was received but not previously specified"
+                            "it is being ignored because it is not an observable.".format(field_path))
+                # specified as sparse_field but no settings given
+                elif (self.field_feature_shapes[field_path] is None and
+                   self.field_feature_dtypes[field_path] is None) and \
+                   field_path in self.sparse_fields:
+                    ## save shape and dtype
+                    # add the shape and dtype
+                    self._add_field_feature_shape(field_path, feature_shape)
+                    feature_dtype_str = json.dumps(feature_dtype.descr)
+                    self._add_field_feature_dtype(field_path, feature_dtype_str)
+
+
                 # initialize
                 self._init_field(field_path, feature_shape, feature_dtype)
 
@@ -836,20 +881,26 @@ class TrajHDF5(object):
 
             # extend it either as a sparse field or a contiguous field
             if field_path in self.sparse_fields:
-
-                # if this is a runtime specified shape and dtype create those
-                # with the data given
-                if self.field_feature_shapes[field_path] is None and \
-                   self.field_feature_dtypes[field_path] is None:
-                    # init the data and sparse_idxs
-                    field.create_dataset('_sparse_idxs', (0,), dtype=np.int, maxshape=(None,))
-                    field.create_dataset('data', (0, *[0 for i in field_data.shape[1:]]),
-                                                  dtype=field_data.dtype,
-                                         maxshape=(None, *field_data.shape[1:]))
-
                 self._extend_sparse_field(field, field_data, sparse_idxs)
             else:
                 self._extend_contiguous_field(field, field_data)
+
+
+    def _add_sparse_field_flag(self, field_path):
+
+        # add it to the HDF5
+        sparse_fields_ds = self._h5['_settings/sparse_fields']
+
+        sparse_fields_ds.resize( (sparse_fields_ds.shape[0] + 1,) )
+        sparse_fields_ds[sparse_fields_ds.shape[0] - 1] = field_path
+
+    def _add_field_feature_shape(self, field_path, field_feature_shape):
+        shapes_grp = self._h5['_settings/field_feature_shapes']
+        shapes_grp.create_dataset(field_path, data=np.array(field_feature_shape))
+
+    def _add_field_feature_dtype(self, field_path, field_feature_dtype):
+        dtypes_grp = self._h5['_settings/field_feature_dtypes']
+        dtypes_grp.create_dataset(field_path, data=field_feature_dtype)
 
     def _get_contiguous_field(self, field_path):
         return self._h5[field_path]
