@@ -505,7 +505,7 @@ Fixed get_field. Was not working with compound paths.
 **** DONE [#A] Rename simple referring to non-sparse contiguous to be more literate
 and not collide with the usage with simple as meaning not-compound.
 
-**** TODO [#A] set sparse field flags for non-creation constructors
+**** DONE [#A] set sparse field flags for non-creation constructors
 
 *** TODO [#A] WepyHDF5 sparse trajectories
 
@@ -577,6 +577,8 @@ I have to say I hate the residue thing. Really hate it... and
 chains. Unnecessary levels of and non-semantic levels of iteration
 necessary.
 
+Need to update stuff for the traj_data new paradigm
+
 **** DONE [#A] save field_feature_shapes and field_feature_dtypes in HDF5
 
 - [X] make a section for saving this kind of settings data
@@ -588,12 +590,20 @@ necessary.
 **** DONE [#A] WepyHDF5 ensure that all fields have correct lengths    :core:
 **** TODO [#A] WepyHDF5 initialize sparse_fields in constructor if no data given
 **** TODO [#A] WepyHDF5 get method for sparse trajectories             :core:
+
+
+
+
 ** TODO [#A] explicit passing of dictionaries for traj_data etc.       :core:
 
 accept keywords: data, units, sparse_idxs
 
+*** DONE TrajHDF5
+
+*** TODO WepyHDF5
+
 ** TODO [#A] restarting simulations, multiple runs                     :core:
-** TODO [#A] implement SWMR                                         :feature:
+** TODO [#B] implement SWMR                                         :feature:
 
 ** TODO [#A] fix compute observable to write feature vector style      :core:
 
@@ -698,3 +708,5 @@ Save them in the observables.
 Do we save them automatically?
 as an option?
 - [X] Or must be done manually?
+
+** TODO [#C] Virtual Datasets (VDS) for adding observables          :feature:
