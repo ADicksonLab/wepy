@@ -1853,8 +1853,6 @@ class WepyHDF5(object):
         the trajectory.
         """
 
-        print("inside compute_observables")
-
         if save_to_hdf5 is not None:
             assert self.mode in ['w', 'w-', 'x', 'r+', 'c', 'c-'],\
                 "File must be in a write mode"
