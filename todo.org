@@ -589,6 +589,19 @@ Need to update stuff for the traj_data new paradigm
 
 **** DONE [#A] WepyHDF5 ensure that all fields have correct lengths    :core:
 **** TODO [#A] WepyHDF5 initialize sparse_fields in constructor if no data given
+
+in WepyHDF5 I wrote something new in which is to initialize sparse
+fields if they aren't given any data when the trajectory is first
+made. That would make the need to check for those in the extend
+function unnecessary. Except no it won't because if they don't have
+shapes and dtypes you can't initialize them in the add_traj
+function.. AM I doing that? I aws using the wrong dtype and shape so
+that would have been a problem. I changed the boolean expression so
+that the case I was worried about doesn't occur. But it will
+initialize those with shapes and dtypes given.
+
+
+
 **** TODO [#A] WepyHDF5 get method for sparse trajectories             :core:
 
 
