@@ -361,9 +361,7 @@ class TrajHDF5(object):
         # create the datasets for the actual data
 
         # positions
-        positions = data.pop('positions')
-        self.h5.create_dataset('positions', data=positions,
-                                maxshape=(None, *positions.shape[1:]))
+        positions_shape = data['positions'].shape
 
         # add the rest of the fields of data to the trajectory
         for field_path, field_data in data.items():
@@ -376,7 +374,7 @@ class TrajHDF5(object):
             # can be extended properly so we make sparse_idxs to match
             # the full length of this initial trajectory data
             elif field_path in self.sparse_fields:
-                field_sparse_idxs = np.arange(pos_ds.shape[0])
+                field_sparse_idxs = np.arange(positions_shape[0])
             # otherwise it is not a sparse field so we just pass in None
             else:
                 field_sparse_idxs = None
@@ -386,11 +384,12 @@ class TrajHDF5(object):
 
         ## initialize empty sparse fields
         # get the sparse field datasets that haven't been initialized
-        uninit_sparse_fields = set(self.sparse_fields).difference(list(sparse_idxs.keys()))
+        init_fields = list(sparse_idxs.keys()) + list(traj_data.keys())
+        uninit_sparse_fields = set(self.sparse_fields).difference(init_fields)
         # the shapes
-        uninit_sparse_shapes = [self._field_feature_shapes[field] for field in uninit_sparse_fields]
+        uninit_sparse_shapes = [self.field_feature_shapes[field] for field in uninit_sparse_fields]
         # the dtypes
-        uninit_sparse_dtypes = [self._field_feature_dtypes[field] for field in uninit_sparse_fields]
+        uninit_sparse_dtypes = [self.field_feature_dtypes[field] for field in uninit_sparse_fields]
         # initialize the sparse fields in the hdf5
         self._init_fields(uninit_sparse_fields, uninit_sparse_shapes, uninit_sparse_dtypes)
 
@@ -735,7 +734,6 @@ class TrajHDF5(object):
 
         if all([i == 0 for i in field_data.shape]):
 
-
             # check the feature shape against the maxshape which gives
             # the feature dimensions for an empty dataset
             assert values.shape[1:] == field_data.maxshape[1:], \
@@ -1005,7 +1003,10 @@ class WepyHDF5(object):
 
         # save the sparse fields as a private variable for use in the
         # create constructor
-        self._sparse_fields = sparse_fields
+        if sparse_fields is None:
+            self._sparse_fields = []
+        else:
+            self._sparse_fields = sparse_fields
 
         # counter for the new runs, specific constructors will update
         # this if needed
@@ -1147,6 +1148,7 @@ class WepyHDF5(object):
 
         # sparse fields
         if self._sparse_fields is not None:
+
             # make a dataset for the sparse fields allowed.  this requires
             # a 'special' datatype for variable length strings. This is
             # supported by HDF5 but not numpy.
@@ -1156,7 +1158,8 @@ class WepyHDF5(object):
             # sparse fields given
             sparse_fields_ds = settings_grp.create_dataset('sparse_fields',
                                                            (len(self._sparse_fields),),
-                                                           dtype=vlen_str_dt)
+                                                           dtype=vlen_str_dt,
+                                                           maxshape=(None,))
 
             # set the flags
             for i, sparse_field in enumerate(self._sparse_fields):
@@ -1459,10 +1462,6 @@ class WepyHDF5(object):
         self._h5.attrs[key] = value
 
     @property
-    def run_keys(self):
-        return self._h5['runs']
-
-    @property
     def runs(self):
         return self.h5['runs'].values()
 
@@ -1498,8 +1497,6 @@ class WepyHDF5(object):
                 tups.append((run_idx, traj_idx))
 
         return tups
-
-
 
     def new_run(self, **kwargs):
         # create a new group named the next integer in the counter
@@ -1743,8 +1740,6 @@ class WepyHDF5(object):
 
         traj_grp = self._h5['runs/{}/trajectories/{}'.format(run_idx, traj_idx)]
 
-        sparse_grp = traj_grp.create_group(field_path)
-
         # check to see that neither the shape and dtype are
         # None which indicates it is a runtime defined value and
         # should be ignored here
@@ -1752,6 +1747,12 @@ class WepyHDF5(object):
             # do nothing
             pass
         else:
+
+            # only create the group if you are going to add the
+            # datasets so the extend function can know if it has been
+            # properly initialized easier
+            sparse_grp = traj_grp.create_group(field_path)
+
             # create the dataset for the feature data
             sparse_grp.create_dataset('data', (0, *[0 for i in shape]), dtype=dtype,
                                maxshape=(None, *shape))
@@ -1760,9 +1761,11 @@ class WepyHDF5(object):
             sparse_grp.create_dataset('_sparse_idxs', (0,), dtype=np.int, maxshape=(None,))
 
 
-    def _init_traj_fields(self, field_paths, field_feature_shapes, field_feature_dtypes):
+    def _init_traj_fields(self, run_idx, traj_idx,
+                          field_paths, field_feature_shapes, field_feature_dtypes):
         for i, field_path in enumerate(field_paths):
-            self._init_traj_field(field_path, field_feature_shapes[i], field_feature_dtypes[i])
+            self._init_traj_field(run_idx, traj_idx,
+                                  field_path, field_feature_shapes[i], field_feature_dtypes[i])
 
 
     def add_traj(self, run_idx, data, weights=None, sparse_idxs=None, metadata=None):
@@ -1772,7 +1775,7 @@ class WepyHDF5(object):
 
         # initialize None kwargs
         if sparse_idxs is None:
-            sparse_idxs = []
+            sparse_idxs = {}
         if metadata is None:
             metadata = {}
 
@@ -1828,9 +1831,7 @@ class WepyHDF5(object):
         traj_grp.create_dataset('weights', data=weights, maxshape=(None,))
         # positions
 
-        pos_ds = traj_grp.create_dataset('positions', data=traj_data.pop('positions'),
-                                    maxshape=(None, self.n_atoms, self.n_dims))
-
+        positions_shape = traj_data['positions'].shape
 
         # add the rest of the traj_data
         for field_path, field_data in traj_data.items():
@@ -1843,7 +1844,7 @@ class WepyHDF5(object):
             # can be extended properly so we make sparse_idxs to match
             # the full length of this initial trajectory data
             elif field_path in self.sparse_fields:
-                field_sparse_idxs = np.arange(pos_ds.shape[0])
+                field_sparse_idxs = np.arange(positions_shape[0])
             # otherwise it is not a sparse field so we just pass in None
             else:
                 field_sparse_idxs = None
@@ -1852,17 +1853,29 @@ class WepyHDF5(object):
             self._add_traj_field_data(run_idx, traj_idx, field_path, field_data,
                                       sparse_idxs=field_sparse_idxs)
 
-        # if a sparse_field has been specified but has not been given
-        # and shapes and dtypes were provided it must be initialized
-        # so this trajectory can be extended
-        for sparse_field in self.sparse_fields:
-            if (not sparse_field in traj_data) and (not sparse_field in traj_grp):
-                # get the shape and dtype for this field
-                shape = self.field_feature_shapes[sparse_field]
-                dtype = self.field_feature_dtypes[sparse_field]
-                # initialize it
-                self._init_sparse_traj_field(run_idx, traj_idx, sparse_field,
-                                             shape, dtype)
+        ## initialize empty sparse fields
+        # get the sparse field datasets that haven't been initialized
+        traj_init_fields = list(sparse_idxs.keys()) + list(traj_data.keys())
+        uninit_sparse_fields = set(self.sparse_fields).difference(traj_init_fields)
+        # the shapes
+        uninit_sparse_shapes = [self.field_feature_shapes[field] for field in uninit_sparse_fields]
+        # the dtypes
+        uninit_sparse_dtypes = [self.field_feature_dtypes[field] for field in uninit_sparse_fields]
+        # initialize the sparse fields in the hdf5
+        self._init_traj_fields(run_idx, traj_idx,
+                               uninit_sparse_fields, uninit_sparse_shapes, uninit_sparse_dtypes)
+
+        # # if a sparse_field has been specified but has not been given
+        # # and shapes and dtypes were provided it must be initialized
+        # # so this trajectory can be extended
+        # for sparse_field in self.sparse_fields:
+        #     if (not sparse_field in traj_data) and (not sparse_field in traj_grp):
+        #         # get the shape and dtype for this field
+        #         shape = self.field_feature_shapes[sparse_field]
+        #         dtype = self.field_feature_dtypes[sparse_field]
+        #         # initialize it
+        #         self._init_sparse_traj_field(run_idx, traj_idx, sparse_field,
+        #                                      shape, dtype)
 
         return traj_grp
 
@@ -1928,20 +1941,17 @@ class WepyHDF5(object):
             # add the new data
             field[-n_new_frames:, ...] = field_data
 
-    def _extend_sparse_field(self, field_path, values, sparse_idxs):
+    def _extend_sparse_traj_field(self, run_idx, traj_idx, field_path, values, sparse_idxs):
 
-        field = self.h5[field_path]
+        field = self.h5['/runs/{}/trajectories/{}/{}'.format(run_idx, traj_idx, field_path)]
 
         field_data = field['data']
         field_sparse_idxs = field['_sparse_idxs']
 
-        # make sure this is a feature vector
-        assert len(values.shape) > 1, \
-            "values must be a feature vector with the same number of dimensions as the dataset"
-
         # number of new frames
         n_new_frames = values.shape[0]
 
+        # if this sparse_field has been initialized empty we need to resize
         if all([i == 0 for i in field_data.shape]):
 
 
@@ -1990,9 +2000,11 @@ class WepyHDF5(object):
         # number of frames to add
         n_new_frames = traj_data['positions'].shape[0]
 
+        n_frames = self.traj_n_frames(run_idx, traj_idx)
+
         # calculate the new sparse idxs for sparse fields that may be
         # being added
-        sparse_idxs = np.array(range(self.n_frames, self.n_frames + n_new_frames))
+        sparse_idxs = np.array(range(n_frames, n_frames + n_new_frames))
 
         # get the trajectory group
         traj_grp = self._h5['runs/{}/trajectories/{}'.format(run_idx, traj_idx)]
@@ -2044,9 +2056,8 @@ class WepyHDF5(object):
                                " but is being added because it is in observables.".format(field_path))
                           # save sparse_field flag, shape, and dtype
                           self._add_sparse_field_flag(field_path)
-                          self._add_field_feature_shape(field_path, feature_shape)
-                          feature_dtype_str = json.dumps(feature_dtype.descr)
-                          self._add_field_feature_dtype(field_path, feature_dtype_str)
+                          self._set_field_feature_shape(field_path, feature_shape)
+                          self._set_field_feature_dtype(field_path, feature_dtype)
                     else:
                         raise ValueError("the field '{}' was received but not previously specified"
                             "it is being ignored because it is not an observable.".format(field_path))
@@ -2055,14 +2066,14 @@ class WepyHDF5(object):
                 elif (self.field_feature_shapes[field_path] is None and
                    self.field_feature_dtypes[field_path] is None) and \
                    field_path in self.sparse_fields:
-                    # add the shape and dtype
-                    self._add_field_feature_shape(field_path, feature_shape)
-                    feature_dtype_str = json.dumps(feature_dtype.descr)
-                    self._add_field_feature_dtype(field_path, feature_dtype_str)
+                    # set the feature shape and dtype since these
+                    # should be 0 in the settings
+                    self._set_field_feature_shape(field_path, feature_shape)
 
+                    self._set_field_feature_dtype(field_path, feature_dtype)
 
                 # initialize
-                self._init_field(field_path, feature_shape, feature_dtype)
+                self._init_traj_field(run_idx, traj_idx, field_path, feature_shape, feature_dtype)
 
             # extend it either as a sparse field or a contiguous field
             if field_path in self.sparse_fields:
@@ -2070,17 +2081,8 @@ class WepyHDF5(object):
             else:
                 self._extend_contiguous_traj_field(run_idx, traj_idx, field_path, field_data)
 
-
-            #OLD
-            # append to the dataset on the first dimension, keeping the
-            # others the same, if they exist
-            if len(dset.shape) > 1:
-                dset.resize( (dset.shape[0] + n_new_frames, *dset.shape[1:]) )
-            else:
-                dset.resize( (dset.shape[0] + n_new_frames, ) )
-
-            # add the new data
-            dset[-n_new_frames:, ...] = value
+    def traj_n_frames(self, run_idx, traj_idx):
+        return self.traj(run_idx, traj_idx)['positions'].shape[0]
 
 
     def _add_sparse_field_flag(self, field_path):
@@ -2099,8 +2101,47 @@ class WepyHDF5(object):
         shapes_grp.create_dataset(field_path, data=np.array(field_feature_shape))
 
     def _add_field_feature_dtype(self, field_path, field_feature_dtype):
+        feature_dtype_str = json.dumps(field_feature_dtype.descr)
         dtypes_grp = self._h5['_settings/field_feature_dtypes']
-        dtypes_grp.create_dataset(field_path, data=field_feature_dtype)
+        dtypes_grp.create_dataset(field_path, data=feature_dtype_str)
+
+    def _set_field_feature_shape(self, field_path, field_feature_shape):
+        # check if the field_feature_shape is already set
+        if field_path in self.field_feature_shapes:
+            # check that the shape was previously saved as "None" as we
+            # won't overwrite anything else
+            if self.field_feature_shapes[field_path] is None:
+                full_path = '_settings/field_feature_shapes/{}'.format(field_path)
+                # we have to delete the old data and set new data
+                del self.h5[full_path]
+                self.h5.create_dataset(full_path, data=field_feature_shape)
+            else:
+                raise AttributeError(
+                    "Cannot overwrite feature shape for {} with {} because it is {} not 'None'".format(
+                        field_path, field_feature_shape, self.field_feature_shapes[field_path]))
+        # it was not previously set so we must create then save it
+        else:
+            self._add_field_feature_shape(field_path, field_feature_shape)
+
+    def _set_field_feature_dtype(self, field_path, field_feature_dtype):
+        feature_dtype_str = json.dumps(field_feature_dtype.descr)
+        # check if the field_feature_dtype is already set
+        if field_path in self.field_feature_dtypes:
+            # check that the dtype was previously saved as "None" as we
+            # won't overwrite anything else
+            if self.field_feature_dtypes[field_path] is None:
+                full_path = '_settings/field_feature_dtypes/{}'.format(field_path)
+                # we have to delete the old data and set new data
+                del self.h5[full_path]
+                self.h5.create_dataset(full_path, data=feature_dtype_str)
+            else:
+                raise AttributeError(
+                    "Cannot overwrite feature dtype for {} with {} because it is {} not 'None'".format(
+                        field_path, field_feature_dtype, self.field_feature_dtypes[field_path]))
+        # it was not previously set so we must create then save it
+        else:
+            self._add_field_feature_dtype(field_path, field_feature_dtype)
+
 
 
     def add_cycle_resampling_records(self, run_idx, cycle_resampling_records):

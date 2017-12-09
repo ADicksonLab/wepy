@@ -43,30 +43,28 @@ class WepyHDF5Reporter(FileReporter):
         # open and initialize the HDF5 file
 
         self.wepy_h5 = WepyHDF5(self.file_path, mode=self.mode,
-                                topology=self._tmp_topology,  **self.units, **self.kwargs)
+                                topology=self._tmp_topology,  units=self.units)
 
-        # save space and delete the temp topology from the attributes
-        # del self._tmp_topology
 
-        # initialize a new run in a context
-        with self.wepy_h5 as wepy_h5:
-            run_grp = wepy_h5.new_run()
+        with self.wepy_h5:
+            # initialize a new run
+            run_grp = self.wepy_h5.new_run()
             self.wepy_run_idx = run_grp.attrs['run_idx']
 
             # initialize the resampling group within this run
-            wepy_h5.init_run_resampling(self.wepy_run_idx,
+            self.wepy_h5.init_run_resampling(self.wepy_run_idx,
                                         self.decisions,
                                         self.instruction_dtypes,
                                         resampling_aux_dtypes=self.resampling_aux_dtypes,
                                         resampling_aux_shapes=self.resampling_aux_shapes)
 
             # initialize the boundary condition group within this run
-            wepy_h5.init_run_warp(self.wepy_run_idx, self.warp_dtype,
+            self.wepy_h5.init_run_warp(self.wepy_run_idx, self.warp_dtype,
                                   warp_aux_dtypes=self.warp_aux_dtypes,
                                   warp_aux_shapes=self.warp_aux_shapes)
 
             # initialize the boundary condition group within this run
-            wepy_h5.init_run_bc(self.wepy_run_idx,
+            self.wepy_h5.init_run_bc(self.wepy_run_idx,
                                   bc_aux_dtypes=self.bc_aux_dtypes,
                                   bc_aux_shapes=self.bc_aux_shapes)
 
@@ -104,12 +102,12 @@ class WepyHDF5Reporter(FileReporter):
                     # if it does then append to the trajectory
                     wepy_h5.extend_traj(self.wepy_run_idx, walker_idx,
                                              weights=np.array([[walker.weight]]),
-                                             **walker_data)
+                                             data=walker_data)
                 # start a new trajectory
                 else:
                     # add the traj for the walker with the data
                     traj_grp = wepy_h5.add_traj(self.wepy_run_idx, weights=np.array([walker.weight]),
-                                                     **walker_data)
+                                                     data=walker_data)
                     # add as metadata the cycle idx where this walker started
                     traj_grp.attrs['starting_cycle_idx'] = cycle_idx
 

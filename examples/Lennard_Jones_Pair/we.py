@@ -92,6 +92,7 @@ if __name__ == "__main__":
 
     for run_idx in range(n_runs):
         print("Starting run: {}".format(run_idx))
+        import ipdb; ipdb.set_trace()
         sim_manager.run_simulation(n_cycles, steps, debug_prints=True)
         print("Finished run: {}".format(run_idx))
 

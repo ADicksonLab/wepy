@@ -1,7 +1,40 @@
+#+TODO: TODO | DONE CANCELLED
 * Simulation manager architecture
 
 ** TODO [#B] allow for resampler to get information on the whole tree of data :feature:
+
+* Walker class
+
+** TODO [#A] API and specs for a gneral Walker class               :api:core:
+
+There are some notes on this in my lab notebook
+
+* Resampler Helper Module
+
+** TODO [#A] API and specs for a general Resampler                      :api:
+
+- distance metric
+- novelty/decision function
+
+
+** TODO [#A] Distance metric API and specs                              :api:
+
+** TODO [#A] novelty/decision function API and specs                    :api:
+
+** TODO [#B] rewrite WExplore2 and WExplore in general framework        :app:
+
 * HDF5
+
+
+
+
+** DONE [#A] explicit passing of dictionaries for traj_data etc.       :core:
+
+accept keywords: data, units, sparse_idxs
+
+*** DONE TrajHDF5
+
+*** TODO WepyHDF5
 ** TODO [#B] check file is correct
 
 I noticed that constructing a WepyHDF5 object from a TrajHDF5 file
@@ -604,21 +637,13 @@ initialize those with shapes and dtypes given.
 
 **** TODO [#A] WepyHDF5 get method for sparse trajectories             :core:
 
-
-
-
-** TODO [#A] explicit passing of dictionaries for traj_data etc.       :core:
-
-accept keywords: data, units, sparse_idxs
-
-*** DONE TrajHDF5
-
-*** TODO WepyHDF5
-
 ** TODO [#A] restarting simulations, multiple runs                     :core:
-** TODO [#B] implement SWMR                                         :feature:
+
+** TODO [#A] allow multiple reporters in a simulation manager          :core:
 
 ** TODO [#A] fix compute observable to write feature vector style      :core:
+
+** TODO [#B] implement SWMR                                         :feature:
 
 
 
@@ -666,8 +691,11 @@ Should be a function for each field of a run to get the cycle data:
   - which calls the other functions based on what they are.
 
 
+Nazanin was supposed to be working on this.
 
-** TODO [#B] allow for arbitrary number of frames to be saved in HDF5 traj part :core:
+** CANCELLED [#B] allow for arbitrary number of frames to be saved in HDF5 traj part :core:
+
+
 ** TODO [#B] allow for passing in of real np.dtypes to resampling records :core:api:
 
 special handling for the variable length "tokens"
@@ -698,11 +726,6 @@ This will require choosing a unit library:
 
 This would have the same API as the TrajHDF5 object.
 
-** TODO [#C] HDF5 topology                                :core:topology:api:
-
-This needs to be developed.
-- JSON represenation also capable to be converted to and from
-
 ** TODO [#C] add support for trajectory total ordering          :feature:api:
 
 That means a single unique positive integer index for every trajectory in the whole file.
@@ -710,9 +733,6 @@ That means a single unique positive integer index for every trajectory in the wh
 Support this as an trajectory selector in the iter_trajs.
 
 
-** TODO [#B] add records for the boundary conditions                   :core:
-This needs to be implemented in the WepyHDF5 and in the actual
-boundary conditions class.
 
 ** TODO [#C] save weights on export_traj to TrajHDF5                :feature:
 
