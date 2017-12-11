@@ -449,8 +449,6 @@ class TrajHDF5(object):
         # we just need to set the flags for which data is present and
         # which is not
         self._update_exist_flags()
-        self.
-
 
     def _get_field_path_grp(self, field_path):
         """Given a field path for the trajectory returns the group the field's
