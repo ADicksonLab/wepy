@@ -6,6 +6,7 @@ from wepy.hdf5 import WepyHDF5
 class WepyHDF5Reporter(FileReporter):
 
     def __init__(self, file_path, mode='a',
+                 save_fields=None,
                  decisions=None, instruction_dtypes=None,
                  resampling_aux_dtypes=None, resampling_aux_shapes=None,
                  warp_dtype=None,
@@ -14,11 +15,15 @@ class WepyHDF5Reporter(FileReporter):
                  bc_aux_dtypes=None, bc_aux_shapes=None,
                  topology=None,
                  units=None,
-                 **kwargs):
+                 sparse_fields=None,
+                 feature_shapes=None, feature_dtypes=None,
+                 ):
 
         super().__init__(file_path, mode=mode)
         self.wepy_run_idx = None
         self._tmp_topology = topology
+        # which fields from the walker to save, if None then save all of them
+        self.save_fields = save_fields
         self.decisions = decisions
         self.instruction_dtypes = instruction_dtypes
         self.warp_dtype = warp_dtype
@@ -29,8 +34,11 @@ class WepyHDF5Reporter(FileReporter):
         self.warp_aux_shapes = warp_aux_shapes
         self.bc_aux_dtypes = bc_aux_dtypes
         self.bc_aux_shapes = bc_aux_shapes
-        self.kwargs = kwargs
-
+        # dictionary of sparse_field_name -> int : frequency of cycles
+        # to save the field
+        self.sparse_fields = sparse_fields
+        self.feature_shapes = feature_shapes
+        self.feature_dtypes = feature_dtypes
 
         # if units were given add them otherwise set as an empty dictionary
         if units is None:
@@ -38,12 +46,17 @@ class WepyHDF5Reporter(FileReporter):
         else:
             self.units = units
 
+
     def init(self):
 
         # open and initialize the HDF5 file
 
         self.wepy_h5 = WepyHDF5(self.file_path, mode=self.mode,
-                                topology=self._tmp_topology,  units=self.units)
+                                topology=self._tmp_topology,
+                                units=self.units,
+                                sparse_fields=list(self.sparse_fields.keys()),
+                                feature_shapes=self.feature_shapes,
+                                feature_dtypes=self.feature_dtypes)
 
 
         with self.wepy_h5:
@@ -84,21 +97,52 @@ class WepyHDF5Reporter(FileReporter):
 
         n_walkers = len(walkers)
 
+        # determine which fields to save. If there were none specified
+        # save all of them
+        if self.save_fields is None:
+            save_fields = list(walkers[0].dict().keys())
+        else:
+            save_fields = self.save_fields
+
         with self.wepy_h5 as wepy_h5:
 
             # add trajectory data for the walkers
             for walker_idx, walker in enumerate(walkers):
 
-                # collect data from walker
-                walker_data = {}
-                # iterate through the feature vectors
-                for key, vector in walker.dict().items():
-                    # if the result is None exclude it from the data
-                    if vector is not None:
-                        walker_data[key] = np.array([vector])
+                walker_data = walker.dict()
+                # iterate through the feature vectors of the walker (fields)
+                for field_path in list(walker_data.keys()):
+
+                    # save the field if it is in the list of save_fields
+                    if field_path not in save_fields:
+                        walker_data.pop(field_path)
+                        continue
+
+                    # if the result is None don't save anything
+                    if walker_data[field_path] is None:
+                        walker_data.pop(field_path)
+                        continue
+
+                    # if this is a sparse field we decide
+                    # whether it is a valid cycle to save on
+                    if field_path in self.sparse_fields:
+                        if cycle_idx % self.sparse_fields[field_path] != 0:
+                            # this is not a valid cycle so we
+                            # remove from the walker_data
+                            walker_data.pop(field_path)
+                            continue
+
+                    # wrap the feature into another array so
+                    # it is the same shape as the array in the
+                    # HDF5 i.e. an array of individual feature
+                    # vectors
+                    walker_data[field_path] = np.array([walker_data[field_path]])
+
+                # save the data to the HDF5 file for this walker
 
                 # check to see if the walker has a trajectory in the run
                 if walker_idx in wepy_h5.run_traj_idxs(self.wepy_run_idx):
+
                     # if it does then append to the trajectory
                     wepy_h5.extend_traj(self.wepy_run_idx, walker_idx,
                                              weights=np.array([[walker.weight]]),

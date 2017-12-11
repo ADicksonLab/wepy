@@ -25,7 +25,118 @@ There are some notes on this in my lab notebook
 
 * HDF5
 
+** TODO [#A] allow multiple reporters in a simulation manager          :core:
 
+** TODO [#A] get methods for warp, bc, resampling records              :core:
+** TODO [#A] restarting simulations, multiple runs                     :core:
+
+** TODO [#A] fix compute observable to write feature vector style      :core:
+
+
+
+** TODO [#B] check file is correct
+
+I noticed that constructing a WepyHDF5 object from a TrajHDF5 file
+there is no complaint. There should be.
+
+** TODO [#B] allow for passing in of real np.dtypes to resampling records :core:api:
+
+special handling for the variable length "tokens"
+
+** TODO [#B] add records for the boundary conditions               :core:api:
+This needs to be implemented in the WepyHDF5 and in the actual
+boundary conditions class.
+
+** TODO [#B] implement SWMR                                         :feature:
+
+
+
+
+
+** TODO [#B] concat function                                    :feature:api:
+
+I want to have a concat function similar to other major libraries that
+puts runs from different simulations together. The specifications I
+want it to have are:
+
+- options for inplace and copying
+  - inplace on a 'master' file object, probably the first in the list passed.
+  - another option (True by default) which deletes the members of the
+    concat after a successful concatenation
+  - make a copy of the new file and leave all the others untouched
+
+** TODO [#B] full slice across datasets in TrajHDF5             :feature:api:
+
+get all values for a collection of indices, with fancy slicing
+
+Call it a cycle cross section.
+
+Should be a function for each field of a run to get the cycle data:
+- cycle_resampling(run_idx, cycle_idxs)
+- cycle_boundary_conditions(run_idx, cycle_idxs)
+- cycle_warping(run_idx, cycle_idxs)
+- cycle_trajectories(run_idx, cycle_idxs)
+- cycle_cross_section(run_idx, cycle_idxs, fields=['trajectories', 'resampling',
+                                                   'boundary_conditions', 'warping'])
+  - which calls the other functions based on what they are.
+
+
+Nazanin was supposed to be working on this.
+
+** TODO [#B] implement run cycle slice                  :feature:api:nazanin:
+
+** TODO [#B] original WExplore algorithm                :feature:application:
+** TODO [#B] implement run cycle map function           :feature:nazanin:api:
+
+** TODO [#B] implement run cycle compute observables    :feature:nazanin:api:
+** TODO [#C] HDF5 topology                                    :core:topology:
+
+** TODO [#C] save weights on export_traj to TrajHDF5                :feature:
+
+Save them in the observables.
+
+Do we save them automatically?
+as an option?
+- [X] Or must be done manually?
+
+** TODO [#C] Virtual Datasets (VDS) for adding observables          :feature:
+** TODO [#C] implement chunking strategies                      :feature:api:
+
+- [ ] protein, ligand, solvent
+- [ ] ligand, binding-site
+
+** TODO [#C] compliance infrastructure                          :feature:api:
+
+** TODO [#C] only accept Quantity type objects that match/convert units :feature:api:
+
+This will require choosing a unit library:
+- simtk.units
+- pint
+
+** TODO [#C] simulation reproducibility metadata                :feature:api:
+
+** TODO [#C] traj object for trajs in WepyHDF5                  :feature:api:
+
+This would have the same API as the TrajHDF5 object.
+
+** TODO [#C] add support for trajectory total ordering          :feature:api:
+
+That means a single unique positive integer index for every trajectory in the whole file.
+
+Support this as an trajectory selector in the iter_trajs.
+
+
+
+** TODO [#C] use h5py variable length datasets instead of my solution :feature:backend:
+
+Didn't know this was a feature of h5py and am curious to see how this
+is implemented underneath and whether it is an hdf5 standard thing.
+
+H5py is not the only library we want to be read this data from.
+
+** TODO [#C] use h5py enumeration type instead of my solution :feature:backend:
+
+** CANCELLED [#B] allow for arbitrary number of frames to be saved in HDF5 traj part :core:
 
 
 ** DONE [#A] explicit passing of dictionaries for traj_data etc.       :core:
@@ -35,12 +146,7 @@ accept keywords: data, units, sparse_idxs
 *** DONE TrajHDF5
 
 *** TODO WepyHDF5
-** TODO [#B] check file is correct
-
-I noticed that constructing a WepyHDF5 object from a TrajHDF5 file
-there is no complaint. There should be.
-
-** TODO [#A] sparse velocities etc. across trajectory                  :core:
+** DONE [#A] sparse fields                                             :core:
 
 How to actually implement this?
 
@@ -540,7 +646,7 @@ and not collide with the usage with simple as meaning not-compound.
 
 **** DONE [#A] set sparse field flags for non-creation constructors
 
-*** TODO [#A] WepyHDF5 sparse trajectories
+*** DONE [#A] WepyHDF5 sparse trajectories
 
 Need to think about where to keep the flags, shape, and dtype data
 that were used in TrajHDF5.
@@ -621,7 +727,7 @@ Need to update stuff for the traj_data new paradigm
 
 
 **** DONE [#A] WepyHDF5 ensure that all fields have correct lengths    :core:
-**** TODO [#A] WepyHDF5 initialize sparse_fields in constructor if no data given
+**** DONE [#A] WepyHDF5 initialize sparse_fields in constructor if no data given
 
 in WepyHDF5 I wrote something new in which is to initialize sparse
 fields if they aren't given any data when the trajectory is first
@@ -635,111 +741,6 @@ initialize those with shapes and dtypes given.
 
 
 
-**** TODO [#A] WepyHDF5 get method for sparse trajectories             :core:
-
-** TODO [#A] restarting simulations, multiple runs                     :core:
-
-** TODO [#A] allow multiple reporters in a simulation manager          :core:
-
-** TODO [#A] fix compute observable to write feature vector style      :core:
-
-** TODO [#B] implement SWMR                                         :feature:
+**** DONE [#A] WepyHDF5 get method for sparse trajectories             :core:
 
 
-
-
-
-** TODO [#C] use h5py variable length datasets instead of my solution :feature:backend:
-
-Didn't know this was a feature of h5py and am curious to see how this
-is implemented underneath and whether it is an hdf5 standard thing.
-
-H5py is not the only library we want to be read this data from.
-
-** TODO [#C] use h5py enumeration type instead of my solution :feature:backend:
-
-** TODO [#B] implement run cycle slice                  :feature:api:nazanin:
-
-** TODO [#B] implement run cycle map function           :feature:nazanin:api:
-
-** TODO [#B] implement run cycle compute observables    :feature:nazanin:api:
-** TODO [#B] concat function                                    :feature:api:
-
-I want to have a concat function similar to other major libraries that
-puts runs from different simulations together. The specifications I
-want it to have are:
-
-- options for inplace and copying
-  - inplace on a 'master' file object, probably the first in the list passed.
-  - another option (True by default) which deletes the members of the
-    concat after a successful concatenation
-  - make a copy of the new file and leave all the others untouched
-
-** TODO [#B] full slice across datasets in TrajHDF5             :feature:api:
-
-get all values for a collection of indices, with fancy slicing
-
-Call it a cycle cross section.
-
-Should be a function for each field of a run to get the cycle data:
-- cycle_resampling(run_idx, cycle_idxs)
-- cycle_boundary_conditions(run_idx, cycle_idxs)
-- cycle_warping(run_idx, cycle_idxs)
-- cycle_trajectories(run_idx, cycle_idxs)
-- cycle_cross_section(run_idx, cycle_idxs, fields=['trajectories', 'resampling',
-                                                   'boundary_conditions', 'warping'])
-  - which calls the other functions based on what they are.
-
-
-Nazanin was supposed to be working on this.
-
-** CANCELLED [#B] allow for arbitrary number of frames to be saved in HDF5 traj part :core:
-
-
-** TODO [#B] allow for passing in of real np.dtypes to resampling records :core:api:
-
-special handling for the variable length "tokens"
-
-** TODO [#B] original WExplore algorithm                :feature:application:
-** TODO [#B] add records for the boundary conditions               :core:api:
-This needs to be implemented in the WepyHDF5 and in the actual
-boundary conditions class.
-
-** TODO [#C] implement chunking strategies                      :feature:api:
-
-- [ ] protein, ligand, solvent
-- [ ] ligand, binding-site
-
-** TODO [#C] compliance infrastructure                          :feature:api:
-
-** TODO [#C] only accept Quantity type objects that match/convert units :feature:api:
-
-This will require choosing a unit library:
-- simtk.units
-- pint
-
-** TODO [#C] HDF5 topology                                    :core:topology:
-
-** TODO [#C] simulation reproducibility metadata                :feature:api:
-
-** TODO [#C] traj object for trajs in WepyHDF5                  :feature:api:
-
-This would have the same API as the TrajHDF5 object.
-
-** TODO [#C] add support for trajectory total ordering          :feature:api:
-
-That means a single unique positive integer index for every trajectory in the whole file.
-
-Support this as an trajectory selector in the iter_trajs.
-
-
-
-** TODO [#C] save weights on export_traj to TrajHDF5                :feature:
-
-Save them in the observables.
-
-Do we save them automatically?
-as an option?
-- [X] Or must be done manually?
-
-** TODO [#C] Virtual Datasets (VDS) for adding observables          :feature:

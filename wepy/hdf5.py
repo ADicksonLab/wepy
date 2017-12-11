@@ -446,6 +446,7 @@ class TrajHDF5(object):
         # we just need to set the flags for which data is present and
         # which is not
         self._update_exist_flags()
+        self.
 
 
     def _get_field_path_grp(self, field_path):
@@ -1131,6 +1132,25 @@ class WepyHDF5(object):
         for dataset_key, exist_flag in self._exist_flags.items():
             if exist_flag:
                 self._append_flags[dataset_key] = False
+
+    def _update_compliance_flags(self):
+        """Checks whether the flags for different datasets and updates the
+        flags for the compliance groups."""
+        for compliance_type in COMPLIANCE_TAGS:
+            # check if compliance for this type is met
+            result = self._check_compliance_keys(compliance_type)
+            # set the flag
+            self._compliance_flags[compliance_type] = result
+
+    def _check_compliance_keys(self, compliance_type):
+        """Checks whether the flags for the datasets have been set to True."""
+        results = []
+        compliance_requirements = dict(COMPLIANCE_REQUIREMENTS)
+        # go through each required dataset for this compliance
+        # requirements and see if they exist
+        for dataset_key in compliance_requirements[compliance_type]:
+            results.append(self._exist_flags[dataset_key])
+        return all(results)
 
     def _create_init(self, topology, units):
         """Completely overwrite the data in the file. Reinitialize the values
@@ -2380,6 +2400,46 @@ class WepyHDF5(object):
                     self.bc_aux_dtypes[key] = aux_data.dtype
                     self.bc_aux_shapes[key] = aux_data.shape
                     self._bc_aux_init.append(key)
+
+    def _get_contiguous_traj_field(self, run_idx, traj_idx, field_path):
+
+        full_path = "/runs/{}/trajectories/{}/{}".format(run_idx, traj_idx, field_path)
+        return self._h5[full_path][:]
+
+    def _get_sparse_traj_field(self, run_idx, traj_idx, field_path):
+
+        traj_path = "/runs/{}/trajectories/{}".format(run_idx, traj_idx)
+        traj_grp = self.h5[traj_path]
+        field = traj_grp[field_path]
+        data = field['data'][:]
+        sparse_idxs = field['_sparse_idxs'][:]
+
+        n_frames = traj_grp['positions'].shape[0]
+
+        filled_data = np.full( (n_frames, *data.shape[1:]), np.nan)
+        filled_data[sparse_idxs] = data
+
+        mask = np.full( (n_frames, *data.shape[1:]), True)
+        mask[sparse_idxs] = False
+
+        masked_array = np.ma.masked_array(filled_data, mask=mask)
+
+        return masked_array
+
+    def get_traj_field(self, run_idx, traj_idx, field_path):
+        """Returns a numpy array for the given field."""
+
+        traj_path = "/runs/{}/trajectories/{}".format(run_idx, traj_idx)
+
+        # if the field doesn't exist return None
+        if not field_path in self._h5[traj_path]:
+            return None
+
+        # get the field depending on whether it is sparse or not
+        if field_path in self.sparse_fields:
+            return self._get_sparse_traj_field(run_idx, traj_idx, field_path)
+        else:
+            return self._get_contiguous_traj_field(run_idx, traj_idx, field_path)
 
     def iter_runs(self, idxs=False, run_sel=None):
         """Iterate through runs.
