@@ -1,5 +1,6 @@
 * Weighted Ensemble Python (wepy)
 
+
 A dead simple, modular implementation and framework for running
 weighted ensemble simulations in pure python.
 
@@ -15,6 +16,13 @@ can be used from the command line.
 The deeper architecture of ~wepy~ is intended to be loosely coupled,
 so that unforeseen use cases can be accomodated, but tightly
 integrated for the most common of use cases, i.e. molecular dynamics.
+
+** Community
+
+Discussion takes place on riot.im (#wepy:matrix.org) which is a slack-like app that works
+on the Matrix protocol:
+[[https://riot.im/app/#/room/#wepy:matrix.org]]
+
 
 ** Installation
 

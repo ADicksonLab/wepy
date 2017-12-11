@@ -68,6 +68,9 @@ FIELD_FEATURE_DTYPES = (('positions', np.dtype(np.float)),
 # and different.
 POSITIONS_LIKE_FIELDS = ('velocities', 'forces')
 
+WEIGHT_SHAPE = (1,)
+
+
 # some fields have more than one dataset associated with them
 COMPOUND_DATA_FIELDS = ('parameters', 'parameter_derivatives', 'observables')
 COMPOUND_UNIT_FIELDS = ('parameters', 'parameter_derivatives', 'observables')
@@ -1848,7 +1851,7 @@ class WepyHDF5(object):
         # add datasets to the traj group
 
         # weights
-        traj_grp.create_dataset('weights', data=weights, maxshape=(None,))
+        traj_grp.create_dataset('weights', data=weights, maxshape=(None, *WEIGHT_SHAPE))
         # positions
 
         positions_shape = traj_data['positions'].shape
@@ -2655,16 +2658,6 @@ class WepyHDF5(object):
         # check the args and kwargs to see if they need expanded for
         # mapping inputs
         mapped_args = []
-        for arg in args:
-            # if it is a sequence or generator we keep just pass it to the mapper
-            if isinstance(arg, Sequence) and not isinstance(arg, str):
-                assert len(arg) == self.n_trajs, "Sequence has fewer"
-                mapped_args.append(arg)
-            # if it is not a sequence or generator we make a generator out
-            # of it to map as inputs
-            else:
-                mapped_arg = (arg for i in range(self.n_trajs))
-                mapped_args.append(mapped_arg)
 
         results = map_func(func, self.iter_trajs_fields(fields, traj_sel=traj_sel, idxs=False,
                                                         debug_prints=debug_prints),
@@ -2697,6 +2690,9 @@ class WepyHDF5(object):
 
             # DEBUG enforce this until sparse trajectories are implemented
             # assert traj_sel is None, "no selections until sparse trajectory data is implemented"
+
+        if return_results:
+            results = []
 
         for result in self.traj_fields_map(func, fields, *args,
                                        map_func=map_func, traj_sel=traj_sel, idxs=True,
@@ -2743,9 +2739,12 @@ class WepyHDF5(object):
             # also return it if requested
             if return_results:
                 if idxs:
-                    yield idx_tup, obs_value
+                    results.append(( idx_tup, obs_value))
                 else:
-                    yield obs_value
+                    results.append(obs_value)
+
+        if return_results:
+            return results
 
     def join(self, other_h5):
         """Given another WepyHDF5 file object does a left join on this
