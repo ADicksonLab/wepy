@@ -25,7 +25,7 @@ There are some notes on this in my lab notebook
 
 * HDF5
 
-** TODO [#A] allow multiple reporters in a simulation manager          :core:
+** DONE [#A] allow multiple reporters in a simulation manager          :core:
 ** TODO [#A] get methods for warp, bc, resampling records              :core:
 
 ** TODO [#A] sparse atoms slices                                    :feature:
@@ -49,6 +49,28 @@ What does this require?
 - methods for writing restarts for appropriate MD engines
 
 ** TODO [#A] fix compute observable to write feature vector style      :core:
+
+This isn't really something I can fix since it relies on the
+observable function being correct.
+
+Unless I changed that so that the observable function works on a
+single frame and then is mapped onto the whole trajectory.
+
+Maybe that is the wayt o go. Since it makes writing those functions
+easier anyways.
+
+
+hmm this would involve rewriting the `traj_fields_map` function which
+is not trivial.
+
+The way it is now I would need to have the mapping function understand
+this.
+
+Or I could wrap the passed in function in a wrapper that understands
+that it is a trajectory fields dictionary it is working with and not a
+single frame.
+
+
 ** TODO [#B] restarting simulations, multiple runs                     :core:
 
 

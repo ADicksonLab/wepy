@@ -2695,7 +2695,8 @@ class WepyHDF5(object):
         for result in self.traj_fields_map(func, fields, *args,
                                        map_func=map_func, traj_sel=traj_sel, idxs=True,
                                        debug_prints=debug_prints):
-            idx_tup, obs_value = result
+
+            idx_tup, obs_features = result
             run_idx, traj_idx = idx_tup
 
             # if we are saving this to the trajectories observables add it as a dataset
@@ -2717,7 +2718,7 @@ class WepyHDF5(object):
 
                 # try to create the dataset
                 try:
-                    obs_grp.create_dataset(field_name, data=obs_value)
+                    obs_grp.create_dataset(field_name, data=obs_features)
                 # if it fails we either overwrite or raise an error
                 except RuntimeError:
                     # if we are in a permissive write mode we delete the
@@ -2728,7 +2729,7 @@ class WepyHDF5(object):
                             print("Dataset already present. Overwriting.")
 
                         del obs_grp[field_name]
-                        obs_grp.create_dataset(field_name, data=obs_value)
+                        obs_grp.create_dataset(field_name, data=obs_features)
                     # this will happen in 'c' and 'c-' modes
                     else:
                         raise RuntimeError(
@@ -2737,9 +2738,9 @@ class WepyHDF5(object):
             # also return it if requested
             if return_results:
                 if idxs:
-                    results.append(( idx_tup, obs_value))
+                    results.append(( idx_tup, obs_features))
                 else:
-                    results.append(obs_value)
+                    results.append(obs_features)
 
         if return_results:
             return results
