@@ -10,7 +10,7 @@ from numpy.random import choice
 import mdtraj as mdj
 
 from wepy.boundary_conditions.boundary import BoundaryConditions
-from wepy.resampling.wexplore2 import OpenMMRebindingDistance
+from wepy.resampling.distances import OpenMMRebindingDistance
 
 class RebindingBC(BoundaryConditions):
 
@@ -79,7 +79,7 @@ class RebindingBC(BoundaryConditions):
         # of type `array` while weights will always be floats in all
         # applications.
         time = walker.time_value()
-        warp_data = {'cycle' : cycle, 'passage_time' : time,
+        warp_data = {'cycle' : np.array([cycle]), 'passage_time' : time,
                      'warped_walker_weight' : np.array([walker.weight])}
 
         # make the warp data mapping

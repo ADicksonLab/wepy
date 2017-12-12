@@ -107,7 +107,6 @@ class OpenMMRebindingDistance(OpenMMDistance):
         small_bs_idxs = np.array(range(len(self.ligand_idxs),len(self.ligand_idxs)+len(self.binding_site_idxs)))
         keep_atoms = np.concatenate((self.ligand_idxs,self.binding_site_idxs),axis=0)
         small_top = self.topology.subset(keep_atoms)
-#        import pdb; pdb.set_trace()
         small_pos = np.array(comp_xyz)[:,keep_atoms,:]
         
         return mdj.Trajectory(small_pos,small_top)
