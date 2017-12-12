@@ -64,7 +64,7 @@ if __name__ == "__main__":
 
     report_path = 'results.wepy.h5'
     # open it in truncate mode first, then switch after first run
-    reporter = WepyHDF5Reporter(report_path, mode='w',
+    hdf5_reporter = WepyHDF5Reporter(report_path, mode='w',
                                 save_fields=['positions', 'box_vectors', 'velocities'],
                                 decisions=resampler.DECISION,
                                 instruction_dtypes=resampler.INSTRUCTION_DTYPES,
@@ -82,7 +82,7 @@ if __name__ == "__main__":
                           resampler=resampler,
                           boundary_conditions=ubc,
                           work_mapper=map,
-                          reporters=[reporter, pkl_reporter])
+                          reporters=[hdf5_reporter, pkl_reporter])
 
     print("Number of steps: {}".format(n_steps))
     print("Number of cycles: {}".format(n_cycles))
