@@ -47,36 +47,70 @@ What does this require?
   positions
 - methods for writing restarts for appropriate MD engines
 
+So what is the API to look like.
+
+When I am calling the reporter I will want an option like this:
 
 
-** TODO [#B] fix compute observable to write feature vector style      :core:
+*** use case 1
 
-This isn't really something I can fix since it relies on the
-observable function being correct.
+This is a general way to specify the indices for the main
+representation. And additionally specify other represenations and the
+frequency of their saving. You could simply save the use just the
+`main_rep_idxs` to specify what atoms to save without specifying any
+alt_reps.
+ #+BEGIN_SRC python
+   hdf5_reporter = WepyHDF5Reporter(report_path, mode='w',
+                                        save_fields=['positions', 'box_vectors', 'velocities'],
+                                        decisions=resampler.DECISION,
+                                        instruction_dtypes=resampler.INSTRUCTION_DTYPES,
+                                        warp_dtype=ubc.WARP_INSTRUCT_DTYPE,
+                                        warp_aux_dtypes=ubc.WARP_AUX_DTYPES,
+                                        warp_aux_shapes=ubc.WARP_AUX_SHAPES,
+                                        topology=json_str_top,
+                                        units=units,
+                                        sparse_fields={'velocities' : 10},
+                                        # select the atoms you would like
+                                        # to be saved in the 'positions'
+                                        # field
+                                        main_rep_idxs=selection_atom_idxs,
+                                        # specify other alternate
+                                        # representations as a list of
+                                        # arrays of the atom idxs for
+                                        # each alternate representation
+                                        alt_reps_idxs=[all_atom_idxs],
+                                        alt_rep_freqs=[10])
+ #+END_SRC
 
-Unless I changed that so that the observable function works on a
-single frame and then is mapped onto the whole trajectory.
+*** use case 2
 
-Maybe that is the wayt o go. Since it makes writing those functions
-easier anyways.
+A simpler and more direct way to go that would achieve most use cases
+is to not have to manually specify the alt_reps for a standard
+restarts use case.
 
+That is we simply want to specify a reduced main representation and
+the frequency to save the entire system only.
 
-hmm this would involve rewriting the `traj_fields_map` function which
-is not trivial.
+#+BEGIN_SRC python
+  hdf5_reporter = WepyHDF5Reporter(report_path, mode='w',
+                                       save_fields=['positions', 'box_vectors', 'velocities'],
+                                       decisions=resampler.DECISION,
+                                       instruction_dtypes=resampler.INSTRUCTION_DTYPES,
+                                       warp_dtype=ubc.WARP_INSTRUCT_DTYPE,
+                                       warp_aux_dtypes=ubc.WARP_AUX_DTYPES,
+                                       warp_aux_shapes=ubc.WARP_AUX_SHAPES,
+                                       topology=json_str_top,
+                                       units=units,
+                                       sparse_fields={'velocities' : 10},
+                                       # select the atoms you would like
+                                       # to be saved in the 'positions'
+                                       # field
+                                       main_rep_idxs=selection_atom_idxs,
+                                       full_system_rep_freq=100)
+#+END_SRC
 
-The way it is now I would need to have the mapping function understand
-this.
-
-Or I could wrap the passed in function in a wrapper that understands
-that it is a trajectory fields dictionary it is working with and not a
-single frame.
-
-Ok well I was able to do this and I think I am remembering why I had
-to do it this way which was that this method will work for a normal
-map function, except you can't do this and pickle the objects which is
-needed for using something like scoop which uses a message queue.
-
-Okay demoting this but the branch will still exist.
+Here the full_system_rep_freq should default to None and that signals
+that there should be no saving of the full system as an alternate rep.
 
 ** TODO [#B] restarting simulations, multiple runs                     :core:
 
@@ -188,6 +222,36 @@ H5py is not the only library we want to be read this data from.
 
 ** TODO [#C] use h5py enumeration type instead of my solution :feature:backend:
 
+
+
+** CANCELLED [#B] fix compute observable to write feature vector style :core:
+
+This isn't really something I can fix since it relies on the
+observable function being correct.
+
+Unless I changed that so that the observable function works on a
+single frame and then is mapped onto the whole trajectory.
+
+Maybe that is the wayt o go. Since it makes writing those functions
+easier anyways.
+
+
+hmm this would involve rewriting the `traj_fields_map` function which
+is not trivial.
+
+The way it is now I would need to have the mapping function understand
+this.
+
+Or I could wrap the passed in function in a wrapper that understands
+that it is a trajectory fields dictionary it is working with and not a
+single frame.
+
+Ok well I was able to do this and I think I am remembering why I had
+to do it this way which was that this method will work for a normal
+map function, except you can't do this and pickle the objects which is
+needed for using something like scoop which uses a message queue.
+
+Okay demoting this but the branch will still exist.
 
 
 ** CANCELLED [#B] allow for arbitrary number of frames to be saved in HDF5 traj part :core:
