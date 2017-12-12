@@ -16,8 +16,7 @@ from wepy.openmm import OpenMMRunner, OpenMMWalker
 from wepy.openmm import UNIT_NAMES, GET_STATE_KWARG_DEFAULTS
 from wepy.boundary_conditions.unbinding import UnbindingBC
 from wepy.reporter.hdf5 import WepyHDF5Reporter
-
-import scoop.futures
+from wepy.reporter.reporter import WalkersPickleReporter
 
 if __name__ == "__main__":
 
@@ -77,12 +76,14 @@ if __name__ == "__main__":
                                 topology=json_str_top,
                                 units=units)
 
+    pkl_reporter = WalkersPickleReporter(save_dir='./pickle_backups', freq=10, num_backups=3)
+
     sim_manager = Manager(init_walkers,
                           runner=runner,
                           resampler=resampler,
                           boundary_conditions=ubc,
                           work_mapper=map,
-                          reporter=reporter)
+                          reporters=[reporter, pkl_reporter])
 
     print("Number of steps: {}".format(n_steps))
     print("Number of cycles: {}".format(n_cycles))

@@ -23,7 +23,7 @@ class Manager(object):
                  resampler = None,
                  boundary_conditions = None,
                  work_mapper = map,
-                 reporter = None):
+                 reporters = None):
 
         self.init_walkers = init_walkers
         self.n_init_walkers = len(init_walkers)
@@ -39,7 +39,7 @@ class Manager(object):
         # the function for running work on the workers
         self.map = work_mapper
         # the method for writing output
-        self.reporter = reporter
+        self.reporters = reporters
 
     def run_segment(self, walkers, segment_length, debug_prints=False):
         """Run a time segment for all walkers using the available workers. """
@@ -71,7 +71,8 @@ class Manager(object):
             sys.stdout.write("Starting simulation\n")
 
         # init the reporter
-        self.reporter.init()
+        for reporter in self.reporters:
+            reporter.init()
 
         walkers = self.init_walkers
         # the main cycle loop
@@ -141,15 +142,17 @@ class Manager(object):
                     *[str(walker.weight) for walker in resampled_walkers])
                 print(walker_weight_str)
 
-            # report results to the reporter
-            self.reporter.report(cycle_idx, new_walkers,
-                                 warp_records, warp_aux_data,
-                                 bc_records, bc_aux_data,
-                                 resampling_records, resampling_aux_data,
-                                 debug_prints=debug_prints)
+            # report results to the reporters
+            for reporter in self.reporters:
+                reporter.report(cycle_idx, new_walkers,
+                                     warp_records, warp_aux_data,
+                                     bc_records, bc_aux_data,
+                                     resampling_records, resampling_aux_data,
+                                     debug_prints=debug_prints)
 
             # prepare resampled walkers for running new state changes
             walkers = resampled_walkers
 
         # cleanup things associated with the reporter
-        self.reporter.cleanup()
+        for reporter in self.reporters:
+            reporter.cleanup()
