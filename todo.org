@@ -26,11 +26,30 @@ There are some notes on this in my lab notebook
 * HDF5
 
 ** TODO [#A] allow multiple reporters in a simulation manager          :core:
-
 ** TODO [#A] get methods for warp, bc, resampling records              :core:
-** TODO [#A] restarting simulations, multiple runs                     :core:
+
+** TODO [#A] sparse atoms slices                                    :feature:
+
+We want to have a dedicated group in a trajectory for alternative
+representations of the positions of atoms in the trajectories.
+
+This is because we want to be able to save only the positions we need
+for analysis of a subset of atoms that are of interest most of the
+time (i.e. just the protein and not the solvent) to save memory but
+still be able to have restart values.
+
+What does this require?
+- separate topology
+- separate group for alternate representations (field name: `alt_reps`)
+- atom selections for both the main positions field and the alt_reps
+  given to the Reporter
+- methods for retrieving full systems properly
+- methods for writing trajectories with either full system or main
+  positions
+- methods for writing restarts for appropriate MD engines
 
 ** TODO [#A] fix compute observable to write feature vector style      :core:
+** TODO [#B] restarting simulations, multiple runs                     :core:
 
 
 
@@ -126,6 +145,10 @@ That means a single unique positive integer index for every trajectory in the wh
 Support this as an trajectory selector in the iter_trajs.
 
 
+** TODO [#C] save only complement for sparse atom slices            :feature:
+
+Instead of saving the entire system of atoms for sparse full systems
+you could just save the complement to the main positions field.
 
 ** TODO [#C] use h5py variable length datasets instead of my solution :feature:backend:
 
