@@ -1,8 +1,5 @@
 import sys
-import time
-import os
 import os.path as osp
-import pickle
 
 from wepy.resampling.resampler import NoResampler
 from wepy.runner import NoRunner
@@ -26,8 +23,7 @@ class Manager(object):
                  resampler = None,
                  boundary_conditions = None,
                  work_mapper = map,
-                 reporter = None,
-                 backup_freq = None):
+                 reporters = None):
 
         self.init_walkers = init_walkers
         self.n_init_walkers = len(init_walkers)
@@ -43,9 +39,7 @@ class Manager(object):
         # the function for running work on the workers
         self.map = work_mapper
         # the method for writing output
-        self.reporter = reporter
-        # the frequency for which to pkl all walkers
-        self.backup_freq = backup_freq
+        self.reporters = reporters
 
     def run_segment(self, walkers, segment_length, debug_prints=False):
         """Run a time segment for all walkers using the available workers. """
@@ -65,7 +59,7 @@ class Manager(object):
 
         return new_walkers
 
-    def run_simulation(self, n_cycles, segment_lengths, debug_prints=False,start_cycle=0):
+    def run_simulation(self, n_cycles, segment_lengths, debug_prints=False):
         """Run a simulation for a given number of cycles with specified
         lengths of MD segments in between.
 
@@ -77,24 +71,22 @@ class Manager(object):
             sys.stdout.write("Starting simulation\n")
 
         # init the reporter
-        self.reporter.init()
+        for reporter in self.reporters:
+            reporter.init()
 
         walkers = self.init_walkers
         # the main cycle loop
-        for cycle_idx in range(start_cycle,n_cycles):
+        for cycle_idx in range(n_cycles):
 
             if debug_prints:
                 sys.stdout.write("Begin cycle {}\n".format(cycle_idx))
-                start_time = time.time()
-                
+
             # run the segment
             new_walkers = self.run_segment(walkers, segment_lengths[cycle_idx],
                                            debug_prints=debug_prints)
 
             if debug_prints:
                 sys.stdout.write("End cycle {}\n".format(cycle_idx))
-                end_time = time.time()
-                sys.stdout.write("Time spent on dynamics {}\n".format(end_time-start_time))
 
             # boundary conditions should be optional;
 
@@ -109,7 +101,7 @@ class Manager(object):
 
                 # apply rules of boundary conditions and warp walkers through space
                 bc_results  = self.boundary_conditions.warp_walkers(new_walkers,
-                                                                    debug_prints=debug_prints,cycle=cycle_idx)
+                                                            debug_prints=debug_prints)
 
                 # warping results
                 warped_walkers = bc_results[0]
@@ -128,19 +120,11 @@ class Manager(object):
                 bc_records = bc_results[3]
                 bc_aux_data = bc_results[4]
 
-
-            if debug_prints:
-                start_time = time.time()
-                
             # resample walkers
             resampled_walkers, resampling_records, resampling_aux_data =\
                            self.resampler.resample(warped_walkers,
                                                    debug_prints=debug_prints)
 
-            if debug_prints:
-                end_time = time.time()
-                sys.stdout.write("Resampling time {}\n".format(end_time-start_time))
-                
             if debug_prints:
                 # print results for this cycle
                 print("Net state of walkers after resampling:")
@@ -158,30 +142,17 @@ class Manager(object):
                     *[str(walker.weight) for walker in resampled_walkers])
                 print(walker_weight_str)
 
-            # report results to the reporter
-            self.reporter.report(cycle_idx, new_walkers,
-                                 warp_records, warp_aux_data,
-                                 bc_records, bc_aux_data,
-                                 resampling_records, resampling_aux_data,
-                                 debug_prints=debug_prints)
+            # report results to the reporters
+            for reporter in self.reporters:
+                reporter.report(cycle_idx, new_walkers,
+                                     warp_records, warp_aux_data,
+                                     bc_records, bc_aux_data,
+                                     resampling_records, resampling_aux_data,
+                                     debug_prints=debug_prints)
 
             # prepare resampled walkers for running new state changes
             walkers = resampled_walkers
 
-            if self.backup_freq != None:
-                if cycle_idx % self.backup_freq == 0:
-                    # pkl walkers
-                    pklname = "walker_backup_" + str(cycle_idx) + ".pkl"
-                    with open(pklname, 'wb') as f:
-                        pickle.dump(walkers, f, pickle.HIGHEST_PROTOCOL)
-
-                    # remove old pickle (but keep two at all times)
-                    idx = cycle_idx - 2*self.backup_freq
-                    oldpkl = "walker_backup_" + str(idx) + ".pkl"
-                    try:
-                        os.remove(oldpkl)
-                    except OSError:
-                        pass
-
         # cleanup things associated with the reporter
-        self.reporter.cleanup()
+        for reporter in self.reporters:
+            reporter.cleanup()

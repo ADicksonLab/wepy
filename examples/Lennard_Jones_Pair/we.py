@@ -16,8 +16,7 @@ from wepy.openmm import OpenMMRunner, OpenMMWalker
 from wepy.openmm import UNIT_NAMES, GET_STATE_KWARG_DEFAULTS
 from wepy.boundary_conditions.unbinding import UnbindingBC
 from wepy.reporter.hdf5 import WepyHDF5Reporter
-
-import scoop.futures
+from wepy.reporter.reporter import WalkersPickleReporter
 
 if __name__ == "__main__":
 
@@ -70,24 +69,25 @@ if __name__ == "__main__":
 
     report_path = 'results.wepy.h5'
     # open it in truncate mode first, then switch after first run
-    reporter = WepyHDF5Reporter(report_path, mode='w',
+    hdf5_reporter = WepyHDF5Reporter(report_path, mode='w',
+                                save_fields=['positions', 'box_vectors', 'velocities'],
                                 decisions=resampler.DECISION,
                                 instruction_dtypes=resampler.INSTRUCTION_DTYPES,
                                 warp_dtype=ubc.WARP_INSTRUCT_DTYPE,
                                 warp_aux_dtypes=ubc.WARP_AUX_DTYPES,
                                 warp_aux_shapes=ubc.WARP_AUX_SHAPES,
-                                bc_dtype=None,
-                                bc_aux_dtypes=None,
-                                bc_aux_shapes=None,
                                 topology=json_str_top,
-                                units=units)
+                                units=units,
+                                sparse_fields={'velocities' : 10})
+
+    pkl_reporter = WalkersPickleReporter(save_dir='./pickle_backups', freq=10, num_backups=3)
 
     sim_manager = Manager(init_walkers,
                           runner=runner,
                           resampler=resampler,
                           boundary_conditions=ubc,
                           work_mapper=map,
-                          reporter=reporter)
+                          reporters=[hdf5_reporter, pkl_reporter])
 
     print("Number of steps: {}".format(n_steps))
     print("Number of cycles: {}".format(n_cycles))
@@ -103,34 +103,34 @@ if __name__ == "__main__":
     print("Finished first file")
 
 
-    print("Starting second file")
-    # make a separate file with equal runs
-    second_report_path = 'results_2.wepy.h5'
-    # open it in truncate mode first, then switch after first run
-    second_reporter = WepyHDF5Reporter(second_report_path, mode='w',
-                                decisions=resampler.DECISION,
-                                instruction_dtypes=resampler.INSTRUCTION_DTYPES,
-                                warp_dtype=ubc.WARP_INSTRUCT_DTYPE,
-                                warp_aux_dtypes=ubc.WARP_AUX_DTYPES,
-                                warp_aux_shapes=ubc.WARP_AUX_SHAPES,
-                                bc_dtype=None,
-                                bc_aux_dtypes=None,
-                                bc_aux_shapes=None,
-                                topology=json_str_top,
-                                units=units)
+    # print("Starting second file")
+    # # make a separate file with equal runs
+    # second_report_path = 'results_2.wepy.h5'
+    # # open it in truncate mode first, then switch after first run
+    # second_reporter = WepyHDF5Reporter(second_report_path, mode='w',
+    #                             decisions=resampler.DECISION,
+    #                             instruction_dtypes=resampler.INSTRUCTION_DTYPES,
+    #                             warp_dtype=ubc.WARP_INSTRUCT_DTYPE,
+    #                             warp_aux_dtypes=ubc.WARP_AUX_DTYPES,
+    #                             warp_aux_shapes=ubc.WARP_AUX_SHAPES,
+    #                             bc_dtype=None,
+    #                             bc_aux_dtypes=None,
+    #                             bc_aux_shapes=None,
+    #                             topology=json_str_top,
+    #                             units=units)
 
-    second_sim_manager = Manager(init_walkers,
-                          runner=runner,
-                          resampler=resampler,
-                          boundary_conditions=ubc,
-                          work_mapper=map,
-                          reporter=second_reporter)
+    # second_sim_manager = Manager(init_walkers,
+    #                       runner=runner,
+    #                       resampler=resampler,
+    #                       boundary_conditions=ubc,
+    #                       work_mapper=map,
+    #                       reporter=second_reporter)
 
-    print("Running Simulations")
+    # print("Running Simulations")
 
-    for run_idx in range(n_runs):
-        print("Starting run: {}".format(run_idx))
-        second_sim_manager.run_simulation(n_cycles, steps, debug_prints=True)
-        print("Finished run: {}".format(run_idx))
+    # for run_idx in range(n_runs):
+    #     print("Starting run: {}".format(run_idx))
+    #     second_sim_manager.run_simulation(n_cycles, steps, debug_prints=True)
+    #     print("Finished run: {}".format(run_idx))
 
-    print("Finished second file")
+    # print("Finished second file")

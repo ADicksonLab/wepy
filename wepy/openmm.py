@@ -8,23 +8,15 @@ import simtk.unit as unit
 
 from wepy.walker import Walker
 from wepy.runner import Runner
+from wepy.reporter.reporter import Reporter
 
-# for the sim manager, dependencies will change
-import sys
-import os
-from collections import namedtuple
 
-import numpy as np
-import pandas as pd
-import h5py
+## Constants
 
-from wepy.sim_manager import Manager
-
-# default inputs
-from wepy.resampling.resampler import NoResampler
-from wepy.runner import NoRunner
-from wepy.boundary_conditions.boundary import NoBC
-
+# when we use the get_state function from the simulation context we
+# can pass options for what kind of data to get, this is the default
+# to get all the data. TODO not really sure what the 'groups' keyword
+# is for though
 GET_STATE_KWARG_DEFAULTS = (('getPositions', True),
                             ('getVelocities', True),
                             ('getForces', True),
@@ -36,7 +28,8 @@ GET_STATE_KWARG_DEFAULTS = (('getPositions', True),
                             #('groups') )
 
 
-
+# the Units objects that OpenMM uses internally and are returned from
+# simulation data
 UNITS = (('positions_unit', unit.nanometer),
          ('time_unit', unit.picosecond),
          ('box_vectors_unit', unit.nanometer),
@@ -47,6 +40,8 @@ UNITS = (('positions_unit', unit.nanometer),
          ('potential_energy_unit', unit.kilojoule / unit.mole),
         )
 
+# the names of the units from the units objects above. This is used
+# for saving them to files
 UNIT_NAMES = (('positions_unit', unit.nanometer.get_name()),
          ('time_unit', unit.picosecond.get_name()),
          ('box_vectors_unit', unit.nanometer.get_name()),
@@ -58,6 +53,7 @@ UNIT_NAMES = (('positions_unit', unit.nanometer.get_name()),
         )
 
 
+# the runner for the simulation which runs the actual dynamics
 class OpenMMRunner(Runner):
 
     def __init__(self, system, topology, integrator, platform=None):
@@ -105,7 +101,8 @@ class OpenMMRunner(Runner):
 
         return new_walker
 
-
+# a walker object which customizes the state and adds useful getters
+# for the contained data in the state
 class OpenMMWalker(Walker):
 
     def __init__(self, state, weight):
@@ -358,3 +355,4 @@ class OpenMMWalker(Walker):
         # resize the time to a 1D vector
         return mdj.Trajectory(self.positions_values,
                               time=self.time_value[:,0], unitcell_vectors=self.box_vectors)
+
