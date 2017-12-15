@@ -10,7 +10,7 @@
 There are some notes on this in my lab notebook
 
 * Resampler Helper Module
-
+** TODO [#B] original WExplore algorithm                :feature:application:
 ** TODO [#A] API and specs for a general Resampler                      :api:
 
 - distance metric
@@ -26,12 +26,25 @@ There are some notes on this in my lab notebook
 * HDF5
 
 ** TODO [#A] get methods for warp, bc, resampling records              :core:
-*** TODO resampling records
+*** DONE resampling records
 #+BEGIN_SRC python
 resampling_records = wepy_h5.run_resampling_records(run_idx)
 #+END_SRC
 
 Will return a list of tuples of the form (decision_enum_id, record)
+*** TODO resampling aux_data
+
+- [X] written
+- [ ] test
+
+I need to make the Lennard Jones example have stuff to test on.
+
+That means it needs to actually store some aux data from the resampler
+*** TODO warp records
+*** TODO warp aux_dat
+*** TODO boundary conditions records
+*** TODO boundary conditions aux data
+
 ** TODO [#A] sparse atoms slices                                    :feature:
 
 We want to have a dedicated group in a trajectory for alternative
@@ -117,6 +130,25 @@ the frequency to save the entire system only.
 Here the full_system_rep_freq should default to None and that signals
 that there should be no saving of the full system as an alternate rep.
 
+** TODO [#A] Lennard Jones full test data
+*** TODO resampling records
+- [ ] make sure to get CLONEs
+*** TODO resampling aux data
+
+- [ ] use a resampler that returns resampling aux_data
+
+This is in the new WExplore2 stuff, but it will be a royal pain to
+merge that...
+
+I could do this with a properly implemented WExplore resampler with a
+distance metric that actually makes sense for Lennard Jones
+*** DONE warp records
+*** DONE warp aux data
+*** TODO boundary conditions records
+*** TODO boundary conditions aux data
+
+
+
 ** TODO [#B] fix compute observable to write feature vector style      :core:
 
 This isn't really something I can fix since it relies on the
@@ -200,7 +232,7 @@ Nazanin was supposed to be working on this.
 
 ** TODO [#B] implement run cycle slice                  :feature:api:nazanin:
 
-** TODO [#B] original WExplore algorithm                :feature:application:
+
 ** TODO [#B] implement run cycle map function           :feature:nazanin:api:
 
 ** TODO [#B] implement run cycle compute observables    :feature:nazanin:api:
