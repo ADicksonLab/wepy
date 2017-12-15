@@ -26,7 +26,12 @@ There are some notes on this in my lab notebook
 * HDF5
 
 ** TODO [#A] get methods for warp, bc, resampling records              :core:
+*** TODO resampling records
+#+BEGIN_SRC python
+resampling_records = wepy_h5.run_resampling_records(run_idx)
+#+END_SRC
 
+Will return a list of tuples of the form (decision_enum_id, record)
 ** TODO [#A] sparse atoms slices                                    :feature:
 
 We want to have a dedicated group in a trajectory for alternative
@@ -47,7 +52,70 @@ What does this require?
   positions
 - methods for writing restarts for appropriate MD engines
 
+So what is the API to look like.
 
+When I am calling the reporter I will want an option like this:
+
+
+*** use case 1
+
+This is a general way to specify the indices for the main
+representation. And additionally specify other represenations and the
+frequency of their saving. You could simply save the use just the
+`main_rep_idxs` to specify what atoms to save without specifying any
+alt_reps.
+ #+BEGIN_SRC python
+   hdf5_reporter = WepyHDF5Reporter(report_path, mode='w',
+                                        save_fields=['positions', 'box_vectors', 'velocities'],
+                                        decisions=resampler.DECISION,
+                                        instruction_dtypes=resampler.INSTRUCTION_DTYPES,
+                                        warp_dtype=ubc.WARP_INSTRUCT_DTYPE,
+                                        warp_aux_dtypes=ubc.WARP_AUX_DTYPES,
+                                        warp_aux_shapes=ubc.WARP_AUX_SHAPES,
+                                        topology=json_str_top,
+                                        units=units,
+                                        sparse_fields={'velocities' : 10},
+                                        # select the atoms you would like
+                                        # to be saved in the 'positions'
+                                        # field
+                                        main_rep_idxs=selection_atom_idxs,
+                                        # specify other alternate
+                                        # representations as a list of
+                                        # arrays of the atom idxs for
+                                        # each alternate representation
+                                        alt_reps_idxs=[all_atom_idxs],
+                                        alt_rep_freqs=[10])
+ #+END_SRC
+
+*** use case 2
+
+A simpler and more direct way to go that would achieve most use cases
+is to not have to manually specify the alt_reps for a standard
+restarts use case.
+
+That is we simply want to specify a reduced main representation and
+the frequency to save the entire system only.
+
+#+BEGIN_SRC python
+  hdf5_reporter = WepyHDF5Reporter(report_path, mode='w',
+                                       save_fields=['positions', 'box_vectors', 'velocities'],
+                                       decisions=resampler.DECISION,
+                                       instruction_dtypes=resampler.INSTRUCTION_DTYPES,
+                                       warp_dtype=ubc.WARP_INSTRUCT_DTYPE,
+                                       warp_aux_dtypes=ubc.WARP_AUX_DTYPES,
+                                       warp_aux_shapes=ubc.WARP_AUX_SHAPES,
+                                       topology=json_str_top,
+                                       units=units,
+                                       sparse_fields={'velocities' : 10},
+                                       # select the atoms you would like
+                                       # to be saved in the 'positions'
+                                       # field
+                                       main_rep_idxs=selection_atom_idxs,
+                                       full_system_rep_freq=100)
+#+END_SRC
+
+Here the full_system_rep_freq should default to None and that signals
+that there should be no saving of the full system as an alternate rep.
 
 ** TODO [#B] fix compute observable to write feature vector style      :core:
 
@@ -77,9 +145,9 @@ map function, except you can't do this and pickle the objects which is
 needed for using something like scoop which uses a message queue.
 
 Okay demoting this but the branch will still exist.
+=======
 
 ** TODO [#B] restarting simulations, multiple runs                     :core:
-
 
 
 ** TODO [#B] check file is correct
@@ -96,7 +164,6 @@ This needs to be implemented in the WepyHDF5 and in the actual
 boundary conditions class.
 
 ** TODO [#B] implement SWMR                                         :feature:
-
 
 
 
@@ -137,6 +204,9 @@ Nazanin was supposed to be working on this.
 ** TODO [#B] implement run cycle map function           :feature:nazanin:api:
 
 ** TODO [#B] implement run cycle compute observables    :feature:nazanin:api:
+
+
+
 ** TODO [#C] HDF5 topology                                    :core:topology:
 
 ** TODO [#C] save weights on export_traj to TrajHDF5                :feature:
@@ -172,7 +242,6 @@ This would have the same API as the TrajHDF5 object.
 That means a single unique positive integer index for every trajectory in the whole file.
 
 Support this as an trajectory selector in the iter_trajs.
-
 
 ** TODO [#C] save only complement for sparse atom slices            :feature:
 
