@@ -10,17 +10,18 @@
 There are some notes on this in my lab notebook
 
 * Resampler Helper Module
-** TODO [#B] original WExplore algorithm                :feature:application:
 ** TODO [#A] API and specs for a general Resampler                      :api:
 
 - distance metric
 - novelty/decision function
 
-
 ** TODO [#A] Distance metric API and specs                              :api:
 
 ** TODO [#A] novelty/decision function API and specs                    :api:
 
+
+
+** TODO [#B] original WExplore algorithm                :feature:application:
 ** TODO [#B] rewrite WExplore2 and WExplore in general framework        :app:
 
 * HDF5
