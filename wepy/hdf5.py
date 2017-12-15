@@ -2312,7 +2312,7 @@ class WepyHDF5(object):
         enum_grp = self._h5['runs/{}/resampling/decision/enum'.format(run_idx)]
         enum = {}
         for decision_name, dset in enum_grp.items():
-            enum[decision_name] = dset
+            enum[decision_name] = dset[()]
 
         return enum
 
@@ -2744,6 +2744,47 @@ class WepyHDF5(object):
 
         if return_results:
             return results
+
+    def resampling_records(self, run_idx):
+
+        res_grp = self.resampling_records_grp(run_idx)
+        decision_enum = self.decision_enum(run_idx)
+
+        res_recs = []
+        for dec_name, dec_id in self.decision_enum(run_idx).items():
+
+            # if this is a decision with variable length instructions
+            if self._instruction_varlength_flags(run_idx)[dec_name][()]:
+                dec_grp = res_grp[dec_name]
+                # go through each dataset of different records
+                for init_length in dec_grp['_initialized'][:]:
+                    rec_ds = dec_grp['{}'.format(init_length)]
+
+                    # make tuples for the decision and the records
+                    tups = zip((dec_id for i in range(rec_ds.shape[0])), rec_ds)
+
+                    # save the tuples
+                    res_recs.extend(list(tups))
+            else:
+                rec_ds = res_grp[dec_name]
+                # make tuples for the decision and the records
+                tups = zip((dec_id for i in range(rec_ds.shape[0])), rec_ds)
+
+                # save the tuples
+                res_recs.extend(list(tups))
+
+        return res_recs
+
+    def resampling_records_dataframe(self, run_idx):
+        records = self.resampling_records(run_idx)
+
+        records = [(tup[0], *tup[1]) for tup in records]
+
+        colnames = ['decision_id', 'cycle_idx', 'step_idx', 'walker_idx', 'instruction_record']
+
+        df = pd.DataFrame(data=records, columns=colnames)
+        return df
+
 
     def join(self, other_h5):
         """Given another WepyHDF5 file object does a left join on this
