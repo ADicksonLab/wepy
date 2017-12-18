@@ -955,7 +955,8 @@ class WepyHDF5(object):
     def __init__(self, filename, topology=None, mode='x',
                  units=None,
                  sparse_fields=None,
-                 feature_shapes=None, feature_dtypes=None):
+                 feature_shapes=None, feature_dtypes=None,
+                 alt_reps=None, main_rep_idxs=None):
         """Initialize a new Wepy HDF5 file. This is a file that organizes
         wepy.TrajHDF5 dataset subsets by simulations by runs and
         includes resampling records for recovering walker histories.
@@ -1009,6 +1010,15 @@ class WepyHDF5(object):
             self._sparse_fields = []
         else:
             self._sparse_fields = sparse_fields
+
+        # if we specify an atom subset of the main 'positions' field
+        # we must save them
+        self._main_rep_idxs = main_rep_idxs
+        # a dictionary specifying other alt_reps to be saved
+        if alt_reps is not None:
+            self._alt_reps = alt_reps
+            # all alt_reps are sparse
+            self._sparse_fields.extend(list(self._alt_reps.keys()))
 
         # counter for the new runs, specific constructors will update
         # this if needed
@@ -1185,6 +1195,14 @@ class WepyHDF5(object):
             # set the flags
             for i, sparse_field in enumerate(self._sparse_fields):
                 sparse_fields_ds[i] = sparse_field
+
+        # the main rep atom idxs
+        settings_grp.create_dataset('main_rep_idxs', data=self._main_rep_idxs, dtype=np.int)
+
+        # alt_reps settings
+        alt_reps_idxs_grp = settings_grp.create_groups("alt_reps_idxs")
+        for alt_rep_name, idxs in self._alt_reps.items():
+            alt_reps_idxs_grp.create_dataset(alt_rep_name, data=idxs, dtype=np.int)
 
 
         # field feature shapes and dtypes
@@ -1437,6 +1455,17 @@ class WepyHDF5(object):
     @property
     def sparse_fields(self):
         return self.h5['_settings/sparse_fields'][:]
+
+    @property
+    def main_rep_idxs(self):
+        if '/_settings/main_rep_idxs' in self.h5:
+            return self.h5['/_settings/main_rep_idxs'][:]
+        else:
+            return None
+
+    def alt_rep_idxs(self):
+        idxs_grp = self.h5['/_settings/alt_reps_idxs']
+        return {name : idxs_grp[name][:] for name in idxs_grp}
 
     @property
     def field_feature_shapes(self):
@@ -1838,6 +1867,14 @@ class WepyHDF5(object):
         # increment the traj_idx_count for this run
         self._run_traj_idx_counter[run_idx] += 1
 
+        alt_rep_idxs = self.alt_rep_idxs()
+        # add the pathlike field names to the traj_data but set data
+        # to None and slice in the setting loop to avoid overuse of
+        # memory
+        for name in alt_rep_idxs:
+            pathlike = "alt_reps/{}".format(name)
+            traj_data[pathlike] = None
+
         # check to make sure the positions are the right shape
         assert traj_data['positions'].shape[1] == self.n_atoms, \
             "positions given have different number of atoms: {}, should be {}".format(
@@ -1870,6 +1907,17 @@ class WepyHDF5(object):
             else:
                 field_sparse_idxs = None
 
+            # slice the positions if it is an alt_rep field
+            if field_path.startswith('alt_reps'):
+                field_name = field_path.split('/')[1]
+                field_data = traj_data['positions'][alt_rep_idxs[field_name]]
+
+            # if we have specified main rep idxs we slice the positions before saving
+            if field_path == 'positions':
+                if self.main_rep_idxs is not None:
+                    field_data = field_data[self.main_rep_idxs]
+                else:
+                    pass
 
             self._add_traj_field_data(run_idx, traj_idx, field_path, field_data,
                                       sparse_idxs=field_sparse_idxs)

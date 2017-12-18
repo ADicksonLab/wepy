@@ -25,7 +25,6 @@ There are some notes on this in my lab notebook
 
 * HDF5
 
-** TODO [#A] get methods for warp, bc, resampling records              :core:
 
 ** TODO [#A] sparse atoms slices                                    :feature:
 
@@ -51,14 +50,61 @@ So what is the API to look like.
 
 When I am calling the reporter I will want an option like this:
 
+From the case studies I was forgetting that I need to name the fields!
 
-*** use case 1
+How should the full representation be named?
 
-This is a general way to specify the indices for the main
-representation. And additionally specify other represenations and the
-frequency of their saving. You could simply save the use just the
-`main_rep_idxs` to specify what atoms to save without specifying any
-alt_reps.
+Should it be in the sub-group? I feel like maybe not since we don't
+want to overwrite it's name on accident. Or we can put it there and
+just make it a convenient default.
+
+A convenient default is easier to implement and keeps the top-level
+cleaner.
+
+Okay that it will be it shall be named 'all_positions'.
+
+The group for all the others is called alt_reps.
+
+*** Case Studies
+**** use case 1
+
+ This is a general way to specify the indices for the main
+ representation. And additionally specify other represenations and the
+ frequency of their saving. You could simply save the use just the
+ `main_rep_idxs` to specify what atoms to save without specifying any
+ alt_reps.
+  #+BEGIN_SRC python
+    hdf5_reporter = WepyHDF5Reporter(report_path, mode='w',
+                                         save_fields=['positions', 'box_vectors', 'velocities'],
+                                         decisions=resampler.DECISION,
+                                         instruction_dtypes=resampler.INSTRUCTION_DTYPES,
+                                         warp_dtype=ubc.WARP_INSTRUCT_DTYPE,
+                                         warp_aux_dtypes=ubc.WARP_AUX_DTYPES,
+                                         warp_aux_shapes=ubc.WARP_AUX_SHAPES,
+                                         topology=json_str_top,
+                                         units=units,
+                                         sparse_fields={'velocities' : 10},
+                                         # select the atoms you would like
+                                         # to be saved in the 'positions'
+                                         # field
+                                         main_rep_idxs=selection_atom_idxs,
+                                         # specify other alternate
+                                         # representations as a list of
+                                         # arrays of the atom idxs for
+                                         # each alternate representation
+                                         alt_reps={'my_rep' : (my_rep_atom_idxs, 10)}
+                                         )
+  #+END_SRC
+
+**** use case 2
+
+ A simpler and more direct way to go that would achieve most use cases
+ is to not have to manually specify the alt_reps for a standard
+ restarts use case.
+
+ That is we simply want to specify a reduced main representation and
+ the frequency to save the entire system only.
+
  #+BEGIN_SRC python
    hdf5_reporter = WepyHDF5Reporter(report_path, mode='w',
                                         save_fields=['positions', 'box_vectors', 'velocities'],
@@ -74,43 +120,15 @@ alt_reps.
                                         # to be saved in the 'positions'
                                         # field
                                         main_rep_idxs=selection_atom_idxs,
-                                        # specify other alternate
-                                        # representations as a list of
-                                        # arrays of the atom idxs for
-                                        # each alternate representation
-                                        alt_reps_idxs=[all_atom_idxs],
-                                        alt_rep_freqs=[10])
+                                        full_system_rep_freq=100)
  #+END_SRC
 
-*** use case 2
+ Here the full_system_rep_freq should default to None and that signals
+ that there should be no saving of the full system as an alternate rep.
 
-A simpler and more direct way to go that would achieve most use cases
-is to not have to manually specify the alt_reps for a standard
-restarts use case.
 
-That is we simply want to specify a reduced main representation and
-the frequency to save the entire system only.
 
-#+BEGIN_SRC python
-  hdf5_reporter = WepyHDF5Reporter(report_path, mode='w',
-                                       save_fields=['positions', 'box_vectors', 'velocities'],
-                                       decisions=resampler.DECISION,
-                                       instruction_dtypes=resampler.INSTRUCTION_DTYPES,
-                                       warp_dtype=ubc.WARP_INSTRUCT_DTYPE,
-                                       warp_aux_dtypes=ubc.WARP_AUX_DTYPES,
-                                       warp_aux_shapes=ubc.WARP_AUX_SHAPES,
-                                       topology=json_str_top,
-                                       units=units,
-                                       sparse_fields={'velocities' : 10},
-                                       # select the atoms you would like
-                                       # to be saved in the 'positions'
-                                       # field
-                                       main_rep_idxs=selection_atom_idxs,
-                                       full_system_rep_freq=100)
-#+END_SRC
-
-Here the full_system_rep_freq should default to None and that signals
-that there should be no saving of the full system as an alternate rep.
+** TODO [#A] get methods for warp, bc, resampling records              :core:
 
 ** TODO [#B] restarting simulations, multiple runs                     :core:
 

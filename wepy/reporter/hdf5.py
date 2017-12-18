@@ -17,6 +17,8 @@ class WepyHDF5Reporter(FileReporter):
                  units=None,
                  sparse_fields=None,
                  feature_shapes=None, feature_dtypes=None,
+                 main_rep_idxs=None, all_atoms_rep_freq=None,
+                 alt_reps=None
                  ):
 
         super().__init__(file_path, mode=mode)
@@ -40,6 +42,27 @@ class WepyHDF5Reporter(FileReporter):
         self.feature_shapes = feature_shapes
         self.feature_dtypes = feature_dtypes
 
+        # the atom indices of the whole system that will be saved as
+        # the main positions representation
+        self.main_rep_idxs = main_rep_idxs
+
+        # the idxs for alternate representations of the system
+        # positions
+        if alt_reps is not None:
+            self.alt_reps_idxs = {key: tup[0] for key, tup in alt_reps.items()}
+            self.alt_reps_freqs = {key: tup[1] for key, tup in alt_reps.items()}
+        else:
+            self.alt_reps_idxs = {}
+
+        # if given the frequency with which to save the positions of
+        # the whole system positions
+        if all_atoms_rep_freq is not None:
+            if 'all_atoms' in self.alt_reps_idxs:
+                raise ValueError("Cannot name an alt_rep 'all_atoms'")
+
+            self.alt_reps_idxs['all_atoms'] = all_atoms_rep_freq
+
+
         # if units were given add them otherwise set as an empty dictionary
         if units is None:
             self.units = {}
@@ -56,7 +79,9 @@ class WepyHDF5Reporter(FileReporter):
                                 units=self.units,
                                 sparse_fields=list(self.sparse_fields.keys()),
                                 feature_shapes=self.feature_shapes,
-                                feature_dtypes=self.feature_dtypes)
+                                feature_dtypes=self.feature_dtypes,
+                                main_rep_idxs=self.main_rep_idxs,
+                                alt_reps=self.alt_reps_idxs)
 
 
         with self.wepy_h5:
