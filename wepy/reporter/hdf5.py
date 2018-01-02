@@ -17,6 +17,7 @@ class WepyHDF5Reporter(FileReporter):
                  units=None,
                  sparse_fields=None,
                  feature_shapes=None, feature_dtypes=None,
+                 n_dims=None
                  ):
 
         super().__init__(file_path, mode=mode)
@@ -39,6 +40,7 @@ class WepyHDF5Reporter(FileReporter):
         self.sparse_fields = sparse_fields
         self.feature_shapes = feature_shapes
         self.feature_dtypes = feature_dtypes
+        self.n_dims = n_dims
 
         # if units were given add them otherwise set as an empty dictionary
         if units is None:
@@ -56,7 +58,8 @@ class WepyHDF5Reporter(FileReporter):
                                 units=self.units,
                                 sparse_fields=list(self.sparse_fields.keys()),
                                 feature_shapes=self.feature_shapes,
-                                feature_dtypes=self.feature_dtypes)
+                                feature_dtypes=self.feature_dtypes,
+                                n_dims=self.n_dims)
 
 
         with self.wepy_h5:
