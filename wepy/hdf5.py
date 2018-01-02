@@ -955,7 +955,8 @@ class WepyHDF5(object):
     def __init__(self, filename, topology=None, mode='x',
                  units=None,
                  sparse_fields=None,
-                 feature_shapes=None, feature_dtypes=None):
+                 feature_shapes=None, feature_dtypes=None,
+                 n_dims=None):
         """Initialize a new Wepy HDF5 file. This is a file that organizes
         wepy.TrajHDF5 dataset subsets by simulations by runs and
         includes resampling records for recovering walker histories.
@@ -1190,7 +1191,12 @@ class WepyHDF5(object):
         # field feature shapes and dtypes
 
         # initialize to the defaults
-        self._set_default_init_field_attributes()
+        if n_dims is None:
+            self._set_default_init_field_attributes()
+        else:
+            self._set_init_field_attributes()
+
+
 
         # save the number of dimensions and number of atoms in settings
         settings_grp.create_dataset('n_dims', data=np.array(self._n_dims))
@@ -1320,8 +1326,7 @@ class WepyHDF5(object):
 
         return grp, field_name
 
-
-    def _set_default_init_field_attributes(self):
+    def _set_default_init_field_attributes(self, n_dims=None):
         """Sets the feature_shapes and feature_dtypes to be the default for
         this module. These will be used to initialize field datasets when no
         given during construction (i.e. for sparse values)"""
@@ -1335,7 +1340,11 @@ class WepyHDF5(object):
         # from the topology
         self._n_coords = _json_top_atom_count(self.topology)
         # get the number of dimensions as a default
-        self._n_dims = N_DIMS
+        if n_dims is None:
+            self._n_dims = N_DIMS
+        else:
+            assert isinstance(n_dims, int), "n_dims must be an integer, not {}".format(type(n_dims))
+            self._n_dims = n_dims
 
         # feature shapes for positions and positions-like fields are
         # not known at the module level due to different number of
