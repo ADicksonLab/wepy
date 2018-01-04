@@ -99,14 +99,28 @@ Okay that looks like it will work. Lets test it.
 Okay so I got the main rep to be set properly. Don't know if this
 breaks methods or not.
 
-Needs to be tested in the future
+Needs to be tested in the future.
+
+Problem (?) when you give alt_reps that choose atoms from the full
+system and the main rep is missing those atoms you run into trouble.
+
+This should be possible to do. How can we do this? When I am manually
+setting the fields I was passing in the correct coordinates, which
+maybe I shouldn't so you can still get the correct alt_reps?
+
+THis was what I orginally going to do in the reporter layer. So it
+should be that you have to pass in the alt_reps coordinates manually
+as well. THis makes sense because they are sparse and then you
+wouldn't be able to control when they are added to the traj.
+
+Okay this was done.
 
 *** todo
 
 **** DONE reduced main_rep in WepyHDF5
-**** TODO test methods with reduced main_rep
 
-**** TODO test settting of alt_reps in WepyHDF5
+**** DONE test settting of alt_reps in WepyHDF5
+**** TODO test methods with reduced main_rep
 
 **** TODO set main reps from the reporter
 

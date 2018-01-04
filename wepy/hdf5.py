@@ -1021,7 +1021,8 @@ class WepyHDF5(object):
         if alt_reps is not None:
             self._alt_reps = alt_reps
             # all alt_reps are sparse
-            self._sparse_fields.extend(list(self._alt_reps.keys()))
+            alt_rep_keys = ['alt_reps/{}'.format(key) for key in self._alt_reps.keys()]
+            self._sparse_fields.extend(alt_rep_keys)
         else:
             self._alt_reps = {}
 
@@ -1877,14 +1878,6 @@ class WepyHDF5(object):
         # increment the traj_idx_count for this run
         self._run_traj_idx_counter[run_idx] += 1
 
-        alt_rep_idxs = self.alt_rep_idxs()
-        # add the pathlike field names to the traj_data but set data
-        # to None and slice in the setting loop to avoid overuse of
-        # memory
-        for name in alt_rep_idxs:
-            pathlike = "alt_reps/{}".format(name)
-            traj_data[pathlike] = None
-
         # check to make sure the positions are the right shape
         assert traj_data['positions'].shape[1] == self.n_atoms, \
             "positions given have different number of atoms: {}, should be {}".format(
@@ -1917,18 +1910,6 @@ class WepyHDF5(object):
             else:
                 field_sparse_idxs = None
 
-            # slice the positions if it is an alt_rep field
-            if field_path.startswith('alt_reps'):
-                field_name = field_path.split('/')[1]
-                field_data = traj_data['positions'][alt_rep_idxs[field_name]]
-
-            # if we have specified main rep idxs we slice the positions before saving
-            if field_path == 'positions':
-                if self.main_rep_idxs is not None:
-                    field_data = field_data[self.main_rep_idxs]
-                else:
-                    pass
-
             self._add_traj_field_data(run_idx, traj_idx, field_path, field_data,
                                       sparse_idxs=field_sparse_idxs)
 
@@ -1943,18 +1924,6 @@ class WepyHDF5(object):
         # initialize the sparse fields in the hdf5
         self._init_traj_fields(run_idx, traj_idx,
                                uninit_sparse_fields, uninit_sparse_shapes, uninit_sparse_dtypes)
-
-        # # if a sparse_field has been specified but has not been given
-        # # and shapes and dtypes were provided it must be initialized
-        # # so this trajectory can be extended
-        # for sparse_field in self.sparse_fields:
-        #     if (not sparse_field in traj_data) and (not sparse_field in traj_grp):
-        #         # get the shape and dtype for this field
-        #         shape = self.field_feature_shapes[sparse_field]
-        #         dtype = self.field_feature_dtypes[sparse_field]
-        #         # initialize it
-        #         self._init_sparse_traj_field(run_idx, traj_idx, sparse_field,
-        #                                      shape, dtype)
 
         return traj_grp
 
