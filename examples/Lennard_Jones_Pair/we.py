@@ -15,6 +15,7 @@ from wepy.resampling.wexplore2 import WExplore2Resampler
 from wepy.openmm import OpenMMRunner, OpenMMWalker
 from wepy.openmm import UNIT_NAMES, GET_STATE_KWARG_DEFAULTS
 from wepy.boundary_conditions.unbinding import UnbindingBC
+from wepy.resampling.distances import OpenMMUnbindingDistance
 from wepy.reporter.hdf5 import WepyHDF5Reporter
 from wepy.reporter.reporter import WalkersPickleReporter
 
@@ -48,9 +49,12 @@ if __name__ == "__main__":
     init_walkers = [OpenMMWalker(init_state, init_weight) for i in range(num_walkers)]
 
     mdtraj_topology = mdj.Topology.from_openmm(test_sys.topology)
-    resampler = WExplore2Resampler(topology=mdtraj_topology,
-                                   ligand_idxs=np.array(test_sys.ligand_indices),
-                                   binding_site_idxs=np.array(test_sys.receptor_indices),
+
+    unbinding_distance = OpenMMUnbindingDistance(topology=mdtraj_topology,
+                                                 ligand_idxs=np.array(test_sys.ligand_indices),
+                                                 binding_site_idxs=np.array(test_sys.receptor_indices))
+    
+    resampler = WExplore2Resampler(distance_function=unbinding_distance,
                                    pmax=1.0,
                                    merge_dist=100.)
 

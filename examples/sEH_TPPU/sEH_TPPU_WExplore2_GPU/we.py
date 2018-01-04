@@ -11,6 +11,7 @@ import mdtraj as mdj
 
 from wepy.sim_manager import Manager
 from wepy.resampling.wexplore2 import WExplore2Resampler
+from wepy.resampling.distances import OpenMMUnbindingDistance
 from wepy.openmm import OpenMMRunner, OpenMMWalker
 from wepy.openmm import UNITS
 from wepy.boundary_conditions.unbinding import UnbindingBC
@@ -102,10 +103,13 @@ if __name__ == "__main__":
     # a list of the initial walkers
     init_walkers = [OpenMMWalker(omm_state, init_weight) for i in range(num_walkers)]
 
+    # set up unbinding distance function
+    unb_distance = OpenMMUnbindingDistance(topology=pdb.topology,
+                                           ligand_idxs=lig_idxs,
+                                           binding_site_idxs=binding_selection_idxs)
+    
     # set up the WExplore2 Resampler with the parameters
-    resampler = WExplore2Resampler(topology=pdb.topology,
-                                   ligand_idxs=lig_idxs,
-                                   binding_site_idxs=binding_selection_idxs,
+    resampler = WExplore2Resampler(distance_function=unb_distance,
                                    # algorithm parameters
                                    pmax=0.5)
 

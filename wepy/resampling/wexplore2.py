@@ -5,8 +5,6 @@ import itertools as it
 import numpy as np
 
 from wepy.resampling.resampler import Resampler, ResamplingRecord
-from wepy.resampling.distances import OpenMMUnbindingDistance, OpenMMRebindingDistance,\
-                                        OpenMMNormalModeDistance
 from wepy.resampling.clone_merge import NothingInstructionRecord, CloneInstructionRecord,\
                                         SquashInstructionRecord, KeepMergeInstructionRecord
 from wepy.resampling.clone_merge import CloneMergeDecision, CLONE_MERGE_INSTRUCTION_DTYPES
@@ -17,37 +15,19 @@ class WExplore2Resampler(Resampler):
     INSTRUCTION_DTYPES = CLONE_MERGE_INSTRUCTION_DTYPES
 
     def __init__(self, seed=None, pmin=1e-12, pmax=0.1, dpower=4, merge_dist=2.5,
-                 topology=None, ligand_idxs=None, binding_site_idxs=None, alternative_maps=None,
-                 distance_function='unbinding', comp_xyz=None, n_modes=None, modefile=None,nmalign_idxs=None):
+                 distance_function=None):
         self.pmin=pmin
         self.lpmin = np.log(pmin/100)
         self.pmax=pmax
         self.dpower = dpower
         self.merge_dist = merge_dist
         self.seed = seed
+
+        # ARD: test here if it is suitable?
+        self.distance_function = distance_function
+
         if seed is not None:
             rand.seed(seed)
-        self.topology = topology
-        supported_dfs = ['unbinding','rebinding','normal_mode']
-        if distance_function == 'unbinding':
-            self.distance_function = OpenMMUnbindingDistance(topology=topology,
-                                                             ligand_idxs=ligand_idxs,
-                                                             binding_site_idxs=binding_site_idxs,
-                                                             alt_maps=alternative_maps)
-        elif distance_function == 'rebinding':
-            self.distance_function = OpenMMRebindingDistance(topology=topology,
-                                                             ligand_idxs=ligand_idxs,
-                                                             binding_site_idxs=binding_site_idxs,
-                                                             alt_maps=alternative_maps,
-                                                             comp_xyz=comp_xyz)
-        elif distance_function == 'normal_mode':
-            self.distance_function = OpenMMNormalModeDistance(topology=topology,
-                                                              align_idxs=nmalign_idxs,
-                                                              align_xyz=comp_xyz,
-                                                              n_modes=n_modes,
-                                                              modefile=modefile)
-        else:
-            raise Exception('distance function',distance_function,'is not recognized! Supported distance functions are as follows:',supported_dfs)
 
     def _calcspread(self, n_walkers, walkerwt, amp, distance_matrix):
         spread = 0
