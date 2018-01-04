@@ -65,6 +65,54 @@ Okay that it will be it shall be named 'all_positions'.
 
 The group for all the others is called alt_reps.
 
+*** log 
+
+**** <2018-01-04 Thu>
+
+I initially had the main_rep_idxs as an option going to the wepyHDF5
+object however, I think this really should be handled by applications
+and the wepyHDF5 only has the alt_reps, which makes it sufficiently
+abstract.
+
+So the whole mainb_rep_idxs thing needs to be handled in the reporter
+as a convenience option.
+
+Okay but how would this actually have to happen??
+
+We have to have the full topology and a special topology for the main
+one.
+
+No we don't we just need to slice it.
+
+We do however need to change how the atoms are counted.
+
+This is set in the _set_default_init_field_attributes method and then
+written to the file. THis gets that information from the topology...
+
+Ok well we just need to take into the possibility for variation.
+
+We just need to change the n_coords from the topology by counting the
+main_rep_idxs.
+
+Okay that looks like it will work. Lets test it.
+
+Okay so I got the main rep to be set properly. Don't know if this
+breaks methods or not.
+
+Needs to be tested in the future
+
+*** todo
+
+**** DONE reduced main_rep in WepyHDF5
+**** TODO test methods with reduced main_rep
+
+**** TODO test settting of alt_reps in WepyHDF5
+
+**** TODO set main reps from the reporter
+
+**** TODO set alt_reps from the reporter
+**** TODO set full_system from the reporter
+
 *** Case Studies
 **** use case 1
 

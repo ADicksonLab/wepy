@@ -3,7 +3,11 @@ import numpy as np
 from wepy.reporter.reporter import FileReporter
 from wepy.hdf5 import WepyHDF5
 
+
+
 class WepyHDF5Reporter(FileReporter):
+
+    ALL_ATOMS_REP_KEY = 'all_atoms'
 
     def __init__(self, file_path, mode='a',
                  save_fields=None,
@@ -53,15 +57,19 @@ class WepyHDF5Reporter(FileReporter):
             self.alt_reps_freqs = {key: tup[1] for key, tup in alt_reps.items()}
         else:
             self.alt_reps_idxs = {}
+            self.alt_reps_freqs = {}
 
-        # if given the frequency with which to save the positions of
-        # the whole system positions
+        # check for alt_reps of this name because this is reserved for
+        # the all_atoms flag.
+        if self.ALL_ATOMS_REP_KEY in self.alt_reps_idxs:
+            raise ValueError("Cannot name an alt_rep 'all_atoms'")
+
+        # if there is a frequency for all atoms rep then we make an
+        # alt_rep for the all_atoms system with the specified
+        # frequency
         if all_atoms_rep_freq is not None:
-            if 'all_atoms' in self.alt_reps_idxs:
-                raise ValueError("Cannot name an alt_rep 'all_atoms'")
-
-            self.alt_reps_idxs['all_atoms'] = all_atoms_rep_freq
-
+            self.alt_reps_idxs[self.ALL_ATOMS_REP_KEY] = None
+            self.alt_reps_freqs[self.ALL_ATOMS_REP_KEY] = all_atoms_rep_freq
 
         # if units were given add them otherwise set as an empty dictionary
         if units is None:

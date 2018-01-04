@@ -529,9 +529,11 @@ class TrajHDF5(object):
         field_feature_shapes = dict(FIELD_FEATURE_SHAPES)
         field_feature_dtypes = dict(FIELD_FEATURE_DTYPES)
 
+
         # get the number of coordinates of positions, i.e. n_atoms
         # from the topology
         self._n_coords = _json_top_atom_count(self.topology)
+
         # get the number of dimensions as a default
         self._n_dims = N_DIMS
 
@@ -956,7 +958,8 @@ class WepyHDF5(object):
                  units=None,
                  sparse_fields=None,
                  feature_shapes=None, feature_dtypes=None,
-                 alt_reps=None, main_rep_idxs=None):
+                 alt_reps=None, main_rep_idxs=None
+    ):
         """Initialize a new Wepy HDF5 file. This is a file that organizes
         wepy.TrajHDF5 dataset subsets by simulations by runs and
         includes resampling records for recovering walker histories.
@@ -1019,6 +1022,8 @@ class WepyHDF5(object):
             self._alt_reps = alt_reps
             # all alt_reps are sparse
             self._sparse_fields.extend(list(self._alt_reps.keys()))
+        else:
+            self._alt_reps = {}
 
         # counter for the new runs, specific constructors will update
         # this if needed
@@ -1200,7 +1205,7 @@ class WepyHDF5(object):
         settings_grp.create_dataset('main_rep_idxs', data=self._main_rep_idxs, dtype=np.int)
 
         # alt_reps settings
-        alt_reps_idxs_grp = settings_grp.create_groups("alt_reps_idxs")
+        alt_reps_idxs_grp = settings_grp.create_group("alt_reps_idxs")
         for alt_rep_name, idxs in self._alt_reps.items():
             alt_reps_idxs_grp.create_dataset(alt_rep_name, data=idxs, dtype=np.int)
 
@@ -1349,9 +1354,14 @@ class WepyHDF5(object):
         field_feature_dtypes = dict(FIELD_FEATURE_DTYPES)
 
 
-        # get the number of coordinates of positions, i.e. n_atoms
-        # from the topology
-        self._n_coords = _json_top_atom_count(self.topology)
+        # get the number of coordinates of positions. If there is a
+        # main_reps then we have to set the number of atoms to that,
+        # if not we count the number of atoms in the topology
+        if self._main_rep_idxs is None:
+            self._n_coords = _json_top_atom_count(self.topology)
+        else:
+            self._n_coords = len(self._main_rep_idxs)
+
         # get the number of dimensions as a default
         self._n_dims = N_DIMS
 
@@ -1837,7 +1847,7 @@ class WepyHDF5(object):
 
         # if weights are None then we assume they are 1.0
         if weights is None:
-            weights = np.ones(n_frames, dtype=float)
+            weights = np.ones((n_frames, 1), dtype=float)
         else:
             assert isinstance(weights, np.ndarray), "weights must be a numpy.ndarray"
             assert weights.shape[0] == n_frames,\
@@ -1878,10 +1888,10 @@ class WepyHDF5(object):
         # check to make sure the positions are the right shape
         assert traj_data['positions'].shape[1] == self.n_atoms, \
             "positions given have different number of atoms: {}, should be {}".format(
-                pos_n_atoms, self.n_atoms)
+                traj_data['positions'].shape[1], self.n_atoms)
         assert traj_data['positions'].shape[2] == self.n_dims, \
             "positions given have different number of dims: {}, should be {}".format(
-                pos_n_dims, self.n_dims)
+                traj_data['positions'].shape[2], self.n_dims)
 
         # add datasets to the traj group
 
@@ -2082,7 +2092,7 @@ class WepyHDF5(object):
 
         # if weights are None then we assume they are 1.0
         if weights is None:
-            weights = np.ones(n_new_frames, dtype=float)
+            weights = np.ones((n_new_frames, 1), dtype=float)
         else:
             assert isinstance(weights, np.ndarray), "weights must be a numpy.ndarray"
             assert weights.shape[0] == n_new_frames,\
