@@ -182,7 +182,12 @@ class WepyHDF5Reporter(FileReporter):
                     # check to make sure this is a cycle this is to be
                     # saved to, if it is add it to the walker_data
                     if cycle_idx % self.sparse_fields[alt_rep_path] == 0:
-                        alt_rep_data = walker_data['positions'][alt_rep_idxs]
+                        # if the idxs are None we want all of the atoms
+                        if alt_rep_idxs is None:
+                            alt_rep_data = walker_data['positions'][:]
+                        # otherwise get only th atoms we want
+                        else:
+                            alt_rep_data = walker_data['positions'][alt_rep_idxs]
                         walker_data[alt_rep_path] = alt_rep_data
 
 

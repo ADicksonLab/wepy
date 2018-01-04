@@ -125,7 +125,7 @@ Okay this was done.
 **** DONE set main reps from the reporter
 
 **** DONE set alt_reps from the reporter
-**** TODO set full_system from the reporter
+**** DONE set full_system from the reporter
 
 *** Case Studies
 **** use case 1

@@ -1476,7 +1476,17 @@ class WepyHDF5(object):
 
     def alt_rep_idxs(self):
         idxs_grp = self.h5['/_settings/alt_reps_idxs']
-        return {name : idxs_grp[name][:] for name in idxs_grp}
+        alt_rep_idx_d = {}
+        for name in idxs_grp:
+            dset = idxs_grp[name]
+            # return None if there is no slice, i.e. this is the whole
+            # system
+            if dset.shape is None:
+                alt_rep_idx_d[name] = None
+            else:
+                alt_rep_idx_d[name] = idxs_grp[name][:]
+
+        return alt_rep_idx_d
 
     @property
     def field_feature_shapes(self):
