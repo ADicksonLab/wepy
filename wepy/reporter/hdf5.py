@@ -21,7 +21,9 @@ class WepyHDF5Reporter(FileReporter):
                  units=None,
                  sparse_fields=None,
                  feature_shapes=None, feature_dtypes=None,
-                 main_rep_idxs=None, all_atoms_rep_freq=None,
+                 main_rep_idxs=None,
+                 all_atoms_rep_freq=None,
+                 # dictionary of alt_rep keys and a tuple of (idxs, freq)
                  alt_reps=None
                  ):
 
@@ -53,11 +55,14 @@ class WepyHDF5Reporter(FileReporter):
         # the idxs for alternate representations of the system
         # positions
         if alt_reps is not None:
-            self.alt_reps_idxs = {key: tup[0] for key, tup in alt_reps.items()}
-            self.alt_reps_freqs = {key: tup[1] for key, tup in alt_reps.items()}
+            self.alt_reps_idxs = {key: list(tup[0]) for key, tup in alt_reps.items()}
+
+            # add the frequencies for these alt_reps to the
+            # sparse_fields frequency dictionary
+            self.sparse_fields.update({"alt_reps/{}".format(key): tup[1] for key, tup
+                                       in alt_reps.items()})
         else:
             self.alt_reps_idxs = {}
-            self.alt_reps_freqs = {}
 
         # check for alt_reps of this name because this is reserved for
         # the all_atoms flag.
@@ -69,7 +74,9 @@ class WepyHDF5Reporter(FileReporter):
         # frequency
         if all_atoms_rep_freq is not None:
             self.alt_reps_idxs[self.ALL_ATOMS_REP_KEY] = None
-            self.alt_reps_freqs[self.ALL_ATOMS_REP_KEY] = all_atoms_rep_freq
+            # add the frequency for this sparse fields to the
+            # sparse fields dictionary
+            self.sparse_fields["alt_reps/{}".format(self.ALL_ATOMS_REP_KEY)] = all_atoms_rep_freq
 
         # if units were given add them otherwise set as an empty dictionary
         if units is None:
@@ -143,7 +150,9 @@ class WepyHDF5Reporter(FileReporter):
             for walker_idx, walker in enumerate(walkers):
 
                 walker_data = walker.dict()
-                # iterate through the feature vectors of the walker (fields)
+
+                # iterate through the feature vectors of the walker
+                # (fields), and the keys for the alt_reps
                 for field_path in list(walker_data.keys()):
 
                     # save the field if it is in the list of save_fields
@@ -165,10 +174,27 @@ class WepyHDF5Reporter(FileReporter):
                             walker_data.pop(field_path)
                             continue
 
-                    # wrap the feature into another array so
-                    # it is the same shape as the array in the
-                    # HDF5 i.e. an array of individual feature
-                    # vectors
+
+
+                # Add the alt_reps fields by slicing the positions
+                for alt_rep_key, alt_rep_idxs in self.alt_reps_idxs.items():
+                    alt_rep_path = "alt_reps/{}".format(alt_rep_key)
+                    # check to make sure this is a cycle this is to be
+                    # saved to, if it is add it to the walker_data
+                    if cycle_idx % self.sparse_fields[alt_rep_path] == 0:
+                        alt_rep_data = walker_data['positions'][alt_rep_idxs]
+                        walker_data[alt_rep_path] = alt_rep_data
+
+
+                # lastly reduce the atoms for the main representation
+                # if this option was given
+                if self.main_rep_idxs is not None:
+                    walker_data['positions'] = walker_data['positions'][self.main_rep_idxs]
+
+
+                # for all of these fields we wrap them in another
+                # dimension to make them feature vectors
+                for field_path in list(walker_data.keys()):
                     walker_data[field_path] = np.array([walker_data[field_path]])
 
                 # save the data to the HDF5 file for this walker

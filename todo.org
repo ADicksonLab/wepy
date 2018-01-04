@@ -122,9 +122,9 @@ Okay this was done.
 **** DONE test settting of alt_reps in WepyHDF5
 **** TODO test methods with reduced main_rep
 
-**** TODO set main reps from the reporter
+**** DONE set main reps from the reporter
 
-**** TODO set alt_reps from the reporter
+**** DONE set alt_reps from the reporter
 **** TODO set full_system from the reporter
 
 *** Case Studies

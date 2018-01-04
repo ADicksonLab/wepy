@@ -2006,7 +2006,8 @@ class WepyHDF5(object):
             # check the feature shape against the maxshape which gives
             # the feature dimensions for an empty dataset
             assert values.shape[1:] == field_data.maxshape[1:], \
-                "field feature dimensions must be the same, i.e. all but the first dimension"
+                "input value features have shape {}, expected {}".format(
+                    values.shape[1:], field_data.maxshape[1:])
 
             # if it is empty resize it to make an array the size of
             # the new values with the maxshape for the feature
