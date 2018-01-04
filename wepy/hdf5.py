@@ -955,7 +955,8 @@ class WepyHDF5(object):
     def __init__(self, filename, topology=None, mode='x',
                  units=None,
                  sparse_fields=None,
-                 feature_shapes=None, feature_dtypes=None):
+                 feature_shapes=None, feature_dtypes=None,
+                 n_dims=None):
         """Initialize a new Wepy HDF5 file. This is a file that organizes
         wepy.TrajHDF5 dataset subsets by simulations by runs and
         includes resampling records for recovering walker histories.
@@ -1190,7 +1191,12 @@ class WepyHDF5(object):
         # field feature shapes and dtypes
 
         # initialize to the defaults
-        self._set_default_init_field_attributes()
+        if n_dims is None:
+            self._set_default_init_field_attributes()
+        else:
+            self._set_init_field_attributes()
+
+
 
         # save the number of dimensions and number of atoms in settings
         settings_grp.create_dataset('n_dims', data=np.array(self._n_dims))
@@ -1320,8 +1326,7 @@ class WepyHDF5(object):
 
         return grp, field_name
 
-
-    def _set_default_init_field_attributes(self):
+    def _set_default_init_field_attributes(self, n_dims=None):
         """Sets the feature_shapes and feature_dtypes to be the default for
         this module. These will be used to initialize field datasets when no
         given during construction (i.e. for sparse values)"""
@@ -1335,7 +1340,11 @@ class WepyHDF5(object):
         # from the topology
         self._n_coords = _json_top_atom_count(self.topology)
         # get the number of dimensions as a default
-        self._n_dims = N_DIMS
+        if n_dims is None:
+            self._n_dims = N_DIMS
+        else:
+            assert isinstance(n_dims, int), "n_dims must be an integer, not {}".format(type(n_dims))
+            self._n_dims = n_dims
 
         # feature shapes for positions and positions-like fields are
         # not known at the module level due to different number of
@@ -2312,7 +2321,7 @@ class WepyHDF5(object):
         enum_grp = self._h5['runs/{}/resampling/decision/enum'.format(run_idx)]
         enum = {}
         for decision_name, dset in enum_grp.items():
-            enum[decision_name] = dset
+            enum[decision_name] = dset[()]
 
         return enum
 
@@ -2693,9 +2702,10 @@ class WepyHDF5(object):
             results = []
 
         for result in self.traj_fields_map(func, fields, *args,
-                                       map_func=map_func, traj_sel=traj_sel, idxs=True,
+                                           map_func=map_func, traj_sel=traj_sel, idxs=True,
                                            debug_prints=debug_prints):
-            idx_tup, obs_value = result
+
+            idx_tup, obs_features = result
             run_idx, traj_idx = idx_tup
 
             # if we are saving this to the trajectories observables add it as a dataset
@@ -2717,7 +2727,7 @@ class WepyHDF5(object):
 
                 # try to create the dataset
                 try:
-                    obs_grp.create_dataset(field_name, data=obs_value)
+                    obs_grp.create_dataset(field_name, data=obs_features)
                 # if it fails we either overwrite or raise an error
                 except RuntimeError:
                     # if we are in a permissive write mode we delete the
@@ -2728,7 +2738,7 @@ class WepyHDF5(object):
                             print("Dataset already present. Overwriting.")
 
                         del obs_grp[field_name]
-                        obs_grp.create_dataset(field_name, data=obs_value)
+                        obs_grp.create_dataset(field_name, data=obs_features)
                     # this will happen in 'c' and 'c-' modes
                     else:
                         raise RuntimeError(
@@ -2737,12 +2747,53 @@ class WepyHDF5(object):
             # also return it if requested
             if return_results:
                 if idxs:
-                    results.append(( idx_tup, obs_value))
+                    results.append(( idx_tup, obs_features))
                 else:
-                    results.append(obs_value)
+                    results.append(obs_features)
 
         if return_results:
             return results
+
+    def resampling_records(self, run_idx):
+
+        res_grp = self.resampling_records_grp(run_idx)
+        decision_enum = self.decision_enum(run_idx)
+
+        res_recs = []
+        for dec_name, dec_id in self.decision_enum(run_idx).items():
+
+            # if this is a decision with variable length instructions
+            if self._instruction_varlength_flags(run_idx)[dec_name][()]:
+                dec_grp = res_grp[dec_name]
+                # go through each dataset of different records
+                for init_length in dec_grp['_initialized'][:]:
+                    rec_ds = dec_grp['{}'.format(init_length)]
+
+                    # make tuples for the decision and the records
+                    tups = zip((dec_id for i in range(rec_ds.shape[0])), rec_ds)
+
+                    # save the tuples
+                    res_recs.extend(list(tups))
+            else:
+                rec_ds = res_grp[dec_name]
+                # make tuples for the decision and the records
+                tups = zip((dec_id for i in range(rec_ds.shape[0])), rec_ds)
+
+                # save the tuples
+                res_recs.extend(list(tups))
+
+        return res_recs
+
+    def resampling_records_dataframe(self, run_idx):
+        records = self.resampling_records(run_idx)
+
+        records = [(tup[0], *tup[1]) for tup in records]
+
+        colnames = ['decision_id', 'cycle_idx', 'step_idx', 'walker_idx', 'instruction_record']
+
+        df = pd.DataFrame(data=records, columns=colnames)
+        return df
+
 
     def join(self, other_h5):
         """Given another WepyHDF5 file object does a left join on this
