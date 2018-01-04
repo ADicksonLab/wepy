@@ -996,6 +996,8 @@ class WepyHDF5(object):
         # the lower level h5py mode
         self._h5py_mode = h5py_mode
 
+        self._n_dims = n_dims
+
 
         # set hidden feature shapes and dtype, which are only
         # referenced if needed when trajectories are created. These
@@ -1191,11 +1193,8 @@ class WepyHDF5(object):
         # field feature shapes and dtypes
 
         # initialize to the defaults
-        if n_dims is None:
-            self._set_default_init_field_attributes()
-        else:
-            self._set_init_field_attributes()
-
+        if self._n_dims is None:
+            self._set_default_init_field_attributes(n_dims=self._n_dims)
 
 
         # save the number of dimensions and number of atoms in settings
@@ -1342,9 +1341,6 @@ class WepyHDF5(object):
         # get the number of dimensions as a default
         if n_dims is None:
             self._n_dims = N_DIMS
-        else:
-            assert isinstance(n_dims, int), "n_dims must be an integer, not {}".format(type(n_dims))
-            self._n_dims = n_dims
 
         # feature shapes for positions and positions-like fields are
         # not known at the module level due to different number of
