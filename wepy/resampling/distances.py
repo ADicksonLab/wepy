@@ -305,5 +305,5 @@ class OpenMMHBondDistance(OpenMMDistance):
                 d[i][j] = dval
                 d[j][i] = dval
 
-        return d, inte_vec, names
+        return d
 
