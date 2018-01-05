@@ -26,27 +26,7 @@ There are some notes on this in my lab notebook
 
 * HDF5
 
-** TODO [#A] get methods for warp, bc, resampling records              :core:
-*** DONE resampling records
-#+BEGIN_SRC python
-resampling_records = wepy_h5.run_resampling_records(run_idx)
-#+END_SRC
-
-Will return a list of tuples of the form (decision_enum_id, record)
-*** TODO resampling aux_data
-
-- [X] written
-- [ ] test
-
-I need to make the Lennard Jones example have stuff to test on.
-
-That means it needs to actually store some aux data from the resampler
-*** TODO warp records
-*** TODO warp aux_dat
-*** TODO boundary conditions records
-*** TODO boundary conditions aux data
-
-** TODO [#A] sparse atoms slices                                    :feature:
+** DONE [#A] sparse atoms slices                                    :feature:
 
 We want to have a dedicated group in a trajectory for alternative
 representations of the positions of atoms in the trajectories.
@@ -67,6 +47,7 @@ What does this require?
 - methods for writing restarts for appropriate MD engines
 
 So what is the API to look like.
+
 
 When I am calling the reporter I will want an option like this:
 
@@ -131,6 +112,186 @@ the frequency to save the entire system only.
 Here the full_system_rep_freq should default to None and that signals
 that there should be no saving of the full system as an alternate rep.
 
+
+When I am calling the reporter I will want an option like this:
+
+From the case studies I was forgetting that I need to name the fields!
+
+How should the full representation be named?
+
+Should it be in the sub-group? I feel like maybe not since we don't
+want to overwrite it's name on accident. Or we can put it there and
+just make it a convenient default.
+
+A convenient default is easier to implement and keeps the top-level
+cleaner.
+
+Okay that it will be it shall be named 'all_positions'.
+
+The group for all the others is called alt_reps.
+
+*** log 
+
+**** <2018-01-04 Thu>
+
+I initially had the main_rep_idxs as an option going to the wepyHDF5
+object however, I think this really should be handled by applications
+and the wepyHDF5 only has the alt_reps, which makes it sufficiently
+abstract.
+
+So the whole mainb_rep_idxs thing needs to be handled in the reporter
+as a convenience option.
+
+Okay but how would this actually have to happen??
+
+We have to have the full topology and a special topology for the main
+one.
+
+No we don't we just need to slice it.
+
+We do however need to change how the atoms are counted.
+
+This is set in the _set_default_init_field_attributes method and then
+written to the file. THis gets that information from the topology...
+
+Ok well we just need to take into the possibility for variation.
+
+We just need to change the n_coords from the topology by counting the
+main_rep_idxs.
+
+Okay that looks like it will work. Lets test it.
+
+Okay so I got the main rep to be set properly. Don't know if this
+breaks methods or not.
+
+Needs to be tested in the future.
+
+Problem (?) when you give alt_reps that choose atoms from the full
+system and the main rep is missing those atoms you run into trouble.
+
+This should be possible to do. How can we do this? When I am manually
+setting the fields I was passing in the correct coordinates, which
+maybe I shouldn't so you can still get the correct alt_reps?
+
+THis was what I orginally going to do in the reporter layer. So it
+should be that you have to pass in the alt_reps coordinates manually
+as well. THis makes sense because they are sparse and then you
+wouldn't be able to control when they are added to the traj.
+
+Okay this was done.
+
+Need to specifyu which alt_rep is being made and to create topologies
+from that.
+
+Now I am running into the problem that the n_atoms is set at the
+n_coords which is needed for making the positions array but this is
+set from the n_coords, and not from the topology. When I make the
+all_atoms selection it is None in the settings and I have to generate
+the slice out automatically. However, maybe it is just better to have
+the full actual slice set in there from the beginning in the reporter.
+
+Maybe that is better and I can just get the atom count from the
+topology.
+
+
+*** todo
+
+**** DONE reduced main_rep in WepyHDF5
+
+**** DONE test settting of alt_reps in WepyHDF5
+
+**** DONE set main reps from the reporter
+
+**** DONE set alt_reps from the reporter
+**** DONE set full_system from the reporter
+**** DONE test methods with reduced main_rep
+
+working on updating the to_mdtraj method.
+
+The iter_trajs_field won't work, but I don't want to do this now so I
+will just create a todo and move on.
+
+*** Case Studies
+**** use case 1
+
+ This is a general way to specify the indices for the main
+ representation. And additionally specify other represenations and the
+ frequency of their saving. You could simply save the use just the
+ `main_rep_idxs` to specify what atoms to save without specifying any
+ alt_reps.
+  #+BEGIN_SRC python
+    hdf5_reporter = WepyHDF5Reporter(report_path, mode='w',
+                                         save_fields=['positions', 'box_vectors', 'velocities'],
+                                         decisions=resampler.DECISION,
+                                         instruction_dtypes=resampler.INSTRUCTION_DTYPES,
+                                         warp_dtype=ubc.WARP_INSTRUCT_DTYPE,
+                                         warp_aux_dtypes=ubc.WARP_AUX_DTYPES,
+                                         warp_aux_shapes=ubc.WARP_AUX_SHAPES,
+                                         topology=json_str_top,
+                                         units=units,
+                                         sparse_fields={'velocities' : 10},
+                                         # select the atoms you would like
+                                         # to be saved in the 'positions'
+                                         # field
+                                         main_rep_idxs=selection_atom_idxs,
+                                         # specify other alternate
+                                         # representations as a list of
+                                         # arrays of the atom idxs for
+                                         # each alternate representation
+                                         alt_reps={'my_rep' : (my_rep_atom_idxs, 10)}
+                                         )
+  #+END_SRC
+
+**** use case 2
+
+ A simpler and more direct way to go that would achieve most use cases
+ is to not have to manually specify the alt_reps for a standard
+ restarts use case.
+
+ That is we simply want to specify a reduced main representation and
+ the frequency to save the entire system only.
+
+ #+BEGIN_SRC python
+   hdf5_reporter = WepyHDF5Reporter(report_path, mode='w',
+                                        save_fields=['positions', 'box_vectors', 'velocities'],
+                                        decisions=resampler.DECISION,
+                                        instruction_dtypes=resampler.INSTRUCTION_DTYPES,
+                                        warp_dtype=ubc.WARP_INSTRUCT_DTYPE,
+                                        warp_aux_dtypes=ubc.WARP_AUX_DTYPES,
+                                        warp_aux_shapes=ubc.WARP_AUX_SHAPES,
+                                        topology=json_str_top,
+                                        units=units,
+                                        sparse_fields={'velocities' : 10},
+                                        # select the atoms you would like
+                                        # to be saved in the 'positions'
+                                        # field
+                                        main_rep_idxs=selection_atom_idxs,
+                                        full_system_rep_freq=100)
+ #+END_SRC
+
+ Here the full_system_rep_freq should default to None and that signals
+ that there should be no saving of the full system as an alternate rep.
+
+** TODO [#A] get methods for warp, bc, resampling records              :core:
+*** DONE resampling records
+#+BEGIN_SRC python
+resampling_records = wepy_h5.run_resampling_records(run_idx)
+#+END_SRC
+
+Will return a list of tuples of the form (decision_enum_id, record)
+*** TODO resampling aux_data
+
+- [X] written
+- [ ] test
+
+I need to make the Lennard Jones example have stuff to test on.
+
+That means it needs to actually store some aux data from the resampler
+*** TODO warp records
+*** TODO warp aux_dat
+*** TODO boundary conditions records
+*** TODO boundary conditions aux data
+
 ** TODO [#A] Lennard Jones full test data
 *** TODO resampling records
 - [ ] make sure to get CLONEs
@@ -149,36 +310,7 @@ distance metric that actually makes sense for Lennard Jones
 *** TODO boundary conditions aux data
 
 
-
-** TODO [#B] fix compute observable to write feature vector style      :core:
-
-This isn't really something I can fix since it relies on the
-observable function being correct.
-
-Unless I changed that so that the observable function works on a
-single frame and then is mapped onto the whole trajectory.
-
-Maybe that is the wayt o go. Since it makes writing those functions
-easier anyways.
-
-
-hmm this would involve rewriting the `traj_fields_map` function which
-is not trivial.
-
-The way it is now I would need to have the mapping function understand
-this.
-
-Or I could wrap the passed in function in a wrapper that understands
-that it is a trajectory fields dictionary it is working with and not a
-single frame.
-
-Ok well I was able to do this and I think I am remembering why I had
-to do it this way which was that this method will work for a normal
-map function, except you can't do this and pickle the objects which is
-needed for using something like scoop which uses a message queue.
-
-Okay demoting this but the branch will still exist.
-=======
+** TODO [#B] update iter_trajs_field for sparse fields
 
 ** TODO [#B] restarting simulations, multiple runs                     :core:
 
@@ -290,6 +422,36 @@ H5py is not the only library we want to be read this data from.
 
 ** TODO [#C] use h5py enumeration type instead of my solution :feature:backend:
 
+
+
+** CANCELLED [#B] fix compute observable to write feature vector style :core:
+
+This isn't really something I can fix since it relies on the
+observable function being correct.
+
+Unless I changed that so that the observable function works on a
+single frame and then is mapped onto the whole trajectory.
+
+Maybe that is the wayt o go. Since it makes writing those functions
+easier anyways.
+
+
+hmm this would involve rewriting the `traj_fields_map` function which
+is not trivial.
+
+The way it is now I would need to have the mapping function understand
+this.
+
+Or I could wrap the passed in function in a wrapper that understands
+that it is a trajectory fields dictionary it is working with and not a
+single frame.
+
+Ok well I was able to do this and I think I am remembering why I had
+to do it this way which was that this method will work for a normal
+map function, except you can't do this and pickle the objects which is
+needed for using something like scoop which uses a message queue.
+
+Okay demoting this but the branch will still exist.
 
 
 ** CANCELLED [#B] allow for arbitrary number of frames to be saved in HDF5 traj part :core:
