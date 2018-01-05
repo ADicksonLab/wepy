@@ -209,3 +209,101 @@ class OpenMMNormalModeDistance(OpenMMDistance):
 
         return d
 
+class OpenMMHBondDistance(OpenMMDistance):
+    # The distance function here returns a distance matrix where the element (d_ij) is the
+    # distance in "interaction space". A vector is built for each structure where the elements
+    # describe the presence of a particular hydrogen bond between two atom selections (ligand_idxs and binding_site_idxs).
+    # The hydrogen bonds are enumerated and detected by the mastic package.
+    def __init__(self, ligand_idxs=None, protein_idxs=None, profiler=None, sys_type=None, dsmall=3.5, dlarge=6.0, ang_min=100):
+        self.ligand_idxs = ligand_idxs
+        self.protein_idxs = protein_idxs
+        self.profiler = profiler
+        self.sys_type = sys_type
+        self.inte_list = [] # list of interactions, which define axes in the interaction space, will grow as sim goes on
+        self.dsmall = dsmall
+        self.dlarge = dlarge
+        self.ang_min = ang_min
+
+    def quantify_inte(self, ang, dist):
+        # smoothly quantifies the presence of a hydrogen bond given the angle and distance
+        if dist < self.dsmall:
+            ds = 1
+        else:
+            ds = 1.0 - (dist - self.dsmall)/(self.dlarge - self.dsmall)
+        if ds < 0:
+            ds = 0
+            
+        if ang > 180:
+            ang -= 360
+        if ang < 0:
+            ang = -ang
+        if ang > self.ang_min:
+            ang_s = 1
+        else:
+            ang_s = 1.0 - (self.ang_min - ang)/self.ang_min
+        if ang_s < 0:
+            ang_s = 0
+            
+        strength = ds*ang_s
+        return strength
+        
+    def vectorize_profiles(self, profiles, n_walkers):
+        
+        inte_vec = [np.array([]) for i in range(n_walkers)]
+        for i in range(n_walkers):
+            inte_vec[i] = np.zeros(np.size(self.inte_list))
+
+            # loop through interactions in profile
+            names = profiles[i].hit_idxs
+            n = len(names)
+            angles = [profiles[i].hit_inx_records()[j].angle for j in range(n)]
+            dists = [profiles[i].hit_inx_records()[j].distance for j in range(n)]
+            for j in range(n):
+                if names[j] in self.inte_list:
+                    index = self.inte_list.index(names[j])
+                    inte_vec[i][index] = self.quantify_inte(angles[j],dists[j])
+                else:
+                    self.inte_list.append(names[j])
+                    inte_vec[i] = np.append(inte_vec[i],self.quantify_inte(angles[j],dists[j]))
+
+        # pad inte_vecs with zeros, if necessary
+        for i in range(n_walkers):
+            if inte_vec[i].size != len(self.inte_list):
+                to_add = len(self.inte_list) - inte_vec[i].size
+                inte_vec[i] = np.append(inte_vec[i],np.zeros(to_add))
+        return inte_vec, names
+
+        
+    def distance(self, walkers):
+        n_walkers = len(walkers)
+
+        keep_atoms = np.concatenate((self.ligand_idxs,self.protein_idxs),axis=0)
+        small_lig_idxs = np.array(range(len(self.ligand_idxs)))
+        small_prot_idxs = np.array(range(len(self.ligand_idxs),len(self.ligand_idxs)+len(self.protein_idxs)))
+
+        # recenter protein and ligand
+        small_pos = self._xyz_from_walkers(walkers,keep_atoms)
+        box_lengths = self._box_from_walkers(walkers)
+        newpos_small = geomm.recentering.recenter_receptor_ligand(small_pos,box_lengths,ligand_idxs=small_lig_idxs,receptor_idxs=small_prot_idxs)
+        
+        # profile ligand-protein interactions for each walker (in parallel)
+        profiles = [[] for i in range(n_walkers)]
+        for i in range(n_walkers):
+            # pass coordinates in angstroms
+            coords = [10*newpos_small[i][small_lig_idxs],10*newpos_small[i][small_prot_idxs]]
+            system = self.sys_type.to_system(coords)
+            profiles[i] = self.profiler.profile(system)
+
+        # vectorize profiles (in serial)
+        inte_vec, names = self.vectorize_profiles(profiles,n_walkers)
+
+        # calculate distance matrix in interaction space
+        d = np.zeros((n_walkers,n_walkers))
+        for i in range(n_walkers):
+            for j in range(i+1, n_walkers):
+                dval = np.linalg.norm(inte_vec[i]-inte_vec[j],ord=2)
+                d[i][j] = dval
+                d[j][i] = dval
+
+        return d, inte_vec, names
+
