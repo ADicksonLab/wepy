@@ -1,7 +1,7 @@
 import numpy as np
 
 from wepy.reporter.reporter import FileReporter
-from wepy.hdf5 import WepyHDF5
+from wepy.hdf5 import WepyHDF5, _json_top_atom_count
 
 
 
@@ -73,7 +73,10 @@ class WepyHDF5Reporter(FileReporter):
         # alt_rep for the all_atoms system with the specified
         # frequency
         if all_atoms_rep_freq is not None:
-            self.alt_reps_idxs[self.ALL_ATOMS_REP_KEY] = None
+            # count the number of atoms in the topology and set the
+            # alt_reps to have the full slice for all atoms
+            n_atoms = _json_top_atom_count(self._tmp_topology)
+            self.alt_reps_idxs[self.ALL_ATOMS_REP_KEY] = np.arange(n_atoms)
             # add the frequency for this sparse fields to the
             # sparse fields dictionary
             self.sparse_fields["alt_reps/{}".format(self.ALL_ATOMS_REP_KEY)] = all_atoms_rep_freq

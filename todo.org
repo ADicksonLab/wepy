@@ -115,17 +115,33 @@ wouldn't be able to control when they are added to the traj.
 
 Okay this was done.
 
+Need to specifyu which alt_rep is being made and to create topologies
+from that.
+
+Now I am running into the problem that the n_atoms is set at the
+n_coords which is needed for making the positions array but this is
+set from the n_coords, and not from the topology. When I make the
+all_atoms selection it is None in the settings and I have to generate
+the slice out automatically. However, maybe it is just better to have
+the full actual slice set in there from the beginning in the reporter.
+
+Maybe that is better and I can just get the atom count from the
+topology.
+
+
 *** todo
 
 **** DONE reduced main_rep in WepyHDF5
 
 **** DONE test settting of alt_reps in WepyHDF5
-**** TODO test methods with reduced main_rep
 
 **** DONE set main reps from the reporter
 
 **** DONE set alt_reps from the reporter
 **** DONE set full_system from the reporter
+**** TODO test methods with reduced main_rep
+
+working on updating the to_mdtraj method.
 
 *** Case Studies
 **** use case 1

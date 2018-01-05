@@ -1431,7 +1431,13 @@ class WepyHDF5(object):
 
     @property
     def topology(self):
+        """The topology for the full simulated system. May not be the main
+        representation in the 'positions' field; for that use the
+        `topology` method.
+
+        """
         return self._h5['topology'][()]
+
 
     @topology.setter
     def topology(self, topology):
@@ -1455,13 +1461,46 @@ class WepyHDF5(object):
         else:
             raise IOError("In mode {} and cannot modify topology".format(self._wepy_mode))
 
-    @property
-    def n_atoms(self):
-        return self.h5['_settings/n_atoms'][()]
+    def get_mdtraj_topology(self, alt_rep='positions'):
+        """Get an MDTraj `Topology` object for a subset of the atoms in the
+        positions of a particular representation. By default gives the
+        topology for the main 'positions' field (when alt_rep
+        'positions'). To get the full topology the file was
+        initialized with set `alt_rep` to `None`. Topologies for
+        alternative representations (subfields of 'alt_reps') can be
+        obtained by passing in the key for that alt_rep. For example,
+        'all_atoms' for the field in alt_reps called 'all_atoms'.
 
-    @property
-    def n_dims(self):
-        return self.h5['_settings/n_dims'][()]
+        """
+
+        full_mdj_top = _json_to_mdtraj_topology(self.topology)
+        if alt_rep is None:
+            return full_mdj_top
+        elif alt_rep == 'positions':
+            # get the subset topology for the main rep idxs
+            return full_mdj_top.subset(self.main_rep_idxs)
+        elif alt_rep in self.alt_rep_idxs:
+            # get the subset for the alt rep
+            return full_mdj_top.subset(self.alt_rep_idxs[alt_rep])
+        else:
+            raise ValueError("alt_rep {} not found".format(alt_rep))
+
+    def get_topology(self, alt_rep='positions'):
+        """Get a JSON topology for a subset of the atoms in the
+        positions of a particular representation. By default gives the
+        topology for the main 'positions' field (when alt_rep
+        'positions'). To get the full topology the file was
+        initialized with set `alt_rep` to `None`. Topologies for
+        alternative representations (subfields of 'alt_reps') can be
+        obtained by passing in the key for that alt_rep. For example,
+        'all_atoms' for the field in alt_reps called 'all_atoms'.
+
+        """
+
+        mdj_top = self.get_mdtraj_topology(alt_rep=alt_rep)
+        json_top = _mdtraj_to_json_topology(mdj_top)
+
+        return json_top
 
     @property
     def sparse_fields(self):
@@ -1474,19 +1513,10 @@ class WepyHDF5(object):
         else:
             return None
 
+    @property
     def alt_rep_idxs(self):
         idxs_grp = self.h5['/_settings/alt_reps_idxs']
-        alt_rep_idx_d = {}
-        for name in idxs_grp:
-            dset = idxs_grp[name]
-            # return None if there is no slice, i.e. this is the whole
-            # system
-            if dset.shape is None:
-                alt_rep_idx_d[name] = None
-            else:
-                alt_rep_idx_d[name] = idxs_grp[name][:]
-
-        return alt_rep_idx_d
+        return {name : ds[:] for name, ds in idxs_grp.items()}
 
     @property
     def field_feature_shapes(self):
@@ -2842,21 +2872,46 @@ class WepyHDF5(object):
         return traj_h5
 
 
-    def to_mdtraj(self, run_idx, traj_idx, frames=None):
+    def to_mdtraj(self, run_idx, traj_idx, frames=None, alt_rep=None):
 
-        topology = _json_to_mdtraj_topology(self.topology)
+        # the default for alt_rep is the main rep
+        if alt_rep is None:
+            rep_key = 'positions'
+            rep_path = rep_key
+        else:
+            rep_key = alt_rep
+            rep_path = 'alt_reps/{}'.format(alt_rep)
+
+        topology = self.get_mdtraj_topology(alt_rep=rep_key)
 
         traj_grp = self.traj(run_idx, traj_idx)
 
+        pos_dset = self.get_traj_field(run_idx, traj_idx, rep_path)
+
         # get the data for all or for the frames specified
+        time = None
+        box_vectors = None
         if frames is None:
-            positions = traj_grp['positions'][:]
-            time = traj_grp['time'][:, 0]
-            box_vectors = traj_grp['box_vectors'][:]
+            positions = pos_dset[:]
+            try:
+                time = traj_grp['time'][:, 0]
+            except KeyError:
+                warn("time not in this trajectory, ignoring")
+            try:
+                box_vectors = traj_grp['box_vectors'][:]
+            except KeyError:
+                warn("box_vectors not in this trajectory, ignoring")
         else:
-            positions = traj_grp['positions'][frames]
-            time = traj_grp['time'][frames][:, 0]
-            box_vectors = traj_grp['box_vectors'][frames]
+            positions = pos_dset[frames]
+            try:
+                time = traj_grp['time'][frames][:, 0]
+            except KeyError:
+                warn("time not in this trajectory, ignoring")
+            try:
+                box_vectors = traj_grp['box_vectors'][frames]
+            except KeyError:
+                warn("box_vectors not in this trajectory, ignoring")
+
 
         unitcell_lengths, unitcell_angles = _box_vectors_to_lengths_angles(box_vectors)
 
@@ -2937,7 +2992,54 @@ def _make_numpy_varlength_instruction_dtype(varlength_instruct_type, varlength_w
     # make a full instruction dtype from this and return it
     return _make_numpy_instruction_dtype(instruct_record_dtype)
 
+def _mdtraj_to_json_topology(mdj_top):
+    """ Copied in part from MDTraj.formats.hdf5.topology setter. """
+
+    topology_dict = {
+        'chains': [],
+        'bonds': []
+    }
+
+    for chain in mdj_top.chains:
+        chain_dict = {
+            'residues': [],
+            'index': int(chain.index)
+        }
+        for residue in chain.residues:
+            residue_dict = {
+                'index': int(residue.index),
+                'name': str(residue.name),
+                'atoms': [],
+                "resSeq": int(residue.resSeq)
+            }
+
+            for atom in residue.atoms:
+
+                try:
+                    element_symbol_string = str(atom.element.symbol)
+                except AttributeError:
+                    element_symbol_string = ""
+
+                residue_dict['atoms'].append({
+                    'index': int(atom.index),
+                    'name': str(atom.name),
+                    'element': element_symbol_string
+                })
+            chain_dict['residues'].append(residue_dict)
+        topology_dict['chains'].append(chain_dict)
+
+    for atom1, atom2 in mdj_top.bonds:
+        topology_dict['bonds'].append([
+            int(atom1.index),
+            int(atom2.index)
+        ])
+
+    top_json_str = json.dumps(topology_dict)
+
+    return top_json_str
+
 def _json_to_mdtraj_topology(json_string):
+    """ Copied in part from MDTraj.formats.hdf5 topology property."""
 
     topology_dict = json.loads(json_string)
 
