@@ -3,6 +3,15 @@
 
 ** TODO [#B] allow for resampler to get information on the whole tree of data :feature:
 
+** TODO [#B] the mapping function should be an object so we can parametrize it with data
+
+Right now it is just a function although you would probably want in
+general an object so that you can specify certain data, without
+hardcoding into the function. Although I suppose when you use it as a
+method it would still have access to it's object.
+
+Need to investigate.
+
 * Walker class
 
 ** TODO [#A] API and specs for a gneral Walker class               :api:core:
@@ -26,7 +35,7 @@ There are some notes on this in my lab notebook
 
 * HDF5
 
-** DONE [#A] sparse atoms slices                                    :feature:
+** DONE [#A] sparse atoms                                     :feature:
 
 We want to have a dedicated group in a trajectory for alternative
 representations of the positions of atoms in the trajectories.
@@ -271,6 +280,45 @@ will just create a todo and move on.
 
  Here the full_system_rep_freq should default to None and that signals
  that there should be no saving of the full system as an alternate rep.
+
+
+** TODO [#A] sparse atoms constraint selector interface
+
+So I implemented sparse atoms so that you could just pass in a list of
+indices that you wanted to slice out for that representation.
+
+Now a huge use case that we need is to be able to select different
+atoms at different cycles for the selection. 
+
+For example you want to maintain a sphere of water molecules around
+the protein throughout the simulation, but don't care about the
+identities of those water molecules per se and they can exchange with
+each other.
+
+So I will support that instead of just indices you can pass in an
+object with a select function that takes in a set of coordinates and
+returns a list of indices that will be saved.
+
+Ok easy enough. I should just implement this. However, I am thinking
+that, what if you did want to know what those were, you would have to
+be able to save which indices were selected.
+
+That would make a distinction (when saving values) of a static and
+dynamic selection. Where a dynamic selection would have another
+dataset associated with it that is the indices that were selected.
+
+FOr another time as that would be a lot to do in the actual WepyHDF5
+class that really isn't needed.
+
+
+** TODO [#C] static and dynamic alternate representations
+
+see [[*sparse atoms constraint selector interface][sparse atoms constraint selector interface]] for discussion.
+
+basically for dynamically selected atoms for alternate reps you would
+need another dataset to show which indices were taken for each frame.
+
+** TODO [#B] sparse atoms for TrajHDF5
 
 ** TODO [#A] get methods for warp, bc, resampling records              :core:
 *** DONE resampling records
