@@ -163,7 +163,7 @@ if __name__ == "__main__":
                           work_mapper=gpumapper.map,
                           reporters=[hdf5_reporter,pkl_reporter])
     n_steps = 10000
-    n_cycles = 2
+    n_cycles = 10
 
     # run a simulation with the manager for n_steps cycles of length 1000 each
     steps = [ n_steps for i in range(n_cycles)]
