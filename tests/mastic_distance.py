@@ -60,4 +60,4 @@ with open(walker_pkl_path, 'rb') as rf:
     sEH_walkers = pickle.load(rf)
 
 print("Computing distance..")
-dmat, inte_vec, names = hbond_distance.distance(sEH_walkers)
+dmat = hbond_distance.distance(sEH_walkers)
