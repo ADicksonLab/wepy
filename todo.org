@@ -310,13 +310,32 @@ dataset associated with it that is the indices that were selected.
 FOr another time as that would be a lot to do in the actual WepyHDF5
 class that really isn't needed.
 
+Okay well this isn't seeming like a problem that can be avoided
+easily, because how do you then make a trajectory elsewhere without
+knowing what the atoms are... or really which ones are even part of
+the same molecule..
 
-** TODO [#C] static and dynamic alternate representations
+Okay well so it only makes sense to save those indices somewhere. And
+really that needs to be done at the same level as the field...
 
-see [[*sparse atoms constraint selector interface][sparse atoms constraint selector interface]] for discussion.
+Well that means then I need to make a new compound type like sparse or
+something...
 
-basically for dynamically selected atoms for alternate reps you would
-need another dataset to show which indices were taken for each frame.
+Well it isn't so general and really is only applicable to positions
+and alt_reps fields.
+
+Okay well lets at least sketch out what this would look like before
+abandoning it.
+
+Well you would have the field be a group and then it would have to
+have one dataset for the atoms and another dataset for the indices of
+the atoms.
+
+I guess I can just try it out on the branch and then test it out and
+see if it is too difficult to handle or not.
+
+Making new branch for this though from sparse atoms.
+
 
 ** TODO [#B] sparse atoms for TrajHDF5
 
