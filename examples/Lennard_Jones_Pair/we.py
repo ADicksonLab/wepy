@@ -65,15 +65,20 @@ if __name__ == "__main__":
     report_path = 'results.wepy.h5'
     # open it in truncate mode first, then switch after first run
     hdf5_reporter = WepyHDF5Reporter(report_path, mode='w',
-                                save_fields=['positions', 'box_vectors', 'velocities'],
-                                decisions=resampler.DECISION,
-                                instruction_dtypes=resampler.INSTRUCTION_DTYPES,
-                                warp_dtype=ubc.WARP_INSTRUCT_DTYPE,
-                                warp_aux_dtypes=ubc.WARP_AUX_DTYPES,
-                                warp_aux_shapes=ubc.WARP_AUX_SHAPES,
-                                topology=json_str_top,
-                                units=units,
-                                sparse_fields={'velocities' : 10})
+                                    save_fields=['positions', 'box_vectors', 'velocities'],
+                                    decisions=resampler.DECISION,
+                                    instruction_dtypes=resampler.INSTRUCTION_DTYPES,
+                                    warp_dtype=ubc.WARP_INSTRUCT_DTYPE,
+                                    warp_aux_dtypes=ubc.WARP_AUX_DTYPES,
+                                    warp_aux_shapes=ubc.WARP_AUX_SHAPES,
+                                    topology=json_str_top,
+                                    units=units,
+                                    sparse_fields={'velocities' : 10},
+                                    # sparse atoms fields
+                                    main_rep_idxs=[0],
+                                    all_atoms_rep_freq=10,
+                                    alt_reps={'other_atom' : ([1], 2)}
+    )
 
     pkl_reporter = WalkersPickleReporter(save_dir='./pickle_backups', freq=10, num_backups=3)
 
