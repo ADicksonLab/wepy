@@ -26,7 +26,7 @@ There are some notes on this in my lab notebook
 * HDF5
 
 
-** TODO [#A] sparse atoms slices                                    :feature:
+** DONE [#A] sparse atoms slices                                    :feature:
 
 We want to have a dedicated group in a trajectory for alternative
 representations of the positions of atoms in the trajectories.
@@ -139,9 +139,12 @@ topology.
 
 **** DONE set alt_reps from the reporter
 **** DONE set full_system from the reporter
-**** TODO test methods with reduced main_rep
+**** DONE test methods with reduced main_rep
 
 working on updating the to_mdtraj method.
+
+The iter_trajs_field won't work, but I don't want to do this now so I
+will just create a todo and move on.
 
 *** Case Studies
 **** use case 1
@@ -203,10 +206,9 @@ working on updating the to_mdtraj method.
 
  Here the full_system_rep_freq should default to None and that signals
  that there should be no saving of the full system as an alternate rep.
+** TODO [#B] get methods for warp, bc, resampling records              :core:
 
-
-
-** TODO [#A] get methods for warp, bc, resampling records              :core:
+** TODO [#B] update iter_trajs_field for sparse fields
 
 ** TODO [#B] restarting simulations, multiple runs                     :core:
 
