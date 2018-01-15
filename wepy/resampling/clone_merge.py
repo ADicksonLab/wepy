@@ -3,43 +3,18 @@ import random as rand
 
 import numpy as np
 
-from wepy.resampling.decision import Decision
-from wepy.resampling.resampler import Resampler, ResamplingRecord
+from wepy.resampling.decision import RandomCloneMergeDecision
+from wepy.resampling.resampler import Resampler
 
 # the minimum number of walkers needed to perform clones one at a
 # time
 MIN_N_WALKERS = 3
 
-# the decision enumeration
-class CloneMergeDecision(Decision):
-    NOTHING = 1
-    CLONE = 2
-    SQUASH = 3
-    KEEP_MERGE = 4
-
-CLONE_MERGE_INSTRUCTION_DTYPES = {CloneMergeDecision.NOTHING.name : [('pos', np.int)],
-                                  CloneMergeDecision.CLONE.name : [(None, np.int)],
-                                  CloneMergeDecision.SQUASH.name : [('merge_to', np.int)],
-                                  CloneMergeDecision.KEEP_MERGE.name : [('pos', np.int)],
-                                 }
-
-
-NothingInstructionRecord = namedtuple("NothingInstructionRecord", ['slot'])
-CloneInstructionRecord = namedtuple("CloneInstructionRecord", ['slot_a', 'slot_b'])
-SquashInstructionRecord = namedtuple("SquashInstructionRecord", ['merge_slot'])
-KeepMergeInstructionRecord = namedtuple("KeepMergeInstructionRecord", ['slot'])
-
-CLONE_MERGE_DECISION_INSTRUCTION_MAP = {CloneMergeDecision.NOTHING : NothingInstructionRecord,
-                                        CloneMergeDecision.CLONE : CloneInstructionRecord,
-                                        CloneMergeDecision.SQUASH : SquashInstructionRecord,
-                                        CloneMergeDecision.KEEP_MERGE : KeepMergeInstructionRecord}
-
-
 class RandomCloneMergeResampler(Resampler):
 
     # constants for the class
-    DECISION = CloneMergeDecision
-    INSTRUCTION_DTYPES = CLONE_MERGE_INSTRUCTION_DTYPES
+    DECISION = RandomCloneMergeDecision
+    #INSTRUCTION_DTYPES = CLONE_MERGE_INSTRUCTION_DTYPES
 
     def __init__(self, seed=None, n_resamplings=10):
         if seed is not None:
@@ -117,22 +92,21 @@ class RandomCloneMergeResampler(Resampler):
             walkers = resampled_walkers
 
             # make the decision records for this stage of resampling
-            # initialize to CloneMergeDecision.NOTHING, and their starting index
-            walker_actions = [ResamplingRecord(decision = CloneMergeDecision.NOTHING.value,
-                                               instruction = (i,))
+            # initialize to RandomCloneMergeDecision.NOTHING, and their starting index
+            walker_actions = [self.DECISION.record(self.DECISION.ENUM.NOTHING, (i,)) for
+                              i in range(n_walkers)]
                               for i in range(n_walkers)]
             # for the cloned one make a record for the instruction
-            walker_actions[clone_idx] = ResamplingRecord(
-                decision = CloneMergeDecision.CLONE.value,
-                instruction = (clone_idx, squash_idx,))
+            walker_actions[clone_idx] = self.DECISION.record(self.DECISION.ENUM.CLONE,
+                                                             (clone_idx, squash_idx,))
+
             # for the squashed walker
-            walker_actions[squash_idx] = ResamplingRecord(
-                decision=CloneMergeDecision.SQUASH.value,
-                instruction=(merge_idx,))
+            walker_actions[squash_idx] = self.DECISION.record(self.DECISION.ENUM.SQUASH,
+                                                             (merge_idx,))
+
             # for the keep-merged walker
-            walker_actions[merge_idx] = ResamplingRecord(
-                decision=CloneMergeDecision.KEEP_MERGE.value,
-                instruction=(merge_idx,))
+            walker_actions[merge_idx] = self.DECISION.record(self.DECISION.ENUM.KEEP_MERGE,
+                                                             (merge_idx,))
 
             resampling_actions.append(walker_actions)
 
@@ -147,7 +121,7 @@ class RandomCloneMergeResampler(Resampler):
                 instructions = []
                 for rec in walker_actions:
                     decisions.append(str(rec.decision.name))
-                    if rec.decision is CloneMergeDecision.CLONE:
+                    if rec.decision is self.DECISION.ENUM.CLONE:
                         instructions.append(str(",".join([str(i) for i in rec.instruction])))
                     else:
                         instructions.append(str(rec.instruction))
@@ -197,18 +171,18 @@ def clone_parent_panel(clone_merge_resampling_record):
                 # the same idx
                 stage_parents = [i for i in range(len(stage))]
                 # if the parent is NOTHING or KEEP_MERGE it will have an index
-                if resampling_record.decision in [CloneMergeDecision.NOTHING,
-                                                  CloneMergeDecision.KEEP_MERGE]:
+                if resampling_record.decision in [RandomCloneMergeDecision.NOTHING,
+                                                  RandomCloneMergeDecision.KEEP_MERGE]:
                     # single child
                     child_idx = resampling_record.instruction
                     # set the parent in the next row to this parent_idx
                     stage_parents[child_idx] = parent_idx
                 # if it is CLONE it will have 2 indices
-                elif resampling_record.decision is CloneMergeDecision.CLONE:
+                elif resampling_record.decision is RandomCloneMergeDecision.CLONE:
                     children = resampling_record.instruction[:]
                     for child_idx in children:
                         stage_parents[child_idx] = parent_idx
-                elif resampling_record.decision  is CloneMergeDecision.SQUASH:
+                elif resampling_record.decision  is RandomCloneMergeDecision.SQUASH:
                     # do nothing this one has no children
                     pass
                 else:
@@ -246,18 +220,18 @@ def clone_parent_table(clone_merge_resampling_record):
                 # the same idx
                 stage_parents = [i for i in range(len(stage))]
                 # if the parent is NOTHING or KEEP_MERGE it will have an index
-                if resampling_record.decision in [CloneMergeDecision.NOTHING,
-                                                  CloneMergeDecision.KEEP_MERGE]:
+                if resampling_record.decision in [RandomCloneMergeDecision.NOTHING,
+                                                  RandomCloneMergeDecision.KEEP_MERGE]:
                     # single child
                     child_idx = resampling_record.instruction
                     # set the parent in the next row to this parent_idx
                     stage_parents[child_idx] = parent_idx
                 # if it is CLONE it will have 2 indices
-                elif resampling_record.decision is CloneMergeDecision.CLONE:
+                elif resampling_record.decision is RandomCloneMergeDecision.CLONE:
                     children = resampling_record.instruction[:]
                     for child_idx in children:
                         stage_parents[child_idx] = parent_idx
-                elif resampling_record.decision  is CloneMergeDecision.SQUASH:
+                elif resampling_record.decision  is RandomCloneMergeDecision.SQUASH:
                     # do nothing this one has no children
                     pass
                 else:

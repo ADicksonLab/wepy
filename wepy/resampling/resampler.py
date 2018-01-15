@@ -2,23 +2,28 @@ from collections import namedtuple
 import random as rand
 
 from wepy.walker import merge
-from wepy.resampling.decision import Decision
+from wepy.resampling.decision import ResamplingRecord, NoDecision
 
 class Resampler(object):
 
-    def resample(self, walkers, decisions):
-        raise NotImplementedError
-
-ResamplingRecord = namedtuple("ResamplingRecord", ['decision', 'instruction'])
-
-
-# stubs and examples of resamplers for testing purposes
-class NoResampler(Resampler):
+    def __init__(self, novelty, decider):
+        self.novelty = novelty
+        self.decider = decider
 
     def resample(self, walkers):
 
-        resampling_records = [ResamplingRecord(decision=Decision.FALSE, value=i)
-                             for i in range(len(walkers))]
+        resampled_walkers = walkers
+        resampling_actions = []
+        aux_data = {}
+        finished = False
+        step_count = 0
+        while not finished:
+            novelties, novelty_aux = self.novelty.novelties(walkers)
+            finished, decisions, decider_aux = self.decider.decide(novelties)
+            resampled_walkers = self.decider.decision.action(walkers, decisions)
+            resampling_actions.append(decisions)
+            aux_data.update([novelty_aux, decider_aux])
 
-        # return values: resampled walkers, resampling records, resampling data
-        return walkers, [resampling_records], []
+            step_count += 1
+
+        return resampled_walkers, resampling_actions, aux_data
