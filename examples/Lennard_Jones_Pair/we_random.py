@@ -11,7 +11,7 @@ from openmmtools.testsystems import LennardJonesPair
 import mdtraj as mdj
 
 from wepy.sim_manager import Manager
-from wepy.resampling.resamplers.examples import WExplore2
+from wepy.resampling.resamplers.examples import RandomCloneMergeResamplerMonolithic
 from wepy.runners.openmm import OpenMMRunner, OpenMMWalker
 from wepy.runners.openmm import UNIT_NAMES, GET_STATE_KWARG_DEFAULTS
 from wepy.boundary_conditions.unbinding import UnbindingBC
@@ -44,10 +44,7 @@ if __name__ == "__main__":
     init_walkers = [OpenMMWalker(init_state, init_weight) for i in range(num_walkers)]
 
     mdtraj_topology = mdj.Topology.from_openmm(test_sys.topology)
-    resampler = WExplore2Resampler(topology=mdtraj_topology,
-                                   ligand_idxs=np.array(test_sys.ligand_indices),
-                                   binding_site_idxs=np.array(test_sys.receptor_indices),
-                                   pmax=0.1)
+
     resampler = RandomCloneMergeResamplerMonolithic()
 
     ubc = UnbindingBC(cutoff_distance=0.5,
@@ -67,8 +64,8 @@ if __name__ == "__main__":
     # open it in truncate mode first, then switch after first run
     hdf5_reporter = WepyHDF5Reporter(report_path, mode='w',
                                     save_fields=['positions', 'box_vectors', 'velocities'],
-                                    decisions=resampler.DECISION,
-                                    instruction_dtypes=resampler.INSTRUCTION_DTYPES,
+                                    decisions=resampler.DECISION.ENUM,
+                                    instruction_dtypes=dict(resampler.DECISION.INSTRUCTION_DTYPES),
                                     warp_dtype=ubc.WARP_INSTRUCT_DTYPE,
                                     warp_aux_dtypes=ubc.WARP_AUX_DTYPES,
                                     warp_aux_shapes=ubc.WARP_AUX_SHAPES,
@@ -98,7 +95,7 @@ if __name__ == "__main__":
 
     for run_idx in range(n_runs):
         print("Starting run: {}".format(run_idx))
-        sim_manager.run_simulation(n_cycles, steps, debug_prints=True)
+        sim_manager.run_simulation(n_cycles, steps, debug_prints=False)
         print("Finished run: {}".format(run_idx))
 
     print("Finished first file")

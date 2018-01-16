@@ -1,11 +1,6 @@
-from collections import namedtuple
-import random as rand
-
-from wepy.walker import merge
-from wepy.resampling.decision import ResamplingRecord, NoDecision
-
 class Resampler(object):
-
+    """Superclass for resamplers that use the the Novelty->Decider
+    framework."""
     def __init__(self, novelty, decider):
         self.novelty = novelty
         self.decider = decider

@@ -7,7 +7,7 @@ import simtk.openmm as omm
 import simtk.unit as unit
 
 from wepy.walker import Walker
-from wepy.runner import Runner
+from wepy.runners.runner import Runner
 from wepy.reporter.reporter import Reporter
 
 

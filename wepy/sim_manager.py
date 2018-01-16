@@ -1,20 +1,4 @@
 import sys
-import os.path as osp
-
-from wepy.resampling.resampler import NoResampler
-from wepy.runner import NoRunner
-
-class CountingIterator(object):
-    def __init__(self, iterable):
-        self.indices = []
-        self.iterable = self.count(iterable)
-
-    def count(self, iterable):
-        xs = []
-        for i, x in enumerate(iterable):
-            self.indices.append(i)
-            xs.append(x)
-        return (x for x in xs)
 
 class Manager(object):
 

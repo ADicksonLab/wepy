@@ -11,7 +11,7 @@ from openmmtools.testsystems import LennardJonesPair
 import mdtraj as mdj
 
 from wepy.sim_manager import Manager
-from wepy.resampling.resamplers.examples import WExplore2
+from wepy.resampling.resamplers.wexplore2 import WExplore2Resampler
 from wepy.runners.openmm import OpenMMRunner, OpenMMWalker
 from wepy.runners.openmm import UNIT_NAMES, GET_STATE_KWARG_DEFAULTS
 from wepy.boundary_conditions.unbinding import UnbindingBC
@@ -48,7 +48,6 @@ if __name__ == "__main__":
                                    ligand_idxs=np.array(test_sys.ligand_indices),
                                    binding_site_idxs=np.array(test_sys.receptor_indices),
                                    pmax=0.1)
-    resampler = RandomCloneMergeResamplerMonolithic()
 
     ubc = UnbindingBC(cutoff_distance=0.5,
                       initial_state=init_walkers[0].state,
@@ -67,8 +66,8 @@ if __name__ == "__main__":
     # open it in truncate mode first, then switch after first run
     hdf5_reporter = WepyHDF5Reporter(report_path, mode='w',
                                     save_fields=['positions', 'box_vectors', 'velocities'],
-                                    decisions=resampler.DECISION,
-                                    instruction_dtypes=resampler.INSTRUCTION_DTYPES,
+                                    decisions=resampler.DECISION.ENUM,
+                                    instruction_dtypes=dict(resampler.DECISION.INSTRUCTION_DTYPES),
                                     warp_dtype=ubc.WARP_INSTRUCT_DTYPE,
                                     warp_aux_dtypes=ubc.WARP_AUX_DTYPES,
                                     warp_aux_shapes=ubc.WARP_AUX_SHAPES,
@@ -102,36 +101,3 @@ if __name__ == "__main__":
         print("Finished run: {}".format(run_idx))
 
     print("Finished first file")
-
-
-    # print("Starting second file")
-    # # make a separate file with equal runs
-    # second_report_path = 'results_2.wepy.h5'
-    # # open it in truncate mode first, then switch after first run
-    # second_reporter = WepyHDF5Reporter(second_report_path, mode='w',
-    #                             decisions=resampler.DECISION,
-    #                             instruction_dtypes=resampler.INSTRUCTION_DTYPES,
-    #                             warp_dtype=ubc.WARP_INSTRUCT_DTYPE,
-    #                             warp_aux_dtypes=ubc.WARP_AUX_DTYPES,
-    #                             warp_aux_shapes=ubc.WARP_AUX_SHAPES,
-    #                             bc_dtype=None,
-    #                             bc_aux_dtypes=None,
-    #                             bc_aux_shapes=None,
-    #                             topology=json_str_top,
-    #                             units=units)
-
-    # second_sim_manager = Manager(init_walkers,
-    #                       runner=runner,
-    #                       resampler=resampler,
-    #                       boundary_conditions=ubc,
-    #                       work_mapper=map,
-    #                       reporter=second_reporter)
-
-    # print("Running Simulations")
-
-    # for run_idx in range(n_runs):
-    #     print("Starting run: {}".format(run_idx))
-    #     second_sim_manager.run_simulation(n_cycles, steps, debug_prints=True)
-    #     print("Finished run: {}".format(run_idx))
-
-    # print("Finished second file")

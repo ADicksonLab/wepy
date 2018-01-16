@@ -1635,7 +1635,8 @@ class WepyHDF5(object):
         run_grp = self.run(run_idx)
 
         # save the instruction_dtypes_tokens in the object
-        self.instruction_dtypes_tokens[run_idx] = instruction_dtypes_tokens
+        self.instruction_dtypes_tokens[run_idx] = {enum.name : value for enum, value
+                                                   in instruction_dtypes_tokens.items()}
 
         # init a resampling group
         # initialize the resampling group
