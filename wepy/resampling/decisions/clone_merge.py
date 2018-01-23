@@ -159,8 +159,7 @@ class MultiCloneMergeDecision(Decision):
     # namedtuple records for each decision type
     INSTRUCTION_RECORDS = (
         (ENUM.NOTHING, namedtuple("NothingInstructionRecord", ['slot'])),
-        (ENUM.CLONE, namedtuple("CloneInstructionRecord", Ellipsis)),
-        (ENUM.CLONE, namedtuple("CloneInstructionRecord", ['slot_a', 'slot_b'])),
+        (ENUM.CLONE, Ellipsis),
         (ENUM.SQUASH, namedtuple("SquashInstructionRecord", ['merge_slot'])),
         (ENUM.KEEP_MERGE, namedtuple("KeepMergeInstructionRecord", ['slot'])),
     )

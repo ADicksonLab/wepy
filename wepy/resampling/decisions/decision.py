@@ -40,7 +40,11 @@ class Decision(object):
     @classmethod
     def instruct_record(cls, enum_value, data):
         enum = cls.enum_by_value(enum_value)
-        instruct_record = dict(cls.INSTRUCTION_RECORDS)[enum](*data)
+        instruct_records = dict(cls.INSTRUCTION_RECORDS)
+        if instruct_records[enum] is Ellipsis:
+            instruct_record = tuple(data)
+        else:
+            instruct_record = instruct_records[enum](*data)
         return instruct_record
 
     @classmethod
