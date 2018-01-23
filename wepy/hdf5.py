@@ -2733,7 +2733,7 @@ class WepyHDF5(object):
 
         results = map_func(func, self.iter_trajs_fields(fields, traj_sel=traj_sel, idxs=False,
                                                         debug_prints=debug_prints),
-                           *mapped_args)
+                           *args)
 
         if idxs:
             if traj_sel is None:
@@ -2767,8 +2767,8 @@ class WepyHDF5(object):
             results = []
 
         for result in self.traj_fields_map(func, fields, *args,
-                                       map_func=map_func, traj_sel=traj_sel, idxs=True,
-                                       debug_prints=debug_prints):
+                                           map_func=map_func, traj_sel=traj_sel, idxs=True,
+                                           debug_prints=debug_prints):
 
             idx_tup, obs_features = result
             run_idx, traj_idx = idx_tup
