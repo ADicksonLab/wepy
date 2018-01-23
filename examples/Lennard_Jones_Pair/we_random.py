@@ -11,11 +11,10 @@ from openmmtools.testsystems import LennardJonesPair
 import mdtraj as mdj
 
 from wepy.sim_manager import Manager
-from wepy.resampling.wexplore2 import WExplore2Resampler
-from wepy.openmm import OpenMMRunner, OpenMMWalker
-from wepy.openmm import UNIT_NAMES, GET_STATE_KWARG_DEFAULTS
+from wepy.resampling.resamplers.examples import RandomCloneMergeResamplerMonolithic
+from wepy.runners.openmm import OpenMMRunner, OpenMMWalker
+from wepy.runners.openmm import UNIT_NAMES, GET_STATE_KWARG_DEFAULTS
 from wepy.boundary_conditions.unbinding import UnbindingBC
-from wepy.resampling.distances import OpenMMUnbindingDistance
 from wepy.reporter.hdf5 import WepyHDF5Reporter
 from wepy.reporter.reporter import WalkersPickleReporter
 
@@ -27,11 +26,7 @@ if __name__ == "__main__":
 
     test_sys = LennardJonesPair()
 
-#    integrator = omm.VerletIntegrator(2*unit.femtoseconds)
-    integrator = omm.LangevinIntegrator(300*unit.kelvin,
-                                        1/unit.picosecond,
-                                        0.002*unit.picoseconds)
-
+    integrator = omm.VerletIntegrator(2*unit.femtoseconds)
     context = omm.Context(test_sys.system, copy(integrator))
     context.setPositions(test_sys.positions)
 
@@ -50,13 +45,7 @@ if __name__ == "__main__":
 
     mdtraj_topology = mdj.Topology.from_openmm(test_sys.topology)
 
-    unbinding_distance = OpenMMUnbindingDistance(topology=mdtraj_topology,
-                                                 ligand_idxs=np.array(test_sys.ligand_indices),
-                                                 binding_site_idxs=np.array(test_sys.receptor_indices))
-    
-    resampler = WExplore2Resampler(distance_function=unbinding_distance,
-                                   pmax=1.0,
-                                   merge_dist=100.)
+    resampler = RandomCloneMergeResamplerMonolithic()
 
     ubc = UnbindingBC(cutoff_distance=0.5,
                       initial_state=init_walkers[0].state,
@@ -74,15 +63,20 @@ if __name__ == "__main__":
     report_path = 'results.wepy.h5'
     # open it in truncate mode first, then switch after first run
     hdf5_reporter = WepyHDF5Reporter(report_path, mode='w',
-                                save_fields=['positions', 'box_vectors', 'velocities'],
-                                decisions=resampler.DECISION,
-                                instruction_dtypes=resampler.INSTRUCTION_DTYPES,
-                                warp_dtype=ubc.WARP_INSTRUCT_DTYPE,
-                                warp_aux_dtypes=ubc.WARP_AUX_DTYPES,
-                                warp_aux_shapes=ubc.WARP_AUX_SHAPES,
-                                topology=json_str_top,
-                                units=units,
-                                sparse_fields={'velocities' : 10})
+                                    save_fields=['positions', 'box_vectors', 'velocities'],
+                                    decisions=resampler.DECISION.ENUM,
+                                    instruction_dtypes=dict(resampler.DECISION.INSTRUCTION_DTYPES),
+                                    warp_dtype=ubc.WARP_INSTRUCT_DTYPE,
+                                    warp_aux_dtypes=ubc.WARP_AUX_DTYPES,
+                                    warp_aux_shapes=ubc.WARP_AUX_SHAPES,
+                                    topology=json_str_top,
+                                    units=units,
+                                    sparse_fields={'velocities' : 10},
+                                    # sparse atoms fields
+                                    main_rep_idxs=[0],
+                                    all_atoms_rep_freq=10,
+                                    alt_reps={'other_atom' : ([1], 2)}
+    )
 
     pkl_reporter = WalkersPickleReporter(save_dir='./pickle_backups', freq=10, num_backups=3)
 
@@ -101,7 +95,7 @@ if __name__ == "__main__":
 
     for run_idx in range(n_runs):
         print("Starting run: {}".format(run_idx))
-        sim_manager.run_simulation(n_cycles, steps, debug_prints=True)
+        sim_manager.run_simulation(n_cycles, steps, debug_prints=False)
         print("Finished run: {}".format(run_idx))
 
     print("Finished first file")

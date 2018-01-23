@@ -4,7 +4,6 @@ import numpy as np
 
 from wepy.walker import Walker
 
-
 class BoundaryConditions(object):
     def __init__(self, **kwargs):
         raise NotImplementedError

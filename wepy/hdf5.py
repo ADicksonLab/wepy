@@ -529,9 +529,11 @@ class TrajHDF5(object):
         field_feature_shapes = dict(FIELD_FEATURE_SHAPES)
         field_feature_dtypes = dict(FIELD_FEATURE_DTYPES)
 
+
         # get the number of coordinates of positions, i.e. n_atoms
         # from the topology
         self._n_coords = _json_top_atom_count(self.topology)
+
         # get the number of dimensions as a default
         self._n_dims = N_DIMS
 
@@ -956,7 +958,9 @@ class WepyHDF5(object):
                  units=None,
                  sparse_fields=None,
                  feature_shapes=None, feature_dtypes=None,
-                 n_dims=None):
+                 n_dims=None,
+                 alt_reps=None, main_rep_idxs=None
+    ):
         """Initialize a new Wepy HDF5 file. This is a file that organizes
         wepy.TrajHDF5 dataset subsets by simulations by runs and
         includes resampling records for recovering walker histories.
@@ -1012,6 +1016,18 @@ class WepyHDF5(object):
             self._sparse_fields = []
         else:
             self._sparse_fields = sparse_fields
+
+        # if we specify an atom subset of the main 'positions' field
+        # we must save them
+        self._main_rep_idxs = main_rep_idxs
+        # a dictionary specifying other alt_reps to be saved
+        if alt_reps is not None:
+            self._alt_reps = alt_reps
+            # all alt_reps are sparse
+            alt_rep_keys = ['alt_reps/{}'.format(key) for key in self._alt_reps.keys()]
+            self._sparse_fields.extend(alt_rep_keys)
+        else:
+            self._alt_reps = {}
 
         # counter for the new runs, specific constructors will update
         # this if needed
@@ -1189,6 +1205,14 @@ class WepyHDF5(object):
             for i, sparse_field in enumerate(self._sparse_fields):
                 sparse_fields_ds[i] = sparse_field
 
+        # the main rep atom idxs
+        settings_grp.create_dataset('main_rep_idxs', data=self._main_rep_idxs, dtype=np.int)
+
+        # alt_reps settings
+        alt_reps_idxs_grp = settings_grp.create_group("alt_reps_idxs")
+        for alt_rep_name, idxs in self._alt_reps.items():
+            alt_reps_idxs_grp.create_dataset(alt_rep_name, data=idxs, dtype=np.int)
+
 
         # field feature shapes and dtypes
 
@@ -1335,9 +1359,14 @@ class WepyHDF5(object):
         field_feature_dtypes = dict(FIELD_FEATURE_DTYPES)
 
 
-        # get the number of coordinates of positions, i.e. n_atoms
-        # from the topology
-        self._n_coords = _json_top_atom_count(self.topology)
+        # get the number of coordinates of positions. If there is a
+        # main_reps then we have to set the number of atoms to that,
+        # if not we count the number of atoms in the topology
+        if self._main_rep_idxs is None:
+            self._n_coords = _json_top_atom_count(self.topology)
+        else:
+            self._n_coords = len(self._main_rep_idxs)
+
         # get the number of dimensions as a default
         if n_dims is None:
             self._n_dims = N_DIMS
@@ -1407,7 +1436,13 @@ class WepyHDF5(object):
 
     @property
     def topology(self):
+        """The topology for the full simulated system. May not be the main
+        representation in the 'positions' field; for that use the
+        `topology` method.
+
+        """
         return self._h5['topology'][()]
+
 
     @topology.setter
     def topology(self, topology):
@@ -1431,17 +1466,62 @@ class WepyHDF5(object):
         else:
             raise IOError("In mode {} and cannot modify topology".format(self._wepy_mode))
 
-    @property
-    def n_atoms(self):
-        return self.h5['_settings/n_atoms'][()]
+    def get_mdtraj_topology(self, alt_rep='positions'):
+        """Get an MDTraj `Topology` object for a subset of the atoms in the
+        positions of a particular representation. By default gives the
+        topology for the main 'positions' field (when alt_rep
+        'positions'). To get the full topology the file was
+        initialized with set `alt_rep` to `None`. Topologies for
+        alternative representations (subfields of 'alt_reps') can be
+        obtained by passing in the key for that alt_rep. For example,
+        'all_atoms' for the field in alt_reps called 'all_atoms'.
 
-    @property
-    def n_dims(self):
-        return self.h5['_settings/n_dims'][()]
+        """
+
+        full_mdj_top = _json_to_mdtraj_topology(self.topology)
+        if alt_rep is None:
+            return full_mdj_top
+        elif alt_rep == 'positions':
+            # get the subset topology for the main rep idxs
+            return full_mdj_top.subset(self.main_rep_idxs)
+        elif alt_rep in self.alt_rep_idxs:
+            # get the subset for the alt rep
+            return full_mdj_top.subset(self.alt_rep_idxs[alt_rep])
+        else:
+            raise ValueError("alt_rep {} not found".format(alt_rep))
+
+    def get_topology(self, alt_rep='positions'):
+        """Get a JSON topology for a subset of the atoms in the
+        positions of a particular representation. By default gives the
+        topology for the main 'positions' field (when alt_rep
+        'positions'). To get the full topology the file was
+        initialized with set `alt_rep` to `None`. Topologies for
+        alternative representations (subfields of 'alt_reps') can be
+        obtained by passing in the key for that alt_rep. For example,
+        'all_atoms' for the field in alt_reps called 'all_atoms'.
+
+        """
+
+        mdj_top = self.get_mdtraj_topology(alt_rep=alt_rep)
+        json_top = _mdtraj_to_json_topology(mdj_top)
+
+        return json_top
 
     @property
     def sparse_fields(self):
         return self.h5['_settings/sparse_fields'][:]
+
+    @property
+    def main_rep_idxs(self):
+        if '/_settings/main_rep_idxs' in self.h5:
+            return self.h5['/_settings/main_rep_idxs'][:]
+        else:
+            return None
+
+    @property
+    def alt_rep_idxs(self):
+        idxs_grp = self.h5['/_settings/alt_reps_idxs']
+        return {name : ds[:] for name, ds in idxs_grp.items()}
 
     @property
     def field_feature_shapes(self):
@@ -1555,7 +1635,8 @@ class WepyHDF5(object):
         run_grp = self.run(run_idx)
 
         # save the instruction_dtypes_tokens in the object
-        self.instruction_dtypes_tokens[run_idx] = instruction_dtypes_tokens
+        self.instruction_dtypes_tokens[run_idx] = {enum.name : value for enum, value
+                                                   in instruction_dtypes_tokens.items()}
 
         # init a resampling group
         # initialize the resampling group
@@ -1813,7 +1894,7 @@ class WepyHDF5(object):
 
         # if weights are None then we assume they are 1.0
         if weights is None:
-            weights = np.ones(n_frames, dtype=float)
+            weights = np.ones((n_frames, 1), dtype=float)
         else:
             assert isinstance(weights, np.ndarray), "weights must be a numpy.ndarray"
             assert weights.shape[0] == n_frames,\
@@ -1846,10 +1927,10 @@ class WepyHDF5(object):
         # check to make sure the positions are the right shape
         assert traj_data['positions'].shape[1] == self.n_atoms, \
             "positions given have different number of atoms: {}, should be {}".format(
-                pos_n_atoms, self.n_atoms)
+                traj_data['positions'].shape[1], self.n_atoms)
         assert traj_data['positions'].shape[2] == self.n_dims, \
             "positions given have different number of dims: {}, should be {}".format(
-                pos_n_dims, self.n_dims)
+                traj_data['positions'].shape[2], self.n_dims)
 
         # add datasets to the traj group
 
@@ -1875,7 +1956,6 @@ class WepyHDF5(object):
             else:
                 field_sparse_idxs = None
 
-
             self._add_traj_field_data(run_idx, traj_idx, field_path, field_data,
                                       sparse_idxs=field_sparse_idxs)
 
@@ -1890,18 +1970,6 @@ class WepyHDF5(object):
         # initialize the sparse fields in the hdf5
         self._init_traj_fields(run_idx, traj_idx,
                                uninit_sparse_fields, uninit_sparse_shapes, uninit_sparse_dtypes)
-
-        # # if a sparse_field has been specified but has not been given
-        # # and shapes and dtypes were provided it must be initialized
-        # # so this trajectory can be extended
-        # for sparse_field in self.sparse_fields:
-        #     if (not sparse_field in traj_data) and (not sparse_field in traj_grp):
-        #         # get the shape and dtype for this field
-        #         shape = self.field_feature_shapes[sparse_field]
-        #         dtype = self.field_feature_dtypes[sparse_field]
-        #         # initialize it
-        #         self._init_sparse_traj_field(run_idx, traj_idx, sparse_field,
-        #                                      shape, dtype)
 
         return traj_grp
 
@@ -1984,7 +2052,8 @@ class WepyHDF5(object):
             # check the feature shape against the maxshape which gives
             # the feature dimensions for an empty dataset
             assert values.shape[1:] == field_data.maxshape[1:], \
-                "field feature dimensions must be the same, i.e. all but the first dimension"
+                "input value features have shape {}, expected {}".format(
+                    values.shape[1:], field_data.maxshape[1:])
 
             # if it is empty resize it to make an array the size of
             # the new values with the maxshape for the feature
@@ -2039,7 +2108,7 @@ class WepyHDF5(object):
 
         # if weights are None then we assume they are 1.0
         if weights is None:
-            weights = np.ones(n_new_frames, dtype=float)
+            weights = np.ones((n_new_frames, 1), dtype=float)
         else:
             assert isinstance(weights, np.ndarray), "weights must be a numpy.ndarray"
             assert weights.shape[0] == n_new_frames,\
@@ -2850,21 +2919,46 @@ class WepyHDF5(object):
         return traj_h5
 
 
-    def to_mdtraj(self, run_idx, traj_idx, frames=None):
+    def to_mdtraj(self, run_idx, traj_idx, frames=None, alt_rep=None):
 
-        topology = _json_to_mdtraj_topology(self.topology)
+        # the default for alt_rep is the main rep
+        if alt_rep is None:
+            rep_key = 'positions'
+            rep_path = rep_key
+        else:
+            rep_key = alt_rep
+            rep_path = 'alt_reps/{}'.format(alt_rep)
+
+        topology = self.get_mdtraj_topology(alt_rep=rep_key)
 
         traj_grp = self.traj(run_idx, traj_idx)
 
+        pos_dset = self.get_traj_field(run_idx, traj_idx, rep_path)
+
         # get the data for all or for the frames specified
+        time = None
+        box_vectors = None
         if frames is None:
-            positions = traj_grp['positions'][:]
-            time = traj_grp['time'][:, 0]
-            box_vectors = traj_grp['box_vectors'][:]
+            positions = pos_dset[:]
+            try:
+                time = traj_grp['time'][:, 0]
+            except KeyError:
+                warn("time not in this trajectory, ignoring")
+            try:
+                box_vectors = traj_grp['box_vectors'][:]
+            except KeyError:
+                warn("box_vectors not in this trajectory, ignoring")
         else:
-            positions = traj_grp['positions'][frames]
-            time = traj_grp['time'][frames][:, 0]
-            box_vectors = traj_grp['box_vectors'][frames]
+            positions = pos_dset[frames]
+            try:
+                time = traj_grp['time'][frames][:, 0]
+            except KeyError:
+                warn("time not in this trajectory, ignoring")
+            try:
+                box_vectors = traj_grp['box_vectors'][frames]
+            except KeyError:
+                warn("box_vectors not in this trajectory, ignoring")
+
 
         unitcell_lengths, unitcell_angles = _box_vectors_to_lengths_angles(box_vectors)
 
@@ -2945,7 +3039,54 @@ def _make_numpy_varlength_instruction_dtype(varlength_instruct_type, varlength_w
     # make a full instruction dtype from this and return it
     return _make_numpy_instruction_dtype(instruct_record_dtype)
 
+def _mdtraj_to_json_topology(mdj_top):
+    """ Copied in part from MDTraj.formats.hdf5.topology setter. """
+
+    topology_dict = {
+        'chains': [],
+        'bonds': []
+    }
+
+    for chain in mdj_top.chains:
+        chain_dict = {
+            'residues': [],
+            'index': int(chain.index)
+        }
+        for residue in chain.residues:
+            residue_dict = {
+                'index': int(residue.index),
+                'name': str(residue.name),
+                'atoms': [],
+                "resSeq": int(residue.resSeq)
+            }
+
+            for atom in residue.atoms:
+
+                try:
+                    element_symbol_string = str(atom.element.symbol)
+                except AttributeError:
+                    element_symbol_string = ""
+
+                residue_dict['atoms'].append({
+                    'index': int(atom.index),
+                    'name': str(atom.name),
+                    'element': element_symbol_string
+                })
+            chain_dict['residues'].append(residue_dict)
+        topology_dict['chains'].append(chain_dict)
+
+    for atom1, atom2 in mdj_top.bonds:
+        topology_dict['bonds'].append([
+            int(atom1.index),
+            int(atom2.index)
+        ])
+
+    top_json_str = json.dumps(topology_dict)
+
+    return top_json_str
+
 def _json_to_mdtraj_topology(json_string):
+    """ Copied in part from MDTraj.formats.hdf5 topology property."""
 
     topology_dict = json.loads(json_string)
 

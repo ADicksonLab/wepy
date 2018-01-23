@@ -1,16 +1,13 @@
 import multiprocessing as mulproc
 import random as rand
 import itertools as it
-from  collections import namedtuple
+from collections import namedtuple
 from copy import copy
 
 from wepy.resampling.resampler import Resampler, ResamplingRecord
 from wepy.resampling.clone_merge import NothingInstructionRecord, CloneInstructionRecord,\
                                         SquashInstructionRecord, KeepMergeInstructionRecord
 from wepy.resampling.clone_merge import CloneMergeDecision, CLONE_MERGE_INSTRUCTION_DTYPES
-
-maximage = (10, 10, 10, 10, 10)
-cellsize = (6.0, 3.0, 1.5, 0.8, 0.4)
 
 class Node(object):
     def __init__(self, nwalkers=0, nreduc=0, nabovemin=0, children=[], ID=[], to_clone=0, windx=[], xyz=[]):
@@ -58,12 +55,14 @@ class WExplore1Resampler(Resampler):
     DECISION = CloneMergeDecision
     INSTRUCTION_DTYPES = CLONE_MERGE_INSTRUCTION_DTYPES
 
-    def __init__(self, seed=None, pmin=1e-12, pmax=0.1, distance_function=None):
+    def __init__(self, seed=None, pmin=1e-12, pmax=0.1, distance_function=None, maximage=[10,10,10,10], cellsize=[1.0,0.5,0.35,0.25]):
         self.pmin=pmin
         self.pmax=pmax
         self.seed = seed
         self.distance_function = distance_function
         self.treetop = Node()
+        self.maximage = maximage
+        self.cellsize = cellsize # in nanometers!
 
     def getmaxminwalk(children):
         #
@@ -106,7 +105,7 @@ class WExplore1Resampler(Resampler):
         #     self.num_clones
         # these are used in the resampler to write a resampling decision.
         #
-        tID = parent.ID
+
         children = parent.children
         if len(children) > 1:
         # this node has children, balance between them
@@ -137,7 +136,7 @@ class WExplore1Resampler(Resampler):
             # balance between the children
             # find the maxwalk and minwalk
             (minwalk,maxwalk,lowchild,highchild,ntrans) = self.getmaxminwalk(children)
-            while (minwalk and defined $maxwalk) and  (ntrans >= 1):
+            while (minwalk and maxwalk) and (ntrans >= 1):
                 # merge walkers in highchild ; clone walkers in lowchild
                 children[lowchild].toclone += ntrans
                 children[highchild].toclone -= ntrans
@@ -146,7 +145,7 @@ class WExplore1Resampler(Resampler):
             # children are as balanced as they are going to get
             # now run all children through balancetree
             for child in children:
-                balancetree(child)
+                self.balancetree(child)
         elif len(children)==1:
             # only one child, just pass on the debt / surplus
             parent.nreduc += parent.toclone
@@ -154,7 +153,7 @@ class WExplore1Resampler(Resampler):
 
             children[0].toclone = parent.toclone
             parent.toclone = 0
-            balancetree(children[0])
+            self.balancetree(children[0])
         else:
             # no children, we are at the lowest level of the tree
             # figure out walkers to clone / merge
@@ -203,7 +202,7 @@ class WExplore1Resampler(Resampler):
                     for i in range(parent.nwalkers):
                         twt = walkerwt[parent.windex[i]]
                         if r1 or twt > maxwt:
-                            maxwt = $twt;
+                            maxwt = twt;
                             r1 = i
                             r1walk = parent.windex[r1]
 
@@ -218,12 +217,21 @@ class WExplore1Resampler(Resampler):
         mindist = None
         closeregind = None
         for i,c in enumerate(children):
-            d = self.distance(xyz,c.xyz)
+            d = self.distance_function.xyzdistance(xyz,c.xyz)
             if not mindist or d < mindist:
                 mindist = d
                 closeregind = i
         return mindist, closeregind
             
+    def definenew(level, parent, xyz):
+        tID = copy(parent.ID)
+        index = len(parent.children)
+        tID.append(index)
+        newnode = Node(ID=tID, xyz=xyz)
+        parent.children.append(newnode)
+        
+        return index
+        
     
     def getdist(parent, xyz, level=0, ID=[]):
         newind = []
@@ -326,8 +334,8 @@ class WExplore1Resampler(Resampler):
         resampling_actions = actions_from_list(self.walkers_squashed,self.num_clones)
 
         # actually do the cloning and merging of the walkers
-        resampled_walkers = clone_merge_even(walkers, resampling_actions, debug_prints, new_wt, new_amp)
-
-        data = {'distance_matrix' : distance_matrix, 'spread' : np.array([spread]) }
-
-        return resampled_walkers, resampling_actions, data
+#        resampled_walkers = clone_merge_even(walkers, resampling_actions, debug_prints, new_wt, new_amp)
+#
+ #       data = {'distance_matrix' : distance_matrix, 'spread' : np.array([spread]) }
+#
+ #       return resampled_walkers, resampling_actions, data
