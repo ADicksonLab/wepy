@@ -1,6 +1,5 @@
 from collections import namedtuple, defaultdict
 from enum import Enum
-from string import ascii_lowercase
 
 import numpy as np
 
@@ -111,39 +110,6 @@ class CloneMergeDecision(Decision):
 
         return mod_walkers
 
-def alphabet_iterator():
-    num_chars = 1
-    alphabet_it = iter(ascii_lowercase)
-    while True:
-        try:
-            letter = next(alphabet_it)
-        except StopIteration:
-            alphabet_it = iter(ascii_lowercase)
-            letter = next(alphabet_it)
-            num_chars += 1
-
-        yield letter * num_chars
-
-class VariableLengthRecord(object):
-    def __init__(self, name, *values):
-        self._fields = ()
-        self._data = values
-        self._name = name
-
-        key_it = alphabet_iterator()
-        # add them to the object namespace alphanumerically
-        for value in values:
-            key = next(key_it)
-            self.__dict__[key] = value
-            self._fields += (key,)
-
-    def __getitem__(self, idx):
-        return self._data[idx]
-
-    def __str__(self):
-        return "{}({})".format(self._name,
-                    ', '.join(["{}={}".format(key, self.__dict__[key]) for key in self._fields]))
-
 class MultiCloneMergeDecision(Decision):
 
     # the possible types of decisions that can be made enumerated for
@@ -156,23 +122,37 @@ class MultiCloneMergeDecision(Decision):
 
     ENUM = CloneMergeDecisionEnum
 
-    # namedtuple records for each decision type
-    INSTRUCTION_RECORDS = (
-        (ENUM.NOTHING, namedtuple("NothingInstructionRecord", ['slot'])),
-        (ENUM.CLONE, Ellipsis),
-        (ENUM.SQUASH, namedtuple("SquashInstructionRecord", ['merge_slot'])),
-        (ENUM.KEEP_MERGE, namedtuple("KeepMergeInstructionRecord", ['slot'])),
+
+    # mapping of enumerations to the InstructionRecord names that will
+    # be passed to either namedtuple or VariableLengthRecord.
+    INSTRUCTION_NAMES = (
+        (ENUM.NOTHING, "NothingInstructionRecord"),
+        (ENUM.CLONE, "CloneInstructionRecord"),
+        (ENUM.SQUASH, "SquashInstructionRecord"),
+        (ENUM.KEEP_MERGE, "KeepMergeInstructionRecord"),
+    )
+
+    # mapping of enumerations to the field names for the record. An Ellipsis instead
+    # of fields indicate there is a variable number of fields.
+    INSTRUCTION_FIELDS = (
+        (ENUM.NOTHING, ('pos',)),
+        (ENUM.CLONE, (Ellipsis,)),
+        (ENUM.SQUASH, ('merge_to',)),
+        (ENUM.KEEP_MERGE, ('pos',)),
     )
 
     # datatypes for each instruction, useful for allocating memory in
-    # databases. Datatypes may be converted to a numpy dtype by
-    # calling `dtype(instruct_dtype)`
-    INSTRUCTION_DTYPES = (
-        (ENUM.NOTHING, [('pos', np.int)]),
-        (ENUM.CLONE, [('slot_a', np.int), ('slot_b', np.int)]),
-        (ENUM.SQUASH, [('merge_to', np.int)]),
-        (ENUM.KEEP_MERGE, [('pos', np.int)]),
+    # databases. These correspond to the fields defined in
+    # INSTRUCTION_FIELDS. The dtype mapped to an Ellipsis field will
+    # be the dtype for all of the fields it may create in a variable
+    # length record
+    INSTRUCTION_FIELD_DTYPES = (
+        (ENUM.NOTHING, (np.int,)),
+        (ENUM.CLONE, (np.int,)),
+        (ENUM.SQUASH, (np.int,)),
+        (ENUM.KEEP_MERGE, (np.int,)),
     )
+
 
     @classmethod
     def action(cls, walkers, decisions):

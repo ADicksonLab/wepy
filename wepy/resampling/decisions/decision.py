@@ -1,20 +1,59 @@
 from collections import namedtuple
 from enum import Enum
+from string import ascii_lowercase
 
 import numpy as np
 
 # the record type for all resampling records
 ResamplingRecord = namedtuple("ResamplingRecord", ['decision', 'instruction'])
 
+def _alphabet_iterator():
+    num_chars = 1
+    alphabet_it = iter(ascii_lowercase)
+    while True:
+        try:
+            letter = next(alphabet_it)
+        except StopIteration:
+            alphabet_it = iter(ascii_lowercase)
+            letter = next(alphabet_it)
+            num_chars += 1
+
+        yield letter * num_chars
+
+class VariableLengthRecord(object):
+    def __init__(self, name, *values):
+        self._fields = ()
+        self._data = values
+        self._name = name
+
+        key_it = _alphabet_iterator()
+        # add them to the object namespace alphanumerically
+        for value in values:
+            key = next(key_it)
+            self.__dict__[key] = value
+            self._fields += (key,)
+
+    def __getitem__(self, idx):
+        return self._data[idx]
+
+    def __str__(self):
+        return "{}({})".format(self._name,
+                    ', '.join(["{}={}".format(key, self.__dict__[key]) for key in self._fields]))
+
+
 # ABC for the Decision class
 class Decision(object):
     ENUM = None
-    INSTRUCTION_RECORDS = None
-    INSTRUCTION_DTYPES = None
+    INSTRUCTION_NAMES = None
+    INSTRUCTION_FIELDS = None
+    INSTRUCTION_FIELD_DTYPES = None
 
 
     @classmethod
     def enum_dict_by_name(cls):
+        if cls.ENUM is None:
+            raise NotImplementedError
+
         d = {}
         for enum in cls.ENUM:
             d[enum.name] = enum
@@ -22,6 +61,9 @@ class Decision(object):
 
     @classmethod
     def enum_dict_by_value(cls):
+        if cls.ENUM is None:
+            raise NotImplementedError
+
         d = {}
         for enum in cls.ENUM:
             d[enum.value] = enum
@@ -38,13 +80,36 @@ class Decision(object):
         return d[enum_name]
 
     @classmethod
+    def instruction_records(cls):
+        if cls.INSTRUCTION_NAMES is None or cls.INSTRUCTION_FIELDS is None:
+            raise NotImplementedError
+
+        names = dict(cls.INSTRUCTION_NAMES)
+        fields = dict(cls.INSTRUCTION_FIELDS)
+        return {enum : (name, fields[enum]) for enum, name in names.items()}
+
+    @classmethod
+    def instruction_dtypes(cls):
+        if cls.INSTRUCTION_FIELD_DTYPES is None or cls.INSTRUCTION_FIELDS is None:
+            raise NotImplementedError
+
+        fields = dict(cls.INSTRUCTION_FIELDS)
+        dtypes_l = dict(cls.INSTRUCTION_FIELD_DTYPES)
+        return {enum : list(zip(fields, dtypes_l[enum])) for enum, fields in fields.items()}
+
+    @classmethod
     def instruct_record(cls, enum_value, data):
         enum = cls.enum_by_value(enum_value)
-        instruct_records = dict(cls.INSTRUCTION_RECORDS)
-        if instruct_records[enum] is Ellipsis:
-            instruct_record = tuple(data)
+        instruct_records = cls.instruction_records()
+        rec_name, fields = instruct_records[enum]
+
+        # if fields is Ellipsis this indicates it is variable length
+        if fields is Ellipsis:
+            instruct_record = VariableLengthRecord(rec_name, *data)
         else:
-            instruct_record = instruct_records[enum](*data)
+            InstructRecord = namedtuple(rec_name, fields)
+            instruct_record = InstructRecord(*data)
+
         return instruct_record
 
     @classmethod
@@ -71,12 +136,15 @@ class NoDecision(Decision):
 
     ENUM = NothingDecisionEnum
 
-    INSTRUCTION_RECORDS = (
-        (ENUM.NOTHING, namedtuple("NothingInstructionRecord", ['slot'])),
+    INSTRUCTION_NAMES = (
+        (ENUM.NOTHING, "NothingInstructionRecord"),
     )
 
-    INSTRUCTION_DTYPES = (
-        (ENUM.NOTHING, [('pos', np.int)]),
+    INSTRUCTION_FIELDS = (
+        (ENUM.NOTHING, ('pos',)),)
+
+    INSTRUCTION_FIELD_DTYPES = (
+        (ENUM.NOTHING, (np.int,)),
     )
 
     @classmethod
@@ -98,5 +166,6 @@ class NoDecision(Decision):
                 # put the walker in the position specified by the
                 # instruction
                 mod_walkers[instruction[0]] = walkers[walker_idx]
+
 
         return mod_walkers
