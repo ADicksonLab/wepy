@@ -57,7 +57,7 @@ class WExplore1Resampler(Resampler):
         else:
             ntrans = 0
         return (minwalk,maxwalk,lowchild,highchild,ntrans)
-        
+
     def balancetree(parent):
         #
         # This is a recursive function, that balances each level of the image tree.
@@ -189,17 +189,17 @@ class WExplore1Resampler(Resampler):
                 mindist = d
                 closeregind = i
         return mindist, closeregind
-            
+
     def definenew(level, parent, xyz):
         tID = copy(parent.ID)
         index = len(parent.children)
         tID.append(index)
         newnode = Node(ID=tID, xyz=xyz)
         parent.children.append(newnode)
-        
+
         return index
-        
-    
+
+
     def getdist(parent, xyz, level=0, ID=[]):
         newind = []
         if len(parent.children) > 0:
@@ -268,7 +268,7 @@ class WExplore1Resampler(Resampler):
                     if wtsum < self.pmax:
                         nreduc = i
         return nunder, nreduc, nabovemin
-    
+
     def resample(self, walkers, debug_prints=False):
 
         n_walkers = len(walkers)
@@ -285,7 +285,7 @@ class WExplore1Resampler(Resampler):
             print("region assignments:")
             for i in range(n_walkers):
                 print(i,self.walkerreg[i])
-            
+
         # populate the tree
         self.populatetree(self.treetop)
 

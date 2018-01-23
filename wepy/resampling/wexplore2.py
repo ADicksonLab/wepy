@@ -48,13 +48,13 @@ class WExplore2Resampler(Resampler):
                         wsum[j] += d * amp[i];
 
         return spread, wsum
-    
+
     def decide_clone_merge(self, n_walkers, walkerwt, amp, distance_matrix, debug_prints=False):
 
         spreads =[]
         walkers_squashed = [[] for i in range(n_walkers)]
         num_clones = [0 for i in range(n_walkers)]
-        
+
         new_wt = walkerwt.copy()
         new_amp = amp.copy()
         # initialize the actions to nothing, will be overwritten
@@ -79,7 +79,7 @@ class WExplore2Resampler(Resampler):
                         if (new_amp[i] >= 1) and (new_wt[i]/(new_amp[i] + 1) > self.pmin)]
             if len(max_tups):
                 maxvalue, maxwind = max(max_tups)
-                
+
             # walker with the lowest wsum (distance to other walkers) will be tagged for merging (stored in minwind)
             min_tups = [(value, i) for i,value in enumerate(wsum)
                         if new_amp[i] == 1 and (new_wt[i]  < self.pmax)]
@@ -163,7 +163,7 @@ class WExplore2Resampler(Resampler):
                     new_amp[maxwind] -= 1
 
         walker_actions = actions_from_list(walkers_squashed,num_clones)
-                                
+
         return([walker_actions]), spreads[-1]
 
     def resample(self, walkers, debug_prints=False):
@@ -186,7 +186,7 @@ class WExplore2Resampler(Resampler):
 
         # actually do the cloning and merging of the walkers
         resampled_walkers = self.DECISION.action(walkers, resampling_actions)
-        
+
         data = {'distance_matrix' : distance_matrix, 'spread' : np.array([spread]) }
 
         return resampled_walkers, resampling_actions, data
