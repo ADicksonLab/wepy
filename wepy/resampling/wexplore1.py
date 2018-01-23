@@ -4,10 +4,8 @@ import itertools as it
 from collections import namedtuple
 from copy import copy
 
-from wepy.resampling.resampler import Resampler, ResamplingRecord
-from wepy.resampling.clone_merge import NothingInstructionRecord, CloneInstructionRecord,\
-                                        SquashInstructionRecord, KeepMergeInstructionRecord
-from wepy.resampling.clone_merge import CloneMergeDecision, CLONE_MERGE_INSTRUCTION_DTYPES
+from wepy.resampling.resampler import Resampler
+from wepy.resampling.decisions.clone_merge import CloneMergeDecision
 
 class Node(object):
     def __init__(self, nwalkers=0, nreduc=0, nabovemin=0, children=[], ID=[], to_clone=0, windx=[], xyz=[]):
@@ -20,40 +18,9 @@ class Node(object):
         self.windx = windx
         self.xyz = xyz
 
-def actions_from_list(walkers_squashed,num_clones):
-    # determine resampling actions
-    walker_actions = [ResamplingRecord(decision=CloneMergeDecision.NOTHING.value,
-                            instruction=NothingInstructionRecord(slot=i)) for i in range(n_walkers)]
-
-    free_walkers = []
-    for w in range(n_walkers):
-        if num_clones[w] > 0 and len(walkers_squashed[w]) > 0:
-            Raise("Error! cloning and merging occuring with the same walker")
-
-        # add walkers squashed by w onto the free_walkers list
-        if len(walkers_squashed[w]) > 0:
-            free_walkers += walkers_squashed[w]
-            for squash_idx in walkers_squashed[w]:
-                walker_actions[squash_idx] = ResamplingRecord(
-		    decision=CloneMergeDecision.SQUASH.value,
-		    instruction=SquashInstructionRecord(merge_slot=w))
-            walker_actions[w] = ResamplingRecord(
-		decision=CloneMergeDecision.KEEP_MERGE.value,
-		instruction=SquashInstructionRecord(merge_slot=w))
-        if num_clones[w] > 0:
-            slots = []
-            for i in range(num_clones[w]):
-                slots.append(free_walkers.pop())
-            walker_actions[w] = ResamplingRecord(
-                decision=CloneMergeDecision.CLONE.value,
-                instruction = CloneInstructionRecord(slots=tuple(slots)))
-    return walker_actions
-
-
 class WExplore1Resampler(Resampler):
 
     DECISION = CloneMergeDecision
-    INSTRUCTION_DTYPES = CLONE_MERGE_INSTRUCTION_DTYPES
 
     def __init__(self, seed=None, pmin=1e-12, pmax=0.1, distance_function=None, maximage=[10,10,10,10], cellsize=[1.0,0.5,0.35,0.25]):
         self.pmin=pmin
@@ -121,7 +88,7 @@ class WExplore1Resampler(Resampler):
                         parent.toclone += dif
                         child.toclone -= dif
                 if parent.toclone < 0:
-                    Raise("Error! Children cannot pay their parent's debt")
+                    raise ValueError("Error! Children cannot pay their parent's debt")
 
             if parent.toclone > 0:
             # parent has a surplus! needs to clone walkers
@@ -131,7 +98,7 @@ class WExplore1Resampler(Resampler):
                         child_toclone += parent.toclone
                         parent.toclone = 0
                 if parent.toclone > 0:
-                    Raise("Error! Children cannot clone walkers!")
+                    raise ValueError("Error! Children cannot clone walkers!")
 
             # balance between the children
             # find the maxwalk and minwalk
@@ -158,7 +125,7 @@ class WExplore1Resampler(Resampler):
             # no children, we are at the lowest level of the tree
             # figure out walkers to clone / merge
             if (parent.toclone > parent.nreduc):
-                Raise("Error! node cannot pay its debt!")
+                raise ValueError("Error! node cannot pay its debt!")
             if parent.toclone < 0:
                 while parent.toclone < 0:
                     # MERGE: find the two walkers with the lowest weights
@@ -331,11 +298,11 @@ class WExplore1Resampler(Resampler):
                 print(i,self.walkers_squashed[i])
             print("num_clones:",self.num_clones)
 
-        resampling_actions = actions_from_list(self.walkers_squashed,self.num_clones)
+        resampling_actions = [actions_from_list(self.walkers_squashed,self.num_clones)]
 
         # actually do the cloning and merging of the walkers
-#        resampled_walkers = clone_merge_even(walkers, resampling_actions, debug_prints, new_wt, new_amp)
-#
- #       data = {'distance_matrix' : distance_matrix, 'spread' : np.array([spread]) }
-#
- #       return resampled_walkers, resampling_actions, data
+        resampled_walkers = self.DECISION.action(walkers, resampling_actions)
+
+        data = {'assignments' : np.array(self.walkerreg)}
+
+        return resampled_walkers, resampling_actions, data
