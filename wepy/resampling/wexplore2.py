@@ -8,7 +8,7 @@ from wepy.resampling.resampler import Resampler, ResamplingRecord
 from wepy.resampling.clone_merge import NothingInstructionRecord, CloneInstructionRecord,\
                                         SquashInstructionRecord, KeepMergeInstructionRecord
 from wepy.resampling.clone_merge import CloneMergeDecision, CLONE_MERGE_INSTRUCTION_DTYPES
-    
+
 class WExplore2Resampler(Resampler):
 
     DECISION = CloneMergeDecision
@@ -144,7 +144,9 @@ class WExplore2Resampler(Resampler):
     def decide_clone_merge(self, n_walkers, walkerwt, amp, distance_matrix, debug_prints=False):
 
         spreads =[]
-        resampling_actions = []
+        walkers_squashed = [[] for i in range(n_walkers)]
+        num_clones = [0 for i in range(n_walkers)]
+        
         new_wt = walkerwt.copy()
         new_amp = amp.copy()
         # initialize the actions to nothing, will be overwritten
@@ -157,15 +159,11 @@ class WExplore2Resampler(Resampler):
         if debug_prints:
             print("Starting variance optimization:", spread)
         productive = True
-        n_clone_merges = 0
         while productive:
             productive = False
             # find min and max wsums, alter new_amp
             minwind = None
             maxwind = None
-            walker_actions = [ResamplingRecord(decision=CloneMergeDecision.NOTHING.value,
-                                               instruction=NothingInstructionRecord(slot=i))
-                              for i in range(n_walkers)]
 
             # selects a walker with minimum wsum and a walker with maximum wsum
             # walker with the highest wsum (distance to other walkers) will be tagged for cloning (stored in maxwind)
@@ -186,11 +184,11 @@ class WExplore2Resampler(Resampler):
             condition_list = np.array([i is not None for i in [minwind,maxwind]])
             if condition_list.all() and minwind != maxwind:
 
-                closewalk_availabe = set(range(n_walkers)).difference([minwind,maxwind])
-                closewalk_availabe = [idx for idx in closewalk_availabe
+                closewalk_available = set(range(n_walkers)).difference([minwind,maxwind])
+                closewalk_available = [idx for idx in closewalk_available
                                       if new_amp[idx]==1 and (new_wt[idx] + new_wt[minwind] < self.pmax)]
-                if len(closewalk_availabe) > 0:
-                    tups = [(distance_matrix[minwind][i], i) for i in closewalk_availabe
+                if len(closewalk_available) > 0:
+                    tups = [(distance_matrix[minwind][i], i) for i in closewalk_available
                                             if distance_matrix[minwind][i] < (self.merge_dist)]
                     if len(tups) > 0:
                         closedist, closewalk = min(tups)
@@ -214,7 +212,6 @@ class WExplore2Resampler(Resampler):
                     if debug_prints:
                         print("Variance move to", newspread, "accepted")
 
-                    n_clone_merges += 1
                     productive = True
                     spread = newspread
 
@@ -239,18 +236,10 @@ class WExplore2Resampler(Resampler):
                     new_amp[keep_idx] = 1
 
                     # recording the actions
-                    walker_actions[squash_idx] = ResamplingRecord(
-                                decision=CloneMergeDecision.SQUASH.value,
-                                instruction=SquashInstructionRecord(merge_slot=keep_idx))
-                    walker_actions[keep_idx] = ResamplingRecord(
-                                decision=CloneMergeDecision.KEEP_MERGE.value,
-                                instruction=SquashInstructionRecord(merge_slot=keep_idx))
-                   # record  the clone instruction for keeping the the track of cloning
-                    clone_idx = maxwind
-                    walker_actions[clone_idx] = ResamplingRecord(
-                        decision=CloneMergeDecision.CLONE.value,
-                        instruction = CloneInstructionRecord(slot_a=clone_idx, slot_b=squash_idx))
-                    resampling_actions.append(walker_actions)
+                    walkers_squashed[keep_idx] += squash_idx + walkers_squashed[squash_idx]
+                    walkers_squashed[squash_idx] = []
+                    num_clones[clone_idx]++
+
                     # new spread for starting new stage
                     newspread, wsum = self._calcspread(n_walkers, new_wt, new_amp, distance_matrix)
                     spreads.append(newspread)
@@ -263,10 +252,33 @@ class WExplore2Resampler(Resampler):
                     new_amp[closewalk] = 1
                     new_amp[maxwind] -= 1
 
-        if n_clone_merges == 0:
-            return([walker_actions]), spreads[-1], new_wt, new_amp
-        else:
-            return resampling_actions, spreads[-1], new_wt, new_amp
+        walker_actions = [ResamplingRecord(decision=CloneMergeDecision.NOTHING.value,
+                        instruction=NothingInstructionRecord(slot=i)) for i in range(n_walkers)]
+
+        free_walkers = []
+        for w in range(n_walkers):
+            if num_clones[w] > 0 and len(walkers_squashed[w]) > 0:
+                Raise("Error! cloning and merging occuring with the same walker")
+
+            # add walkers squashed by w onto the free_walkers list
+            if len(walkers_squashed[w]) > 0:
+                free_walkers += walkers_squashed[w]
+                for squash_idx in walkers_squashed[w]:
+                    walker_actions[squash_idx] = ResamplingRecord(
+		        decision=CloneMergeDecision.SQUASH.value,
+		        instruction=SquashInstructionRecord(merge_slot=w))
+                walker_actions[w] = ResamplingRecord(
+		    decision=CloneMergeDecision.KEEP_MERGE.value,
+		    instruction=SquashInstructionRecord(merge_slot=w))
+            if num_clones[w] > 0:
+                slots = []
+                for i in range(num_clones[w]):
+                    slots.append(free_walkers.pop())
+                walker_actions[w] = ResamplingRecord(
+                    decision=CloneMergeDecision.CLONE.value,
+                    instruction = CloneInstructionRecord(slots=tuple(slots)))
+            
+        return([walker_actions]), spreads[-1]
 
     def resample(self, walkers, debug_prints=False):
 
@@ -282,12 +294,12 @@ class WExplore2Resampler(Resampler):
             print(distance_matrix)
 
         # determine cloning and merging actions to be performed, by maximizing the spread
-        resampling_actions, spread, new_wt, new_amp = self.decide_clone_merge(n_walkers, walkerwt,
+        resampling_actions, spread = self.decide_clone_merge(n_walkers, walkerwt,
                                                              amp, distance_matrix,
                                                              debug_prints=debug_prints)
 
         # actually do the cloning and merging of the walkers
-        resampled_walkers = self._clone_merge_even(walkers, resampling_actions, debug_prints, new_wt, new_amp)
+        resampled_walkers = CloneMergeDecision.action(walkers, resampling_actions)
         
         data = {'distance_matrix' : distance_matrix, 'spread' : np.array([spread]) }
 
