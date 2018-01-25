@@ -8,13 +8,15 @@ from wepy.resampling.resampler import Resampler
 from wepy.resampling.decisions.clone_merge import CloneMergeDecision
 
 class Node(object):
-    def __init__(self, nwalkers=0, nreduc=0, nabovemin=0, children=[], ID=[], to_clone=0, windx=[], xyz=[]):
+    def __init__(self, nwalkers=0, nreduc=0, nabovemin=0, children=[],
+                 ID=[], to_clone=0, windx=[], xyz=[]
+    ):
         self.nwalkers = nwalkers
         self.nreduc = nreduc
         self.nabovemin = nabovemin
-        self.children = tchildren
+        self.children = children
         self.ID = ID
-        self.to_clone = to_clone
+        self.toclone = to_clone
         self.windx = windx
         self.xyz = xyz
 
@@ -22,7 +24,10 @@ class WExplore1Resampler(Resampler):
 
     DECISION = CloneMergeDecision
 
-    def __init__(self, seed=None, pmin=1e-12, pmax=0.1, distance_function=None, maximage=[10,10,10,10], cellsize=[1.0,0.5,0.35,0.25]):
+    def __init__(self, seed=None, pmin=1e-12, pmax=0.1,
+                 distance_function=None,
+                 maximage=[10,10,10,10],
+                 cellsize=[1.0,0.5,0.35,0.25]):
         self.pmin=pmin
         self.pmax=pmax
         self.seed = seed
@@ -31,7 +36,8 @@ class WExplore1Resampler(Resampler):
         self.maximage = maximage
         self.cellsize = cellsize # in nanometers!
 
-    def getmaxminwalk(children):
+
+    def getmaxminwalk(self, children):
         #
         # This is a helper function for balancetree, which returns the
         # children with the highest and lowest numbers of walkers. As
@@ -56,9 +62,9 @@ class WExplore1Resampler(Resampler):
             ntrans = min(int((maxwalk - minwalk)/2), children[highchild].nreduc + children[highchild].toclone)
         else:
             ntrans = 0
-        return (minwalk,maxwalk,lowchild,highchild,ntrans)
+        return minwalk, maxwalk, lowchild, highchild, ntrans
 
-    def balancetree(parent):
+    def balancetree(self, parent):
         #
         # This is a recursive function, that balances each level of the image tree.
         # In each call, the argument is the parent node, and the balancing is done
@@ -95,19 +101,19 @@ class WExplore1Resampler(Resampler):
             # find children that have walkers that can be cloned
                 for child in children:
                     if child.nabovemin >= 1:
-                        child_toclone += parent.toclone
+                        child.toclone += parent.toclone
                         parent.toclone = 0
                 if parent.toclone > 0:
                     raise ValueError("Error! Children cannot clone walkers!")
 
             # balance between the children
             # find the maxwalk and minwalk
-            (minwalk,maxwalk,lowchild,highchild,ntrans) = self.getmaxminwalk(children)
+            minwalk, maxwalk, lowchild, highchild, ntrans = self.getmaxminwalk(children)
             while (minwalk and maxwalk) and (ntrans >= 1):
                 # merge walkers in highchild ; clone walkers in lowchild
                 children[lowchild].toclone += ntrans
                 children[highchild].toclone -= ntrans
-                (minwalk,maxwalk,lowchild,highchild,ntrans) = self.getmaxminwalk(children)
+                minwalk, maxwalk, lowchild, highchild, ntrans = self.getmaxminwalk(children)
 
             # children are as balanced as they are going to get
             # now run all children through balancetree
@@ -141,13 +147,13 @@ class WExplore1Resampler(Resampler):
                     for i in range(parent.nwalkers):
                         if i != r1:
                             twt = self.walkerwt[parent.windex[i]]
-                            if not r2 or twt < minwt):
+                            if (not r2) or (twt < minwt):
                                 minwt = twt;
                                 r2 = i
 
                     r1index = parent.windex[r1]
                     r2index = parent.windex[r2]
-                    r3 = rand(self.walkerwt[r1index] + self.walkerwt[r2index])
+                    r3 = rand.random() * (self.walkerwt[r1index] + self.walkerwt[r2index])
                     if r3 < self.walkerwt[r1index]:
                         keep_idx = r1index
                         squash_idx = r2index
@@ -167,30 +173,30 @@ class WExplore1Resampler(Resampler):
                     r1 = None
                     maxwt = None
                     for i in range(parent.nwalkers):
-                        twt = walkerwt[parent.windex[i]]
+                        twt = self.walkerwt[parent.windex[i]]
                         if r1 or twt > maxwt:
                             maxwt = twt;
                             r1 = i
                             r1walk = parent.windex[r1]
 
-                    self.num_clones[r1walk]++
+                    self.num_clones[r1walk] += 1
                     parent.nwalkers +=1
                     parent.toclone -=1
-        return
 
-    def getclosest(xyz, children):
+
+    def getclosest(self, xyz, children):
         # looks through the set of children and computes the closest
         # using a distance metric
         mindist = None
         closeregind = None
-        for i,c in enumerate(children):
-            d = self.distance_function.xyzdistance(xyz,c.xyz)
+        for i, c in enumerate(children):
+            d = self.distance_function.xyzdistance(xyz, c.xyz)
             if not mindist or d < mindist:
                 mindist = d
                 closeregind = i
         return mindist, closeregind
 
-    def definenew(level, parent, xyz):
+    def definenew(self, parent, xyz):
         tID = copy(parent.ID)
         index = len(parent.children)
         tID.append(index)
@@ -200,28 +206,28 @@ class WExplore1Resampler(Resampler):
         return index
 
 
-    def getdist(parent, xyz, level=0, ID=[]):
+    def getdist(self, parent, xyz, level=0, ID=[]):
         newind = []
         if len(parent.children) > 0:
             mindist, closereg = self.getclosest(xyz, parent.children)
             if mindist > self.cellsize[level]:
                 if len(parent.children < self.maximage[level]):
-                    closereg = self.definenew(level, parent, xyz)
+                    closereg = self.definenew(parent, xyz)
 
-                ind.append(closereg)
-                newind = self.getdist(parent.children[closereg], xyz, level=level+1, ID=ind)
+                ID.append(closereg)
+                newind = self.getdist(parent.children[closereg], xyz, level=level+1, ID=ID)
         else:
             # bottom level
             if level == len(self.cellsize):
-                newind = ind
+                newind = ID
             else:
                 mindist, closereg = self.getclosest(xyz, parent.children)
                 if mindist > self.cellsize[level]:
-                    closereg = self.definenew(level, parent, xyz)
-                ind.append(closereg)
+                    closereg = self.definenew(parent, xyz)
+                ID.append(closereg)
         return newind
 
-    def populatetree(parent, level=0, ID=[]):
+    def populatetree(self, parent, level=0, ID=[]):
         #
         # This function uses the walkerreg assignments to determine
         # how many walkers are under each node (nwalkers) at each level
@@ -235,29 +241,26 @@ class WExplore1Resampler(Resampler):
         nunder = 0
         nreduc = 0
         nabovemin = 0
-        if level < maxlevel:
-            for i,child in enumerate(parent.children):
+        if level < len(self.cellsize):
+            for i, child in enumerate(parent.children):
                 tID = copy(ID)
                 tID.append(i)
                 cwalk, creduc, cabovemin = self.populatetree(child, level=level+1, ID=tID)
                 if cwalk > 0:
-                    node('nwalkers') = cwalk
-                    node('nreduc') = creduc
-                    node('nabovemin') = cabovemin
-                parent.children.append(node)
+                    child.nwalkers = cwalk
+                    child.nreduc = creduc
+                    child.nabovemin = cabovemin
             nunder += cwalk
             nreduc +=creduc
             nabovemin += cabovemin
         else:
-            avgwt = 0
             wts = []
-            for i in range(nwalk-1):
-                wreg = self.walkerreg[i]
+            for i in range(self.n_walkers-1):
                 if self.walkerreg[i] == ID: # element-wise comparison of two lists
                     nunder +=1
                     parent.windx.append(i)
                     wts.append(self.walkerwt[i])
-                    if walkerwt[i] > self.pmin:
+                    if self.walkerwt[i] > self.pmin:
                         nabovemin += 1
             nreduc = 0
             if nunder > 1:
@@ -271,9 +274,12 @@ class WExplore1Resampler(Resampler):
 
     def resample(self, walkers, debug_prints=False):
 
-        n_walkers = len(walkers)
-        self.walkers_squashed = [[] for i in range(n_walkers)]
-        self.num_clones = [0 for i in range(n_walkers)]
+        self.n_walkers = len(walkers)
+
+        self.walkerreg = [None for i in range(self.n_walkers)]
+
+        self.walkers_squashed = [[] for i in range(self.n_walkers)]
+        self.num_clones = [0 for i in range(self.n_walkers)]
 
         self.walkerwt = [walker.weight for walker in walkers]
 
@@ -283,7 +289,7 @@ class WExplore1Resampler(Resampler):
 
         if debug_prints:
             print("region assignments:")
-            for i in range(n_walkers):
+            for i in range(self.n_walkers):
                 print(i,self.walkerreg[i])
 
         # populate the tree
@@ -294,7 +300,7 @@ class WExplore1Resampler(Resampler):
 
         if debug_prints:
             print("walkers squashed:")
-            for i in range(n_walkers):
+            for i in range(self.n_walkers):
                 print(i,self.walkers_squashed[i])
             print("num_clones:",self.num_clones)
 

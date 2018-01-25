@@ -2990,13 +2990,14 @@ def _warn_unknown_kwargs(**kwargs):
 
 def _instruction_is_variable_length(instruction_dtype_tokens):
 
-    # examine it for usage of Nones in field names of struct dtype tokens
+    # if the field name for a datatype has Ellipsis in it the value is
+    # variable length
     variable_length = False
     for i, token in enumerate(instruction_dtype_tokens):
-        if token[0] is None:
+        if token[0] is Ellipsis:
             # check whether the None is in the right place, i.e. last position
             if i != len(instruction_dtype_tokens) - 1:
-                raise TypeError("None (variable length) field must be the"
+                raise TypeError("Ellipsis (variable length) field must be in the"
                                 "last token in the instruction dtype dict")
             else:
                 variable_length = True

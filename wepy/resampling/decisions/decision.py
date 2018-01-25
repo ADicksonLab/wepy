@@ -36,9 +36,15 @@ class VariableLengthRecord(object):
     def __getitem__(self, idx):
         return self._data[idx]
 
+    def __len__(self):
+        return len(self._data)
+
     def __str__(self):
         return "{}({})".format(self._name,
                     ', '.join(["{}={}".format(key, self.__dict__[key]) for key in self._fields]))
+
+    def __repr__(self):
+        return self.__str__()
 
 
 # ABC for the Decision class
@@ -104,7 +110,7 @@ class Decision(object):
         rec_name, fields = instruct_records[enum]
 
         # if fields is Ellipsis this indicates it is variable length
-        if fields is Ellipsis:
+        if Ellipsis in fields:
             instruct_record = VariableLengthRecord(rec_name, *data)
         else:
             InstructRecord = namedtuple(rec_name, fields)

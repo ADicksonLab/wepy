@@ -14,10 +14,10 @@ class NothingDecider(Decider):
     def __init__(self):
         pass
 
-    def decide(self, novelties):
+    def decide(self, scores):
 
         decisions = []
-        for novelty in novelties:
+        for score in scores:
             # save the only value for the enumeration for the record
             decisions.append(NoDecision.ENUM.NOTHING.value)
 

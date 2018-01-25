@@ -11,12 +11,32 @@ from openmmtools.testsystems import LennardJonesPair
 import mdtraj as mdj
 
 from wepy.sim_manager import Manager
-from wepy.resampling.resamplers.wexplore2 import WExplore2Resampler
+
+from wepy.resampling.distances.distance import Distance
+from wepy.resampling.scoring.scorer import AllToAllScorer
+from wepy.resampling.wexplore2 import WExplore2Resampler
+
 from wepy.runners.openmm import OpenMMRunner, OpenMMWalker
 from wepy.runners.openmm import UNIT_NAMES, GET_STATE_KWARG_DEFAULTS
 from wepy.boundary_conditions.unbinding import UnbindingBC
 from wepy.reporter.hdf5 import WepyHDF5Reporter
 from wepy.reporter.reporter import WalkersPickleReporter
+
+
+from scipy.spatial.distance import euclidean
+
+# we define a simple distance metric for this system, assuming the
+# positions are in a 'positions' field
+class PairDistance(Distance):
+    def __init__(self, metric=euclidean):
+        self.metric = metric
+
+    def distance(self, walker_a, walker_b):
+
+        dist_a = self.metric(walker_a['positions'][0], walker_a['positions'][1])
+        dist_b = self.metric(walker_b['positions'][0], walker_b['positions'][1])
+
+        return np.abs(dist_a - dist_b)
 
 if __name__ == "__main__":
 
@@ -26,7 +46,8 @@ if __name__ == "__main__":
 
     test_sys = LennardJonesPair()
 
-    integrator = omm.VerletIntegrator(2*unit.femtoseconds)
+    #integrator = omm.VerletIntegrator(2*unit.femtoseconds)
+    integrator = omm.LangevinIntegrator(300.0*unit.kelvin, 1/unit.picosecond, 2*unit.femtoseconds)
     context = omm.Context(test_sys.system, copy(integrator))
     context.setPositions(test_sys.positions)
 
@@ -43,11 +64,22 @@ if __name__ == "__main__":
 
     init_walkers = [OpenMMWalker(init_state, init_weight) for i in range(num_walkers)]
 
+
+    # the mdtraj here is needed for the distance function
     mdtraj_topology = mdj.Topology.from_openmm(test_sys.topology)
-    resampler = WExplore2Resampler(topology=mdtraj_topology,
-                                   ligand_idxs=np.array(test_sys.ligand_indices),
-                                   binding_site_idxs=np.array(test_sys.receptor_indices),
-                                   pmax=0.1)
+
+    # make a distance object which can be used to compute the distance
+    # between two walkers, for our scorer class
+    distance = PairDistance()
+
+    # we need a scorer class to perform the all-to-all distances
+    # using our distance class
+    scorer = AllToAllScorer(distance=distance)
+
+    # make a WExplore2 resampler with default parameters and our
+    # distance metric
+    resampler = WExplore2Resampler(scorer=scorer,
+                                   pmax=0.5)
 
     ubc = UnbindingBC(cutoff_distance=0.5,
                       initial_state=init_walkers[0].state,
@@ -67,7 +99,7 @@ if __name__ == "__main__":
     hdf5_reporter = WepyHDF5Reporter(report_path, mode='w',
                                     save_fields=['positions', 'box_vectors', 'velocities'],
                                     decisions=resampler.DECISION.ENUM,
-                                    instruction_dtypes=dict(resampler.DECISION.INSTRUCTION_DTYPES),
+                                    instruction_dtypes=resampler.DECISION.instruction_dtypes(),
                                     warp_dtype=ubc.WARP_INSTRUCT_DTYPE,
                                     warp_aux_dtypes=ubc.WARP_AUX_DTYPES,
                                     warp_aux_shapes=ubc.WARP_AUX_SHAPES,

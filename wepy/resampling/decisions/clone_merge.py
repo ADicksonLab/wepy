@@ -162,66 +162,69 @@ class MultiCloneMergeDecision(Decision):
         # list for the modified walkers
         mod_walkers = [None for i in range(len(walkers))]
 
-        # we need to collect groups of merges, one entry for each
-        # merge, where the key is the walker_idx of the keep merge slot
-        squash_walkers = defaultdict(list)
-        keep_walkers = {}
-        # go through each decision and perform the decision
-        # instructions
-        for walker_idx, decision in enumerate(decisions):
-            decision_value, instruction = decision
+        # perform clones and merges for each step of resampling
+        for step_idx, step_recs in enumerate(decisions):
 
-            if decision_value == cls.ENUM.NOTHING.value:
-                # check to make sure a walker doesn't already exist
-                # where you are going to put it
-                if mod_walkers[instruction[0]] is not None:
-                    raise ValueError(
-                        "Multiple walkers assigned to position {}".format(instruction[0]))
+            # we need to collect groups of merges, one entry for each
+            # merge, where the key is the walker_idx of the keep merge slot
+            squash_walkers = defaultdict(list)
+            keep_walkers = {}
+            # go through each decision and perform the decision
+            # instructions
+            for walker_idx, decision in enumerate(step_recs):
+                decision_value, instruction = decision
 
-                # put the walker in the position specified by the
-                # instruction
-                mod_walkers[instruction[0]] = walkers[walker_idx]
-
-            elif decision_value == cls.ENUM.CLONE.value:
-                walker = walkers[walker_idx]
-                clones = split(walker, number=len(instruction))
-
-                for i, walker_idx in enumerate(instruction):
-                    if mod_walkers[walker_idx] is not None:
+                if decision_value == cls.ENUM.NOTHING.value:
+                    # check to make sure a walker doesn't already exist
+                    # where you are going to put it
+                    if mod_walkers[instruction[0]] is not None:
                         raise ValueError(
                             "Multiple walkers assigned to position {}".format(instruction[0]))
-                    mod_walkers[walker_idx] = clones[i]
 
-            # if it is a decision for merging we must perform this
-            # once we know all the merge targets for each merge group
-            elif decision_value == cls.ENUM.SQUASH.value:
+                    # put the walker in the position specified by the
+                    # instruction
+                    mod_walkers[instruction[0]] = walkers[walker_idx]
 
-                # save this walker to the appropriate merge group to
-                # merge after going through the list of walkers
-                squash_walkers[instruction[0]].append(walker_idx)
+                elif decision_value == cls.ENUM.CLONE.value:
+                    walker = walkers[walker_idx]
+                    clones = split(walker, number=len(instruction))
 
-            elif decision_value == cls.ENUM.KEEP_MERGE.value:
-                keep_walkers[instruction[0]] = walker_idx
+                    for i, walker_idx in enumerate(instruction):
+                        if mod_walkers[walker_idx] is not None:
+                            raise ValueError(
+                                "Multiple walkers assigned to position {}".format(instruction[0]))
+                        mod_walkers[walker_idx] = clones[i]
 
-            else:
-                raise ValueError("Decision not recognized")
+                # if it is a decision for merging we must perform this
+                # once we know all the merge targets for each merge group
+                elif decision_value == cls.ENUM.SQUASH.value:
 
-        # do the merging for each merge group
-        for target_idx, walker_idxs in squash_walkers.items():
-            keep_idx = keep_walkers[target_idx]
-            # collect the walkers in the merge group, the keep idx is
-            # always the first in the list
-            merge_grp = [walkers[keep_idx]] + [walkers[i] for i in walker_idxs]
+                    # save this walker to the appropriate merge group to
+                    # merge after going through the list of walkers
+                    squash_walkers[instruction[0]].append(walker_idx)
 
-            # merge the walkers
-            merged_walker = keep_merge(merge_grp, 0)
+                elif decision_value == cls.ENUM.KEEP_MERGE.value:
+                    keep_walkers[instruction[0]] = walker_idx
 
-            # make sure there is not already a walker in this slot
-            if mod_walkers[target_idx] is not None:
-                raise ValueError(
-                    "Multiple walkers assigned to position {}".format(target_idx))
+                else:
+                    raise ValueError("Decision not recognized")
 
-            # set it in the slot for the keep_idx
-            mod_walkers[target_idx] = merged_walker
+            # do the merging for each merge group
+            for target_idx, walker_idxs in squash_walkers.items():
+                keep_idx = keep_walkers[target_idx]
+                # collect the walkers in the merge group, the keep idx is
+                # always the first in the list
+                merge_grp = [walkers[keep_idx]] + [walkers[i] for i in walker_idxs]
+
+                # merge the walkers
+                merged_walker = keep_merge(merge_grp, 0)
+
+                # make sure there is not already a walker in this slot
+                if mod_walkers[target_idx] is not None:
+                    raise ValueError(
+                        "Multiple walkers assigned to position {}".format(target_idx))
+
+                # set it in the slot for the keep_idx
+                mod_walkers[target_idx] = merged_walker
 
         return mod_walkers

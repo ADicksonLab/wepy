@@ -2,7 +2,7 @@ from wepy.resampling.resamplers.resampler import Resampler
 
 # for the framework
 from wepy.resampling.deciders.clone_merge import RandomCloneMergeDecider
-from wepy.resampling.novelty.novelty import RandomNoveltyAssigner
+from wepy.resampling.scoring.scorer import RandomScorer
 
 # for the monolithic resampler
 import random as rand
@@ -10,13 +10,13 @@ from wepy.resampling.decisions.clone_merge import CloneMergeDecision
 
 class RandomCloneMergeResampler(Resampler):
     """WIP do not use!!! Example of a resampler that uses the
-    Novelty->Decider framework, although the novelties here don't
+    Novelty->Decider framework, although the scores here don't
     effect the outcome.
 
     """
 
     def __init__(self):
-        self.novelty = RandomNoveltyAssigner
+        self.scorer = RandomScorer
         self.decider = RandomCloneMergeDecider
 
 

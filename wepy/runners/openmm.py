@@ -1,4 +1,5 @@
 from copy import copy
+import random as rand
 
 import numpy as np
 
@@ -52,6 +53,10 @@ UNIT_NAMES = (('positions_unit', unit.nanometer.get_name()),
          ('potential_energy_unit', (unit.kilojoule / unit.mole).get_name()),
         )
 
+# a random seed will be chosen from 1 to RAND_SEED_RANGE_MAX when the
+# Langevin integrator is created. 0 is the default and special value
+# which will then choose a random value when the integrator is created
+RAND_SEED_RANGE_MAX = 1000000
 
 # the runner for the simulation which runs the actual dynamics
 class OpenMMRunner(Runner):
@@ -70,6 +75,14 @@ class OpenMMRunner(Runner):
         if tmp_getState_kwargs is not None:
             getState_kwargs.update(tmp_getState_kwargs)
 
+
+        # make a copy of the integrator for this particular segment
+        new_integrator = copy(self.integrator)
+        # force setting of random seed to 0, which is a special
+        # value that forces the integrator to choose another
+        # random number
+        new_integrator.setRandomNumberSeed(0)
+
         # if a platform was given we use it to make a Simulation object
         if self.platform_name is not None:
             # get the platform by its name to use
@@ -79,13 +92,14 @@ class OpenMMRunner(Runner):
                 if key in platform.getPropertyNames():
                     platform.setPropertyDefaultValue(key, value)
 
-            # instantiate a simulation object
+            # make a new simulation object
             simulation = omma.Simulation(self.topology, self.system,
-                                         copy(self.integrator), platform)
+                                         new_integrator, platform)
+
         # otherwise just use the default or environmentally defined one
         else:
             simulation = omma.Simulation(self.topology, self.system,
-                                         copy(self.integrator))
+                                         new_integrator)
 
         # set the state to the context from the walker
         simulation.context.setState(walker.state)

@@ -3,25 +3,31 @@ from copy import deepcopy
 
 import numpy as np
 import numpy.linalg as la
+
 import simtk.unit as unit
-
-import geomm.recentering
-import geomm.rmsd
-
 import mdtraj as mdj
 
-class OpenMMDistance(object):
+from geomm.recentering import recenter_receptor_ligand
+from geomm.rmsd import rmsd_one_frame
+
+from wepy.resampling.distances.distance import Distance
+
+
+
+class OpenMMDistance(Distance):
     """ Class for distance metrics that take in OpenMM walkers
      and return matrix of distances
     """
     def _xyz_from_walkers(self, walkers, keep_atoms=[]):
         if len(keep_atoms) == 0:
             keep_atoms = range(np.shape(walkers[0].positions)[0])
-            
-        return np.stack(([np.array(w.positions.value_in_unit(unit.nanometer))[keep_atoms,:] for w in walkers]),axis=0)
+
+        return np.stack(([np.array(w.positions.value_in_unit(unit.nanometer))[keep_atoms,:]
+                          for w in walkers]),axis=0)
 
     def _box_from_walkers(self, walkers):
-        return np.stack(([np.array([la.norm(v._value) for v in w.box_vectors]) for w in walkers]),axis=0)
+        return np.stack(([np.array([la.norm(v._value) for v in w.box_vectors])
+                          for w in walkers]),axis=0)
 
 class OpenMMUnbindingDistance(OpenMMDistance):
     # The distance function here returns a distance matrix where the element (d_ij) is the
@@ -29,35 +35,40 @@ class OpenMMUnbindingDistance(OpenMMDistance):
     # to the binding site atoms, and taking the RMSD of the ligand atoms.  It uses alternative maps
     # for the binding site atoms when defined, and aligns to all alternative maps, returning the
     # minimum RMSD computed over all maps.
+
     def __init__(self, topology=None, ligand_idxs=None, binding_site_idxs=None, alt_maps=None):
         self.topology = topology
         self.ligand_idxs = ligand_idxs
         self.binding_site_idxs = binding_site_idxs
         self.alt_maps = alt_maps
-        # alt_maps are alternative mappings to the binding site
-        # this program now assumes that all atoms in alternative maps are contained in binding_site_idxs list
-        
+        # alt_maps are alternative mappings to the binding site. this
+        # program now assumes that all atoms in alternative maps are
+        # contained in binding_site_idxs list
+
     def distance(self, walkers):
         num_walkers = len(walkers)
 
         small_lig_idxs = np.array(range(len(self.ligand_idxs)))
-        small_bs_idxs = np.array(range(len(self.ligand_idxs),len(self.ligand_idxs)+len(self.binding_site_idxs)))
-        keep_atoms = np.concatenate((self.ligand_idxs,self.binding_site_idxs),axis=0)
-        
-        small_pos = self._xyz_from_walkers(walkers,keep_atoms)
+        small_bs_idxs = np.array(range(len(self.ligand_idxs),
+                                       len(self.ligand_idxs) + len(self.binding_site_idxs)))
+        keep_atoms = np.concatenate((self.ligand_idxs, self.binding_site_idxs), axis=0)
+
+        small_pos = self._xyz_from_walkers(walkers, keep_atoms)
         box_lengths = self._box_from_walkers(walkers)
-        newpos_small = geomm.recentering.recenter_receptor_ligand(small_pos,box_lengths,ligand_idxs=small_lig_idxs,receptor_idxs=small_bs_idxs)
+        newpos_small = recenter_receptor_ligand(small_pos, box_lengths,
+                                                ligand_idxs=small_lig_idxs,
+                                                receptor_idxs=small_bs_idxs)
 
         small_top = self.topology.subset(keep_atoms)
-        traj_rec = mdj.Trajectory(newpos_small,small_top)
+        traj_rec = mdj.Trajectory(newpos_small, small_top)
 
-        traj_rec.superpose(traj_rec,atom_indices=small_bs_idxs)
-        d = np.zeros((num_walkers,num_walkers))
+        traj_rec.superpose(traj_rec, atom_indices=small_bs_idxs)
+        d = np.zeros((num_walkers, num_walkers))
         for i in range(num_walkers-1):
             d[i][i] = 0
-            for j in range(i+1,num_walkers):
+            for j in range(i+1, num_walkers):
                 # return the distance matrix in Angstroms
-                d[i][j] = 10.0*geomm.rmsd.rmsd_one_frame(traj_rec.xyz[i],traj_rec.xyz[j],small_lig_idxs)
+                d[i][j] = 10.0 * rmsd_one_frame(traj_rec.xyz[i], traj_rec.xyz[j], small_lig_idxs)
                 d[j][i] = d[i][j]
 
         if self.alt_maps is not None:
@@ -66,20 +77,26 @@ class OpenMMUnbindingDistance(OpenMMDistance):
             for i, a in enumerate(self.alt_maps):
                 for j, e in enumerate(a):
                     try:
-                        small_alt_maps[i][j] = list(self.binding_site_idxs).index(e) + len(self.ligand_idxs)
+                        small_alt_maps[i][j] = list(self.binding_site_idxs).index(e) +\
+                                               len(self.ligand_idxs)
                     except:
-                        raise Exception('Alternative maps are assumed to be permutations of existing binding site indices')
+                        raise Exception(
+                        'Alternative maps are assumed to be permutations of existing'
+                            ' binding site indices')
 
             for alt_map in small_alt_maps:
-                alt_traj_rec = mdj.Trajectory(newpos_small,small_top)
-                alt_traj_rec.superpose(alt_traj_rec,atom_indices=small_bs_idxs,ref_atom_indices=alt_map)
+                alt_traj_rec = mdj.Trajectory(newpos_small, small_top)
+                alt_traj_rec.superpose(alt_traj_rec,
+                                       atom_indices=small_bs_idxs,
+                                       ref_atom_indices=alt_map)
                 for i in range(num_walkers-1):
-                    for j in range(i+1,num_walkers):
-                        dtest = geomm.rmsd.rmsd_one_frame(traj_rec.xyz[i],alt_traj_rec.xyz[j],small_lig_idxs)
+                    for j in range(i+1, num_walkers):
+                        dtest = rmsd_one_frame(traj_rec.xyz[i], alt_traj_rec.xyz[j],
+                                               small_lig_idxs)
                         if dtest < d[i][j]:
                             d[i][j] = dtest
                             d[j][i] = dtest
-        
+
         return d
 
 class OpenMMRebindingDistance(OpenMMDistance):
@@ -90,12 +107,13 @@ class OpenMMRebindingDistance(OpenMMDistance):
     # to the binding site atoms, and taking the RMSD of the ligand atoms.  It uses alternative maps
     # for the binding site atoms when defined, and aligns to all alternative maps, returning the
     # minimum RMSD computed over all maps.
-    def __init__(self, topology=None, ligand_idxs=None, binding_site_idxs=None, alt_maps=None, comp_xyz=None):
+    def __init__(self, topology=None, ligand_idxs=None, binding_site_idxs=None,
+                 alt_maps=None, comp_xyz=None):
         self.topology = topology
         self.ligand_idxs = ligand_idxs
         self.binding_site_idxs = binding_site_idxs
         self.alt_maps = alt_maps
-        
+
         self.comp_traj = self._make_comp_traj(comp_xyz)
         # alt_maps are alternative mappings to the binding site
         # this program now assumes that all atoms in alternative maps are contained in binding_site_idxs list
@@ -104,31 +122,36 @@ class OpenMMRebindingDistance(OpenMMDistance):
 
     def _make_comp_traj(self, comp_xyz):
         small_lig_idxs = np.array(range(len(self.ligand_idxs)))
-        small_bs_idxs = np.array(range(len(self.ligand_idxs),len(self.ligand_idxs)+len(self.binding_site_idxs)))
-        keep_atoms = np.concatenate((self.ligand_idxs,self.binding_site_idxs),axis=0)
+        small_bs_idxs = np.array(range(len(self.ligand_idxs),
+                                       len(self.ligand_idxs)+len(self.binding_site_idxs)))
+        keep_atoms = np.concatenate((self.ligand_idxs, self.binding_site_idxs), axis=0)
         small_top = self.topology.subset(keep_atoms)
         small_pos = np.array(comp_xyz)[:,keep_atoms,:]
-        
-        return mdj.Trajectory(small_pos,small_top)
-                
+
+        return mdj.Trajectory(small_pos, small_top)
+
     def get_rmsd_native(self, walkers):
         num_walkers = len(walkers)
 
         small_lig_idxs = np.array(range(len(self.ligand_idxs)))
-        small_bs_idxs = np.array(range(len(self.ligand_idxs),len(self.ligand_idxs)+len(self.binding_site_idxs)))
-        keep_atoms = np.concatenate((self.ligand_idxs,self.binding_site_idxs),axis=0)
-        
-        small_pos = self._xyz_from_walkers(walkers,keep_atoms)
+        small_bs_idxs = np.array(range(len(self.ligand_idxs),
+                                       len(self.ligand_idxs)+len(self.binding_site_idxs)))
+        keep_atoms = np.concatenate((self.ligand_idxs, self.binding_site_idxs), axis=0)
+
+        small_pos = self._xyz_from_walkers(walkers, keep_atoms)
         box_lengths = self._box_from_walkers(walkers)
-        newpos_small = geomm.recentering.recenter_receptor_ligand(small_pos,box_lengths,ligand_idxs=small_lig_idxs,receptor_idxs=small_bs_idxs)
+        newpos_small = recenter_receptor_ligand(small_pos, box_lengths,
+                                                ligand_idxs=small_lig_idxs,
+                                                receptor_idxs=small_bs_idxs)
 
         small_top = self.topology.subset(keep_atoms)
-        traj_rec = mdj.Trajectory(newpos_small,small_top)
+        traj_rec = mdj.Trajectory(newpos_small, small_top)
 
-        traj_rec.superpose(self.comp_traj,atom_indices=small_bs_idxs)
+        traj_rec.superpose(self.comp_traj, atom_indices=small_bs_idxs)
         rmsd_native = np.zeros((num_walkers))
         for i in range(num_walkers):
-            rmsd_native[i] = geomm.rmsd.rmsd_one_frame(traj_rec.xyz[i],self.comp_traj.xyz[0],small_lig_idxs)
+            rmsd_native[i] = rmsd_one_frame(traj_rec.xyz[i], self.comp_traj.xyz[0],
+                                            small_lig_idxs)
 
         if self.alt_maps is not None:
             # figure out the "small" alternative maps
@@ -136,27 +159,33 @@ class OpenMMRebindingDistance(OpenMMDistance):
             for i, a in enumerate(self.alt_maps):
                 for j, e in enumerate(a):
                     try:
-                        small_alt_maps[i][j] = list(self.binding_site_idxs).index(e) + len(self.ligand_idxs)
+                        small_alt_maps[i][j] = list(self.binding_site_idxs).index(e) +\
+                                               len(self.ligand_idxs)
                     except:
-                        raise Exception('Alternative maps are assumed to be permutations of existing binding site indices')
+                        raise Exception(
+                            'Alternative maps are assumed to be permutations of'
+                            ' existing binding site indices')
 
             for alt_map in small_alt_maps:
                 alt_traj_rec = mdj.Trajectory(newpos_small,small_top)
-                alt_traj_rec.superpose(self.comp_traj,atom_indices=small_bs_idxs,ref_atom_indices=alt_map)
+                alt_traj_rec.superpose(self.comp_traj,
+                                       atom_indices=small_bs_idxs,
+                                       ref_atom_indices=alt_map)
                 for i in range(num_walkers):
-                    dtest = geomm.rmsd.rmsd_one_frame(alt_traj_rec.xyz[i],self.comp_traj.xyz[0],small_lig_idxs)
+                    dtest = rmsd_one_frame(alt_traj_rec.xyz[i], self.comp_traj.xyz[0],
+                                           small_lig_idxs)
                     if dtest < rmsd_native[i]:
                         rmsd_native[i] = dtest
         return rmsd_native
-        
+
     def distance(self, walkers):
         num_walkers = len(walkers)
         rmsd_native = self.get_rmsd_native(walkers)
-        d = np.zeros((num_walkers,num_walkers))
+        d = np.zeros((num_walkers, num_walkers))
         for i in range(num_walkers-1):
             d[i][i] = 0
             for j in range(i+1,num_walkers):
-                d[i][j] = abs(1./rmsd_native[i] - 1./rmsd_native[j])                
+                d[i][j] = abs(1./rmsd_native[i] - 1./rmsd_native[j])
                 d[j][i] = d[i][j]
 
         return d
@@ -166,15 +195,20 @@ class OpenMMNormalModeDistance(OpenMMDistance):
     # distance in "normal mode space". The NM coordinates are determined by aligning a structure to
     # align_xyz, and obtaining the dot product of a subset of coordinates (specified by align_idxs, typically
     # C-alphas), to a set of modes contained in modefile.
-    def __init__(self, topology=None, align_idxs=None, align_xyz=None, n_modes=5, modefile=None):
+    def __init__(self, topology=None,
+                 align_idxs=None,
+                 align_xyz=None,
+                 n_modes=5,
+                 modefile=None):
+
         self.topology = topology
         self.n_modes = n_modes
         self.align_idxs = align_idxs
-        
+
         assert len(align_xyz[0]) == len(align_idxs), "align_xyz and align_idxs must have the same number of atoms"
         self.small_top = self.topology.subset(align_idxs)
-        self.align_traj = mdj.Trajectory(align_xyz,small_top)
-        
+        self.align_traj = mdj.Trajectory(align_xyz, small_top)
+
         try:
             modes = np.loadtxt(modefile)
         except:
@@ -182,14 +216,14 @@ class OpenMMNormalModeDistance(OpenMMDistance):
         for m in modes.T:
             assert len(m) == 3*len(align_idxs), "Number of elements in each mode must be 3X the number of atoms"
         self.modes = modes.T
-        
+
     def distance(self, walkers):
         num_walkers = len(walkers)
 
         keep_atoms = np.array(self.align_idxs)
         small_pos = self._xyz_from_walkers(walkers,keep_atoms)
         box_lengths = self._box_from_walkers(walkers)
-        
+
         traj_rec = mdj.Trajectory(small_pos,self.small_top)
         traj_rec.superpose(self.align_traj)
 
@@ -210,29 +244,38 @@ class OpenMMNormalModeDistance(OpenMMDistance):
         return d
 
 class OpenMMHBondDistance(OpenMMDistance):
-    # The distance function here returns a distance matrix where the element (d_ij) is the
-    # distance in "interaction space". A vector is built for each structure where the elements
-    # describe the presence of a particular hydrogen bond between two atom selections (ligand_idxs and binding_site_idxs).
-    # The hydrogen bonds are enumerated and detected by the mastic package.
-    def __init__(self, ligand_idxs=None, protein_idxs=None, profiler=None, sys_type=None, dsmall=3.5, dlarge=6.0, ang_min=100):
+    # The distance function here returns a distance matrix where the
+    # element (d_ij) is the distance in "interaction space". A vector
+    # is built for each structure where the elements describe the
+    # presence of a particular hydrogen bond between two atom
+    # selections (ligand_idxs and binding_site_idxs).  The hydrogen
+    # bonds are enumerated and detected by the mastic package.
+
+    def __init__(self, ligand_idxs=None, protein_idxs=None,
+                 profiler=None, sys_type=None,
+                 dsmall=3.5, dlarge=6.0, ang_min=100):
+
         self.ligand_idxs = ligand_idxs
         self.protein_idxs = protein_idxs
         self.profiler = profiler
         self.sys_type = sys_type
-        self.inte_list = [] # list of interactions, which define axes in the interaction space, will grow as sim goes on
+        # list of interactions, which define axes in the interaction
+        # space, will grow as sim goes on
+        self.inte_list = []
         self.dsmall = dsmall
         self.dlarge = dlarge
         self.ang_min = ang_min
 
     def quantify_inte(self, ang, dist):
-        # smoothly quantifies the presence of a hydrogen bond given the angle and distance
+        # smoothly quantifies the presence of a hydrogen bond given
+        # the angle and distance
         if dist < self.dsmall:
             ds = 1
         else:
             ds = 1.0 - (dist - self.dsmall)/(self.dlarge - self.dsmall)
         if ds < 0:
             ds = 0
-            
+
         if ang > 180:
             ang -= 360
         if ang < 0:
@@ -243,12 +286,12 @@ class OpenMMHBondDistance(OpenMMDistance):
             ang_s = 1.0 - (self.ang_min - ang)/self.ang_min
         if ang_s < 0:
             ang_s = 0
-            
+
         strength = ds*ang_s
         return strength
-        
+
     def vectorize_profiles(self, profiles, n_walkers):
-        
+
         inte_vec = [np.array([]) for i in range(n_walkers)]
         for i in range(n_walkers):
             inte_vec[i] = np.zeros(np.size(self.inte_list))
@@ -273,37 +316,40 @@ class OpenMMHBondDistance(OpenMMDistance):
                 inte_vec[i] = np.append(inte_vec[i],np.zeros(to_add))
         return inte_vec, names
 
-        
+
     def distance(self, walkers):
         n_walkers = len(walkers)
 
-        keep_atoms = np.concatenate((self.ligand_idxs,self.protein_idxs),axis=0)
+        keep_atoms = np.concatenate((self.ligand_idxs, self.protein_idxs),axis=0)
         small_lig_idxs = np.array(range(len(self.ligand_idxs)))
-        small_prot_idxs = np.array(range(len(self.ligand_idxs),len(self.ligand_idxs)+len(self.protein_idxs)))
+        small_prot_idxs = np.array(range(len(self.ligand_idxs),
+                                         len(self.ligand_idxs)+len(self.protein_idxs)))
 
         # recenter protein and ligand
-        small_pos = self._xyz_from_walkers(walkers,keep_atoms)
+        small_pos = self._xyz_from_walkers(walkers, keep_atoms)
         box_lengths = self._box_from_walkers(walkers)
-        newpos_small = geomm.recentering.recenter_receptor_ligand(small_pos,box_lengths,ligand_idxs=small_lig_idxs,receptor_idxs=small_prot_idxs)
-        
+        newpos_small = recenter_receptor_ligand(small_pos, box_lengths,
+                                                ligand_idxs=small_lig_idxs,
+                                                receptor_idxs=small_prot_idxs)
+
         # profile ligand-protein interactions for each walker (in parallel)
         profiles = [[] for i in range(n_walkers)]
         for i in range(n_walkers):
             # pass coordinates in angstroms
-            coords = [10*newpos_small[i][small_lig_idxs],10*newpos_small[i][small_prot_idxs]]
+            coords = [10*newpos_small[i][small_lig_idxs],
+                      10*newpos_small[i][small_prot_idxs]]
             system = self.sys_type.to_system(coords)
             profiles[i] = self.profiler.profile(system)
 
         # vectorize profiles (in serial)
-        inte_vec, names = self.vectorize_profiles(profiles,n_walkers)
+        inte_vec, names = self.vectorize_profiles(profiles, n_walkers)
 
         # calculate distance matrix in interaction space
-        d = np.zeros((n_walkers,n_walkers))
+        d = np.zeros((n_walkers, n_walkers))
         for i in range(n_walkers):
             for j in range(i+1, n_walkers):
-                dval = np.linalg.norm(inte_vec[i]-inte_vec[j],ord=2)
+                dval = np.linalg.norm(inte_vec[i]-inte_vec[j], ord=2)
                 d[i][j] = dval
                 d[j][i] = dval
 
         return d
-
