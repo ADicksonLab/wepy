@@ -1635,7 +1635,8 @@ class WepyHDF5(object):
         run_grp = self.run(run_idx)
 
         # save the instruction_dtypes_tokens in the object
-        self.instruction_dtypes_tokens[run_idx] = instruction_dtypes_tokens
+        self.instruction_dtypes_tokens[run_idx] = {enum.name : value for enum, value
+                                                   in instruction_dtypes_tokens.items()}
 
         # init a resampling group
         # initialize the resampling group
@@ -2295,6 +2296,7 @@ class WepyHDF5(object):
     def _add_varlength_instruction_record(self, run_idx, decision_key,
                                           cycle_idx, step_idx, walker_idx,
                                           instruct_record):
+
         # the isntruction record group
         instruct_grp = self._h5['runs/{}/resampling/records/{}'.format(run_idx, decision_key)]
         # the dataset of initialized datasets for different widths
@@ -2325,8 +2327,10 @@ class WepyHDF5(object):
         else:
             dset = instruct_grp[str(len(instruct_record))]
 
-        # make the complete record to add to the dataset
-        record = (cycle_idx, step_idx, walker_idx, instruct_record)
+        # make the complete record to add to the dataset, need to
+        # convert the instruct record to a normal tuple instead of the
+        # custom variable length record class
+        record = (cycle_idx, step_idx, walker_idx, tuple(instruct_record))
         # add the record to the dataset
         self._append_instruct_records(dset, [record])
 
@@ -2732,7 +2736,7 @@ class WepyHDF5(object):
 
         results = map_func(func, self.iter_trajs_fields(fields, traj_sel=traj_sel, idxs=False,
                                                         debug_prints=debug_prints),
-                           *mapped_args)
+                           *args)
 
         if idxs:
             if traj_sel is None:
@@ -2766,8 +2770,8 @@ class WepyHDF5(object):
             results = []
 
         for result in self.traj_fields_map(func, fields, *args,
-                                       map_func=map_func, traj_sel=traj_sel, idxs=True,
-                                       debug_prints=debug_prints):
+                                           map_func=map_func, traj_sel=traj_sel, idxs=True,
+                                           debug_prints=debug_prints):
 
             idx_tup, obs_features = result
             run_idx, traj_idx = idx_tup
@@ -2989,13 +2993,14 @@ def _warn_unknown_kwargs(**kwargs):
 
 def _instruction_is_variable_length(instruction_dtype_tokens):
 
-    # examine it for usage of Nones in field names of struct dtype tokens
+    # if the field name for a datatype has Ellipsis in it the value is
+    # variable length
     variable_length = False
     for i, token in enumerate(instruction_dtype_tokens):
-        if token[0] is None:
+        if token[0] is Ellipsis:
             # check whether the None is in the right place, i.e. last position
             if i != len(instruction_dtype_tokens) - 1:
-                raise TypeError("None (variable length) field must be the"
+                raise TypeError("Ellipsis (variable length) field must be in the"
                                 "last token in the instruction dtype dict")
             else:
                 variable_length = True
@@ -3023,8 +3028,9 @@ def _make_numpy_varlength_instruction_dtype(varlength_instruct_type, varlength_w
     # given length
     dtype_tokens = []
     for token in varlength_instruct_type:
-        # if this is the None token
-        if token[0] is None:
+        # if this is the Ellipsis token we start the variable length
+        # fields
+        if token[0] is Ellipsis:
             # we replace it with multiple tokens of the type given
             # in the tokens tuple
             for i in range(varlength_width):

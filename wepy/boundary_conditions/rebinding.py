@@ -99,7 +99,6 @@ class RebindingBC(BoundaryConditions):
         cycle_warp_data = defaultdict(list)
 
         native_rmsds = self.native_distance.get_rmsd_native(walkers)
-
         for walker_idx, walker in enumerate(walkers):
             # check if it is unbound, also gives the minimum distance
             # between guest and host

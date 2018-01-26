@@ -13,8 +13,8 @@ class UnbindingBC(BoundaryConditions):
 
     WARP_INSTRUCT_DTYPE = np.dtype([('target', int)])
 
-    WARP_AUX_DTYPES = {'passage_time' :  np.float, 'warped_walker_weight' : np.float}
-    WARP_AUX_SHAPES = {'passage_time' : (1,), 'warped_walker_weight' : (1,)}
+    WARP_AUX_DTYPES = {'cycle' : np.int, 'passage_time' :  np.float, 'warped_walker_weight' : np.float}
+    WARP_AUX_SHAPES = {'cycle' : (1,), 'passage_time' : (1,), 'warped_walker_weight' : (1,)}
 
     def __init__(self, initial_state=None,
                  cutoff_distance=1.0,
@@ -92,7 +92,7 @@ class UnbindingBC(BoundaryConditions):
 
         return unbound, boundary_data
 
-    def warp(self, walker):
+    def warp(self, walker, cycle):
 
         # we always start at the initial state
         warped_state = self.initial_state
@@ -111,7 +111,7 @@ class UnbindingBC(BoundaryConditions):
         # of type `array` while weights will always be floats in all
         # applications.
         time = walker.time_value()
-        warp_data = {'passage_time' : time,
+        warp_data = {'cycle' : np.array([cycle]), 'passage_time' : time,
                      'warped_walker_weight' : np.array([walker.weight])}
 
         # make the warp data mapping
@@ -119,7 +119,7 @@ class UnbindingBC(BoundaryConditions):
 
         return warped_walker, warp_record, warp_data
 
-    def warp_walkers(self, walkers, debug_prints=False):
+    def warp_walkers(self, walkers, cycle, debug_prints=False):
 
         new_walkers = []
         warped_walkers_records = []
@@ -143,7 +143,7 @@ class UnbindingBC(BoundaryConditions):
             if unbound:
                 # import ipdb; ipdb.set_trace()
                 # warp the walker
-                warped_walker, warp_record, warp_data = self.warp(walker)
+                warped_walker, warp_record, warp_data = self.warp(walker,cycle)
 
                 # save warped_walker in the list of new walkers to return
                 new_walkers.append(warped_walker)

@@ -1,6 +1,5 @@
 import pickle
 
-import h5py
 import numpy as np
 import pandas as pd
 
@@ -12,11 +11,12 @@ import mdtraj as mdj
 
 from wepy.sim_manager import Manager
 from wepy.resampling.wexplore2 import WExplore2Resampler
+from wepy.resampling.distances import OpenMMUnbindingDistance
 from wepy.openmm import OpenMMRunner, OpenMMWalker
 from wepy.openmm import UNITS
 from wepy.boundary_conditions.unbinding import UnbindingBC
 from wepy.reporter.hdf5 import WepyHDF5Reporter
-from wepy.hdf5 import TrajHDF5
+from wepy.reporter.reporter import WalkersPickleReporter
 from wepy.work_mapper.gpu import GPUMapper
 
 if __name__ == "__main__":
@@ -103,12 +103,15 @@ if __name__ == "__main__":
     # a list of the initial walkers
     init_walkers = [OpenMMWalker(omm_state, init_weight) for i in range(num_walkers)]
 
+    # set up unbinding distance function
+    unb_distance = OpenMMUnbindingDistance(topology=pdb.topology,
+                                           ligand_idxs=lig_idxs,
+                                           binding_site_idxs=binding_selection_idxs)
+    
     # set up the WExplore2 Resampler with the parameters
-    resampler = WExplore2Resampler(topology=pdb.topology,
-                                   ligand_idxs=lig_idxs,
-                                   binding_site_idxs=binding_selection_idxs,
+    resampler = WExplore2Resampler(distance_function=unb_distance,
                                    # algorithm parameters
-                                   pmax=0.1)
+                                   pmax=0.5)
 
     # makes ref_traj and selects lingand_atom and protein atom  indices
     # instantiate a wexplore2 unbindingboudaryconditiobs
@@ -133,20 +136,23 @@ if __name__ == "__main__":
 
     # instantiate a reporter for HDF5
     report_path = 'wepy_results.h5'
-    reporter = WepyHDF5Reporter(report_path, mode='w',
-                                decisions=resampler.DECISION,
-                                instruction_dtypes=resampler.INSTRUCTION_DTYPES,
-                                resampling_aux_dtypes=None,
-                                resampling_aux_shapes=None,
-                                warp_dtype=ubc.WARP_INSTRUCT_DTYPE,
-                                warp_aux_dtypes=ubc.WARP_AUX_DTYPES,
-                                warp_aux_shapes=ubc.WARP_AUX_SHAPES,
-                                topology=sEH_TPPU_system_top_json,
-                                units=units)
-
+    hdf5_reporter = WepyHDF5Reporter(report_path, mode='w',
+                                     save_fields=['positions', 'box_vectors', 'velocities'],
+                                     decisions=resampler.DECISION,
+                                     instruction_dtypes=resampler.INSTRUCTION_DTYPES,
+                                     resampling_aux_dtypes=None,
+                                     resampling_aux_shapes=None,
+                                     warp_dtype=ubc.WARP_INSTRUCT_DTYPE,
+                                     warp_aux_dtypes=ubc.WARP_AUX_DTYPES,
+                                     warp_aux_shapes=ubc.WARP_AUX_SHAPES,
+                                     topology=sEH_TPPU_system_top_json,
+                                     units=units,
+                                     sparse_fields={'velocities' : 10})
+    
+    pkl_reporter = WalkersPickleReporter(save_dir='./pickle_backups', freq=1, num_backups=2)
 
     # create a work mapper for NVIDIA GPUs for a GPU cluster
-    num_workers = 8
+    num_workers = 4
     gpumapper  = GPUMapper(num_walkers, n_workers=num_workers)
 
     # Instantiate a simulation manager
@@ -155,9 +161,9 @@ if __name__ == "__main__":
                           resampler=resampler,
                           boundary_conditions=ubc,
                           work_mapper=gpumapper.map,
-                          reporter=reporter)
-    n_steps = 100
-    n_cycles = 2
+                          reporters=[hdf5_reporter,pkl_reporter])
+    n_steps = 10000
+    n_cycles = 10
 
     # run a simulation with the manager for n_steps cycles of length 1000 each
     steps = [ n_steps for i in range(n_cycles)]

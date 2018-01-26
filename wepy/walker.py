@@ -1,17 +1,37 @@
+import random as rand
+
+def split(walker, number=2):
+    # calculate the weight of all child walkers split uniformly
+    split_prob = walker.weight / (number)
+    # make the clones
+    clones = []
+    for i in range(number):
+        clones.append(type(walker)(walker.state, split_prob))
+
+    return clones
+
+def keep_merge(walkers, keep_idx):
+
+    weights = [walker.weight for walker in walkers]
+    # but we add their weight to the new walker
+    new_weight = sum(weights)
+    # create a new walker with the keep_walker state
+    new_walker = type(walkers[0])(walkers[keep_idx].state, new_weight)
+
+    return new_walker
 
 def merge(walkers):
     """Merge this walker with another keeping the state of one of them
     and adding the weights. """
 
     weights = [walker.weight for walker in walkers]
-    # choose a walker according to their weights
+    # choose a walker according to their weights to keep its state
     keep_walker = rand.choices(walkers, weights=weights)
-    # index of the kept walker
     keep_idx = walkers.index(keep_walker)
 
     # TODO do we need this?
     # the others are "squashed" and we lose their state
-    squashed_walkers = set(walkers).difference(keep_walker)
+    # squashed_walkers = set(walkers).difference(keep_walker)
 
     # but we add their weight to the new walker
     new_weight = sum(weights)
