@@ -23,7 +23,6 @@ class Resampler(object):
 
     def assign_merges(self, merge_groups, walker_clone_nums):
 
-        import ipdb; ipdb.set_trace()
         n_walkers = len(walker_clone_nums)
 
         # determine resampling actions
