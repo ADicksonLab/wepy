@@ -81,7 +81,7 @@ if __name__ == "__main__":
     resampler = WExplore2Resampler(scorer=scorer,
                                    pmax=0.5)
 
-    ubc = UnbindingBC(cutoff_distance=0.5,
+    ubc = UnbindingBC(cutoff_distance=2.0,
                       initial_state=init_walkers[0].state,
                       topology=mdtraj_topology,
                       ligand_idxs=np.array(test_sys.ligand_indices),
@@ -94,7 +94,7 @@ if __name__ == "__main__":
     # make a dictionary of units for adding to the HDF5
     units = dict(UNIT_NAMES)
 
-    report_path = 'results.wepy.h5'
+    report_path = 'wexplore2_results.wepy.h5'
     # open it in truncate mode first, then switch after first run
     hdf5_reporter = WepyHDF5Reporter(report_path, mode='w',
                                     save_fields=['positions', 'box_vectors', 'velocities'],

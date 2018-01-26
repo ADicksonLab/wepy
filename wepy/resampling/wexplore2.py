@@ -111,14 +111,25 @@ class WExplore2Resampler(Resampler):
         while productive:
             productive = False
             # find min and max wsums, alter new_amp
+
+            # initialize to None, we may not find one of each
             minwind = None
             maxwind = None
 
             # selects a walker with minimum wsum and a walker with
             # maximum wsum walker (distance to other walkers) will be
-            # tagged for cloning (stored in maxwind)
-            max_tups = [(value, i) for i, value in enumerate(wsum)
-                        if (new_amp[i] >= 1) and (new_wt[i]/(new_amp[i] + 1) > self.pmin)]
+            # tagged for cloning (stored in maxwind), except if it is
+            # already a keep merge target
+            max_tups = []
+            for i, value in enumerate(wsum):
+                # 1. must have an amp >=1 which gives the number of clones to be made of it
+                # 2. clones for the given amplitude must not be smaller than the minimum probability
+                # 3. must not already be a keep merge target
+                if (new_amp[i] >= 1) and \
+                   (new_wt[i]/(new_amp[i] + 1) > self.pmin) and \
+                   (len(merge_groups[i]) == 0):
+                    max_tups.append((value, i))
+
 
             if len(max_tups) > 0:
                 maxvalue, maxwind = max(max_tups)
@@ -132,22 +143,32 @@ class WExplore2Resampler(Resampler):
                 minvalue, minwind = min(min_tups)
 
             # does minwind have an eligible merging partner?
-            closedist = self.merge_dist
+            # closedist = self.merge_dist
             closewalk = None
             condition_list = np.array([i is not None for i in [minwind, maxwind]])
             if condition_list.all() and minwind != maxwind:
 
-                closewalk_available = set(range(n_walkers)).difference([minwind, maxwind])
-                closewalk_available = [idx for idx in closewalk_available
+                # get the walkers that aren't the minimum and the max
+                # wsum walkers, as candidates for merging
+                closewalks = set(range(n_walkers)).difference([minwind, maxwind])
+
+                # remove those walkers that if they were merged with
+                # the min wsum walker would violate the pmax
+                closewalks = [idx for idx in closewalks
                                       if (new_amp[idx]==1) and
                                        (new_wt[idx] + new_wt[minwind] < self.pmax)
                                       ]
 
-                if len(closewalk_available) > 0:
-                    tups = [(distance_matrix[minwind][i], i) for i in closewalk_available
+                # if there are any walkers left, get the distances of
+                # the close walkers to the min wsum walker if that
+                # distance is less than the maximum merge distance
+                if len(closewalks) > 0:
+                    closewalks_dists = [(distance_matrix[minwind][i], i) for i in closewalks
                                             if distance_matrix[minwind][i] < (self.merge_dist)]
-                    if len(tups) > 0:
-                        closedist, closewalk = min(tups)
+
+                    # if any were found set this as the closewalk
+                    if len(closewalks_dists) > 0:
+                        closedist, closewalk = min(closewalks_dists)
 
 
             # did we find a closewalk?
@@ -187,6 +208,17 @@ class WExplore2Resampler(Resampler):
                     else:
                         keep_idx = minwind
                         squash_idx = closewalk
+
+                    if keep_idx == maxwind:
+                        import ipdb; ipdb.set_trace()
+
+                    if len(merge_groups[maxwind]) > 0:
+                        import ipdb; ipdb.set_trace()
+                        print("Attempting to clone a walker which is a keep idx of a merge group")
+
+                    if walker_clone_nums[keep_idx] > 0:
+                        import ipdb; ipdb.set_trace()
+                        print("Attempting to merge a walker which is to be cloned")
 
                     # update weight
                     new_wt[keep_idx] += new_wt[squash_idx]
