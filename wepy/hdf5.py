@@ -1,5 +1,6 @@
 from collections import Iterable, Sequence
 from types import GeneratorType
+import itertools as it
 
 import json
 from warnings import warn
@@ -81,8 +82,14 @@ COMPOUND_UNIT_FIELDS = ('parameters', 'parameter_derivatives', 'observables')
 SPARSE_DATA_FIELDS = ('velocities', 'forces', 'kinetic_energy', 'potential_energy',
                       'box_volume', 'parameters', 'parameter_derivatives', 'observables')
 
+RESAMPLING_RECORDS_FIELDS = ('cycle_idx', 'step_idx', 'walker_idx',
+                             'decision_id', 'instruction')
+
 # decision instructions can be variable or fixed width
 INSTRUCTION_TYPES = ('VARIABLE', 'FIXED')
+
+
+
 
 ## Dataset Compliances
 # a file which has different levels of keys can be used for
@@ -2833,34 +2840,52 @@ class WepyHDF5(object):
             # if this is a decision with variable length instructions
             if self._instruction_varlength_flags(run_idx)[dec_name][()]:
                 dec_grp = res_grp[dec_name]
+                recs = []
                 # go through each dataset of different records
                 for init_length in dec_grp['_initialized'][:]:
                     rec_ds = dec_grp['{}'.format(init_length)]
 
-                    # make tuples for the decision and the records
-                    tups = zip((dec_id for i in range(rec_ds.shape[0])), rec_ds)
+                    # reorder for to match the field order
+                    recs = [rec_ds[field] for field in ['cycle_idx', 'step_idx', 'walker_idx']]
+                    # fill up a column for the decision id
+                    recs.append(np.full((rec_ds.shape[0],), dec_id))
+                    # put the instructions last
+                    recs.append(rec_ds['instruction'])
 
-                    # save the tuples
-                    res_recs.extend(list(tups))
+                    # make an array
+                    recs = np.array(recs)
+                    # swap the axes so it is row-oriented
+                    recs = np.swapaxes(recs, 0, 1)
+
+                    # return to a list of lists and save into the full record
+                    res_recs.append([tuple(row) for row in recs])
+
             else:
                 rec_ds = res_grp[dec_name]
-                # make tuples for the decision and the records
-                tups = zip((dec_id for i in range(rec_ds.shape[0])), rec_ds)
 
-                # save the tuples
-                res_recs.extend(list(tups))
+                # reorder for to match the field order
+                recs = [rec_ds[field] for field in ['cycle_idx', 'step_idx', 'walker_idx']]
+                # fill up a column for the decision id
+                recs.append(np.full((rec_ds.shape[0],), dec_id))
+                # put the instructions last
+                recs.append(rec_ds['instruction'])
 
-        return res_recs
+                # make an array
+                recs = np.array(recs)
+                # swap the axes so it is row-oriented
+                recs = np.swapaxes(recs, 0, 1)
+
+                # return to a list of lists and save into the full record
+                res_recs.append([tuple(row) for row in recs])
+
+        # combine them all into one list
+        res_recs = it.chain(*res_recs)
+
+        return list(res_recs)
 
     def resampling_records_dataframe(self, run_idx):
-        records = self.resampling_records(run_idx)
 
-        records = [(tup[0], *tup[1]) for tup in records]
-
-        colnames = ['decision_id', 'cycle_idx', 'step_idx', 'walker_idx', 'instruction_record']
-
-        df = pd.DataFrame(data=records, columns=colnames)
-        return df
+        return pd.DataFrame(data=self.resampling_records(run_idx), columns=RESAMPLING_RECORDS_FIELDS)
 
 
     def join(self, other_h5):

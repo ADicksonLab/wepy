@@ -1,39 +1,61 @@
-from wepy.resampling.decision import MultiCloneMergeDecision
+from wepy.resampling.decisions.clone_merge import CloneMergeDecisionEnum
 
-def clone_parent_panel(clone_merge_resampling_record):
-    # only the parents from the last stage of a cycle resampling
-    full_parent_panel = []
+from wepy.hdf5 import RESAMPLING_RECORDS_FIELDS
 
-    # each cycle
-    for cycle_idx, cycle_stages in enumerate(clone_merge_resampling_record):
+ANCESTOR_DECISION_IDS = (CloneMergeDecisionEnum.NOTHING.value,
+                         CloneMergeDecisionEnum.KEEP_MERGE.value,
+                         CloneMergeDecisionEnum.CLONE.value,)
+
+def clone_parent_panel(resampling_records):
+
+    parent_panel = []
+
+    # initialize the first cycle as the initial walkers, in a single
+    # stage
+    init_parent_table = [ [i for i in range(len(cycle_stages[0]))] ]
+    parent_panel.append(parent_panel)
+
+    # each cycle after the first cycle
+    for record_idx, resampling_record in enumerate(resampling_records):
 
         # each stage in the resampling for that cycle
         # make a stage parent table
-        stage_parent_table = []
+        cycle_parent_table = []
+
+        # now iterate through the rest of the stages
         for stage_idx, stage in enumerate(cycle_stages):
 
-            # the initial parents are just their own indices
-            stage_parents = [i for i in range(len(stage))]
-            # add it to the stage parents matrix
-            stage_parent_table.append(stage_parents)
+            # initialize a list for the parents of this stages walkers
+            stage_parents = [None for i in range(len(stage))]
+
             # the rest of the stages parents are based on the previous stage
             for parent_idx, resampling_record in enumerate(stage):
+
+                # get the field values by their field name
+                rec_map = {name : resampling_record[i] for i, name in
+                           enumerate(RESAMPLING_RECORDS_FIELDS)}
+
                 # the stage parents for the next stage, initialize to
                 # the same idx
-                stage_parents = [i for i in range(len(stage))]
+                # stage_parents = [i for i in range(len(stage))]
+
+                # if the decision for this resampling record is an
+                # ancestor decision type we want to write the parents
+                # for the next stage
+                
                 # if the parent is NOTHING or KEEP_MERGE it will have an index
-                if resampling_record.decision in [MultiCloneMergeDecision.ENUM.NOTHING,
-                                                  MultiCloneMergeDecision.ENUM.KEEP_MERGE]:
+                if any([rec_map['decision_id'] ==  in [CloneMergeDecisionEnum.NOTHING.value,
+                                                  CloneMergeDecisionEnum.KEEP_MERGE.value]]):
                     # single child
                     child_idx = resampling_record.instruction
                     # set the parent in the next row to this parent_idx
                     stage_parents[child_idx] = parent_idx
                 # if it is CLONE it will have 2 indices
-                elif resampling_record.decision is MultiCloneMergeDecision.ENUM.CLONE:
+                elif resampling_record.decision == CloneMergeDecisionEnum.CLONE.value:
                     children = resampling_record.instruction[:]
                     for child_idx in children:
                         stage_parents[child_idx] = parent_idx
-                elif resampling_record.decision  is MultiCloneMergeDecision.ENUM.SQUASH:
+                elif resampling_record.decision == CloneMergeDecisionEnum.SQUASH.value:
                     # do nothing this one has no children
                     pass
                 else:
@@ -71,18 +93,18 @@ def clone_parent_table(clone_merge_resampling_record):
                 # the same idx
                 stage_parents = [i for i in range(len(stage))]
                 # if the parent is NOTHING or KEEP_MERGE it will have an index
-                if resampling_record.decision in [MultiCloneMergeDecision.ENUM.NOTHING,
-                                                  MultiCloneMergeDecision.ENUM.KEEP_MERGE]:
+                if resampling_record.decision in [CloneMergeDecisionEnum.NOTHING,
+                                                  CloneMergeDecisionEnum.KEEP_MERGE]:
                     # single child
                     child_idx = resampling_record.instruction
                     # set the parent in the next row to this parent_idx
                     stage_parents[child_idx] = parent_idx
                 # if it is CLONE it will have 2 indices
-                elif resampling_record.decision is MultiCloneMergeDecision.ENUM.CLONE:
+                elif resampling_record.decision is CloneMergeDecisionEnum.CLONE:
                     children = resampling_record.instruction[:]
                     for child_idx in children:
                         stage_parents[child_idx] = parent_idx
-                elif resampling_record.decision  is MultiCloneMergeDecision.ENUM.SQUASH:
+                elif resampling_record.decision  is CloneMergeDecisionEnum.SQUASH:
                     # do nothing this one has no children
                     pass
                 else:

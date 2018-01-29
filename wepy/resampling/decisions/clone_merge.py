@@ -7,16 +7,16 @@ from wepy.resampling.decisions.decision import Decision
 
 from wepy.walker import split, keep_merge
 
+# the possible types of decisions that can be made enumerated for
+# storage, these each correspond to specific instruction type
+class CloneMergeDecisionEnum(Enum):
+    NOTHING = 1
+    CLONE = 2
+    SQUASH = 3
+    KEEP_MERGE = 4
+
 
 class CloneMergeDecision(Decision):
-
-    # the possible types of decisions that can be made enumerated for
-    # storage, these each correspond to specific instruction type
-    class CloneMergeDecisionEnum(Enum):
-        NOTHING = 1
-        CLONE = 2
-        SQUASH = 3
-        KEEP_MERGE = 4
 
     ENUM = CloneMergeDecisionEnum
 
@@ -112,13 +112,6 @@ class CloneMergeDecision(Decision):
 
 class MultiCloneMergeDecision(Decision):
 
-    # the possible types of decisions that can be made enumerated for
-    # storage, these each correspond to specific instruction type
-    class CloneMergeDecisionEnum(Enum):
-        NOTHING = 1
-        CLONE = 2
-        SQUASH = 3
-        KEEP_MERGE = 4
 
     ENUM = CloneMergeDecisionEnum
 
