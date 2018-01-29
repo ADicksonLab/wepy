@@ -81,6 +81,10 @@ class WepyHDF5Reporter(FileReporter):
             # sparse fields dictionary
             self.sparse_fields["alt_reps/{}".format(self.ALL_ATOMS_REP_KEY)] = all_atoms_rep_freq
 
+        # if there are no sparse fields set it as an empty dictionary
+        if self.sparse_fields is None:
+            self.sparse_fields = {}
+
         # if units were given add them otherwise set as an empty dictionary
         if units is None:
             self.units = {}
