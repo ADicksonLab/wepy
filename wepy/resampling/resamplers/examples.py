@@ -6,7 +6,7 @@ from wepy.resampling.scoring.scorer import RandomScorer
 
 # for the monolithic resampler
 import random as rand
-from wepy.resampling.decisions.clone_merge import CloneMergeDecision
+from wepy.resampling.decisions.clone_merge import MultiCloneMergeDecision
 
 class RandomCloneMergeResampler(Resampler):
     """WIP do not use!!! Example of a resampler that uses the
@@ -30,7 +30,7 @@ class RandomCloneMergeResamplerMonolithic(Resampler):
     """
 
     # constants for the class
-    DECISION = CloneMergeDecision
+    DECISION = MultiCloneMergeDecision
     MIN_N_WALKERS = 3
 
     def __init__(self, seed=None, n_resamplings=10):

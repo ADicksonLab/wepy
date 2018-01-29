@@ -1020,6 +1020,7 @@ class WepyHDF5(object):
         # if we specify an atom subset of the main 'positions' field
         # we must save them
         self._main_rep_idxs = main_rep_idxs
+
         # a dictionary specifying other alt_reps to be saved
         if alt_reps is not None:
             self._alt_reps = alt_reps
@@ -1205,6 +1206,16 @@ class WepyHDF5(object):
             for i, sparse_field in enumerate(self._sparse_fields):
                 sparse_fields_ds[i] = sparse_field
 
+
+        # field feature shapes and dtypes
+
+        # initialize to the defaults
+        self._set_default_init_field_attributes(n_dims=self._n_dims)
+
+        # save the number of dimensions and number of atoms in settings
+        settings_grp.create_dataset('n_dims', data=np.array(self._n_dims))
+        settings_grp.create_dataset('n_atoms', data=np.array(self._n_coords))
+
         # the main rep atom idxs
         settings_grp.create_dataset('main_rep_idxs', data=self._main_rep_idxs, dtype=np.int)
 
@@ -1212,18 +1223,6 @@ class WepyHDF5(object):
         alt_reps_idxs_grp = settings_grp.create_group("alt_reps_idxs")
         for alt_rep_name, idxs in self._alt_reps.items():
             alt_reps_idxs_grp.create_dataset(alt_rep_name, data=idxs, dtype=np.int)
-
-
-        # field feature shapes and dtypes
-
-        # initialize to the defaults
-        if self._n_dims is None:
-            self._set_default_init_field_attributes(n_dims=self._n_dims)
-
-
-        # save the number of dimensions and number of atoms in settings
-        settings_grp.create_dataset('n_dims', data=np.array(self._n_dims))
-        settings_grp.create_dataset('n_atoms', data=np.array(self._n_coords))
 
         # if both feature shapes and dtypes were specified overwrite
         # (or initialize if not set by defaults) the defaults
