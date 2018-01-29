@@ -10,7 +10,7 @@ import random as rand
 import numpy as np
 import scoop.futures
 
-from wepy.runner import Runner
+from wepy.runners.runner import Runner
 from wepy.walker import Walker
 
 from simtk import unit
