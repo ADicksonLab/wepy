@@ -1363,6 +1363,7 @@ class WepyHDF5(object):
         # if not we count the number of atoms in the topology
         if self._main_rep_idxs is None:
             self._n_coords = _json_top_atom_count(self.topology)
+            self._main_rep_idxs = self._n_coords
         else:
             self._n_coords = len(self._main_rep_idxs)
 
