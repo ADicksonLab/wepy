@@ -2893,8 +2893,6 @@ class WepyHDF5(object):
     @staticmethod
     def resampling_panel(resampling_records, is_sorted=False):
 
-        import ipdb; ipdb.set_trace()
-
         resampling_panel = []
 
         # if the records are not sorted this must be done:
