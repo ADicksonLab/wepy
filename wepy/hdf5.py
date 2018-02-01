@@ -2829,7 +2829,7 @@ class WepyHDF5(object):
         if return_results:
             return results
 
-    def resampling_records(self, run_idx):
+    def resampling_records(self, run_idx, sort=True):
 
         res_grp = self.resampling_records_grp(run_idx)
         decision_enum = self.decision_enum(run_idx)
@@ -2879,13 +2879,131 @@ class WepyHDF5(object):
                 res_recs.append([tuple(row) for row in recs])
 
         # combine them all into one list
-        res_recs = it.chain(*res_recs)
+        res_recs = list(it.chain(*res_recs))
 
-        return list(res_recs)
+        if sort:
+            res_recs.sort()
+
+        return res_recs
 
     def resampling_records_dataframe(self, run_idx):
 
         return pd.DataFrame(data=self.resampling_records(run_idx), columns=RESAMPLING_RECORDS_FIELDS)
+
+    @staticmethod
+    def resampling_panel(resampling_records, is_sorted=False):
+
+        import ipdb; ipdb.set_trace()
+
+        resampling_panel = []
+
+        # if the records are not sorted this must be done:
+        if not is_sorted:
+            resampling_records.sort()
+
+        # iterate through the resampling records
+        rec_it = iter(resampling_records)
+        cycle_idx = 0
+        cycle_recs = []
+        stop = False
+        while not stop:
+
+            # iterate through records until either there is none left or
+            # until you get to the next cycle
+            cycle_stop = False
+            while not cycle_stop:
+                try:
+                    rec = next(rec_it)
+                except StopIteration:
+                    # this is the last record of all the records
+                    stop = True
+                    # this is the last record for the last cycle as well
+                    cycle_stop = True
+                    # alias for the current cycle
+                    curr_cycle_recs = cycle_recs
+                else:
+                    # if the resampling record retrieved is from the next
+                    # cycle we finish the last cycle
+                    if rec[RESAMPLING_RECORDS_FIELDS.index('cycle_idx')] > cycle_idx:
+                        cycle_stop = True
+                        # save the current cycle as a special
+                        # list which we will iterate through
+                        # to reduce down to the bare
+                        # resampling record
+                        curr_cycle_recs = cycle_recs
+
+                        # start a new cycle_recs for the record
+                        # we just got
+                        cycle_recs = [rec]
+                        cycle_idx += 1
+
+                if not cycle_stop:
+                    cycle_recs.append(rec)
+
+                else:
+
+                    # we need to break up the records in the cycle into steps
+                    cycle_table = []
+
+                    # temporary container for the step we are working on
+                    step_recs = []
+                    step_idx = 0
+                    step_stop = False
+                    cycle_it = iter(curr_cycle_recs)
+                    while not step_stop:
+                        try:
+                            cycle_rec = next(cycle_it)
+                        # stop the step if this is the last record for the cycle
+                        except StopIteration:
+                            step_stop = True
+                            # alias for the current step
+                            curr_step_recs = step_recs
+
+                        # or if the next stop index has been obtained
+                        else:
+                            if cycle_rec[RESAMPLING_RECORDS_FIELDS.index('step_idx')] > step_idx:
+                                step_stop = True
+                                # save the current step as a special
+                                # list which we will iterate through
+                                # to reduce down to the bare
+                                # resampling record
+                                curr_step_recs = step_recs
+
+                                # start a new step_recs for the record
+                                # we just got
+                                step_recs = [cycle_rec]
+                                step_idx += 1
+
+
+                        if not step_stop:
+                            step_recs.append(cycle_rec)
+                        else:
+                            # go through the walkers for this step since it is completed
+                            step_row = [None for i in range(len(curr_step_recs))]
+                            for walker_rec in curr_step_recs:
+
+                                # collect data from the record
+                                walker_idx = walker_rec[
+                                    RESAMPLING_RECORDS_FIELDS.index('walker_idx')]
+                                decision_id = walker_rec[
+                                    RESAMPLING_RECORDS_FIELDS.index('decision_id')]
+                                instruction = walker_rec[
+                                    RESAMPLING_RECORDS_FIELDS.index('instruction')]
+
+                                # set the resampling record for the walker in the step records
+                                step_row[walker_idx] = (decision_id, instruction)
+
+                            # add the records for this step to the cycle table
+                            cycle_table.append(step_row)
+
+            # add the table for this cycles records to the parent panel
+            resampling_panel.append(cycle_table)
+
+        return resampling_panel
+
+
+    def run_resampling_panel(self, run_idx):
+        return self.resampling_panel(self.resampling_records(run_idx))
 
 
     def join(self, other_h5):

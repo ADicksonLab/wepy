@@ -7,6 +7,7 @@ import numpy as np
 # the record type for all resampling records
 ResamplingRecord = namedtuple("ResamplingRecord", ['decision', 'instruction'])
 
+# for naming the fields of the VariableLengthRecord
 def _alphabet_iterator():
     num_chars = 1
     alphabet_it = iter(ascii_lowercase)
@@ -20,6 +21,8 @@ def _alphabet_iterator():
 
         yield letter * num_chars
 
+# class that mimics a namedtuple (for at least how it is used in wepy)
+# that doesn't specify the number of fields
 class VariableLengthRecord(object):
     def __init__(self, name, *values):
         self._fields = ()
