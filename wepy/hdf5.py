@@ -2412,6 +2412,15 @@ class WepyHDF5(object):
     def resampling_records_grp(self, run_idx):
         return self._h5['runs/{}/resampling/records'.format(run_idx)]
 
+    def resampling_aux_data_grp(self, run_idx):
+        return self._h5['runs/{}/resampling/aux_data'.format(run_idx)]
+
+    def resampling_aux_data_field(self, run_idx, field):
+
+        aux_grp = self.resampling_aux_data_grp(run_idx)
+
+        return aux_grp[field][:]
+
     def _instruction_varlength_flags(self, run_idx):
         varlength_grp = self._h5['runs/{}/resampling/decision/variable_length'.format(run_idx)]
         varlength = {}
@@ -2486,32 +2495,62 @@ class WepyHDF5(object):
                     self.bc_aux_shapes[key] = aux_data.shape
                     self._bc_aux_init.append(key)
 
-    def _get_contiguous_traj_field(self, run_idx, traj_idx, field_path):
+    def _get_contiguous_traj_field(self, run_idx, traj_idx, field_path, frames=None):
 
         full_path = "/runs/{}/trajectories/{}/{}".format(run_idx, traj_idx, field_path)
-        return self._h5[full_path][:]
 
-    def _get_sparse_traj_field(self, run_idx, traj_idx, field_path):
+        if frames is None:
+            field = self._h5[full_path][:]
+        else:
+            field = self._h5[full_path][frames]
 
+        return field
+
+    def _get_sparse_traj_field(self, run_idx, traj_idx, field_path, frames=None):
+
+        import ipdb; ipdb.set_trace()
         traj_path = "/runs/{}/trajectories/{}".format(run_idx, traj_idx)
         traj_grp = self.h5[traj_path]
         field = traj_grp[field_path]
-        data = field['data'][:]
-        sparse_idxs = field['_sparse_idxs'][:]
 
         n_frames = traj_grp['positions'].shape[0]
 
-        filled_data = np.full( (n_frames, *data.shape[1:]), np.nan)
-        filled_data[sparse_idxs] = data
+        if frames is None:
+            data = field['data'][:]
+            sparse_idxs = field['_sparse_idxs'][:]
 
-        mask = np.full( (n_frames, *data.shape[1:]), True)
-        mask[sparse_idxs] = False
+            filled_data = np.full( (n_frames, *data.shape[1:]), np.nan)
+            filled_data[sparse_idxs] = data
 
-        masked_array = np.ma.masked_array(filled_data, mask=mask)
+            mask = np.full( (n_frames, *data.shape[1:]), True)
+            mask[sparse_idxs] = False
+
+            masked_array = np.ma.masked_array(filled_data, mask=mask)
+
+        else:
+            # the empty arrays the size of the number of requested frames
+            filled_data = np.full( (len(frames), *field['data'].shape[1:]), np.nan)
+            mask = np.full( (len(frames), *field['data'].shape[1:]), True )
+
+            sparse_idxs = field['_sparse_idxs'][:]
+
+            # we get a boolean array of the rows of the data table
+            # that we are to slice from
+            sparse_frame_idxs = np.argwhere(np.isin(sparse_idxs, frames))
+
+            # take the data which exists and is part of the frames
+            # selection, and put it into the filled data where it is
+            # supposed to be
+            filled_data[np.isin(frames, sparse_idxs)] = field['data'][list(sparse_frame_idxs)]
+
+            # unmask the present values
+            mask[np.isin(frames, sparse_idxs)] = False
+
+            masked_array = np.ma.masked_array(filled_data, mask=mask)
 
         return masked_array
 
-    def get_traj_field(self, run_idx, traj_idx, field_path):
+    def get_traj_field(self, run_idx, traj_idx, field_path, frames=None):
         """Returns a numpy array for the given field."""
 
         traj_path = "/runs/{}/trajectories/{}".format(run_idx, traj_idx)
@@ -2522,9 +2561,27 @@ class WepyHDF5(object):
 
         # get the field depending on whether it is sparse or not
         if field_path in self.sparse_fields:
-            return self._get_sparse_traj_field(run_idx, traj_idx, field_path)
+            return self._get_sparse_traj_field(run_idx, traj_idx, field_path,
+                                               frames=frames)
         else:
-            return self._get_contiguous_traj_field(run_idx, traj_idx, field_path)
+            return self._get_contiguous_traj_field(run_idx, traj_idx, field_path,
+                                                   frames=frames)
+
+    def get_trace_fields(self, run_idx, frame_tups, fields):
+
+        frame_fields = {field : [] for field in fields}
+        for cycle_idx, traj_idx in frame_tups:
+            for field in fields:
+                frame_field = self.get_traj_field(run_idx, traj_idx, field, frames=[cycle_idx])
+                # the first dimension doesn't matter here since we
+                # only get one frame at a time.
+                frame_fields[field].append(frame_field[0])
+
+        # combine all the parts of each field into single arrays
+        for field in fields:
+            frame_fields[field] = np.array(frame_fields[field])
+
+        return frame_fields
 
     def iter_runs(self, idxs=False, run_sel=None):
         """Iterate through runs.
@@ -3004,6 +3061,8 @@ class WepyHDF5(object):
         return self.resampling_panel(self.resampling_records(run_idx))
 
 
+    
+
     def join(self, other_h5):
         """Given another WepyHDF5 file object does a left join on this
         file. Renumbering the runs starting from this file.
@@ -3062,7 +3121,6 @@ class WepyHDF5(object):
 
         return traj_h5
 
-
     def to_mdtraj(self, run_idx, traj_idx, frames=None, alt_rep=None):
 
         # the default for alt_rep is the main rep
@@ -3111,6 +3169,32 @@ class WepyHDF5(object):
                        unitcell_lengths=unitcell_lengths, unitcell_angles=unitcell_angles)
 
         return traj
+
+    def trace_to_mdtraj(self, run_idx, trace, alt_rep=None):
+
+        # the default for alt_rep is the main rep
+        if alt_rep is None:
+            rep_key = 'positions'
+            rep_path = rep_key
+        else:
+            rep_key = alt_rep
+            rep_path = 'alt_reps/{}'.format(alt_rep)
+
+        topology = self.get_mdtraj_topology(alt_rep=rep_key)
+
+        trace_fields = self.get_trace_fields(run_idx, trace, [rep_path, 'box_vectors'])
+
+        unitcell_lengths, unitcell_angles = _box_vectors_to_lengths_angles(
+                                               trace_fields['box_vectors'])
+
+        cycles = [cycle for cycle, walker in trace]
+        traj = mdj.Trajectory(trace_fields[rep_key], topology,
+                       time=cycles,
+                       unitcell_lengths=unitcell_lengths, unitcell_angles=unitcell_angles)
+
+        return traj
+
+
 
 
 def _extract_dict(keys, **kwargs):
