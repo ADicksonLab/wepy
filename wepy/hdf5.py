@@ -3060,8 +3060,21 @@ class WepyHDF5(object):
     def run_resampling_panel(self, run_idx):
         return self.resampling_panel(self.resampling_records(run_idx))
 
+    def run_warp_grp(self, run_idx):
 
-    
+        path = "runs/{}/warping".format(run_idx)
+        return self.h5[path]
+
+    def run_warp_records(self, run_idx):
+
+        warp_grp = self.run_warp_grp(run_idx)
+
+        return warp_grp['records'][:]
+
+    def run_warp_aux_data(self, run_idx, field):
+
+        warp_grp = self.run_warp_grp(run_idx)
+        return warp_grp['aux_data/{}'.format(field)][:]
 
     def join(self, other_h5):
         """Given another WepyHDF5 file object does a left join on this

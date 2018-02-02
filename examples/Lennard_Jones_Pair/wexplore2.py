@@ -81,7 +81,7 @@ if __name__ == "__main__":
     resampler = WExplore2Resampler(scorer=scorer,
                                    pmax=0.5)
 
-    ubc = UnbindingBC(cutoff_distance=2.0,
+    ubc = UnbindingBC(cutoff_distance=1.5,
                       initial_state=init_walkers[0].state,
                       topology=mdtraj_topology,
                       ligand_idxs=np.array(test_sys.ligand_indices),
@@ -106,10 +106,6 @@ if __name__ == "__main__":
                                     topology=json_str_top,
                                     units=units,
                                     sparse_fields={'velocities' : 10},
-                                    # sparse atoms fields
-                                    main_rep_idxs=[0],
-                                    all_atoms_rep_freq=10,
-                                    alt_reps={'other_atom' : ([1], 2)}
     )
 
     pkl_reporter = WalkersPickleReporter(save_dir='./pickle_backups', freq=10, num_backups=3)
