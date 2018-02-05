@@ -26,7 +26,7 @@ class RandomWalkDistance(Distance):
         :returns: a distance value
         :rtype: float
         """
-        return np.average(np.abs(walker_a['posiotion'][0] - walker_b['posiotion'][0]))
+        return np.average(np.abs(walker_a['positions'][0] - walker_b['positions'][0]))
 
 
     # def distance(self, walkers):

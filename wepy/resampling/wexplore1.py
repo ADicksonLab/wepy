@@ -4,12 +4,14 @@ import itertools as it
 from collections import namedtuple
 from copy import copy
 
-from wepy.resampling.resampler import Resampler
-from wepy.resampling.decisions.clone_merge import CloneMergeDecision
+import numpy as np
+
+from wepy.resampling.resamplers.resampler  import Resampler
+from wepy.resampling.decisions.clone_merge import MultiCloneMergeDecision
 
 class Node(object):
     def __init__(self, nwalkers=0, nreduc=0, nabovemin=0, children=[],
-                 ID=[], to_clone=0, windx=[], xyz=[]
+                 ID=[], to_clone=0, windx=[], positions=[]
     ):
         self.nwalkers = nwalkers
         self.nreduc = nreduc
@@ -18,20 +20,22 @@ class Node(object):
         self.ID = ID
         self.toclone = to_clone
         self.windx = windx
-        self.xyz = xyz
+        self.positions = positions
 
 class WExplore1Resampler(Resampler):
 
-    DECISION = CloneMergeDecision
+    DECISION = MultiCloneMergeDecision
 
     def __init__(self, seed=None, pmin=1e-12, pmax=0.1,
-                 distance_function=None,
+                 scorer=None,
                  maximage=[10,10,10,10],
-                 cellsize=[1.0,0.5,0.35,0.25]):
+                 cellsize=[1, 0.5, 0.35, 0.25]):
+
+        self.decision = self.DECISION
         self.pmin=pmin
         self.pmax=pmax
         self.seed = seed
-        self.distance_function = distance_function
+        self.scorer = scorer
         self.treetop = Node()
         self.maximage = maximage
         self.cellsize = cellsize # in nanometers!
@@ -184,47 +188,48 @@ class WExplore1Resampler(Resampler):
                     parent.toclone -=1
 
 
-    def getclosest(self, xyz, children):
+    def getclosest(self, positions, children):
         # looks through the set of children and computes the closest
         # using a distance metric
         mindist = None
         closeregind = None
         for i, c in enumerate(children):
-            d = self.distance_function.xyzdistance(xyz, c.xyz)
+            d = self.scorer.distance(positions, c.positions)
             if not mindist or d < mindist:
                 mindist = d
                 closeregind = i
         return mindist, closeregind
 
-    def definenew(self, parent, xyz):
+    def definenew(self, parent, positions):
         tID = copy(parent.ID)
         index = len(parent.children)
         tID.append(index)
-        newnode = Node(ID=tID, xyz=xyz)
+        newnode = Node(ID=tID, positions=positions)
         parent.children.append(newnode)
 
         return index
 
 
-    def getdist(self, parent, xyz, level=0, ID=[]):
+    def getdist(self, parent, positions, level=0, ID=[]):
         newind = []
         if len(parent.children) > 0:
-            mindist, closereg = self.getclosest(xyz, parent.children)
+            mindist, closereg = self.getclosest(positions, parent.children)
             if mindist > self.cellsize[level]:
                 if len(parent.children < self.maximage[level]):
-                    closereg = self.definenew(parent, xyz)
+                    closereg = self.definenew(parent, positions)
 
                 ID.append(closereg)
-                newind = self.getdist(parent.children[closereg], xyz, level=level+1, ID=ID)
+                newind = self.getdist(parent.children[closereg], positions, level=level+1, ID=ID)
         else:
             # bottom level
             if level == len(self.cellsize):
                 newind = ID
             else:
-                mindist, closereg = self.getclosest(xyz, parent.children)
-                if mindist > self.cellsize[level]:
-                    closereg = self.definenew(parent, xyz)
-                ID.append(closereg)
+                mindist, closereg = self.getclosest(positions, parent.children)
+                if mindist:
+                    if mindist > self.cellsize[level]:
+                        closereg = self.definenew(parent, positions)
+                        ID.append(closereg)
         return newind
 
     def populatetree(self, parent, level=0, ID=[]):
@@ -250,9 +255,9 @@ class WExplore1Resampler(Resampler):
                     child.nwalkers = cwalk
                     child.nreduc = creduc
                     child.nabovemin = cabovemin
-            nunder += cwalk
-            nreduc +=creduc
-            nabovemin += cabovemin
+                nunder += cwalk
+                nreduc +=creduc
+                nabovemin += cabovemin
         else:
             wts = []
             for i in range(self.n_walkers-1):
@@ -285,7 +290,7 @@ class WExplore1Resampler(Resampler):
 
         # assign walkers to regions
         for i,w in enumerate(walkers):
-            self.walkerreg[i] = self.getdist(self.treetop, w.xyz)
+            self.walkerreg[i] = self.getdist(self.treetop, w.positions)
 
         if debug_prints:
             print("region assignments:")
@@ -304,8 +309,9 @@ class WExplore1Resampler(Resampler):
                 print(i,self.walkers_squashed[i])
             print("num_clones:",self.num_clones)
 
-        resampling_actions = [actions_from_list(self.walkers_squashed,self.num_clones)]
+        resampling_actions = self.assign_clones(self.walkers_squashed, self.num_clones)
 
+        resampling_actions = [resampling_actions]
         # actually do the cloning and merging of the walkers
         resampled_walkers = self.DECISION.action(walkers, resampling_actions)
 

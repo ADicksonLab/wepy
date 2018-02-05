@@ -25,10 +25,10 @@ class WExplore2Resampler(Resampler):
         # maximum probability for a walker
         self.pmax=pmax
 
-        # 
+        #
         self.dpower = dpower
 
-        # 
+        #
         self.merge_dist = merge_dist
 
         # setting the random seed
@@ -49,7 +49,7 @@ class WExplore2Resampler(Resampler):
         # the value to be optimized
         spread = 0
 
-        # 
+        #
         wsum = np.zeros(n_walkers)
 
         # weight factors for the walkers
@@ -67,7 +67,7 @@ class WExplore2Resampler(Resampler):
             if wtfac[i] < 0:
                 wtfac[i] = 0
 
-        # 
+        #
         for i in range(n_walkers - 1):
             if amp[i] > 0:
                 for j in range(i+1, n_walkers):
@@ -258,7 +258,7 @@ class WExplore2Resampler(Resampler):
         # given we know what we want to clone to specific slots
         # (squashing other walkers) we need to determine where these
         # squashed walkers will be merged
-        walker_actions = self.assign_merges(merge_groups, walker_clone_nums)
+        walker_actions = self.assign_clones(merge_groups, walker_clone_nums)
 
         return([walker_actions]), spreads[-1]
 

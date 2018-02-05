@@ -1,5 +1,8 @@
 import itertools as it
 
+from wepy.resampling.decisions.decision import NoDecision
+
+
 class Resampler(object):
     """Superclass for resamplers that use the the Novelty->Decider
     framework."""
@@ -21,13 +24,14 @@ class Resampler(object):
 
         return resampled_walkers, decisions, aux_data
 
-    def assign_merges(self, merge_groups, walker_clone_nums):
+    def assign_clones(self, merge_groups, walker_clone_nums):
 
         n_walkers = len(walker_clone_nums)
 
         # determine resampling actions
         walker_actions = [self.decision.record(self.decision.ENUM.NOTHING.value, (i,))
                     for i in range(n_walkers)]
+
 
         # keep track of which slots will be free due to squashing
         free_slots = []
@@ -67,3 +71,13 @@ class Resampler(object):
                                                          tuple(slots))
 
         return walker_actions
+
+class NoResampler(Resampler):
+
+    DECISION = NoDecision
+
+    def __init__(self):
+        pass
+
+    def resample(self, walkers):
+        return walkers, [], {}

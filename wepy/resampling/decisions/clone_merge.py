@@ -164,7 +164,6 @@ class MultiCloneMergeDecision(Decision):
 
         # perform clones and merges for each step of resampling
         for step_idx, step_recs in enumerate(decisions):
-
             # we need to collect groups of merges, one entry for each
             # merge, where the key is the walker_idx of the keep merge slot
             squash_walkers = defaultdict(list)
@@ -172,8 +171,8 @@ class MultiCloneMergeDecision(Decision):
             # go through each decision and perform the decision
             # instructions
             for walker_idx, decision in enumerate(step_recs):
-                decision_value, instruction = decision
 
+                decision_value, instruction = decision
                 if decision_value == cls.ENUM.NOTHING.value:
                     # check to make sure a walker doesn't already exist
                     # where you are going to put it

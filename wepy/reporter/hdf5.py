@@ -252,7 +252,7 @@ class WepyHDF5Reporter(FileReporter):
             wepy_h5.add_cycle_resampling_aux_data(self.wepy_run_idx, resampling_aux_data)
 
 
-    def cleanup(self):
+    def cleanup(self, *args):
 
         # it should be already closed at this point but just in case
         if not self.wepy_h5.closed:

@@ -9,15 +9,18 @@ import pandas as pd
 import mdtraj as mdj
 import json
 
-from wepy.resampling.resampler import NoResampler
-from wepy.resampling.wexplore2 import WExplore2Resampler
-from wepy.distance_functions.randomwalk_distances import RandomWalkDistance
+
+
+from wepy.resampling.resamplers.resampler import NoResampler
+from wepy.resampling.distances.randomwalk import RandomWalkDistance
+from wepy.resampling.scoring.scorer import AllToAllScorer
+from wepy.run_cycle_slice import RunCycleSlice
 from wepy.reporter.hdf5 import WepyHDF5Reporter
 from wepy.sim_manager import Manager
-from wepy.openmm import UNITS
-from wepy.run_cycle_slice import RunCycleSlice
+from wepy.runners.openmm import UNITS
 from tests.randomwalk.randomwalk import RandomWalker, RandomWalkRunner, State, UNIT_NAMES
 from wepy.hdf5 import WepyHDF5
+
 
 class RandomwalkProfiler(object):
     def __init__(self, resampler=NoResampler):
@@ -75,11 +78,6 @@ class RandomwalkProfiler(object):
         # init_walkers, n_cycles = get_final_state(path, num_walkers)
         init_walkers = [RandomWalker(init_state, initial_weight) for i in range(num_walkers)]
 
-        # set up  the distance function
-        distance_function = RandomWalkDistance();
-
-        # set up the WExplore2 Resampler with the parameters
-        resampler = self.resampler
 
 
         # set up raunner for system
@@ -94,8 +92,8 @@ class RandomwalkProfiler(object):
         randomwalk_system_top_json = self.generate_topology()
         reporter = WepyHDF5Reporter(report_path, mode='w',
                                     save_fields=['positions', 'weights'],
-                                    decisions=resampler.DECISION,
-                                    instruction_dtypes=resampler.INSTRUCTION_DTYPES,
+                                    decisions=self.resampler.DECISION.ENUM,
+                                    instruction_dtypes=self.resampler.DECISION.instruction_dtypes(),
                                     resampling_aux_dtypes=None,
                                     resampling_aux_shapes=None,
                                     sparse_fields=None,
@@ -103,10 +101,11 @@ class RandomwalkProfiler(object):
                                     units=units,
                                     n_dims=dimension)
 
+
         # running the simulation
         sim_manager = Manager(init_walkers,
                               runner=runner,
-                              resampler=resampler,
+                              resampler=self.resampler,
                               work_mapper=map,
                               reporters=[reporter])
 

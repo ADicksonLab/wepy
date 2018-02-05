@@ -10,10 +10,12 @@ import simtk.unit as unit
 import mdtraj as mdj
 
 from wepy.sim_manager import Manager
+from wepy.resampling.distances.distance import Distance
+from wepy.resampling.scoring.scorer import AllToAllScorer
 from wepy.resampling.wexplore2 import WExplore2Resampler
-from wepy.resampling.distances import OpenMMUnbindingDistance
-from wepy.openmm import OpenMMRunner, OpenMMWalker
-from wepy.openmm import UNITS
+from wepy.resampling.distances.openmm import OpenMMUnbindingDistance
+from wepy.runners.openmm import OpenMMRunner, OpenMMWalker
+from wepy.runners.openmm import UNIT_NAMES
 from wepy.boundary_conditions.unbinding import UnbindingBC
 from wepy.reporter.hdf5 import WepyHDF5Reporter
 from wepy.reporter.reporter import WalkersPickleReporter
@@ -40,11 +42,15 @@ if __name__ == "__main__":
     # selecting ligand and protein binding site atom indices for
     # resampler and boundary conditions
     lig_idxs = pdb.topology.select('resname "2RV"')
-
     protein_idxs = np.array([atom.index for atom in pdb.topology.atoms if atom.residue.is_protein])
 
+    # select water atom indices
+    water_atom_idxs = pdb.top.select("water")
+    #select protein and ligand atom indices
+    protein_lig_idxs = [atom.index for atom in pdb.topology.atoms
+                    if atom.index not in water_atom_idxs]
 
-    # selects protien atoms which have less than 2.5 A from ligand
+    # selects protien atoms which have less than 8 A from ligand
     # atoms in the crystal structure
 
     neighbors_idxs = mdj.compute_neighbors(pdb, 0.8, lig_idxs)
@@ -107,11 +113,12 @@ if __name__ == "__main__":
     unb_distance = OpenMMUnbindingDistance(topology=pdb.topology,
                                            ligand_idxs=lig_idxs,
                                            binding_site_idxs=binding_selection_idxs)
-    
-    # set up the WExplore2 Resampler with the parameters
-    resampler = WExplore2Resampler(distance_function=unb_distance,
-                                   # algorithm parameters
+
+    # make a WExplore2 resampler with default parameters and our
+    # distance metric
+    resampler = WExplore2Resampler(scorer=unb_distance,
                                    pmax=0.5)
+
 
     # makes ref_traj and selects lingand_atom and protein atom  indices
     # instantiate a wexplore2 unbindingboudaryconditiobs
@@ -123,32 +130,28 @@ if __name__ == "__main__":
 
 
     # make a dictionary of units for adding to the HDF5
-    units = {}
-    for key, value in dict(UNITS).items():
-        try:
-            unit_name = value.get_name()
-        except AttributeError:
-            print("not a unit")
-            unit_name = False
+    units = dict(UNIT_NAMES)
 
-        if unit_name:
-            units[key] = unit_name
 
     # instantiate a reporter for HDF5
     report_path = 'wepy_results.h5'
+    # open it in truncate mode first, then switch after first run
     hdf5_reporter = WepyHDF5Reporter(report_path, mode='w',
-                                     save_fields=['positions', 'box_vectors', 'velocities'],
-                                     decisions=resampler.DECISION,
-                                     instruction_dtypes=resampler.INSTRUCTION_DTYPES,
-                                     resampling_aux_dtypes=None,
-                                     resampling_aux_shapes=None,
-                                     warp_dtype=ubc.WARP_INSTRUCT_DTYPE,
-                                     warp_aux_dtypes=ubc.WARP_AUX_DTYPES,
-                                     warp_aux_shapes=ubc.WARP_AUX_SHAPES,
-                                     topology=sEH_TPPU_system_top_json,
-                                     units=units,
-                                     sparse_fields={'velocities' : 10})
-    
+                                    save_fields=['positions', 'box_vectors', 'velocities'],
+                                    decisions=resampler.DECISION.ENUM,
+                                    instruction_dtypes=resampler.DECISION.instruction_dtypes(),
+                                    warp_dtype=ubc.WARP_INSTRUCT_DTYPE,
+                                    warp_aux_dtypes=ubc.WARP_AUX_DTYPES,
+                                    warp_aux_shapes=ubc.WARP_AUX_SHAPES,
+                                    topology=sEH_TPPU_system_top_json,
+                                    units=units,
+                                     sparse_fields={'velocities' : 10},
+                                    # sparse atoms fields
+                                    main_rep_idxs=protein_lig_idxs,
+                                    all_atoms_rep_freq=10
+    )
+
+
     pkl_reporter = WalkersPickleReporter(save_dir='./pickle_backups', freq=1, num_backups=2)
 
     # create a work mapper for NVIDIA GPUs for a GPU cluster
@@ -161,7 +164,7 @@ if __name__ == "__main__":
                           resampler=resampler,
                           boundary_conditions=ubc,
                           work_mapper=gpumapper.map,
-                          reporters=[hdf5_reporter,pkl_reporter])
+                          reporters=[hdf5_reporter, pkl_reporter])
     n_steps = 10000
     n_cycles = 10
 
