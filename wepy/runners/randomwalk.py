@@ -1,23 +1,11 @@
-"""
-This module implements the N-dimensional biased random walk. The position of
-the "walker" is described by an N-dimensional vector of non-negative integers.
-RandomWalk is like the system that just has one atom and in each dynamic step for
-each dimension i, xi increases (one step) with probability Pu, and decreases
-(one step) with probability 1-Pu. The system is bounded at 0 for all dimensions.
-"""
 import random as rand
 
 import numpy as np
-import scoop.futures
-
-from wepy.runners.runner import Runner
-from wepy.walker import Walker
 
 from simtk import unit
 
-from  wepy.hdf5 import WepyHDF5
-from wepy.hdf5 import TrajHDF5
-
+from wepy.runners.runner import Runner
+from wepy.walker import Walker, WalkerState
 
 UNIT_NAMES = (('positions_unit', unit.nanometer.get_name()),
          ('time_unit', unit.picosecond.get_name()),
@@ -88,7 +76,7 @@ class RandomWalkRunner(Runner):
             new_positions = self.walk(positions)
             positions = new_positions
         # makes new state form new positions
-        new_state = State(new_positions, 0.0)
+        new_state = RandomWalkState(new_positions, 0.0)
         # creates new_walker from new state and current weight
         new_walker = RandomWalker(new_state, walker.weight)
         return new_walker
@@ -163,7 +151,7 @@ class RandomWalker(Walker):
 
 
 
-class State(object):
+class RandomWalkState(WalkerState):
     """
     State object stores the information about a RandomWalk object like positions and time.
     """
@@ -177,6 +165,11 @@ class State(object):
 
         self.positions = positions.copy()
         self.time = time
+        self._data = {'positions' : self.positions,
+                      'time' : self.time}
+
+    def __getitem__(self, key):
+        return self._data[key]
 
     def getPositions(self):
         """Return current posiotion of the Walker
@@ -190,4 +183,3 @@ class State(object):
     def getTime(self):
         """Return the time"""
         return self.time
-

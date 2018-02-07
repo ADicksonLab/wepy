@@ -72,3 +72,8 @@ class Walker(object):
 
     def merge(self, other_walkers):
         return merge([self]+other_walkers)
+
+class WalkerState(object):
+
+    def __init__(self):
+        raise NotImplementedError

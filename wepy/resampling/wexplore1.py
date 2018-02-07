@@ -10,41 +10,59 @@ import numpy as np
 from wepy.resampling.resamplers.resampler  import Resampler
 from wepy.resampling.decisions.clone_merge import MultiCloneMergeDecision
 
-class Node(object):
-    def __init__(self, nwalkers=0, nreduc=0, nabovemin=0, children=[],
-                 region_id=None, to_clone=0, windx=[], positions=[]
-    ):
-        self.nwalkers = nwalkers
-        self.nreduc = nreduc
-        self.nabovemin = nabovemin
-        self.children = copy(children)
-        if region_id is None:
-            self.region_id = []
+
+
+class ImageNode(object):
+
+    def __init__(self, image_idx=None, children=None):
+        self.image_idx = image_idx
+        if children is None:
+            self.children = []
         else:
-            self.region_id = region_id
-        self.toclone = to_clone
-        self.windx = copy(windx)
-        self.positions = copy(positions)
+            self.children = children
+
+    def is_leaf_node(self):
+        if len(self.children) <= 0:
+            return True
+        else:
+            return False
 
 class WExplore1Resampler(Resampler):
 
     DECISION = MultiCloneMergeDecision
 
     def __init__(self, seed=None, pmin=1e-12, pmax=0.1,
-                 scorer=None,
+                 distance=None,
                  max_n_regions=(10, 10, 10, 10),
                  max_region_sizes=(1, 0.5, 0.35, 0.25),
     ):
 
         self.decision = self.DECISION
+
+        # parameters
         self.pmin=pmin
         self.pmax=pmax
         self.seed = seed
-        self.scorer = scorer
-        self.treetop = Node()
         self.max_n_regions = max_n_regions
+        self.n_levels = len(max_n_regions)
         self.max_region_sizes = max_region_sizes # in nanometers!
 
+        # distance metric
+        self.distance = distance
+
+        # state of the resampler, i.e. hierarchy of images defining
+        # the regions, this datastructure is a tree of nodes
+
+        self.images = []
+
+        # initialize the hierarchy given the number of levels
+        self.root_node = ImageNode(image_idx=None, children=[])
+
+        node = self.root_node
+        for level in range(self.n_levels):
+            new_node = ImageNode(image_idx=None, children=[])
+            node.children.append(new_node)
+            node = new_node
 
     def getmaxminwalk(self, children):
         #
@@ -196,221 +214,382 @@ class WExplore1Resampler(Resampler):
                     parent.toclone -=1
 
 
-    def get_closest_image(self, walker, images):
 
-        # calculate distance from the walker to all given images
+
+    def branch_tree(self, parent_id, image):
+
+        # add the new image to the image index
+        image_idx = len(self.images)
+        self.images.append(image)
+
+        # get the parent for which we will make a new child for
+        node = self.root_node
+        for child_idx in parent_id:
+            node = node.children[child_idx]
+
+        # get the index of the new node starting the new chain
+        new_child_idx = len(node.children)
+
+        # once we have parent node we add a new branch down to the
+        # bottom level
+        for level in range(len(parent_id), self.n_levels):
+            # make a new child node for the parent
+            child_node = ImageNode(image_idx=image_idx, children=[])
+            # add this as a child at the current level
+            node.children.append(child_node)
+            # move onto the next node
+            node = child_node
+
+        # return the new leaf node id
+        leaf_node_id = list(parent_id)
+        leaf_node_id = leaf_node_id + [0 for i in range(len(parent_id), self.n_levels)]
+        leaf_node_id[len(parent_id)] += new_child_idx
+
+        return tuple(leaf_node_id)
+
+
+    # TODO NEW ONE
+    def place_walker(self, walker):
+        """Given the current hierarchy of Voronoi regions and the walker
+        either assign it to a region or create a new region if
+        necessary. This could mutate the state of the hierarchy.
+
+        """
+
+        # check to see if there are any images defined at all
+        if self.root_node.image_idx is None:
+            # if not we set the first images to the state of the first walker
+            image_idx = len(self.images)
+            # TODO distance preimage of the state is what should be
+            # stored for the image
+
+            # save the image of this walker for defining regions
+            self.images.append(walker.state)
+
+            # create the initial nodes for each level with this
+            # initial image
+            node = self.root_node
+            node.image_idx = image_idx
+            for level in range(self.n_levels):
+                node = node.children[0]
+                node.image_idx = image_idx
+
+            assignment = tuple([0 for level in range(self.n_levels)])
+            distances = tuple([0.0 for level in range(self.n_levels)])
+
+        # if the image hierarchy has been initialized, assign this
+        # walker to it
+        else:
+            # assign the walker to the defined regions
+            assignment, distances = self.assign_walker(walker)
+
+        # check each level's distance to see if it is beyond the
+        # maximum allowed distance. If it is create a new branch
+        # starting at the parent of the node at the level the walker
+        # was closest to
+        for level, distance in enumerate(distances):
+            if distance > self.max_region_sizes[level]:
+                image = walker.state
+                parent_id = assignment[:level]
+                assignment = self.branch_tree(parent_id, image)
+                break
+
+        return assignment
+
+
+    def assign_walker(self, walker):
+
+        assignment = []
         dists = []
-        for i, image in enumerate(images):
-            dist = self.scorer.distance.distance(walker['positions'], image['positions'])
-            dists.append(dist)
+        # perform a n-ary search through the hierarchy of regions by
+        # performing a distance calculation to the images at each
+        # level starting at the top
+        node = self.root_node
+        for level in range(self.n_levels):
+            level_nodes = node.children
 
-        # get the image that is the closest
-        closest_image_idx = np.argmin(dists)
+            # perform a distance calculation to all nodes at this
+            # level
+            image_dists = []
+            for level_node in level_nodes:
+                # get the image
+                image = self.images[level_node.image_idx]
+                dist = self.distance.distance(walker.state, image)
+                image_dists.append(dist)
 
-        return dists[closest_image_idx], closest_image_idx
+            # get the index of the image that is closest
+            level_closest_child_idx = np.argmin(image_dists)
+            # get the distance for the closest image
+            level_closest_image_dist = image_dists[level_closest_child_idx]
 
-    def define_new_region(self, parent, walker):
-        # the parents region assignment, which we will add to
-        region_id = copy(parent.region_id)
+            # save for return
+            assignment.append(level_closest_child_idx)
+            dists.append(level_closest_image_dist)
 
-        # the index of the new child/image/region
-        child_idx = len(parent.children)
+            # set this node as the next node
+            node = level_nodes[level_closest_child_idx]
 
-        # the new region identifier for the new region
-        region_id.append(child_idx)
+        return tuple(assignment), tuple(dists)
 
-        # make a new node for the region, save the index of that
-        # region as a child for the parent node in it's region_idx
-        newnode = Node(region_id=region_id, positions=deepcopy(walker))
-        parent.children.append(newnode)
+    def place_walkers(self, walkers):
+        """Assign walkers to Voronoi regions. This function will add Voronoi
+        cells to the hierarchy leaves if necessary, thus mutating the
+        state of the resampler (i.e. the tree of Voronoi
+        regions/images). This is the 'Scorer' in terms of the
+        resampling framework.
 
-        # return the index of the new region node as a child of the parent node
-        return child_idx
-
-
-    # TODO old name: 'getdist'
-    def assign_walkers(self, parent, walker, level=0, region_assg=None):
-
-        if region_assg is None:
-            region_assg = []
-
-        # children exist for the parent
-        if len(parent.children) > 0:
-
-            # find the closest image in this superregion (i.e. parent at current level)
-            mindist, close_child_idx = self.get_closest_image(walker, parent.children)
-
-            # if the minimum distance is over the cutoff we need to define new regions
-            if mindist > self.max_region_sizes[level]:
-                # if there are less children than the maximum number of images for this level
-                if len(parent.children) < self.max_n_regions[level]:
-
-                    # we can create a new region
-                    close_child_idx = self.define_new_region(parent, walker)
-
-            # the region assignment starts with this image/region index
-            region_assg.append(close_child_idx)
-            region_assg = self.assign_walkers(parent.children[close_child_idx], walker, level=level+1, region_assg=region_assg)
-
-        # No children so we have to make them if we are not at the
-        # bottom, define new regions for this node and make it a
-        # parent
-        elif level < len(self.max_region_sizes):
-            # define a new region because none exist for this parent
-            close_child_idx = self.define_new_region(parent, walker)
-
-            # update the region_assg for the walker
-            region_assg.append(close_child_idx)
-
-            # recursively call getdist on the just created child one level deeper
-            region_assg = self.assign_walkers(parent.children[close_child_idx], walker, level=level+1, region_assg=region_assg)
-
-        return region_assg
-
-    def populate_tree(self, parent, level=0, region_assg=None, debug_prints=False):
-        #
-        # This function uses the walkerreg assignments to determine
-        # how many w-alkers are under each node (nwalkers) at each level
-        # of the tree. It also determines the number of those walkers
-        # which are reducible (nreduc) as well as the number of walkers
-        # that have weights above the minimum probability (nabovemin).
-        #
-        # If this is called at the "treetop" it will populate the entire
-        # tree.
-        #
-        n_walkers = 0
-        n_reducible_walkers = 0
-        n_above_minp = 0
-
-        if region_assg is None:
-            parent_region_assg = []
-        else:
-            parent_region_assg = region_assg
-
-        # if there are still levels in this hierarchy
-        if level < len(self.max_region_sizes):
-
-            # for the children under this parent, recursively call
-            # this function. If they are a leaf node it will bottom
-            # out and find the info on the walkers in that
-            # leaf-node/region, else it will repeat until then
-            for i, child in enumerate(parent.children):
-
-                child_region_assg = copy(parent_region_assg)
-                parent_region_assg.append(i)
-
-                # recursively call 
-                tup = self.populate_tree(child, level=level+1, region_assg=parent_region_assg)
-                child.n_walkers = tup[0]
-                child.n_reducible_walkers = tup[1]
-                child.n_above_minp = tup[2]
-
-                n_walkers += tup[0]
-                n_reducible_walkers += tup[1]
-                n_above_minp += tup[2]
-
-                if debug_prints:
-                    print(child.region_id, *tup)
-
-        # if we are at the bottom of the hierarchy, we want to save
-        # which walkers are in these leaf nodes, and calculate the
-        # number of reducible walkers, which can then be used to
-        # balance the tree at a higher level
-        else:
-
-            leaf_walker_weights = []
-            leaf_walker_idxs = []
-
-            # save values for walkers in this leaf node/region/image
-            for walker_idx in range(self.n_walkers):
-
-                # if this walker is assigned to this region (we are at
-                # the bottom here) then save information about the
-                # walker in this node
-                if self.walkerreg[walker_idx] == region_assg:
-
-                    # increment the total count of walkers under this node (parent)
-                    n_walkers += 1
-
-                    # add this walker index to the list of walker
-                    # indices under this node
-                    leaf_walker_idxs.append(walker_idx)
-                    # save the weight of this walker in the node
-                    leaf_walker_weights.append(self.walkerwt[walker_idx])
-
-                    # if this walker is above the minimum
-                    # probability/weight increment the number of such
-                    # walkers under the node
-                    if self.walkerwt[walker_idx] > self.pmin:
-                        n_above_minp += 1
-
-            parent.windx = leaf_walker_idxs
+        Returns a tuple of the region assignment for each level of the
+        hierarchy for each walker.
 
 
-            # calculate the number of reducible walkers under this
-            # node, which is n_red = n_walkers - 1 with the constraint
-            # that the largest possible merge is not greater than the
-            # maximimum probability for a walker
+        [(level_0_region_idx_0, level_1_region_idx_0, level_2_region_idx_0),
+        (level_0_region_idx_1, level_1_region_idx_1, level_2_region_idx_1)]
 
-            # must be more than 1 walker
-            n_reducible_walkers = 0
-            if n_walkers > 1:
+        For two walkers with 3 levels, with the number of regions per
+        level set at (2, 2, 2) (2 for each level) we might have:
 
-                # figure out the most possible mergeable walkers
-                # assuming they cannot ever be larger than pmax
-                sorted_weights = list(np.sort(leaf_walker_weights))
-                sum_weights = sorted_weights[0]
-                for i in range(1, len(sorted_weights)):
-                    sum_weights += sorted_weights[i]
+        [(0, 1, 0),
+         (0, 0, 0)
+        ]
 
-                    # if we still haven't gone past pmax set the n_red
-                    # to the current index
-                    if sum_weights < self.pmax:
-                        n_reducible_walkers = i
+        """
 
-        return n_walkers, n_reducible_walkers, n_above_minp
+        # region assignments
+        walker_assignments = [None for i in range(len(walkers))]
+
+        # assign walkers to regions
+        for i, walker in enumerate(walkers):
+            walker_assignments[i] = self.place_walker(walker)
+
+        return walker_assignments
+
+    def clone_merge(self, walker_assignments):
+
+        # calculate values of the nodes on the tree, includes the
+        # reducible walkers, total number of walkers, and the number
+        # of walkers that are still above the minimum weight
+        walker_weights = [walker.weight for walker in walkers]
+        _ = self.populate_tree(self.treetop, walker_weights, region_assg=None)
+
+
+
+        # balance the tree through cloning and merging (returns merge
+        # groups and clone numbers for the walkers)
+        merge_groups, walkers_num_clones = self.balancetree(self.treetop)
+
+        # figure out the exact decisions
+        resampling_actions = self.assign_clones(merge_groups, walkers_num_clones)
+
+        return resampling_actions
 
     def resample(self, walkers, debug_prints=False):
 
-        self.n_walkers = len(walkers)
+        ## "Score" the walkers based on the current defined Voronoi
+        ## images and assign them to bins/leaf-nodes
+        walker_assignments = self.place_walkers(walkers)
 
-        # region assignments
-        self.walkerreg = [None for i in range(self.n_walkers)]
+        ## Given the assignments ("scores") decide on which to merge
+        ## and clone
+        resampling_actions = self.clone_merge(walker_assignments)
 
-        # merge groups
-        self.walkers_squashed = [[] for i in range(self.n_walkers)]
-        # number of clones to make for each walker
-        self.num_clones = [0 for i in range(self.n_walkers)]
+        ## perform the cloning and merging
+        resampled_walkers = self.DECISION.action(walkers, [resampling_actions])
 
-        # weights of walkers
-        self.walkerwt = [walker.weight for walker in walkers]
-        # assign walkers to regionsg
-        for i, walker in enumerate(walkers):
-            self.walkerreg[i] = self.assign_walkers(self.treetop, walker, level=0, region_assg=None)
+        ## Auxiliary data
+        aux_data = {}
 
-        if debug_prints:
-            print("region assignments:")
-            for i in range(self.n_walkers):
-                print(i,self.walkerreg[i])
+        return resampled_walkers, resampling_actions, aux_data
 
-        # populate the tree
-        n_walkers, n_reducible_walkers, n_above_minp = self.populate_tree(self.treetop, region_assg=None)
 
-        # balance the tree (determines walkers_squashed and num_clones)
-        self.balancetree(self.treetop)
+    # def get_closest_image(self, walker, images):
 
-        if debug_prints:
-            print("walkers squashed:")
-            for i in range(self.n_walkers):
-                print(i,self.walkers_squashed[i])
-            print("num_clones:",self.num_clones)
+    #     # calculate distance from the walker to all given images
+    #     dists = []
+    #     for i, image in enumerate(images):
+    #         dist = self.distance.distance(walker['positions'], image['positions'])
+    #         dists.append(dist)
 
-        resampling_actions = self.assign_clones(self.walkers_squashed, self.num_clones)
+    #     # get the image that is the closest
+    #     closest_image_idx = np.argmin(dists)
 
-        resampling_actions = [resampling_actions]
-        # actually do the cloning and merging of the walkers
-        resampled_walkers = self.DECISION.action(walkers, resampling_actions)
+    #     return dists[closest_image_idx], closest_image_idx
 
-        data = {'assignments' : np.array(self.walkerreg)}
+    # def define_new_region(self, parent, walker):
+    #     # the parents region assignment, which we will add to
+    #     region_id = copy(parent.region_id)
 
-        return resampled_walkers, resampling_actions, data
+    #     # the index of the new child/image/region
+    #     child_idx = len(parent.children)
+
+    #     # the new region identifier for the new region
+    #     region_id.append(child_idx)
+
+    #     # make a new node for the region, save the index of that
+    #     # region as a child for the parent node in it's region_idx
+    #     newnode = Node(region_id=region_id, positions=deepcopy(walker))
+    #     parent.children.append(newnode)
+
+    #     # return the index of the new region node as a child of the parent node
+    #     return child_idx
+
+
+    # # TODO old name: 'getdist'
+    # def assign_walker(self, walker, level=0, region_assg=None):
+
+    #     if region_assg is None:
+    #         region_assg = []
+
+    #     # children exist for the parent
+    #     if len(parent.children) > 0:
+
+    #         # find the closest image in this superregion (i.e. parent at current level)
+    #         mindist, close_child_idx = self.get_closest_image(walker, parent.children)
+
+    #         # if the minimum distance is over the cutoff we need to define new regions
+    #         if mindist > self.max_region_sizes[level]:
+    #             # if there are less children than the maximum number of images for this level
+    #             if len(parent.children) < self.max_n_regions[level]:
+
+    #                 # we can create a new region
+    #                 close_child_idx = self.define_new_region(parent, walker)
+
+    #         # the region assignment starts with this image/region index
+    #         region_assg.append(close_child_idx)
+    #         region_assg = self.assign_walkers(parent.children[close_child_idx], walker,
+    #                                           level=level+1, region_assg=region_assg)
+
+    #     # No children so we have to make them if we are not at the
+    #     # bottom, define new regions for this node and make it a
+    #     # parent
+    #     elif level < len(self.max_region_sizes):
+    #         # define a new region because none exist for this parent
+    #         close_child_idx = self.define_new_region(parent, walker)
+
+    #         # update the region_assg for the walker
+    #         region_assg.append(close_child_idx)
+
+    #         # recursively call getdist on the just created child one level deeper
+    #         region_assg = self.assign_walkers(parent.children[close_child_idx], walker,
+    #                                           level=level+1, region_assg=region_assg)
+
+    #     return region_assg
+
+    # def populate_tree(self, parent, level=0, region_assg=None, debug_prints=False):
+    #     #
+    #     # This function uses the walkerreg assignments to determine
+    #     # how many w-alkers are under each node (nwalkers) at each level
+    #     # of the tree. It also determines the number of those walkers
+    #     # which are reducible (nreduc) as well as the number of walkers
+    #     # that have weights above the minimum probability (nabovemin).
+    #     #
+    #     # If this is called at the "treetop" it will populate the entire
+    #     # tree.
+    #     #
+    #     n_walkers = 0
+    #     n_reducible_walkers = 0
+    #     n_above_minp = 0
+
+    #     if region_assg is None:
+    #         parent_region_assg = []
+    #     else:
+    #         parent_region_assg = region_assg
+
+    #     # if there are still levels in this hierarchy
+    #     if level < len(self.max_region_sizes):
+
+    #         # for the children under this parent, recursively call
+    #         # this function. If they are a leaf node it will bottom
+    #         # out and find the info on the walkers in that
+    #         # leaf-node/region, else it will repeat until then
+    #         for i, child in enumerate(parent.children):
+
+    #             child_region_assg = copy(parent_region_assg)
+    #             parent_region_assg.append(i)
+
+    #             # recursively call 
+    #             tup = self.populate_tree(child, level=level+1, region_assg=parent_region_assg)
+    #             child.n_walkers = tup[0]
+    #             child.n_reducible_walkers = tup[1]
+    #             child.n_above_minp = tup[2]
+
+    #             n_walkers += tup[0]
+    #             n_reducible_walkers += tup[1]
+    #             n_above_minp += tup[2]
+
+    #             if debug_prints:
+    #                 print(child.region_id, *tup)
+
+    #     # if we are at the bottom of the hierarchy, we want to save
+    #     # which walkers are in these leaf nodes, and calculate the
+    #     # number of reducible walkers, which can then be used to
+    #     # balance the tree at a higher level
+    #     else:
+
+    #         leaf_walker_weights = []
+    #         leaf_walker_idxs = []
+
+    #         # save values for walkers in this leaf node/region/image
+    #         for walker_idx in range(self.n_walkers):
+
+    #             # if this walker is assigned to this region (we are at
+    #             # the bottom here) then save information about the
+    #             # walker in this node
+    #             if self.walkerreg[walker_idx] == region_assg:
+
+    #                 # increment the total count of walkers under this node (parent)
+    #                 n_walkers += 1
+
+    #                 # add this walker index to the list of walker
+    #                 # indices under this node
+    #                 leaf_walker_idxs.append(walker_idx)
+    #                 # save the weight of this walker in the node
+    #                 leaf_walker_weights.append(self.walkerwt[walker_idx])
+
+    #                 # if this walker is above the minimum
+    #                 # probability/weight increment the number of such
+    #                 # walkers under the node
+    #                 if self.walkerwt[walker_idx] > self.pmin:
+    #                     n_above_minp += 1
+
+    #         parent.windx = leaf_walker_idxs
+
+
+    #         # calculate the number of reducible walkers under this
+    #         # node, which is n_red = n_walkers - 1 with the constraint
+    #         # that the largest possible merge is not greater than the
+    #         # maximimum probability for a walker
+
+    #         # must be more than 1 walker
+    #         n_reducible_walkers = 0
+    #         if n_walkers > 1:
+
+    #             # figure out the most possible mergeable walkers
+    #             # assuming they cannot ever be larger than pmax
+    #             sorted_weights = list(np.sort(leaf_walker_weights))
+    #             sum_weights = sorted_weights[0]
+    #             for i in range(1, len(sorted_weights)):
+    #                 sum_weights += sorted_weights[i]
+
+    #                 # if we still haven't gone past pmax set the n_red
+    #                 # to the current index
+    #                 if sum_weights < self.pmax:
+    #                     n_reducible_walkers = i
+
+    #     return n_walkers, n_reducible_walkers, n_above_minp
+
+# class Node(object):
+
+#     def __init__(self, nwalkers=0, nreduc=0, nabovemin=0, children=[],
+#                  region_id=None, to_clone=0, windx=[], positions=[]
+#     ):
+#         self.nwalkers = nwalkers
+#         self.nreduc = nreduc
+#         self.nabovemin = nabovemin
+#         self.children = copy(children)
+#         if region_id is None:
+#             self.region_id = []
+#         else:
+#             self.region_id = region_id
+#         self.toclone = to_clone
+#         self.windx = copy(windx)
+#         self.positions = copy(positions)
