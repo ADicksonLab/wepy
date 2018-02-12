@@ -25,3 +25,5 @@ init_states = [RandomWalkState(np.array([i]), 0.0) for i in range(5)]
 init_walkers = [RandomWalker(state, 0.1) for state in init_states]
 
 assignments = resampler.place_walkers(init_walkers)
+
+#resampler.populate_tree(assignments)
