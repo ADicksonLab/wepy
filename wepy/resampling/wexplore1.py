@@ -92,7 +92,7 @@ class RegionTree(nx.DiGraph):
 
     @property
     def walker_weights(self):
-        return self._walkers_weights
+        return self._walker_weights
 
     def add_child(self, parent_id, image_idx):
         # make a new child id which will be the next index of the
@@ -277,10 +277,10 @@ class RegionTree(nx.DiGraph):
     def minmax_beneficiaries(self, children):
 
         min_n_walkers = None
-        min_child = None
+        min_child_idx = None
 
         max_n_walkers = None
-        max_child = None
+        max_child_idx = None
 
         # test each walker sequentially
         for i, child in enumerate(children):
@@ -298,50 +298,38 @@ class RegionTree(nx.DiGraph):
 
             # the maximum number of walkers that will exist after
             # cloning, if the number of reducible walkers is 1 or more
-            if ((not max_child) or (n_walkers > max_n_walkers)) and \
-               (n_mergeable >= 1):
+            if ((not max_child_idx) or (total_n_walkers > max_n_walkers)) and \
+               (total_n_mergeable >= 1):
 
-                max_n_walkers = n_walkers
-                max_child = i
+                max_n_walkers = total_n_walkers
+                max_child_idx = i
 
             # the minimum number of walkers that will exist after
             # cloning, if the number of number of walkers above the
             # minimum weight is 1 or more
-            if ((not min_child) or (n_walkers < min_n_walkers)) and \
+            if ((not min_child_idx) or (total_n_walkers < min_n_walkers)) and \
                (n_cloneable >= 1):
 
-                min_n_walkers = n_walkers
-                min_child = i
+                min_n_walkers = total_n_walkers
+                min_child_idx = i
 
 
-        return min_child, max_child
+        return min_child_idx, max_child_idx
 
     def calc_share_donation(self, donor, recipient):
+
         total_recipient_n_walkers = self.node[donor]['n_mergeable'] + \
-                              self.node[recipient]['balance']
+                                    self.node[recipient]['balance']
+        total_donor_n_walkers = self.node[donor]['n_mergeable'] + \
+                                self.node[donor]['balance']
 
-        donor_id = children[donor]
-        total_donor_n_walkers = self.node[children[donor]]['n_mergeable'] + \
-                              self.node[children[donor]]['balance']
-
-
-        # The recipient needs to have at least one clonable
-        # walker and the donor needs to have at least one
-        # mergeable walker. If they do not (None from the
-        # minmax function) then we cannot assign a number of
-        # shares for them to give each other
-        if None in (recipient, donor):
-            n_shares = 0
-        # if they do exist then we find the number of shares
-        # to give
-        else:
-            # the sibling with the greater number of shares
-            # (from both previous resamplings and inherited
-            # from the parent) will give shares to the sibling
-            # with the least. The number it will share is the
-            # number that will make them most similar rounding
-            # down (i.e. midpoint)
-            n_shares = math.floor((total_max_n_walkers - total_min_n_walkers)/2)
+        # the sibling with the greater number of shares
+        # (from both previous resamplings and inherited
+        # from the parent) will give shares to the sibling
+        # with the least. The number it will share is the
+        # number that will make them most similar rounding
+        # down (i.e. midpoint)
+        n_shares = math.floor((total_donor_n_walkers - total_recipient_n_walkers)/2)
 
         return n_shares
 
@@ -384,7 +372,7 @@ class RegionTree(nx.DiGraph):
 
                 for child in children:
                     if self.node[child]['n_cloneable']:
-                        self.node[child]['balance'] += self.node[parent]['balance']:
+                        self.node[child]['balance'] += self.node[parent]['balance']
                         self.node[parent]['balance'] = 0
 
                 if self.node[parent]['balance'] > 0:
@@ -400,16 +388,35 @@ class RegionTree(nx.DiGraph):
             ## repeat until no further trades can be made.
 
             # get the children with the max and min numbers of walkers
-            min_child, max_child = self.minmax_beneficiaries(children)
+            min_child_idx, max_child_idx = self.minmax_beneficiaries(children)
 
-            # calculate the number of share donations to take from
-            # the max child and give to the min child
-            n_shares = self.calc_share_donation(children[max_child],
-                                                children[min_child])
+            # get the actual node_ids for the children from their
+            # index among children
+            if max_child_idx is not None:
+                max_child = children[max_child_idx]
+            else:
+                max_child = None
+            if min_child_idx is not None:
+                min_child = children[min_child_idx]
+            else:
+                min_child = None
 
-            # account for these in the nodes
-            self.node[children[max_child]]['balance'] -= n_shares
-            self.node[children[min_child]]['balance'] = n_shares
+            # The recipient needs to have at least one clonable
+            # walker and the donor needs to have at least one
+            # mergeable walker. If they do not (None from the
+            # minmax function) then we cannot assign a number of
+            # shares for them to give each other
+            if None in (max_child, min_child):
+                n_shares = 0
+            else:
+                # calculate the number of share donations to take from
+                # the max child and give to the min child
+                n_shares = self.calc_share_donation(max_child,
+                                                    min_child)
+
+                # account for these in the nodes
+                self.node[max_child]['balance'] -= n_shares
+                self.node[min_child]['balance'] = n_shares
 
             # iteratively repeat this process until the number of
             # shares being donated is 1 or less which means the
@@ -417,10 +424,10 @@ class RegionTree(nx.DiGraph):
             while (n_shares >= 1):
                 # repeat above steps
                 min_child, max_child = self.minmax_beneficiaries(children)
-                n_shares = self.calc_share_donation(children[max_child],
-                                                    children[min_child])
-                self.node[children[max_child]]['balance'] -= n_shares
-                self.node[children[min_child]]['balance'] = n_shares
+                n_shares = self.calc_share_donation(max_child,
+                                                    min_child)
+                self.node[max_child]['balance'] -= n_shares
+                self.node[min_child]['balance'] = n_shares
 
         # only one child so it just inherits balance
         elif len(children) == 1:
@@ -429,7 +436,7 @@ class RegionTree(nx.DiGraph):
             self.node[parent]['n_mergeable'] += self.node[parent]['balance']
 
             # increase the balance of the only child
-            self.node[child]['balance'] = self.node[parent]['balance']
+            self.node[children[0]]['balance'] = self.node[parent]['balance']
 
             # clear the parent's balance
             self.node[parent]['balance'] = 0
@@ -551,11 +558,11 @@ class RegionTree(nx.DiGraph):
         # iterate through the groups of leaf nodes for the penultimate
         # nodes (i.e. last parents)
         for leaf_parent in self.level_nodes(self.n_levels-1):
-            curr_merge_groups, curr_walkers_num_clones = self.settle_balances(leaf_parent)
+            curr_merge_groups, curr_walkers_num_clones = self.settle_balance(leaf_parent)
 
             # update the master merge groups and clone numbers with
             # the leaf group ones
-            for walker_idx, merge_group in enumerate(curr_merge_group):
+            for walker_idx, merge_group in enumerate(curr_merge_groups):
                 merge_groups[walker_idx].extend(merge_group)
                 walkers_num_clones[walker_idx] += curr_walkers_num_clones[walker_idx]
 
