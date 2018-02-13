@@ -24,7 +24,7 @@ class RegionTree(nx.DiGraph):
         self._pmin = pmin
         self._pmax = pmax
 
-        self._walkers = []
+        self._walker_weights = []
         self._walker_assignments = []
 
         image_idx = 0
@@ -85,8 +85,8 @@ class RegionTree(nx.DiGraph):
         return self._walker_assignments
 
     @property
-    def walkers(self):
-        return self._walkers
+    def walker_weights(self):
+        return self._walkers_weights
 
     def add_child(self, parent_id, image_idx):
         # make a new child id which will be the next index of the
@@ -216,7 +216,7 @@ class RegionTree(nx.DiGraph):
 
             # save the walker assignment
             self._walker_assignments.append(assignment)
-            self._walkers.append(walker)
+            self._walker_weights.append(walker.weight)
 
             # test to see if this walker has a weight greater than the
             # minimum, and raise a flag to tally it in the node
@@ -265,20 +265,278 @@ class RegionTree(nx.DiGraph):
                     branch_node_id = node_id[:level]
                     self.node[branch_node_id]['n_reduc'] += self.node[node_id]['n_reduc']
 
-class ImageNode(object):
+    def minmax_beneficiaries(self, children):
+        #
+        # This is a helper function for balancetree, which returns the
+        # children with the highest and lowest numbers of walkers. As
+        # well as the number of transitions that should occur to even them
+        # out (ntrans).
+        #
 
-    def __init__(self, image_idx=None, children=None):
-        self.image_idx = image_idx
-        if children is None:
-            self.children = []
-        else:
-            self.children = children
+        min_n_walkers = None
+        min_child = None
 
-    def is_leaf_node(self):
-        if len(self.children) <= 0:
-            return True
+        max_n_walkers = None
+        max_child = None
+
+        # test each walker sequentially
+        for i, child in enumerate(children):
+
+
+            n_walkers = self.node[child]['n_walkers']
+            n_reduc = self.node[child]['n_reduc']
+            n_above_pmin = self.node[child]['n_above_pmin']
+
+            # we need to take into account the balance inherited
+            # from the parent when calculating the total number of
+            # walkers that can be given to other node/regions
+            total_n_walkers = n_walkers + self.node[child]['balance']
+            total_n_reduc = n_reduc + self.node[child]['balance']
+
+            # the maximum number of walkers that will exist after
+            # cloning, if the number of reducible walkers is 1 or more
+            if ((not max_child) or (n_walkers > max_n_walkers)) and \
+               (n_reduc >= 1):
+
+                max_n_walkers = n_walkers
+                max_child = i
+
+            # the minimum number of walkers that will exist after
+            # cloning, if the number of number of walkers above the
+            # minimum weight is 1 or more
+            if ((not min_child) or (n_walkers < min_n_walkers)) and \
+               (n_above_pmin >= 1):
+
+                min_n_walkers = n_walkers
+                min_child = i
+
+
+        return min_child, max_child
+
+    def calc_share_donation(self, donor, recipient):
+        total_recipient_n_walkers = self.node[donor]['n_reduc'] + \
+                              self.node[recipient]['balance']
+
+        donor_id = children[donor]
+        total_donor_n_walkers = self.node[children[donor]]['n_reduc'] + \
+                              self.node[children[donor]]['balance']
+
+
+        # The recipient needs to have at least one clonable
+        # walker and the donor needs to have at least one
+        # mergeable walker. If they do not (None from the
+        # minmax function) then we cannot assign a number of
+        # shares for them to give each other
+        if None in (recipient, donor):
+            n_shares = 0
+        # if they do exist then we find the number of shares
+        # to give
         else:
-            return False
+            # the sibling with the greater number of shares
+            # (from both previous resamplings and inherited
+            # from the parent) will give shares to the sibling
+            # with the least. The number it will share is the
+            # number that will make them most similar rounding
+            # down (i.e. midpoint)
+            n_shares = math.floor((total_max_n_walkers - total_min_n_walkers)/2)
+
+        return n_shares
+
+
+    def balance_tree(self, delta_walkers=0):
+        """Do balancing between the branches of the tree. the `delta_walkers`
+        kwarg can be used to increase or decrease the total number of
+        walkers, but defaults to zero which will cause no net change
+        in the number of walkers.
+
+        """
+
+        # set the delta walkers to the balance of the root node
+        self.node[self.ROOT_NODE]['balance'] = delta_walkers
+
+        # do a breadth first traversal and balance at each level
+        for parent, children in nx.bfs_successors(self, self.ROOT_NODE):
+            # there are more than one child so we accredit balances
+            # between them
+            if len(children) > 1:
+
+                # if the node had a balance assigned to previously,
+                # apply this to the number of walkers it has
+                #self.node[parent]['n_reduc'] += self.node[parent]['balance']
+                #self.node[parent]['n_walkers'] += self.node[parent]['balance']
+
+                # if the parent has a non-zero balance we either
+                # increase (clone) or decrease (merge) the balance
+
+                # these poor children are inheriting a debt and must
+                # decrease the total number of their credits :(
+                if self.node[parent]['balance'] < 0:
+
+                    # find children with mergeable walkers and account
+                    # for them in their balance
+                    for child in children:
+
+                        # if this child has any mergeable walkers
+                        if self.node[child]['n_reduc'] >= 1:
+                            # we use those for paying the parent's debt
+                            diff = abs(min(self.node[child]['n_reduc'],
+                                           self.node[parent]['balance']))
+                            self.node[parent]['balance'] += diff
+                            self.node[child]['balance'] -= diff
+
+                        if self.node[parent]['balance'] < 0:
+                            raise ValueError("Children cannot pay their parent's debt")
+
+
+                # these lucky children are inheriting a positive number of
+                # credits!! :)
+                elif self.node[parent]['balance'] > 0:
+
+                    for child in children:
+                        if self.node[child]['n_above_pmin']:
+                            self.node[child]['balance'] += self.node[parent]['balance']:
+                            self.node[parent]['balance'] = 0
+
+                    if self.node[parent]['balance'] > 0:
+                        raise ValueError("Children cannot perform any clones.")
+
+                ## Balance the walkers between the children. To do
+                ## this we iteratively identify nodes/regions to trade
+                ## walkers between. We choose the two regions with the
+                ## highest and the lowest number of walkers (that have
+                ## at least one reducible walker and have at least one
+                ## walker that is cloneable (above pmin)
+                ## respectively). We then tally these trades and
+                ## repeat until no further trades can be made.
+
+                # get the children with the max and min numbers of walkers
+                min_child, max_child = self.minmax_beneficiaries(children)
+
+                # calculate the number of share donations to take from
+                # the max child and give to the min child
+                n_shares = self.calc_share_donation(children[max_child],
+                                                    children[min_child])
+
+                # account for these in the nodes
+                self.node[children[max_child]]['balance'] -= n_shares
+                self.node[children[min_child]]['balance'] = n_shares
+
+                # iteratively repeat this process until the number of
+                # shares being donated is 1 or less which means the
+                # distribution is as uniform as possible
+                while (n_shares >= 1):
+                    # repeat above steps
+                    min_child, max_child = self.minmax_beneficiaries(children)
+                    n_shares = self.calc_share_donation(children[max_child],
+                                                        children[min_child])
+                    self.node[children[max_child]]['balance'] -= n_shares
+                    self.node[children[min_child]]['balance'] = n_shares
+
+            # only one child so it just inherits balance
+            elif len(children) == 1:
+                # add the balance to the number of walkers counts
+                self.node[parent]['n_walkers'] += self.node[parent]['balance']
+                self.node[parent]['n_reduc'] += self.node[parent]['balance']
+
+                # increase the balance of the only child
+                self.node[child]['balance'] = self.node[parent]['balance']
+
+                # clear the parent's balance
+                self.node[parent]['balance'] = 0
+
+            # the leaf level, we need to consider groups of leaves
+            # from the penultimate nodes so we just end the iteration
+            # here
+            else:
+                break
+
+        # the results of balance tree are the non-specific
+        # instructions for cloning and merging that can be used to
+        # generate the resampling actions/records
+        merge_groups = [[] for i in self.walker_weights]
+        walkers_num_clones = [0 for i in self.walker_weights]
+
+        # iterate through the groups of leaf nodes for the penultimate
+        # nodes (i.e. last parents)
+        for leaf_parent in self.level_nodes(self.n_levels-1):
+
+            # within the last bunch of leaves we need to pay the leaf
+            # parent's debt through cloning and merging
+            leaves = self.children(leaf_parent)
+
+            if self.node[parent]['balance'] < 0:
+                # check to make sure that the debt has enough
+                # mergeable walkers to merge to pay it
+                assert (not -self.node[parent]['balance'] >
+                        sum([self.node[leaf]['n_reduc'] for leaf in leaves])), \
+                                "Node doesn't have enough walkers to merge"
+
+            # we will iterate through the children (either clongin or
+            # merging) until the balance is settled
+            leaf_it = iter(leaves)
+
+            # if the balance is negative we merge
+            while self.node[leaf_parent]['balance'] < 0:
+
+                # get the leaf to do stuff with
+                try:
+                    leaf = next(leaf_it)
+                except StopIteration:
+                    # stop for this child and move onto the next
+                    break
+
+                # find the two walkers with the lowest weight to merge
+                weights = [self.walker_weights[i].weight for i in self.node[leaf]['walkers']]
+
+                # sort the weights and use to get the two lowest weight walkers
+
+                walker_idxs = [i for i in self.node[leaf]['walkers'] if i in np.argsort(weights)[:2]]
+
+                # if the sum of these weights would be greater than
+                # pmax move on to the next leaf to do merges
+                if sum(np.array(weights)[walker_idxs]) > self.pmax:
+                    break
+
+                # choose the one to keep the state of (e.g. KEEP_MERGE
+                # in the Decision)
+                keep_idx = rand.choice(walker_idxs)
+                # get the other index for the squashed one
+                squash_idx = walker_idxs[1 - walker_idxs.index(keep_idx)]
+
+                # account for the weight from the squashed walker to
+                # the keep walker
+                self._walker_weights[keep_idx] += self.walker_weights[squash_idx]
+                self._walker_weights[squash_idx] = 0.0
+
+                # update the merge group
+                merge_groups[keep_idx].append(squash_idx)
+
+                # update the parent's balance
+                self.node[leaf_parent]['balance'] += 1
+
+
+            while self.node[leaf_parent]['balance'] > 0:
+
+                # get the leaf to do stuff with
+                try:
+                    leaf = next(leaf_it)
+                except StopIteration:
+                    # stop for this child and move onto the next
+                    break
+
+                weights = [self.walker_weights[i].weight for i in self.node[leaf]['walkers']]
+
+                # get the walker with the highest weight
+                walker_idx = self.node[leaf]['walkers'][np.argmax(weights)]
+
+                # increase the number of clones assigned to this walker
+                walkers_num_clones[walker_idx] += 1
+
+                # update the parent's balance
+                self.node[leaf_parent]['balance'] -= 1
+
+
+        return merge_groups, walkers_num_clones
 
 class WExplore1Resampler(Resampler):
 
@@ -476,174 +734,6 @@ class WExplore1Resampler(Resampler):
 
         return walker_assignments
 
-    def minmax_beneficiaries(self, children):
-        #
-        # This is a helper function for balancetree, which returns the
-        # children with the highest and lowest numbers of walkers. As
-        # well as the number of transitions that should occur to even them
-        # out (ntrans).
-        #
-
-        min_n_walkers = None
-        min_child = None
-
-        max_n_walkers = None
-        max_child = None
-
-        # test each walker sequentially
-        for i, child in enumerate(children):
-
-
-            n_walkers = self.node[child]['n_walkers']
-            n_reduc = self.node[child]['n_reduc']
-            n_above_pmin = self.node[child]['n_above_pmin']
-
-            # we need to take into account the balance inherited
-            # from the parent when calculating the total number of
-            # walkers that can be given to other node/regions
-            total_n_walkers = n_walkers + self.node[child]['balance']
-            total_n_reduc = n_reduc + self.node[child]['balance']
-
-            # the maximum number of walkers that will exist after
-            # cloning, if the number of reducible walkers is 1 or more
-            if ((not max_child) or (n_walkers > max_n_walkers)) and \
-               (n_reduc >= 1):
-
-                max_n_walkers = n_walkers
-                max_child = i
-
-            # the minimum number of walkers that will exist after
-            # cloning, if the number of number of walkers above the
-            # minimum weight is 1 or more
-            if ((not min_child) or (n_walkers < min_n_walkers)) and \
-               (n_above_pmin >= 1):
-
-                min_n_walkers = n_walkers
-                min_child = i
-
-
-        return min_child, max_child
-
-    def ntrans():
-        # if a minwalk and maxwalk are defined calculate ntrans, the
-        # number of 'transitions' which is the number of walkers that
-        # will be passed between them.
-        if (minwalk and maxwalk):
-            # the number of transitions is either the midpoint between
-            # them (rounded down to an integer) or the sum of the
-            # number of reducible walkers plus the number of toclones
-            # for the walker with the highest number of walkers,
-            # whichever is smaller
-            ntrans = min(int((maxwalk - minwalk)/2),
-                         children[highchild].nreduc + children[highchild].toclone)
-        # initialize it to 0 if it is not set already
-        else:
-            ntrans = 0
-
-        return ntrans
-
-    def balance_tree(self, delta_walkers=0):
-        """Do balancing between the branches of the tree. the `delta_walkers`
-        kwarg can be used to increase or decrease the total number of
-        walkers, but defaults to zero which will cause no net change
-        in the number of walkers.
-
-        """
-
-        # set the delta walkers to the balance of the root node
-        self.node[self.ROOT_NODE]['balance'] = delta_walkers
-
-        # do a breadth first traversal and balance at each level
-        for parent, children in nx.bfs_successors(self, self.ROOT_NODE):
-            # there are more than one child so we accredit balances
-            # between them
-            if len(children) > 1:
-
-                # if the node had a balance assigned to previously,
-                # apply this to the number of walkers it has
-                #self.node[parent]['n_reduc'] += self.node[parent]['balance']
-                #self.node[parent]['n_walkers'] += self.node[parent]['balance']
-
-                # if the parent has a non-zero balance we either
-                # increase (clone) or decrease (merge) the balance
-
-                # these poor children are inheriting a debt and must
-                # decrease the total number of their credits :(
-                if self.node[parent]['balance'] < 0:
-
-                    # find children with mergeable walkers and account
-                    # for them in their balance
-                    for child in children:
-
-                        # if this child has any mergeable walkers
-                        if self.node[child]['n_reduc'] >= 1:
-                            # we use those for paying the parent's debt
-                            diff = abs(min(self.node[child]['n_reduc'],
-                                           self.node[parent]['balance']))
-                            self.node[parent]['balance'] += diff
-                            self.node[child]['balance'] -= diff
-
-                        if self.node[parent]['balance'] < 0:
-                            raise ValueError("Children cannot pay their parent's debt")
-
-
-                # these lucky children are inheriting a positive number of
-                # credits!! :)
-                elif self.node[parent]['balance'] > 0:
-
-                    for child in children:
-                        if self.node[child]['n_above_pmin']:
-                            self.node[child]['balance'] += self.node[parent]['balance']:
-                            self.node[parent]['balance'] = 0
-
-                    if self.node[parent]['balance'] > 0:
-                        raise ValueError("Children cannot perform any clones.")
-
-                ## Balance the walkers between the children. To do
-                ## this we iteratively identify nodes/regions to trade
-                ## walkers between. We choose the two regions with the
-                ## highest and the lowest number of walkers (that have
-                ## at least one reducible walker and have at least one
-                ## walker that is cloneable (above pmin)
-                ## respectively). We then tally these trades and
-                ## repeat until no further trades can be made.
-
-                # get the children with the max and min numbers of walkers
-                min_child, max_child = self.minmax_beneficiaries(children)
-
-                min_child_id = children[min_child]
-                total_min_n_walkers = self.node[children[min_child]]['n_reduc'] + \
-                                      self.node[children[min_child]]['balance']
-
-                max_child_id = children[max_child]
-                total_max_n_walkers = self.node[children[max_child]]['n_reduc'] + \
-                                      self.node[children[max_child]]['balance']
-
-
-                # The min_child needs to have at least one clonable
-                # walker and the max_child needs to have at least one
-                # mergeable walker. If they do not (None from the
-                # minmax function) then we cannot assign a number of
-                # shares for them to give each other
-                if None in (min_child, max_child):
-                    shares = 0
-                # if they do exist then we find the number of shares
-                # to give
-                else:
-                    # the sibling with the greater number of shares
-                    # (from both previous resamplings and inherited
-                    # from the parent) will give shares to the sibling
-                    # with the least. The number it will share is the
-                    # number that will make them most similar rounding
-                    # down (i.e. midpoint)
-                    n_shares = math.floor((total_max_n_walkers - total_min_n_walkers)/2)
-
-            # only one child so it just inherits balance
-            elif len(children) == 1:
-                pass
-            # the leaf level, balances must be paid
-            else:
-                pass
 
     def getmaxminwalk(self, children):
         #
@@ -793,6 +883,8 @@ class WExplore1Resampler(Resampler):
             # merge and update until there is no debt
             while parent.toclone < 0:
                 # MERGE: find the two walkers with the lowest weights
+
+                # walker index of first walker
                 r1 = None
                 minwt = None
                 for i in range(parent.nwalkers):
@@ -800,6 +892,8 @@ class WExplore1Resampler(Resampler):
                     if (r1 is None) or (twt < minwt):
                         minwt = twt
                         r1 = i
+
+                # walker index of second walker
                 r2 = None
                 minwt = None
                 for i in range(parent.nwalkers):
@@ -809,8 +903,11 @@ class WExplore1Resampler(Resampler):
                             minwt = twt;
                             r2 = i
 
+
                 r1index = parent.windx[r1]
                 r2index = parent.windx[r2]
+                # choose one of them to be the KEEPER and the other to
+                # be squashed
                 r3 = rand.random() * (self.walkerwt[r1index] + self.walkerwt[r2index])
                 if r3 < self.walkerwt[r1index]:
                     keep_idx = r1index
@@ -818,10 +915,17 @@ class WExplore1Resampler(Resampler):
                 else:
                     keep_idx = r2index
                     squash_idx = r1index
+
+                # move the weight
                 self.walkerwt[keep_idx] += self.walkerwt[squash_idx]
                 self.walkerwt[squash_idx] = 0
+
+                # update the merge groups
                 self.walkers_squashed[keep_idx] += [squash_idx] + self.walkers_squashed[squash_idx]
                 self.walkers_squashed[squash_idx] = []
+
+                # remove the squashed walker from the nodes that
+                # reference it and account for it
                 parent.windx.remove(squash_idx)
                 parent.nwalkers -=1
                 parent.toclone +=1
@@ -831,7 +935,7 @@ class WExplore1Resampler(Resampler):
             while parent.toclone > 0:
                 # pick the one with the highest weight
                 maxwt = None
-                for i,w in enumerate(parent.windx):
+                for i, w in enumerate(parent.windx):
                     twt = self.walkerwt[w]
                     if (maxwt is None) or twt > maxwt:
                         maxwt = twt;
