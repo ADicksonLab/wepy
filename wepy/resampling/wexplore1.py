@@ -146,6 +146,11 @@ class RegionTree(nx.DiGraph):
 
         assignment = []
         dists = []
+
+        # a cache for the distance calculations so they need not be
+        # performed more than once
+        dist_cache = {}
+
         # perform a n-ary search through the hierarchy of regions by
         # performing a distance calculation to the images at each
         # level starting at the top
@@ -157,12 +162,25 @@ class RegionTree(nx.DiGraph):
             # level
             image_dists = []
             for level_node in level_nodes:
-                # get the image
-                image = self.images[self.node[level_node]['image_idx']]
 
-                # preimage of the state
-                state_preimage = self.distance.preimage(state)
-                dist = self.distance.preimage_distance(state_preimage, image)
+                # get the image
+                image_idx = self.node[level_node]['image_idx']
+                image = self.images[image_idx]
+
+                # if this distance is already calculated don't
+                # calculate it again and just get it from the cache
+                if image_idx in dist_cache:
+                    dist = dist_cache[image_idx]
+                # otherwise calculate it and save it in the cache
+                else:
+                    # preimage of the state
+                    state_preimage = self.distance.preimage(state)
+                    dist = self.distance.preimage_distance(state_preimage, image)
+
+                    # save in the dist_cache
+                    dist_cache[image_idx] = dist
+
+                # add it to the dists for this state
                 image_dists.append(dist)
 
             # get the index of the image that is closest
