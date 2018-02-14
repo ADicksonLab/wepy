@@ -9,45 +9,25 @@ from wepy.resampling.distances.distance import Distance
 
 
 class RandomWalkDistance(Distance):
-
-    def __init__(self):
-        pass
-
     """
     Computes the distance between pairs of positions and returns a distance matrix
     where the element (d_ij) is the average of the difference between posiotion of
     walker i and j.
     """
-    def distance(self, walker_a, walker_b):
-        """Compute the distance between posiotion of two walkers.
 
-        :param position_a: posiotion of first walker
-        :param position_b: posiotion of second walker
+    def __init__(self):
+        pass
+
+
+    def preimage(self, state):
+        return state['positions'][0]
+
+    def preimage_distance(self, preimage_a, preimage_b):
+        """Compute the distance between posiotion of two states.
+
+        :param position_a: posiotion of first state
+        :param position_b: posiotion of second state
         :returns: a distance value
         :rtype: float
         """
-        return np.average(np.abs(walker_a['positions'][0] - walker_b['positions'][0]))
-
-
-    # def distance(self, walkers):
-    #     """
-    #     Computes the distances between pairs of walkers and returns the
-    #     distance matrix.
-
-    #     :param walkers: list of RandomWalker objects
-    #     :returns: the symmetric matrix of distances
-    #     :rtype: numpy array of shape (n_walkers, n_walkers)
-    #     """
-
-    #     n_walkers = len (walkers)
-    #     # creates and initialize the distance matrix
-    #     distance_matrix = np.zeros((n_walkers, n_walkers))
-
-    #     #calls the distance method for pairs of walkers
-    #     for i in range(n_walkers-1):
-    #         for j in range(i+1, n_walkers):
-
-    #             distance_matrix[i][j] = self._distance(walkers[i].positions, walkers[j].positions)
-    #             distance_matrix[j][i] = distance_matrix[i][j]
-
-    #     return distance_matrix
+        return np.average(np.abs(preimage_a - preimage_b))

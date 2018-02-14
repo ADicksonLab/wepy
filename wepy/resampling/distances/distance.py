@@ -20,7 +20,7 @@ class Distance(object):
 
         return state
 
-    def preimage_distance(preimage_a, preimage_b):
+    def preimage_distance(self, preimage_a, preimage_b):
         """The preimage_distance is the distance function computed between the
         exact preimages necessary for the resultant distance value.
 

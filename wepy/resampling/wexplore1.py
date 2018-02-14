@@ -17,7 +17,7 @@ class RegionTree(nx.DiGraph):
 
     def __init__(self, init_state,
                  max_n_regions=None,
-                 max_region_size=None,
+                 max_region_sizes=None,
                  distance=None,
                  pmin=1e-12, pmax=0.5):
 
@@ -25,7 +25,7 @@ class RegionTree(nx.DiGraph):
 
         self._max_n_regions = max_n_regions
         self._n_levels = len(max_n_regions)
-        self._max_region_size = max_region_size
+        self._max_region_sizes = max_region_sizes
         self._distance = distance
         self._pmin = pmin
         self._pmax = pmax
@@ -75,8 +75,8 @@ class RegionTree(nx.DiGraph):
         return self._n_levels
 
     @property
-    def max_region_size(self):
-        return self._max_region_size
+    def max_region_sizes(self):
+        return self._max_region_sizes
 
     @property
     def pmin(self):
@@ -131,10 +131,7 @@ class RegionTree(nx.DiGraph):
     def branch_tree(self, parent_id, image):
         # add the new image to the image index
         image_idx = len(self.images)
-        # get the true preimage of the distance function to save as
-        # the image
-        preimage = self.distance.preimage(image)
-        self.images.append(preimage)
+        self.images.append(image)
 
         branch_level = len(parent_id)
         # go down from there and create children
@@ -215,7 +212,7 @@ class RegionTree(nx.DiGraph):
 
                 # if we are over the max region distance we have found a
                 # new region so we branch the region_tree at that level
-                if distance > self.max_region_size[level]:
+                if distance > self.max_region_sizes[level]:
                     image = self.distance.preimage(walker.state)
                     parent_id = assignment[:level]
                     assignment = self.branch_tree(parent_id, image)
@@ -604,7 +601,7 @@ class WExplore1Resampler(Resampler):
     def region_tree(self):
         return self._region_tree
 
-    def resample(self, walkers, delta_walkers=0):
+    def resample(self, walkers, delta_walkers=0, debug_prints=False):
 
         # if the region tree has not been initialized, do so
         if self.region_tree is None:
@@ -629,16 +626,18 @@ class WExplore1Resampler(Resampler):
         # walkers
         merge_groups, walkers_num_clones = self.region_tree.balance_tree(delta_walkers=delta_walkers)
 
+        # use these to make the actual resampling actions
+
         # clear the tree of walker information
         self.region_tree.clear_walkers()
 
         # using the merge groups and the non-specific number of clones
         # for walkers create resampling actions for them (from the
         # Resampler superclass)
-        self.assign_clones(merge_groups, walkers_num_clones)
+        resampling_actions = [self.assign_clones(merge_groups, walkers_num_clones)]
 
         # perform the cloning and merging
-        resampled_walkers = self.DECISION.action(walkers, [resampling_actions])
+        resampled_walkers = self.DECISION.action(walkers, resampling_actions)
 
         # Auxiliary data
         aux_data = {}

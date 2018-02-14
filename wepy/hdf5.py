@@ -2241,6 +2241,34 @@ class WepyHDF5(object):
 
     def add_cycle_resampling_records(self, run_idx, cycle_resampling_records):
 
+        # a common mistake when writing a new resampler is to not
+        # return the correct type for the cycle resampling
+        # records. `cycle_resamplingrecords` is supposed to be a list
+        # of lists where the elements of the outer list represent the
+        # "steps" a resampler can take. This is because a single
+        # resampling is allowed to clone a walker and then clone that
+        # walker again, which will always take multiple "steps", the
+        # order of the steps is the order in which the steps should be
+        # performed. A step is the list of actual ResamplingRecord
+        # objects for each walker. These are in the order that the
+        # walkers were passed to the `resample` function. Thus even if
+        # there is only one resampling "step" this should be a list of
+        # a single list, i.e. the only step. It is not expected many
+        # resamplers will use multiple steps we though it nonetheless
+        # prudent to allow for this potential behavior because the
+        # handling of such data in the HDF5 (and subsequent analysis
+        # steps) changes considerably with this consideration. In the
+        # future perhaps an automatic converter will detect this and
+        # modify it if we find it necessary, however it is more likely
+        # that this will just hide more important errors,
+        # i.e. returning only one step when you meant to return
+        # more. So for now we just provide a custom error to help in
+        # debugging because this is a common mistake.
+        if not isinstance(cycle_resampling_records[0], list):
+            raise TypeError("'cycle_resampling_records' must be a list of lists "
+                            "(i.e. list of steps), but a list of types {} were given.".format(
+                                type(cycle_resampling_records[0])))
+
         # get the run group
         run_grp = self.run(run_idx)
         # get the resampling group
