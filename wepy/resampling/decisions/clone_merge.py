@@ -7,16 +7,16 @@ from wepy.resampling.decisions.decision import Decision
 
 from wepy.walker import split, keep_merge
 
+# the possible types of decisions that can be made enumerated for
+# storage, these each correspond to specific instruction type
+class CloneMergeDecisionEnum(Enum):
+    NOTHING = 1
+    CLONE = 2
+    SQUASH = 3
+    KEEP_MERGE = 4
+
 
 class CloneMergeDecision(Decision):
-
-    # the possible types of decisions that can be made enumerated for
-    # storage, these each correspond to specific instruction type
-    class CloneMergeDecisionEnum(Enum):
-        NOTHING = 1
-        CLONE = 2
-        SQUASH = 3
-        KEEP_MERGE = 4
 
     ENUM = CloneMergeDecisionEnum
 
@@ -112,13 +112,6 @@ class CloneMergeDecision(Decision):
 
 class MultiCloneMergeDecision(Decision):
 
-    # the possible types of decisions that can be made enumerated for
-    # storage, these each correspond to specific instruction type
-    class CloneMergeDecisionEnum(Enum):
-        NOTHING = 1
-        CLONE = 2
-        SQUASH = 3
-        KEEP_MERGE = 4
 
     ENUM = CloneMergeDecisionEnum
 
@@ -153,6 +146,11 @@ class MultiCloneMergeDecision(Decision):
         (ENUM.KEEP_MERGE, (np.int,)),
     )
 
+
+    # the decision types that pass on their state
+    ANCESTOR_DECISION_IDS = (ENUM.NOTHING.value,
+                             ENUM.KEEP_MERGE.value,
+                             ENUM.CLONE.value,)
 
     @classmethod
     def action(cls, walkers, decisions):
@@ -227,3 +225,72 @@ class MultiCloneMergeDecision(Decision):
                 mod_walkers[target_idx] = merged_walker
 
         return mod_walkers
+
+
+
+
+    @classmethod
+    def parent_panel(cls, resampling_panel):
+
+        parent_panel = []
+        for cycle_idx, cycle in enumerate(resampling_panel):
+
+            # each stage in the resampling for that cycle
+            # make a stage parent table
+            parent_table = []
+
+            # now iterate through the rest of the stages
+            for step_idx, step in enumerate(cycle):
+
+                # initialize a list for the parents of this stages walkers
+                step_parents = [None for i in range(len(step))]
+
+                # the rest of the stages parents are based on the previous stage
+                for parent_idx, parent_rec in enumerate(step):
+
+                    # if the decision is an ancestor then the instruction
+                    # values will be the children
+                    if parent_rec[0] in cls.ANCESTOR_DECISION_IDS:
+                        child_idxs = parent_rec[1]
+                        for child_idx in child_idxs:
+                            step_parents[child_idx] = parent_idx
+
+                # for the full stage table save all the intermediate parents
+                parent_table.append(step_parents)
+
+            # for the full parent panel
+            parent_panel.append(parent_table)
+
+        return parent_panel
+
+    @classmethod
+    def net_parent_table(cls, parent_panel):
+
+        #net_parent_table = [[i for i in range(len(parent_panel[0][0]))]]
+        net_parent_table = []
+
+        # each cycle
+        for cycle_idx, step_parent_table in enumerate(parent_panel):
+            # for the net table we only want the end results,
+            # we start at the last cycle and look at its parent
+            step_net_parents = []
+            n_steps = len(step_parent_table)
+            for walker_idx, parent_idx in enumerate(step_parent_table[-1]):
+                # initialize the root_parent_idx which will be updated
+                root_parent_idx = parent_idx
+
+                # if no resampling skip the loop and just return the idx
+                if n_steps > 0:
+                    # go back through the steps getting the parent at each step
+                    for prev_step_idx in range(n_steps):
+                        prev_step_parents = step_parent_table[-(prev_step_idx+1)]
+                        root_parent_idx = prev_step_parents[root_parent_idx]
+
+                # when this is done we should have the index of the root parent,
+                # save this as the net parent index
+                step_net_parents.append(root_parent_idx)
+
+            # for this step save the net parents
+            net_parent_table.append(step_net_parents)
+
+        return net_parent_table

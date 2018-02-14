@@ -1,5 +1,6 @@
 from collections import Iterable, Sequence
 from types import GeneratorType
+import itertools as it
 
 import json
 from warnings import warn
@@ -81,8 +82,14 @@ COMPOUND_UNIT_FIELDS = ('parameters', 'parameter_derivatives', 'observables')
 SPARSE_DATA_FIELDS = ('velocities', 'forces', 'kinetic_energy', 'potential_energy',
                       'box_volume', 'parameters', 'parameter_derivatives', 'observables')
 
+RESAMPLING_RECORDS_FIELDS = ('cycle_idx', 'step_idx', 'walker_idx',
+                             'decision_id', 'instruction')
+
 # decision instructions can be variable or fixed width
 INSTRUCTION_TYPES = ('VARIABLE', 'FIXED')
+
+
+
 
 ## Dataset Compliances
 # a file which has different levels of keys can be used for
@@ -1363,7 +1370,7 @@ class WepyHDF5(object):
         # if not we count the number of atoms in the topology
         if self._main_rep_idxs is None:
             self._n_coords = _json_top_atom_count(self.topology)
-            self._main_rep_idxs = self._n_coords
+            self._main_rep_idxs = list(range(self._n_coords))
         else:
             self._n_coords = len(self._main_rep_idxs)
 
@@ -2433,6 +2440,15 @@ class WepyHDF5(object):
     def resampling_records_grp(self, run_idx):
         return self._h5['runs/{}/resampling/records'.format(run_idx)]
 
+    def resampling_aux_data_grp(self, run_idx):
+        return self._h5['runs/{}/resampling/aux_data'.format(run_idx)]
+
+    def resampling_aux_data_field(self, run_idx, field):
+
+        aux_grp = self.resampling_aux_data_grp(run_idx)
+
+        return aux_grp[field][:]
+
     def _instruction_varlength_flags(self, run_idx):
         varlength_grp = self._h5['runs/{}/resampling/decision/variable_length'.format(run_idx)]
         varlength = {}
@@ -2507,32 +2523,62 @@ class WepyHDF5(object):
                     self.bc_aux_shapes[key] = aux_data.shape
                     self._bc_aux_init.append(key)
 
-    def _get_contiguous_traj_field(self, run_idx, traj_idx, field_path):
+    def _get_contiguous_traj_field(self, run_idx, traj_idx, field_path, frames=None):
 
         full_path = "/runs/{}/trajectories/{}/{}".format(run_idx, traj_idx, field_path)
-        return self._h5[full_path][:]
 
-    def _get_sparse_traj_field(self, run_idx, traj_idx, field_path):
+        if frames is None:
+            field = self._h5[full_path][:]
+        else:
+            field = self._h5[full_path][frames]
 
+        return field
+
+    def _get_sparse_traj_field(self, run_idx, traj_idx, field_path, frames=None):
+
+        import ipdb; ipdb.set_trace()
         traj_path = "/runs/{}/trajectories/{}".format(run_idx, traj_idx)
         traj_grp = self.h5[traj_path]
         field = traj_grp[field_path]
-        data = field['data'][:]
-        sparse_idxs = field['_sparse_idxs'][:]
 
         n_frames = traj_grp['positions'].shape[0]
 
-        filled_data = np.full( (n_frames, *data.shape[1:]), np.nan)
-        filled_data[sparse_idxs] = data
+        if frames is None:
+            data = field['data'][:]
+            sparse_idxs = field['_sparse_idxs'][:]
 
-        mask = np.full( (n_frames, *data.shape[1:]), True)
-        mask[sparse_idxs] = False
+            filled_data = np.full( (n_frames, *data.shape[1:]), np.nan)
+            filled_data[sparse_idxs] = data
 
-        masked_array = np.ma.masked_array(filled_data, mask=mask)
+            mask = np.full( (n_frames, *data.shape[1:]), True)
+            mask[sparse_idxs] = False
+
+            masked_array = np.ma.masked_array(filled_data, mask=mask)
+
+        else:
+            # the empty arrays the size of the number of requested frames
+            filled_data = np.full( (len(frames), *field['data'].shape[1:]), np.nan)
+            mask = np.full( (len(frames), *field['data'].shape[1:]), True )
+
+            sparse_idxs = field['_sparse_idxs'][:]
+
+            # we get a boolean array of the rows of the data table
+            # that we are to slice from
+            sparse_frame_idxs = np.argwhere(np.isin(sparse_idxs, frames))
+
+            # take the data which exists and is part of the frames
+            # selection, and put it into the filled data where it is
+            # supposed to be
+            filled_data[np.isin(frames, sparse_idxs)] = field['data'][list(sparse_frame_idxs)]
+
+            # unmask the present values
+            mask[np.isin(frames, sparse_idxs)] = False
+
+            masked_array = np.ma.masked_array(filled_data, mask=mask)
 
         return masked_array
 
-    def get_traj_field(self, run_idx, traj_idx, field_path):
+    def get_traj_field(self, run_idx, traj_idx, field_path, frames=None):
         """Returns a numpy array for the given field."""
 
         traj_path = "/runs/{}/trajectories/{}".format(run_idx, traj_idx)
@@ -2543,9 +2589,27 @@ class WepyHDF5(object):
 
         # get the field depending on whether it is sparse or not
         if field_path in self.sparse_fields:
-            return self._get_sparse_traj_field(run_idx, traj_idx, field_path)
+            return self._get_sparse_traj_field(run_idx, traj_idx, field_path,
+                                               frames=frames)
         else:
-            return self._get_contiguous_traj_field(run_idx, traj_idx, field_path)
+            return self._get_contiguous_traj_field(run_idx, traj_idx, field_path,
+                                                   frames=frames)
+
+    def get_trace_fields(self, run_idx, frame_tups, fields):
+
+        frame_fields = {field : [] for field in fields}
+        for cycle_idx, traj_idx in frame_tups:
+            for field in fields:
+                frame_field = self.get_traj_field(run_idx, traj_idx, field, frames=[cycle_idx])
+                # the first dimension doesn't matter here since we
+                # only get one frame at a time.
+                frame_fields[field].append(frame_field[0])
+
+        # combine all the parts of each field into single arrays
+        for field in fields:
+            frame_fields[field] = np.array(frame_fields[field])
+
+        return frame_fields
 
     def iter_runs(self, idxs=False, run_sel=None):
         """Iterate through runs.
@@ -2850,7 +2914,7 @@ class WepyHDF5(object):
         if return_results:
             return results
 
-    def resampling_records(self, run_idx):
+    def resampling_records(self, run_idx, sort=True):
 
         res_grp = self.resampling_records_grp(run_idx)
         decision_enum = self.decision_enum(run_idx)
@@ -2861,35 +2925,184 @@ class WepyHDF5(object):
             # if this is a decision with variable length instructions
             if self._instruction_varlength_flags(run_idx)[dec_name][()]:
                 dec_grp = res_grp[dec_name]
+                recs = []
                 # go through each dataset of different records
                 for init_length in dec_grp['_initialized'][:]:
                     rec_ds = dec_grp['{}'.format(init_length)]
 
-                    # make tuples for the decision and the records
-                    tups = zip((dec_id for i in range(rec_ds.shape[0])), rec_ds)
+                    # reorder for to match the field order
+                    recs = [rec_ds[field] for field in ['cycle_idx', 'step_idx', 'walker_idx']]
+                    # fill up a column for the decision id
+                    recs.append(np.full((rec_ds.shape[0],), dec_id))
+                    # put the instructions last
+                    recs.append(rec_ds['instruction'])
 
-                    # save the tuples
-                    res_recs.extend(list(tups))
+                    # make an array
+                    recs = np.array(recs)
+                    # swap the axes so it is row-oriented
+                    recs = np.swapaxes(recs, 0, 1)
+
+                    # return to a list of lists and save into the full record
+                    res_recs.append([tuple(row) for row in recs])
+
             else:
                 rec_ds = res_grp[dec_name]
-                # make tuples for the decision and the records
-                tups = zip((dec_id for i in range(rec_ds.shape[0])), rec_ds)
 
-                # save the tuples
-                res_recs.extend(list(tups))
+                # reorder for to match the field order
+                recs = [rec_ds[field] for field in ['cycle_idx', 'step_idx', 'walker_idx']]
+                # fill up a column for the decision id
+                recs.append(np.full((rec_ds.shape[0],), dec_id))
+                # put the instructions last
+                recs.append(rec_ds['instruction'])
+
+                # make an array
+                recs = np.array(recs)
+                # swap the axes so it is row-oriented
+                recs = np.swapaxes(recs, 0, 1)
+
+                # return to a list of lists and save into the full record
+                res_recs.append([tuple(row) for row in recs])
+
+        # combine them all into one list
+        res_recs = list(it.chain(*res_recs))
+
+        if sort:
+            res_recs.sort()
 
         return res_recs
 
     def resampling_records_dataframe(self, run_idx):
-        records = self.resampling_records(run_idx)
 
-        records = [(tup[0], *tup[1]) for tup in records]
+        return pd.DataFrame(data=self.resampling_records(run_idx), columns=RESAMPLING_RECORDS_FIELDS)
 
-        colnames = ['decision_id', 'cycle_idx', 'step_idx', 'walker_idx', 'instruction_record']
+    @staticmethod
+    def resampling_panel(resampling_records, is_sorted=False):
 
-        df = pd.DataFrame(data=records, columns=colnames)
-        return df
+        resampling_panel = []
 
+        # if the records are not sorted this must be done:
+        if not is_sorted:
+            resampling_records.sort()
+
+        # iterate through the resampling records
+        rec_it = iter(resampling_records)
+        cycle_idx = 0
+        cycle_recs = []
+        stop = False
+        while not stop:
+
+            # iterate through records until either there is none left or
+            # until you get to the next cycle
+            cycle_stop = False
+            while not cycle_stop:
+                try:
+                    rec = next(rec_it)
+                except StopIteration:
+                    # this is the last record of all the records
+                    stop = True
+                    # this is the last record for the last cycle as well
+                    cycle_stop = True
+                    # alias for the current cycle
+                    curr_cycle_recs = cycle_recs
+                else:
+                    # if the resampling record retrieved is from the next
+                    # cycle we finish the last cycle
+                    if rec[RESAMPLING_RECORDS_FIELDS.index('cycle_idx')] > cycle_idx:
+                        cycle_stop = True
+                        # save the current cycle as a special
+                        # list which we will iterate through
+                        # to reduce down to the bare
+                        # resampling record
+                        curr_cycle_recs = cycle_recs
+
+                        # start a new cycle_recs for the record
+                        # we just got
+                        cycle_recs = [rec]
+                        cycle_idx += 1
+
+                if not cycle_stop:
+                    cycle_recs.append(rec)
+
+                else:
+
+                    # we need to break up the records in the cycle into steps
+                    cycle_table = []
+
+                    # temporary container for the step we are working on
+                    step_recs = []
+                    step_idx = 0
+                    step_stop = False
+                    cycle_it = iter(curr_cycle_recs)
+                    while not step_stop:
+                        try:
+                            cycle_rec = next(cycle_it)
+                        # stop the step if this is the last record for the cycle
+                        except StopIteration:
+                            step_stop = True
+                            # alias for the current step
+                            curr_step_recs = step_recs
+
+                        # or if the next stop index has been obtained
+                        else:
+                            if cycle_rec[RESAMPLING_RECORDS_FIELDS.index('step_idx')] > step_idx:
+                                step_stop = True
+                                # save the current step as a special
+                                # list which we will iterate through
+                                # to reduce down to the bare
+                                # resampling record
+                                curr_step_recs = step_recs
+
+                                # start a new step_recs for the record
+                                # we just got
+                                step_recs = [cycle_rec]
+                                step_idx += 1
+
+
+                        if not step_stop:
+                            step_recs.append(cycle_rec)
+                        else:
+                            # go through the walkers for this step since it is completed
+                            step_row = [None for i in range(len(curr_step_recs))]
+                            for walker_rec in curr_step_recs:
+
+                                # collect data from the record
+                                walker_idx = walker_rec[
+                                    RESAMPLING_RECORDS_FIELDS.index('walker_idx')]
+                                decision_id = walker_rec[
+                                    RESAMPLING_RECORDS_FIELDS.index('decision_id')]
+                                instruction = walker_rec[
+                                    RESAMPLING_RECORDS_FIELDS.index('instruction')]
+
+                                # set the resampling record for the walker in the step records
+                                step_row[walker_idx] = (decision_id, instruction)
+
+                            # add the records for this step to the cycle table
+                            cycle_table.append(step_row)
+
+            # add the table for this cycles records to the parent panel
+            resampling_panel.append(cycle_table)
+
+        return resampling_panel
+
+
+    def run_resampling_panel(self, run_idx):
+        return self.resampling_panel(self.resampling_records(run_idx))
+
+    def run_warp_grp(self, run_idx):
+
+        path = "runs/{}/warping".format(run_idx)
+        return self.h5[path]
+
+    def run_warp_records(self, run_idx):
+
+        warp_grp = self.run_warp_grp(run_idx)
+
+        return warp_grp['records'][:]
+
+    def run_warp_aux_data(self, run_idx, field):
+
+        warp_grp = self.run_warp_grp(run_idx)
+        return warp_grp['aux_data/{}'.format(field)][:]
 
     def join(self, other_h5):
         """Given another WepyHDF5 file object does a left join on this
@@ -2949,7 +3162,6 @@ class WepyHDF5(object):
 
         return traj_h5
 
-
     def to_mdtraj(self, run_idx, traj_idx, frames=None, alt_rep=None):
 
         # the default for alt_rep is the main rep
@@ -2998,6 +3210,32 @@ class WepyHDF5(object):
                        unitcell_lengths=unitcell_lengths, unitcell_angles=unitcell_angles)
 
         return traj
+
+    def trace_to_mdtraj(self, run_idx, trace, alt_rep=None):
+
+        # the default for alt_rep is the main rep
+        if alt_rep is None:
+            rep_key = 'positions'
+            rep_path = rep_key
+        else:
+            rep_key = alt_rep
+            rep_path = 'alt_reps/{}'.format(alt_rep)
+
+        topology = self.get_mdtraj_topology(alt_rep=rep_key)
+
+        trace_fields = self.get_trace_fields(run_idx, trace, [rep_path, 'box_vectors'])
+
+        unitcell_lengths, unitcell_angles = _box_vectors_to_lengths_angles(
+                                               trace_fields['box_vectors'])
+
+        cycles = [cycle for cycle, walker in trace]
+        traj = mdj.Trajectory(trace_fields[rep_key], topology,
+                       time=cycles,
+                       unitcell_lengths=unitcell_lengths, unitcell_angles=unitcell_angles)
+
+        return traj
+
+
 
 
 def _extract_dict(keys, **kwargs):
