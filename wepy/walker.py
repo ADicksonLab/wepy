@@ -75,5 +75,11 @@ class Walker(object):
 
 class WalkerState(object):
 
-    def __init__(self):
-        raise NotImplementedError
+    def __init__(self, **kwargs):
+        self._data = kwargs
+
+    def __getitem__(self, key):
+        return self._data[key]
+
+    def dict(self):
+        return self._data

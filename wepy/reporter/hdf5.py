@@ -156,7 +156,7 @@ class WepyHDF5Reporter(FileReporter):
             # add trajectory data for the walkers
             for walker_idx, walker in enumerate(walkers):
 
-                walker_data = walker.dict()
+                walker_data = walker.state.dict()
 
                 # iterate through the feature vectors of the walker
                 # (fields), and the keys for the alt_reps

@@ -13,7 +13,8 @@ from wepy.resampling.resamplers.resampler import NoResampler
 from wepy.hdf5 import RunCycleSlice
 from wepy.reporter.hdf5 import WepyHDF5Reporter
 from wepy.sim_manager import Manager
-from wepy.runners.randomwalk import RandomWalker, RandomWalkRunner, RandomWalkState, UNIT_NAMES
+from wepy.walker import Walker, WalkerState
+from wepy.runners.randomwalk import RandomWalkRunner, UNIT_NAMES
 from wepy.hdf5 import WepyHDF5
 
 class RandomwalkProfiler(object):
@@ -65,7 +66,7 @@ class RandomwalkProfiler(object):
         # set up initial state for walkers
         positions = np.zeros((1, dimension))
 
-        init_state = RandomWalkState(positions, dimension)
+        init_state = WalkerState(positions=positions, time=dimension)
 
 
         # create list of init_walkers
@@ -73,7 +74,7 @@ class RandomwalkProfiler(object):
         init_walkers = []
 
         # init_walkers, n_cycles = get_final_state(path, num_walkers)
-        init_walkers = [RandomWalker(init_state, initial_weight) for i in range(num_walkers)]
+        init_walkers = [Walker(init_state, initial_weight) for i in range(num_walkers)]
 
 
 
@@ -218,7 +219,6 @@ class RandomwalkProfiler(object):
 
 if __name__ == "__main__":
     from wepy.resampling.wexplore1 import WExplore1Resampler
-    from wepy.runners.randomwalk import RandomWalkState, RandomWalker
     from wepy.resampling.distances.randomwalk import RandomWalkDistance
 
     MAX_N_REGIONS = (4, 4, 4, 4)
@@ -232,5 +232,4 @@ if __name__ == "__main__":
 
     # set up a RandomWalkProfilier
     rw_profiler = RandomwalkProfiler(resampler)
-    #import ipdb; ipdb.set_trace()
     rw_profiler.run_test(num_walkers=200, num_cycles=100, dimension=5, debug_prints=False)

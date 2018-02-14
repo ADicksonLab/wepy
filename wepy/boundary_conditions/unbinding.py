@@ -42,32 +42,20 @@ class UnbindingBC(BoundaryConditions):
     def _calc_length(self, v):
         return la.norm(v)
 
-
-    def _pos_to_array(self, positions):
-        n_atoms = self.topology.n_atoms
-
-        xyz = np.zeros((1, n_atoms, 3))
-
-        for i in range(n_atoms):
-            xyz[0,i,:] = ([positions[i]._value[0],
-                           positions[i]._value[1],
-                           positions[i]._value[2]])
-        return xyz
-
     def _calc_min_distance(self, walker):
         # convert box_vectors to angles and lengths for mdtraj
         # calc box length
-        cell_lengths = np.array([[self._calc_length(v._value) for v in walker.box_vectors]])
+        cell_lengths = np.array([[self._calc_length(v) for v in walker.state['box_vectors']]])
 
         # TODO order of cell angles
         # calc angles
-        cell_angles = np.array([[self._calc_angle(walker.box_vectors._value[i],
-                                                 walker.box_vectors._value[j])
+        cell_angles = np.array([[self._calc_angle(walker.state['box_vectors'][i],
+                                                 walker.state['box_vectors'][j])
                                  for i, j in [(0,1), (1,2), (2,0)]]])
 
         # make a traj out of it so we can calculate distances through
         # the periodic boundary conditions
-        walker_traj = mdj.Trajectory(self._pos_to_array(walker.positions),
+        walker_traj = mdj.Trajectory(walker.state['positions'],
                                      topology=self.topology,
                                      unitcell_lengths=cell_lengths,
                                      unitcell_angles=cell_angles)
@@ -110,7 +98,7 @@ class UnbindingBC(BoundaryConditions):
         # walker, and domain specific. I.e. domain specific values are
         # of type `array` while weights will always be floats in all
         # applications.
-        time = walker.time_value()
+        time = walker.state['time']
         warp_data = {'cycle' : np.array([cycle]), 'passage_time' : time,
                      'warped_walker_weight' : np.array([walker.weight])}
 
