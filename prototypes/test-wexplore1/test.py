@@ -231,5 +231,6 @@ if __name__ == "__main__":
                                    distance=distance)
 
     # set up a RandomWalkProfilier
+    import ipdb; ipdb.set_trace()
     rw_profiler = RandomwalkProfiler(resampler)
     rw_profiler.run_test(num_walkers=200, num_cycles=100, dimension=5, debug_prints=False)

@@ -1,3 +1,5 @@
+from copy import deepcopy
+
 import numpy as np
 
 from wepy.reporter.reporter import FileReporter
@@ -156,6 +158,7 @@ class WepyHDF5Reporter(FileReporter):
             # add trajectory data for the walkers
             for walker_idx, walker in enumerate(walkers):
 
+                walker = deepcopy(walker)
                 walker_data = walker.state.dict()
 
                 # iterate through the feature vectors of the walker
