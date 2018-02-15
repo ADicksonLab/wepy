@@ -17,12 +17,12 @@ if __name__=="__main__":
     scorer = AllToAllScorer(distance=distance)
 
     # set up the WExplore2 Resampler with the parameters
-    # resampler = WExplore2Resampler(pmax=0.1, pmin=10e-100,
-    #                                     scorer=scorer)
+    resampler = WExplore2Resampler(pmax=0.1, pmin=10e-100,
+                                        scorer=scorer)
 
     # set up the WExplore1 Resampler with the parameters
-    resampler = WExplore1Resampler(pmax=0.1, pmin=10e-100,
-                                       max_region_sizes=[16, 4, 1,0.25], distance=distance)
+    # resampler = WExplore1Resampler(pmax=0.1, pmin=10e-100,
+    #                                    max_region_sizes=[16, 4, 1,0.25], distance=distance)
 
     # set up a RandomWalkProfilier
     rw_profiler = RandomwalkProfiler(resampler)
