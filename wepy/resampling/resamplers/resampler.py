@@ -56,14 +56,18 @@ class Resampler(object):
         # for each walker, if it is to be cloned assign open slots for it
         for walker_idx, num_clones in enumerate(walker_clone_nums):
 
-            if num_clones > 0 and len(merge_groups[walker_idx]) > 0:
-                raise ValueError("Error! cloning and merging occuring with the same walker")
+            # if num_clones > 0 and len(merge_groups[walker_idx]) > 0:
+            #     raise ValueError("Error! cloning and merging occuring with the same walker")
 
             # if this walker is to be cloned do so and consume the free
             # slot
             if num_clones > 0:
 
-                # collect free slots for this clone, plus the original
+                if num_clones > len(free_slots):
+                    raise ValueError("The number of clones exceeds the number of free slots.")
+
+                # collect free slots for this clone, plus keeping one
+                # at the original location
                 slots = [free_slots.pop() for clone in range(num_clones)] + [walker_idx]
 
                 # make a record for this clone

@@ -567,3 +567,88 @@ def branch_tree(self, parent_id, image):
                         n_reducible_walkers = i
 
         return n_walkers, n_reducible_walkers, n_above_minp
+
+
+    def settle_balance_old(self, leaf_parent):
+
+        # merge groups and number of clones for just this leaf group
+        merge_groups = [[] for i in self.walker_weights]
+        walkers_num_clones = [0 for i in self.walker_weights]
+
+        # within the last bunch of leaves we need to pay the leaf
+        # parent's debt through cloning and merging
+        leaves = self.children(leaf_parent)
+
+        if self.node[leaf_parent]['balance'] < 0:
+            # check to make sure that the debt has enough
+            # mergeable walkers to merge to pay it
+            assert (not -self.node[leaf_parent]['balance'] >
+                    sum([self.node[leaf]['n_mergeable'] for leaf in leaves])), \
+                            "Node doesn't have enough walkers to merge"
+
+        # we will iterate through the children (either clongin or
+        # merging) until the balance is settled
+        leaf_it = iter(leaves)
+
+        # if the balance is negative we merge
+        while self.node[leaf_parent]['balance'] < 0:
+
+            # get the leaf to do stuff with
+            try:
+                leaf = next(leaf_it)
+            except StopIteration:
+                # stop for this child and move onto the next
+                break
+
+            # find the two walkers with the lowest weight to merge
+            weights = [self.walker_weights[i].weight for i in self.node[leaf]['walker_idxs']]
+
+            # sort the weights and use to get the two lowest weight walkers
+
+            walker_idxs = [i for i in self.node[leaf]['walker_idxs']
+                           if i in np.argsort(weights)[:2]]
+
+            # if the sum of these weights would be greater than
+            # pmax move on to the next leaf to do merges
+            if sum(np.array(weights)[walker_idxs]) > self.pmax:
+                break
+
+            # choose the one to keep the state of (e.g. KEEP_MERGE
+            # in the Decision)
+            keep_idx = rand.choice(walker_idxs)
+            # get the other index for the squashed one
+            squash_idx = walker_idxs[1 - walker_idxs.index(keep_idx)]
+
+            # account for the weight from the squashed walker to
+            # the keep walker
+            self._walker_weights[keep_idx] += self.walker_weights[squash_idx]
+            self._walker_weights[squash_idx] = 0.0
+
+            # update the merge group
+            merge_groups[keep_idx].append(squash_idx)
+
+            # update the parent's balance
+            self.node[leaf_parent]['balance'] += 1
+
+
+        while self.node[leaf_parent]['balance'] > 0:
+
+            # get the leaf to do stuff with
+            try:
+                leaf = next(leaf_it)
+            except StopIteration:
+                # stop for this child and move onto the next
+                break
+
+            weights = [self.walker_weights[i].weight for i in self.node[leaf]['walker_idxs']]
+
+            # get the walker with the highest weight
+            walker_idx = self.node[leaf]['walker_idxs'][np.argmax(weights)]
+
+            # increase the number of clones assigned to this walker
+            walkers_num_clones[walker_idx] += 1
+
+            # update the parent's balance
+            self.node[leaf_parent]['balance'] -= 1
+
+        return merge_groups, walkers_num_clones

@@ -45,6 +45,11 @@ if __name__ == "__main__":
     n_runs = int(sys.argv[1])
     n_steps = int(sys.argv[2])
     n_cycles = int(sys.argv[3])
+    # if you pass a seed use it
+    try:
+        seed = int(sys.argv[4])
+    except IndexError:
+        pass
 
     test_sys = LennardJonesPair()
 
@@ -129,6 +134,7 @@ if __name__ == "__main__":
 
     for run_idx in range(n_runs):
         print("Starting run: {}".format(run_idx))
+        #import ipdb; ipdb.set_trace()
         sim_manager.run_simulation(n_cycles, steps, debug_prints=True)
         print("Finished run: {}".format(run_idx))
 

@@ -11,6 +11,10 @@ import networkx as nx
 from wepy.resampling.resamplers.resampler  import Resampler
 from wepy.resampling.decisions.clone_merge import MultiCloneMergeDecision
 
+
+class RegionTreeError(Exception):
+    pass
+
 class RegionTree(nx.DiGraph):
 
     ROOT_NODE = ()
@@ -333,10 +337,10 @@ class RegionTree(nx.DiGraph):
 
     def calc_share_donation(self, donor, recipient):
 
-        total_recipient_n_walkers = self.node[donor]['n_mergeable'] + \
-                                    self.node[recipient]['balance']
         total_donor_n_walkers = self.node[donor]['n_mergeable'] + \
                                 self.node[donor]['balance']
+        total_recipient_n_walkers = self.node[recipient]['n_mergeable'] + \
+                                    self.node[recipient]['balance']
 
         # the sibling with the greater number of shares
         # (from both previous resamplings and inherited
@@ -348,22 +352,22 @@ class RegionTree(nx.DiGraph):
 
         return n_shares
 
-    def balance_beneficiaries(self, parent, children):
+    def resample_regions(self, parental_balance, children):
         # there are more than one child so we accredit balances
         # between them
         if len(children) > 1:
 
             # if the node had a balance assigned to previously,
             # apply this to the number of walkers it has
-            #self.node[parent]['n_mergeable'] += self.node[parent]['balance']
-            #self.node[parent]['n_walkers'] += self.node[parent]['balance']
+            #self.node[parent]['n_mergeable'] += parental_balance
+            #self.node[parent]['n_walkers'] += parental_balance
 
             # if the parent has a non-zero balance we either
             # increase (clone) or decrease (merge) the balance
 
             # these poor children are inheriting a debt and must
             # decrease the total number of their credits :(
-            if self.node[parent]['balance'] < 0:
+            if parental_balance < 0:
 
                 # find children with mergeable walkers and account
                 # for them in their balance
@@ -373,24 +377,24 @@ class RegionTree(nx.DiGraph):
                     if self.node[child]['n_mergeable'] >= 1:
                         # we use those for paying the parent's debt
                         diff = abs(min(self.node[child]['n_mergeable'],
-                                       self.node[parent]['balance']))
-                        self.node[parent]['balance'] += diff
+                                       parental_balance))
+                        parental_balance += diff
                         self.node[child]['balance'] -= diff
 
-                    if self.node[parent]['balance'] < 0:
+                    if parental_balance < 0:
                         raise ValueError("Children cannot pay their parent's debt")
 
 
             # these lucky children are inheriting a positive number of
             # credits!! :)
-            elif self.node[parent]['balance'] > 0:
+            elif parental_balance > 0:
 
                 for child in children:
                     if self.node[child]['n_cloneable']:
-                        self.node[child]['balance'] += self.node[parent]['balance']
-                        self.node[parent]['balance'] = 0
+                        self.node[child]['balance'] += parental_balance
+                        parental_balance = 0
 
-                if self.node[parent]['balance'] > 0:
+                if parental_balance > 0:
                     raise ValueError("Children cannot perform any clones.")
 
             ## Balance the walkers between the children. To do
@@ -431,112 +435,129 @@ class RegionTree(nx.DiGraph):
 
                 # account for these in the nodes
                 self.node[max_child]['balance'] -= n_shares
-                self.node[min_child]['balance'] = n_shares
+                self.node[min_child]['balance'] += n_shares
 
             # iteratively repeat this process until the number of
             # shares being donated is 1 or less which means the
             # distribution is as uniform as possible
             while (n_shares >= 1):
                 # repeat above steps
-                min_child, max_child = self.minmax_beneficiaries(children)
+                min_child_idx, max_child_idx = self.minmax_beneficiaries(children)
+
+                # get the actual node_ids for the children from their
+                # index among children
+                if max_child_idx is not None:
+                    max_child = children[max_child_idx]
+                else:
+                    max_child = None
+                if min_child_idx is not None:
+                    min_child = children[min_child_idx]
+                else:
+                    min_child = None
+
                 n_shares = self.calc_share_donation(max_child,
                                                     min_child)
                 self.node[max_child]['balance'] -= n_shares
-                self.node[min_child]['balance'] = n_shares
+                self.node[min_child]['balance'] += n_shares
 
         # only one child so it just inherits balance
         elif len(children) == 1:
-            # add the balance to the number of walkers counts
-            self.node[parent]['n_walkers'] += self.node[parent]['balance']
-            self.node[parent]['n_mergeable'] += self.node[parent]['balance']
 
             # increase the balance of the only child
-            self.node[children[0]]['balance'] = self.node[parent]['balance']
+            self.node[children[0]]['balance'] = parental_balance
 
-            # clear the parent's balance
-            self.node[parent]['balance'] = 0
 
-    def settle_balance(self, leaf_parent):
+    def settle_balance(self, leaf, merge_groups, walkers_num_clones):
 
-        # merge groups and number of clones for just this leaf group
-        merge_groups = [[] for i in self.walker_weights]
-        walkers_num_clones = [0 for i in self.walker_weights]
+        weights = [self.walker_weights[i] for i in self.node[leaf]['walker_idxs']]
 
-        # within the last bunch of leaves we need to pay the leaf
-        # parent's debt through cloning and merging
-        leaves = self.children(leaf_parent)
+        # if this leaf node was assigned a debt we need to merge
+        # walkers
+        leaf_balance = self.node[leaf]['balance']
+        if leaf_balance < 0:
 
-        if self.node[leaf_parent]['balance'] < 0:
-            # check to make sure that the debt has enough
-            # mergeable walkers to merge to pay it
-            assert (not -self.node[leaf_parent]['balance'] >
-                    sum([self.node[leaf]['n_mergeable'] for leaf in leaves])), \
-                            "Node doesn't have enough walkers to merge"
+            # we need to check that we aren't squashing or merging an
+            # already cloned walker
+            mergeable_walkers = [walker_idx for walker_idx, num_clones
+                                 in enumerate(walkers_num_clones)
+                                 if (num_clones == 0) and
+                                    (walker_idx in self.node[leaf]['walker_idxs'])]
 
-        # we will iterate through the children (either clongin or
-        # merging) until the balance is settled
-        leaf_it = iter(leaves)
+            mergeable_weights = [self.walker_weights[walker_idx] for walker_idx in mergeable_walkers]
 
-        # if the balance is negative we merge
-        while self.node[leaf_parent]['balance'] < 0:
+            # the number of walkers we need to choose in order to be
+            # able to do the required amount of merges
+            num_merge_walkers = abs(leaf_balance) + 1
 
-            # get the leaf to do stuff with
-            try:
-                leaf = next(leaf_it)
-            except StopIteration:
-                # stop for this child and move onto the next
-                break
+            # select the lowest weight walkers to use for merging
+            selected_walkers = np.argsort(mergeable_weights)[:num_merge_walkers]
 
-            # find the two walkers with the lowest weight to merge
-            weights = [self.walker_weights[i].weight for i in self.node[leaf]['walker_idxs']]
+            # get the walker_idx of the selected walkers
+            walker_idxs = [mergeable_idx for i, mergeable_idx in enumerate(mergeable_walkers)
+                              if i in selected_walkers]
 
-            # sort the weights and use to get the two lowest weight walkers
-
-            walker_idxs = [i for i in self.node[leaf]['walker_idxs']
-                           if i in np.argsort(weights)[:2]]
-
-            # if the sum of these weights would be greater than
-            # pmax move on to the next leaf to do merges
-            if sum(np.array(weights)[walker_idxs]) > self.pmax:
-                break
+            chosen_weights = [weight for i, weight in enumerate(self.walker_weights)
+                              if i in walker_idxs]
 
             # choose the one to keep the state of (e.g. KEEP_MERGE
-            # in the Decision)
-            keep_idx = rand.choice(walker_idxs)
-            # get the other index for the squashed one
-            squash_idx = walker_idxs[1 - walker_idxs.index(keep_idx)]
+            # in the Decision) based on their weights
+            keep_idx = rand.choices(walker_idxs, k=1, weights=chosen_weights)[0]
+
+            # pop the keep idx from the walkers so we can use them as the squash idxs
+            walker_idxs.pop(walker_idxs.index(keep_idx))
+            # the rest are squash_idxs
+            squash_idxs = walker_idxs
 
             # account for the weight from the squashed walker to
             # the keep walker
-            self._walker_weights[keep_idx] += self.walker_weights[squash_idx]
-            self._walker_weights[squash_idx] = 0.0
+            squashed_weight = sum([self.walker_weights[i] for i in squash_idxs])
+            self._walker_weights[keep_idx] += squashed_weight
+            for squash_idx in squash_idxs:
+                self._walker_weights[squash_idx] = 0.0
 
             # update the merge group
-            merge_groups[keep_idx].append(squash_idx)
+            merge_groups[keep_idx].extend(squash_idxs)
 
-            # update the parent's balance
-            self.node[leaf_parent]['balance'] += 1
+        # if this leaf node was assigned a credit then it can spend
+        # them on cloning walkers
+        elif leaf_balance > 0:
+
+            # all of the squashed walkers
+            squashed_walkers = list(it.chain(merge_groups))
+            keep_walkers = [i for i, merge_group in enumerate(merge_groups)
+                            if len(merge_group) > 0]
+            merged_walkers = squashed_walkers + keep_walkers
+
+            # get the idxs of the cloneable walkers that are above the
+            # pmin and are not being squashed
+            cloneable_walker_idxs = [walker_idx for walker_idx, weight
+                                     in enumerate(self.walker_weights)
+                                     if (weight >= self.pmin) and (walker_idx not in merged_walkers)]
+
+            assert len(cloneable_walker_idxs) >= 1, "there must be at least one walker to clone"
 
 
-        while self.node[leaf_parent]['balance'] > 0:
+            # to split up the clones evenly we divide by the number of
+            # cloneable walkers and give the remainder to the highest
+            # weight walkers as an extra clone
+            clone_per_walker = leaf_balance // len(cloneable_walker_idxs)
+            remainder = leaf_balance % len(cloneable_walker_idxs)
 
-            # get the leaf to do stuff with
-            try:
-                leaf = next(leaf_it)
-            except StopIteration:
-                # stop for this child and move onto the next
-                break
+            # assign first the base clones per walker to the cloneable
+            # walkers
+            for cloned_walker_idx in cloneable_walker_idxs:
+                walkers_num_clones[cloned_walker_idx] += clone_per_walker
 
-            weights = [self.walker_weights[i].weight for i in self.node[leaf]['walker_idxs']]
+            # assign the leftover walkers to them in highest-lowest order
+            walker_idxs_sorted = np.argsort(self.walker_weights)
+            for walker_idx in walker_idxs_sorted:
+                # make sure it is cloneable
+                if walker_idx in cloneable_walker_idxs:
+                    # make sure there is some clones left
+                    if remainder > 0:
+                        walkers_num_clones[walker_idx] += 1
+                        remainder -= 1
 
-            # get the walker with the highest weight
-            walker_idx = self.node[leaf]['walker_idxs'][np.argmax(weights)]
-
-            # increase the number of clones assigned to this walker
-            walkers_num_clones[walker_idx] += 1
-
-            # update the parent's balance
-            self.node[leaf_parent]['balance'] -= 1
 
         return merge_groups, walkers_num_clones
 
@@ -555,31 +576,50 @@ class RegionTree(nx.DiGraph):
         # do a breadth first traversal and balance at each level
         for parent, children in nx.bfs_successors(self, self.ROOT_NODE):
 
-            # when we get to a leaf node with no children end the
-            # iteration because we need to consider groups of leaves
-            # from the penultimate nodes
-            if len(children) == 0:
-                break
+            # pass on the balances to the children from the
+            # parents, distribute walkers between
+            self.resample_regions(self.node[parent]['balance'], children)
 
-            # pass on the balances to the children from the parents
-            self.balance_beneficiaries(parent, children)
-
+        # check the balance of all the leaves and make sure they add
+        # up to 0
+        balance = sum([self.node[leaf]['balance'] for leaf in self.leaf_nodes()])
+        if balance != delta_walkers:
+            raise RegionTreeError("Leaf node balances do sum to delta_walkers")
 
         # for each leaf-group decide how to actually settle (pay) the
         # balances through cloning and merging
         merge_groups = [[] for i in self.walker_weights]
         walkers_num_clones = [0 for i in self.walker_weights]
 
-        # iterate through the groups of leaf nodes for the penultimate
-        # nodes (i.e. last parents)
-        for leaf_parent in self.level_nodes(self.n_levels-1):
-            curr_merge_groups, curr_walkers_num_clones = self.settle_balance(leaf_parent)
+        # The buck ends here! Iterate over the leaves and settle the
+        # balances for each child according to how they were
+        # distributed in balancing
+        for leaf in self.leaf_nodes():
 
-            # update the master merge groups and clone numbers with
-            # the leaf group ones
-            for walker_idx, merge_group in enumerate(curr_merge_groups):
-                merge_groups[walker_idx].extend(merge_group)
-                walkers_num_clones[walker_idx] += curr_walkers_num_clones[walker_idx]
+            # clone and merge groups for this leaf
+            merge_groups, walkers_num_clones = \
+                            self.settle_balance(leaf, merge_groups, walkers_num_clones)
+
+        # count up the number of clones and merges in the merge_groups
+        # and the walkers_num_clones
+        num_clones = sum(walkers_num_clones)
+        num_squashed = sum([len(merge_group) for merge_group in merge_groups])
+
+        if num_clones != num_squashed:
+            raise RegionTreeError("The number of squashed walkers in the merge group"
+                                  "is not the same as the number of clones planned.")
+
+        # may not be necessary to do it this way
+        # # iterate through the groups of leaf nodes for the penultimate
+        # # nodes (i.e. last parents)
+        # for leaf_parent in self.level_nodes(self.n_levels-1):
+        #     curr_merge_groups, curr_walkers_num_clones = self.settle_balance(leaf_parent)
+
+        #     # update the master merge groups and clone numbers with
+        #     # the leaf group ones
+        #     for walker_idx, merge_group in enumerate(curr_merge_groups):
+        #         merge_groups[walker_idx].extend(merge_group)
+        #         walkers_num_clones[walker_idx] += curr_walkers_num_clones[walker_idx]
 
         return merge_groups, walkers_num_clones
 
@@ -644,7 +684,16 @@ class WExplore1Resampler(Resampler):
         # walkers
         merge_groups, walkers_num_clones = self.region_tree.balance_tree(delta_walkers=delta_walkers)
 
-        # use these to make the actual resampling actions
+        # check to make sure we have selected appropriate walkers to clone
+        for walker_idx, n_clones in enumerate(walkers_num_clones):
+
+            if n_clones > 0:
+                if len(merge_groups[walker_idx]) > 0:
+                    raise ValueError("trying to clone a KEEP_MERGE walker")
+
+                squash_idxs = list(it.chain(merge_groups))
+                if walker_idx in squash_idxs:
+                    raise ValueError("trying to clone a SQUASH walker")
 
         # clear the tree of walker information
         self.region_tree.clear_walkers()
@@ -654,6 +703,20 @@ class WExplore1Resampler(Resampler):
         # Resampler superclass)
         resampling_actions = [self.assign_clones(merge_groups, walkers_num_clones)]
 
+        for step in resampling_actions:
+            taken_slots = []
+            for decision, instruction in step:
+
+                # unless it is a squash add it to the taken slots
+                if decision != 3:
+                    try:
+                        taken_slots.extend(instruction)
+                    except TypeError:
+                        taken_slots.append(instruction)
+
+            if len(set(taken_slots)) < len(taken_slots):
+                raise ValueError("Multiple assignments to the same slot")
+
         # perform the cloning and merging
         resampled_walkers = self.DECISION.action(walkers, resampling_actions)
 
@@ -661,3 +724,5 @@ class WExplore1Resampler(Resampler):
         aux_data = {}
 
         return resampled_walkers, resampling_actions, aux_data
+
+
