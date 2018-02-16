@@ -19,9 +19,13 @@ from wepy.hdf5 import WepyHDF5
 
 class RandomwalkProfiler(object):
 
-    def __init__(self, resampler, move_prob=0.25):
+    def __init__(self, resampler, move_prob=0.25, hdf5_reporter=None):
         self.resampler = resampler
         self.probability = move_prob
+        self.hdf5_reporter = hdf5_reporter
+
+        if self.hdf5_reporter is None:
+            self.hdf5_reporter = "rw_results.hdf"
 
     def generate_topology(self):
         n_atoms = 1
@@ -52,9 +56,13 @@ class RandomwalkProfiler(object):
 
         return json_top_str
 
-    def run_test(self, num_walkers=200, num_cycles=100, dimension=5, debug_prints=False):
-        hdf5_filepath = self._runtest(num_walkers, num_cycles, dimension, debug_prints=debug_prints)
-        self.analyse(hdf5_filepath, num_walkers)
+    def run_test(self, num_walkers=200, num_cycles=100, dimension=5,
+                 debug_prints=False):
+
+        hdf5_filepath = self._runtest(num_walkers, num_cycles,
+                                      dimension, debug_prints=debug_prints)
+
+        return self.analyse(hdf5_filepath, num_walkers)
 
     def _runtest(self, num_walkers, num_cycles, dimension, debug_prints=False):
         print("Random walk simulation with: ")
@@ -86,7 +94,7 @@ class RandomwalkProfiler(object):
         segment_length = 10
 
         # set up the reporter
-        report_path = 'wepy_results.h5'
+        report_path = self.hdf5_reporter
         randomwalk_system_top_json = self.generate_topology()
         reporter = WepyHDF5Reporter(report_path, mode='w',
                                     save_fields=['positions', 'weights'],
@@ -216,6 +224,10 @@ class RandomwalkProfiler(object):
         print("Probability of x ={}".format(prob_x))
         print("accuracy = {}".format(acc))
 
+        results = {"max_x": max_x, "max_range": max_range,
+                   "px":prob_x, "accuracy":acc}
+
+        return results
 
 if __name__=="__main__":
 
