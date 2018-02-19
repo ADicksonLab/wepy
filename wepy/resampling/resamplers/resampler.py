@@ -81,7 +81,15 @@ class NoResampler(Resampler):
     DECISION = NoDecision
 
     def __init__(self):
-        pass
+        self.decision = self.DECISION
 
-    def resample(self, walkers):
-        return walkers, [], {}
+
+    def resample(self, walkers, **kwargs):
+
+        n_walkers = len(walkers)
+
+        # determine resampling actions
+        walker_actions = [self.decision.record(self.decision.ENUM.NOTHING.value, (i,))
+                    for i in range(n_walkers)]
+        
+        return walkers, [walker_actions], {}
