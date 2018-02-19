@@ -466,98 +466,112 @@ class RegionTree(nx.DiGraph):
             # increase the balance of the only child
             self.node[children[0]]['balance'] = parental_balance
 
+    def merge_leaf(self, leaf, merge_groups, walkers_num_clones):
+
+        leaf_balance = self.node[leaf]['balance']
+        # we need to check that we aren't squashing or merging an
+        # already cloned walker
+        mergeable_walkers = [walker_idx for walker_idx, num_clones
+                             in enumerate(walkers_num_clones)
+                             if (num_clones == 0) and
+                                (walker_idx in self.node[leaf]['walker_idxs'])]
+
+        mergeable_weights = [self.walker_weights[walker_idx] for walker_idx in mergeable_walkers]
+
+        # the number of walkers we need to choose in order to be
+        # able to do the required amount of merges
+        num_merge_walkers = abs(leaf_balance) + 1
+
+        # select the lowest weight walkers to use for merging
+        selected_walkers = np.argsort(mergeable_weights)[:num_merge_walkers]
+
+        # get the walker_idx of the selected walkers
+        walker_idxs = [mergeable_idx for i, mergeable_idx in enumerate(mergeable_walkers)
+                          if i in selected_walkers]
+
+        chosen_weights = [weight for i, weight in enumerate(self.walker_weights)
+                          if i in walker_idxs]
+
+        # choose the one to keep the state of (e.g. KEEP_MERGE
+        # in the Decision) based on their weights
+        keep_idx = rand.choices(walker_idxs, k=1, weights=chosen_weights)[0]
+
+        # pop the keep idx from the walkers so we can use them as the squash idxs
+        walker_idxs.pop(walker_idxs.index(keep_idx))
+        # the rest are squash_idxs
+        squash_idxs = walker_idxs
+
+        # account for the weight from the squashed walker to
+        # the keep walker
+        squashed_weight = sum([self.walker_weights[i] for i in squash_idxs])
+        self._walker_weights[keep_idx] += squashed_weight
+        for squash_idx in squash_idxs:
+            self._walker_weights[squash_idx] = 0.0
+
+        # update the merge group
+        merge_groups[keep_idx].extend(squash_idxs)
+
+        return merge_groups, walkers_num_clones
+
+    def clone_leaf(self, leaf, merge_groups, walkers_num_clones):
+
+        # if this leaf node was assigned a debt we need to merge
+        # walkers
+        leaf_balance = self.node[leaf]['balance']
+
+        # all of the squashed walkers
+        squashed_walkers = list(it.chain(merge_groups))
+        keep_walkers = [i for i, merge_group in enumerate(merge_groups)
+                        if len(merge_group) > 0]
+        merged_walkers = squashed_walkers + keep_walkers
+
+        # get the idxs of the cloneable walkers that are above the
+        # pmin and are not being squashed
+        cloneable_walker_idxs = [walker_idx for walker_idx, weight
+                                 in enumerate(self.walker_weights)
+                                 if (weight >= self.pmin) and (walker_idx not in merged_walkers)]
+
+        cloneable_walker_weights = [self.walker_weights[walker_idx]
+                                    for walker_idx in cloneable_walker_idxs]
+
+        assert len(cloneable_walker_idxs) >= 1, "there must be at least one walker to clone"
+
+
+        # to distribute the clones we iteratively choose the walker
+        # with the highest weight after amplification weight/(n_clones
+        # +1) where n_clones is the current number of clones assigned
+        # to it (plus itself)
+        clones_left = leaf_balance
+        while clones_left:
+
+            # calculate the weights of the walkers children given the
+            # current number of clones
+            child_weights = [weight/(walkers_num_clones[walker_idx]+1)
+                             for walker_idx, weight in
+                             zip(cloneable_walker_idxs, cloneable_walker_weights)]
+
+            # get the walker_idx with the highest child weight
+            chosen_walker_idx = cloneable_walker_idxs[np.argsort(child_weights)[-1]]
+            walkers_num_clones[chosen_walker_idx] += 1
+
+            clones_left -= 1
+
+        return merge_groups, walkers_num_clones
 
     def settle_balance(self, leaf, merge_groups, walkers_num_clones):
-
-        weights = [self.walker_weights[i] for i in self.node[leaf]['walker_idxs']]
 
         # if this leaf node was assigned a debt we need to merge
         # walkers
         leaf_balance = self.node[leaf]['balance']
         if leaf_balance < 0:
 
-            # we need to check that we aren't squashing or merging an
-            # already cloned walker
-            mergeable_walkers = [walker_idx for walker_idx, num_clones
-                                 in enumerate(walkers_num_clones)
-                                 if (num_clones == 0) and
-                                    (walker_idx in self.node[leaf]['walker_idxs'])]
-
-            mergeable_weights = [self.walker_weights[walker_idx] for walker_idx in mergeable_walkers]
-
-            # the number of walkers we need to choose in order to be
-            # able to do the required amount of merges
-            num_merge_walkers = abs(leaf_balance) + 1
-
-            # select the lowest weight walkers to use for merging
-            selected_walkers = np.argsort(mergeable_weights)[:num_merge_walkers]
-
-            # get the walker_idx of the selected walkers
-            walker_idxs = [mergeable_idx for i, mergeable_idx in enumerate(mergeable_walkers)
-                              if i in selected_walkers]
-
-            chosen_weights = [weight for i, weight in enumerate(self.walker_weights)
-                              if i in walker_idxs]
-
-            # choose the one to keep the state of (e.g. KEEP_MERGE
-            # in the Decision) based on their weights
-            keep_idx = rand.choices(walker_idxs, k=1, weights=chosen_weights)[0]
-
-            # pop the keep idx from the walkers so we can use them as the squash idxs
-            walker_idxs.pop(walker_idxs.index(keep_idx))
-            # the rest are squash_idxs
-            squash_idxs = walker_idxs
-
-            # account for the weight from the squashed walker to
-            # the keep walker
-            squashed_weight = sum([self.walker_weights[i] for i in squash_idxs])
-            self._walker_weights[keep_idx] += squashed_weight
-            for squash_idx in squash_idxs:
-                self._walker_weights[squash_idx] = 0.0
-
-            # update the merge group
-            merge_groups[keep_idx].extend(squash_idxs)
+            merge_groups, walkers_num_clones = self.clone_leaf(leaf, merge_groups, walkers_num_clones)
 
         # if this leaf node was assigned a credit then it can spend
         # them on cloning walkers
         elif leaf_balance > 0:
 
-            # all of the squashed walkers
-            squashed_walkers = list(it.chain(merge_groups))
-            keep_walkers = [i for i, merge_group in enumerate(merge_groups)
-                            if len(merge_group) > 0]
-            merged_walkers = squashed_walkers + keep_walkers
-
-            # get the idxs of the cloneable walkers that are above the
-            # pmin and are not being squashed
-            cloneable_walker_idxs = [walker_idx for walker_idx, weight
-                                     in enumerate(self.walker_weights)
-                                     if (weight >= self.pmin) and (walker_idx not in merged_walkers)]
-
-            assert len(cloneable_walker_idxs) >= 1, "there must be at least one walker to clone"
-
-
-            # to split up the clones evenly we divide by the number of
-            # cloneable walkers and give the remainder to the highest
-            # weight walkers as an extra clone
-            clone_per_walker = leaf_balance // len(cloneable_walker_idxs)
-            remainder = leaf_balance % len(cloneable_walker_idxs)
-
-            # assign first the base clones per walker to the cloneable
-            # walkers
-            for cloned_walker_idx in cloneable_walker_idxs:
-                walkers_num_clones[cloned_walker_idx] += clone_per_walker
-
-            # assign the leftover walkers to them in highest-lowest order
-            walker_idxs_sorted = np.argsort(self.walker_weights)
-            for walker_idx in walker_idxs_sorted:
-                # make sure it is cloneable
-                if walker_idx in cloneable_walker_idxs:
-                    # make sure there is some clones left
-                    if remainder > 0:
-                        walkers_num_clones[walker_idx] += 1
-                        remainder -= 1
-
+            merge_groups, walkers_num_clones = self.merge_leaf(leaf, merge_groups, walkers_num_clones)
 
         return merge_groups, walkers_num_clones
 
