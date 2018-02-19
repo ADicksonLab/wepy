@@ -99,7 +99,7 @@ if __name__ == "__main__":
     # make a dictionary of units for adding to the HDF5
     units = dict(UNIT_NAMES)
 
-    report_path = 'wexplore2_results.wepy.h5'
+    report_path = 'wexplore1_results.wepy.h5'
     # open it in truncate mode first, then switch after first run
     hdf5_reporter = WepyHDF5Reporter(report_path, mode='w',
                                     save_fields=['positions', 'box_vectors', 'velocities'],
@@ -117,14 +117,12 @@ if __name__ == "__main__":
                                     alt_reps={'other_atom' : ([1], 2)}
     )
 
-    pkl_reporter = WalkersPickleReporter(save_dir='./pickle_backups', freq=10, num_backups=3)
-
     sim_manager = Manager(init_walkers,
                           runner=runner,
                           resampler=resampler,
                           boundary_conditions=ubc,
                           work_mapper=map,
-                          reporters=[hdf5_reporter, pkl_reporter])
+                          reporters=[hdf5_reporter])
 
     print("Number of steps: {}".format(n_steps))
     print("Number of cycles: {}".format(n_cycles))
@@ -134,7 +132,6 @@ if __name__ == "__main__":
 
     for run_idx in range(n_runs):
         print("Starting run: {}".format(run_idx))
-        #import ipdb; ipdb.set_trace()
         sim_manager.run_simulation(n_cycles, steps, debug_prints=True)
         print("Finished run: {}".format(run_idx))
 

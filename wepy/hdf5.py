@@ -1,19 +1,17 @@
-from collections import Iterable, Sequence
-from types import GeneratorType
+from collections import Sequence
 import itertools as it
-
 import json
 from warnings import warn
-import operator
 
 import numpy as np
-
 import h5py
+
+from wepy.util.mdtraj import mdtraj_to_json_topology, json_to_mdtraj_topology, \
+                             json_top_atom_count, box_vectors_to_lengths_angles
 
 # optional dependencies
 try:
     import mdtraj as mdj
-    import mdtraj.core.element as elem
 except ModuleNotFoundError:
     warn("mdtraj is not installed and that functionality will not work", RuntimeWarning)
 
@@ -539,7 +537,7 @@ class TrajHDF5(object):
 
         # get the number of coordinates of positions, i.e. n_atoms
         # from the topology
-        self._n_coords = _json_top_atom_count(self.topology)
+        self._n_coords = json_top_atom_count(self.topology)
 
         # get the number of dimensions as a default
         self._n_dims = N_DIMS
@@ -944,13 +942,13 @@ class TrajHDF5(object):
 
     def to_mdtraj(self):
 
-        topology = _json_to_mdtraj_topology(self.topology)
+        topology = json_to_mdtraj_topology(self.topology)
 
         positions = self.h5['positions'][:]
         # reshape for putting into mdtraj
         time = self.h5['time'][:, 0]
         box_vectors = self.h5['box_vectors'][:]
-        unitcell_lengths, unitcell_angles = _box_vectors_to_lengths_angles(box_vectors)
+        unitcell_lengths, unitcell_angles = box_vectors_to_lengths_angles(box_vectors)
 
         traj = mdj.Trajectory(positions, topology,
                        time=time,
@@ -1369,7 +1367,7 @@ class WepyHDF5(object):
         # main_reps then we have to set the number of atoms to that,
         # if not we count the number of atoms in the topology
         if self._main_rep_idxs is None:
-            self._n_coords = _json_top_atom_count(self.topology)
+            self._n_coords = json_top_atom_count(self.topology)
             self._main_rep_idxs = list(range(self._n_coords))
         else:
             self._n_coords = len(self._main_rep_idxs)
@@ -1485,7 +1483,7 @@ class WepyHDF5(object):
 
         """
 
-        full_mdj_top = _json_to_mdtraj_topology(self.topology)
+        full_mdj_top = json_to_mdtraj_topology(self.topology)
         if alt_rep is None:
             return full_mdj_top
         elif alt_rep == 'positions':
@@ -1510,7 +1508,7 @@ class WepyHDF5(object):
         """
 
         mdj_top = self.get_mdtraj_topology(alt_rep=alt_rep)
-        json_top = _mdtraj_to_json_topology(mdj_top)
+        json_top = mdtraj_to_json_topology(mdj_top)
 
         return json_top
 
@@ -3203,7 +3201,7 @@ class WepyHDF5(object):
                 warn("box_vectors not in this trajectory, ignoring")
 
 
-        unitcell_lengths, unitcell_angles = _box_vectors_to_lengths_angles(box_vectors)
+        unitcell_lengths, unitcell_angles = box_vectors_to_lengths_angles(box_vectors)
 
         traj = mdj.Trajectory(positions, topology,
                        time=time,
@@ -3225,7 +3223,7 @@ class WepyHDF5(object):
 
         trace_fields = self.get_trace_fields(run_idx, trace, [rep_path, 'box_vectors'])
 
-        unitcell_lengths, unitcell_angles = _box_vectors_to_lengths_angles(
+        unitcell_lengths, unitcell_angles = box_vectors_to_lengths_angles(
                                                trace_fields['box_vectors'])
 
         cycles = [cycle for cycle, walker in trace]
@@ -3309,119 +3307,6 @@ def _make_numpy_varlength_instruction_dtype(varlength_instruct_type, varlength_w
 
     # make a full instruction dtype from this and return it
     return _make_numpy_instruction_dtype(instruct_record_dtype)
-
-def _mdtraj_to_json_topology(mdj_top):
-    """ Copied in part from MDTraj.formats.hdf5.topology setter. """
-
-    topology_dict = {
-        'chains': [],
-        'bonds': []
-    }
-
-    for chain in mdj_top.chains:
-        chain_dict = {
-            'residues': [],
-            'index': int(chain.index)
-        }
-        for residue in chain.residues:
-            residue_dict = {
-                'index': int(residue.index),
-                'name': str(residue.name),
-                'atoms': [],
-                "resSeq": int(residue.resSeq)
-            }
-
-            for atom in residue.atoms:
-
-                try:
-                    element_symbol_string = str(atom.element.symbol)
-                except AttributeError:
-                    element_symbol_string = ""
-
-                residue_dict['atoms'].append({
-                    'index': int(atom.index),
-                    'name': str(atom.name),
-                    'element': element_symbol_string
-                })
-            chain_dict['residues'].append(residue_dict)
-        topology_dict['chains'].append(chain_dict)
-
-    for atom1, atom2 in mdj_top.bonds:
-        topology_dict['bonds'].append([
-            int(atom1.index),
-            int(atom2.index)
-        ])
-
-    top_json_str = json.dumps(topology_dict)
-
-    return top_json_str
-
-def _json_to_mdtraj_topology(json_string):
-    """ Copied in part from MDTraj.formats.hdf5 topology property."""
-
-    topology_dict = json.loads(json_string)
-
-    topology = mdj.Topology()
-
-    for chain_dict in sorted(topology_dict['chains'], key=operator.itemgetter('index')):
-        chain = topology.add_chain()
-        for residue_dict in sorted(chain_dict['residues'], key=operator.itemgetter('index')):
-            try:
-                resSeq = residue_dict["resSeq"]
-            except KeyError:
-                resSeq = None
-                warnings.warn(
-                    'No resSeq information found in HDF file, defaulting to zero-based indices')
-            try:
-                segment_id = residue_dict["segmentID"]
-            except KeyError:
-                segment_id = ""
-            residue = topology.add_residue(residue_dict['name'], chain,
-                                           resSeq=resSeq, segment_id=segment_id)
-            for atom_dict in sorted(residue_dict['atoms'], key=operator.itemgetter('index')):
-                try:
-                    element = elem.get_by_symbol(atom_dict['element'])
-                except KeyError:
-                    element = elem.virtual
-                topology.add_atom(atom_dict['name'], element, residue)
-
-    atoms = list(topology.atoms)
-    for index1, index2 in topology_dict['bonds']:
-        topology.add_bond(atoms[index1], atoms[index2])
-
-    return topology
-
-def _json_top_atom_count(json_str):
-    top_d = json.loads(json_str)
-    atom_count = 0
-    atom_count = 0
-    for chain in top_d['chains']:
-        for residue in chain['residues']:
-            atom_count += len(residue['atoms'])
-
-    return atom_count
-
-def _box_vectors_to_lengths_angles(box_vectors):
-
-    unitcell_lengths = []
-    for basis in box_vectors:
-        unitcell_lengths.append(np.array([np.linalg.norm(frame_v) for frame_v in basis]))
-
-    unitcell_lengths = np.array(unitcell_lengths)
-
-    unitcell_angles = []
-    for vs in box_vectors:
-
-        angles = np.array([np.degrees(
-                            np.arccos(np.dot(vs[i], vs[j])/
-                                      (np.linalg.norm(vs[i]) * np.linalg.norm(vs[j]))))
-                           for i, j in [(0,1), (1,2), (2,0)]])
-
-        unitcell_angles.append(angles)
-
-    unitcell_angles = np.array(unitcell_angles)
-
-    return unitcell_lengths, unitcell_angles
 
 
 def _check_data_compliance(traj_data, compliance_requirements=COMPLIANCE_REQUIREMENTS):

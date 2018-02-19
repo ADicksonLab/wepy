@@ -16,7 +16,8 @@ from wepy.resampling.distances.distance import Distance
 from wepy.resampling.scoring.scorer import AllToAllScorer
 from wepy.resampling.wexplore2 import WExplore2Resampler
 
-from wepy.runners.openmm import OpenMMRunner, OpenMMWalker
+from wepy.runners.openmm import OpenMMRunner, OpenMMState
+from wepy.walker import Walker
 from wepy.runners.openmm import UNIT_NAMES, GET_STATE_KWARG_DEFAULTS
 from wepy.boundary_conditions.unbinding import UnbindingBC
 from wepy.reporter.hdf5 import WepyHDF5Reporter
@@ -52,7 +53,7 @@ if __name__ == "__main__":
     context.setPositions(test_sys.positions)
 
     get_state_kwargs = dict(GET_STATE_KWARG_DEFAULTS)
-    init_state = context.getState(**get_state_kwargs)
+    init_sim_state = context.getState(**get_state_kwargs)
 
     thermostat = omm.AndersenThermostat(300.0 * unit.kelvin, 1/unit.picosecond)
     barostat = omm.MonteCarloBarostat(1.0*unit.atmosphere, 300.0*unit.kelvin, 50)
@@ -62,8 +63,7 @@ if __name__ == "__main__":
     num_walkers = 10
     init_weight = 1.0 / num_walkers
 
-    init_walkers = [OpenMMWalker(init_state, init_weight) for i in range(num_walkers)]
-
+    init_walkers = [Walker(OpenMMState(init_sim_state), init_weight) for i in range(num_walkers)]
 
     # the mdtraj here is needed for the distance function
     mdtraj_topology = mdj.Topology.from_openmm(test_sys.topology)
@@ -108,14 +108,12 @@ if __name__ == "__main__":
                                     sparse_fields={'velocities' : 10},
     )
 
-    pkl_reporter = WalkersPickleReporter(save_dir='./pickle_backups', freq=10, num_backups=3)
-
     sim_manager = Manager(init_walkers,
                           runner=runner,
                           resampler=resampler,
                           boundary_conditions=ubc,
                           work_mapper=map,
-                          reporters=[hdf5_reporter, pkl_reporter])
+                          reporters=[hdf5_reporter])
 
     print("Number of steps: {}".format(n_steps))
     print("Number of cycles: {}".format(n_cycles))
