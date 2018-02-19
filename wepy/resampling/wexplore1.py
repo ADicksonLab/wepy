@@ -542,7 +542,7 @@ class RegionTree(nx.DiGraph):
         # +1) where n_clones is the current number of clones assigned
         # to it (plus itself)
         clones_left = leaf_balance
-        while clones_left:
+        while clones_left > 0:
 
             # calculate the weights of the walkers children given the
             # current number of clones
@@ -565,13 +565,13 @@ class RegionTree(nx.DiGraph):
         leaf_balance = self.node[leaf]['balance']
         if leaf_balance < 0:
 
-            merge_groups, walkers_num_clones = self.clone_leaf(leaf, merge_groups, walkers_num_clones)
+            merge_groups, walkers_num_clones = self.merge_leaf(leaf, merge_groups, walkers_num_clones)
 
         # if this leaf node was assigned a credit then it can spend
         # them on cloning walkers
         elif leaf_balance > 0:
 
-            merge_groups, walkers_num_clones = self.merge_leaf(leaf, merge_groups, walkers_num_clones)
+            merge_groups, walkers_num_clones = self.clone_leaf(leaf, merge_groups, walkers_num_clones)
 
         return merge_groups, walkers_num_clones
 
@@ -620,20 +620,10 @@ class RegionTree(nx.DiGraph):
         num_squashed = sum([len(merge_group) for merge_group in merge_groups])
 
         if num_clones != num_squashed:
-            raise RegionTreeError("The number of squashed walkers in the merge group"
-                                  "is not the same as the number of clones planned.")
+            import ipdb; ipdb.set_trace()
+            # raise RegionTreeError("The number of squashed walkers in the merge group"
+            #                       "is not the same as the number of clones planned.")
 
-        # may not be necessary to do it this way
-        # # iterate through the groups of leaf nodes for the penultimate
-        # # nodes (i.e. last parents)
-        # for leaf_parent in self.level_nodes(self.n_levels-1):
-        #     curr_merge_groups, curr_walkers_num_clones = self.settle_balance(leaf_parent)
-
-        #     # update the master merge groups and clone numbers with
-        #     # the leaf group ones
-        #     for walker_idx, merge_group in enumerate(curr_merge_groups):
-        #         merge_groups[walker_idx].extend(merge_group)
-        #         walkers_num_clones[walker_idx] += curr_walkers_num_clones[walker_idx]
 
         return merge_groups, walkers_num_clones
 
