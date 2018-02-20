@@ -525,10 +525,14 @@ class RegionTree(nx.DiGraph):
                         if len(merge_group) > 0]
         merged_walkers = squashed_walkers + keep_walkers
 
+        # get the weights of just the walkers in this leaf
+        leaf_weights = [self.walker_weights[walker_idx]
+                        for walker_idx in self.node[leaf]['walker_idxs']]
+
         # get the idxs of the cloneable walkers that are above the
-        # pmin and are not being squashed
+        # pmin and are not being squashed that are in this leaf
         cloneable_walker_idxs = [walker_idx for walker_idx, weight
-                                 in enumerate(self.walker_weights)
+                                 in zip(self.node[leaf]['walker_idxs'], leaf_weights)
                                  if (weight >= self.pmin) and (walker_idx not in merged_walkers)]
 
         cloneable_walker_weights = [self.walker_weights[walker_idx]
