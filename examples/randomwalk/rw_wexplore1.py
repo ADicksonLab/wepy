@@ -3,10 +3,7 @@ from wepy.resampling.wexplore1 import WExplore1Resampler
 from wepy.resampling.distances.randomwalk import RandomWalkDistance
 from wepy.resampling.scoring.scorer import AllToAllScorer
 
-from tests.randomwalk.randomwalk_profiler import RandomwalkProfiler
-
-
-
+from randomwalk_profiler import RandomwalkProfiler
 
 
 if __name__=="__main__":
@@ -21,4 +18,4 @@ if __name__=="__main__":
 
     # set up a RandomWalkProfilier
     rw_profiler = RandomwalkProfiler(resampler)
-    rw_profiler.run_test(num_walkers=5, num_cycles=100, dimension=5, debug_prints=False)
+    rw_profiler.run_test(num_walkers=200, num_cycles=100, dimension=5, debug_prints=True)

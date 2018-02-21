@@ -624,9 +624,8 @@ class RegionTree(nx.DiGraph):
         num_squashed = sum([len(merge_group) for merge_group in merge_groups])
 
         if num_clones != num_squashed:
-            import ipdb; ipdb.set_trace()
-            # raise RegionTreeError("The number of squashed walkers in the merge group"
-            #                       "is not the same as the number of clones planned.")
+            raise RegionTreeError("The number of squashed walkers in the merge group"
+                                  "is not the same as the number of clones planned.")
 
 
         return merge_groups, walkers_num_clones
@@ -683,6 +682,8 @@ class WExplore1Resampler(Resampler):
         ## creating new regions, do this by calling the method to
         ## "place_walkers"  on the tree which changes the tree's state
         self.region_tree.place_walkers(walkers)
+        if debug_prints:
+            print("Assigned regions=\n{}".format(self.region_tree.walker_assignments))
 
         ## Given the assignments ("scores") (which are on the tree
         ## nodes) decide on which to merge and clone
@@ -691,6 +692,9 @@ class WExplore1Resampler(Resampler):
         # specified to increase or decrease the total number of
         # walkers
         merge_groups, walkers_num_clones = self.region_tree.balance_tree(delta_walkers=delta_walkers)
+        if debug_prints:
+            print("merge_groups\n{}".format(merge_groups))
+            print("Walker number of clones\n{}".format(walkers_num_clones))
 
         # check to make sure we have selected appropriate walkers to clone
         for walker_idx, n_clones in enumerate(walkers_num_clones):
