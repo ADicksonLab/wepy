@@ -9,12 +9,13 @@ import simtk.unit as unit
 
 import mdtraj as mdj
 
-from wepy.sim_manager import Manager
+from sim_manager import Manager
 from wepy.resampling.distances.distance import Distance
 from wepy.resampling.scoring.scorer import AllToAllScorer
 from wepy.resampling.wexplore2 import WExplore2Resampler
 from wepy.resampling.distances.openmm import OpenMMUnbindingDistance
-from wepy.runners.openmm import OpenMMRunner, OpenMMWalker
+from wepy.walker import Walker
+from wepy.runners.openmm import OpenMMRunner, OpenMMState
 from wepy.runners.openmm import UNIT_NAMES
 from wepy.boundary_conditions.unbinding import UnbindingBC
 from wepy.reporter.hdf5 import WepyHDF5Reporter
@@ -38,6 +39,7 @@ if __name__ == "__main__":
     # OpenMMWalker
     with open("../initial_openmm_state.pkl", mode='rb') as rf:
         omm_state = pickle.load(rf)
+
 
     # selecting ligand and protein binding site atom indices for
     # resampler and boundary conditions
@@ -102,12 +104,12 @@ if __name__ == "__main__":
     runner = OpenMMRunner(system, psf.topology, integrator, platform=platform)
 
     # set up parameters for running the simulation
-    num_walkers = 8
+    num_walkers = 1
     # initial weights
     init_weight = 1.0 / num_walkers
 
     # a list of the initial walkers
-    init_walkers = [OpenMMWalker(omm_state, init_weight) for i in range(num_walkers)]
+    init_walkers = [Walker(OpenMMState(omm_state), init_weight) for i in range(num_walkers)]
 
     # set up unbinding distance function
     unb_distance = OpenMMUnbindingDistance(topology=pdb.topology,
@@ -155,7 +157,7 @@ if __name__ == "__main__":
     pkl_reporter = WalkersPickleReporter(save_dir='./pickle_backups', freq=1, num_backups=2)
 
     # create a work mapper for NVIDIA GPUs for a GPU cluster
-    num_workers = 4
+    num_workers = 1
     gpumapper  = GPUMapper(num_walkers, n_workers=num_workers)
 
     # Instantiate a simulation manager
@@ -166,7 +168,7 @@ if __name__ == "__main__":
                           work_mapper=gpumapper.map,
                           reporters=[hdf5_reporter, pkl_reporter])
     n_steps = 10000
-    n_cycles = 10
+    n_cycles = 2
 
     # run a simulation with the manager for n_steps cycles of length 1000 each
     steps = [ n_steps for i in range(n_cycles)]

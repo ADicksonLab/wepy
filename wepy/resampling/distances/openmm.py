@@ -22,11 +22,11 @@ class OpenMMDistance(Distance):
         if len(keep_atoms) == 0:
             keep_atoms = range(np.shape(walkers[0].positions)[0])
 
-        return np.stack(([np.array(w.positions.value_in_unit(unit.nanometer))[keep_atoms,:]
+        return np.stack(([np.array(w.state.positions.value_in_unit(unit.nanometer))[keep_atoms,:]
                           for w in walkers]),axis=0)
 
     def _box_from_walkers(self, walkers):
-        return np.stack(([np.array([la.norm(v._value) for v in w.box_vectors])
+        return np.stack(([np.array([la.norm(v._value) for v in w.state.box_vectors])
                           for w in walkers]),axis=0)
 
 class OpenMMUnbindingDistance(OpenMMDistance):
