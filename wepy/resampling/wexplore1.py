@@ -289,7 +289,7 @@ class RegionTree(nx.DiGraph):
 
                 # increase the reducible walkers for the higher nodes
                 # in this leaf's branch
-                for level in reversed(range(self.n_levels-1)):
+                for level in reversed(range(self.n_levels)):
                     branch_node_id = node_id[:level]
                     self.node[branch_node_id]['n_mergeable'] += self.node[node_id]['n_mergeable']
 
@@ -736,5 +736,3 @@ class WExplore1Resampler(Resampler):
         aux_data = {}
 
         return resampled_walkers, resampling_actions, aux_data
-
-
