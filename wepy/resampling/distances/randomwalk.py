@@ -20,7 +20,7 @@ class RandomWalkDistance(Distance):
 
 
     def preimage(self, state):
-        return state['positions'][0]
+        return state['positions']
 
     def preimage_distance(self, preimage_a, preimage_b):
         """Compute the distance between posiotion of two states.
