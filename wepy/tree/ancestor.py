@@ -28,15 +28,14 @@ def ancestors(parent_matrix, cycle_idx, walker_idx, ancestor_cycle=0):
 
     previous_walker = walker_idx
 
-    for cycle_idx in range(cycle_idx, ancestor_cycle , -1):
-            previous_walker = parent_matrix[cycle_idx, previous_walker]
+    for cycle_idx in range(cycle_idx, ancestor_cycle, -1):
+            previous_walker = parent_matrix[cycle_idx][previous_walker]
             previous_point = (cycle_idx - 1, previous_walker)
             ancestors.insert(0, previous_point)
 
     return ancestors
 
 def ancestor_matrix(parent_matrix, ancestor_cycle=0):
-
     """Given a parent matrix and a cycle index, will return a matrix that
     gives the index of the walker that was the ancestor to the walker.
 
@@ -105,9 +104,26 @@ def parent_graph(parent_matrix):
 
             graph.add_edge(*edge)
 
-            # edge = (step_idx - 1) * len(positional_data_storage[0]) +
-            #            parent_matrix[step_idx, beads_1],
-            #            ((step_idx) * len(positional_data_storage[0]) + beads_1)
-
-
     return graph
+
+
+def sliding_window(parent_matrix, window_length):
+    """Returns traces (lists of frames across a run) on a sliding window
+    on the branching structure of a run of a WepyHDF5 file. There is
+    no particular order guaranteed.
+
+    """
+
+    # we make a range iterator which goes from the last cycle to the
+    # cycle which would be the end of the first possible sliding window
+    for cycle_idx in range(len(parent_matrix)-1, window_length-2, -1):
+
+        # then iterate for each walker at this cycle
+        for walker_idx in range(len(parent_matrix[0])):
+
+            # then get the ancestors according to the sliding window
+            window = ancestors(parent_matrix, cycle_idx, walker_idx,
+                               ancestor_cycle=cycle_idx-(window_length-1))
+
+            yield window
+
