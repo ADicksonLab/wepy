@@ -279,13 +279,13 @@ class RegionTree(nx.DiGraph):
 
                 # figure out the most possible mergeable walkers
                 # assuming they cannot ever be larger than pmax
-                sum_weights = weights[0]
-                for i in range(1, len(weights)):
+                sum_weights = 0
+                for i in range(len(weights)):
                     sum_weights += weights[i]
                     # if we still haven't gone past pmax set the n_red
                     # to the current index
-                    if sum_weights < self.pmax:
-                        self.node[node_id]['n_mergeable'] = i
+                    if sum_weights < self.pmax and i+1 < len(weights):
+                        self.node[node_id]['n_mergeable'] = i + 1
 
                 # increase the reducible walkers for the higher nodes
                 # in this leaf's branch
@@ -295,43 +295,48 @@ class RegionTree(nx.DiGraph):
 
     def minmax_beneficiaries(self, children):
 
-        min_n_walkers = None
+        #min_n_walkers = None
+        min_n_shares = None
         min_child_idx = None
 
-        max_n_walkers = None
+        #max_n_walkers = None
+        max_n_shares = None
         max_child_idx = None
 
         # test each walker sequentially
         for i, child in enumerate(children):
 
-
-            n_walkers = self.node[child]['n_walkers']
             n_mergeable = self.node[child]['n_mergeable']
             n_cloneable = self.node[child]['n_cloneable']
+            n_walkres= self.node[child]['n_walkers']
 
             # we need to take into account the balance inherited
             # from the parent when calculating the total number of
             # walkers that can be given to other node/regions
-            total_n_walkers = n_walkers + self.node[child]['balance']
-            total_n_mergeable = n_mergeable + self.node[child]['balance']
+            #total_n_walkers = n_walkers + self.node[child]['balance']
+            #total_n_mergeable = n_mergeable + self.node[child]['balance']
+
+            # the number of shares the walker currently has which is
+            # the sum of the number of mergeable (squashable) plus the
+            # balance
+            n_shares =  n_mergeable + self.node[child]['balance']
 
             # the maximum number of walkers that will exist after
             # cloning, if the number of reducible walkers is 1 or more
-            if ((not max_child_idx) or (total_n_walkers > max_n_walkers)) and \
-               (total_n_mergeable >= 1):
+            if ((max_child_idx is None) or (n_shares >  max_n_shares)) and \
+               (n_shares >= 1):
 
-                max_n_walkers = total_n_walkers
+                max_n_shares = n_shares
                 max_child_idx = i
 
             # the minimum number of walkers that will exist after
             # cloning, if the number of number of walkers above the
             # minimum weight is 1 or more
-            if ((not min_child_idx) or (total_n_walkers < min_n_walkers)) and \
+            if ((min_child_idx is None) or (n_shares < min_n_shares)) and \
                (n_cloneable >= 1):
 
-                min_n_walkers = total_n_walkers
+                min_n_shares = n_shares
                 min_child_idx = i
-
 
         return min_child_idx, max_child_idx
 
@@ -348,6 +353,8 @@ class RegionTree(nx.DiGraph):
         # with the least. The number it will share is the
         # number that will make them most similar rounding
         # down (i.e. midpoint)
+
+
         n_shares = math.floor((total_donor_n_walkers - total_recipient_n_walkers)/2)
 
         return n_shares
@@ -376,13 +383,13 @@ class RegionTree(nx.DiGraph):
                     # if this child has any mergeable walkers
                     if self.node[child]['n_mergeable'] >= 1:
                         # we use those for paying the parent's debt
-                        diff = abs(min(self.node[child]['n_mergeable'],
-                                       parental_balance))
+                        diff = min(self.node[child]['n_mergeable'],
+                                       abs(parental_balance))
                         parental_balance += diff
                         self.node[child]['balance'] -= diff
 
-                    if parental_balance < 0:
-                        raise ValueError("Children cannot pay their parent's debt")
+                if parental_balance < 0:
+                    raise ValueError("Children cannot pay their parent's debt")
 
 
             # these lucky children are inheriting a positive number of
@@ -440,7 +447,7 @@ class RegionTree(nx.DiGraph):
             # iteratively repeat this process until the number of
             # shares being donated is 1 or less which means the
             # distribution is as uniform as possible
-            while (n_shares >= 1):
+            while(n_shares >= 1):
                 # repeat above steps
                 min_child_idx, max_child_idx = self.minmax_beneficiaries(children)
 
@@ -454,6 +461,7 @@ class RegionTree(nx.DiGraph):
                     min_child = children[min_child_idx]
                 else:
                     min_child = None
+
 
                 n_shares = self.calc_share_donation(max_child,
                                                     min_child)
@@ -481,7 +489,6 @@ class RegionTree(nx.DiGraph):
         # the number of walkers we need to choose in order to be
         # able to do the required amount of merges
         num_merge_walkers = abs(leaf_balance) + 1
-
         # select the lowest weight walkers to use for merging
         selected_walkers = np.argsort(mergeable_weights)[:num_merge_walkers]
 
@@ -615,8 +622,10 @@ class RegionTree(nx.DiGraph):
         for leaf in self.leaf_nodes():
 
             # clone and merge groups for this leaf
-            merge_groups, walkers_num_clones = \
-                            self.settle_balance(leaf, merge_groups, walkers_num_clones)
+            leaf_node_balance = self.node[leaf]['balance']
+            if leaf_node_balance != 0:
+                merge_groups, walkers_num_clones = \
+                                                self.settle_balance(leaf, merge_groups, walkers_num_clones)
 
         # count up the number of clones and merges in the merge_groups
         # and the walkers_num_clones
