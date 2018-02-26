@@ -308,7 +308,6 @@ class RegionTree(nx.DiGraph):
 
             n_mergeable = self.node[child]['n_mergeable']
             n_cloneable = self.node[child]['n_cloneable']
-            n_walkres= self.node[child]['n_walkers']
 
             # we need to take into account the balance inherited
             # from the parent when calculating the total number of
