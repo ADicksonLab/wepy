@@ -15,7 +15,7 @@ def transmat(cluster_array, sliding_window):
 	Each list contains (2 x 1) tuples indicating the cycle and walker parents for a single
 	cycle of WExplore.  
 
-	Outputs: transition_matrix (numpy array [n_cluster, n_cluster]):
+	Outputs: transition_matrix (numpy array [n_cluster x n_cluster]):
 
 	A transition matrix based upon the lag time.
 
