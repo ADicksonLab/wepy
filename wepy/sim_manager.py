@@ -6,7 +6,7 @@ class Manager(object):
                  runner = None,
                  resampler = None,
                  boundary_conditions = None,
-                 work_mapper = map,
+                 work_mapper = None,
                  reporters = None):
 
         self.init_walkers = init_walkers
@@ -21,7 +21,7 @@ class Manager(object):
         # object for boundary conditions
         self.boundary_conditions = boundary_conditions
         # the function for running work on the workers
-        self.map = work_mapper
+        self.work_mapper = work_mapper
         # the method for writing output
         self.reporters = reporters
 
@@ -33,7 +33,7 @@ class Manager(object):
         if debug_prints:
             sys.stdout.write("Starting segment\n")
 
-        new_walkers = list(self.map(self.runner.run_segment,
+        new_walkers = list(self.work_mapper.map(self.runner.run_segment,
                                     walkers,
                                     (segment_length for i in range(num_walkers))
                                    )

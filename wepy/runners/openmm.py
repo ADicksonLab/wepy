@@ -10,6 +10,7 @@ import simtk.unit as unit
 
 from wepy.walker import Walker, WalkerState
 from wepy.runners.runner import Runner
+from wepy.work_mapper.gpu import GPUMapper
 from wepy.reporter.reporter import Reporter
 
 
@@ -422,3 +423,17 @@ class OpenMMWalker(Walker):
             "state must be an instance of class OpenMMState not {}".format(type(state))
 
         super().__init__(state, weight)
+
+class OpenMMGPUMapper(GPUMapper):
+
+    def exec_call(self, func, walker_idx, *args):
+
+        # get the index of a worker GPU
+        gpu_idx = self.get_worker_idx()
+
+        # call run_segment on the runner passing in the DeviceIndex
+        # kwarg which will get set in the Platform
+        self.results[walker_idx] = func(*args, DeviceIndex=str(gpu_idx))
+
+        # release the worker since its job is done now
+        self.release_worker(gpu_idx)
