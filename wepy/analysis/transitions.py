@@ -30,10 +30,10 @@ def transmat(cluster_array, sliding_window):
 	for step in windows:
 
 	    # Determines the starting and ending walker
-	    start_time = item[0][0]
-	    original_walker = item[0][1]
-	    end_time = item[-1][0]
-	    final_walker = item[-1][1]
+	    start_time = step[0][0]
+	    original_walker = step[0][1]
+	    end_time = step[-1][0]
+	    final_walker = step[-1][1]
 
 	    # Determines the cluster number of the begining walker
 	    # and end walker.
