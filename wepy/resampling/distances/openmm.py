@@ -22,11 +22,11 @@ class OpenMMDistance(Distance):
         if len(keep_atoms) == 0:
             keep_atoms = range(np.shape(walkers[0].positions)[0])
 
-        return np.stack(([np.array(w.positions.value_in_unit(unit.nanometer))[keep_atoms,:]
+        return np.stack(([np.array(w.state.positions.value_in_unit(unit.nanometer))[keep_atoms,:]
                           for w in walkers]),axis=0)
 
     def _box_from_walkers(self, walkers):
-        return np.stack(([np.array([la.norm(v._value) for v in w.box_vectors])
+        return np.stack(([np.array([la.norm(v._value) for v in w.state.box_vectors])
                           for w in walkers]),axis=0)
 
 class OpenMMUnbindingDistance(OpenMMDistance):
@@ -45,7 +45,7 @@ class OpenMMUnbindingDistance(OpenMMDistance):
         # program now assumes that all atoms in alternative maps are
         # contained in binding_site_idxs list
 
-    def distance(self, walkers):
+    def score(self, walkers):
         num_walkers = len(walkers)
 
         small_lig_idxs = np.array(range(len(self.ligand_idxs)))
@@ -63,13 +63,14 @@ class OpenMMUnbindingDistance(OpenMMDistance):
         traj_rec = mdj.Trajectory(newpos_small, small_top)
 
         traj_rec.superpose(traj_rec, atom_indices=small_bs_idxs)
-        d = np.zeros((num_walkers, num_walkers))
+
+        dist_mat = np.zeros((num_walkers, num_walkers))
         for i in range(num_walkers-1):
-            d[i][i] = 0
+            dist_mat[i][i] = 0
             for j in range(i+1, num_walkers):
                 # return the distance matrix in Angstroms
-                d[i][j] = 10.0 * rmsd_one_frame(traj_rec.xyz[i], traj_rec.xyz[j], small_lig_idxs)
-                d[j][i] = d[i][j]
+                dist_mat[i][j] = 10.0 * rmsd_one_frame(traj_rec.xyz[i], traj_rec.xyz[j], small_lig_idxs)
+                dist_mat[j][i] = dist_mat[i][j]
 
         if self.alt_maps is not None:
             # figure out the "small" alternative maps
@@ -91,13 +92,13 @@ class OpenMMUnbindingDistance(OpenMMDistance):
                                        ref_atom_indices=alt_map)
                 for i in range(num_walkers-1):
                     for j in range(i+1, num_walkers):
-                        dtest = rmsd_one_frame(traj_rec.xyz[i], alt_traj_rec.xyz[j],
+                        dist = rmsd_one_frame(traj_rec.xyz[i], alt_traj_rec.xyz[j],
                                                small_lig_idxs)
-                        if dtest < d[i][j]:
-                            d[i][j] = dtest
-                            d[j][i] = dtest
+                        if dist < dist_mat[i][j]:
+                            dist_mat[i][j] = dist
+                            dist_mat[j][i] = dist
 
-        return d
+        return dist_mat
 
 class OpenMMRebindingDistance(OpenMMDistance):
     # The distance function here returns a distance matrix where the element (d_ij) is the
@@ -172,23 +173,23 @@ class OpenMMRebindingDistance(OpenMMDistance):
                                        atom_indices=small_bs_idxs,
                                        ref_atom_indices=alt_map)
                 for i in range(num_walkers):
-                    dtest = rmsd_one_frame(alt_traj_rec.xyz[i], self.comp_traj.xyz[0],
+                    dist = rmsd_one_frame(alt_traj_rec.xyz[i], self.comp_traj.xyz[0],
                                            small_lig_idxs)
-                    if dtest < rmsd_native[i]:
-                        rmsd_native[i] = dtest
+                    if dist < rmsd_native[i]:
+                        rmsd_native[i] = dist
         return rmsd_native
 
-    def distance(self, walkers):
+    def score(self, walkers):
         num_walkers = len(walkers)
         rmsd_native = self.get_rmsd_native(walkers)
-        d = np.zeros((num_walkers, num_walkers))
+        dist_mat = np.zeros((num_walkers, num_walkers))
         for i in range(num_walkers-1):
-            d[i][i] = 0
+            dist_mat[i][i] = 0
             for j in range(i+1,num_walkers):
-                d[i][j] = abs(1./rmsd_native[i] - 1./rmsd_native[j])
-                d[j][i] = d[i][j]
+                dist_mat[i][j] = abs(1./rmsd_native[i] - 1./rmsd_native[j])
+                dist_mat[j][i] = dist_mat[i][j]
 
-        return d
+        return dist_mat
 
 class OpenMMNormalModeDistance(OpenMMDistance):
     # The distance function here returns a distance matrix where the element (d_ij) is the
@@ -217,7 +218,7 @@ class OpenMMNormalModeDistance(OpenMMDistance):
             assert len(m) == 3*len(align_idxs), "Number of elements in each mode must be 3X the number of atoms"
         self.modes = modes.T
 
-    def distance(self, walkers):
+    def score(self, walkers):
         num_walkers = len(walkers)
 
         keep_atoms = np.array(self.align_idxs)
@@ -234,14 +235,14 @@ class OpenMMNormalModeDistance(OpenMMDistance):
                 vecs[i][modenum] = np.dot(coor_angstroms, self.modes[modenum])
 
         # calculate distance matrix in normal mode space
-        d = np.zeros((n_walkers,n_walkers))
+        dist_mat = np.zeros((n_walkers,n_walkers))
         for i in range(n_walkers):
             for j in range(i+1, n_walkers):
-                dval = np.linalg.norm(vecs[i]-vecs[j],ord=2)
-                d[i][j] = dval
-                d[j][i] = dval
+                dist = np.linalg.norm(vecs[i]-vecs[j],ord=2)
+                dist_mat[i][j] = dist
+                dist_mat[j][i] = dist
 
-        return d
+        return dist_mat
 
 class OpenMMHBondDistance(OpenMMDistance):
     # The distance function here returns a distance matrix where the
@@ -345,11 +346,11 @@ class OpenMMHBondDistance(OpenMMDistance):
         inte_vec, names = self.vectorize_profiles(profiles, n_walkers)
 
         # calculate distance matrix in interaction space
-        d = np.zeros((n_walkers, n_walkers))
+        dist_mat = np.zeros((n_walkers, n_walkers))
         for i in range(n_walkers):
             for j in range(i+1, n_walkers):
-                dval = np.linalg.norm(inte_vec[i]-inte_vec[j], ord=2)
-                d[i][j] = dval
-                d[j][i] = dval
+                dist = np.linalg.norm(inte_vec[i]-inte_vec[j], ord=2)
+                dist_mat[i][j] = dist
+                dist_mat[j][i] = dist
 
-        return d
+        return dist

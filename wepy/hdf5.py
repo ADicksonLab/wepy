@@ -1,19 +1,17 @@
-from collections import Iterable, Sequence
-from types import GeneratorType
+from collections import Sequence
 import itertools as it
-
 import json
 from warnings import warn
-import operator
 
 import numpy as np
-
 import h5py
+
+from wepy.util.mdtraj import mdtraj_to_json_topology, json_to_mdtraj_topology, \
+                             json_top_atom_count, box_vectors_to_lengths_angles
 
 # optional dependencies
 try:
     import mdtraj as mdj
-    import mdtraj.core.element as elem
 except ModuleNotFoundError:
     warn("mdtraj is not installed and that functionality will not work", RuntimeWarning)
 
@@ -542,7 +540,7 @@ class TrajHDF5(object):
 
         # get the number of coordinates of positions, i.e. n_atoms
         # from the topology
-        self._n_coords = _json_top_atom_count(self.topology)
+        self._n_coords = json_top_atom_count(self.topology)
 
         # get the number of dimensions as a default
         self._n_dims = N_DIMS
@@ -947,13 +945,13 @@ class TrajHDF5(object):
 
     def to_mdtraj(self):
 
-        topology = _json_to_mdtraj_topology(self.topology)
+        topology = json_to_mdtraj_topology(self.topology)
 
         positions = self.h5['positions'][:]
         # reshape for putting into mdtraj
         time = self.h5['time'][:, 0]
         box_vectors = self.h5['box_vectors'][:]
-        unitcell_lengths, unitcell_angles = _box_vectors_to_lengths_angles(box_vectors)
+        unitcell_lengths, unitcell_angles = box_vectors_to_lengths_angles(box_vectors)
 
         traj = mdj.Trajectory(positions, topology,
                        time=time,
@@ -1372,7 +1370,7 @@ class WepyHDF5(object):
         # main_reps then we have to set the number of atoms to that,
         # if not we count the number of atoms in the topology
         if self._main_rep_idxs is None:
-            self._n_coords = _json_top_atom_count(self.topology)
+            self._n_coords = json_top_atom_count(self.topology)
             self._main_rep_idxs = list(range(self._n_coords))
         else:
             self._n_coords = len(self._main_rep_idxs)
@@ -1488,7 +1486,7 @@ class WepyHDF5(object):
 
         """
 
-        full_mdj_top = _json_to_mdtraj_topology(self.topology)
+        full_mdj_top = json_to_mdtraj_topology(self.topology)
         if alt_rep is None:
             return full_mdj_top
         elif alt_rep == 'positions':
@@ -1513,7 +1511,7 @@ class WepyHDF5(object):
         """
 
         mdj_top = self.get_mdtraj_topology(alt_rep=alt_rep)
-        json_top = _mdtraj_to_json_topology(mdj_top)
+        json_top = mdtraj_to_json_topology(mdj_top)
 
         return json_top
 
@@ -2258,6 +2256,34 @@ class WepyHDF5(object):
 
 
     def add_cycle_resampling_records(self, run_idx, cycle_resampling_records):
+
+        # a common mistake when writing a new resampler is to not
+        # return the correct type for the cycle resampling
+        # records. `cycle_resamplingrecords` is supposed to be a list
+        # of lists where the elements of the outer list represent the
+        # "steps" a resampler can take. This is because a single
+        # resampling is allowed to clone a walker and then clone that
+        # walker again, which will always take multiple "steps", the
+        # order of the steps is the order in which the steps should be
+        # performed. A step is the list of actual ResamplingRecord
+        # objects for each walker. These are in the order that the
+        # walkers were passed to the `resample` function. Thus even if
+        # there is only one resampling "step" this should be a list of
+        # a single list, i.e. the only step. It is not expected many
+        # resamplers will use multiple steps we though it nonetheless
+        # prudent to allow for this potential behavior because the
+        # handling of such data in the HDF5 (and subsequent analysis
+        # steps) changes considerably with this consideration. In the
+        # future perhaps an automatic converter will detect this and
+        # modify it if we find it necessary, however it is more likely
+        # that this will just hide more important errors,
+        # i.e. returning only one step when you meant to return
+        # more. So for now we just provide a custom error to help in
+        # debugging because this is a common mistake.
+        if not isinstance(cycle_resampling_records[0], list):
+            raise TypeError("'cycle_resampling_records' must be a list of lists "
+                            "(i.e. list of steps), but a list of types {} were given.".format(
+                                type(cycle_resampling_records[0])))
 
         # get the run group
         run_grp = self.run(run_idx)
@@ -3259,7 +3285,7 @@ class WepyHDF5(object):
                 warn("box_vectors not in this trajectory, ignoring")
 
 
-        unitcell_lengths, unitcell_angles = _box_vectors_to_lengths_angles(box_vectors)
+        unitcell_lengths, unitcell_angles = box_vectors_to_lengths_angles(box_vectors)
 
         traj = mdj.Trajectory(positions, topology,
                        time=time,
@@ -3281,7 +3307,7 @@ class WepyHDF5(object):
 
         trace_fields = self.get_trace_fields(run_idx, trace, [rep_path, 'box_vectors'])
 
-        unitcell_lengths, unitcell_angles = _box_vectors_to_lengths_angles(
+        unitcell_lengths, unitcell_angles = box_vectors_to_lengths_angles(
                                                trace_fields['box_vectors'])
 
         cycles = [cycle for cycle, walker in trace]
@@ -3366,119 +3392,6 @@ def _make_numpy_varlength_instruction_dtype(varlength_instruct_type, varlength_w
     # make a full instruction dtype from this and return it
     return _make_numpy_instruction_dtype(instruct_record_dtype)
 
-def _mdtraj_to_json_topology(mdj_top):
-    """ Copied in part from MDTraj.formats.hdf5.topology setter. """
-
-    topology_dict = {
-        'chains': [],
-        'bonds': []
-    }
-
-    for chain in mdj_top.chains:
-        chain_dict = {
-            'residues': [],
-            'index': int(chain.index)
-        }
-        for residue in chain.residues:
-            residue_dict = {
-                'index': int(residue.index),
-                'name': str(residue.name),
-                'atoms': [],
-                "resSeq": int(residue.resSeq)
-            }
-
-            for atom in residue.atoms:
-
-                try:
-                    element_symbol_string = str(atom.element.symbol)
-                except AttributeError:
-                    element_symbol_string = ""
-
-                residue_dict['atoms'].append({
-                    'index': int(atom.index),
-                    'name': str(atom.name),
-                    'element': element_symbol_string
-                })
-            chain_dict['residues'].append(residue_dict)
-        topology_dict['chains'].append(chain_dict)
-
-    for atom1, atom2 in mdj_top.bonds:
-        topology_dict['bonds'].append([
-            int(atom1.index),
-            int(atom2.index)
-        ])
-
-    top_json_str = json.dumps(topology_dict)
-
-    return top_json_str
-
-def _json_to_mdtraj_topology(json_string):
-    """ Copied in part from MDTraj.formats.hdf5 topology property."""
-
-    topology_dict = json.loads(json_string)
-
-    topology = mdj.Topology()
-
-    for chain_dict in sorted(topology_dict['chains'], key=operator.itemgetter('index')):
-        chain = topology.add_chain()
-        for residue_dict in sorted(chain_dict['residues'], key=operator.itemgetter('index')):
-            try:
-                resSeq = residue_dict["resSeq"]
-            except KeyError:
-                resSeq = None
-                warnings.warn(
-                    'No resSeq information found in HDF file, defaulting to zero-based indices')
-            try:
-                segment_id = residue_dict["segmentID"]
-            except KeyError:
-                segment_id = ""
-            residue = topology.add_residue(residue_dict['name'], chain,
-                                           resSeq=resSeq, segment_id=segment_id)
-            for atom_dict in sorted(residue_dict['atoms'], key=operator.itemgetter('index')):
-                try:
-                    element = elem.get_by_symbol(atom_dict['element'])
-                except KeyError:
-                    element = elem.virtual
-                topology.add_atom(atom_dict['name'], element, residue)
-
-    atoms = list(topology.atoms)
-    for index1, index2 in topology_dict['bonds']:
-        topology.add_bond(atoms[index1], atoms[index2])
-
-    return topology
-
-def _json_top_atom_count(json_str):
-    top_d = json.loads(json_str)
-    atom_count = 0
-    atom_count = 0
-    for chain in top_d['chains']:
-        for residue in chain['residues']:
-            atom_count += len(residue['atoms'])
-
-    return atom_count
-
-def _box_vectors_to_lengths_angles(box_vectors):
-
-    unitcell_lengths = []
-    for basis in box_vectors:
-        unitcell_lengths.append(np.array([np.linalg.norm(frame_v) for frame_v in basis]))
-
-    unitcell_lengths = np.array(unitcell_lengths)
-
-    unitcell_angles = []
-    for vs in box_vectors:
-
-        angles = np.array([np.degrees(
-                            np.arccos(np.dot(vs[i], vs[j])/
-                                      (np.linalg.norm(vs[i]) * np.linalg.norm(vs[j]))))
-                           for i, j in [(0,1), (1,2), (2,0)]])
-
-        unitcell_angles.append(angles)
-
-    unitcell_angles = np.array(unitcell_angles)
-
-    return unitcell_lengths, unitcell_angles
-
 
 def _check_data_compliance(traj_data, compliance_requirements=COMPLIANCE_REQUIREMENTS):
     """Given a dictionary of trajectory data it returns the
@@ -3521,3 +3434,239 @@ def iter_field_paths(grp):
         else:
             field_paths.append(field_name)
     return field_paths
+
+
+class RunCycleSlice(object):
+
+    def __init__(self, run_idx, cycles, wepy_hdf5_file):
+
+        self._h5 = wepy_hdf5_file._h5
+        self.run_idx = run_idx
+        self.cycles = cycles
+        self.mode = wepy_hdf5_file.mode
+
+    def traj(self, run_idx, traj_idx):
+                 return self._h5['runs/{}/trajectories/{}'.format(run_idx, traj_idx)]
+    def run_trajs(self, run_idx):
+        return self._h5['runs/{}/trajectories'.format(run_idx)]
+
+    def n_run_trajs(self, run_idx):
+        return len(self._h5['runs/{}/trajectories'.format(run_idx)])
+
+    def run_traj_idxs(self, run_idx):
+        return range(len(self._h5['runs/{}/trajectories'.format(run_idx)]))
+
+    def run_traj_idx_tuples(self):
+        tups = []
+        for traj_idx in self.run_traj_idxs(self.run_idx):
+            tups.append((self.run_idx, traj_idx))
+
+        return tups
+    def run_cycle_idx_tuples(self):
+        tups = []
+        for cycle_idx in self.cycles:
+             tups.append((self.run_idx, cycle_idx))
+        return tups
+
+
+    def iter_trajs(self, idxs=False, traj_sel=None):
+        """Generator for all of the trajectories in the dataset across all
+        runs. If idxs=True will return a tuple of (run_idx, traj_idx).
+
+        run_sel : if True will iterate over a subset of
+        trajectories. Possible values are an iterable of `(run_idx,
+        traj_idx)` tuples.
+
+        """
+
+
+        # set the selection of trajectories to iterate over
+        if traj_sel is None:
+            idx_tups = self.run_traj_idx_tuples()
+        else:
+            idx_tups = traj_sel
+
+        # get each traj for each idx_tup and yield them for the generator
+        for run_idx, traj_idx in idx_tups:
+            traj = self.traj(run_idx, traj_idx)
+            if idxs:
+                yield (run_idx, traj_idx), traj
+            else:
+                yield traj
+
+    def iter_cycle_fields(self, fields, cycle_idx, idxs=False, traj_sel=None):
+        """Generator for all of the specified non-compound fields
+        h5py.Datasets for all trajectories in the dataset across all
+        runs. Fields is a list of valid relative paths to datasets in
+        the trajectory groups.
+
+        """
+
+        for field in fields:
+            dsets = {}
+            fields_data = ()
+            for idx_tup, traj in self.iter_trajs(idxs=True, traj_sel=traj_sel):
+                run_idx, traj_idx = idx_tup
+                try:
+                    dset = traj[field][cycle_idx]
+                    if not isinstance(dset, np.ndarray):
+                        dset = np.array([dset])
+                    if len(dset.shape)==1:
+                        fields_data += (dset,)
+                    else:
+                        fields_data += ([dset],)
+                except KeyError:
+                    warn("field \"{}\" not found in \"{}\"".format(field, traj.name), RuntimeWarning)
+                    dset = None
+
+            dsets =  np.concatenate(fields_data, axis=0)
+
+            if idxs:
+                yield (run_idx, traj_idx, field), dsets
+            else:
+                yield field, dsets
+
+
+    def iter_cycles_fields(self, fields, idxs=False, traj_sel=None, debug_prints=False):
+
+        for cycle_idx in self.cycles:
+            dsets = {}
+            for field, dset in self.iter_cycle_fields(fields, cycle_idx, traj_sel=traj_sel):
+                dsets[field] = dset
+            if idxs:
+                yield (cycle_idx,  dsets)
+            else:
+                yield dsets
+
+
+    def traj_cycles_map(self, func, fields, *args, map_func=map, idxs=False, traj_sel=None,
+                        debug_prints=False):
+        """Function for mapping work onto field of trajectories in the
+        WepyHDF5 file object. Similar to traj_map, except `h5py.Group`
+        objects cannot be pickled for message passing. So we select
+        the fields to serialize instead and pass the `numpy.ndarray`s
+        to have the work mapped to them.
+
+        func : the function that will be mapped to trajectory groups
+
+        fields : list of fields that will be serialized into a dictionary
+                 and passed to the map function. These must be valid
+                 `h5py` path strings relative to the trajectory
+                 group. These include the standard fields like
+                 'positions' and 'weights', as well as compound paths
+                 e.g. 'observables/sasa'.
+
+        map_func : the function that maps the function. This is where
+                        parallelization occurs if desired.  Defaults to
+                        the serial python map function.
+
+        traj_sel : a trajectory selection. This is a valid `traj_sel`
+        argument for the `iter_trajs` function.
+
+        *args : additional arguments to the function. If this is an
+                 iterable it will be assumed that it is the appropriate
+                 length for the number of trajectories, WARNING: this will
+                 not be checked and could result in a run time
+                 error. Otherwise single values will be automatically
+                 mapped to all trajectories.
+
+        """
+
+        # check the args and kwargs to see if they need expanded for
+        # mapping inputs
+        mapped_args = []
+        for arg in args:
+            # if it is a sequence or generator we keep just pass it to the mapper
+            if isinstance(arg, list) and not isinstance(arg, str):
+                assert len(arg) == len(self.cycles), "Sequence has fewer"
+                mapped_args.append(arg)
+            # if it is not a sequence or generator we make a generator out
+            # of it to map as inputs
+            else:
+                mapped_arg = (arg for i in range(len(self.cycles)))
+                mapped_args.append(mapped_arg)
+
+
+
+        results = map_func(func, self.iter_cycles_fields(fields, traj_sel=traj_sel, idxs=False,
+                                                        debug_prints=debug_prints),
+                           *mapped_args)
+
+        if idxs:
+            if traj_sel is None:
+                traj_sel = self.run_cycle_idx_tuples()
+            return zip(traj_sel, results)
+        else:
+            return results
+
+
+    def compute_observable(self, func, fields, *args,
+                           map_func=map,
+                           traj_sel=None,
+                           save_to_hdf5=None, idxs=False, return_results=True,
+                           debug_prints=False):
+        """Compute an observable on the trajectory data according to a
+        function. Optionally save that data in the observables data group for
+        the trajectory.
+        """
+
+        if save_to_hdf5 is not None:
+            assert self.mode in ['w', 'w-', 'x', 'r+', 'c', 'c-'],\
+                "File must be in a write mode"
+            assert isinstance(save_to_hdf5, str),\
+                "`save_to_hdf5` should be the field name to save the data in the `observables` group in each trajectory"
+            field_name=save_to_hdf5
+
+            #DEBUG enforce this until sparse trajectories are implemented
+            assert traj_sel is None, "no selections until sparse trajectory data is implemented"
+
+        idx =0
+
+        for result in self.traj_cycles_map(func, fields, *args,
+                                       map_func=map_func, traj_sel=traj_sel, idxs=True,
+                                       debug_prints=debug_prints):
+            idx_tup, obs_value = result
+            run_idx, traj_idx = idx_tup
+
+            # if we are saving this to the trajectories observables add it as a dataset
+            if save_to_hdf5:
+
+                if debug_prints:
+                    print("Saving run {} traj {} observables/{}".format(
+                        run_idx, traj_idx, field_name))
+
+                # try to get the observables group or make it if it doesn't exist
+                try:
+                    obs_grp = self.traj(run_idx, traj_idx)['observables']
+                except KeyError:
+
+                    if debug_prints:
+                        print("Group uninitialized. Initializing.")
+
+                    obs_grp = self.traj(run_idx, traj_idx).create_group('observables')
+
+                # try to create the dataset
+                try:
+                    obs_grp.create_dataset(field_name, data=obs_value)
+                # if it fails we either overwrite or raise an error
+                except RuntimeError:
+                    # if we are in a permissive write mode we delete the
+                    # old dataset and add the new one, overwriting old data
+                    if self.mode in ['w', 'w-', 'x', 'r+']:
+
+                        if debug_prints:
+                            print("Dataset already present. Overwriting.")
+
+                        del obs_grp[field_name]
+                        obs_grp.create_dataset(field_name, data=obs_value)
+                    # this will happen in 'c' and 'c-' modes
+                    else:
+                        raise RuntimeError(
+                            "Dataset already exists and file is in concatenate mode ('c' or 'c-')")
+
+            # also return it if requested
+            if return_results:
+                if idxs:
+                    yield idx_tup, obs_value
+                else:
+                    yield obs_value

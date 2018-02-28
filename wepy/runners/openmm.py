@@ -1,5 +1,6 @@
 from copy import copy
 import random as rand
+from warnings import warn
 
 import numpy as np
 
@@ -7,12 +8,17 @@ import simtk.openmm.app as omma
 import simtk.openmm as omm
 import simtk.unit as unit
 
-from wepy.walker import Walker
+from wepy.walker import Walker, WalkerState
 from wepy.runners.runner import Runner
+from wepy.work_mapper.gpu import GPUMapper
 from wepy.reporter.reporter import Reporter
 
 
 ## Constants
+
+KEYS = ('positions', 'velocities', 'forces', 'kinetic_energy',
+        'potential_energy', 'time', 'box_vectors', 'box_volume',
+        'parameters', 'parameter_derivatives')
 
 # when we use the get_state function from the simulation context we
 # can pass options for what kind of data to get, this is the default
@@ -102,75 +108,95 @@ class OpenMMRunner(Runner):
                                          new_integrator)
 
         # set the state to the context from the walker
-        simulation.context.setState(walker.state)
+        simulation.context.setState(walker.state.sim_state)
 
         # Run the simulation segment for the number of time steps
         simulation.step(segment_length)
 
         # save the state of the system with all possible values
-        new_state = simulation.context.getState(**getState_kwargs)
+        new_sim_state = simulation.context.getState(**getState_kwargs)
+
+        # make an OpenMMState wrapper with this
+        new_state = OpenMMState(new_sim_state)
 
         # create a new walker for this
         new_walker = OpenMMWalker(new_state, walker.weight)
 
         return new_walker
 
-# a walker object which customizes the state and adds useful getters
-# for the contained data in the state
-class OpenMMWalker(Walker):
 
-    def __init__(self, state, weight):
-        super().__init__(state, weight)
+class OpenMMState(WalkerState):
 
-        self._keys = ['positions', 'velocities', 'forces', 'kinetic_energy',
-                      'potential_energy', 'time', 'box_vectors', 'box_volume',
-                      'parameters', 'parameter_derivatives']
+    KEYS = KEYS
 
-    def dict(self):
-        """return a dict of the values."""
-        return {'positions' : self.positions_values(),
-                'velocities' : self.velocities_values(),
-                'forces' : self.forces_values(),
-                'kinetic_energy' : self.kinetic_energy_value(),
-                'potential_energy' : self.potential_energy_value(),
-                'time' : self.time_value(),
-                'box_vectors' : self.box_vectors_values(),
-                'box_volume' : self.box_volume_value(),
-                'parameters' : self.parameters_values(),
-                'parameter_derivatives' : self.parameter_derivatives_values()
-                    }
+    OTHER_KEY_TEMPLATE = "{}_OTHER"
 
-    def keys(self):
-        return self._keys
+    def __init__(self, sim_state, **kwargs):
+
+        # save the simulation state
+        self._sim_state = sim_state
+
+        # save additional data if given
+        self._data = {}
+        for key, value in kwargs.items():
+
+            # if the key is already in the sim_state keys we need to
+            # modify it and raise a warning
+            if key in self.KEYS:
+
+                warn("Key {} in kwargs is already taken by this class, renaming to {}".format(
+                    self.OTHER_KEY_TEMPLATE).format(key))
+
+                # make a new key
+                new_key = self.OTHER_KEY_TEMPLATE.format(key)
+
+                # set it in the data
+                self._data[new_key] = value
+
+            # otherwise just set it
+            else:
+                self._data[key] = value
+
+    @property
+    def sim_state(self):
+        return self._sim_state
 
     def __getitem__(self, key):
-        if key == 'positions':
-            return self.positions_values()
-        elif key == 'velocities':
-            return self.velocities_values
-        elif key == 'forces':
-            return self.forces_values()
-        elif key == 'kinetic_energy':
-            return self.kinetic_energy_value()
-        elif key == 'potential_energy':
-            return self.potential_energy_value()
-        elif key == 'time':
-            return self.time_value()
-        elif key == 'box_vectors':
-            return self.box_vectors_values()
-        elif key == 'box_volume':
-            return self.box_volume_value()
-        elif key == 'parameters':
-            return self.parameters_values()
-        elif key == 'parameter_derivatives':
-            return self.parameter_derivatives_values()
+
+        # if this was a key for data not mapped from the OpenMM.State
+        # object we use the _data attribute
+        if key not in self.KEYS:
+            return self._data[key]
+
+        # otherwise we have to specifically get the correct data and
+        # process it into an array from the OpenMM.State
         else:
-            raise KeyError('{} not an OpenMMWalker attribute')
+
+            if key == 'positions':
+                return self.positions_values()
+            elif key == 'velocities':
+                return self.velocities_values
+            elif key == 'forces':
+                return self.forces_values()
+            elif key == 'kinetic_energy':
+                return self.kinetic_energy_value()
+            elif key == 'potential_energy':
+                return self.potential_energy_value()
+            elif key == 'time':
+                return self.time_value()
+            elif key == 'box_vectors':
+                return self.box_vectors_values()
+            elif key == 'box_volume':
+                return self.box_volume_value()
+            elif key == 'parameters':
+                return self.parameters_values()
+            elif key == 'parameter_derivatives':
+                return self.parameter_derivatives_values()
 
     @property
     def positions(self):
         try:
-            return self.state.getPositions()
+            return self.sim_state.getPositions()
         except TypeError:
             return None
 
@@ -184,7 +210,7 @@ class OpenMMWalker(Walker):
     @property
     def velocities(self):
         try:
-            return self.state.getVelocities()
+            return self.sim_state.getVelocities()
         except TypeError:
             return None
 
@@ -202,7 +228,7 @@ class OpenMMWalker(Walker):
     @property
     def forces(self):
         try:
-            return self.state.getForces()
+            return self.sim_state.getForces()
         except TypeError:
             return None
 
@@ -220,7 +246,7 @@ class OpenMMWalker(Walker):
     @property
     def kinetic_energy(self):
         try:
-            return self.state.getKineticEnergy()
+            return self.sim_state.getKineticEnergy()
         except TypeError:
             return None
 
@@ -238,7 +264,7 @@ class OpenMMWalker(Walker):
     @property
     def potential_energy(self):
         try:
-            return self.state.getPotentialEnergy()
+            return self.sim_state.getPotentialEnergy()
         except TypeError:
             return None
 
@@ -256,7 +282,7 @@ class OpenMMWalker(Walker):
     @property
     def time(self):
         try:
-            return self.state.getTime()
+            return self.sim_state.getTime()
         except TypeError:
             return None
 
@@ -274,7 +300,7 @@ class OpenMMWalker(Walker):
     @property
     def box_vectors(self):
         try:
-            return self.state.getPeriodicBoxVectors()
+            return self.sim_state.getPeriodicBoxVectors()
         except TypeError:
             return None
 
@@ -292,7 +318,7 @@ class OpenMMWalker(Walker):
     @property
     def box_volume(self):
         try:
-            return self.state.getPeriodicBoxVolume()
+            return self.sim_state.getPeriodicBoxVolume()
         except TypeError:
             return None
 
@@ -310,7 +336,7 @@ class OpenMMWalker(Walker):
     @property
     def parameters(self):
         try:
-            return self.state.getParameters()
+            return self.sim_state.getParameters()
         except TypeError:
             return None
 
@@ -337,7 +363,7 @@ class OpenMMWalker(Walker):
     @property
     def parameter_derivatives(self):
         try:
-            return self.state.getEnergyParameterDerivatives()
+            return self.sim_state.getEnergyParameterDerivatives()
         except TypeError:
             return None
 
@@ -362,11 +388,52 @@ class OpenMMWalker(Walker):
         else:
             return param_arrs
 
+    def omm_state_dict(self):
+        """return a dict of the values for the keys that are hardcoded in this class."""
+        return {'positions' : self.positions_values(),
+                'velocities' : self.velocities_values(),
+                'forces' : self.forces_values(),
+                'kinetic_energy' : self.kinetic_energy_value(),
+                'potential_energy' : self.potential_energy_value(),
+                'time' : self.time_value(),
+                'box_vectors' : self.box_vectors_values(),
+                'box_volume' : self.box_volume_value(),
+                'parameters' : self.parameters_values(),
+                'parameter_derivatives' : self.parameter_derivatives_values()
+                    }
+
+    def dict(self):
+        """Return a dict of the values for all attributes of this state."""
+
+        return {**self._data, **self.omm_state_dict()}
+
     def to_mdtraj(self):
         """ Returns an mdtraj.Trajectory object from this walker's state."""
         raise NotImplementedError
         import mdtraj as mdj
         # resize the time to a 1D vector
         return mdj.Trajectory(self.positions_values,
-                              time=self.time_value[:,0], unitcell_vectors=self.box_vectors)
+                              time=self.time_value[:,0], unitcell_vectors=self.box_vectors_values)
 
+class OpenMMWalker(Walker):
+
+    def __init__(self, state, weight):
+
+        assert isinstance(state, OpenMMState), \
+            "state must be an instance of class OpenMMState not {}".format(type(state))
+
+        super().__init__(state, weight)
+
+class OpenMMGPUMapper(GPUMapper):
+
+    def exec_call(self, func, walker_idx, *args):
+
+        # get the index of a worker GPU
+        gpu_idx = self.get_worker_idx()
+
+        # call run_segment on the runner passing in the DeviceIndex
+        # kwarg which will get set in the Platform
+        self.results[walker_idx] = func(*args, DeviceIndex=str(gpu_idx))
+
+        # release the worker since its job is done now
+        self.release_worker(gpu_idx)

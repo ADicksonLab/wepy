@@ -64,7 +64,7 @@ class AllToAllScorer(DistanceScorer):
         for i, j in it.combinations(range(len(walkers)), 2):
 
             # calculate the distance between the two walkers
-            dist = self.distance.distance(walkers[i], walkers[j])
+            dist = self.distance.distance(walkers[i].state, walkers[j].state)
 
             # save this in the matrix in both spots
             dist_mat[i][j] = dist

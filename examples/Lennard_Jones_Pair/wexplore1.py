@@ -13,11 +13,9 @@ import mdtraj as mdj
 from wepy.sim_manager import Manager
 
 from wepy.resampling.distances.distance import Distance
-from wepy.resampling.scoring.scorer import AllToAllScorer
-from wepy.resampling.wexplore2 import WExplore2Resampler
-
-from wepy.runners.openmm import OpenMMRunner, OpenMMState
+from wepy.resampling.wexplore1 import WExplore1Resampler
 from wepy.walker import Walker
+from wepy.runners.openmm import OpenMMRunner, OpenMMState
 from wepy.runners.openmm import UNIT_NAMES, GET_STATE_KWARG_DEFAULTS
 from wepy.boundary_conditions.unbinding import UnbindingBC
 from wepy.reporter.hdf5 import WepyHDF5Reporter
@@ -29,13 +27,16 @@ from scipy.spatial.distance import euclidean
 # we define a simple distance metric for this system, assuming the
 # positions are in a 'positions' field
 class PairDistance(Distance):
+
     def __init__(self, metric=euclidean):
         self.metric = metric
 
-    def distance(self, walker_a, walker_b):
+    def preimage(self, state):
+        return state['positions']
 
-        dist_a = self.metric(walker_a['positions'][0], walker_a['positions'][1])
-        dist_b = self.metric(walker_b['positions'][0], walker_b['positions'][1])
+    def preimage_distance(self, preimage_a, preimage_b):
+        dist_a = self.metric(preimage_a[0], preimage_a[1])
+        dist_b = self.metric(preimage_b[0], preimage_b[1])
 
         return np.abs(dist_a - dist_b)
 
@@ -44,6 +45,11 @@ if __name__ == "__main__":
     n_runs = int(sys.argv[1])
     n_steps = int(sys.argv[2])
     n_cycles = int(sys.argv[3])
+    # if you pass a seed use it
+    try:
+        seed = int(sys.argv[4])
+    except IndexError:
+        pass
 
     test_sys = LennardJonesPair()
 
@@ -65,6 +71,7 @@ if __name__ == "__main__":
 
     init_walkers = [Walker(OpenMMState(init_sim_state), init_weight) for i in range(num_walkers)]
 
+
     # the mdtraj here is needed for the distance function
     mdtraj_topology = mdj.Topology.from_openmm(test_sys.topology)
 
@@ -72,16 +79,14 @@ if __name__ == "__main__":
     # between two walkers, for our scorer class
     distance = PairDistance()
 
-    # we need a scorer class to perform the all-to-all distances
-    # using our distance class
-    scorer = AllToAllScorer(distance=distance)
-
     # make a WExplore2 resampler with default parameters and our
     # distance metric
-    resampler = WExplore2Resampler(scorer=scorer,
-                                   pmax=0.5)
+    resampler = WExplore1Resampler(max_region_sizes=(0.5, 0.5, 0.5, 0.5),
+                                   max_n_regions=(10, 10, 10, 10),
+                                   distance=distance,
+                                   pmin=1e-12, pmax=0.5)
 
-    ubc = UnbindingBC(cutoff_distance=1.5,
+    ubc = UnbindingBC(cutoff_distance=2.0,
                       initial_state=init_walkers[0].state,
                       topology=mdtraj_topology,
                       ligand_idxs=np.array(test_sys.ligand_indices),
@@ -94,7 +99,7 @@ if __name__ == "__main__":
     # make a dictionary of units for adding to the HDF5
     units = dict(UNIT_NAMES)
 
-    report_path = 'wexplore2_results.wepy.h5'
+    report_path = 'wexplore1_results.wepy.h5'
     # open it in truncate mode first, then switch after first run
     hdf5_reporter = WepyHDF5Reporter(report_path, mode='w',
                                     save_fields=['positions', 'box_vectors', 'velocities'],
@@ -106,6 +111,10 @@ if __name__ == "__main__":
                                     topology=json_str_top,
                                     units=units,
                                     sparse_fields={'velocities' : 10},
+                                    # sparse atoms fields
+                                    main_rep_idxs=[0],
+                                    all_atoms_rep_freq=10,
+                                    alt_reps={'other_atom' : ([1], 2)}
     )
 
     sim_manager = Manager(init_walkers,

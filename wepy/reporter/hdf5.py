@@ -1,7 +1,10 @@
+from copy import deepcopy
+
 import numpy as np
 
 from wepy.reporter.reporter import FileReporter
-from wepy.hdf5 import WepyHDF5, _json_top_atom_count
+from wepy.hdf5 import WepyHDF5
+from wepy.util.mdtraj import json_top_atom_count
 
 class WepyHDF5Reporter(FileReporter):
 
@@ -75,7 +78,7 @@ class WepyHDF5Reporter(FileReporter):
         if all_atoms_rep_freq is not None:
             # count the number of atoms in the topology and set the
             # alt_reps to have the full slice for all atoms
-            n_atoms = _json_top_atom_count(self._tmp_topology)
+            n_atoms = json_top_atom_count(self._tmp_topology)
             self.alt_reps_idxs[self.ALL_ATOMS_REP_KEY] = np.arange(n_atoms)
             # add the frequency for this sparse fields to the
             # sparse fields dictionary
@@ -156,7 +159,8 @@ class WepyHDF5Reporter(FileReporter):
             # add trajectory data for the walkers
             for walker_idx, walker in enumerate(walkers):
 
-                walker_data = walker.dict()
+                walker = deepcopy(walker)
+                walker_data = walker.state.dict()
 
                 # iterate through the feature vectors of the walker
                 # (fields), and the keys for the alt_reps
@@ -252,7 +256,7 @@ class WepyHDF5Reporter(FileReporter):
             wepy_h5.add_cycle_resampling_aux_data(self.wepy_run_idx, resampling_aux_data)
 
 
-    def cleanup(self):
+    def cleanup(self, *args):
 
         # it should be already closed at this point but just in case
         if not self.wepy_h5.closed:

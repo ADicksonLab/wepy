@@ -1,5 +1,8 @@
 import itertools as it
 
+from wepy.resampling.decisions.decision import NoDecision
+
+
 class Resampler(object):
     """Superclass for resamplers that use the the Novelty->Decider
     framework."""
@@ -21,13 +24,14 @@ class Resampler(object):
 
         return resampled_walkers, decisions, aux_data
 
-    def assign_merges(self, merge_groups, walker_clone_nums):
+    def assign_clones(self, merge_groups, walker_clone_nums):
 
         n_walkers = len(walker_clone_nums)
 
         # determine resampling actions
         walker_actions = [self.decision.record(self.decision.ENUM.NOTHING.value, (i,))
                     for i in range(n_walkers)]
+
 
         # keep track of which slots will be free due to squashing
         free_slots = []
@@ -52,14 +56,18 @@ class Resampler(object):
         # for each walker, if it is to be cloned assign open slots for it
         for walker_idx, num_clones in enumerate(walker_clone_nums):
 
-            if num_clones > 0 and len(merge_groups[walker_idx]) > 0:
-                raise ValueError("Error! cloning and merging occuring with the same walker")
+            # if num_clones > 0 and len(merge_groups[walker_idx]) > 0:
+            #     raise ValueError("Error! cloning and merging occuring with the same walker")
 
             # if this walker is to be cloned do so and consume the free
             # slot
             if num_clones > 0:
 
-                # collect free slots for this clone, plus the original
+                if num_clones > len(free_slots):
+                    raise ValueError("The number of clones exceeds the number of free slots.")
+
+                # collect free slots for this clone, plus keeping one
+                # at the original location
                 slots = [free_slots.pop() for clone in range(num_clones)] + [walker_idx]
 
                 # make a record for this clone
@@ -67,3 +75,21 @@ class Resampler(object):
                                                          tuple(slots))
 
         return walker_actions
+
+class NoResampler(Resampler):
+
+    DECISION = NoDecision
+
+    def __init__(self):
+        self.decision = self.DECISION
+
+
+    def resample(self, walkers, **kwargs):
+
+        n_walkers = len(walkers)
+
+        # determine resampling actions
+        walker_actions = [self.decision.record(self.decision.ENUM.NOTHING.value, (i,))
+                    for i in range(n_walkers)]
+        
+        return walkers, [walker_actions], {}
