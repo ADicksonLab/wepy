@@ -3,3 +3,7 @@
 */__pycache__/
 .DS_Store
 *__pycache__*
+*.h5
+*.pkl
+*.log
+wepy.egg-info
