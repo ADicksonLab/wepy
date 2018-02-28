@@ -1,5 +1,4 @@
-from wepy.analysis.tree import sliding_window
-from wepy.analysis.transitions import run_transition_counts_matrix
+from collections import defaultdict
 
 class StateNetwork():
 
@@ -12,7 +11,7 @@ class StateNetwork():
 
         # make a dictionary that maps the assignment keys to frames
         # across the whole file {assignment_key : (run_idx, traj_idx, frame_idx)}
-        self._assignments = {}
+        self._assignments = defaultdict(list)
         for idx_tup, fields_d in self._wepy_hdf5.iter_trajs_fields([self.assg_key], idxs=True):
             run_idx = idx_tup[0]
             traj_idx = idx_tup[1]

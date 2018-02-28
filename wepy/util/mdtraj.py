@@ -2,7 +2,7 @@ import json
 from warnings import warn
 import operator
 
-import numpy
+import numpy as np
 
 import mdtraj as mdj
 import mdtraj.core.element as elem

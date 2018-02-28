@@ -2606,7 +2606,7 @@ class WepyHDF5(object):
 
     def get_trace_fields(self, frame_tups, fields):
         frame_fields = {field : [] for field in fields}
-        for run_idx, cycle_idx, traj_idx in frame_tups:
+        for run_idx, traj_idx, cycle_idx in frame_tups:
             for field in fields:
                 frame_field = self.get_traj_field(run_idx, traj_idx, field, frames=[cycle_idx])
                 # the first dimension doesn't matter here since we
@@ -3325,7 +3325,7 @@ class WepyHDF5(object):
         unitcell_lengths, unitcell_angles = box_vectors_to_lengths_angles(
                                                trace_fields['box_vectors'])
 
-        cycles = [cycle for cycle, walker in trace]
+        cycles = [cycle for run, cycle, walker in trace]
         traj = mdj.Trajectory(trace_fields[rep_key], topology,
                        time=cycles,
                        unitcell_lengths=unitcell_lengths, unitcell_angles=unitcell_angles)
