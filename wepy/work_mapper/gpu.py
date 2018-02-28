@@ -2,43 +2,55 @@ import multiprocessing as mulproc
 
 from multiprocessing import Process
 
-class GPUMapperFutures(object):
+class GPUProcess(Process):
+    def __init__(self, task_queue, result_queue):
+        Process.__init__(self)
 
-    def __init__(self, gpu_idxs):
-        self.worker_idxs = gpu_idxs
+        self.task_queue = task_queue
+        self.result_queue = result_queue
 
-class GPUMapperMultiprocessing(object):
+    def run(self):
+        while True:
 
-    def __init__(self, gpu_idxs):
-        self.worker_idxs = gpu_idxs
-        self.free_workers = 
+            # get the next task
+            task_idx, next_task = self.task_queue.get()
 
-    @property
-    def n_workers(self):
-        return len(self.gpu_idxs)
-
-    def get_worker_idx(self):
-        pass
-
-    def release_worker(self, worker_idx):
-        pass
-
-    def exec_call(self, func, walker_idx, *args):
-        raise NotImplementedError
-
-    def map(self, func, *iterables):
-
-        # structure for the results to go into
-        results = mulproc.Manager().list()
-
-        # make the pool of work to be done
-        walkers_pool = []
-        for walker_idx, args in enumerate(zip(*iterables)):
-            walkers_pool.append(Process(target=self.exec_call,
-                                        args=(func, walker_idx, *args)))
+            # check for the poison pill which is the signal to stop
+            if next_task is None:
 
 
-        # 
+                print('{}: Exiting'.format(self.name))
+
+                # mark the task as done
+                self.task_queue.task_done()
+
+                # and exit the loop
+                break
+
+            print('{}: {}'.format(self.name, next_task))
+
+            # run the task
+            answer = next_task()
+
+            # (for joinable queue) tell the queue that the formerly
+            # enqued task is complete
+            self.task_queue.task_done()
+
+            # put the results into the results queue with it's task
+            # index so we can sort them later
+            self.result_queue.put((task_idx, answer))
+
+class GPUQueueMapper(object):
+
+    def __init__(self, gpu_indices):
+        self.gpu_indices = gpu_indices
+
+        # initialize the func to None, this must be set a
+        self.func = None
+
+
+    def map(self, tasks):
+        
 
 
 class GPUMapper(object):
