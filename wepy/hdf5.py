@@ -2593,7 +2593,8 @@ class WepyHDF5(object):
 
         # if the field doesn't exist return None
         if not field_path in self._h5[traj_path]:
-            return None
+            raise KeyError("key for field {} not found".format(field_path))
+            # return None
 
         # get the field depending on whether it is sparse or not
         if field_path in self.sparse_fields:
