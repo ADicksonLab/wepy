@@ -44,12 +44,9 @@ class StateNetwork():
     def edge_matrices(self):
         return self._edge_matrices
 
-    def __getitem__(self, key):
-        return self.assignments[key]
-
     def state_fields(self, state_label, fields):
-        fields = self.wepy_hdf5.get_trace_fields(self[state_label], fields)
+        fields = self.wepy_hdf5.get_trace_fields(self.assignments[state_label], fields)
         return fields
 
     def state_to_mdtraj(self, state_label, alt_rep=None):
-        return self.wepy_hdf5.trace_to_mdtraj(self[state_label], alt_rep=alt_rep)
+        return self.wepy_hdf5.trace_to_mdtraj(self.assignments[state_label], alt_rep=alt_rep)
