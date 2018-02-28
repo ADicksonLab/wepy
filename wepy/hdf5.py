@@ -2604,8 +2604,22 @@ class WepyHDF5(object):
             return self._get_contiguous_traj_field(run_idx, traj_idx, field_path,
                                                    frames=frames)
 
-    def get_trace_fields(self, run_idx, frame_tups, fields):
+    def get_trace_fields(self, frame_tups, fields):
+        frame_fields = {field : [] for field in fields}
+        for run_idx, cycle_idx, traj_idx in frame_tups:
+            for field in fields:
+                frame_field = self.get_traj_field(run_idx, traj_idx, field, frames=[cycle_idx])
+                # the first dimension doesn't matter here since we
+                # only get one frame at a time.
+                frame_fields[field].append(frame_field[0])
 
+        # combine all the parts of each field into single arrays
+        for field in fields:
+            frame_fields[field] = np.array(frame_fields[field])
+
+        return frame_fields
+
+    def get_run_trace_fields(self, run_idx, frame_tups, fields):
         frame_fields = {field : [] for field in fields}
         for cycle_idx, traj_idx in frame_tups:
             for field in fields:
@@ -3294,7 +3308,7 @@ class WepyHDF5(object):
 
         return traj
 
-    def trace_to_mdtraj(self, run_idx, trace, alt_rep=None):
+    def trace_to_mdtraj(self, trace, alt_rep=None):
 
         # the default for alt_rep is the main rep
         if alt_rep is None:
@@ -3306,7 +3320,31 @@ class WepyHDF5(object):
 
         topology = self.get_mdtraj_topology(alt_rep=rep_key)
 
-        trace_fields = self.get_trace_fields(run_idx, trace, [rep_path, 'box_vectors'])
+        trace_fields = self.get_trace_fields(trace, [rep_path, 'box_vectors'])
+
+        unitcell_lengths, unitcell_angles = box_vectors_to_lengths_angles(
+                                               trace_fields['box_vectors'])
+
+        cycles = [cycle for cycle, walker in trace]
+        traj = mdj.Trajectory(trace_fields[rep_key], topology,
+                       time=cycles,
+                       unitcell_lengths=unitcell_lengths, unitcell_angles=unitcell_angles)
+
+        return traj
+
+    def run_trace_to_mdtraj(self, run_idx, trace, alt_rep=None):
+
+        # the default for alt_rep is the main rep
+        if alt_rep is None:
+            rep_key = 'positions'
+            rep_path = rep_key
+        else:
+            rep_key = alt_rep
+            rep_path = 'alt_reps/{}'.format(alt_rep)
+
+        topology = self.get_mdtraj_topology(alt_rep=rep_key)
+
+        trace_fields = self.get_run_trace_fields(run_idx, trace, [rep_path, 'box_vectors'])
 
         unitcell_lengths, unitcell_angles = box_vectors_to_lengths_angles(
                                                trace_fields['box_vectors'])
