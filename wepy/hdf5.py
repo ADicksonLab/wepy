@@ -23,6 +23,9 @@ except ModuleNotFoundError:
 # Constants
 N_DIMS = 3
 
+# the string for the special observables group
+OBSERVABLES = "observables"
+
 # lists of keys etc.
 TRAJ_DATA_FIELDS = ('positions', 'time', 'box_vectors', 'velocities',
                     'forces', 'kinetic_energy', 'potential_energy',
@@ -1591,6 +1594,11 @@ class WepyHDF5(object):
     def traj(self, run_idx, traj_idx):
         return self._h5['runs/{}/trajectories/{}'.format(run_idx, traj_idx)]
 
+    def traj_n_frames(self, run_idx, traj_idx):
+        return self.traj(run_idx, traj_idx)['positions'].shape[0]
+
+    def run_n_frames(self, run_idx):
+        return self.traj_n_frames(run_idx, 0)
 
     def run_trajs(self, run_idx):
         return self._h5['runs/{}/trajectories'.format(run_idx)]
@@ -1601,9 +1609,13 @@ class WepyHDF5(object):
     def run_traj_idxs(self, run_idx):
         return range(len(self._h5['runs/{}/trajectories'.format(run_idx)]))
 
-    def run_traj_idx_tuples(self):
+    def run_traj_idx_tuples(self, runs=None):
         tups = []
-        for run_idx in self.run_idxs:
+        if runs is None:
+            run_idxs = self.run_idxs
+        else:
+            run_idxs = runs
+        for run_idx in run_idxs:
             for traj_idx in self.run_traj_idxs(run_idx):
                 tups.append((run_idx, traj_idx))
 
@@ -1879,6 +1891,8 @@ class WepyHDF5(object):
             self._init_traj_field(run_idx, traj_idx,
                                   field_path, field_feature_shapes[i], field_feature_dtypes[i])
 
+    def traj_n_frames(self, run_idx, traj_idx):
+        return self.traj(run_idx, traj_idx)['positions'].shape[0]
 
     def add_traj(self, run_idx, data, weights=None, sparse_idxs=None, metadata=None):
 
@@ -2181,9 +2195,6 @@ class WepyHDF5(object):
             else:
                 self._extend_contiguous_traj_field(run_idx, traj_idx, field_path, field_data)
 
-    def traj_n_frames(self, run_idx, traj_idx):
-        return self.traj(run_idx, traj_idx)['positions'].shape[0]
-
 
     def _add_sparse_field_flag(self, field_path):
 
@@ -2204,6 +2215,7 @@ class WepyHDF5(object):
         feature_dtype_str = json.dumps(field_feature_dtype.descr)
         dtypes_grp = self._h5['_settings/field_feature_dtypes']
         dtypes_grp.create_dataset(field_path, data=feature_dtype_str)
+
 
     def _set_field_feature_shape(self, field_path, field_feature_shape):
         # check if the field_feature_shape is already set
@@ -2241,7 +2253,6 @@ class WepyHDF5(object):
         # it was not previously set so we must create then save it
         else:
             self._add_field_feature_dtype(field_path, field_feature_dtype)
-
 
 
     def add_cycle_resampling_records(self, run_idx, cycle_resampling_records):
@@ -2534,7 +2545,6 @@ class WepyHDF5(object):
 
     def _get_sparse_traj_field(self, run_idx, traj_idx, field_path, frames=None):
 
-        import ipdb; ipdb.set_trace()
         traj_path = "/runs/{}/trajectories/{}".format(run_idx, traj_idx)
         traj_grp = self.h5[traj_path]
         field = traj_grp[field_path]
@@ -2583,7 +2593,8 @@ class WepyHDF5(object):
 
         # if the field doesn't exist return None
         if not field_path in self._h5[traj_path]:
-            return None
+            raise KeyError("key for field {} not found".format(field_path))
+            # return None
 
         # get the field depending on whether it is sparse or not
         if field_path in self.sparse_fields:
@@ -2593,8 +2604,22 @@ class WepyHDF5(object):
             return self._get_contiguous_traj_field(run_idx, traj_idx, field_path,
                                                    frames=frames)
 
-    def get_trace_fields(self, run_idx, frame_tups, fields):
+    def get_trace_fields(self, frame_tups, fields):
+        frame_fields = {field : [] for field in fields}
+        for run_idx, traj_idx, cycle_idx in frame_tups:
+            for field in fields:
+                frame_field = self.get_traj_field(run_idx, traj_idx, field, frames=[cycle_idx])
+                # the first dimension doesn't matter here since we
+                # only get one frame at a time.
+                frame_fields[field].append(frame_field[0])
 
+        # combine all the parts of each field into single arrays
+        for field in fields:
+            frame_fields[field] = np.array(frame_fields[field])
+
+        return frame_fields
+
+    def get_run_trace_fields(self, run_idx, frame_tups, fields):
         frame_fields = {field : [] for field in fields}
         for cycle_idx, traj_idx in frame_tups:
             for field in fields:
@@ -2608,6 +2633,66 @@ class WepyHDF5(object):
             frame_fields[field] = np.array(frame_fields[field])
 
         return frame_fields
+
+    def _add_run_field(self, run_idx, field_path, data, sparse_idxs=None):
+        """ Add a field to your trajectories runs"""
+
+        # check that the data has the correct number of trajectories
+        assert len(data) == self.n_run_trajs(run_idx),\
+            "The number of trajectories in data, {}, is different than the number"\
+            "of trajectories in the run, {}.".format(len(data), self.n_run_trajs(run_idx))
+
+        # for each trajectory check that the data is compliant
+        for traj_idx, traj_data in enumerate(data):
+            # check that the number of frames is not larger than that for the run
+            if traj_data.shape[0] > self.run_n_frames(run_idx):
+                raise ValueError("The number of frames in data for traj {} , {},"
+                                  "is larger than the number of frames"
+                                  "for this run, {}.".format(
+                                          traj_idx, data.shape[1], self.run_n_frames(run_idx)))
+
+
+            # if the number of frames given is the same or less than
+            # the number of frames in the run
+            elif (traj_data.shape[0] <= self.run_n_frames(run_idx)):
+
+                # if sparse idxs were given we check to see there is
+                # the right number of them
+                if sparse_idxs is not None:
+                    #  and that they match the number of frames given
+                    if data.shape[0] != len(sparse_idxs[traj_idx]):
+
+                        raise ValueError("The number of frames provided for traj {}, {},"
+                                          "was less than the total number of frames, {},"
+                                          "but an incorrect number of sparse idxs were supplied, {}."\
+                                         .format(traj_idx, traj_data.shape[0],
+                                            self.run_n_frames(run_idx), len(sparse_idxs[traj_idx])))
+
+
+                # if there were strictly fewer frames given and the
+                # sparse idxs were not given we need to raise an error
+                elif (traj_data.shape[0] < self.run_n_frames(run_idx)):
+                    raise ValueError("The number of frames provided for traj {}, {},"
+                                      "was less than the total number of frames, {},"
+                                      "but sparse_idxs were not supplied.".format(
+                                              traj_idx, traj_data.shape[0],
+                                              self.run_n_frames(run_idx)))
+
+        # add it to each traj
+        for i, idx_tup in enumerate(self.run_traj_idx_tuples([run_idx])):
+            if sparse_idxs is None:
+                self._add_traj_field_data(*idx_tup, field_path, data[i])
+            else:
+                self._add_traj_field_data(*idx_tup, field_path, data[i],
+                                          sparse_idxs=sparse_idxs[i])
+
+    def _add_field(self, field_path, data, sparse_idxs=None):
+
+        for i, run_idx in enumerate(self.run_idxs):
+            if sparse_idxs is not None:
+                self._add_run_field(run_idx, field_path, data[i], sparse_idxs=sparse_idxs[i])
+            else:
+                self._add_run_field(run_idx, field_path, data[i])
 
     def iter_runs(self, idxs=False, run_sel=None):
         """Iterate through runs.
@@ -2655,6 +2740,10 @@ class WepyHDF5(object):
             else:
                 yield traj
 
+    def iter_run_trajs(self, run_idx, idxs=False):
+        run_sel = self.run_traj_idx_tuples([run_idx])
+        return self.iter_trajs(idxs=idxs, traj_sel=run_sel)
+
     def iter_trajs_fields(self, fields, idxs=False, traj_sel=None, debug_prints=False):
         """Generator for all of the specified non-compound fields
         h5py.Datasets for all trajectories in the dataset across all
@@ -2687,7 +2776,6 @@ class WepyHDF5(object):
                 yield (run_idx, traj_idx), dsets
             else:
                 yield dsets
-
 
     def run_map(self, func, *args, map_func=map, idxs=False, run_sel=None):
         """Function for mapping work onto trajectories in the WepyHDF5 file
@@ -2835,6 +2923,16 @@ class WepyHDF5(object):
         else:
             return results
 
+    def add_run_observable(self, run_idx, observable_name, data, sparse_idxs=None):
+        obs_path = "{}/{}".format(OBSERVABLES, observable_name)
+
+        self._add_run_field(run_idx, obs_path, data, sparse_idxs=sparse_idxs)
+
+
+    def add_observable(self, observable_name, data, sparse_idxs=None):
+        obs_path = "{}/{}".format(OBSERVABLES, observable_name)
+
+        self._add_field(obs_path, data, sparse_idxs=sparse_idxs)
 
     def compute_observable(self, func, fields, *args,
                            map_func=map,
@@ -2911,6 +3009,7 @@ class WepyHDF5(object):
 
         if return_results:
             return results
+
 
     def resampling_records(self, run_idx, sort=True):
 
@@ -3209,7 +3308,7 @@ class WepyHDF5(object):
 
         return traj
 
-    def trace_to_mdtraj(self, run_idx, trace, alt_rep=None):
+    def trace_to_mdtraj(self, trace, alt_rep=None):
 
         # the default for alt_rep is the main rep
         if alt_rep is None:
@@ -3221,7 +3320,31 @@ class WepyHDF5(object):
 
         topology = self.get_mdtraj_topology(alt_rep=rep_key)
 
-        trace_fields = self.get_trace_fields(run_idx, trace, [rep_path, 'box_vectors'])
+        trace_fields = self.get_trace_fields(trace, [rep_path, 'box_vectors'])
+
+        unitcell_lengths, unitcell_angles = box_vectors_to_lengths_angles(
+                                               trace_fields['box_vectors'])
+
+        cycles = [cycle for run, cycle, walker in trace]
+        traj = mdj.Trajectory(trace_fields[rep_key], topology,
+                       time=cycles,
+                       unitcell_lengths=unitcell_lengths, unitcell_angles=unitcell_angles)
+
+        return traj
+
+    def run_trace_to_mdtraj(self, run_idx, trace, alt_rep=None):
+
+        # the default for alt_rep is the main rep
+        if alt_rep is None:
+            rep_key = 'positions'
+            rep_path = rep_key
+        else:
+            rep_key = alt_rep
+            rep_path = 'alt_reps/{}'.format(alt_rep)
+
+        topology = self.get_mdtraj_topology(alt_rep=rep_key)
+
+        trace_fields = self.get_run_trace_fields(run_idx, trace, [rep_path, 'box_vectors'])
 
         unitcell_lengths, unitcell_angles = box_vectors_to_lengths_angles(
                                                trace_fields['box_vectors'])
