@@ -53,9 +53,9 @@ class Worker(Process):
 
 class Task(object):
 
-    def __init__(self, *args):
+    def __init__(self, func,*args):
         self.args = args
-        self.func = multiply
+        self.func = func
 
     def __call__(self):
         # do work that takes a long time
@@ -98,7 +98,7 @@ class WorkerMapper(Mapper):
         for task_idx, task_arg in enumerate(task_args):
             # a task will be the actual task and its job idx so we can
             # sort them later
-            tasks.put((task_idx, Task(*task_arg)))
+            tasks.put((task_idx, Task(self.func, *task_arg)))
 
         # Add a poison pill (a stop signal) for each worker into the tasks
         # queue.
@@ -108,13 +108,17 @@ class WorkerMapper(Mapper):
         # Wait for all of the tasks to finish
         tasks.join()
 
-        # get the results out
+        # get the results out in an unordered way
         results = []
         while num_tasks:
             results.append(result_queue.get())
             num_tasks -= 1
 
-        return results
+        # sort the results according to their task_idx
+        results.sort()
+
+        # then just return the values of the function
+        return [result for task_idx, result in results]
 
 
 # make a mapper above __main__
@@ -130,3 +134,5 @@ if __name__ == '__main__':
     task_args = [(i, i) for i in range(num_tasks)]
 
     results = mapper.map(task_args)
+
+    print(results)

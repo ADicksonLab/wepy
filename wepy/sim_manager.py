@@ -1,13 +1,18 @@
 import sys
 
+from wepy.work_mapper.mapper import Mapper
+
 class Manager(object):
 
-    def __init__(self, init_walkers, num_workers=None,
+    def __init__(self, init_walkers,
                  runner = None,
                  resampler = None,
                  boundary_conditions = None,
-                 work_mapper = None,
-                 reporters = None):
+                 reporters = None,
+                 work_mapper_type = None,
+                 worker_type = None,
+                 num_workers = None,
+    ):
 
         self.init_walkers = init_walkers
         self.n_init_walkers = len(init_walkers)
@@ -20,10 +25,29 @@ class Manager(object):
         self.resampler = resampler
         # object for boundary conditions
         self.boundary_conditions = boundary_conditions
-        # the function for running work on the workers
-        self.work_mapper = work_mapper
+
         # the method for writing output
-        self.reporters = reporters
+        if reporters is None:
+            self.reporters = []
+        else:
+            self.reporters = reporters
+
+        # the mapping class
+        if work_mapper_type is None:
+            self.work_mapper_type = Mapper
+        else:
+            self.work_mapper_type = work_mapper_type
+
+        self.worker_type = worker_type
+        self.num_workers = num_workers
+        # the work mapper must be initialized with the function that
+        # it will be mapping, during sim_manager creation to allow for
+        # multiprocessing of jobs, as well as the number of workers if
+        # necessary and set the worker type for different runners
+        self.work_mapper = self.work_mapper_type(self.runner.run_segment,
+                                                 self.num_workers,
+                                                 worker_type=self.worker_type)
+
 
     def run_segment(self, walkers, segment_length, debug_prints=False):
         """Run a time segment for all walkers using the available workers. """
@@ -33,10 +57,10 @@ class Manager(object):
         if debug_prints:
             sys.stdout.write("Starting segment\n")
 
-        new_walkers = list(self.work_mapper.map(self.runner.run_segment,
-                                    walkers,
-                                    (segment_length for i in range(num_walkers))
-                                   )
+        new_walkers = list(self.work_mapper.map(walkers,
+                                                (segment_length for i in range(num_walkers)),
+                                                debug_prints=debug_prints
+                                               )
                           )
         if debug_prints:
             sys.stdout.write("Ending segment\n")
