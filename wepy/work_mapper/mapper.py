@@ -9,33 +9,46 @@ PY_MAP = map
 
 class Mapper(object):
 
-    def __init__(self, func, *args, **kwargs):
-        self.func = func
-
-    def init(self):
+    def __init__(self, *args, **kwargs):
         # nothing to do
         pass
 
-    def cleanup(self):
+    def init(self, func, **kwargs):
+        self._func = func
+
+
+    def cleanup(self, **kwargs):
         # nothing to do
         pass
 
     def map(self, *args, **kwargs):
 
-        return list(PY_MAP(self.func, *args))
+        return list(PY_MAP(self._func, *args))
 
 class WorkerMapper(Mapper):
 
-    def __init__(self, func, num_workers, worker_type=None,
+    def __init__(self, num_workers=None, worker_type=None,
                  debug_prints=False):
-        self.func = func
+
         self.num_workers = num_workers
         if worker_type is None:
             self.worker_type = Worker
         else:
             self.worker_type = worker_type
 
-    def init(self, debug_prints=False):
+    def init(self, func, num_workers=None, debug_prints=False):
+
+        self._func = func
+
+        # the number of workers must be given here or set as an object attribute
+        if num_workers is None and self.num_workers is None:
+            raise ValueError("The number of workers must be given, received {}".format(num_workers))
+
+        # if it is set as an object attribute use that number if none
+        # was passed into this call to init
+        elif num_workers is None and self.num_workers is not None:
+            num_workers = self.num_workers
+
         # Establish communication queues
         self._task_queue = JoinableQueue()
         self._result_queue = Queue()
@@ -43,7 +56,7 @@ class WorkerMapper(Mapper):
         # Start workers, giving them all the queues
         self._workers = [self.worker_type(i, self._task_queue, self._result_queue,
                                           debug_prints=debug_prints)
-                         for i in range(self.num_workers)]
+                         for i in range(num_workers)]
 
         # start the worker processes
         for worker in self._workers:
@@ -65,7 +78,7 @@ class WorkerMapper(Mapper):
         self._workers = None
 
     def make_task(self, *args, **kwargs):
-        return Task(self.func, *args, **kwargs)
+        return Task(self._func, *args, **kwargs)
 
     def map(self, *args, debug_prints=False):
 

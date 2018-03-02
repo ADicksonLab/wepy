@@ -85,16 +85,14 @@ def main(n_runs, n_cycles, steps, n_walkers, n_workers=1, debug_prints=False, se
     with open(json_top_path, 'r') as rf:
         json_str_top = rf.read()
 
-    # make a dictionary of units for adding to the HDF5
-    units = dict(UNIT_NAMES)
+    work_mapper = WorkerMapper(worker_type=OpenMMGPUWorker,
+                               num_workers=n_workers)
 
     sim_manager = Manager(init_walkers,
                           runner=runner,
                           resampler=resampler,
                           boundary_conditions=ubc,
-                          work_mapper_type=WorkerMapper,
-                          worker_type=OpenMMGPUWorker,
-                          num_workers=n_workers,
+                          work_mapper=work_mapper
                          )
 
 

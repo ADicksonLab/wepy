@@ -9,16 +9,12 @@ class Manager(object):
                  resampler = None,
                  boundary_conditions = None,
                  reporters = None,
-                 work_mapper_type = None,
-                 worker_type = None,
-                 num_workers = None,
+                 work_mapper = None
     ):
 
         self.init_walkers = init_walkers
         self.n_init_walkers = len(init_walkers)
 
-        # the number of cores to use
-        self.num_workers = num_workers
         # the runner is the object that runs dynamics
         self.runner = runner
         # the resampler
@@ -32,20 +28,7 @@ class Manager(object):
         else:
             self.reporters = reporters
 
-        # the mapping class
-        if work_mapper_type is None:
-            self.work_mapper_type = Mapper
-        else:
-            self.work_mapper_type = work_mapper_type
-
-        self.worker_type = worker_type
-        self.num_workers = num_workers
-
-        # Create a work_mapper for this sim_manager.
-        self._work_mapper = self.work_mapper_type(self.runner.run_segment,
-                                                  self.num_workers,
-                                                  worker_type=self.worker_type)
-
+        self.work_mapper = work_mapper
 
 
     def run_segment(self, walkers, segment_length, debug_prints=False):
@@ -56,7 +39,7 @@ class Manager(object):
         if debug_prints:
             sys.stdout.write("Starting segment\n")
 
-        new_walkers = list(self._work_mapper.map(walkers,
+        new_walkers = list(self.work_mapper.map(walkers,
                                                 (segment_length for i in range(num_walkers)),
                                                 debug_prints=debug_prints
                                                )
@@ -66,7 +49,8 @@ class Manager(object):
 
         return new_walkers
 
-    def run_simulation(self, n_cycles, segment_lengths, debug_prints=False):
+    def run_simulation(self, n_cycles, segment_lengths, num_workers=None,
+                       debug_prints=False):
         """Run a simulation for a given number of cycles with specified
         lengths of MD segments in between.
 
@@ -77,9 +61,11 @@ class Manager(object):
             result_template_str = "|".join(["{:^10}" for i in range(self.n_init_walkers + 1)])
             sys.stdout.write("Starting simulation\n")
 
-        # initialize the work_mapper, this may include things like
-        # starting processes etc.
-        self._work_mapper.init(debug_prints=debug_prints)
+        # initialize the work_mapper with the function it will be
+        # mapping and the number of workers, this may include things like starting processes
+        # etc.
+        self.work_mapper.init(self.runner.run_segment, num_workers=num_workers,
+                               debug_prints=debug_prints)
 
         # init the reporter
         for reporter in self.reporters:
@@ -171,4 +157,4 @@ class Manager(object):
             reporter.cleanup()
 
         # cleanup the mapper
-        self._work_mapper.cleanup()
+        self.work_mapper.cleanup()

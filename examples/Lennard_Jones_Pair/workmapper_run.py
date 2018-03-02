@@ -88,15 +88,15 @@ def main(n_runs, n_cycles, steps, n_workers, debug_prints=False, seed=None):
     with open(json_top_path, 'r') as rf:
         json_str_top = rf.read()
 
-    # make a dictionary of units for adding to the HDF5
-    units = dict(UNIT_NAMES)
+
+    # the work mapper
+    work_mapper = WorkerMapper(num_workers=n_workers)
 
     sim_manager = Manager(init_walkers,
                           runner=runner,
                           resampler=resampler,
                           boundary_conditions=ubc,
-                          work_mapper_type=WorkerMapper,
-                          num_workers=n_workers,
+                          work_mapper=work_mapper
                          )
 
 
