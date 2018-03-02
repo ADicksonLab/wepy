@@ -1,4 +1,5 @@
 from multiprocessing import Process
+import multiprocessing as mp
 
 class Worker(Process):
 
@@ -19,15 +20,24 @@ class Worker(Process):
         return task()
 
     def run(self):
+
+        if self.debug_prints:
+            worker_process = mp.current_process()
+            print("Worker process started as name: {}; PID: {}\n".format(worker_process.name,
+                                                                       worker_process.pid))
         while True:
 
             # get the next task
             task_idx, next_task = self.task_queue.get()
 
-            # check for the poison pill which is the signal to stop
+            # # check for the poison pill which is the signal to stop
             if next_task is None:
 
-                # mark the task as done
+                if self.debug_prints:
+                    print('Worker: {}; received {} {}: FINISHED'.format(
+                        self.name, task_idx, next_task))
+
+                # mark the poison pill task as done
                 self.task_queue.task_done()
 
                 # and exit the loop
@@ -39,6 +49,10 @@ class Worker(Process):
 
             # run the task
             answer = self.run_task(next_task)
+
+            if self.debug_prints:
+                print('Worker: {}; task_idx : {}; COMPLETED '.format(
+                    self.name, task_idx))
 
             # (for joinable queue) tell the queue that the formerly
             # enqued task is complete

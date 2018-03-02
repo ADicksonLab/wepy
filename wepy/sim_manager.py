@@ -40,13 +40,12 @@ class Manager(object):
 
         self.worker_type = worker_type
         self.num_workers = num_workers
-        # the work mapper must be initialized with the function that
-        # it will be mapping, during sim_manager creation to allow for
-        # multiprocessing of jobs, as well as the number of workers if
-        # necessary and set the worker type for different runners
-        self.work_mapper = self.work_mapper_type(self.runner.run_segment,
-                                                 self.num_workers,
-                                                 worker_type=self.worker_type)
+
+        # Create a work_mapper for this sim_manager.
+        self._work_mapper = self.work_mapper_type(self.runner.run_segment,
+                                                  self.num_workers,
+                                                  worker_type=self.worker_type)
+
 
 
     def run_segment(self, walkers, segment_length, debug_prints=False):
@@ -57,7 +56,7 @@ class Manager(object):
         if debug_prints:
             sys.stdout.write("Starting segment\n")
 
-        new_walkers = list(self.work_mapper.map(walkers,
+        new_walkers = list(self._work_mapper.map(walkers,
                                                 (segment_length for i in range(num_walkers)),
                                                 debug_prints=debug_prints
                                                )
@@ -77,6 +76,10 @@ class Manager(object):
         if debug_prints:
             result_template_str = "|".join(["{:^10}" for i in range(self.n_init_walkers + 1)])
             sys.stdout.write("Starting simulation\n")
+
+        # initialize the work_mapper, this may include things like
+        # starting processes etc.
+        self._work_mapper.init(debug_prints=debug_prints)
 
         # init the reporter
         for reporter in self.reporters:
@@ -162,6 +165,10 @@ class Manager(object):
             # prepare resampled walkers for running new state changes
             walkers = resampled_walkers
 
+
         # cleanup things associated with the reporter
         for reporter in self.reporters:
             reporter.cleanup()
+
+        # cleanup the mapper
+        self._work_mapper.cleanup()

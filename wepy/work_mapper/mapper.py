@@ -1,4 +1,7 @@
 from multiprocessing import Queue, JoinableQueue
+import queue
+
+import multiprocessing as mp
 
 from wepy.work_mapper.worker import Worker, Task
 
@@ -9,13 +12,22 @@ class Mapper(object):
     def __init__(self, func, *args, **kwargs):
         self.func = func
 
-    def map(self, *args):
+    def init(self):
+        # nothing to do
+        pass
+
+    def cleanup(self):
+        # nothing to do
+        pass
+
+    def map(self, *args, **kwargs):
 
         return list(PY_MAP(self.func, *args))
 
 class WorkerMapper(Mapper):
 
-    def __init__(self, func, num_workers, worker_type=None):
+    def __init__(self, func, num_workers, worker_type=None,
+                 debug_prints=False):
         self.func = func
         self.num_workers = num_workers
         if worker_type is None:
@@ -23,22 +35,43 @@ class WorkerMapper(Mapper):
         else:
             self.worker_type = worker_type
 
+    def init(self, debug_prints=False):
+        # Establish communication queues
+        self._task_queue = JoinableQueue()
+        self._result_queue = Queue()
+
+        # Start workers, giving them all the queues
+        self._workers = [self.worker_type(i, self._task_queue, self._result_queue,
+                                          debug_prints=debug_prints)
+                         for i in range(self.num_workers)]
+
+        # start the worker processes
+        for worker in self._workers:
+            worker.start()
+            if debug_prints:
+                print("Worker process started as name: {}; PID: {}".format(worker.name,
+                                                                       worker.pid))
+
+    def cleanup(self, debug_prints=False):
+
+        # send poison pills (Stop signals) to the queues to stop them in a nice way
+        # and let them finish up
+        for i in range(self.num_workers):
+            self._task_queue.put((None, None))
+
+        # delete the queues and workers
+        self._task_queue = None
+        self._result_queue = None
+        self._workers = None
 
     def make_task(self, *args, **kwargs):
         return Task(self.func, *args, **kwargs)
 
     def map(self, *args, debug_prints=False):
-        # Establish communication queues
-        tasks = JoinableQueue()
-        result_queue = Queue()
 
-        # Start workers, giving them all the queues
-        workers = [ self.worker_type(i, tasks, result_queue, debug_prints=debug_prints)
-                        for i in range(self.num_workers) ]
-
-        # start the workers
-        for w in workers:
-            w.start()
+        map_process = mp.current_process()
+        if debug_prints:
+            print("Mapping from process {}; PID {}".format(map_process.name, map_process.pid))
 
         # make tuples for the arguments to each function call
         task_args = zip(*args)
@@ -49,22 +82,48 @@ class WorkerMapper(Mapper):
 
             # a task will be the actual task and its task idx so we can
             # sort them later
-            tasks.put((task_idx, self.make_task(*task_arg)))
+            self._task_queue.put((task_idx, self.make_task(*task_arg)))
 
-        # Add a poison pill (a stop signal) for each worker into the tasks
-        # queue.
-        for i in range(self.num_workers):
-            tasks.put((None, None))
+
+        if debug_prints:
+            print("Waiting for tasks to be run")
 
         # Wait for all of the tasks to finish
-        print("Waiting for tasks to be run")
-        tasks.join()
+        self._task_queue.join()
 
-        # get the results out in an unordered way
+        # workers_done = [worker.done for worker in self._workers]
+
+        # if all(workers_done):
+
+        # get the results out in an unordered way. We rely on the
+        # number of tasks we know we put out because if you just try
+        # to get from the queue until it is empty it will just wait
+        # forever, since nothing is there. ALternatively it is risky
+        # to implement a wait timeout or no wait in case there is a
+        # small wait time.
+        if debug_prints:
+            print("Retrieving results")
+
+        n_results = num_tasks
         results = []
-        while num_tasks:
-            results.append(result_queue.get())
-            num_tasks -= 1
+        while n_results > 0:
+
+            if debug_prints:
+                print("trying to retrieve result: {}".format(n_results))
+
+            result = self._result_queue.get()
+            results.append(result)
+
+            if debug_prints:
+                print("Retrieved result {}: {}".format(n_results, result))
+
+            n_results -= 1
+
+        if debug_prints:
+            print("No more results")
+
+        if debug_prints:
+            print("Retrieved results")
 
         # sort the results according to their task_idx
         results.sort()
