@@ -38,9 +38,9 @@ class RegionTree(nx.DiGraph):
         self._walker_assignments = []
 
         image_idx = 0
-        # get the preimage using the distance object
-        preimage = self.distance.preimage(init_state)
-        self._images = [preimage]
+        # get the image using the distance object
+        image = self.distance.image(init_state)
+        self._images = [image]
 
         parent_id = self.ROOT_NODE
         self.add_node(parent_id, image_idx=0,
@@ -177,9 +177,9 @@ class RegionTree(nx.DiGraph):
                     dist = dist_cache[image_idx]
                 # otherwise calculate it and save it in the cache
                 else:
-                    # preimage of the state
-                    state_preimage = self.distance.preimage(state)
-                    dist = self.distance.preimage_distance(state_preimage, image)
+                    # image of the state
+                    state_image = self.distance.image(state)
+                    dist = self.distance.image_distance(state_image, image)
 
                     # save in the dist_cache
                     dist_cache[image_idx] = dist
@@ -235,7 +235,7 @@ class RegionTree(nx.DiGraph):
                 # if we are over the max region distance we have found a
                 # new region so we branch the region_tree at that level
                 if distance > self.max_region_sizes[level]:
-                    image = self.distance.preimage(walker.state)
+                    image = self.distance.image(walker.state)
                     parent_id = assignment[:level]
                     assignment = self.branch_tree(parent_id, image)
                     # we have made a new branch so we don't need to

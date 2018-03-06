@@ -31,12 +31,12 @@ class PairDistance(Distance):
     def __init__(self, metric=euclidean):
         self.metric = metric
 
-    def preimage(self, state):
+    def image(self, state):
         return state['positions']
 
-    def preimage_distance(self, preimage_a, preimage_b):
-        dist_a = self.metric(preimage_a[0], preimage_a[1])
-        dist_b = self.metric(preimage_b[0], preimage_b[1])
+    def image_distance(self, image_a, image_b):
+        dist_a = self.metric(image_a[0], image_a[1])
+        dist_b = self.metric(image_b[0], image_b[1])
 
         return np.abs(dist_a - dist_b)
 

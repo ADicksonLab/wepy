@@ -8,7 +8,7 @@ class ScalarDistance(Distance):
     def __init__(self):
         pass
 
-    def preimage_distance(self, a_state, b_state):
+    def image_distance(self, a_state, b_state):
         return np.abs(b_state['positions'][0] - a_state['positions'][0])
 
 

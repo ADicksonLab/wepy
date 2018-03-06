@@ -132,7 +132,7 @@ def branch_tree(self, parent_id, image):
         if self.root_node.image_idx is None:
             # if not we set the first images to the state of the first walker
             image_idx = len(self.images)
-            # TODO distance preimage of the state is what should be
+            # TODO distance image of the state is what should be
             # stored for the image
 
             # save the image of this walker for defining regions

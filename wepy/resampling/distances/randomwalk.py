@@ -19,10 +19,10 @@ class RandomWalkDistance(Distance):
         pass
 
 
-    def preimage(self, state):
+    def image(self, state):
         return state['positions']
 
-    def preimage_distance(self, preimage_a, preimage_b):
+    def image_distance(self, image_a, image_b):
         """Compute the distance between posiotion of two states.
 
         :param position_a: posiotion of first state
@@ -30,4 +30,4 @@ class RandomWalkDistance(Distance):
         :returns: a distance value
         :rtype: float
         """
-        return np.average(np.abs(preimage_a - preimage_b))
+        return np.average(np.abs(image_a - image_b))
