@@ -1,5 +1,8 @@
 import numpy as np
 
+from wepy.util.util import box_vectors_to_lengths_angles
+
+from geomm.recentering import recenter_pair
 from geomm.superimpose import superimpose
 from geomm.rmsd import calc_rmsd
 
@@ -25,13 +28,22 @@ class UnbindingDistance(Distance):
 
     def image(self, state):
 
-        state_image = state['positions'][self._image_idxs]
+        # get the box lengths from the vectors
+        box_lengths, box_angles = box_vectors_to_lengths_angles(state['box_vectors'])
+
+        # recenter the protein-ligand complex into the center of the
+        # periodic boundary conditions
+        rece_positions = recenter_pair(state['positions'], box_lengths,
+                                   self._image_bs_idxs, self._image_lig_idxs)
+
+        # slice these positions to get the image
+        state_image = rece_positions[self._image_idxs]
 
         return state_image
 
     def image_distance(self, image_a, image_b):
 
-        # first we superimpose the two structures according to the
+        # superimpose the two structures according to the
         # binding site, and by translating and rotating only one of
         # the images, image_b by convention.
         sup_image_b = superimpose(image_a, image_b, idxs=self._image_bs_idxs)

@@ -86,36 +86,3 @@ def json_to_mdtraj_topology(json_string):
         topology.add_bond(atoms[index1], atoms[index2])
 
     return topology
-
-def json_top_atom_count(json_str):
-    top_d = json.loads(json_str)
-    atom_count = 0
-    atom_count = 0
-    for chain in top_d['chains']:
-        for residue in chain['residues']:
-            atom_count += len(residue['atoms'])
-
-    return atom_count
-
-def box_vectors_to_lengths_angles(box_vectors):
-
-    unitcell_lengths = []
-    for basis in box_vectors:
-        unitcell_lengths.append(np.array([np.linalg.norm(frame_v) for frame_v in basis]))
-
-    unitcell_lengths = np.array(unitcell_lengths)
-
-    unitcell_angles = []
-    for vs in box_vectors:
-
-        angles = np.array([np.degrees(
-                            np.arccos(np.dot(vs[i], vs[j])/
-                                      (np.linalg.norm(vs[i]) * np.linalg.norm(vs[j]))))
-                           for i, j in [(0,1), (1,2), (2,0)]])
-
-        unitcell_angles.append(angles)
-
-    unitcell_angles = np.array(unitcell_angles)
-
-    return unitcell_lengths, unitcell_angles
-

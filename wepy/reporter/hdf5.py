@@ -4,7 +4,7 @@ import numpy as np
 
 from wepy.reporter.reporter import FileReporter
 from wepy.hdf5 import WepyHDF5
-from wepy.util.mdtraj import json_top_atom_count
+from wepy.util.util import json_top_atom_count
 
 class WepyHDF5Reporter(FileReporter):
 
