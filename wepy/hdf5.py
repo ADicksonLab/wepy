@@ -6,8 +6,8 @@ from warnings import warn
 import numpy as np
 import h5py
 
-from wepy.util.mdtraj import mdtraj_to_json_topology, json_to_mdtraj_topology, \
-                             json_top_atom_count, box_vectors_to_lengths_angles
+from wepy.util.mdtraj import mdtraj_to_json_topology, json_to_mdtraj_topology
+from wepy.util.util import traj_box_vectors_to_lengths_angles, json_top_atom_count
 
 # optional dependencies
 try:
@@ -951,7 +951,7 @@ class TrajHDF5(object):
         # reshape for putting into mdtraj
         time = self.h5['time'][:, 0]
         box_vectors = self.h5['box_vectors'][:]
-        unitcell_lengths, unitcell_angles = box_vectors_to_lengths_angles(box_vectors)
+        unitcell_lengths, unitcell_angles = traj_box_vectors_to_lengths_angles(box_vectors)
 
         traj = mdj.Trajectory(positions, topology,
                        time=time,
@@ -3300,7 +3300,7 @@ class WepyHDF5(object):
                 warn("box_vectors not in this trajectory, ignoring")
 
 
-        unitcell_lengths, unitcell_angles = box_vectors_to_lengths_angles(box_vectors)
+        unitcell_lengths, unitcell_angles = traj_box_vectors_to_lengths_angles(box_vectors)
 
         traj = mdj.Trajectory(positions, topology,
                        time=time,
@@ -3322,7 +3322,7 @@ class WepyHDF5(object):
 
         trace_fields = self.get_trace_fields(trace, [rep_path, 'box_vectors'])
 
-        unitcell_lengths, unitcell_angles = box_vectors_to_lengths_angles(
+        unitcell_lengths, unitcell_angles = traj_box_vectors_to_lengths_angles(
                                                trace_fields['box_vectors'])
 
         cycles = [cycle for run, cycle, walker in trace]
@@ -3346,7 +3346,7 @@ class WepyHDF5(object):
 
         trace_fields = self.get_run_trace_fields(run_idx, trace, [rep_path, 'box_vectors'])
 
-        unitcell_lengths, unitcell_angles = box_vectors_to_lengths_angles(
+        unitcell_lengths, unitcell_angles = traj_box_vectors_to_lengths_angles(
                                                trace_fields['box_vectors'])
 
         cycles = [cycle for cycle, walker in trace]
