@@ -11,16 +11,32 @@ from wepy.boundary_conditions.boundary import BoundaryConditions
 
 class UnbindingBC(BoundaryConditions):
 
+    # boundary condition datatypes:
+
+    # datatype for the records for this boundary condition class are
+    # not used
+    BC_INSTRUCT_DTYPE = np.dtype([('boundary_distance', np.float)])
+
+    # auxiliary data types for boundary conditions
+    BC_AUX_DTYPES = {'min_distances' : np.float}
+    BC_AUX_SHAPES = {'min_distances' : Ellipsis}
+
+    # warping datatypes:
+
+    # for warping records
     WARP_INSTRUCT_DTYPE = np.dtype([('target', int)])
 
-    WARP_AUX_DTYPES = {'cycle' : np.int, 'passage_time' :  np.float, 'warped_walker_weight' : np.float}
-    WARP_AUX_SHAPES = {'cycle' : (1,), 'passage_time' : (1,), 'warped_walker_weight' : (1,)}
+    # dtypes and shapes for auxiliary data
+    WARP_AUX_DTYPES = {'warped_walker_weight' : np.float}
+    WARP_AUX_SHAPES = {'warped_walker_weight' : (1,)}
 
     def __init__(self, initial_state=None,
                  cutoff_distance=1.0,
                  topology=None,
                  ligand_idxs=None,
                  binding_site_idxs=None):
+
+        super().__init__()
 
         # test input
         assert initial_state is not None, "Must give an initial state"
@@ -76,11 +92,11 @@ class UnbindingBC(BoundaryConditions):
         if min_distance >= self.cutoff_distance:
             unbound = True
 
-        boundary_data = {'min_distance' : min_distance}
+        boundary_data = {'min_distances' : min_distance}
 
         return unbound, boundary_data
 
-    def warp(self, walker, cycle):
+    def warp(self, walker):
 
         # we always start at the initial state
         warped_state = self.initial_state
@@ -89,29 +105,30 @@ class UnbindingBC(BoundaryConditions):
         # weight
         warped_walker = type(walker)(state=warped_state, weight=walker.weight)
 
-        # thus there is only one record
+        # thus there is only value for a record
         warp_record = (0,)
 
-        # collect the passage time
-
-        # time is returned as an array because it is a feature of the
-        # walker, and domain specific. I.e. domain specific values are
-        # of type `array` while weights will always be floats in all
-        # applications.
-        time = walker.state['time']
-        warp_data = {'cycle' : np.array([cycle]), 'passage_time' : time,
-                     'warped_walker_weight' : np.array([walker.weight])}
+        warp_data = {'warped_walker_weight' : np.array([walker.weight])}
 
         # make the warp data mapping
 
 
         return warped_walker, warp_record, warp_data
 
+    def update_bc(self, new_walkers, warped_walkers_records, cycle):
+
+        # only report a record on the first cycle which gives the
+        # distance at which walkers are warped
+        if cycle == 0:
+            return [(self.cutoff_distance,),]
+        else:
+            return []
+
     def warp_walkers(self, walkers, cycle, debug_prints=False):
 
         new_walkers = []
         warped_walkers_records = []
-        cycle_bc_records = []
+
 
         # boundary data is collected for each walker every cycle
         cycle_boundary_data = defaultdict(list)
@@ -129,36 +146,40 @@ class UnbindingBC(BoundaryConditions):
 
             # if the walker is unbound we need to warp it
             if unbound:
-                # import ipdb; ipdb.set_trace()
                 # warp the walker
-                warped_walker, warp_record, warp_data = self.warp(walker,cycle)
+                warped_walker, warp_record, warp_data = self.warp(walker)
 
                 # save warped_walker in the list of new walkers to return
                 new_walkers.append(warped_walker)
 
-                # save the record of the walker
-                warped_walkers_records.append( (walker_idx, warp_record) )
+                # save the instruction record of the walker
+                warped_walkers_records.append(warp_record)
 
                 # save warp data
                 for key, value in warp_data.items():
                     cycle_warp_data[key].append(value)
 
-                # DEBUG
                 if debug_prints:
-                    sys.stdout.write('EXIT POINT observed at {} \n'.format(
-                        warp_data['passage_time']))
+                    sys.stdout.write('EXIT POINT observed at {} \n'.format(cycle))
                     sys.stdout.write('Warped Walker Weight = {} \n'.format(
                         warp_data['warped_walker_weight']))
 
             # no warping so just return the original walker
             else:
                 new_walkers.append(walker)
+                # if there was no warping instead of record we return
+                # None so the HDF5 implementation can figure out which
+                # walker this was for
+                warped_walkers_records.append(None)
 
         # convert aux datas to np.arrays
         for key, value in cycle_warp_data.items():
             cycle_warp_data[key] = np.array(value)
         for key, value in cycle_boundary_data.items():
             cycle_boundary_data[key] = np.array(value)
+
+
+        cycle_bc_records = self.update_bc(new_walkers, warped_walkers_records, cycle)
 
         return new_walkers, warped_walkers_records, cycle_warp_data, \
                  cycle_bc_records, cycle_boundary_data

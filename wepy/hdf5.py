@@ -2,6 +2,7 @@ from collections import Sequence
 import itertools as it
 import json
 from warnings import warn
+from copy import copy
 
 import numpy as np
 import h5py
@@ -83,8 +84,17 @@ COMPOUND_UNIT_FIELDS = ('parameters', 'parameter_derivatives', 'observables')
 SPARSE_DATA_FIELDS = ('velocities', 'forces', 'kinetic_energy', 'potential_energy',
                       'box_volume', 'parameters', 'parameter_derivatives', 'observables')
 
-RESAMPLING_RECORDS_FIELDS = ('cycle_idx', 'step_idx', 'walker_idx',
+# the field names for the different kinds of records which are saved
+RESAMPLING_RECORD_FIELDS = ('cycle_idx', 'step_idx', 'walker_idx',
                              'decision_id', 'instruction')
+WARP_RECORD_FIELDS = ('cycle_idx', 'walker_idx', 'instruction')
+BC_RECORD_FIELDS = ('cycle_idx', 'instruction')
+
+# We define data types for everything except the instruction records
+# which are not known beforehand
+RESAMPLING_RECORD_DTYPES = (np.int, np.int, np.int, None)
+WARP_RECORD_DTYPES = (np.int, np.int, None)
+BC_RECORD_DTYPES = (np.int, None)
 
 # decision instructions can be variable or fixed width
 INSTRUCTION_TYPES = ('VARIABLE', 'FIXED')
@@ -1699,7 +1709,7 @@ class WepyHDF5(object):
                 # make a proper dtype out of the instruct_dtype tuple
                 instruct_dtype = np.dtype(instruct_dtype_tokens)
                 # then pass that to the instruction dtype maker
-                dt = _make_numpy_instruction_dtype(instruct_dtype)
+                dt = _make_numpy_resampling_dtype(instruct_dtype)
                 # then make the group with that datatype, which can be extended
                 rec_grp.create_dataset(decision.name, (0,), dtype=dt, maxshape=(None,))
 
@@ -1725,9 +1735,27 @@ class WepyHDF5(object):
                 # set them in the attributes
                 self.resampling_aux_dtypes[key] = dtype
                 self.resampling_aux_shapes[key] = shape
-                # create the dataset with nothing in it
-                aux_grp.create_dataset(key, (0, *[0 for i in shape]), dtype=dtype,
-                                       maxshape=(None, *shape))
+
+                # if the shape has an ellipsis in it is variable
+                # length and we must handle this specially
+                if shape is Ellipsis:
+                    # make a special dtype that allows it to be
+                    # variable length
+                    dt = h5py.special_dtype(vlen=dtype)
+
+                    # this is only allowed to be a single dimension
+                    # since no real shape was given
+                    aux_grp.create_dataset(key, (0,), dtype=dt,
+                                               maxshape=(None,))
+
+                # if it is not variable length continue on and
+                # initialize the array
+                else:
+                    dt = dtype
+                    # create the dataset
+                    aux_grp.create_dataset(key, (0, *[0 for i in shape]), dtype=dt,
+                                               maxshape=(None, *shape))
+
 
             # set the flags for these as initialized
             self._resampling_aux_init.extend(resampling_aux_dtypes.keys())
@@ -1776,9 +1804,26 @@ class WepyHDF5(object):
                 # set them in the attributes
                 self.warp_aux_dtypes[key] = dtype
                 self.warp_aux_shapes[key] = shape
-                # create the dataset
-                aux_grp.create_dataset(key, (0, *[0 for i in shape]), dtype=dtype,
-                                           maxshape=(None, *shape))
+
+                # if the shape has an ellipsis in it is variable
+                # length and we must handle this specially
+                if shape is Ellipsis:
+                    # make a special dtype that allows it to be
+                    # variable length
+                    dt = h5py.special_dtype(vlen=dtype)
+
+                    # this is only allowed to be a single dimension
+                    # since no real shape was given
+                    aux_grp.create_dataset(key, (0,), dtype=dt,
+                                               maxshape=(None,))
+
+                # if it is not variable length continue on and
+                # initialize the array
+                else:
+                    dt = dtype
+                    # create the dataset
+                    aux_grp.create_dataset(key, (0, *[0 for i in shape]), dtype=dt,
+                                               maxshape=(None, *shape))
 
             # set the flags for these as initialized
             self._warp_aux_init.extend(warp_aux_dtypes.keys())
@@ -1792,20 +1837,31 @@ class WepyHDF5(object):
             else:
                 raise ValueError("dtypes were given but not shapes")
 
-    def init_run_bc(self, run_idx, bc_aux_dtypes=None, bc_aux_shapes=None):
+    def init_run_bc(self, run_idx, bc_dtype,
+                    bc_aux_dtypes=None, bc_aux_shapes=None):
 
         run_grp = self.run(run_idx)
+
+        # save the dtype
+        self.bc_dtype = bc_dtype
 
         # initialize the groups
         bc_grp = run_grp.create_group('boundary_conditions')
 
-        # TODO no records yet, this would be for storing data about
-        # the boundary conditions themselves, i.e. the starting data
-        # or dynamic BCs
+        # there need not be any boundary_conditions records so if this
+        # is None we just skip this part
+        if bc_dtype is not None:
+
+            # the records themselves are a dataset so we make the full
+            # dtype with the cycle and walker idx
+            dt = _make_numpy_bc_dtype(self.bc_dtype)
+            # make the dataset to be resizable
+            rec_dset = bc_grp.create_dataset('records', (0,), dtype=dt, maxshape=(None,))
 
         # initialize the auxiliary data group
         # the data group can hold compatible numpy arrays by key
         aux_grp = bc_grp.create_group('aux_data')
+
         # if dtypes and shapes for aux dtypes are given create them,
         # if only one is given raise an error, if neither are given
         # just ignore this, it can be set when the first batch of aux
@@ -1820,9 +1876,25 @@ class WepyHDF5(object):
                 # set them in the attributes
                 self.bc_aux_dtypes[key] = dtype
                 self.bc_aux_shapes[key] = shape
-                # create the dataset
-                aux_grp.create_dataset(key, (0, *[0 for i in shape]), dtype=dtype,
-                                           maxshape=(None, *shape))
+
+                # if the shape has an ellipsis in it is variable
+                # length and we must handle this specially
+                if shape is Ellipsis:
+                    # make a special dtype that allows it to be
+                    # variable length
+                    dt = h5py.special_dtype(vlen=dtype)
+
+                    # this is only allowed to be a single dimension
+                    # since no real shape was given
+                    aux_grp.create_dataset(key, (0,), dtype=dt,
+                                               maxshape=(None,))
+                # if it is not variable length continue on and
+                # initialize the array
+                else:
+                    dt = dtype
+                    # create the dataset
+                    aux_grp.create_dataset(key, (0, *[0 for i in shape]), dtype=dt,
+                                               maxshape=(None, *shape))
 
             # set the flags for these as initialized
             self._bc_aux_init.extend(bc_aux_dtypes.keys())
@@ -2310,14 +2382,14 @@ class WepyHDF5(object):
                 # a tuple for the instruction record
                 instruct_record = resampling_rec.instruction
                 # add this record to the data
-                self.add_instruction_record(run_idx, decision_key,
+                self.add_resampling_record(run_idx, decision_key,
                                             cycle_idx, step_idx, walker_idx,
                                             instruct_record)
 
         # update the current cycle idx
         self._current_resampling_rec_cycle += 1
 
-    def add_instruction_record(self, run_idx, decision_key,
+    def add_resampling_record(self, run_idx, decision_key,
                                cycle_idx, step_idx, walker_idx,
                                instruct_record):
 
@@ -2329,7 +2401,7 @@ class WepyHDF5(object):
 
         # test whether the decision has a variable width instruction format
         if varlengths[decision_key][()]:
-            self._add_varlength_instruction_record(run_idx, decision_key,
+            self._add_varlength_resampling_record(run_idx, decision_key,
                                                    cycle_idx, step_idx, walker_idx,
                                                    instruct_record)
         else:
@@ -2337,7 +2409,7 @@ class WepyHDF5(object):
                                                      cycle_idx, step_idx, walker_idx,
                                                      instruct_record)
 
-    def _add_varlength_instruction_record(self, run_idx, decision_key,
+    def _add_varlength_resampling_record(self, run_idx, decision_key,
                                           cycle_idx, step_idx, walker_idx,
                                           instruct_record):
 
@@ -2357,8 +2429,8 @@ class WepyHDF5(object):
             # we first need to make a proper dtype from the instruction record
             # fetch the instruct dtype tuple
             instruct_dtype_tokens = self.instruction_dtypes_tokens[run_idx][decision_key]
-            dt = _make_numpy_varlength_instruction_dtype(instruct_dtype_tokens, instruct_width)
-
+            dt = _make_numpy_varlength_resampling_dtype(instruct_dtype_tokens,
+                                                                  instruct_width)
             # make the dataset with the given dtype
             dset = instruct_grp.create_dataset(str(len(instruct_record)), (0,),
                                                dtype=dt, maxshape=(None,))
@@ -2407,9 +2479,20 @@ class WepyHDF5(object):
 
                 # get the dataset
                 dset = data_grp[key]
-                # add the new data
-                dset.resize( (dset.shape[0] + 1, *aux_data.shape) )
-                dset[-1] = np.array([aux_data])
+
+                # if the dataset is of variable length handle it specially
+                if self.warp_aux_shapes[key] is Ellipsis:
+                    # resize the array but it is only of rank because
+                    # of variable length data
+                    dset.resize( (dset.shape[0] + 1, ) )
+                    # does not need to be wrapped in another dimension
+                    # like for other aux data
+                    dset[-1] = aux_data
+
+                else:
+                    # add the new data
+                    dset.resize( (dset.shape[0] + 1, *aux_data.shape) )
+                    dset[-1] = np.array([aux_data])
 
             # if the datasets were not initialized initialize them with
             # the incoming dataset
@@ -2446,17 +2529,6 @@ class WepyHDF5(object):
 
         return rev_enum
 
-    def resampling_records_grp(self, run_idx):
-        return self._h5['runs/{}/resampling/records'.format(run_idx)]
-
-    def resampling_aux_data_grp(self, run_idx):
-        return self._h5['runs/{}/resampling/aux_data'.format(run_idx)]
-
-    def resampling_aux_data_field(self, run_idx, field):
-
-        aux_grp = self.resampling_aux_data_grp(run_idx)
-
-        return aux_grp[field][:]
 
     def _instruction_varlength_flags(self, run_idx):
         varlength_grp = self._h5['runs/{}/resampling/decision/variable_length'.format(run_idx)]
@@ -2471,8 +2543,12 @@ class WepyHDF5(object):
         rec_dset = self._h5['runs/{}/warping/records'.format(run_idx)]
         cycle_idx = self._current_resampling_rec_cycle
 
-        # make the records for what is stored in the dset
-        cycle_records = [(cycle_idx, *warp_record) for warp_record in warp_records]
+        cycle_records = []
+        for walker_idx, walker_record in enumerate(warp_records):
+            # the walker record may be None indicating it was not warped
+            if walker_record is not None:
+                warp_record = (cycle_idx, walker_idx, walker_record)
+                cycle_records.append(warp_record)
 
         # add them to the dset
         self._append_instruct_records(rec_dset, cycle_records)
@@ -2488,12 +2564,20 @@ class WepyHDF5(object):
 
                 # get the dataset
                 dset = data_grp[key]
-                # add the new data, this is not on a cycle basis like
-                # bc or resampling and is lined up with the warp
-                # records along their first axis, so we resize for all
-                # new additions
-                dset.resize( (dset.shape[0] + aux_data.shape[0], *aux_data.shape[1:]) )
-                dset[-aux_data.shape[0]:] = aux_data
+
+                # if the dataset is of variable length handle it specially
+                if self.warp_aux_shapes[key] is Ellipsis:
+                    # resize the array but it is only of rank because
+                    # of variable length data
+                    dset.resize( (dset.shape[0] + 1, ) )
+                    # does not need to be wrapped in another dimension
+                    # like for other aux data
+                    dset[-1] = aux_data
+
+                else:
+                    # add the new data
+                    dset.resize( (dset.shape[0] + 1, *aux_data.shape) )
+                    dset[-1] = np.array([aux_data])
 
             # if the datasets were not initialized initialize them with
             # the incoming dataset
@@ -2506,20 +2590,46 @@ class WepyHDF5(object):
                     self.warp_aux_shapes[key] = aux_data.shape
                     self._warp_aux_init.append(key)
 
+    def add_cycle_bc_records(self, run_idx, bc_records):
+
+        rec_dset = self._h5['runs/{}/boundary_conditions/records'.format(run_idx)]
+
+        # add the cycle information
+        cycle_idx = self._current_resampling_rec_cycle
+        cycle_records = []
+        for bc_record in bc_records:
+            cycle_record = (cycle_idx, bc_record)
+            cycle_records.append(cycle_record)
+
+        # add them to the dset
+        self._append_instruct_records(rec_dset, cycle_records)
+
     def add_cycle_bc_aux_data(self, run_idx, bc_aux_data):
 
         data_grp = self._h5['runs/{}/boundary_conditions/aux_data'.format(run_idx)]
 
-        # if the datasets were initialized just add the new data
+        # add the data for each aux data type
         for key, aux_data in bc_aux_data.items():
 
+            # if the datasets were initialized just add the new data
             if key in self._bc_aux_init:
 
                 # get the dataset
                 dset = data_grp[key]
-                # add the new data
-                dset.resize( (dset.shape[0] + 1, *aux_data.shape) )
-                dset[-1] = np.array([aux_data])
+
+                # if the dataset is of variable length handle it specially
+                if self.bc_aux_shapes[key] is Ellipsis:
+                    # resize the array but it is only of rank because
+                    # of variable length data
+                    dset.resize( (dset.shape[0] + 1, ) )
+                    # does not need to be wrapped in another dimension
+                    # like for other aux data
+                    dset[-1] = aux_data
+
+                else:
+                    # add the new data
+                    dset.resize( (dset.shape[0] + 1, *aux_data.shape) )
+                    dset[-1] = np.array([aux_data])
 
             # if the datasets were not initialized initialize them with
             # the incoming dataset
@@ -3010,6 +3120,9 @@ class WepyHDF5(object):
         if return_results:
             return results
 
+    def resampling_grp(self, run_idx):
+        path = "runs/{}/resampling".format(run_idx)
+        return self.h5[path]
 
     def resampling_records(self, run_idx, sort=True):
 
@@ -3070,7 +3183,7 @@ class WepyHDF5(object):
 
     def resampling_records_dataframe(self, run_idx):
 
-        return pd.DataFrame(data=self.resampling_records(run_idx), columns=RESAMPLING_RECORDS_FIELDS)
+        return pd.DataFrame(data=self.resampling_records(run_idx), columns=RESAMPLING_RECORD_FIELDS)
 
     @staticmethod
     def resampling_panel(resampling_records, is_sorted=False):
@@ -3104,7 +3217,7 @@ class WepyHDF5(object):
                 else:
                     # if the resampling record retrieved is from the next
                     # cycle we finish the last cycle
-                    if rec[RESAMPLING_RECORDS_FIELDS.index('cycle_idx')] > cycle_idx:
+                    if rec[RESAMPLING_RECORD_FIELDS.index('cycle_idx')] > cycle_idx:
                         cycle_stop = True
                         # save the current cycle as a special
                         # list which we will iterate through
@@ -3141,7 +3254,7 @@ class WepyHDF5(object):
 
                         # or if the next stop index has been obtained
                         else:
-                            if cycle_rec[RESAMPLING_RECORDS_FIELDS.index('step_idx')] > step_idx:
+                            if cycle_rec[RESAMPLING_RECORD_FIELDS.index('step_idx')] > step_idx:
                                 step_stop = True
                                 # save the current step as a special
                                 # list which we will iterate through
@@ -3164,11 +3277,11 @@ class WepyHDF5(object):
 
                                 # collect data from the record
                                 walker_idx = walker_rec[
-                                    RESAMPLING_RECORDS_FIELDS.index('walker_idx')]
+                                    RESAMPLING_RECORD_FIELDS.index('walker_idx')]
                                 decision_id = walker_rec[
-                                    RESAMPLING_RECORDS_FIELDS.index('decision_id')]
+                                    RESAMPLING_RECORD_FIELDS.index('decision_id')]
                                 instruction = walker_rec[
-                                    RESAMPLING_RECORDS_FIELDS.index('instruction')]
+                                    RESAMPLING_RECORD_FIELDS.index('instruction')]
 
                                 # set the resampling record for the walker in the step records
                                 step_row[walker_idx] = (decision_id, instruction)
@@ -3185,21 +3298,96 @@ class WepyHDF5(object):
     def run_resampling_panel(self, run_idx):
         return self.resampling_panel(self.resampling_records(run_idx))
 
-    def run_warp_grp(self, run_idx):
+    def resampling_records_grp(self, run_idx):
+        return self._h5['runs/{}/resampling/records'.format(run_idx)]
+
+    def resampling_aux_data_grp(self, run_idx):
+        return self._h5['runs/{}/resampling/aux_data'.format(run_idx)]
+
+    def resampling_aux_data_fields(self, run_idx):
+
+        return list(self.resampling_aux_data_grp(run_idx))
+
+    def resampling_aux_data_field(self, run_idx, field):
+
+        aux_grp = self.resampling_aux_data_grp(run_idx)
+
+        return aux_grp[field][:]
+
+    def resampling_aux_data(self, run_idx):
+
+        fields_data = {}
+        for field in self.resampling_aux_data_fields(run_idx):
+            fields_data[field] = self.resampling_aux_data_grp(run_idx)[field][:]
+
+        return fields_data
+
+    def warp_grp(self, run_idx):
 
         path = "runs/{}/warping".format(run_idx)
         return self.h5[path]
 
-    def run_warp_records(self, run_idx):
+    def warp_records(self, run_idx):
 
-        warp_grp = self.run_warp_grp(run_idx)
+        warp_grp = self.warp_grp(run_idx)
 
         return warp_grp['records'][:]
 
-    def run_warp_aux_data(self, run_idx, field):
+    def warp_records_dataframe(self, run_idx):
 
-        warp_grp = self.run_warp_grp(run_idx)
-        return warp_grp['aux_data/{}'.format(field)][:]
+        return pd.DataFrame(data=self.warp_records(run_idx), columns=WARP_RECORD_FIELDS)
+
+    def warp_aux_data_grp(self, run_idx):
+        return self._h5['runs/{}/warping/aux_data'.format(run_idx)]
+
+    def warp_aux_data_fields(self, run_idx):
+        return list(self.warp_aux_data_grp(run_idx))
+
+    def warp_aux_data_field(self, run_idx, field):
+
+        aux_grp = self.warp_aux_data_grp(run_idx)
+
+        return aux_grp[field][:]
+
+    def warp_aux_data(self, run_idx):
+
+        fields_data = {}
+        for field in self.warp_aux_data_fields(run_idx):
+            fields_data[field] = self.warp_aux_data_grp(run_idx)[field][:]
+
+        return fields_data
+
+    def bc_grp(self, run_idx):
+
+        path = "runs/{}/boundary_conditions".format(run_idx)
+        return self.h5[path]
+
+    def bc_records(self, run_idx):
+
+        bc_grp = self.bc_grp(run_idx)
+
+        return bc_grp['records'][:]
+
+    def bc_aux_data_grp(self, run_idx):
+        return self._h5['runs/{}/boundary_conditions/aux_data'.format(run_idx)]
+
+    def bc_aux_data_fields(self, run_idx):
+        return list(self.bc_aux_data_grp(run_idx))
+
+    def bc_aux_data_field(self, run_idx, field):
+
+        aux_grp = self.bc_aux_data_grp(run_idx)
+
+        return aux_grp[field][:]
+
+    def bc_aux_data(self, run_idx):
+
+        fields_data = {}
+        for field in self.bc_aux_data_fields(run_idx):
+            fields_data[field] = self.bc_aux_data_grp(run_idx)[field][:]
+
+        return fields_data
+
 
     def join(self, other_h5):
         """Given another WepyHDF5 file object does a left join on this
@@ -3394,23 +3582,7 @@ def _instruction_is_variable_length(instruction_dtype_tokens):
 
     return variable_length
 
-
-def _make_numpy_instruction_dtype(instruct_dtype):
-
-    dtype_map = [('cycle_idx', np.int), ('step_idx', np.int), ('walker_idx', np.int),
-                     ('instruction', instruct_dtype)]
-
-    return np.dtype(dtype_map)
-
-def _make_numpy_warp_dtype(instruct_dtype):
-
-    dtype_map = [('cycle_idx', np.int), ('walker_idx', np.int),
-                     ('instruction', instruct_dtype)]
-
-    return np.dtype(dtype_map)
-
 def _make_numpy_varlength_instruction_dtype(varlength_instruct_type, varlength_width):
-
     # replace the (None, type) token with several tokens from the
     # given length
     dtype_tokens = []
@@ -3428,8 +3600,64 @@ def _make_numpy_varlength_instruction_dtype(varlength_instruct_type, varlength_w
     # make a numpy dtype from it
     instruct_record_dtype = np.dtype(dtype_tokens)
 
+    return instruct_record_dtype
+
+def _make_numpy_resampling_dtype(instruct_dtype):
+
+    # replace the dtype for the instruction with the instruct dtype
+    dtypes = list(copy(RESAMPLING_RECORD_DTYPES))
+    dtypes[-1] = instruct_dtype
+
+    # make a numpy dtype from them
+    dtype_map = list(zip(RESAMPLING_RECORD_FIELDS, dtypes))
+    return np.dtype(dtype_map)
+
+def _make_numpy_varlength_resampling_dtype(varlength_instruct_type, varlength_width):
+
+    # make a general instruction record that is variable length
+    instruct_record_dtype = _make_numpy_varlength_instruction_dtype(varlength_instruct_type,
+                                                                    varlength_width)
     # make a full instruction dtype from this and return it
-    return _make_numpy_instruction_dtype(instruct_record_dtype)
+    return _make_numpy_resampling_dtype(instruct_record_dtype)
+
+
+def _make_numpy_warp_dtype(instruct_dtype):
+    # replace the dtype for the instruction with the instruct dtype
+    dtypes = list(copy(WARP_RECORD_DTYPES))
+    dtypes[-1] = instruct_dtype
+
+    # make a numpy dtype from them
+    dtype_map = list(zip(WARP_RECORD_FIELDS, dtypes))
+    return np.dtype(dtype_map)
+
+def _make_numpy_varlength_warp_dtype(varlength_instruct_type, varlength_width):
+
+    raise NotImplementedError("this functionality is not supported")
+    # make a general instruction record that is variable length
+    instruct_record_dtype = _make_numpy_varlength_instruction_dtype(varlength_instruct_type,
+                                                                    varlength_width)
+    # make a full instruction dtype from this and return it
+    return _make_numpy_warp_dtype(instruct_record_dtype)
+
+
+def _make_numpy_bc_dtype(instruct_dtype):
+    # replace the dtype for the instruction with the instruct dtype
+    dtypes = list(copy(BC_RECORD_DTYPES))
+    dtypes[-1] = instruct_dtype
+
+    # make a numpy dtype from them
+    dtype_map = list(zip(BC_RECORD_FIELDS, dtypes))
+    return np.dtype(dtype_map)
+
+
+def _make_numpy_varlength_bc_dtype(varlength_instruct_type, varlength_width):
+
+    raise NotImplementedError("this functionality is not supported")
+    # make a general instruction record that is variable length
+    instruct_record_dtype = _make_numpy_varlength_instruction_dtype(varlength_instruct_type,
+                                                                    varlength_width)
+    # make a full instruction dtype from this and return it
+    return _make_numpy_bc_dtype(instruct_record_dtype)
 
 
 def _check_data_compliance(traj_data, compliance_requirements=COMPLIANCE_REQUIREMENTS):

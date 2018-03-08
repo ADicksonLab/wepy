@@ -12,9 +12,8 @@ wepy_h5.open()
 run_idx = 0
 assg_key = 'rand_assg_idx'
 n_classifications = 50
-# make random assignments
 
-# observable function
+# observable function, fictituous random "cluster" assignments
 def rand_assg(fields_d, *args, **kwargs):
     assignments = np.random.random_integers(0, n_classifications,
                                             size=fields_d['weights'].shape[0])

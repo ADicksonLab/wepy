@@ -5,8 +5,10 @@ import numpy as np
 from wepy.walker import Walker
 
 class BoundaryConditions(object):
+
     def __init__(self, **kwargs):
-        raise NotImplementedError
+
+        pass
 
     def check_boundaries(self, walker):
         """ Checks if a walker is in a boundary and returns which boundary it is in"""
@@ -21,7 +23,10 @@ class BoundaryConditions(object):
 class NoBC(BoundaryConditions):
 
     def check_boundaries(self, walker):
-        return False
+        return False, {}
 
-    def warped_walkers(self, walkers):
-        return walkers, []
+    def warp_walkers(self, walkers):
+        # in order the walkers after applying warps, warp records,
+        # warp aux data, boundary conditions records, boundary
+        # conditions aux data
+        return walkers, [], {}, [], {}

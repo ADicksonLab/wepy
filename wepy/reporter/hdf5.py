@@ -127,7 +127,7 @@ class WepyHDF5Reporter(FileReporter):
                                   warp_aux_shapes=self.warp_aux_shapes)
 
             # initialize the boundary condition group within this run
-            self.wepy_h5.init_run_bc(self.wepy_run_idx,
+            self.wepy_h5.init_run_bc(self.wepy_run_idx, self.bc_dtype,
                                   bc_aux_dtypes=self.bc_aux_dtypes,
                                   bc_aux_shapes=self.bc_aux_shapes)
 
@@ -242,9 +242,15 @@ class WepyHDF5Reporter(FileReporter):
                 # add warp data
                 wepy_h5.add_cycle_warp_aux_data(self.wepy_run_idx, warp_aux_data)
 
-            # TODO add boundary condition records
-            # wepy_h5.add_bc_records(self.wepy_run_idx, bc_records)
-            # if there is any boundary conditions function
+            # if any boundary conditions records were given we add
+            # these to the records
+            if len(bc_records) > 0:
+                # add warp records
+                wepy_h5.add_cycle_bc_records(self.wepy_run_idx, bc_records)
+
+            # unlike warping boundary conditions return auxiliary data
+            # every cycle (when given) thus we save these regardless
+            # of whether any bc_records were given
             if len(bc_aux_data) > 0:
                 # add the auxiliary data from checking boundary conditions
                 wepy_h5.add_cycle_bc_aux_data(self.wepy_run_idx, bc_aux_data)

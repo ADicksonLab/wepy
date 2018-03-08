@@ -17,6 +17,7 @@ from wepy.resampling.wexplore1 import WExplore1Resampler
 from wepy.walker import Walker
 from wepy.runners.openmm import OpenMMRunner, OpenMMState
 from wepy.runners.openmm import UNIT_NAMES, GET_STATE_KWARG_DEFAULTS
+from wepy.work_mapper.mapper import Mapper
 from wepy.boundary_conditions.unbinding import UnbindingBC
 from wepy.reporter.hdf5 import WepyHDF5Reporter
 from wepy.reporter.reporter import WalkersPickleReporter
@@ -86,7 +87,7 @@ if __name__ == "__main__":
                                    distance=distance,
                                    pmin=1e-12, pmax=0.5)
 
-    ubc = UnbindingBC(cutoff_distance=2.0,
+    ubc = UnbindingBC(cutoff_distance=1.5,
                       initial_state=init_walkers[0].state,
                       topology=mdtraj_topology,
                       ligand_idxs=np.array(test_sys.ligand_indices),
@@ -102,26 +103,33 @@ if __name__ == "__main__":
     report_path = 'wexplore1_results.wepy.h5'
     # open it in truncate mode first, then switch after first run
     hdf5_reporter = WepyHDF5Reporter(report_path, mode='w',
-                                    save_fields=['positions', 'box_vectors', 'velocities'],
-                                    decisions=resampler.DECISION.ENUM,
-                                    instruction_dtypes=resampler.DECISION.instruction_dtypes(),
-                                    warp_dtype=ubc.WARP_INSTRUCT_DTYPE,
-                                    warp_aux_dtypes=ubc.WARP_AUX_DTYPES,
-                                    warp_aux_shapes=ubc.WARP_AUX_SHAPES,
-                                    topology=json_str_top,
-                                    units=units,
-                                    sparse_fields={'velocities' : 10},
-                                    # sparse atoms fields
-                                    main_rep_idxs=[0],
-                                    all_atoms_rep_freq=10,
-                                    alt_reps={'other_atom' : ([1], 2)}
+                                     save_fields=['positions', 'box_vectors', 'velocities'],
+                                     decisions=resampler.DECISION.ENUM,
+                                     instruction_dtypes=resampler.DECISION.instruction_dtypes(),
+                                     warp_dtype=ubc.WARP_INSTRUCT_DTYPE,
+                                     warp_aux_dtypes=ubc.WARP_AUX_DTYPES,
+                                     warp_aux_shapes=ubc.WARP_AUX_SHAPES,
+                                     bc_dtype=ubc.BC_INSTRUCT_DTYPE,
+                                     bc_aux_dtypes=ubc.BC_AUX_DTYPES,
+                                     bc_aux_shapes=ubc.BC_AUX_SHAPES,
+                                     topology=json_str_top,
+                                     units=units,
+                                     sparse_fields={'velocities' : 10},
+                                     # sparse atoms fields
+                                     main_rep_idxs=[0],
+                                     all_atoms_rep_freq=10,
+                                     alt_reps={'other_atom' : ([1], 2)}
     )
 
+    # a simple work mapper
+    mapper = Mapper()
+
+    # put it all together in the simulation manager
     sim_manager = Manager(init_walkers,
                           runner=runner,
                           resampler=resampler,
                           boundary_conditions=ubc,
-                          work_mapper=map,
+                          work_mapper=mapper,
                           reporters=[hdf5_reporter])
 
     print("Number of steps: {}".format(n_steps))
