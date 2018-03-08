@@ -11,6 +11,9 @@ from wepy.boundary_conditions.boundary import BoundaryConditions
 
 class UnbindingBC(BoundaryConditions):
 
+    # TODO these all should be more like constants like in the
+    # decision class and dictionaries obtained through methods
+
     # boundary condition datatypes:
 
     # datatype for the records for this boundary condition class are
@@ -24,7 +27,7 @@ class UnbindingBC(BoundaryConditions):
     # warping datatypes:
 
     # for warping records
-    WARP_INSTRUCT_DTYPE = np.dtype([('target', int)])
+    WARP_INSTRUCT_DTYPE = np.dtype([('target', np.int)])
 
     # dtypes and shapes for auxiliary data
     WARP_AUX_DTYPES = {'warped_walker_weight' : np.float}
@@ -108,7 +111,7 @@ class UnbindingBC(BoundaryConditions):
         # thus there is only value for a record
         warp_record = (0,)
 
-        warp_data = {'warped_walker_weight' : np.array([walker.weight])}
+        warp_data = {'warped_walker_weight' : walker.weight}
 
         # make the warp data mapping
 

@@ -2550,8 +2550,9 @@ class WepyHDF5(object):
                 warp_record = (cycle_idx, walker_idx, walker_record)
                 cycle_records.append(warp_record)
 
-        # add them to the dset
-        self._append_instruct_records(rec_dset, cycle_records)
+        # add them to the dset if there were any
+        if len(cycle_records) > 0:
+            self._append_instruct_records(rec_dset, cycle_records)
 
     def add_cycle_warp_aux_data(self, run_idx, warp_aux_data):
 
@@ -3367,6 +3368,10 @@ class WepyHDF5(object):
         bc_grp = self.bc_grp(run_idx)
 
         return bc_grp['records'][:]
+
+    def bc_records_dataframe(self, run_idx):
+
+        return pd.DataFrame(data=self.bc_records(run_idx), columns=BC_RECORD_FIELDS)
 
     def bc_aux_data_grp(self, run_idx):
         return self._h5['runs/{}/boundary_conditions/aux_data'.format(run_idx)]

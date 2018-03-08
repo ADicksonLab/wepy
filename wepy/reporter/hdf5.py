@@ -12,12 +12,6 @@ class WepyHDF5Reporter(FileReporter):
 
     def __init__(self, file_path, mode='a',
                  save_fields=None,
-                 decisions=None, instruction_dtypes=None,
-                 resampling_aux_dtypes=None, resampling_aux_shapes=None,
-                 warp_dtype=None,
-                 warp_aux_dtypes=None, warp_aux_shapes=None,
-                 bc_dtype=None,
-                 bc_aux_dtypes=None, bc_aux_shapes=None,
                  topology=None,
                  units=None,
                  sparse_fields=None,
@@ -26,7 +20,23 @@ class WepyHDF5Reporter(FileReporter):
                  main_rep_idxs=None,
                  all_atoms_rep_freq=None,
                  # dictionary of alt_rep keys and a tuple of (idxs, freq)
-                 alt_reps=None
+                 alt_reps=None,
+
+                 # pass in the decision, resampler, and boundary
+                 # conditions classes to automatically extract the
+                 # needed data, the objects themselves are not saves
+                 decision=None,
+                 resampler=None,
+                 boundary_conditions=None,
+
+                 # or pass the things we need from them in manually
+                 decisions=None, instruction_dtypes=None,
+                 resampling_aux_dtypes=None, resampling_aux_shapes=None,
+                 warp_dtype=None,
+                 warp_aux_dtypes=None, warp_aux_shapes=None,
+                 bc_dtype=None,
+                 bc_aux_dtypes=None, bc_aux_shapes=None,
+
                  ):
 
         super().__init__(file_path, mode=mode)
@@ -34,22 +44,49 @@ class WepyHDF5Reporter(FileReporter):
         self._tmp_topology = topology
         # which fields from the walker to save, if None then save all of them
         self.save_fields = save_fields
-        self.decisions = decisions
-        self.instruction_dtypes = instruction_dtypes
-        self.warp_dtype = warp_dtype
-        self.bc_dtype = bc_dtype
-        self.resampling_aux_dtypes = resampling_aux_dtypes
-        self.resampling_aux_shapes = resampling_aux_shapes
-        self.warp_aux_dtypes = warp_aux_dtypes
-        self.warp_aux_shapes = warp_aux_shapes
-        self.bc_aux_dtypes = bc_aux_dtypes
-        self.bc_aux_shapes = bc_aux_shapes
         # dictionary of sparse_field_name -> int : frequency of cycles
         # to save the field
         self.sparse_fields = sparse_fields
         self.feature_shapes = feature_shapes
         self.feature_dtypes = feature_dtypes
         self.n_dims = n_dims
+
+        # either extract the information from the classes or accept
+        # the manual settings
+        if decision is not None:
+            self.decisions = decision.ENUM
+            self.instruction_dtypes = decision.instruction_dtypes()
+        elif resampler is not None:
+            self.decisions = resampler.DECISION.ENUM
+            self.instruction_dtypes = resampler.DECISION.instruction_dtypes()
+        else:
+            self.decisions = decisions
+            self.instruction_dtypes = instruction_dtypes
+
+        # TODO these should all be accessed by methods, as of now
+        # these constants are just dictionaries themselves
+        if resampler is not None:
+            self.resampling_aux_dtypes = resampler.RESAMPLING_AUX_DTYPES
+            self.resampling_aux_shapes = resampler.RESAMPLING_AUX_SHAPES
+        else:
+            self.resampling_aux_dtypes = resampling_aux_dtypes
+            self.resampling_aux_shapes = resampling_aux_shapes
+
+        if boundary_conditions is not None:
+            self.warp_dtype = boundary_conditions.WARP_INSTRUCT_DTYPE
+            self.warp_aux_dtypes = boundary_conditions.WARP_AUX_DTYPES
+            self.warp_aux_shapes = boundary_conditions.WARP_AUX_SHAPES
+            self.bc_dtype = boundary_conditions.BC_INSTRUCT_DTYPE
+            self.bc_aux_dtypes = boundary_conditions.BC_AUX_DTYPES
+            self.bc_aux_shapes = boundary_conditions.BC_AUX_SHAPES
+        else:
+            self.warp_dtype = warp_dtype
+            self.bc_dtype = bc_dtype
+            self.warp_aux_dtypes = warp_aux_dtypes
+            self.warp_aux_shapes = warp_aux_shapes
+            self.bc_aux_dtypes = bc_aux_dtypes
+            self.bc_aux_shapes = bc_aux_shapes
+
 
         # the atom indices of the whole system that will be saved as
         # the main positions representation

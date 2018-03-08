@@ -7,6 +7,13 @@ class Resampler(object):
     """Superclass for resamplers that use the the Novelty->Decider
     framework."""
 
+    # TODO these all should be more like constants like in the
+    # decision class and dictionaries obtained through methods
+
+    RESAMPLING_AUX_DTYPES = {}
+    RESAMPLING_AUX_SHAPES = {}
+
+
     def __init__(self, scorer, decider):
         self.scorer = scorer
         self.decider = decider
