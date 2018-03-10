@@ -7,8 +7,8 @@ import numpy.linalg as la
 import simtk.unit as unit
 import mdtraj as mdj
 
-from geomm.recentering import recenter_receptor_ligand
-from geomm.rmsd import rmsd_one_frame
+from geomm.recentering import recenter_pair
+from geomm.rmsd import calc_rmsd
 
 from wepy.resampling.distances.distance import Distance
 
@@ -55,9 +55,12 @@ class OpenMMUnbindingDistance(OpenMMDistance):
 
         small_pos = self._xyz_from_walkers(walkers, keep_atoms)
         box_lengths = self._box_from_walkers(walkers)
-        newpos_small = recenter_receptor_ligand(small_pos, box_lengths,
-                                                ligand_idxs=small_lig_idxs,
-                                                receptor_idxs=small_bs_idxs)
+
+        newpos_small = np.zeros_like(small_pos)
+
+        for frame_idx, positions in enumerate(small_pos):
+            newpos_small[frame_idx, :, :] = recenter_pair(positions, box_lengths[frame_idx],
+                                                          small_lig_idxs, small_bs_idxs)
 
         small_top = self.topology.subset(keep_atoms)
         traj_rec = mdj.Trajectory(newpos_small, small_top)
@@ -69,7 +72,7 @@ class OpenMMUnbindingDistance(OpenMMDistance):
             dist_mat[i][i] = 0
             for j in range(i+1, num_walkers):
                 # return the distance matrix in Angstroms
-                dist_mat[i][j] = 10.0 * rmsd_one_frame(traj_rec.xyz[i], traj_rec.xyz[j], small_lig_idxs)
+                dist_mat[i][j] = 10.0 * calc_rmsd(traj_rec.xyz[i], traj_rec.xyz[j], small_lig_idxs)
                 dist_mat[j][i] = dist_mat[i][j]
 
         if self.alt_maps is not None:
@@ -92,7 +95,7 @@ class OpenMMUnbindingDistance(OpenMMDistance):
                                        ref_atom_indices=alt_map)
                 for i in range(num_walkers-1):
                     for j in range(i+1, num_walkers):
-                        dist = rmsd_one_frame(traj_rec.xyz[i], alt_traj_rec.xyz[j],
+                        dist = calc_rmsd(traj_rec.xyz[i], alt_traj_rec.xyz[j],
                                                small_lig_idxs)
                         if dist < dist_mat[i][j]:
                             dist_mat[i][j] = dist
@@ -141,9 +144,12 @@ class OpenMMRebindingDistance(OpenMMDistance):
 
         small_pos = self._xyz_from_walkers(walkers, keep_atoms)
         box_lengths = self._box_from_walkers(walkers)
-        newpos_small = recenter_receptor_ligand(small_pos, box_lengths,
-                                                ligand_idxs=small_lig_idxs,
-                                                receptor_idxs=small_bs_idxs)
+
+        newpos_small = np.zeros_like(small_pos)
+
+        for frame_idx, positions in enumerate(small_pos):
+            newpos_small[frame_idx, :, :] = recenter_pair(positions, box_lengths[frame_idx],
+                                                          small_lig_idxs, small_bs_idxs)
 
         small_top = self.topology.subset(keep_atoms)
         traj_rec = mdj.Trajectory(newpos_small, small_top)
@@ -151,7 +157,7 @@ class OpenMMRebindingDistance(OpenMMDistance):
         traj_rec.superpose(self.comp_traj, atom_indices=small_bs_idxs)
         rmsd_native = np.zeros((num_walkers))
         for i in range(num_walkers):
-            rmsd_native[i] = rmsd_one_frame(traj_rec.xyz[i], self.comp_traj.xyz[0],
+            rmsd_native[i] = calc_rmsd(traj_rec.xyz[i], self.comp_traj.xyz[0],
                                             small_lig_idxs)
 
         if self.alt_maps is not None:
@@ -173,7 +179,7 @@ class OpenMMRebindingDistance(OpenMMDistance):
                                        atom_indices=small_bs_idxs,
                                        ref_atom_indices=alt_map)
                 for i in range(num_walkers):
-                    dist = rmsd_one_frame(alt_traj_rec.xyz[i], self.comp_traj.xyz[0],
+                    dist = calc_rmsd(alt_traj_rec.xyz[i], self.comp_traj.xyz[0],
                                            small_lig_idxs)
                     if dist < rmsd_native[i]:
                         rmsd_native[i] = dist
@@ -329,9 +335,13 @@ class OpenMMHBondDistance(OpenMMDistance):
         # recenter protein and ligand
         small_pos = self._xyz_from_walkers(walkers, keep_atoms)
         box_lengths = self._box_from_walkers(walkers)
-        newpos_small = recenter_receptor_ligand(small_pos, box_lengths,
-                                                ligand_idxs=small_lig_idxs,
-                                                receptor_idxs=small_prot_idxs)
+
+
+        newpos_small = np.zeros_like(small_pos)
+
+        for frame_idx, positions in enumerate(small_pos):
+            newpos_small[frame_idx, :, :] = recenter_pair(positions, box_lengths[frame_idx],
+                                                          small_lig_idxs, small_bs_idxs)
 
         # profile ligand-protein interactions for each walker (in parallel)
         profiles = [[] for i in range(n_walkers)]

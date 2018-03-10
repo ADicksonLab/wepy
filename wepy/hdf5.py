@@ -2479,9 +2479,9 @@ class WepyHDF5(object):
 
                 # get the dataset
                 dset = data_grp[key]
-
+                print(key)
                 # if the dataset is of variable length handle it specially
-                if self.warp_aux_shapes[key] is Ellipsis:
+                if self.resampling_aux_shapes[key] is Ellipsis:
                     # resize the array but it is only of rank because
                     # of variable length data
                     dset.resize( (dset.shape[0] + 1, ) )
