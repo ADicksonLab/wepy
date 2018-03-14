@@ -23,9 +23,16 @@ class RegionTree(nx.DiGraph):
                  max_n_regions=None,
                  max_region_sizes=None,
                  distance=None,
-                 pmin=1e-12, pmax=0.5):
+                 pmin=None, pmax=None):
 
         super().__init__()
+
+        if (max_n_regions is None) or \
+           (max_region_sizes is None) or \
+           (distance is None) or \
+           (pmin is None) or \
+           (pmax is None):
+            raise ValueError("All parameters must be defined, 1 or more are missing.")
 
         self._max_n_regions = max_n_regions
         self._n_levels = len(max_n_regions)

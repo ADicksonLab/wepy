@@ -3,7 +3,9 @@ the examples and shows an example of how you might go from a crystal
 structure of a protein ligand complex to a set of inputs for
 wepy. This is by no means the only way to do this. Furthermore, a few
 of the things written out will be deprecated in the future as
-necessary, or are only used for convenience here"""
+necessary, or are only used for convenience here.
+
+"""
 
 
 if __name__ == "__main__":
