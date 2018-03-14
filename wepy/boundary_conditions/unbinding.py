@@ -111,7 +111,7 @@ class UnbindingBC(BoundaryConditions):
         # thus there is only value for a record
         warp_record = (0,)
 
-        warp_data = {'warped_walker_weight' : walker.weight}
+        warp_data = {'warped_walker_weight' : np.array([walker.weight])}
 
         # make the warp data mapping
 

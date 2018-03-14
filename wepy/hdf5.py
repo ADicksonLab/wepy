@@ -2555,6 +2555,11 @@ class WepyHDF5(object):
             self._append_instruct_records(rec_dset, cycle_records)
 
     def add_cycle_warp_aux_data(self, run_idx, warp_aux_data):
+        """Add the warp data for all of the warping events at once. So the
+        warp_aux_data is a dictionary that maps a field to an array
+        which is shape (n_warps, *aux_field_shape)
+
+        """
 
         data_grp = self._h5['runs/{}/warping/aux_data'.format(run_idx)]
 
@@ -2570,15 +2575,15 @@ class WepyHDF5(object):
                 if self.warp_aux_shapes[key] is Ellipsis:
                     # resize the array but it is only of rank because
                     # of variable length data
-                    dset.resize( (dset.shape[0] + 1, ) )
+                    dset.resize( (dset.shape[0] + len(aux_data), ) )
                     # does not need to be wrapped in another dimension
                     # like for other aux data
-                    dset[-1] = aux_data
+                    dset[len(aux_data):] = aux_data
 
                 else:
                     # add the new data
-                    dset.resize( (dset.shape[0] + 1, *aux_data.shape) )
-                    dset[-1] = np.array([aux_data])
+                    dset.resize( (dset.shape[0] + aux_data.shape[0], *aux_data.shape[1:]) )
+                    dset[-aux_data.shape[0]:] = aux_data
 
             # if the datasets were not initialized initialize them with
             # the incoming dataset
