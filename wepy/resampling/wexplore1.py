@@ -41,6 +41,7 @@ class RegionTree(nx.DiGraph):
         # get the image using the distance object
         image = self.distance.image(init_state)
         self._images = [image]
+        self._regions = [tuple([0 for i in range(self._n_levels)])]
 
         parent_id = self.ROOT_NODE
         self.add_node(parent_id, image_idx=0,
@@ -98,6 +99,10 @@ class RegionTree(nx.DiGraph):
     def walker_weights(self):
         return self._walker_weights
 
+    @property
+    def regions(self):
+        return self._regions
+
     def add_child(self, parent_id, image_idx):
         # make a new child id which will be the next index of the
         # child with the parent id
@@ -143,6 +148,8 @@ class RegionTree(nx.DiGraph):
             child_id = self.add_child(parent_id, image_idx)
             parent_id = child_id
 
+        #add new assignment  to the image assignments
+        self.regions.append(child_id)
         # return the leaf node id of the new branch
         return child_id
 
@@ -232,9 +239,12 @@ class RegionTree(nx.DiGraph):
             # branching (region creation) is necessary
             for level, distance in enumerate(distances):
 
-                # if we are over the max region distance we have found a
-                # new region so we branch the region_tree at that level
-                if distance > self.max_region_sizes[level]:
+                # if we are over the max region distance and we are
+                # not above max number of regions we have found a new
+                # region so we branch the region_tree at that level
+
+                if distance > self.max_region_sizes[level] and \
+                   len(self.children(assignment[:level])) < self.max_n_regions[level]:
                     image = self.distance.image(walker.state)
                     parent_id = assignment[:level]
                     assignment = self.branch_tree(parent_id, image)
@@ -705,6 +715,11 @@ class WExplore1Resampler(Resampler):
             print("Walker number of clones\n{}".format(walkers_num_clones))
 
         # check to make sure we have selected appropriate walkers to clone
+        #print images
+        if debug_prints:
+            print("images\n{}".format(self.region_tree.images))
+            print("images_assignments\n{}".format(self.region_tree.regions))
+
         for walker_idx, n_clones in enumerate(walkers_num_clones):
 
             if n_clones > 0:
@@ -741,6 +756,7 @@ class WExplore1Resampler(Resampler):
         resampled_walkers = self.DECISION.action(walkers, resampling_actions)
 
         # Auxiliary data
-        aux_data = {}
+        aux_data = {"walker_assignments" : np.array(self.region_tree.walker_assignments)}
+
 
         return resampled_walkers, resampling_actions, aux_data
