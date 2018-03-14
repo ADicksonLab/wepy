@@ -41,7 +41,6 @@ class RegionTree(nx.DiGraph):
         # get the image using the distance object
         image = self.distance.image(init_state)
         self._images = [image]
-        self._regions = [tuple([0 for i in range(self._n_levels)])]
 
         parent_id = self.ROOT_NODE
         self.add_node(parent_id, image_idx=0,
@@ -62,6 +61,9 @@ class RegionTree(nx.DiGraph):
                           walker_idxs=[])
             self.add_edge(parent_id, child_id)
             parent_id = child_id
+
+        # add the region for this branch to the regions list
+        self._regions = [tuple([0 for i in range(self._n_levels)])]
 
     @property
     def distance(self):
@@ -139,8 +141,8 @@ class RegionTree(nx.DiGraph):
 
     def branch_tree(self, parent_id, image):
         # add the new image to the image index
-        image_idx = len(self.images)
-        self.images.append(image)
+        image_idx = len(self._images)
+        self._images.append(image)
 
         branch_level = len(parent_id)
         # go down from there and create children
@@ -149,7 +151,7 @@ class RegionTree(nx.DiGraph):
             parent_id = child_id
 
         #add new assignment  to the image assignments
-        self.regions.append(child_id)
+        self._regions.append(child_id)
         # return the leaf node id of the new branch
         return child_id
 
