@@ -131,7 +131,10 @@ class RegionTree(nx.DiGraph):
         return child_id
 
     def children(self, parent_id):
-        return list(self.adj[parent_id].keys())
+        children_ids = list(self.adj[parent_id].keys())
+        # sort them
+        children_ids.sort()
+        return children_ids
 
     def level_nodes(self, level):
         """Get the nodes/regions at the specified level."""
@@ -277,6 +280,7 @@ class RegionTree(nx.DiGraph):
             # save increase the number above pmin if valid
             for level in range(len(assignment) + 1):
                 node_id = assignment[:level]
+
                 self.node[node_id]['n_walkers'] += 1
                 self.node[node_id]['walker_idxs'].append(walker_idx)
                 if above_pmin:
