@@ -1,21 +1,24 @@
 * Weighted Ensemble Python (wepy)
 
 
-A dead simple, modular implementation and framework for running
-weighted ensemble simulations in pure python.
+Modular implementation and framework for running weighted ensemble
+simulations in pure python, where the aim is to have simple things
+simple and complicated things possible. The latter being the priority.
 
 The goal of the architecture is that it should be highly modular to
 allow extension, but provide a "killer app" for most uses that just
 works, no questions asked.
 
-Comes equipped with support for [[https://github.com/pandegroup/openmm][OpenMM]] molecular dynamics, [[https://github.com/soravux/scoop][SCOOP]] for
-concurrent execution, the [[http://pubs.acs.org/doi/abs/10.1021/jp411479c][WExplore]] resampling algorithm, and an HDF5
-file format and library for storing and querying your WE datasets that
-can be used from the command line.
+Comes equipped with support for [[https://github.com/pandegroup/openmm][OpenMM]] molecular dynamics,
+parallelization using multiprocessing, the [[http://pubs.acs.org/doi/abs/10.1021/jp411479c][WExplore]] resampling
+algorithm, and an HDF5 file format and library for storing and
+querying your WE datasets that can be used from the command line.
 
 The deeper architecture of ~wepy~ is intended to be loosely coupled,
 so that unforeseen use cases can be accomodated, but tightly
 integrated for the most common of use cases, i.e. molecular dynamics.
+
+This allows freedom for fast development of new methods.
 
 ** Community
 
@@ -32,41 +35,81 @@ switching to the last release and installing with pip:
 #+BEGIN_SRC bash
   git clone https://github.com/ADicksonLab/wepy
   cd wepy
-  pip install --user -e .
+  pip install -e .
 #+END_SRC
 
 PyPI and Anaconda repos are planned.
 
-The only absolutely necessary dependencies are ~numpy~ and ~h5py~,
+The only absolutely necessary dependencies are ~numpy~ and ~h5py~
 which are used in the core classes.
 
-The default ~Runner~ is ~OpenMM~ and parallel ~work_mapper~ is
-~SCOOP~, which should also be installed automatically when following
-these instructions (defined in ~setup.py~).
+Outside of the core classes there are a couple of dependencies which
+are needed for this distribution but not in general if you use wepy as
+a library:
+- OpenMM
+- geomm
+- pandas
+- mdtraj
+- networkx
+
+The default ~Runner~ is for ~OpenMM~ and should also be installed
+automatically when following these instructions (defined in
+~setup.py~) although it is not necessary to use openmm when using wepy
+as a library.
+
+Currently, some things are still coupled to mdtraj and thus this is
+also a dependency for some functionality, although this will be
+relaxed in the future and replaced with a dependency on our nascent
+project ~geomm~.
+
+To install geomm clone it:
+
+~git clone https://github.com/ADicksonLab/geomm.git~
+
+Go to the repository:
+~cd geomm~
+
+Install it using this command:
+~python setup.py build_ext --inplace~
+
+There are other uses for mdtraj such as export of trajectories to
+mdtraj trajectories, which will not be removed.
+
+Pandas is used for outputting some data records, for which there is
+always a non-pandas option.
+
+NetworkX is used in the WExplore1 resampler for the region tree and
+also for the tree module for manipulating the walker cloning/mergin
+trees.
 
 ** Roadmap
 
 - [X] Weighted Ensemble Layer
   - [X] simulation manager
-- [-] Resampling sub-module
+- [X] Resampling sub-module
   - [X] Random clone-merge resampler
-  - [ ] WExplore
-  - [ ] resampling utilities
-    - [ ] cloning and merging
-    - [ ] bin mappers
-    - [ ] novelty functions
+  - [X] WExplore
 - [X] OpenMM support
-- [X] support for any external mapping function, including SCOOP
-- [ ] HDF5 output and API
+- [X] HDF5 output and API
 - [ ] Command Line Interface
 - [ ] PyPI and Anaconda repositories
 
 
 ** Getting Started
 
-The CLI for simple runs is not yet created but in the mean time you
-can check out one of the examples [[./examples/sEH_TPPU_RandomCloneMerge_SCOOP][using SCOOP]] for some (minimal)
-parallelization.
+There are a few examples here (https://github.com/ADicksonLab/wepy/tree/master/examples).
+
+There is an example with a pair of Lennard-Jones particles that runs
+on the reference implementation. This is the "Hello World" example and
+should be your starting point.
+
+A more advanced (and interesting) example is a non-equilibrium
+unbinding WExplore simulation of the soluble epoxide hydrolase (sEH)
+protein with the inhibitor TPPU, which was the subject of this paper:
+
+Lotz and Dickson. 2018. JACS 140 (2) pp. 618-628 (DOI: 10.1021/jacs.7b08572)
+
+To get the dependencies which are currently not packaged (i.e. ~geomm~), clone it's reposiroty
 
 ** Architecture
 
@@ -79,11 +122,8 @@ The overall architecture of the project is broken into separate modules:
                  resampling procedure is implemented here
     - e.g.
       - WExplore
-  - work mapper :: a function that implements the map function that
+  - WorkMapper :: a function that implements the map function that
                    allows for arbitrary methods of parallelization
-    - e.g.
-      - ~map~ python builtin
-      - ~scoop.futures.map~
   - Reporter :: Responsible for the collection and saving of data from wepy runs
     - e.g. HDF5 or plaintext
   - BoundaryConditions :: describes and performs boundary condition
