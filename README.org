@@ -26,6 +26,9 @@ Discussion takes place on riot.im (#wepy:matrix.org) which is a slack-like app t
 on the Matrix protocol:
 [[https://riot.im/app/#/room/#wepy:matrix.org]]
 
+You can also contact me directly:
+
+samuel.lotz@salotz.info
 
 ** Installation
 
@@ -46,11 +49,13 @@ which are used in the core classes.
 Outside of the core classes there are a couple of dependencies which
 are needed for this distribution but not in general if you use wepy as
 a library:
-- OpenMM
-- geomm
-- pandas
-- mdtraj
-- networkx
+- OpenMM (http://openmm.org/)
+- pandas (https://pandas.pydata.org/)
+- mdtraj (http://mdtraj.org)
+- networkx (https://networkx.github.io/)
+- geomm (https://github.com/ADicksonLab/geomm)
+
+To install these see their pages and the instructions below for geomm.
 
 The default ~Runner~ is for ~OpenMM~ and should also be installed
 automatically when following these instructions (defined in
@@ -109,7 +114,8 @@ protein with the inhibitor TPPU, which was the subject of this paper:
 
 Lotz and Dickson. 2018. JACS 140 (2) pp. 618-628 (DOI: 10.1021/jacs.7b08572)
 
-To get the dependencies which are currently not packaged (i.e. ~geomm~), clone it's reposiroty
+Be sure to install the extra dependencies for the examples as above in
+the installation instructions.
 
 ** Architecture
 
