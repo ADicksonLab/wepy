@@ -697,8 +697,6 @@ class WExplore1Resampler(Resampler):
 
     def resample(self, walkers, delta_walkers=0, debug_prints=False):
 
-        #import ipdb; ipdb.set_trace()
-
         # if the region tree has not been initialized, do so
         if self.region_tree is None:
             self._region_tree = RegionTree(walkers[0].state,

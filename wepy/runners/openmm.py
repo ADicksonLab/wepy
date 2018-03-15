@@ -1,6 +1,7 @@
 from copy import copy
 import random as rand
 from warnings import warn
+import traceback
 
 import numpy as np
 
@@ -197,7 +198,8 @@ class OpenMMState(WalkerState):
     def positions(self):
         try:
             return self.sim_state.getPositions()
-        except TypeError:
+        except:
+            warn("Unknown exception handled from `self.sim_state.getPositions()`, this is probably because this attribute is not in the State.")
             return None
 
     @property
@@ -211,7 +213,8 @@ class OpenMMState(WalkerState):
     def velocities(self):
         try:
             return self.sim_state.getVelocities()
-        except TypeError:
+        except:
+            warn("Unknown exception handled from `self.sim_state.getVelocities()`, this is probably because this attribute is not in the State.")
             return None
 
     @property
@@ -229,7 +232,8 @@ class OpenMMState(WalkerState):
     def forces(self):
         try:
             return self.sim_state.getForces()
-        except TypeError:
+        except:
+            warn("Unknown exception handled from `self.sim_state.getForces()`, this is probably because this attribute is not in the State.")
             return None
 
     @property
@@ -247,7 +251,8 @@ class OpenMMState(WalkerState):
     def kinetic_energy(self):
         try:
             return self.sim_state.getKineticEnergy()
-        except TypeError:
+        except:
+            warn("Unknown exception handled from `self.sim_state.getKineticEnergy()`, this is probably because this attribute is not in the State.")
             return None
 
     @property
@@ -265,7 +270,8 @@ class OpenMMState(WalkerState):
     def potential_energy(self):
         try:
             return self.sim_state.getPotentialEnergy()
-        except TypeError:
+        except:
+            warn("Unknown exception handled from `self.sim_state.getPotentialEnergy()`, this is probably because this attribute is not in the State.")
             return None
 
     @property
@@ -283,7 +289,8 @@ class OpenMMState(WalkerState):
     def time(self):
         try:
             return self.sim_state.getTime()
-        except TypeError:
+        except:
+            warn("Unknown exception handled from `self.sim_state.getTime()`, this is probably because this attribute is not in the State.")
             return None
 
     @property
@@ -301,7 +308,8 @@ class OpenMMState(WalkerState):
     def box_vectors(self):
         try:
             return self.sim_state.getPeriodicBoxVectors()
-        except TypeError:
+        except:
+            warn("Unknown exception handled from `self.sim_state.getPeriodicBoxVectors()`, this is probably because this attribute is not in the State.")
             return None
 
     @property
@@ -319,7 +327,8 @@ class OpenMMState(WalkerState):
     def box_volume(self):
         try:
             return self.sim_state.getPeriodicBoxVolume()
-        except TypeError:
+        except:
+            warn("Unknown exception handled from `self.sim_state.getPeriodicBoxVolume()`, this is probably because this attribute is not in the State.")
             return None
 
     @property
@@ -337,7 +346,8 @@ class OpenMMState(WalkerState):
     def parameters(self):
         try:
             return self.sim_state.getParameters()
-        except TypeError:
+        except:
+            warn("Unknown exception handled from `self.sim_state.getParameters()`, this is probably because this attribute is not in the State.")
             return None
 
     # TODO test this, this is jsut a guess because I don't use parameters
@@ -364,7 +374,8 @@ class OpenMMState(WalkerState):
     def parameter_derivatives(self):
         try:
             return self.sim_state.getEnergyParameterDerivatives()
-        except TypeError:
+        except:
+            warn("Unknown exception handled from `self.sim_state.getEnergyParameterDerivatives()`, this is probably because this attribute is not in the State.")
             return None
 
     # TODO test this, this is jsut a guess because I don't use parameters
@@ -405,7 +416,12 @@ class OpenMMState(WalkerState):
     def dict(self):
         """Return a dict of the values for all attributes of this state."""
 
-        return {**self._data, **self.omm_state_dict()}
+        d = {}
+        for key, value in self._data.items():
+            d[key] = value
+        for key, value in self.omm_state_dict().items():
+            d[key] = value
+        return d
 
     def to_mdtraj(self):
         """ Returns an mdtraj.Trajectory object from this walker's state."""
