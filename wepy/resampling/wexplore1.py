@@ -197,7 +197,10 @@ class RegionTree(nx.DiGraph):
                 else:
                     # image of the state
                     state_image = self.distance.image(state)
-                    dist = self.distance.image_distance(state_image, image)
+                    try:
+                        dist = self.distance.image_distance(state_image, image)
+                    except ValueError:
+                        import ipdb; ipdb.set_trace()
 
                     # save in the dist_cache
                     dist_cache[image_idx] = dist

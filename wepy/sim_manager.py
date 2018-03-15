@@ -58,7 +58,7 @@ class Manager(object):
         """
 
         if debug_prints:
-            result_template_str = "|".join(["{:^10}" for i in range(self.n_init_walkers + 1)])
+            result_template_str = "|".join(["{:^5}" for i in range(self.n_init_walkers + 1)])
             sys.stdout.write("Starting simulation\n")
 
         # initialize the work_mapper with the function it will be
@@ -128,16 +128,13 @@ class Manager(object):
                 print("Net state of walkers after resampling:")
                 print("--------------------------------------")
                 # slots
-                slot_str = result_template_str.format("slot",
+                slot_str = result_template_str.format("walker",
                                                       *[i for i in range(len(resampled_walkers))])
                 print(slot_str)
-                # states
-                walker_state_str = result_template_str.format("state",
-                    *[str(walker.state) for walker in resampled_walkers])
-                print(walker_state_str)
                 # weights
+                weights_template_str = "|".join(["{:.4f}" for i in range(self.n_init_walkers + 1)])
                 walker_weight_str = result_template_str.format("weight",
-                    *[str(walker.weight) for walker in resampled_walkers])
+                    *[round(walker.weight, 3) for walker in resampled_walkers])
                 print(walker_weight_str)
 
             # report results to the reporters
