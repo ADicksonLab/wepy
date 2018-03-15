@@ -197,10 +197,15 @@ class RegionTree(nx.DiGraph):
                 else:
                     # image of the state
                     state_image = self.distance.image(state)
+
+                    # there is the possibility of
                     try:
                         dist = self.distance.image_distance(state_image, image)
                     except ValueError:
-                        import ipdb; ipdb.set_trace()
+                        print("state: ", state.dict())
+                        print("state_image: ", state_image)
+                        print("image: ", image)
+                        raise ValueError("If you have triggered this error you have encountered a rare bug. Please attempt to report this using the printed outputs.")
 
                     # save in the dist_cache
                     dist_cache[image_idx] = dist
