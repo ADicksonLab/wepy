@@ -735,7 +735,6 @@ class WExplore1Resampler(Resampler):
         # check to make sure we have selected appropriate walkers to clone
         #print images
         if debug_prints:
-            print("images\n{}".format(self.region_tree.images))
             print("images_assignments\n{}".format(self.region_tree.regions))
 
         for walker_idx, n_clones in enumerate(walkers_num_clones):

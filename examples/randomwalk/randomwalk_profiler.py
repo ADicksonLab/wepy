@@ -10,6 +10,7 @@ import scoop.futures
 import mdtraj as mdj
 
 from wepy.resampling.resamplers.resampler import NoResampler
+from wepy.work_mapper.mapper import Mapper
 from wepy.hdf5 import RunCycleSlice
 from wepy.reporter.hdf5 import WepyHDF5Reporter
 from wepy.sim_manager import Manager
@@ -25,7 +26,7 @@ class RandomwalkProfiler(object):
         self.hdf5_reporter = hdf5_reporter
 
         if self.hdf5_reporter is None:
-            self.hdf5_reporter = "rw_results.hdf"
+            self.hdf5_reporter = "rw_results.h5"
 
     def generate_topology(self):
         n_atoms = 1
@@ -109,7 +110,7 @@ class RandomwalkProfiler(object):
         sim_manager = Manager(init_walkers,
                               runner=runner,
                               resampler=self.resampler,
-                              work_mapper=map,
+                              work_mapper=Mapper(),
                               reporters=[reporter])
 
 
