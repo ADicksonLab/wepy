@@ -11,7 +11,6 @@ import networkx as nx
 from wepy.resampling.resamplers.resampler  import Resampler
 from wepy.resampling.decisions.clone_merge import MultiCloneMergeDecision
 
-
 class RegionTreeError(Exception):
     pass
 
@@ -519,7 +518,10 @@ class RegionTree(nx.DiGraph):
 
         # choose the one to keep the state of (e.g. KEEP_MERGE
         # in the Decision) based on their weights
-        keep_idx = rand.choices(walker_idxs, k=1, weights=chosen_weights)[0]
+        #keep_idx = rand.choices(walker_idxs, k=1, weights=chosen_weights)
+        # normalize weights to a distribution
+        chosen_pdist = np.array(chosen_weights) / sum(chosen_weights)
+        keep_idx = np.random.choice(walker_idxs, 1, p=chosen_pdist)[0]
 
         # pop the keep idx from the walkers so we can use them as the squash idxs
         walker_idxs.pop(walker_idxs.index(keep_idx))
@@ -694,6 +696,8 @@ class WExplore1Resampler(Resampler):
         return self._region_tree
 
     def resample(self, walkers, delta_walkers=0, debug_prints=False):
+
+        #import ipdb; ipdb.set_trace()
 
         # if the region tree has not been initialized, do so
         if self.region_tree is None:
