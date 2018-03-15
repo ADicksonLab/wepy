@@ -67,15 +67,17 @@ also a dependency for some functionality, although this will be
 relaxed in the future and replaced with a dependency on our nascent
 project ~geomm~.
 
-To install geomm clone it:
+To install geomm:
+#+BEGIN_SRC bash
+git clone https://github.com/ADicksonLab/geomm.git
+cd geomm
+# compile the cython modules
+python setup.py build_ext --inplace
+# install it
+pip install -e .
 
-~git clone https://github.com/ADicksonLab/geomm.git~
+#+END_SRC
 
-Go to the repository:
-~cd geomm~
-
-Install it using this command:
-~python setup.py build_ext --inplace~
 
 There are other uses for mdtraj such as export of trajectories to
 mdtraj trajectories, which will not be removed.

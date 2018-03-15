@@ -39,6 +39,7 @@ this will only be run in serial.
 
 import sys
 from copy import copy
+import os
 import os.path as osp
 
 import numpy as np
@@ -117,6 +118,8 @@ UNITS = UNIT_NAMES
 inputs_dir = osp.realpath('./inputs')
 # the outputs path
 outputs_dir = osp.realpath('./outputs')
+# make the outputs dir if it doesn't exist
+os.makedirs(outputs_dir, exist_ok=True)
 
 # inputs filenames
 json_top_filename = "pair.top.json"

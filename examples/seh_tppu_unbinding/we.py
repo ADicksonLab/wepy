@@ -191,6 +191,8 @@ SPARSE_FIELDS = (('velocities', 10),
 inputs_dir = osp.realpath('./inputs')
 # the outputs path
 outputs_dir = osp.realpath('./outputs')
+# make the outputs dir if it doesn't exist
+os.makedirs(outputs_dir, exist_ok=True)
 
 # inputs filenames
 json_top_filename = "sEH_TPPU_system.top.json"
