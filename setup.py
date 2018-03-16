@@ -9,7 +9,7 @@ setup(
     install_requires=[
         'numpy',
         'h5py',
-        'openmm',
-        'scoop'
+        'networkx',
+        'pandas'
     ],
 )
