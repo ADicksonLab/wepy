@@ -1,4 +1,5 @@
 import sys
+import time
 
 from wepy.work_mapper.mapper import Mapper
 
@@ -49,37 +50,14 @@ class Manager(object):
 
         return new_walkers
 
-    def run_simulation(self, n_cycles, segment_lengths, num_workers=None,
-                       debug_prints=False):
-        """Run a simulation for a given number of cycles with specified
-        lengths of MD segments in between.
-
-        Can either return results in memory or write to a file.
-        """
-
-        if debug_prints:
-            result_template_str = "|".join(["{:^5}" for i in range(self.n_init_walkers + 1)])
-            sys.stdout.write("Starting simulation\n")
-
-        # initialize the work_mapper with the function it will be
-        # mapping and the number of workers, this may include things like starting processes
-        # etc.
-        self.work_mapper.init(self.runner.run_segment, num_workers=num_workers,
-                               debug_prints=debug_prints)
-
-        # init the reporter
-        for reporter in self.reporters:
-            reporter.init()
-
-        walkers = self.init_walkers
-        # the main cycle loop
-        for cycle_idx in range(n_cycles):
+    def run_cycle(self, walkers, segment_length, cycle_idx,
+                  debug_prints=False):
 
             if debug_prints:
                 sys.stdout.write("Begin cycle {}\n".format(cycle_idx))
 
             # run the segment
-            new_walkers = self.run_segment(walkers, segment_lengths[cycle_idx],
+            new_walkers = self.run_segment(walkers, segment_length,
                                            debug_prints=debug_prints)
 
             if debug_prints:
@@ -128,12 +106,11 @@ class Manager(object):
                 print("Net state of walkers after resampling:")
                 print("--------------------------------------")
                 # slots
-                slot_str = result_template_str.format("walker",
+                slot_str = self.result_template_str.format("walker",
                                                       *[i for i in range(len(resampled_walkers))])
                 print(slot_str)
                 # weights
-                weights_template_str = "|".join(["{:.4f}" for i in range(self.n_init_walkers + 1)])
-                walker_weight_str = result_template_str.format("weight",
+                walker_weight_str = self.result_template_str.format("weight",
                     *[round(walker.weight, 3) for walker in resampled_walkers])
                 print(walker_weight_str)
 
@@ -148,10 +125,85 @@ class Manager(object):
             # prepare resampled walkers for running new state changes
             walkers = resampled_walkers
 
+            return walkers
 
+    def init(self, num_workers, debug_prints=False):
+
+        if debug_prints:
+            self.result_template_str = "|".join(["{:^5}" for i in range(self.n_init_walkers + 1)])
+            sys.stdout.write("Starting simulation\n")
+
+        # initialize the work_mapper with the function it will be
+        # mapping and the number of workers, this may include things like starting processes
+        # etc.
+        self.work_mapper.init(self.runner.run_segment, num_workers=num_workers,
+                               debug_prints=debug_prints)
+
+        # init the reporter
+        for reporter in self.reporters:
+            reporter.init()
+
+    def cleanup(self, debug_prints=False):
         # cleanup things associated with the reporter
         for reporter in self.reporters:
             reporter.cleanup()
 
         # cleanup the mapper
         self.work_mapper.cleanup()
+
+    def run_simulation_by_time(self, run_time, segments_length, num_workers=None,
+                               debug_prints=False):
+        """Run a simulation for a certain amount of time. This starts timing
+        as soon as this is called. If the time before running a new
+        cycle is greater than the runtime the run will exit after
+        cleaning up. Once a cycle is started it may also run over the
+        wall time.
+
+        run_time :: float (in seconds)
+
+        segments_length :: int ; number of iterations performed for
+                                 each walker segment for each cycle
+
+        """
+        start_time = time.time()
+        self.init(num_workers, debug_prints=debug_prints)
+        cycle_idx = 0
+        walkers = self.init_walkers
+        while time.time() - start_time < run_time:
+
+            if debug_prints:
+                print("starting cycle {} at time {}".format(cycle_idx, time.time() - start_time))
+
+            walkers = self.run_cycle(walkers, segments_length, cycle_idx,
+                                       debug_prints=debug_prints)
+
+            if debug_prints:
+                print("ending cycle {} at time {}".format(cycle_idx, time.time() - start_time))
+
+            cycle_idx += 1
+
+        self.cleanup(debug_prints=debug_prints)
+
+        return walkers
+
+    def run_simulation(self, n_cycles, segment_lengths, num_workers=None,
+                       debug_prints=False):
+        """Run a simulation for a given number of cycles with specified
+        lengths of MD segments in between.
+
+        """
+
+        self.init(num_workers, debug_prints=debug_prints)
+
+        walkers = self.init_walkers
+        # the main cycle loop
+        for cycle_idx in range(n_cycles):
+            walkers = self.run_cycle(walkers, segment_lengths[cycle_idx], cycle_idx,
+                                         debug_prints=debug_prints)
+
+        self.cleanup(debug_prints=debug_prints)
+
+        return walkers
+
+
+
