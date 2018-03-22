@@ -205,7 +205,9 @@ class RegionTree(nx.DiGraph):
                         print("state: ", state.dict())
                         print("state_image: ", state_image)
                         print("image: ", image)
-                        raise ValueError("If you have triggered this error you have encountered a rare bug. Please attempt to report this using the printed outputs.")
+                        raise ValueError("If you have triggered this error you have"
+                                         " encountered a rare bug. Please attempt to"
+                                         " report this using the printed outputs.")
 
                     # save in the dist_cache
                     dist_cache[image_idx] = dist
@@ -247,6 +249,9 @@ class RegionTree(nx.DiGraph):
         # clear all the walkers and reset node attributes to defaults
         self.clear_walkers()
 
+        # keep track of new branches made
+        new_branches = []
+
         # place each walker
         for walker_idx, walker in enumerate(walkers):
 
@@ -261,12 +266,22 @@ class RegionTree(nx.DiGraph):
                 # if we are over the max region distance and we are
                 # not above max number of regions we have found a new
                 # region so we branch the region_tree at that level
-
                 if distance > self.max_region_sizes[level] and \
                    len(self.children(assignment[:level])) < self.max_n_regions[level]:
+
+                    # make an image for the region
                     image = self.distance.image(walker.state)
                     parent_id = assignment[:level]
+
+                    # make the new branch
                     assignment = self.branch_tree(parent_id, image)
+
+                    # save it to keep track of new branches as they occur
+                    new_branches.append({'distance' : distance,
+                                         'level' : level,
+                                         'new_leaf_id' : assignment,
+                                         'image' : image,})
+
                     # we have made a new branch so we don't need to
                     # continue this loop
                     break
@@ -322,6 +337,8 @@ class RegionTree(nx.DiGraph):
                 for level in reversed(range(self.n_levels)):
                     branch_node_id = node_id[:level]
                     self.node[branch_node_id]['n_mergeable'] += self.node[node_id]['n_mergeable']
+
+        return new_branches
 
     def minmax_beneficiaries(self, children):
 
@@ -657,7 +674,7 @@ class RegionTree(nx.DiGraph):
             leaf_node_balance = self.node[leaf]['balance']
             if leaf_node_balance != 0:
                 merge_groups, walkers_num_clones = \
-                                                self.settle_balance(leaf, merge_groups, walkers_num_clones)
+                            self.settle_balance(leaf, merge_groups, walkers_num_clones)
 
         # count up the number of clones and merges in the merge_groups
         # and the walkers_num_clones
@@ -674,6 +691,18 @@ class RegionTree(nx.DiGraph):
 class WExplore1Resampler(Resampler):
 
     DECISION = MultiCloneMergeDecision
+
+    # datatype for the state change records of the resampler, here
+    # that is the defnition of a new branch of the region tree, the
+    # value is the level of the tree that is branched. Most of the
+    # useful information will be in the auxiliary data, like the
+    # image, distance the walker was away from the image at that
+    # level, and the id of the leaf node
+    RESAMPLING_INSTRUCT_RECORD = np.dtype[('branching_level', np.int)]
+
+    # the auxiliary data types and shapes
+    RESAMPLING_AUX_DTYPES = {'distance' : np.float}
+    RESAMPLING_AUX_SHAPES = {'distance' : (1,)}
 
     def __init__(self, seed=None, pmin=1e-12, pmax=0.1,
                  distance=None,
@@ -707,24 +736,47 @@ class WExplore1Resampler(Resampler):
     def region_tree(self):
         return self._region_tree
 
-    def resample(self, walkers, delta_walkers=0, debug_prints=False):
+    def init(self, walkers):
+        self._region_tree = RegionTree(walkers[0].state,
+                                      max_n_regions=self.max_n_regions,
+                                      max_region_sizes=self.max_region_sizes,
+                                       distance=self.distance,
+                                       pmin=self.pmin,
+                                       pmax=self.pmax)
 
-        # if the region tree has not been initialized, do so
-        if self.region_tree is None:
-            self._region_tree = RegionTree(walkers[0].state,
-                                          max_n_regions=self.max_n_regions,
-                                          max_region_sizes=self.max_region_sizes,
-                                           distance=self.distance,
-                                           pmin=self.pmin,
-                                           pmax=self.pmax)
-
-        ## "Score" the walkers based on the current defined Voronoi
+    def assign(self, walkers, debug_prints=False):
+        ## Assign the walkers based on the current defined Voronoi
         ## images which assign them to bins/leaf-nodes, possibly
         ## creating new regions, do this by calling the method to
         ## "place_walkers"  on the tree which changes the tree's state
-        self.region_tree.place_walkers(walkers)
-        if debug_prints:
-            print("Assigned regions=\n{}".format(self.region_tree.walker_assignments))
+        new_branches = self.region_tree.place_walkers(walkers)
+
+        # the assignments
+        assignments = np.array(self.region_tree.walker_assignments)
+
+        # make the resampler record for the new branches made, the
+        # reporter will add the cycle. Then we have auxiliary data for
+        # that record which is the image
+        resampler_records = []
+        resampler_aux_data = []
+        for new_branch in new_branches:
+
+            # the records are the level that was branched at
+            resampler_records.append((new_branch.pop('level'),))
+
+            # the aux data for this event is the rest of the data in
+            # the dictionary
+            resampler_aux_data.append(resampler_aux_data)
+
+
+        # Auxiliary data
+        resampling_aux_data = {"walker_assignments" : assignments}
+
+        # return the assignments and the resampler records of changed
+        # resampler state, which is addition of new regions
+        return assignments, resampling_aux_data, resampler_records, resampler_aux_data
+
+    def decide(self, delta_walkers=0, debug_prints=False):
 
         ## Given the assignments ("scores") (which are on the tree
         ## nodes) decide on which to merge and clone
@@ -736,6 +788,7 @@ class WExplore1Resampler(Resampler):
         if debug_prints:
             print("merge_groups\n{}".format(merge_groups))
             print("Walker number of clones\n{}".format(walkers_num_clones))
+
 
         # check to make sure we have selected appropriate walkers to clone
         #print images
@@ -760,6 +813,7 @@ class WExplore1Resampler(Resampler):
         # Resampler superclass)
         resampling_actions = [self.assign_clones(merge_groups, walkers_num_clones)]
 
+
         for step in resampling_actions:
             taken_slots = []
             for decision, instruction in step:
@@ -774,11 +828,28 @@ class WExplore1Resampler(Resampler):
             if len(set(taken_slots)) < len(taken_slots):
                 raise ValueError("Multiple assignments to the same slot")
 
+        return resampling_actions
+
+    def resample(self, walkers, delta_walkers=0, debug_prints=False):
+
+        # if the region tree has not been initialized, do so
+        if self.region_tree is None:
+            self.init(walkers)
+
+        ## assign/score the walkers, also getting changes in the
+        ## resampler state
+        assignments, resampling_aux_data, resampler_records, resampler_aux_data = self.assign(walkers)
+
+        if debug_prints:
+            print("Assigned regions=\n{}".format(self.region_tree.walker_assignments))
+
+        # make the decisions for the the walkers
+        resampling_actions, resampling_aux_data = self.decide(delta_walkers=delta_walkers,
+                                                                  debug_prints=debug_prints)
+
         # perform the cloning and merging
         resampled_walkers = self.DECISION.action(walkers, resampling_actions)
 
-        # Auxiliary data
-        aux_data = {"walker_assignments" : np.array(self.region_tree.walker_assignments)}
 
-
-        return resampled_walkers, resampling_actions, aux_data
+        return resampled_walkers, resampling_actions, resampling_aux_data,\
+                 resampler_records, resampler_aux_data

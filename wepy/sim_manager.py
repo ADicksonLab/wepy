@@ -97,9 +97,13 @@ class Manager(object):
                 bc_aux_data = bc_results[4]
 
             # resample walkers
-            resampled_walkers, resampling_records, resampling_aux_data =\
-                           self.resampler.resample(warped_walkers,
-                                                   debug_prints=debug_prints)
+            resampling_results = self.resampler.resample(warped_walkers,
+                                                         debug_prints=debug_prints)
+
+            resampled_walkers = resampling_results[0]
+            resampled_records = resampling_results[1]
+            resampling_aux_data = resampling_results[2]
+            resampler_records = resampling_results[3]
 
             if debug_prints:
                 # print results for this cycle
