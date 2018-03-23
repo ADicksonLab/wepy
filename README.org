@@ -49,10 +49,10 @@ which are used in the core classes.
 Outside of the core classes there are a couple of dependencies which
 are needed for this distribution but not in general if you use wepy as
 a library:
-- OpenMM 7.1 (http://openmm.org/)
+- OpenMM (http://openmm.org/) (7.2 suggested)
 - pandas (https://pandas.pydata.org/)
 - mdtraj (http://mdtraj.org)
-- networkx (https://networkx.github.io/)
+- networkx >=2 (https://networkx.github.io/)
 - geomm (https://github.com/ADicksonLab/geomm)
 
 To install these see their pages and the instructions below for geomm.
@@ -61,9 +61,6 @@ The default ~Runner~ is for ~OpenMM~ and should also be installed
 automatically when following these instructions (defined in
 ~setup.py~) although it is not necessary to use openmm when using wepy
 as a library.
-
-There is an issue with compatibility with OpenMM 7.2 so for now please
-use 7.1 in the meantime and hopefully this can be fixed.
 
 Currently, some things are still coupled to mdtraj and thus this is
 also a dependency for some functionality, although this will be

@@ -9,7 +9,7 @@ setup(
     install_requires=[
         'numpy',
         'h5py',
-        'networkx',
+        'networkx>=2',
         'pandas'
     ],
 )
