@@ -194,12 +194,16 @@ class OpenMMState(WalkerState):
             elif key == 'parameter_derivatives':
                 return self.parameter_derivatives_values()
 
+    ## Array properties
+
+    # Positions
     @property
     def positions(self):
         try:
-            return self.sim_state.getPositions()
+            return self.sim_state.getPositions(asNumpy=True)
         except:
-            warn("Unknown exception handled from `self.sim_state.getPositions()`, this is probably because this attribute is not in the State.")
+            warn("Unknown exception handled from `self.sim_state.getPositions()`, "
+                     "this is probably because this attribute is not in the State.")
             return None
 
     @property
@@ -207,14 +211,16 @@ class OpenMMState(WalkerState):
         return self.positions.unit
 
     def positions_values(self):
-        return np.array(self.positions.value_in_unit(self.positions_unit))
+        return self.positions.value_in_unit(self.positions_unit)
 
+    # Velocities
     @property
     def velocities(self):
         try:
-            return self.sim_state.getVelocities()
+            return self.sim_state.getVelocities(asNumpy=True)
         except:
-            warn("Unknown exception handled from `self.sim_state.getVelocities()`, this is probably because this attribute is not in the State.")
+            warn("Unknown exception handled from `self.sim_state.getVelocities()`, "
+                     "this is probably because this attribute is not in the State.")
             return None
 
     @property
@@ -226,14 +232,16 @@ class OpenMMState(WalkerState):
         if velocities is None:
             return None
         else:
-            return np.array(self.velocities.value_in_unit(self.velocities_unit))
+            return self.velocities.value_in_unit(self.velocities_unit)
 
+    # Forces
     @property
     def forces(self):
         try:
-            return self.sim_state.getForces()
+            return self.sim_state.getForces(asNumpy=True)
         except:
-            warn("Unknown exception handled from `self.sim_state.getForces()`, this is probably because this attribute is not in the State.")
+            warn("Unknown exception handled from `self.sim_state.getForces()`, "
+                     "this is probably because this attribute is not in the State.")
             return None
 
     @property
@@ -245,14 +253,40 @@ class OpenMMState(WalkerState):
         if forces is None:
             return None
         else:
-            return np.array(self.forces.value_in_unit(self.forces_unit))
+            return self.forces.value_in_unit(self.forces_unit)
 
+    # Box Vectors
+    @property
+    def box_vectors(self):
+        try:
+            return self.sim_state.getPeriodicBoxVectors(asNumpy=True)
+        except:
+            warn("Unknown exception handled from `self.sim_state.getPeriodicBoxVectors()`, "
+                     "this is probably because this attribute is not in the State.")
+            return None
+
+    @property
+    def box_vectors_unit(self):
+        return self.box_vectors.unit
+
+    def box_vectors_values(self):
+        box_vectors = self.box_vectors
+        if box_vectors is None:
+            return None
+        else:
+            return self.box_vectors.value_in_unit(self.box_vectors_unit)
+
+
+    ## non-array properties
+
+    # Kinetic Energy
     @property
     def kinetic_energy(self):
         try:
             return self.sim_state.getKineticEnergy()
         except:
-            warn("Unknown exception handled from `self.sim_state.getKineticEnergy()`, this is probably because this attribute is not in the State.")
+            warn("Unknown exception handled from `self.sim_state.getKineticEnergy()`, "
+                     "this is probably because this attribute is not in the State.")
             return None
 
     @property
@@ -266,12 +300,14 @@ class OpenMMState(WalkerState):
         else:
             return np.array([self.kinetic_energy.value_in_unit(self.kinetic_energy_unit)])
 
+    # Potential Energy
     @property
     def potential_energy(self):
         try:
             return self.sim_state.getPotentialEnergy()
         except:
-            warn("Unknown exception handled from `self.sim_state.getPotentialEnergy()`, this is probably because this attribute is not in the State.")
+            warn("Unknown exception handled from `self.sim_state.getPotentialEnergy()`, "
+                     "this is probably because this attribute is not in the State.")
             return None
 
     @property
@@ -285,12 +321,14 @@ class OpenMMState(WalkerState):
         else:
             return np.array([self.potential_energy.value_in_unit(self.potential_energy_unit)])
 
+    # Time
     @property
     def time(self):
         try:
             return self.sim_state.getTime()
         except:
-            warn("Unknown exception handled from `self.sim_state.getTime()`, this is probably because this attribute is not in the State.")
+            warn("Unknown exception handled from `self.sim_state.getTime()`, "
+                     "this is probably because this attribute is not in the State.")
             return None
 
     @property
@@ -304,31 +342,14 @@ class OpenMMState(WalkerState):
         else:
             return np.array([self.time.value_in_unit(self.time_unit)])
 
-    @property
-    def box_vectors(self):
-        try:
-            return self.sim_state.getPeriodicBoxVectors()
-        except:
-            warn("Unknown exception handled from `self.sim_state.getPeriodicBoxVectors()`, this is probably because this attribute is not in the State.")
-            return None
-
-    @property
-    def box_vectors_unit(self):
-        return self.box_vectors.unit
-
-    def box_vectors_values(self):
-        box_vectors = self.box_vectors
-        if box_vectors is None:
-            return None
-        else:
-            return np.array(self.box_vectors.value_in_unit(self.box_vectors_unit))
-
+    # Box Volume
     @property
     def box_volume(self):
         try:
             return self.sim_state.getPeriodicBoxVolume()
         except:
-            warn("Unknown exception handled from `self.sim_state.getPeriodicBoxVolume()`, this is probably because this attribute is not in the State.")
+            warn("Unknown exception handled from `self.sim_state.getPeriodicBoxVolume()`, "
+                     "this is probably because this attribute is not in the State.")
             return None
 
     @property
@@ -342,26 +363,29 @@ class OpenMMState(WalkerState):
         else:
             return np.array([self.box_volume.value_in_unit(self.box_volume_unit)])
 
+    ## Dictionary properties
+    ## Unitless
+
+    # Parameters
     @property
     def parameters(self):
         try:
             return self.sim_state.getParameters()
         except:
-            warn("Unknown exception handled from `self.sim_state.getParameters()`, this is probably because this attribute is not in the State.")
+            warn("Unknown exception handled from `self.sim_state.getParameters()`, "
+                     "this is probably because this attribute is not in the State.")
             return None
 
-    # TODO test this, this is jsut a guess because I don't use parameters
     @property
     def parameters_unit(self):
-        param_units = {key : val.unit for key, val in self.parameters.items()}
+        param_units = {key : None for key, val in self.parameters.items()}
         return param_units
 
-    # TODO test this, this is jsut a guess because I don't use parameters
     def parameters_values(self):
         if self.parameters is None:
             return None
 
-        param_arrs = {key : np.array(val.value_in_unit(val.unit)) for key, val
+        param_arrs = {key : np.array(val) for key, val
                           in self.parameters.items()}
 
         # return None if there is nothing in this
@@ -370,27 +394,27 @@ class OpenMMState(WalkerState):
         else:
             return param_arrs
 
+    # Parameter Derivatives
     @property
     def parameter_derivatives(self):
         try:
             return self.sim_state.getEnergyParameterDerivatives()
         except:
-            warn("Unknown exception handled from `self.sim_state.getEnergyParameterDerivatives()`, this is probably because this attribute is not in the State.")
+            warn("Unknown exception handled from `self.sim_state.getEnergyParameterDerivatives()`, "
+                     "this is probably because this attribute is not in the State.")
             return None
 
-    # TODO test this, this is jsut a guess because I don't use parameters
     @property
     def parameter_derivatives_unit(self):
-        param_units = {key : val.unit for key, val in self.parameter_derivatives.items()}
+        param_units = {key : None for key, val in self.parameter_derivatives.items()}
         return param_units
 
-    # TODO test this, this is jsut a guess because I don't use parameter_derivatives
     def parameter_derivatives_values(self):
 
         if self.parameter_derivatives is None:
             return None
 
-        param_arrs = {key : np.array(val.value_in_unit(val.unit)) for key, val
+        param_arrs = {key : np.array(val) for key, val
                           in self.parameter_derivatives.items()}
 
         # return None if there is nothing in this
