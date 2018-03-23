@@ -101,9 +101,10 @@ class Manager(object):
                                                          debug_prints=debug_prints)
 
             resampled_walkers = resampling_results[0]
-            resampled_records = resampling_results[1]
+            resampling_records = resampling_results[1]
             resampling_aux_data = resampling_results[2]
             resampler_records = resampling_results[3]
+            resampler_aux_data = resampling_results[4]
 
             if debug_prints:
                 # print results for this cycle
@@ -121,10 +122,11 @@ class Manager(object):
             # report results to the reporters
             for reporter in self.reporters:
                 reporter.report(cycle_idx, new_walkers,
-                                     warp_records, warp_aux_data,
-                                     bc_records, bc_aux_data,
-                                     resampling_records, resampling_aux_data,
-                                     debug_prints=debug_prints)
+                                warp_records, warp_aux_data,
+                                bc_records, bc_aux_data,
+                                resampling_records, resampling_aux_data,
+                                resampler_records, resampler_aux_data,
+                                debug_prints=debug_prints)
 
             # prepare resampled walkers for running new state changes
             walkers = resampled_walkers

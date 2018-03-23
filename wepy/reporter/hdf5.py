@@ -180,6 +180,7 @@ class WepyHDF5Reporter(FileReporter):
                warp_records, warp_aux_data,
                bc_records, bc_aux_data,
                resampling_records, resampling_aux_data,
+               resampler_records, resampler_aux_data,
                debug_prints=False):
 
         n_walkers = len(walkers)
@@ -221,7 +222,6 @@ class WepyHDF5Reporter(FileReporter):
                             # remove from the walker_data
                             walker_data.pop(field_path)
                             continue
-
 
 
                 # Add the alt_reps fields by slicing the positions

@@ -34,25 +34,13 @@ class MultiCloneMergeDecision(Decision):
 
     # mapping of enumerations to the field names for the record. An Ellipsis instead
     # of fields indicate there is a variable number of fields.
-    INSTRUCTION_FIELDS = (
-        (ENUM.NOTHING, ('pos',)),
-        (ENUM.CLONE, (Ellipsis,)),
-        (ENUM.SQUASH, ('merge_to',)),
-        (ENUM.KEEP_MERGE, ('pos',)),
-    )
+    INSTRUCTION_FIELDS = ('decision_id', 'to')
+    INSTRUCTION_SHAPES = = ((1,), Ellipsis)
+    INSTRUCTION_DTYPES = (np.int, np.int)
 
-    # datatypes for each instruction, useful for allocating memory in
-    # databases. These correspond to the fields defined in
-    # INSTRUCTION_FIELDS. The dtype mapped to an Ellipsis field will
-    # be the dtype for all of the fields it may create in a variable
-    # length record
-    INSTRUCTION_FIELD_DTYPES = (
-        (ENUM.NOTHING, (np.int,)),
-        (ENUM.CLONE, (np.int,)),
-        (ENUM.SQUASH, (np.int,)),
-        (ENUM.KEEP_MERGE, (np.int,)),
-    )
-
+    INSTRUCTIONS = (('decision_id', (1,), np.int),
+                    ('to', Ellipsis, np.int),
+        )
 
     # the decision types that pass on their state
     ANCESTOR_DECISION_IDS = (ENUM.NOTHING.value,

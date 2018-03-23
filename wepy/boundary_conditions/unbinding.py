@@ -11,27 +11,26 @@ from wepy.boundary_conditions.boundary import BoundaryConditions
 
 class UnbindingBC(BoundaryConditions):
 
-    # TODO these all should be more like constants like in the
-    # decision class and dictionaries obtained through methods
-
+    # SPORADIC records
     # boundary condition datatypes:
 
     # datatype for the records for this boundary condition class are
-    # not used
-    BC_INSTRUCT_DTYPE = np.dtype([('boundary_distance', np.float)])
+    # not used, SPORADIC
+    BC_INSTRUCTION_FIELDS = ('boundary_distance', )
+    BC_INSTRUCTION_SHAPES = ((1,), )
+    BC_INSTRUCTION_DTYPES = (np.float, )
 
-    # auxiliary data types for boundary conditions
-    BC_AUX_DTYPES = {'min_distances' : np.float}
-    BC_AUX_SHAPES = {'min_distances' : Ellipsis}
+    # auxiliary data types for boundary conditions, CONTINUAL
+    BC_AUX_FIELDS = ('min_distances', )
+    BC_AUX_SHAPES = (Ellipsis, )
+    BC_AUX_DTYPES = (np.float, )
 
     # warping datatypes:
 
-    # for warping records
-    WARP_INSTRUCT_DTYPE = np.dtype([('target', np.int)])
-
-    # dtypes and shapes for auxiliary data
-    WARP_AUX_DTYPES = {'warped_walker_weight' : np.float}
-    WARP_AUX_SHAPES = {'warped_walker_weight' : (1,)}
+    # for warping records, SPORADIC
+    WARP_INSTRUCTION_FIELDS = ('target', 'weight')
+    WARP_INSTRUCTION_SHAPES = ((1,), (1,))
+    WARP_INSTRUCTION_DTYPES = (np.int, np.float)
 
     def __init__(self, initial_state=None,
                  cutoff_distance=1.0,
