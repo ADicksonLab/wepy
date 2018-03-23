@@ -361,7 +361,7 @@ class OpenMMState(WalkerState):
         if self.parameters is None:
             return None
 
-        param_arrs = {key : np.array(val.value_in_unit(val.unit)) for key, val
+        param_arrs = {key : np.array(val) for key, val
                           in self.parameters.items()}
 
         # return None if there is nothing in this
@@ -390,7 +390,7 @@ class OpenMMState(WalkerState):
         if self.parameter_derivatives is None:
             return None
 
-        param_arrs = {key : np.array(val.value_in_unit(val.unit)) for key, val
+        param_arrs = {key : np.array(val) for key, val
                           in self.parameter_derivatives.items()}
 
         # return None if there is nothing in this
