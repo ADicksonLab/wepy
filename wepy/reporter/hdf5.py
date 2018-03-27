@@ -22,20 +22,17 @@ class WepyHDF5Reporter(FileReporter):
                  # dictionary of alt_rep keys and a tuple of (idxs, freq)
                  alt_reps=None,
 
-                 # pass in the decision, resampler, and boundary
+                 # pass in the resampler and boundary
                  # conditions classes to automatically extract the
                  # needed data, the objects themselves are not saves
-                 decision=None,
                  resampler=None,
                  boundary_conditions=None,
 
                  # or pass the things we need from them in manually
-                 decisions=None, instruction_dtypes=None,
-                 resampling_aux_dtypes=None, resampling_aux_shapes=None,
-                 warp_dtype=None,
-                 warp_aux_dtypes=None, warp_aux_shapes=None,
-                 bc_dtype=None,
-                 bc_aux_dtypes=None, bc_aux_shapes=None,
+                 resampling_field_names=None, resampling_aux_dtypes=None, resampling_aux_shapes=None,
+                 resampler_field_names=None, resampler_aux_dtypes=None, resampler_aux_shapes=None,
+                 warp_field_names=None, warp_aux_dtypes=None, warp_aux_shapes=None,
+                 bc_field_names=None, bc_aux_dtypes=None, bc_aux_shapes=None,
 
                  ):
 
@@ -51,12 +48,7 @@ class WepyHDF5Reporter(FileReporter):
         self.feature_dtypes = feature_dtypes
         self.n_dims = n_dims
 
-        # either extract the information from the classes or accept
-        # the manual settings
-        if decision is not None:
-            self.decisions = decision.ENUM
-            self.instruction_dtypes = decision.instruction_dtypes()
-        elif resampler is not None:
+        if resampler is not None:
             self.decisions = resampler.DECISION.ENUM
             self.instruction_dtypes = resampler.DECISION.instruction_dtypes()
         else:
@@ -153,20 +145,28 @@ class WepyHDF5Reporter(FileReporter):
 
             # initialize the resampling group within this run
             self.wepy_h5.init_run_resampling(self.wepy_run_idx,
-                                        self.decisions,
-                                        self.instruction_dtypes,
-                                        resampling_aux_dtypes=self.resampling_aux_dtypes,
-                                        resampling_aux_shapes=self.resampling_aux_shapes)
+                                             field_names=self.resampling_field_names,
+                                             aux_dtypes=self.resampling_aux_dtypes,
+                                             aux_shapes=self.resampling_aux_shapes)
+
+            # initialize the resampler group
+            self.wepy_h5.init_run_resampler(self.wepy_run_idx,
+                                             field_names=self.resampler_field_names,
+                                             aux_dtypes=self.resampler_aux_dtypes,
+                                             aux_shapes=self.resampler_aux_shapes)
+
 
             # initialize the boundary condition group within this run
-            self.wepy_h5.init_run_warp(self.wepy_run_idx, self.warp_dtype,
-                                  warp_aux_dtypes=self.warp_aux_dtypes,
-                                  warp_aux_shapes=self.warp_aux_shapes)
+            self.wepy_h5.init_run_warp(self.wepy_run_idx,
+                                       field_names=self.warp_field_names,
+                                       aux_dtypes=self.warp_aux_dtypes,
+                                       aux_shapes=self.warp_aux_shapes)
 
             # initialize the boundary condition group within this run
-            self.wepy_h5.init_run_bc(self.wepy_run_idx, self.bc_dtype,
-                                  bc_aux_dtypes=self.bc_aux_dtypes,
-                                  bc_aux_shapes=self.bc_aux_shapes)
+            self.wepy_h5.init_run_bc(self.wepy_run_idx,
+                                     field_names=self.bc_field_names,
+                                     aux_dtypes=self.bc_aux_dtypes,
+                                     aux_shapes=self.bc_aux_shapes)
 
         # if this was opened in a truncation mode, we don't want to
         # overwrite old runs with future calls to init(). so we

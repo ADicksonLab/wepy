@@ -833,33 +833,53 @@ class WepyHDF5(object):
 
         return run_grp
 
-    def init_run_resampling(self, run_idx, decision_enum, instruction_dtypes_tokens,
-                            resampling_aux_dtypes=None, resampling_aux_shapes=None):
+    def init_run_resampling(self, run_idx,
+                            field_names=None, aux_shapes=None, aux_dtypes=None):
 
-        self.init_run_record_grp(run_idx, RESAMPLING, )
+        self.init_run_record_grp(run_idx, RESAMPLING,
+                                 field_names, aux_shapes, aux_dtypes)
 
+    def init_run_resampler(self, run_idx,
+                           field_names=None, aux_shapes=None, aux_dtypes=None):
 
-    def init_run_warp(self, run_idx, warp_dtype, warp_aux_dtypes=None, warp_aux_shapes=None):
+        self.init_run_record_grp(run_idx, RESAMPLER,
+                                 field_names, aux_shapes, aux_dtypes)
 
-        pass
+    def init_run_warp(self, run_idx,
+                      field_names=None, aux_shapes=None, aux_dtypes=None):
 
-    def init_run_bc(self, run_idx, bc_dtype,
-                    bc_aux_dtypes=None, bc_aux_shapes=None):
+        self.init_run_record_grp(run_idx, WARPING,
+                                 field_names, aux_shapes, aux_dtypes)
 
-        pass
+    def init_run_bc(self, run_idx,
+                    field_names=None, aux_shapes=None, aux_dtypes=None):
+
+        self.init_run_record_grp(run_idx, BC,
+                                 field_names=field_names, aux_shapes, aux_dtypes)
 
 
     def init_run_record_grp(self, run_idx, run_record_key,
-                            field_names, field_shapes, field_dtypes):
+                            field_names=None, field_shapes=None, field_dtypes=None):
 
         # initialize the record group based on whether it is sporadic
         # or continual
-        if self._is_sporadic_records(run_record_key):
-            self._init_run_sporadic_record_grp(run_idx, run_record_key,
-                                                field_names, field_shapes, field_dtypes)
-        else:
-            self._init_run_continual_record_grp(run_idx, run_record_key,
-                                                field_names, field_shapes, field_dtypes)
+
+        # if none of the three things: field_names, field_shapes, or
+        # field_dtypes are None, then we can proceed to initialize them
+        if all([a is not None for a in (field_names, field_shapes, field_dtypes)]):
+
+            if self._is_sporadic_records(run_record_key):
+                self._init_run_sporadic_record_grp(run_idx, run_record_key,
+                                                    field_names, field_shapes, field_dtypes)
+            else:
+                self._init_run_continual_record_grp(run_idx, run_record_key,
+                                                    field_names, field_shapes, field_dtypes)
+        # otherwise if all of them are none silently pass since this
+        # is the default when none are given, but if some of them are
+        # None raise an error
+        elif not all([a is None for a in (field_names, field_shapes, field_dtypes)]):
+
+            raise ValueError("either field_names, field_shapes, or field_dtypes were not given")
 
     def _init_run_sporadic_record_grp(self, run_idx, run_record_key,
                                       field_names, field_shapes, field_dtypes):
@@ -877,6 +897,7 @@ class WepyHDF5(object):
 
             # initialize this field
             self._init_run_records_field(record_grp, field_name, field_shape, field_dtype)
+
 
     def _init_run_continual_record_grp(self, run_idx, run_record_key,
                                        field_names, field_shapes, field_dtypes):
