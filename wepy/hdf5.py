@@ -110,6 +110,7 @@ SPARSE_DATA_FIELDS = (VELOCITIES, FORCES, KINETIC_ENERGY, POTENTIAL_ENERGY,
 RESAMPLING = 'resampling'
 RESAMPLER = 'resampler'
 WARPING = 'warping'
+PROGRESS = 'progress'
 BC = 'boundary_conditions'
 
 CYCLE = 'cycle_idx'
@@ -833,29 +834,36 @@ class WepyHDF5(object):
 
         return run_grp
 
-    def init_run_resampling(self, run_idx,
-                            field_names=None, aux_shapes=None, aux_dtypes=None):
+    def init_run_resampling(self, run_idx, resampler_type):
 
-        self.init_run_record_grp(run_idx, RESAMPLING,
-                                 field_names, aux_shapes, aux_dtypes)
+        fields = resampler_type.resampling_fields()
 
-    def init_run_resampler(self, run_idx,
-                           field_names=None, aux_shapes=None, aux_dtypes=None):
+        self.init_run_record_grp(run_idx, RESAMPLING, *fields)
 
-        self.init_run_record_grp(run_idx, RESAMPLER,
-                                 field_names, aux_shapes, aux_dtypes)
+    def init_run_resampler(self, run_idx, resampler_type):
 
-    def init_run_warp(self, run_idx,
-                      field_names=None, aux_shapes=None, aux_dtypes=None):
+        fields = resampler_type.resampler_fields()
 
-        self.init_run_record_grp(run_idx, WARPING,
-                                 field_names, aux_shapes, aux_dtypes)
+        self.init_run_record_grp(run_idx, RESAMPLER, *fields)
 
-    def init_run_bc(self, run_idx,
-                    field_names=None, aux_shapes=None, aux_dtypes=None):
+    def init_run_warp(self, run_idx, bc_type):
 
-        self.init_run_record_grp(run_idx, BC,
-                                 field_names=field_names, aux_shapes, aux_dtypes)
+        fields = bc_type.warping_fields()
+        self.init_run_record_grp(run_idx, WARPING, *fields)
+
+    def init_run_progress(self, run_idx, bc_type):
+
+        fields = bc_type.progress_fields()
+
+        self.init_run_record_grp(run_idx, PROGRESS, *fields)
+
+    def init_run_bc(self, run_idx, bc_type):
+
+        fields = bc_type.bc_fields()
+
+        self.init_run_record_grp(run_idx, BC, *fields)
+
+
 
 
     def init_run_record_grp(self, run_idx, run_record_key,

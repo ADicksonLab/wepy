@@ -11,26 +11,20 @@ from wepy.boundary_conditions.boundary import BoundaryConditions
 
 class UnbindingBC(BoundaryConditions):
 
-    # SPORADIC records
-    # boundary condition datatypes:
+    # records of boundary condition changes (sporadic)
+    BC_FIELDS = ('boundary_distance', )
+    BC_SHAPES = ((1,), )
+    BC_DTYPES = (np.float, )
 
-    # datatype for the records for this boundary condition class are
-    # not used, SPORADIC
-    BC_INSTRUCTION_FIELDS = ('boundary_distance', )
-    BC_INSTRUCTION_SHAPES = ((1,), )
-    BC_INSTRUCTION_DTYPES = (np.float, )
+    # warping (sporadic)
+    WARP_FIELDS = ('target', 'weight')
+    WARP_SHAPES = ((1,), (1,))
+    WARP_DTYPES = (np.int, np.float)
 
-    # auxiliary data types for boundary conditions, CONTINUAL
-    BC_AUX_FIELDS = ('min_distances', )
-    BC_AUX_SHAPES = (Ellipsis, )
-    BC_AUX_DTYPES = (np.float, )
-
-    # warping datatypes:
-
-    # for warping records, SPORADIC
-    WARP_INSTRUCTION_FIELDS = ('target', 'weight')
-    WARP_INSTRUCTION_SHAPES = ((1,), (1,))
-    WARP_INSTRUCTION_DTYPES = (np.int, np.float)
+    # progress towards the boundary conditions (continual)
+    PROGRESS_FIELDS = ('min_distance',)
+    PROGRESS_SHAPES = (Ellipsis,)
+    PROGRESS_DTYPES = (np.float,)
 
     def __init__(self, initial_state=None,
                  cutoff_distance=1.0,

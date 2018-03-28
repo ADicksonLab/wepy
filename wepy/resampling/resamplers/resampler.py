@@ -7,17 +7,58 @@ class Resampler(object):
     """Superclass for resamplers that use the the Novelty->Decider
     framework."""
 
-    # TODO these all should be more like constants like in the
-    # decision class and dictionaries obtained through methods
+    # data for resampling performed (continual)
+    RESAMPLING_FIELDS = ()
+    RESAMPLING_SHAPES = ()
+    RESAMPLING_DTYPES = ()
 
-    RESAMPLING_AUX_DTYPES = {}
-    RESAMPLING_AUX_SHAPES = {}
+    # changes to the state of the resampler (sporadic)
+    RESAMPLER_FIELDS = ()
+    RESAMPLER_SHAPES = ()
+    RESAMPLER_DTYPES = ()
 
 
     def __init__(self, scorer, decider):
         self.scorer = scorer
         self.decider = decider
         self.decision = decider.DECISION
+
+    @classmethod
+    def resampling_field_names(cls):
+        return RESAMPLING_FIELDS
+
+    @classmethod
+    def resampling_field_shapes(cls):
+        return RESAMPLING_SHAPES
+
+    @classmethod
+    def resampling_field_dtypes(cls):
+        return RESAMPLING_DTYPES
+
+    @classmethod
+    def resampling_fields(cls):
+        return zip(self.resampling_field_names(),
+                   self.resampling_field_shapes(),
+                   self.resampling_field_dtypes())
+
+
+    @classmethod
+    def resampler_field_names(cls):
+        return RESAMPLER_FIELDS
+
+    @classmethod
+    def resampler_field_shapes(cls):
+        return RESAMPLER_SHAPES
+
+    @classmethod
+    def resampler_field_dtypes(cls):
+        return RESAMPLER_DTYPES
+
+    @classmethod
+    def resampler_fields(cls):
+        return zip(self.resampler_field_names(),
+                   self.resampler_field_shapes(),
+                   self.resampler_field_dtypes())
 
     def resample(self, walkers):
 

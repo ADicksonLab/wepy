@@ -34,18 +34,34 @@ class MultiCloneMergeDecision(Decision):
 
     # mapping of enumerations to the field names for the record. An Ellipsis instead
     # of fields indicate there is a variable number of fields.
-    INSTRUCTION_FIELDS = ('decision_id', 'to')
-    INSTRUCTION_SHAPES = = ((1,), Ellipsis)
-    INSTRUCTION_DTYPES = (np.int, np.int)
+    FIELDS = ('decision_id', 'target_idxs',)
+    SHAPES = ((1,), Ellipsis,)
+    DTYPES = (np.int, np.int,)
 
-    INSTRUCTIONS = (('decision_id', (1,), np.int),
-                    ('to', Ellipsis, np.int),
-        )
 
     # the decision types that pass on their state
     ANCESTOR_DECISION_IDS = (ENUM.NOTHING.value,
                              ENUM.KEEP_MERGE.value,
                              ENUM.CLONE.value,)
+
+    @classmethod
+    def field_names(cls):
+        return self.FIELDS
+
+    @classmethod
+    def field_shapes(cls):
+        return self.SHAPES
+
+    @classmethod
+    def field_dtypes(cls):
+        return self.DTYPES
+
+    @classmethod
+    def fields(cls):
+        return zip(self.field_names(),
+                   self.field_shapes(),
+                   self.field_dtypes())
+
 
     @classmethod
     def action(cls, walkers, decisions):

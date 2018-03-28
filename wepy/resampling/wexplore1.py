@@ -698,17 +698,16 @@ class WExplore1Resampler(Resampler):
     # useful information will be in the auxiliary data, like the
     # image, distance the walker was away from the image at that
     # level, and the id of the leaf node
-    RESAMPLING_INSTRUCT_RECORD = np.dtype[('branching_level', np.int)]
+    RESAMPLER_FIELDS = ('branching_level', 'distance',)
+    RESAMPLER_SHAPES = ((1,), (1,),)
+    RESAMPLER_DTYPES = (np.int, np.float,)
 
-    # the auxiliary data types and shapes
-    RESAMPLING_AUX_DTYPES = {'distance' : np.float}
-    RESAMPLING_AUX_SHAPES = {'distance' : (1,)}
 
     def __init__(self, seed=None, pmin=1e-12, pmax=0.1,
                  distance=None,
                  max_n_regions=(10, 10, 10, 10),
                  max_region_sizes=(1, 0.5, 0.35, 0.25),
-    ):
+                ):
 
         self.decision = self.DECISION
 
@@ -731,6 +730,23 @@ class WExplore1Resampler(Resampler):
 
         # distance metric
         self.distance = distance
+
+    # override the superclass methods to utilize the decision class
+    @classmethod
+    def resampling_field_names(cls):
+        return self.DECISION.field_names()
+
+    @classmethod
+    def resampling_field_shapes(cls):
+        return self.DECISION.field_shapes()
+
+    @classmethod
+    def resampling_field_dtypes(cls):
+        return self.DECISION.field_dtypes()
+
+    @classmethod
+    def resampling_fields(cls):
+        return self.DECISION.fields()
 
     @property
     def region_tree(self):
@@ -851,5 +867,4 @@ class WExplore1Resampler(Resampler):
         resampled_walkers = self.DECISION.action(walkers, resampling_actions)
 
 
-        return resampled_walkers, resampling_actions, resampling_aux_data,\
-                 resampler_records, resampler_aux_data
+        return resampled_walkers, resampling_data, resampler_data
