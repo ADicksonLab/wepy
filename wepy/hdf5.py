@@ -1592,15 +1592,26 @@ class WepyHDF5(object):
 
         return varlength
 
-    def append_run_records_group(self, run_idx, run_records_key, cycle_idx, fields_data):
+    def append_records_group(self, run_idx, run_records_key, cycle_idx, fields_data):
+
         record_grp = self.records_grp(run_idx, run_records_key)
+        record_cycle_idxs_ds = record_grp['_cycle_idxs']
 
+        # if it is sporadic add the cycle idx
+        if self._is_sporadic_records(run_records_key):
+
+            # then we add the cycle to the cycle_idxs
+            record_cycle_idxs_ds.resize( (record_cycle_idxs_ds.shape[0] + 1,
+                                       *record_cycle_idxs_ds.shape[1:]) )
+            # add the new data
+            record_cycle_idxs_ds[-1:, ...] = np.array([cycle_idx])
+
+        # then add all the data for the field
         for field_name, field_data in fields_data:
+            self._extend_run_record_data_field(run_idx, run_records_key,
+                                               field_name, field_data)
 
-            self._extend_run_cycle_field_data(run_idx, run_records_key,
-                                              field_name, field_data)
-
-    def _extend_continual_run_record_field(self, run_idx, run_records_key, cycle_idx,
+    def _extend_run_record_data_field(self, run_idx, run_records_key,
                                           field_name, field_data):
 
         records_grp = self.h5['runs/{}/{}'.format(run_idx, run_records_key)]
@@ -1613,7 +1624,8 @@ class WepyHDF5(object):
         # of datase new frames
         n_new_frames = field_data.shape[0]
 
-        # check the field to make sure it is not empty
+        # if the field is empty it needs to have data added in it in a
+        # special way
         if all([i == 0 for i in field.shape]):
 
             # check the feature shape against the maxshape which gives
@@ -1636,144 +1648,25 @@ class WepyHDF5(object):
             assert field_data.shape[1:] == field.shape[1:], \
                 "field feature dimensions must be the same, i.e. all but the first dimension"
 
+            # if this is a variable length field we add it differently
+            if self.run_records_fields_shapes['{}/{}'.format(run_record_key, field_name)]:
+                # resize the array but it is only of rank because
+                # of variable length data
+                dset.resize( (dset.shape[0] + n_new_frames, ) )
+                # does not need to be wrapped in another dimension
+                # like for other aux data
+                dset[-1] = aux_data
 
-            # append to the dataset on the first dimension, keeping the
-            # others the same, these must be feature vectors and therefore
-            # must exist
-            field.resize( (field.shape[0] + n_new_frames, *field.shape[1:]) )
-            # add the new data
-            field[-n_new_frames:, ...] = field_data
-
-
-    def _extend_sporadic_run_record_field(self, run_idx, run_recods_key,
-                                          field_name, field_data):
-        field = self.h5['/runs/{}/{}'.format(run_idx, traj_idx, field_path)]
-
-        field_data = field['data']
-        field_sparse_idxs = field['_sparse_idxs']
-
-        # number of new frames
-        n_new_frames = values.shape[0]
-
-        # if this sparse_field has been initialized empty we need to resize
-        if all([i == 0 for i in field_data.shape]):
-
-
-            # check the feature shape against the maxshape which gives
-            # the feature dimensions for an empty dataset
-            assert values.shape[1:] == field_data.maxshape[1:], \
-                "input value features have shape {}, expected {}".format(
-                    values.shape[1:], field_data.maxshape[1:])
-
-            # if it is empty resize it to make an array the size of
-            # the new values with the maxshape for the feature
-            # dimensions
-            feature_dims = field_data.maxshape[1:]
-            field_data.resize( (n_new_frames, *feature_dims) )
-
-            # set the new data to this
-            field_data[0:, ...] = values
-
-        else:
-
-            # make sure the new data has the right dimensions
-            assert values.shape[1:] == field_data.shape[1:], \
-                "field feature dimensions must be the same, i.e. all but the first dimension"
-
-            # append to the dataset on the first dimension, keeping the
-            # others the same, these must be feature vectors and therefore
-            # must exist
-            field_data.resize( (field_data.shape[0] + n_new_frames, *field_data.shape[1:]) )
-            # add the new data
-            field_data[-n_new_frames:, ...] = values
-
-        # add the sparse idxs in the same way
-        field_sparse_idxs.resize( (field_sparse_idxs.shape[0] + n_new_frames,
-                                   *field_sparse_idxs.shape[1:]) )
-        # add the new data
-        field_sparse_idxs[-n_new_frames:, ...] = sparse_idxs
-
-
-
-    def _extend_run_cyle_field_data(self, run_idx, run_records_key,
-                                    field_name, field_data):
-
-        # add it depending on whether it is sporadic or continual
-        if self._is_sporadic_records(run_records_key):
-            self._add_run_cycle_field_data_sporadic(run_idx, run_records_key,
-                                                    field_name, field_data)
-        
-    def add_cycle_warp_records(self, run_idx, warp_records):
-
-        rec_dset = self._h5['runs/{}/warping/records'.format(run_idx)]
-        cycle_idx = self._current_resampling_rec_cycle
-
-        cycle_records = []
-        for walker_idx, walker_record in enumerate(warp_records):
-            # the walker record may be None indicating it was not warped
-            if walker_record is not None:
-                warp_record = (cycle_idx, walker_idx, walker_record)
-                cycle_records.append(warp_record)
-
-        # add them to the dset if there were any
-        if len(cycle_records) > 0:
-            self._append_instruct_records(rec_dset, cycle_records)
-
-    def add_cycle_warp_aux_data(self, run_idx, warp_aux_data):
-        """Add the warp data for all of the warping events at once. So the
-        warp_aux_data is a dictionary that maps a field to an array
-        which is shape (n_warps, *aux_field_shape)
-
-        """
-
-        data_grp = self._h5['runs/{}/warping/aux_data'.format(run_idx)]
-
-        # if the datasets were initialized just add the new data
-        for key, aux_data in warp_aux_data.items():
-
-            if key in self._warp_aux_init:
-
-                # get the dataset
-                dset = data_grp[key]
-
-                # if the dataset is of variable length handle it specially
-                if self.warp_aux_shapes[key] is Ellipsis:
-                    # resize the array but it is only of rank because
-                    # of variable length data
-                    dset.resize( (dset.shape[0] + len(aux_data), ) )
-                    # does not need to be wrapped in another dimension
-                    # like for other aux data
-                    dset[len(aux_data):] = aux_data
-
-                else:
-                    # add the new data
-                    dset.resize( (dset.shape[0] + aux_data.shape[0], *aux_data.shape[1:]) )
-                    dset[-aux_data.shape[0]:] = aux_data
-
-            # if the datasets were not initialized initialize them with
-            # the incoming dataset
             else:
-                for key, aux_data in warp_aux_data.items():
-                    data_grp.create_dataset(key, data=np.array([aux_data]), dtype=aux_data.dtype,
-                                           maxshape=(None, *aux_data.shape))
-                    # save the dtype and shape
-                    self.warp_aux_dtypes[key] = aux_data.dtype
-                    self.warp_aux_shapes[key] = aux_data.shape
-                    self._warp_aux_init.append(key)
 
-    def add_cycle_bc_records(self, run_idx, bc_records):
+                # append to the dataset on the first dimension, keeping the
+                # others the same, these must be feature vectors and therefore
+                # must exist
+                field.resize( (field.shape[0] + n_new_frames, *field.shape[1:]) )
+                # add the new data
+                field[-n_new_frames:, ...] = field_data
 
-        rec_dset = self._h5['runs/{}/boundary_conditions/records'.format(run_idx)]
 
-        # add the cycle information
-        cycle_idx = self._current_resampling_rec_cycle
-        cycle_records = []
-        for bc_record in bc_records:
-            cycle_record = (cycle_idx, bc_record)
-            cycle_records.append(cycle_record)
-
-        # add them to the dset
-        self._append_instruct_records(rec_dset, cycle_records)
 
     def add_cycle_bc_aux_data(self, run_idx, bc_aux_data):
 
