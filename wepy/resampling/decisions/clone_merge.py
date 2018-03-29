@@ -46,21 +46,21 @@ class MultiCloneMergeDecision(Decision):
 
     @classmethod
     def field_names(cls):
-        return self.FIELDS
+        return cls.FIELDS
 
     @classmethod
     def field_shapes(cls):
-        return self.SHAPES
+        return cls.SHAPES
 
     @classmethod
     def field_dtypes(cls):
-        return self.DTYPES
+        return cls.DTYPES
 
     @classmethod
     def fields(cls):
-        return zip(self.field_names(),
-                   self.field_shapes(),
-                   self.field_dtypes())
+        return list(zip(cls.field_names(),
+                   cls.field_shapes(),
+                   cls.field_dtypes()))
 
 
     @classmethod

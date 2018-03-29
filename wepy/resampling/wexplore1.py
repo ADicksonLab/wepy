@@ -734,19 +734,19 @@ class WExplore1Resampler(Resampler):
     # override the superclass methods to utilize the decision class
     @classmethod
     def resampling_field_names(cls):
-        return self.DECISION.field_names()
+        return cls.DECISION.field_names()
 
     @classmethod
     def resampling_field_shapes(cls):
-        return self.DECISION.field_shapes()
+        return cls.DECISION.field_shapes()
 
     @classmethod
     def resampling_field_dtypes(cls):
-        return self.DECISION.field_dtypes()
+        return cls.DECISION.field_dtypes()
 
     @classmethod
     def resampling_fields(cls):
-        return self.DECISION.fields()
+        return cls.DECISION.fields()
 
     @property
     def region_tree(self):

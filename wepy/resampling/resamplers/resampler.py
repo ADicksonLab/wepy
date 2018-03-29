@@ -37,28 +37,28 @@ class Resampler(object):
 
     @classmethod
     def resampling_fields(cls):
-        return zip(self.resampling_field_names(),
-                   self.resampling_field_shapes(),
-                   self.resampling_field_dtypes())
+        return list(zip(cls.resampling_field_names(),
+                   cls.resampling_field_shapes(),
+                   cls.resampling_field_dtypes()))
 
 
     @classmethod
     def resampler_field_names(cls):
-        return RESAMPLER_FIELDS
+        return cls.RESAMPLER_FIELDS
 
     @classmethod
     def resampler_field_shapes(cls):
-        return RESAMPLER_SHAPES
+        return cls.RESAMPLER_SHAPES
 
     @classmethod
     def resampler_field_dtypes(cls):
-        return RESAMPLER_DTYPES
+        return cls.RESAMPLER_DTYPES
 
     @classmethod
     def resampler_fields(cls):
-        return zip(self.resampler_field_names(),
-                   self.resampler_field_shapes(),
-                   self.resampler_field_dtypes())
+        return list(zip(cls.resampler_field_names(),
+                   cls.resampler_field_shapes(),
+                   cls.resampler_field_dtypes()))
 
     def resample(self, walkers):
 

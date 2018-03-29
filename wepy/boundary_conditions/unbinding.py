@@ -17,9 +17,9 @@ class UnbindingBC(BoundaryConditions):
     BC_DTYPES = (np.float, )
 
     # warping (sporadic)
-    WARP_FIELDS = ('target', 'weight')
-    WARP_SHAPES = ((1,), (1,))
-    WARP_DTYPES = (np.int, np.float)
+    WARPING_FIELDS = ('target', 'weight')
+    WARPING_SHAPES = ((1,), (1,))
+    WARPING_DTYPES = (np.int, np.float)
 
     # progress towards the boundary conditions (continual)
     PROGRESS_FIELDS = ('min_distance',)
@@ -79,7 +79,7 @@ class UnbindingBC(BoundaryConditions):
                                                                self.binding_site_idxs)))
         return min_distance
 
-    def check_boundaries(self, walker):
+    def progress(self, walker):
 
         min_distance = self._calc_min_distance(walker)
 
@@ -134,7 +134,7 @@ class UnbindingBC(BoundaryConditions):
         for walker_idx, walker in enumerate(walkers):
             # check if it is unbound, also gives the minimum distance
             # between guest and host
-            unbound, boundary_data = self.check_boundaries(walker)
+            unbound, boundary_data = self.progress(walker)
 
             # add boundary data for this walker
             for key, value in boundary_data.items():

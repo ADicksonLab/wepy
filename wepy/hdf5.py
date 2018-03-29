@@ -113,7 +113,7 @@ WARPING = 'warping'
 PROGRESS = 'progress'
 BC = 'boundary_conditions'
 
-CYCLE = 'cycle_idx'
+CYCLE_IDXS = '_cycle_idx'
 
 # records can be sporadic or continual. Continual records are
 # generated every cycle and are saved every cycle and are for all
@@ -451,13 +451,21 @@ class WepyHDF5(object):
             if field_dtype is None:
                 dt_str = 'None'
             else:
-                # make a json string of the datatype that can be read in again
-                dt_str = json.dumps(field_dtype.descr)
+                # make a json string of the datatype that can be read
+                # in again, we call np.dtype again because there is no
+                # np.float.descr attribute
+                dt_str = json.dumps(np.dtype(field_dtype).descr)
 
             dtypes_grp.create_dataset(field_path, data=dt_str)
 
         # initialize the units group
         unit_grp = self._h5.create_group('units')
+
+        # if units were not given set them all to None
+        if units is None:
+            units = {}
+            for field_path in self._field_feature_shapes.keys():
+                units[field_path] = None
 
         # set the units
         for field_path, unit_value in units.items():
@@ -788,6 +796,9 @@ class WepyHDF5(object):
     def run_n_frames(self, run_idx):
         return self.traj_n_frames(run_idx, 0)
 
+    def run_n_cycles(self, run_idx):
+        return self.run_n_frames(run_idx)
+
     def run_trajs(self, run_idx):
         return self._h5['runs/{}/trajectories'.format(run_idx)]
 
@@ -838,59 +849,58 @@ class WepyHDF5(object):
 
         fields = resampler_type.resampling_fields()
 
-        self.init_run_record_grp(run_idx, RESAMPLING, *fields)
+        grp = self.init_run_record_grp(run_idx, RESAMPLING, fields)
+
+        return grp
 
     def init_run_resampler(self, run_idx, resampler_type):
 
         fields = resampler_type.resampler_fields()
 
-        self.init_run_record_grp(run_idx, RESAMPLER, *fields)
+        grp = self.init_run_record_grp(run_idx, RESAMPLER, fields)
 
-    def init_run_warp(self, run_idx, bc_type):
+        return grp
+
+    def init_run_warping(self, run_idx, bc_type):
 
         fields = bc_type.warping_fields()
-        self.init_run_record_grp(run_idx, WARPING, *fields)
+        grp = self.init_run_record_grp(run_idx, WARPING, fields)
+
+        return grp
 
     def init_run_progress(self, run_idx, bc_type):
 
         fields = bc_type.progress_fields()
 
-        self.init_run_record_grp(run_idx, PROGRESS, *fields)
+        grp = self.init_run_record_grp(run_idx, PROGRESS, fields)
+
+        return grp
 
     def init_run_bc(self, run_idx, bc_type):
 
         fields = bc_type.bc_fields()
 
-        self.init_run_record_grp(run_idx, BC, *fields)
+        grp = self.init_run_record_grp(run_idx, BC, fields)
+
+        return grp
 
 
 
 
-    def init_run_record_grp(self, run_idx, run_record_key,
-                            field_names=None, field_shapes=None, field_dtypes=None):
+    def init_run_record_grp(self, run_idx, run_record_key, fields):
 
         # initialize the record group based on whether it is sporadic
         # or continual
 
-        # if none of the three things: field_names, field_shapes, or
-        # field_dtypes are None, then we can proceed to initialize them
-        if all([a is not None for a in (field_names, field_shapes, field_dtypes)]):
+        if self._is_sporadic_records(run_record_key):
+            grp = self._init_run_sporadic_record_grp(run_idx, run_record_key,
+                                                     fields)
+        else:
+            grp = self._init_run_continual_record_grp(run_idx, run_record_key,
+                                                      fields)
 
-            if self._is_sporadic_records(run_record_key):
-                self._init_run_sporadic_record_grp(run_idx, run_record_key,
-                                                    field_names, field_shapes, field_dtypes)
-            else:
-                self._init_run_continual_record_grp(run_idx, run_record_key,
-                                                    field_names, field_shapes, field_dtypes)
-        # otherwise if all of them are none silently pass since this
-        # is the default when none are given, but if some of them are
-        # None raise an error
-        elif not all([a is None for a in (field_names, field_shapes, field_dtypes)]):
+    def _init_run_sporadic_record_grp(self, run_idx, run_record_key, fields):
 
-            raise ValueError("either field_names, field_shapes, or field_dtypes were not given")
-
-    def _init_run_sporadic_record_grp(self, run_idx, run_record_key,
-                                      field_names, field_shapes, field_dtypes):
         # create the group
         run_grp = self.run(run_idx)
         record_grp = run_grp.create_group(run_record_key)
@@ -898,26 +908,29 @@ class WepyHDF5(object):
         # initialize the cycles dataset that maps when the records
         # were recorded
         record_grp.create_dataset(CYCLE, (0,), dtype=np.int,
-                                  maxshape=(None, 1))
+                                  maxshape=(None,))
 
         # for each field simply create the dataset
-        for field_name, field_shape, field_dtypes in zip(field_names, field_shapes, field_dtypes):
+        for field_name, field_shape, field_dtype in fields:
 
             # initialize this field
             self._init_run_records_field(record_grp, field_name, field_shape, field_dtype)
 
+        return record_grp
 
-    def _init_run_continual_record_grp(self, run_idx, run_record_key,
-                                       field_names, field_shapes, field_dtypes):
+
+    def _init_run_continual_record_grp(self, run_idx, run_record_key, fields):
 
         # create the group
         run_grp = self.run(run_idx)
         record_grp = run_grp.create_group(run_record_key)
 
         # for each field simply create the dataset
-        for field_name, field_shape, field_dtypes in zip(field_names, field_shapes, field_dtypes):
+        for field_name, field_shape, field_dtype in fields:
 
             self._init_run_records_field(record_grp, field_name, field_shape, field_dtype)
+
+        return record_grp
 
     def _init_run_records_field(self, record_grp, field_name, field_shape, field_dtype):
 
@@ -929,13 +942,15 @@ class WepyHDF5(object):
 
             # this is only allowed to be a single dimension
             # since no real shape was given
-            instruct_grp.create_dataset(field_name, (0,), dtype=vlen_dt,
+            dset = record_grp.create_dataset(field_name, (0,), dtype=vlen_dt,
                                         maxshape=(None,))
         # its not just make it normally
         else:
             # create the group
-            record_grp.create_dataset(field_name, field_shape, dtype=field_dtype,
+            dset = record_grp.create_dataset(field_name, (1, *field_shape), dtype=field_dtype,
                                       maxshape=(None, *field_shape))
+
+        return dset
 
     def _is_sporadic_records(self, run_record_key):
 
@@ -1119,6 +1134,10 @@ class WepyHDF5(object):
             sparse_grp.create_dataset('_sparse_idxs', data=sparse_idxs,
                                       maxshape=(None,))
 
+    def _extend_dataset(self, dset_path, new_data):
+        dset = self.h5[dset_path]
+        extend_dataset(dset, new_data)
+
     def _extend_contiguous_traj_field(self, run_idx, traj_idx, field_path, field_data):
 
         traj_grp = self.h5['/runs/{}/trajectories/{}'.format(run_idx, traj_idx)]
@@ -1209,7 +1228,6 @@ class WepyHDF5(object):
                                    *field_sparse_idxs.shape[1:]) )
         # add the new data
         field_sparse_idxs[-n_new_frames:, ...] = sparse_idxs
-
 
     def extend_traj(self, run_idx, traj_idx, data, weights=None):
 
@@ -1574,6 +1592,117 @@ class WepyHDF5(object):
 
         return varlength
 
+    def append_run_records_group(self, run_idx, run_records_key, cycle_idx, fields_data):
+        record_grp = self.records_grp(run_idx, run_records_key)
+
+        for field_name, field_data in fields_data:
+
+            self._extend_run_cycle_field_data(run_idx, run_records_key,
+                                              field_name, field_data)
+
+    def _extend_continual_run_record_field(self, run_idx, run_records_key, cycle_idx,
+                                          field_name, field_data):
+
+        records_grp = self.h5['runs/{}/{}'.format(run_idx, run_records_key)]
+        field = records_grp[field_name]
+
+        # make sure this is a feature vector
+        assert len(field_data.shape) > 1, \
+            "field_data must be a feature vector with the same number of dimensions as the number"
+
+        # of datase new frames
+        n_new_frames = field_data.shape[0]
+
+        # check the field to make sure it is not empty
+        if all([i == 0 for i in field.shape]):
+
+            # check the feature shape against the maxshape which gives
+            # the feature dimensions for an empty dataset
+            assert field_data.shape[1:] == field.maxshape[1:], \
+                "field feature dimensions must be the same, i.e. all but the first dimension"
+
+            # if it is empty resize it to make an array the size of
+            # the new field_data with the maxshape for the feature
+            # dimensions
+            feature_dims = field.maxshape[1:]
+            field.resize( (n_new_frames, *feature_dims) )
+
+            # set the new data to this
+            field[0:, ...] = field_data
+
+        else:
+            # make sure the new data has the right dimensions against
+            # the shape it already has
+            assert field_data.shape[1:] == field.shape[1:], \
+                "field feature dimensions must be the same, i.e. all but the first dimension"
+
+
+            # append to the dataset on the first dimension, keeping the
+            # others the same, these must be feature vectors and therefore
+            # must exist
+            field.resize( (field.shape[0] + n_new_frames, *field.shape[1:]) )
+            # add the new data
+            field[-n_new_frames:, ...] = field_data
+
+
+    def _extend_sporadic_run_record_field(self, run_idx, run_recods_key,
+                                          field_name, field_data):
+        field = self.h5['/runs/{}/{}'.format(run_idx, traj_idx, field_path)]
+
+        field_data = field['data']
+        field_sparse_idxs = field['_sparse_idxs']
+
+        # number of new frames
+        n_new_frames = values.shape[0]
+
+        # if this sparse_field has been initialized empty we need to resize
+        if all([i == 0 for i in field_data.shape]):
+
+
+            # check the feature shape against the maxshape which gives
+            # the feature dimensions for an empty dataset
+            assert values.shape[1:] == field_data.maxshape[1:], \
+                "input value features have shape {}, expected {}".format(
+                    values.shape[1:], field_data.maxshape[1:])
+
+            # if it is empty resize it to make an array the size of
+            # the new values with the maxshape for the feature
+            # dimensions
+            feature_dims = field_data.maxshape[1:]
+            field_data.resize( (n_new_frames, *feature_dims) )
+
+            # set the new data to this
+            field_data[0:, ...] = values
+
+        else:
+
+            # make sure the new data has the right dimensions
+            assert values.shape[1:] == field_data.shape[1:], \
+                "field feature dimensions must be the same, i.e. all but the first dimension"
+
+            # append to the dataset on the first dimension, keeping the
+            # others the same, these must be feature vectors and therefore
+            # must exist
+            field_data.resize( (field_data.shape[0] + n_new_frames, *field_data.shape[1:]) )
+            # add the new data
+            field_data[-n_new_frames:, ...] = values
+
+        # add the sparse idxs in the same way
+        field_sparse_idxs.resize( (field_sparse_idxs.shape[0] + n_new_frames,
+                                   *field_sparse_idxs.shape[1:]) )
+        # add the new data
+        field_sparse_idxs[-n_new_frames:, ...] = sparse_idxs
+
+
+
+    def _extend_run_cyle_field_data(self, run_idx, run_records_key,
+                                    field_name, field_data):
+
+        # add it depending on whether it is sporadic or continual
+        if self._is_sporadic_records(run_records_key):
+            self._add_run_cycle_field_data_sporadic(run_idx, run_records_key,
+                                                    field_name, field_data)
+        
     def add_cycle_warp_records(self, run_idx, warp_records):
 
         rec_dset = self._h5['runs/{}/warping/records'.format(run_idx)]
@@ -2100,7 +2229,7 @@ class WepyHDF5(object):
             assert self.mode in ['w', 'w-', 'x', 'r+', 'c', 'c-'],\
                 "File must be in a write mode"
             assert isinstance(save_to_hdf5, str),\
-                "`save_to_hdf5` should be the field name to save the data in the `observables`"
+                "`save_to_hdf5` should be the field name to save the data in the `observables`"\
                 " group in each trajectory"
             field_name=save_to_hdf5
 
@@ -2163,9 +2292,27 @@ class WepyHDF5(object):
         if return_results:
             return results
 
-    def resampling_grp(self, run_idx):
-        path = "runs/{}/resampling".format(run_idx)
+    def records_grp(self, run_idx, run_records_key):
+        path = "runs/{}/{}".format(run_idx, run_records_key)
         return self.h5[path]
+
+    def resampling_grp(self, run_idx):
+        return self.records_grp(run_idx, RESAMPLING)
+
+    def resampler_grp(self, run_idx):
+        return self.records_grp(run_idx, RESAMPLER)
+
+    def warping_grp(self, run_idx):
+        return self.records_grp(run_idx, WARPING)
+
+    def bc_grp(self, run_idx):
+        return self.records_grp(run_idx, BC)
+
+    def progress_grp(self, run_idx):
+        return self.records_grp(run_idx, PROGRESS)
+
+    
+
 
     def resampling_records(self, run_idx, sort=True):
 
@@ -2344,9 +2491,6 @@ class WepyHDF5(object):
     def resampling_records_grp(self, run_idx):
         return self._h5['runs/{}/resampling/records'.format(run_idx)]
 
-    def resampling_aux_data_grp(self, run_idx):
-        return self._h5['runs/{}/resampling/aux_data'.format(run_idx)]
-
     def resampling_aux_data_fields(self, run_idx):
 
         return list(self.resampling_aux_data_grp(run_idx))
@@ -2365,10 +2509,6 @@ class WepyHDF5(object):
 
         return fields_data
 
-    def warp_grp(self, run_idx):
-
-        path = "runs/{}/warping".format(run_idx)
-        return self.h5[path]
 
     def warp_records(self, run_idx):
 
@@ -2399,11 +2539,6 @@ class WepyHDF5(object):
             fields_data[field] = self.warp_aux_data_grp(run_idx)[field][:]
 
         return fields_data
-
-    def bc_grp(self, run_idx):
-
-        path = "runs/{}/boundary_conditions".format(run_idx)
-        return self.h5[path]
 
     def bc_records(self, run_idx):
 
@@ -2612,7 +2747,6 @@ def iter_field_paths(grp):
         else:
             field_paths.append(field_name)
     return field_paths
-
 
 class RunCycleSlice(object):
 
