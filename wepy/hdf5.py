@@ -907,7 +907,7 @@ class WepyHDF5(object):
 
         # initialize the cycles dataset that maps when the records
         # were recorded
-        record_grp.create_dataset(CYCLE, (0,), dtype=np.int,
+        record_grp.create_dataset(CYCLE_IDXS, (0,), dtype=np.int,
                                   maxshape=(None,))
 
         # for each field simply create the dataset
@@ -1593,6 +1593,11 @@ class WepyHDF5(object):
         return varlength
 
     def append_records_group(self, run_idx, run_records_key, cycle_idx, fields_data):
+        """Append data for a whole records group, that is every field
+        dataset. This must have the cycle index for the data it is
+        appending as this is done for sporadic and continual datasets.
+
+        """
 
         record_grp = self.records_grp(run_idx, run_records_key)
         record_cycle_idxs_ds = record_grp['_cycle_idxs']
@@ -1613,6 +1618,11 @@ class WepyHDF5(object):
 
     def _extend_run_record_data_field(self, run_idx, run_records_key,
                                           field_name, field_data):
+        """Adds data for a single field dataset in a run records group. This
+        is done without paying attention to whether it is sporadic or
+        continual and is supposed to be only the data write method.
+
+        """
 
         records_grp = self.h5['runs/{}/{}'.format(run_idx, run_records_key)]
         field = records_grp[field_name]
@@ -2224,7 +2234,7 @@ class WepyHDF5(object):
                     rec_ds = dec_grp['{}'.format(init_length)]
 
                     # reorder for to match the field order
-                    recs = [rec_ds[field] for field in [CYCLE, STEP, WALKER]]
+                    recs = [rec_ds[field] for field in [CYCLE_IDXS, STEP, WALKER]]
                     # fill up a column for the decision id
                     recs.append(np.full((rec_ds.shape[0],), dec_id))
                     # put the instructions last
@@ -2242,7 +2252,7 @@ class WepyHDF5(object):
                 rec_ds = res_grp[dec_name]
 
                 # reorder for to match the field order
-                recs = [rec_ds[field] for field in [CYCLE, STEP, WALKER]]
+                recs = [rec_ds[field] for field in [CYCLE_IDXS, STEP, WALKER]]
                 # fill up a column for the decision id
                 recs.append(np.full((rec_ds.shape[0],), dec_id))
                 # put the instructions last
@@ -2300,7 +2310,7 @@ class WepyHDF5(object):
                 else:
                     # if the resampling record retrieved is from the next
                     # cycle we finish the last cycle
-                    if rec[RESAMPLING_RECORD_FIELDS.index(CYCLE)] > cycle_idx:
+                    if rec[RESAMPLING_RECORD_FIELDS.index(CYCLE_IDXS)] > cycle_idx:
                         cycle_stop = True
                         # save the current cycle as a special
                         # list which we will iterate through

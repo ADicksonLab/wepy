@@ -1,4 +1,7 @@
 import itertools as it
+from collections import defaultdict
+
+import numpy as np
 
 from wepy.resampling.decisions.decision import NoDecision
 
@@ -70,7 +73,7 @@ class Resampler(object):
 
         aux_data.update([scorer_aux, decider_aux])
 
-        return resampled_walkers, decisions, aux_data
+        return resampled_walkers, resampling_records, resampler_records
 
     def assign_clones(self, merge_groups, walker_clone_nums):
 
@@ -79,7 +82,6 @@ class Resampler(object):
         # determine resampling actions
         walker_actions = [self.decision.record(self.decision.ENUM.NOTHING.value, (i,))
                     for i in range(n_walkers)]
-
 
         # keep track of which slots will be free due to squashing
         free_slots = []
@@ -124,6 +126,20 @@ class Resampler(object):
 
         return walker_actions
 
+
+    @staticmethod
+    def resampling_actions_to_records(resampling_actions):
+
+        resampling_records = defaultdict(list)
+        for step_actions in resampling_actions:
+            for walker_action in step_actions:
+                for key, value in walker_action.items():
+                    resampling_records[key].append(value)
+
+        resampling_records = {key : np.array(values) for key, values in resampling_records.items()}
+
+        return resampling_records
+
 class NoResampler(Resampler):
 
     DECISION = NoDecision
@@ -139,5 +155,5 @@ class NoResampler(Resampler):
         # determine resampling actions
         walker_actions = [self.decision.record(self.decision.ENUM.NOTHING.value, (i,))
                     for i in range(n_walkers)]
-        
+
         return walkers, [walker_actions], {}

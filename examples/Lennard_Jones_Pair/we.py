@@ -63,7 +63,7 @@ from wepy.work_mapper.mapper import Mapper
 from wepy.boundary_conditions.unbinding import UnbindingBC
 from wepy.reporter.hdf5 import WepyHDF5Reporter
 
-from scipy.spatial.distance import euclidean
+from scipy.spatial.distance import euclideang
 
 
 ## PARAMETERS

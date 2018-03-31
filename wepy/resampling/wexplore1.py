@@ -702,6 +702,11 @@ class WExplore1Resampler(Resampler):
     RESAMPLER_SHAPES = ((1,), (1,),)
     RESAMPLER_DTYPES = (np.int, np.float,)
 
+    # fields for resampling data
+    RESAMPLING_FIELDS = DECISION.FIELDS + ('walker_assignments',)
+    RESAMPLING_SHAPES = DECISION.SHAPES + (Ellipsis,)
+    RESAMPLING_DTYPES = DECISION.DTYPES + (np.int,)
+
 
     def __init__(self, seed=None, pmin=1e-12, pmax=0.1,
                  distance=None,
@@ -734,19 +739,21 @@ class WExplore1Resampler(Resampler):
     # override the superclass methods to utilize the decision class
     @classmethod
     def resampling_field_names(cls):
-        return cls.DECISION.field_names()
+        return cls.RESAMPLING_FIELDS
 
     @classmethod
     def resampling_field_shapes(cls):
-        return cls.DECISION.field_shapes()
+        return cls.RESAMPLING_SHAPES
 
     @classmethod
     def resampling_field_dtypes(cls):
-        return cls.DECISION.field_dtypes()
+        return cls.RESAMPLING_DTYPES
 
     @classmethod
     def resampling_fields(cls):
-        return cls.DECISION.fields()
+        return list(zip(cls.resampling_field_names(),
+                   cls.resampling_field_shapes(),
+                   cls.resampling_field_dtypes()))
 
     @property
     def region_tree(self):
@@ -767,30 +774,16 @@ class WExplore1Resampler(Resampler):
         ## "place_walkers"  on the tree which changes the tree's state
         new_branches = self.region_tree.place_walkers(walkers)
 
+        # data records about changes to the resampler, here is just
+        # the new branches data
+        resampler_data = new_branches
+
         # the assignments
         assignments = np.array(self.region_tree.walker_assignments)
 
-        # make the resampler record for the new branches made, the
-        # reporter will add the cycle. Then we have auxiliary data for
-        # that record which is the image
-        resampler_records = []
-        resampler_aux_data = []
-        for new_branch in new_branches:
-
-            # the records are the level that was branched at
-            resampler_records.append((new_branch.pop('level'),))
-
-            # the aux data for this event is the rest of the data in
-            # the dictionary
-            resampler_aux_data.append(resampler_aux_data)
-
-
-        # Auxiliary data
-        resampling_aux_data = {"walker_assignments" : assignments}
-
         # return the assignments and the resampler records of changed
         # resampler state, which is addition of new regions
-        return assignments, resampling_aux_data, resampler_records, resampler_aux_data
+        return assignments, resampler_data
 
     def decide(self, delta_walkers=0, debug_prints=False):
 
@@ -826,23 +819,24 @@ class WExplore1Resampler(Resampler):
 
         # using the merge groups and the non-specific number of clones
         # for walkers create resampling actions for them (from the
-        # Resampler superclass)
-        resampling_actions = [self.assign_clones(merge_groups, walkers_num_clones)]
+        # Resampler superclass).
+        resampling_actions = self.assign_clones(merge_groups, walkers_num_clones)
 
+        # this is a single step in WExplore1 so we wrap it in a list
+        # to make it look like  a list of steps
+        resampling_actions = [resampling_actions]
 
-        for step in resampling_actions:
-            taken_slots = []
-            for decision, instruction in step:
+        # check to make sure there are no multiple assignments
+        taken_slots = []
+        for resampling_record in resampling_actions:
+            for walker_record in resampling_record:
 
                 # unless it is a squash add it to the taken slots
-                if decision != 3:
-                    try:
-                        taken_slots.extend(instruction)
-                    except TypeError:
-                        taken_slots.append(instruction)
+                if walker_record['decision_id'] != 3:
+                    taken_slots.extend(walker_record['target_idxs'])
 
-            if len(set(taken_slots)) < len(taken_slots):
-                raise ValueError("Multiple assignments to the same slot")
+        if len(set(taken_slots)) < len(taken_slots):
+            raise ValueError("Multiple assignments to the same slot")
 
         return resampling_actions
 
@@ -854,17 +848,25 @@ class WExplore1Resampler(Resampler):
 
         ## assign/score the walkers, also getting changes in the
         ## resampler state
-        assignments, resampling_aux_data, resampler_records, resampler_aux_data = self.assign(walkers)
+        assignments, resampler_data = self.assign(walkers)
 
         if debug_prints:
             print("Assigned regions=\n{}".format(self.region_tree.walker_assignments))
 
         # make the decisions for the the walkers
-        resampling_actions, resampling_aux_data = self.decide(delta_walkers=delta_walkers,
-                                                                  debug_prints=debug_prints)
+        resampling_actions = self.decide(delta_walkers=delta_walkers,
+                                         debug_prints=debug_prints)
 
         # perform the cloning and merging
         resampled_walkers = self.DECISION.action(walkers, resampling_actions)
 
+        # make record arrays for decisions and instructions as
+        # resampling data by walker
+        resampling_data = self.resampling_actions_to_records(resampling_actions)
+        # then add the assignments
+        resampling_data['walker_assignments'] = assignments
 
         return resampled_walkers, resampling_data, resampler_data
+
+
+
