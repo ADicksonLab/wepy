@@ -90,7 +90,7 @@ with wepy_h5:
     init_state = OpenMMState(init_sim_state)
 
     # initialize the unbinding boundary conditions
-    ubc = UnbindingBC(cutoff_distance=1.0,
+    ubc = UnbindingBC(cutoff_distance=0.5,
                       initial_state=init_state,
                       topology=mdtraj_topology,
                       ligand_idxs=np.array(test_sys.ligand_indices),
@@ -124,7 +124,7 @@ with wepy_h5:
     resampled_walkers, resampling_data, resampler_data = resampler.resample(init_walkers)
 
     # make some unbinding BC records
-    
+    warped_walkers, warp_data, bc_data, progress_data = ubc.warp_walkers(init_walkers, 0)
 
     # report these
-    
+
