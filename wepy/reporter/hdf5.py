@@ -161,6 +161,11 @@ class WepyHDF5Reporter(FileReporter):
         if self.mode == 'w':
             self.mode = 'r+'
 
+    def cleanup(self, *args):
+
+        # it should be already closed at this point but just in case
+        if not self.wepy_h5.closed:
+            self.wepy_h5.close()
 
 
     def report(self, cycle_idx, walkers,
@@ -177,7 +182,7 @@ class WepyHDF5Reporter(FileReporter):
         else:
             save_fields = self.save_fields
 
-        with self.wepy_h5 as wepy_h5:
+        with self.wepy_h5:
 
             # add trajectory data for the walkers
             for walker_idx, walker in enumerate(walkers):
@@ -238,17 +243,18 @@ class WepyHDF5Reporter(FileReporter):
                 # save the data to the HDF5 file for this walker
 
                 # check to see if the walker has a trajectory in the run
-                if walker_idx in wepy_h5.run_traj_idxs(self.wepy_run_idx):
+                if walker_idx in self.wepy_h5.run_traj_idxs(self.wepy_run_idx):
 
                     # if it does then append to the trajectory
-                    wepy_h5.extend_traj(self.wepy_run_idx, walker_idx,
+                    self.wepy_h5.extend_traj(self.wepy_run_idx, walker_idx,
                                              weights=np.array([[walker.weight]]),
                                              data=walker_data)
                 # start a new trajectory
                 else:
                     # add the traj for the walker with the data
 
-                    traj_grp = wepy_h5.add_traj(self.wepy_run_idx, weights=np.array([[walker.weight]]),
+                    traj_grp = self.wepy_h5.add_traj(self.wepy_run_idx,
+                                                     weights=np.array([[walker.weight]]),
                                                      data=walker_data)
 
                     # add as metadata the cycle idx where this walker started
@@ -264,49 +270,33 @@ class WepyHDF5Reporter(FileReporter):
             self.report_resampling(cycle_idx, resampling_data)
             self.report_resampler(cycle_idx, resampler_data)
 
-            # if there was warping done by the boundary conditions save those records
-            if len(warp_records) > 0:
-                # add warp records
-                wepy_h5.add_cycle_warp_records(self.wepy_run_idx, warp_records)
 
-                # add warp data
-                wepy_h5.add_cycle_warp_aux_data(self.wepy_run_idx, warp_aux_data)
+    # sporadic
+    def report_warping(self, cycle_idx, warping_data):
 
-            # if any boundary conditions records were given we add
-            # these to the records
-            if len(bc_records) > 0:
-                # add warp records
-                wepy_h5.add_cycle_bc_records(self.wepy_run_idx, bc_records)
-
-            # unlike warping boundary conditions return auxiliary data
-            # every cycle (when given) thus we save these regardless
-            # of whether any bc_records were given
-            if len(bc_aux_data) > 0:
-                # add the auxiliary data from checking boundary conditions
-                wepy_h5.add_cycle_bc_aux_data(self.wepy_run_idx, bc_aux_data)
-
-            # add resampling records
-            wepy_h5.add_cycle_resampling_records(self.wepy_run_idx, resampling_records)
-
-            # add resampling data
-            wepy_h5.add_cycle_resampling_aux_data(self.wepy_run_idx, resampling_aux_data)
-
-    def report_warping(self, cycle_idx, warp_data):
-        pass
+        if len(warping_data) > 0:
+            self.wepy_h5.append_warping_records(self.wepy_run_idx, cycle_idx, warping_data)
 
     def report_bc(self, cycle_idx, bc_data):
-        pass
-    def report_progress(self, cycle_idx, progress_data):
-        pass
-    def report_resampling(self, cycle_idx, resampling_data):
-        pass
+
+        if len(bc_data) > 0:
+            self.wepy_h5.append_bc_records(self.wepy_run_idx, cycle_idx, bc_data)
+
     def report_resampler(self, cycle_idx, resampler_data):
-        pass
+
+        if len(resampler_data) > 0:
+            self.wepy_h5.append_resampler_records(self.wepy_run_idx, cycle_idx, resampler_data)
+
+    # the resampling records are provided every cycle but they need to
+    # be saved as sporadic because of the variable number of walkers
+    def report_resampling(self, cycle_idx, resampling_data):
+
+        self.wepy_h5.append_resampling_records(self.wepy_run_idx, cycle_idx, resampling_data)
+
+    # continual
+    def report_progress(self, cycle_idx, progress_data):
+
+        self.wepy_h5.append_progress_records(self.wepy_run_idx, cycle_idx, [progress_data])
 
 
 
-    def cleanup(self, *args):
-
-        # it should be already closed at this point but just in case
-        if not self.wepy_h5.closed:
-            self.wepy_h5.close()

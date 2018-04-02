@@ -126,20 +126,6 @@ class Resampler(object):
 
         return walker_actions
 
-
-    @staticmethod
-    def resampling_actions_to_records(resampling_actions):
-
-        resampling_records = defaultdict(list)
-        for step_actions in resampling_actions:
-            for walker_action in step_actions:
-                for key, value in walker_action.items():
-                    resampling_records[key].append(value)
-
-        resampling_records = {key : np.array(values) for key, values in resampling_records.items()}
-
-        return resampling_records
-
 class NoResampler(Resampler):
 
     DECISION = NoDecision

@@ -22,7 +22,7 @@ class UnbindingBC(BoundaryConditions):
     WARPING_DTYPES = (np.int, np.int, np.float)
 
     # progress towards the boundary conditions (continual)
-    PROGRESS_FIELDS = ('min_distance',)
+    PROGRESS_FIELDS = ('min_distances',)
     PROGRESS_SHAPES = (Ellipsis,)
     PROGRESS_DTYPES = (np.float,)
 
@@ -116,7 +116,7 @@ class UnbindingBC(BoundaryConditions):
         # the first cycle which gives the distance at which walkers
         # are warped
         if cycle == 0:
-            return [{'boundary_distance' : self.cutoff_distance,},]
+            return [{'boundary_distance' : np.array([self.cutoff_distance]),},]
         else:
             return []
 
@@ -163,10 +163,10 @@ class UnbindingBC(BoundaryConditions):
             else:
                 new_walkers.append(walker)
 
-        # consolidate the progress data to a single datum array for
-        # the cycle
+        # consolidate the progress data to an array of a single
+        # feature vectors for the cycle
         for key, value in progress_data.items():
-            progress_data[key] = np.array(value)
+            progress_data[key] = value
 
         # if the boundary conditions need to be updated given the
         # cycle and state from warping perform that now and return any

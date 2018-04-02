@@ -277,9 +277,9 @@ class RegionTree(nx.DiGraph):
                     assignment = self.branch_tree(parent_id, image)
 
                     # save it to keep track of new branches as they occur
-                    new_branches.append({'distance' : distance,
-                                         'level' : level,
-                                         'new_leaf_id' : assignment,
+                    new_branches.append({'distance' : np.array([distance]),
+                                         'branching_level' : np.array([level]),
+                                         'new_leaf_id' : np.array(assignment),
                                          'image' : image,})
 
                     # we have made a new branch so we don't need to
@@ -698,14 +698,14 @@ class WExplore1Resampler(Resampler):
     # useful information will be in the auxiliary data, like the
     # image, distance the walker was away from the image at that
     # level, and the id of the leaf node
-    RESAMPLER_FIELDS = ('branching_level', 'distance',)
-    RESAMPLER_SHAPES = ((1,), (1,),)
-    RESAMPLER_DTYPES = (np.int, np.float,)
+    RESAMPLER_FIELDS = ('branching_level', 'distance', 'new_leaf_id', 'image')
+    RESAMPLER_SHAPES = ((1,), (1,), Ellipsis, None)
+    RESAMPLER_DTYPES = (np.int, np.float, np.int, None)
 
     # fields for resampling data
-    RESAMPLING_FIELDS = DECISION.FIELDS + ('walker_assignments',)
-    RESAMPLING_SHAPES = DECISION.SHAPES + (Ellipsis,)
-    RESAMPLING_DTYPES = DECISION.DTYPES + (np.int,)
+    RESAMPLING_FIELDS = DECISION.FIELDS + ('step_idx', 'walker_idx', 'region_assignment',)
+    RESAMPLING_SHAPES = DECISION.SHAPES + ((1,), (1,), Ellipsis,)
+    RESAMPLING_DTYPES = DECISION.DTYPES + (np.int, np.int, np.int,)
 
 
     def __init__(self, seed=None, pmin=1e-12, pmax=0.1,
@@ -822,21 +822,26 @@ class WExplore1Resampler(Resampler):
         # Resampler superclass).
         resampling_actions = self.assign_clones(merge_groups, walkers_num_clones)
 
-        # this is a single step in WExplore1 so we wrap it in a list
-        # to make it look like  a list of steps
-        resampling_actions = [resampling_actions]
 
-        # check to make sure there are no multiple assignments
+        # check to make sure there are no multiple assignments by
+        # keeping track of the taken slots
         taken_slots = []
-        for resampling_record in resampling_actions:
-            for walker_record in resampling_record:
+        for walker_record in resampling_actions:
 
-                # unless it is a squash add it to the taken slots
-                if walker_record['decision_id'] != 3:
-                    taken_slots.extend(walker_record['target_idxs'])
+            # unless it is a squash (which has no slot in the next
+            # cycle) add it to the taken slots
+            if walker_record['decision_id'] != 3:
+                taken_slots.extend(walker_record['target_idxs'])
 
         if len(set(taken_slots)) < len(taken_slots):
             raise ValueError("Multiple assignments to the same slot")
+
+        # because there is only one step in resampling here we just
+        # add another field for the step as 0 and add the walker index
+        # to its record as well
+        for walker_idx, walker_record in enumerate(resampling_actions):
+            walker_record['step_idx'] = np.array([0])
+            walker_record['walker_idx'] = np.array([walker_idx])
 
         return resampling_actions
 
@@ -854,17 +859,22 @@ class WExplore1Resampler(Resampler):
             print("Assigned regions=\n{}".format(self.region_tree.walker_assignments))
 
         # make the decisions for the the walkers
-        resampling_actions = self.decide(delta_walkers=delta_walkers,
+        resampling_data = self.decide(delta_walkers=delta_walkers,
                                          debug_prints=debug_prints)
 
-        # perform the cloning and merging
-        resampled_walkers = self.DECISION.action(walkers, resampling_actions)
+        # convert the target idxs and decision_id to feature vector arrays
+        for record in resampling_data:
+            record['target_idxs'] = np.array(record['target_idxs'])
+            record['decision_id'] = np.array([record['decision_id']])
 
-        # make record arrays for decisions and instructions as
-        # resampling data by walker
-        resampling_data = self.resampling_actions_to_records(resampling_actions)
-        # then add the assignments
-        resampling_data['walker_assignments'] = assignments
+        # perform the cloning and merging, the action function expects
+        # records a lists of lists for steps and walkers
+        resampled_walkers = self.DECISION.action(walkers, [resampling_data])
+
+        # then add the assignments for each walker
+        for walker_idx, assignment in enumerate(assignments):
+            resampling_data[walker_idx]['region_assignment'] = assignment
+
 
         return resampled_walkers, resampling_data, resampler_data
 

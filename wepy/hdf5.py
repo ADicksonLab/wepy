@@ -122,7 +122,7 @@ CYCLE_IDXS = '_cycle_idxs'
 # cycle. There also is not a single record for each (cycle, step) like
 # there would be for continual ones because they can occur for single
 # walkers, boundary conditions, or resamplers.
-SPORADIC_RECORDS = (RESAMPLER, WARPING)
+SPORADIC_RECORDS = (RESAMPLER, WARPING, RESAMPLING)
 
 ## Dataset Compliances
 # a file which has different levels of keys can be used for
@@ -1660,12 +1660,14 @@ class WepyHDF5(object):
 
         """
 
-        import ipdb; ipdb.set_trace()
         record_grp = self.records_grp(run_idx, run_record_key)
-        record_cycle_idxs_ds = record_grp[CYCLE_IDXS]
+
 
         # if it is sporadic add the cycle idx
         if self._is_sporadic_records(run_record_key):
+
+            # get the cycle idxs dataset
+            record_cycle_idxs_ds = record_grp[CYCLE_IDXS]
 
             # then we add the cycle to the cycle_idxs
             record_cycle_idxs_ds.resize( (record_cycle_idxs_ds.shape[0] + 1,
@@ -1697,49 +1699,55 @@ class WepyHDF5(object):
         # of datase new frames
         n_new_frames = field_data.shape[0]
 
-        # if the field is empty it needs to have data added in it in a
-        # special way
-        if all([i == 0 for i in field.shape]):
+        # check whether it is a variable length record
+        field_path = '{}/{}'.format(run_record_key, field_name)
+        if field_path in self._run_records_fields_vlen:
 
-            # check the feature shape against the maxshape which gives
-            # the feature dimensions for an empty dataset
-            assert field_data.shape[1:] == field.maxshape[1:], \
-                "field feature dimensions must be the same, i.e. all but the first dimension"
+            if all([i == 0 for i in field.shape]):
+                # initialize this array
+                # if it is empty resize it to make an array the size of
+                # the new field_data with the maxshape for the feature
+                # dimensions
+                field.resize( (n_new_frames,) )
 
-            # if it is empty resize it to make an array the size of
-            # the new field_data with the maxshape for the feature
-            # dimensions
-            feature_dims = field.maxshape[1:]
-            field.resize( (n_new_frames, *feature_dims) )
-
-            # set the new data to this
-            field[0:, ...] = field_data
-
-        else:
-            # make sure the new data has the right dimensions against
-            # the shape it already has
-            assert field_data.shape[1:] == field.shape[1:], \
-                "field feature dimensions must be the same, i.e. all but the first dimension"
-
-            # if this is a variable length field we add it differently
-            field_path = '{}/{}'.format(run_record_key, field_name)
-            if field_path in self._run_records_fields_vlen:
-                # resize the array but it is only of rank because
-                # of variable length data
-                dset.resize( (dset.shape[0] + n_new_frames, ) )
-                # does not need to be wrapped in another dimension
-                # like for other aux data
-                dset[-1] = aux_data
+                # set the new data to this
+                for i, row in enumerate(field_data):
+                    field[i] = row
 
             else:
+                import ipdb; ipdb.set_trace()
+                # resize the array but it is only of rank because
+                # of variable length data
+                field.resize( (field.shape[0] + n_new_frames, ) )
 
+                # add each row to the newly made space
+                for i, row in enumerate(field_data):
+                    field[(field.shape[0] - 1) + i] = row
+
+        else:
+            if all([i == 0 for i in field.shape]):
+
+                # check the feature shape against the maxshape which gives
+                # the feature dimensions for an empty dataset
+                assert field_data.shape[1:] == field.maxshape[1:], \
+                    "field feature dimensions must be the same, i.e. all but the first dimension"
+
+                # if it is empty resize it to make an array the size of
+                # the new field_data with the maxshape for the feature
+                # dimensions
+                feature_dims = field.maxshape[1:]
+                field.resize( (n_new_frames, *feature_dims) )
+
+                # set the new data to this
+                field[0:, ...] = field_data
+
+            else:
                 # append to the dataset on the first dimension, keeping the
                 # others the same, these must be feature vectors and therefore
                 # must exist
                 field.resize( (field.shape[0] + n_new_frames, *field.shape[1:]) )
                 # add the new data
                 field[-n_new_frames:, ...] = field_data
-
 
 
     def add_cycle_bc_aux_data(self, run_idx, bc_aux_data):
