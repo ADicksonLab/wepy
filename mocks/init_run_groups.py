@@ -11,6 +11,7 @@ from wepy.boundary_conditions.unbinding import UnbindingBC
 from wepy.resampling.distances.distance import Distance
 from scipy.spatial.distance import euclidean
 from wepy.walker import Walker
+from wepy.reporter.hdf5 import WepyHDF5Reporter
 
 import mdtraj as mdj
 
@@ -126,5 +127,11 @@ with wepy_h5:
     # make some unbinding BC records
     warped_walkers, warp_data, bc_data, progress_data = ubc.warp_walkers(init_walkers, 0)
 
-    # report these
+    # add these to the HDF5
+    wepy_h5.append_warping_records(0, 0, warp_data)
 
+    # # report these
+    # reporter = WepyHDF5Reporter()
+
+    # reporter.report(0, init_walkers, warp_data, bc_data, progress_data,
+    #                 resampling_data, resampler_data)

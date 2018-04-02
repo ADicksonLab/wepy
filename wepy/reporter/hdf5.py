@@ -29,11 +29,11 @@ class WepyHDF5Reporter(FileReporter):
                  boundary_conditions=None,
 
                  # or pass the things we need from them in manually
-                 resampling_field_names=None, resampling_aux_dtypes=None, resampling_aux_shapes=None,
-                 resampler_field_names=None, resampler_aux_dtypes=None, resampler_aux_shapes=None,
-                 warp_field_names=None, warp_aux_dtypes=None, warp_aux_shapes=None,
-                 bc_field_names=None, bc_aux_dtypes=None, bc_aux_shapes=None,
-
+                 resampling_fields=None,
+                 resampler_fields=None,
+                 warping_fields=None,
+                 progress_fields=None,
+                 bc_fields=None,
                  ):
 
         super().__init__(file_path, mode=mode)
@@ -48,37 +48,42 @@ class WepyHDF5Reporter(FileReporter):
         self.feature_dtypes = feature_dtypes
         self.n_dims = n_dims
 
-        if resampler is not None:
-            self.decisions = resampler.DECISION.ENUM
-            self.instruction_dtypes = resampler.DECISION.instruction_dtypes()
+        # get and set the record fields (naems, shapes, dtypes) for
+        # the resampler and the boundary conditions
+        if resampling_fields is not None:
+            self.resampling_fields = resampling_fields
+        elif resampler is not None:
+            self.resampling_fields = resampler.resampling_fields()
         else:
-            self.decisions = decisions
-            self.instruction_dtypes = instruction_dtypes
+            self.resampling_fields = None
 
-        # TODO these should all be accessed by methods, as of now
-        # these constants are just dictionaries themselves
-        if resampler is not None:
-            self.resampling_aux_dtypes = resampler.RESAMPLING_AUX_DTYPES
-            self.resampling_aux_shapes = resampler.RESAMPLING_AUX_SHAPES
+        if resampler_fields is not None:
+            self.resampler_fields = resampler_fields()
+        elif resampler is not None:
+            self.resampler_fields = resampler.resampler_fields()
         else:
-            self.resampling_aux_dtypes = resampling_aux_dtypes
-            self.resampling_aux_shapes = resampling_aux_shapes
+            self.resampler_fields = None
 
-        if boundary_conditions is not None:
-            self.warp_dtype = boundary_conditions.WARP_INSTRUCT_DTYPE
-            self.warp_aux_dtypes = boundary_conditions.WARP_AUX_DTYPES
-            self.warp_aux_shapes = boundary_conditions.WARP_AUX_SHAPES
-            self.bc_dtype = boundary_conditions.BC_INSTRUCT_DTYPE
-            self.bc_aux_dtypes = boundary_conditions.BC_AUX_DTYPES
-            self.bc_aux_shapes = boundary_conditions.BC_AUX_SHAPES
+        if warping_fields is not None:
+            self.warping_fields = warping_fields()
+        elif boundary_conditions is not None:
+            self.warping_fields = boundary_conditions.warping_fields()
         else:
-            self.warp_dtype = warp_dtype
-            self.bc_dtype = bc_dtype
-            self.warp_aux_dtypes = warp_aux_dtypes
-            self.warp_aux_shapes = warp_aux_shapes
-            self.bc_aux_dtypes = bc_aux_dtypes
-            self.bc_aux_shapes = bc_aux_shapes
+            self.warping_fields = None
 
+        if progress_fields is not None:
+            self.progress_fields = progress_fields()
+        elif boundary_conditions is not None:
+            self.progress_fields = boundary_conditions.progress_fields()
+        else:
+            self.progress_fields = None
+
+        if bc_fields is not None:
+            self.bc_fields = bc_fields()
+        elif boundary_conditions is not None:
+            self.bc_fields = boundary_conditions.bc_fields()
+        else:
+            self.bc_fields = None
 
         # the atom indices of the whole system that will be saved as
         # the main positions representation
@@ -143,30 +148,12 @@ class WepyHDF5Reporter(FileReporter):
             run_grp = self.wepy_h5.new_run()
             self.wepy_run_idx = run_grp.attrs['run_idx']
 
-            # initialize the resampling group within this run
-            self.wepy_h5.init_run_resampling(self.wepy_run_idx,
-                                             field_names=self.resampling_field_names,
-                                             aux_dtypes=self.resampling_aux_dtypes,
-                                             aux_shapes=self.resampling_aux_shapes)
-
-            # initialize the resampler group
-            self.wepy_h5.init_run_resampler(self.wepy_run_idx,
-                                             field_names=self.resampler_field_names,
-                                             aux_dtypes=self.resampler_aux_dtypes,
-                                             aux_shapes=self.resampler_aux_shapes)
-
-
-            # initialize the boundary condition group within this run
-            self.wepy_h5.init_run_warp(self.wepy_run_idx,
-                                       field_names=self.warp_field_names,
-                                       aux_dtypes=self.warp_aux_dtypes,
-                                       aux_shapes=self.warp_aux_shapes)
-
-            # initialize the boundary condition group within this run
-            self.wepy_h5.init_run_bc(self.wepy_run_idx,
-                                     field_names=self.bc_field_names,
-                                     aux_dtypes=self.bc_aux_dtypes,
-                                     aux_shapes=self.bc_aux_shapes)
+            # initialize the run record groups using their fields
+            self.wepy_h5.init_run_fields_resampling(self.wepy_run_idx, self.resampling_fields)
+            self.wepy_h5.init_run_fields_resampler(self.wepy_run_idx, self.resampler_fields)
+            self.wepy_h5.init_run_fields_warping(self.wepy_run_idx, self.warping_fields)
+            self.wepy_h5.init_run_fields_progress(self.wepy_run_idx, self.progress_fields)
+            self.wepy_h5.init_run_fields_bc(self.wepy_run_idx, self.bc_fields)
 
         # if this was opened in a truncation mode, we don't want to
         # overwrite old runs with future calls to init(). so we
@@ -177,10 +164,8 @@ class WepyHDF5Reporter(FileReporter):
 
 
     def report(self, cycle_idx, walkers,
-               warp_records, warp_aux_data,
-               bc_records, bc_aux_data,
-               resampling_records, resampling_aux_data,
-               resampler_records, resampler_aux_data,
+               warp_data, bc_data, progress_data,
+               resampling_data, resampler_data,
                debug_prints=False):
 
         n_walkers = len(walkers)
@@ -270,6 +255,14 @@ class WepyHDF5Reporter(FileReporter):
                     traj_grp.attrs['starting_cycle_idx'] = cycle_idx
 
 
+            # report the boundary conditions records data
+            self.report_warping(cycle_idx, warp_data)
+            self.report_bc(cycle_idx, bc_data)
+            self.report_progress(cycle_idx, progress_data)
+
+            # report the resampling records data
+            self.report_resampling(cycle_idx, resampling_data)
+            self.report_resampler(cycle_idx, resampler_data)
 
             # if there was warping done by the boundary conditions save those records
             if len(warp_records) > 0:
@@ -297,6 +290,19 @@ class WepyHDF5Reporter(FileReporter):
 
             # add resampling data
             wepy_h5.add_cycle_resampling_aux_data(self.wepy_run_idx, resampling_aux_data)
+
+    def report_warping(self, cycle_idx, warp_data):
+        pass
+
+    def report_bc(self, cycle_idx, bc_data):
+        pass
+    def report_progress(self, cycle_idx, progress_data):
+        pass
+    def report_resampling(self, cycle_idx, resampling_data):
+        pass
+    def report_resampler(self, cycle_idx, resampler_data):
+        pass
+
 
 
     def cleanup(self, *args):

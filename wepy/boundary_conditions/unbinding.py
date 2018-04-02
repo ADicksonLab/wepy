@@ -17,7 +17,7 @@ class UnbindingBC(BoundaryConditions):
     BC_DTYPES = (np.float, )
 
     # warping (sporadic)
-    WARPING_FIELDS = ('walker_idx', 'target', 'weight')
+    WARPING_FIELDS = ('walker_idx', 'target_idx', 'weight')
     WARPING_SHAPES = ((1,), (1,), (1,))
     WARPING_DTYPES = (np.int, np.int, np.float)
 
@@ -105,8 +105,8 @@ class UnbindingBC(BoundaryConditions):
         target_idx = 0
 
         # the data for the warp
-        warp_data = {'target_idx' : target_idx,
-                     'warped_walker_weight' : np.array([walker.weight])}
+        warp_data = {'target_idx' : np.array([target_idx]),
+                     'weight' : np.array([walker.weight])}
 
         return warped_walker, warp_data
 
@@ -146,7 +146,7 @@ class UnbindingBC(BoundaryConditions):
                 warped_walker, walker_warp_data = self.warp(walker)
 
                 # add the walker idx to the walker warp record
-                walker_warp_data['walker_idx'] = walker_idx
+                walker_warp_data['walker_idx'] = np.array([walker_idx])
 
                 # save warped_walker in the list of new walkers to return
                 new_walkers.append(warped_walker)
@@ -157,7 +157,7 @@ class UnbindingBC(BoundaryConditions):
                 if debug_prints:
                     sys.stdout.write('EXIT POINT observed at {} \n'.format(cycle))
                     sys.stdout.write('Warped Walker Weight = {} \n'.format(
-                        warp_data['warped_walker_weight']))
+                        warp_data['weight']))
 
             # no warping so just return the original walker
             else:
@@ -171,6 +171,6 @@ class UnbindingBC(BoundaryConditions):
         # if the boundary conditions need to be updated given the
         # cycle and state from warping perform that now and return any
         # record data for that
-        cycle_bc_records = self.update_bc(new_walkers, warp_data, progress_data, cycle)
+        bc_data = self.update_bc(new_walkers, warp_data, progress_data, cycle)
 
         return new_walkers, warp_data, bc_data, progress_data

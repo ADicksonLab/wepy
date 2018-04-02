@@ -81,8 +81,9 @@ class Manager(object):
 
                 # warping results
                 warped_walkers = bc_results[0]
-                warp_records = bc_results[1]
-                warp_aux_data = bc_results[2]
+                warp_data = bc_results[1]
+                bc_data = bc_results[2]
+                progress_data = bc_results[3]
 
                 if debug_prints:
                     if len(warp_records) > 0:
@@ -92,19 +93,14 @@ class Manager(object):
                         print("Returned warp aux_data in cycle {}".format(cycle_idx))
 
 
-                # boundary conditions checking results
-                bc_records = bc_results[3]
-                bc_aux_data = bc_results[4]
 
             # resample walkers
             resampling_results = self.resampler.resample(warped_walkers,
-                                                         debug_prints=debug_prints)
+                                                       debug_prints=debug_prints)
 
             resampled_walkers = resampling_results[0]
-            resampling_records = resampling_results[1]
-            resampling_aux_data = resampling_results[2]
-            resampler_records = resampling_results[3]
-            resampler_aux_data = resampling_results[4]
+            resampling_data = resampling_results[1]
+            resampler_data = resampling_results[2]
 
             if debug_prints:
                 # print results for this cycle
@@ -122,10 +118,8 @@ class Manager(object):
             # report results to the reporters
             for reporter in self.reporters:
                 reporter.report(cycle_idx, new_walkers,
-                                warp_records, warp_aux_data,
-                                bc_records, bc_aux_data,
-                                resampling_records, resampling_aux_data,
-                                resampler_records, resampler_aux_data,
+                                warp_data, bc_data, progress_data,
+                                resampling_data, resampler_data,
                                 debug_prints=debug_prints)
 
             # prepare resampled walkers for running new state changes

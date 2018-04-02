@@ -28,15 +28,15 @@ class Resampler(object):
 
     @classmethod
     def resampling_field_names(cls):
-        return RESAMPLING_FIELDS
+        return cls.RESAMPLING_FIELDS
 
     @classmethod
     def resampling_field_shapes(cls):
-        return RESAMPLING_SHAPES
+        return cls.RESAMPLING_SHAPES
 
     @classmethod
     def resampling_field_dtypes(cls):
-        return RESAMPLING_DTYPES
+        return cls.RESAMPLING_DTYPES
 
     @classmethod
     def resampling_fields(cls):
