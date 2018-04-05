@@ -850,40 +850,40 @@ class WepyHDF5(object):
 
     # application level methods for setting the fields for run record
     # groups given the objects themselves
-    def init_run_resampling(self, run_idx, resampler_type):
+    def init_run_resampling(self, run_idx, resampler):
 
-        fields = resampler_type.resampling_fields()
+        fields = resampler.resampling_fields()
 
         grp = self.init_run_record_grp(run_idx, RESAMPLING, fields)
 
         return grp
 
-    def init_run_resampler(self, run_idx, resampler_type):
+    def init_run_resampler(self, run_idx, resampler):
 
-        fields = resampler_type.resampler_fields()
+        fields = resampler.resampler_fields()
 
         grp = self.init_run_record_grp(run_idx, RESAMPLER, fields)
 
         return grp
 
-    def init_run_warping(self, run_idx, bc_type):
+    def init_run_warping(self, run_idx, bc):
 
-        fields = bc_type.warping_fields()
+        fields = bc.warping_fields()
         grp = self.init_run_record_grp(run_idx, WARPING, fields)
 
         return grp
 
-    def init_run_progress(self, run_idx, bc_type):
+    def init_run_progress(self, run_idx, bc):
 
-        fields = bc_type.progress_fields()
+        fields = bc.progress_fields()
 
         grp = self.init_run_record_grp(run_idx, PROGRESS, fields)
 
         return grp
 
-    def init_run_bc(self, run_idx, bc_type):
+    def init_run_bc(self, run_idx, bc):
 
-        fields = bc_type.bc_fields()
+        fields = bc.bc_fields()
 
         grp = self.init_run_record_grp(run_idx, BC, fields)
 
@@ -991,7 +991,7 @@ class WepyHDF5(object):
         # its not just make it normally
         else:
             # create the group
-            dset = record_grp.create_dataset(field_name, (1, *field_shape), dtype=field_dtype,
+            dset = record_grp.create_dataset(field_name, (0, *field_shape), dtype=field_dtype,
                                       maxshape=(None, *field_shape))
 
         return dset
@@ -1638,22 +1638,22 @@ class WepyHDF5(object):
 
     ## application level append methods for run records groups
 
-    def append_warping_records(self, run_idx, cycle_idx, warping_data):
-        self.append_records_group(run_idx, WARPING, cycle_idx, warping_data)
+    def extend_cycle_warping_records(self, run_idx, cycle_idx, warping_data):
+        self.extend_cycle_run_group_records(run_idx, WARPING, cycle_idx, warping_data)
 
-    def append_bc_records(self, run_idx, cycle_idx, bc_data):
-        self.append_records_group(run_idx, BC, cycle_idx, bc_data)
+    def extend_cycle_bc_records(self, run_idx, cycle_idx, bc_data):
+        self.extend_cycle_run_group_records(run_idx, BC, cycle_idx, bc_data)
 
-    def append_progress_records(self, run_idx, cycle_idx, progress_data):
-        self.append_records_group(run_idx, PROGRESS, cycle_idx, progress_data)
+    def extend_cycle_progress_records(self, run_idx, cycle_idx, progress_data):
+        self.extend_cycle_run_group_records(run_idx, PROGRESS, cycle_idx, progress_data)
 
-    def append_resampling_records(self, run_idx, cycle_idx, resampling_data):
-        self.append_records_group(run_idx, RESAMPLING, cycle_idx, resampling_data)
+    def extend_cycle_resampling_records(self, run_idx, cycle_idx, resampling_data):
+        self.extend_cycle_run_group_records(run_idx, RESAMPLING, cycle_idx, resampling_data)
 
-    def append_resampler_records(self, run_idx, cycle_idx, resampler_data):
-        self.append_records_group(run_idx, RESAMPLER, cycle_idx, resampler_data)
+    def extend_cycle_resampler_records(self, run_idx, cycle_idx, resampler_data):
+        self.extend_cycle_run_group_records(run_idx, RESAMPLER, cycle_idx, resampler_data)
 
-    def append_records_group(self, run_idx, run_record_key, cycle_idx, fields_data):
+    def extend_cycle_run_group_records(self, run_idx, run_record_key, cycle_idx, fields_data):
         """Append data for a whole records group, that is every field
         dataset. This must have the cycle index for the data it is
         appending as this is done for sporadic and continual datasets.
@@ -1662,18 +1662,21 @@ class WepyHDF5(object):
 
         record_grp = self.records_grp(run_idx, run_record_key)
 
-
         # if it is sporadic add the cycle idx
         if self._is_sporadic_records(run_record_key):
 
             # get the cycle idxs dataset
             record_cycle_idxs_ds = record_grp[CYCLE_IDXS]
 
-            # then we add the cycle to the cycle_idxs
-            record_cycle_idxs_ds.resize( (record_cycle_idxs_ds.shape[0] + 1,
-                                       *record_cycle_idxs_ds.shape[1:]) )
-            # add the new data
-            record_cycle_idxs_ds[-1:, ...] = np.array([cycle_idx])
+            # number of old and new records
+            n_new_records = len(fields_data)
+            n_existing_records = record_cycle_idxs_ds.shape[0]
+
+            # make a new chunk for the new records
+            record_cycle_idxs_ds.resize( (n_existing_records + n_new_records,) )
+
+            # add an array of the cycle idx for each record
+            record_cycle_idxs_ds[n_existing_records:] = np.full((n_new_records,), cycle_idx)
 
         # then add all the data for the field
         for record_dict in fields_data:
@@ -1715,7 +1718,7 @@ class WepyHDF5(object):
                     field[i] = row
 
             else:
-                import ipdb; ipdb.set_trace()
+
                 # resize the array but it is only of rank because
                 # of variable length data
                 field.resize( (field.shape[0] + n_new_frames, ) )

@@ -712,7 +712,11 @@ class WExplore1Resampler(Resampler):
                  distance=None,
                  max_n_regions=(10, 10, 10, 10),
                  max_region_sizes=(1, 0.5, 0.35, 0.25),
+                 init_state=None
                 ):
+
+        assert distance is not None, "Distance object must be given."
+        assert init_state is not None, "An initial state must be given."
 
         self.decision = self.DECISION
 
@@ -736,36 +740,62 @@ class WExplore1Resampler(Resampler):
         # distance metric
         self.distance = distance
 
-    # override the superclass methods to utilize the decision class
-    @classmethod
-    def resampling_field_names(cls):
-        return cls.RESAMPLING_FIELDS
+        # we do not know the shape and dtype of the images until
+        # runtime so we determine them here
+        image = self.distance.image(init_state)
+        self.image_shape = image.shape
+        self.image_dtype = image.dtype
 
-    @classmethod
-    def resampling_field_shapes(cls):
-        return cls.RESAMPLING_SHAPES
 
-    @classmethod
-    def resampling_field_dtypes(cls):
-        return cls.RESAMPLING_DTYPES
-
-    @classmethod
-    def resampling_fields(cls):
-        return list(zip(cls.resampling_field_names(),
-                   cls.resampling_field_shapes(),
-                   cls.resampling_field_dtypes()))
-
-    @property
-    def region_tree(self):
-        return self._region_tree
-
-    def init(self, walkers):
-        self._region_tree = RegionTree(walkers[0].state,
+        # initialize the region tree with the first state
+        self._region_tree = RegionTree(init_state,
                                       max_n_regions=self.max_n_regions,
                                       max_region_sizes=self.max_region_sizes,
                                        distance=self.distance,
                                        pmin=self.pmin,
                                        pmax=self.pmax)
+
+
+    def resampler_field_shapes(self):
+
+        # index of the image idx
+        image_idx = self.resampler_field_names().index('image')
+
+        # shapes adding the image shape
+        shapes = list(super().resampler_field_shapes())
+        shapes[image_idx] = self.image_shape
+
+        return tuple(shapes)
+
+    def resampler_field_dtypes(self):
+
+        # index of the image idx
+        image_idx = self.resampler_field_names().index('image')
+
+        # dtypes adding the image dtype
+        dtypes = list(super().resampler_field_dtypes())
+        dtypes[image_idx] = self.image_dtype
+
+        return tuple(dtypes)
+
+    # override the superclass methods to utilize the decision class
+    def resampling_field_names(self):
+        return self.RESAMPLING_FIELDS
+
+    def resampling_field_shapes(self):
+        return self.RESAMPLING_SHAPES
+
+    def resampling_field_dtypes(self):
+        return self.RESAMPLING_DTYPES
+
+    def resampling_fields(self):
+        return list(zip(self.resampling_field_names(),
+                   self.resampling_field_shapes(),
+                   self.resampling_field_dtypes()))
+
+    @property
+    def region_tree(self):
+        return self._region_tree
 
     def assign(self, walkers, debug_prints=False):
         ## Assign the walkers based on the current defined Voronoi

@@ -157,7 +157,7 @@ class UnbindingBC(BoundaryConditions):
                 if debug_prints:
                     sys.stdout.write('EXIT POINT observed at {} \n'.format(cycle))
                     sys.stdout.write('Warped Walker Weight = {} \n'.format(
-                        warp_data['weight']))
+                        walker_warp_data['weight']))
 
             # no warping so just return the original walker
             else:

@@ -26,42 +26,34 @@ class Resampler(object):
         self.decider = decider
         self.decision = decider.DECISION
 
-    @classmethod
-    def resampling_field_names(cls):
-        return cls.RESAMPLING_FIELDS
+    def resampling_field_names(self):
+        return self.RESAMPLING_FIELDS
 
-    @classmethod
-    def resampling_field_shapes(cls):
-        return cls.RESAMPLING_SHAPES
+    def resampling_field_shapes(self):
+        return self.RESAMPLING_SHAPES
 
-    @classmethod
-    def resampling_field_dtypes(cls):
-        return cls.RESAMPLING_DTYPES
+    def resampling_field_dtypes(self):
+        return self.RESAMPLING_DTYPES
 
-    @classmethod
-    def resampling_fields(cls):
-        return list(zip(cls.resampling_field_names(),
-                   cls.resampling_field_shapes(),
-                   cls.resampling_field_dtypes()))
+    def resampling_fields(self):
+        return list(zip(self.resampling_field_names(),
+                   self.resampling_field_shapes(),
+                   self.resampling_field_dtypes()))
 
 
-    @classmethod
-    def resampler_field_names(cls):
-        return cls.RESAMPLER_FIELDS
+    def resampler_field_names(self):
+        return self.RESAMPLER_FIELDS
 
-    @classmethod
-    def resampler_field_shapes(cls):
-        return cls.RESAMPLER_SHAPES
+    def resampler_field_shapes(self):
+        return self.RESAMPLER_SHAPES
 
-    @classmethod
-    def resampler_field_dtypes(cls):
-        return cls.RESAMPLER_DTYPES
+    def resampler_field_dtypes(self):
+        return self.RESAMPLER_DTYPES
 
-    @classmethod
-    def resampler_fields(cls):
-        return list(zip(cls.resampler_field_names(),
-                   cls.resampler_field_shapes(),
-                   cls.resampler_field_dtypes()))
+    def resampler_fields(self):
+        return list(zip(self.resampler_field_names(),
+                   self.resampler_field_shapes(),
+                   self.resampler_field_dtypes()))
 
     def resample(self, walkers):
 

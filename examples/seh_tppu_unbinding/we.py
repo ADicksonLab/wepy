@@ -318,6 +318,7 @@ def main(n_runs, n_cycles, steps, n_walkers, n_workers=1, debug_prints=False, se
     # make a WExplore1 resampler with default parameters and our
     # distance metric
     resampler = WExplore1Resampler(distance=unb_distance,
+                                   init_state=OpenMMState(omm_state),
                                    max_n_regions=MAX_N_REGIONS,
                                    max_region_sizes=MAX_REGION_SIZES,
                                    pmin=PMIN, pmax=PMAX)

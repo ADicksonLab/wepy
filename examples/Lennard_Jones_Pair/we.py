@@ -63,7 +63,7 @@ from wepy.work_mapper.mapper import Mapper
 from wepy.boundary_conditions.unbinding import UnbindingBC
 from wepy.reporter.hdf5 import WepyHDF5Reporter
 
-from scipy.spatial.distance import euclideang
+from scipy.spatial.distance import euclidean
 
 
 ## PARAMETERS
@@ -178,6 +178,7 @@ distance = PairDistance()
 
 ## Resampler
 resampler = WExplore1Resampler(distance=distance,
+                               init_state=init_state,
                                max_region_sizes=MAX_REGION_SIZES,
                                max_n_regions=MAX_N_REGIONS,
                                pmin=PMIN, pmax=PMAX)

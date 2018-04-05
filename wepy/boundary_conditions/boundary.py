@@ -25,59 +25,47 @@ class BoundaryConditions(object):
 
         pass
 
-    @classmethod
-    def bc_field_names(cls):
-        return cls.BC_FIELDS
+    def bc_field_names(self):
+        return self.BC_FIELDS
 
-    @classmethod
-    def bc_field_shapes(cls):
-        return cls.BC_SHAPES
+    def bc_field_shapes(self):
+        return self.BC_SHAPES
 
-    @classmethod
-    def bc_field_dtypes(cls):
-        return cls.BC_DTYPES
+    def bc_field_dtypes(self):
+        return self.BC_DTYPES
 
-    @classmethod
-    def bc_fields(cls):
-        return zip(cls.bc_field_names(),
-                   cls.bc_field_shapes(),
-                   cls.bc_field_dtypes())
+    def bc_fields(self):
+        return zip(self.bc_field_names(),
+                   self.bc_field_shapes(),
+                   self.bc_field_dtypes())
 
-    @classmethod
-    def warping_field_names(cls):
-        return cls.WARPING_FIELDS
+    def warping_field_names(self):
+        return self.WARPING_FIELDS
 
-    @classmethod
-    def warping_field_shapes(cls):
-        return cls.WARPING_SHAPES
+    def warping_field_shapes(self):
+        return self.WARPING_SHAPES
 
-    @classmethod
-    def warping_field_dtypes(cls):
-        return cls.WARPING_DTYPES
+    def warping_field_dtypes(self):
+        return self.WARPING_DTYPES
 
-    @classmethod
-    def warping_fields(cls):
-        return list(zip(cls.warping_field_names(),
-                   cls.warping_field_shapes(),
-                   cls.warping_field_dtypes()))
+    def warping_fields(self):
+        return list(zip(self.warping_field_names(),
+                   self.warping_field_shapes(),
+                   self.warping_field_dtypes()))
 
-    @classmethod
-    def progress_field_names(cls):
-        return cls.PROGRESS_FIELDS
+    def progress_field_names(self):
+        return self.PROGRESS_FIELDS
 
-    @classmethod
-    def progress_field_shapes(cls):
-        return cls.PROGRESS_SHAPES
+    def progress_field_shapes(self):
+        return self.PROGRESS_SHAPES
 
-    @classmethod
-    def progress_field_dtypes(cls):
-        return cls.PROGRESS_DTYPES
+    def progress_field_dtypes(self):
+        return self.PROGRESS_DTYPES
 
-    @classmethod
-    def progress_fields(cls):
-        return list(zip(cls.progress_field_names(),
-                   cls.progress_field_shapes(),
-                   cls.progress_field_dtypes()))
+    def progress_fields(self):
+        return list(zip(self.progress_field_names(),
+                   self.progress_field_shapes(),
+                   self.progress_field_dtypes()))
 
 
     def progress(self, walker):

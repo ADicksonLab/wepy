@@ -275,28 +275,28 @@ class WepyHDF5Reporter(FileReporter):
     def report_warping(self, cycle_idx, warping_data):
 
         if len(warping_data) > 0:
-            self.wepy_h5.append_warping_records(self.wepy_run_idx, cycle_idx, warping_data)
+            self.wepy_h5.extend_cycle_warping_records(self.wepy_run_idx, cycle_idx, warping_data)
 
     def report_bc(self, cycle_idx, bc_data):
 
         if len(bc_data) > 0:
-            self.wepy_h5.append_bc_records(self.wepy_run_idx, cycle_idx, bc_data)
+            self.wepy_h5.extend_cycle_bc_records(self.wepy_run_idx, cycle_idx, bc_data)
 
     def report_resampler(self, cycle_idx, resampler_data):
 
         if len(resampler_data) > 0:
-            self.wepy_h5.append_resampler_records(self.wepy_run_idx, cycle_idx, resampler_data)
+            self.wepy_h5.extend_cycle_resampler_records(self.wepy_run_idx, cycle_idx, resampler_data)
 
     # the resampling records are provided every cycle but they need to
     # be saved as sporadic because of the variable number of walkers
     def report_resampling(self, cycle_idx, resampling_data):
 
-        self.wepy_h5.append_resampling_records(self.wepy_run_idx, cycle_idx, resampling_data)
+        self.wepy_h5.extend_cycle_resampling_records(self.wepy_run_idx, cycle_idx, resampling_data)
 
     # continual
     def report_progress(self, cycle_idx, progress_data):
 
-        self.wepy_h5.append_progress_records(self.wepy_run_idx, cycle_idx, [progress_data])
+        self.wepy_h5.extend_cycle_progress_records(self.wepy_run_idx, cycle_idx, [progress_data])
 
 
 
