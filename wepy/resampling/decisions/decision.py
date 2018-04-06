@@ -26,7 +26,7 @@ class Decision(object):
 
         d = {}
         for enum in cls.ENUM:
-            d[enum.name] = enum
+            d[enum.name] = enum.value
         return d
 
     @classmethod

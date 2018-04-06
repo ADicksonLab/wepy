@@ -702,10 +702,16 @@ class WExplore1Resampler(Resampler):
     RESAMPLER_SHAPES = ((1,), (1,), Ellipsis, None)
     RESAMPLER_DTYPES = (np.int, np.float, np.int, None)
 
+    # fields that can be used for a table like representation
+    RESAMPLER_RECORD_FIELDS = ('branching_level', 'distance', 'new_leaf_id')
+
     # fields for resampling data
     RESAMPLING_FIELDS = DECISION.FIELDS + ('step_idx', 'walker_idx', 'region_assignment',)
     RESAMPLING_SHAPES = DECISION.SHAPES + ((1,), (1,), Ellipsis,)
     RESAMPLING_DTYPES = DECISION.DTYPES + (np.int, np.int, np.int,)
+
+    # fields that can be used for a table like representation
+    RESAMPLING_RECORD_FIELDS = DECISION.RECORD_FIELDS + ('step_idx', 'walker_idx', 'region_assignment')
 
 
     def __init__(self, seed=None, pmin=1e-12, pmax=0.1,

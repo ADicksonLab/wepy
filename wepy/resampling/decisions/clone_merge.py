@@ -26,6 +26,8 @@ class MultiCloneMergeDecision(Decision):
     SHAPES = ((1,), Ellipsis,)
     DTYPES = (np.int, np.int,)
 
+    RECORD_FIELDS = ('decision_id', 'target_idxs')
+
 
     # the decision types that pass on their state
     ANCESTOR_DECISION_IDS = (ENUM.NOTHING.value,
@@ -49,6 +51,10 @@ class MultiCloneMergeDecision(Decision):
         return list(zip(cls.field_names(),
                    cls.field_shapes(),
                    cls.field_dtypes()))
+
+    @classmethod
+    def record_field_names(cls):
+        return self.RECORD_FIELDS
 
     @classmethod
     def record(cls, enum_value, target_idxs):

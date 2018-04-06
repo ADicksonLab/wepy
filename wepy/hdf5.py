@@ -1,4 +1,4 @@
-from collections import Sequence
+from collections import Sequence, namedtuple
 import itertools as it
 import json
 from warnings import warn
@@ -482,6 +482,10 @@ class WepyHDF5(object):
             unit_grp.create_dataset(unit_path, data=unit_value)
 
 
+        # create the group for the run data records
+        records_grp = settings_grp.create_group('record_fields')
+
+
     def _read_write_init(self):
         """Write over values if given but do not reinitialize any old ones. """
 
@@ -630,8 +634,9 @@ class WepyHDF5(object):
         return len(list(self.run_traj_idx_tuples()))
 
     @property
-    def settings(self):
-        return NotImplementedError
+    def settings_grp(self):
+        settings_grp = self.h5['_settings']
+        return settings_grp
 
     @property
     def n_atoms(self):
@@ -823,6 +828,59 @@ class WepyHDF5(object):
 
         return tups
 
+
+    def init_record_fields(self, run_record_key, record_fields):
+        """Save which records are to be considered from a run record group's
+        datasets to be in the table like representation. This exists
+        to allow there to large and small datasets for records to be
+        stored together but allow for a more compact single table like
+        representation to be produced for serialization.
+
+        """
+
+        record_fields_grp = self.settings_grp['record_fields']
+
+        # make a dataset for the sparse fields allowed.  this requires
+        # a 'special' datatype for variable length strings. This is
+        # supported by HDF5 but not numpy.
+        vlen_str_dt = h5py.special_dtype(vlen=str)
+
+        # create the dataset with the strings of the fields which are records
+        record_group_fields_ds = record_fields_grp.create_dataset(run_record_key,
+                                                             (len(record_fields),),
+                                                                  dtype=vlen_str_dt,
+                                                                  maxshape=(None,))
+
+        # set the flags
+        for i, record_field in enumerate(record_fields):
+            record_group_fields_ds[i] = record_field
+
+    def init_resampling_record_fields(self, resampler):
+        self.init_record_fields(RESAMPLING, resampler.resampling_record_field_names())
+
+    def init_resampler_record_fields(self, resampler):
+        self.init_record_fields(RESAMPLER, resampler.resampler_record_field_names())
+
+    def init_bc_record_fields(self, bc):
+        self.init_record_fields(BC, bc.bc_record_field_names())
+
+    def init_warping_record_fields(self, bc):
+        self.init_record_fields(WARPING, bc.warping_record_field_names())
+
+    def init_progress_record_fields(self, bc):
+        self.init_record_fields(PROGRESS, bc.progress_record_field_names())
+
+    @property
+    def record_fields(self):
+
+        record_fields_grp = self.settings_grp['record_fields']
+
+        record_fields_dict = {}
+        for group_name, dset in record_fields_grp.items():
+            record_fields_dict[group_name] = list(dset)
+
+        return record_fields_dict
+
     def new_run(self, **kwargs):
         # create a new group named the next integer in the counter
         run_grp = self._h5.create_group('runs/{}'.format(str(self._run_idx_counter)))
@@ -852,11 +910,22 @@ class WepyHDF5(object):
     # groups given the objects themselves
     def init_run_resampling(self, run_idx, resampler):
 
-        fields = resampler.resampling_fields()
+        # set the enumeration of the decisions
+        self.init_run_resampling_decision(0, resampler)
 
+        # set the data fields that can be used for table like records
+        resampler.resampler_record_field_names()
+        resampler.resampling_record_field_names()
+
+        # then make the records group
+        fields = resampler.resampling_fields()
         grp = self.init_run_record_grp(run_idx, RESAMPLING, fields)
 
         return grp
+
+    def init_run_resampling_decision(self, run_idx, resampler):
+
+        self.init_run_fields_resampling_decision(run_idx, resampler.DECISION.enum_dict_by_name())
 
     def init_run_resampler(self, run_idx, resampler):
 
@@ -897,6 +966,13 @@ class WepyHDF5(object):
 
         return grp
 
+    def init_run_fields_resampling_decision(self, run_idx, decision_enum_dict):
+
+        decision_grp = self.run(run_idx).create_group('decision')
+        for name, value in decision_enum_dict.items():
+            decision_grp.create_dataset(name, data=value)
+
+
     def init_run_fields_resampler(self, run_idx, fields):
 
         grp = self.init_run_record_grp(run_idx, RESAMPLER, fields)
@@ -926,7 +1002,6 @@ class WepyHDF5(object):
 
         # initialize the record group based on whether it is sporadic
         # or continual
-
         if self._is_sporadic_records(run_record_key):
             grp = self._init_run_sporadic_record_grp(run_idx, run_record_key,
                                                      fields)
@@ -1424,194 +1499,12 @@ class WepyHDF5(object):
         else:
             self._add_field_feature_dtype(field_path, field_feature_dtype)
 
-
-    def add_cycle_resampling_records(self, run_idx, cycle_resampling_records):
-
-        # a common mistake when writing a new resampler is to not
-        # return the correct type for the cycle resampling
-        # records. `cycle_resamplingrecords` is supposed to be a list
-        # of lists where the elements of the outer list represent the
-        # "steps" a resampler can take. This is because a single
-        # resampling is allowed to clone a walker and then clone that
-        # walker again, which will always take multiple "steps", the
-        # order of the steps is the order in which the steps should be
-        # performed. A step is the list of actual ResamplingRecord
-        # objects for each walker. These are in the order that the
-        # walkers were passed to the `resample` function. Thus even if
-        # there is only one resampling "step" this should be a list of
-        # a single list, i.e. the only step. It is not expected many
-        # resamplers will use multiple steps we though it nonetheless
-        # prudent to allow for this potential behavior because the
-        # handling of such data in the HDF5 (and subsequent analysis
-        # steps) changes considerably with this consideration. In the
-        # future perhaps an automatic converter will detect this and
-        # modify it if we find it necessary, however it is more likely
-        # that this will just hide more important errors,
-        # i.e. returning only one step when you meant to return
-        # more. So for now we just provide a custom error to help in
-        # debugging because this is a common mistake.
-        if not isinstance(cycle_resampling_records[0], list):
-            raise TypeError("'cycle_resampling_records' must be a list of lists "
-                            "(i.e. list of steps), but a list of types {} were given.".format(
-                                type(cycle_resampling_records[0])))
-
-        # get the run group
-        run_grp = self.run(run_idx)
-        # get the resampling group
-        resampling_grp = run_grp['resampling']
-        # records group
-        rec_grp = resampling_grp['records']
-
-        # the cycle you are on for cycle resampling records, this is
-        # automatically updated
-        cycle_idx = self._current_resampling_rec_cycle
-
-        # the mapping of decision values to names
-        decision_value_names = self.decision_value_names(run_idx)
-
-        # go through each step
-        for step_idx, step in enumerate(cycle_resampling_records):
-            # for each decision and instruction record add the instruction record
-            for walker_idx, resampling_rec in enumerate(step):
-                # the value for the decision, (an int)
-                decision_value = resampling_rec.decision
-                # get the string name for this
-                decision_key = decision_value_names[decision_value]
-                # a tuple for the instruction record
-                instruct_record = resampling_rec.instruction
-                # add this record to the data
-                self.add_resampling_record(run_idx, decision_key,
-                                            cycle_idx, step_idx, walker_idx,
-                                            instruct_record)
-
-        # update the current cycle idx
-        self._current_resampling_rec_cycle += 1
-
-    def add_resampling_record(self, run_idx, decision_key,
-                               cycle_idx, step_idx, walker_idx,
-                               instruct_record):
-
-        run_grp = self.run(run_idx)
-        varlengths = self._instruction_varlength_flags(run_idx)
-
-        # we need to treat variable length decision instructions
-        # differently than fixed width
-
-        # test whether the decision has a variable width instruction format
-        if varlengths[decision_key][()]:
-            self._add_varlength_resampling_record(run_idx, decision_key,
-                                                   cycle_idx, step_idx, walker_idx,
-                                                   instruct_record)
-        else:
-            self._add_fixed_width_instruction_record(run_idx, decision_key,
-                                                     cycle_idx, step_idx, walker_idx,
-                                                     instruct_record)
-
-    def _add_varlength_resampling_record(self, run_idx, decision_key,
-                                          cycle_idx, step_idx, walker_idx,
-                                          instruct_record):
-
-        # the isntruction record group
-        instruct_grp = self._h5['runs/{}/resampling/records/{}'.format(run_idx, decision_key)]
-        # the dataset of initialized datasets for different widths
-        widths_dset = instruct_grp['_initialized']
-
-        # the width of this record
-        instruct_width = len(instruct_record)
-
-        # see if we have a dataset with the width already intialized
-        if not instruct_width in widths_dset[:]:
-            # we don't have a dataset so create it
-            # create the datatype for the dataset
-
-            # we first need to make a proper dtype from the instruction record
-            # fetch the instruct dtype tuple
-            instruct_dtype_tokens = self.instruction_dtypes_tokens[run_idx][decision_key]
-            dt = _make_numpy_varlength_resampling_dtype(instruct_dtype_tokens,
-                                                                  instruct_width)
-            # make the dataset with the given dtype
-            dset = instruct_grp.create_dataset(str(len(instruct_record)), (0,),
-                                               dtype=dt, maxshape=(None,))
-
-            # record it in the initialized list
-            widths_dset.resize( (widths_dset.shape[0] + 1, ) )
-            widths_dset[-1] = instruct_width
-
-        # if it exists get a reference to the dataset according to length
-        else:
-            dset = instruct_grp[str(len(instruct_record))]
-
-        # make the complete record to add to the dataset, need to
-        # convert the instruct record to a normal tuple instead of the
-        # custom variable length record class
-        record = (cycle_idx, step_idx, walker_idx, tuple(instruct_record))
-        # add the record to the dataset
-        self._append_instruct_records(dset, [record])
-
-
-    def _add_fixed_width_instruction_record(self, run_idx, decision_key,
-                                            cycle_idx, step_idx, walker_idx,
-                                            instruct_record):
-        # the decision dataset
-        dset = self._h5['runs/{}/resampling/records/{}'.format(run_idx, decision_key)]
-        # make an appropriate record
-        record = (cycle_idx, step_idx, walker_idx, instruct_record)
-        # add the record to the dataset
-        self._append_instruct_records(dset, [record])
-
-    def _append_instruct_records(self, dset, records):
-        n_records = len(records)
-        dset.resize( (dset.shape[0] + n_records, ) )
-        records_arr = np.array(records, dtype=dset.dtype)
-        dset[-n_records:] = records
-
-
-    def add_cycle_resampling_aux_data(self, run_idx, resampling_aux_data):
-
-        data_grp = self._h5['runs/{}/resampling/aux_data'.format(run_idx)]
-
-        # if the datasets were initialized just add the new data
-        for key, aux_data in resampling_aux_data.items():
-
-            if key in self._resampling_aux_init:
-
-                # get the dataset
-                dset = data_grp[key]
-                print(key)
-                # if the dataset is of variable length handle it specially
-                if self.resampling_aux_shapes[key] is Ellipsis:
-                    # resize the array but it is only of rank because
-                    # of variable length data
-                    dset.resize( (dset.shape[0] + 1, ) )
-                    # does not need to be wrapped in another dimension
-                    # like for other aux data
-                    dset[-1] = aux_data
-
-                else:
-                    # add the new data
-                    dset.resize( (dset.shape[0] + 1, *aux_data.shape) )
-                    dset[-1] = np.array([aux_data])
-
-            # if the datasets were not initialized initialize them with
-            # the incoming dataset
-            else:
-                for key, aux_data in resampling_aux_data.items():
-                    data_grp.create_dataset(key, data=np.array([aux_data]), dtype=aux_data.dtype,
-                                           maxshape=(None, *aux_data.shape))
-                    # save the dtype and shape
-                    self.resampling_aux_dtypes[key] = aux_data.dtype
-                    self.resampling_aux_shapes[key] = aux_data.shape
-                    self._resampling_aux_init.append(key)
-
-    def resampling(self, run_idx):
-        return self._h5['runs/{}/resampling'.format(run_idx)]
-
-    def decision(self, run_idx):
-        return self._h5['runs/{}/resampling/decision'.format(run_idx)]
+    def decision_grp(self, run_idx):
+        return self.run(run_idx)['decision']
 
     def decision_enum(self, run_idx):
 
-        enum_grp = self._h5['runs/{}/resampling/decision/enum'.format(run_idx)]
+        enum_grp = self.decision_grp(run_idx)
         enum = {}
         for decision_name, dset in enum_grp.items():
             enum[decision_name] = dset[()]
@@ -1619,22 +1512,13 @@ class WepyHDF5(object):
         return enum
 
     def decision_value_names(self, run_idx):
-        enum_grp = self._h5['runs/{}/resampling/decision/enum'.format(run_idx)]
+        enum_grp = self.decision_grp(run_idx)
         rev_enum = {}
         for decision_name, dset in enum_grp.items():
             value = dset[()]
             rev_enum[value] = decision_name
 
         return rev_enum
-
-
-    def _instruction_varlength_flags(self, run_idx):
-        varlength_grp = self._h5['runs/{}/resampling/decision/variable_length'.format(run_idx)]
-        varlength = {}
-        for decision_name, dset in varlength_grp.items():
-            varlength[decision_name] = dset
-
-        return varlength
 
     ## application level append methods for run records groups
 
@@ -1752,44 +1636,23 @@ class WepyHDF5(object):
                 # add the new data
                 field[-n_new_frames:, ...] = field_data
 
+    def get_traj_field(self, run_idx, traj_idx, field_path, frames=None):
+        """Returns a numpy array for the given field."""
 
-    def add_cycle_bc_aux_data(self, run_idx, bc_aux_data):
+        traj_path = "/runs/{}/trajectories/{}".format(run_idx, traj_idx)
 
-        data_grp = self._h5['runs/{}/boundary_conditions/aux_data'.format(run_idx)]
+        # if the field doesn't exist return None
+        if not field_path in self._h5[traj_path]:
+            raise KeyError("key for field {} not found".format(field_path))
+            # return None
 
-        # add the data for each aux data type
-        for key, aux_data in bc_aux_data.items():
-
-            # if the datasets were initialized just add the new data
-            if key in self._bc_aux_init:
-
-                # get the dataset
-                dset = data_grp[key]
-
-                # if the dataset is of variable length handle it specially
-                if self.bc_aux_shapes[key] is Ellipsis:
-                    # resize the array but it is only of rank because
-                    # of variable length data
-                    dset.resize( (dset.shape[0] + 1, ) )
-                    # does not need to be wrapped in another dimension
-                    # like for other aux data
-                    dset[-1] = aux_data
-
-                else:
-                    # add the new data
-                    dset.resize( (dset.shape[0] + 1, *aux_data.shape) )
-                    dset[-1] = np.array([aux_data])
-
-            # if the datasets were not initialized initialize them with
-            # the incoming dataset
-            else:
-                for key, aux_data in bc_aux_data.items():
-                    data_grp.create_dataset(key, data=np.array([aux_data]), dtype=aux_data.dtype,
-                                           maxshape=(None, *aux_data.shape))
-                    # save the dtype and shape
-                    self.bc_aux_dtypes[key] = aux_data.dtype
-                    self.bc_aux_shapes[key] = aux_data.shape
-                    self._bc_aux_init.append(key)
+        # get the field depending on whether it is sparse or not
+        if field_path in self.sparse_fields:
+            return self._get_sparse_traj_field(run_idx, traj_idx, field_path,
+                                               frames=frames)
+        else:
+            return self._get_contiguous_traj_field(run_idx, traj_idx, field_path,
+                                                   frames=frames)
 
     def _get_contiguous_traj_field(self, run_idx, traj_idx, field_path, frames=None):
 
@@ -1845,23 +1708,6 @@ class WepyHDF5(object):
 
         return masked_array
 
-    def get_traj_field(self, run_idx, traj_idx, field_path, frames=None):
-        """Returns a numpy array for the given field."""
-
-        traj_path = "/runs/{}/trajectories/{}".format(run_idx, traj_idx)
-
-        # if the field doesn't exist return None
-        if not field_path in self._h5[traj_path]:
-            raise KeyError("key for field {} not found".format(field_path))
-            # return None
-
-        # get the field depending on whether it is sparse or not
-        if field_path in self.sparse_fields:
-            return self._get_sparse_traj_field(run_idx, traj_idx, field_path,
-                                               frames=frames)
-        else:
-            return self._get_contiguous_traj_field(run_idx, traj_idx, field_path,
-                                                   frames=frames)
 
     def get_trace_fields(self, frame_tups, fields):
         frame_fields = {field : [] for field in fields}
@@ -2289,66 +2135,83 @@ class WepyHDF5(object):
     def progress_grp(self, run_idx):
         return self.records_grp(run_idx, PROGRESS)
 
-    def resampling_records(self, run_idx, sort=True):
+    def run_records(self, run_idx, run_record_key):
 
-        res_grp = self.resampling_records_grp(run_idx)
-        decision_enum = self.decision_enum(run_idx)
+        rec_grp = self.records_grp(run_idx, run_record_key)
 
-        res_recs = []
-        for dec_name, dec_id in self.decision_enum(run_idx).items():
+        # a record namedtuple to make them with
+        Record = namedtuple('{}_Record'.format(run_record_key),
+                            ['cycle_idx'] + self.record_fields[run_record_key])
 
-            # if this is a decision with variable length instructions
-            if self._instruction_varlength_flags(run_idx)[dec_name][()]:
-                dec_grp = res_grp[dec_name]
-                recs = []
-                # go through each dataset of different records
-                for init_length in dec_grp['_initialized'][:]:
-                    rec_ds = dec_grp['{}'.format(init_length)]
+        # for each record we make a tuple and yield it
+        for record_idx in range(rec_grp[CYCLE_IDXS].shape[0]):
 
-                    # reorder for to match the field order
-                    recs = [rec_ds[field] for field in [CYCLE_IDXS, STEP, WALKER]]
-                    # fill up a column for the decision id
-                    recs.append(np.full((rec_ds.shape[0],), dec_id))
-                    # put the instructions last
-                    recs.append(rec_ds[INSTRUCTION])
+            # make a record for this cycle
+            record_d = {'cycle_idx' : rec_grp[CYCLE_IDXS][record_idx]}
+            for record_field in self.record_fields[run_record_key]:
 
-                    # make an array
-                    recs = np.array(recs)
-                    # swap the axes so it is row-oriented
-                    recs = np.swapaxes(recs, 0, 1)
+                datum = rec_grp[record_field][record_idx]
+                if datum.shape[0] > 1:
+                    datum = tuple(datum)
+                else:
+                    datum = datum[0]
 
-                    # return to a list of lists and save into the full record
-                    res_recs.append([tuple(row) for row in recs])
+                record_d[record_field] = datum
 
-            else:
-                rec_ds = res_grp[dec_name]
+            record = Record(**record_d)
 
-                # reorder for to match the field order
-                recs = [rec_ds[field] for field in [CYCLE_IDXS, STEP, WALKER]]
-                # fill up a column for the decision id
-                recs.append(np.full((rec_ds.shape[0],), dec_id))
-                # put the instructions last
-                recs.append(rec_ds[INSTRUCTION])
+            yield record
 
-                # make an array
-                recs = np.array(recs)
-                # swap the axes so it is row-oriented
-                recs = np.swapaxes(recs, 0, 1)
+    def run_records_dataframe(self, run_idx, run_record_key):
+        records = self.run_records(run_idx, run_record_key)
+        return pd.DataFrame(records)
 
-                # return to a list of lists and save into the full record
-                res_recs.append([tuple(row) for row in recs])
+    # application level specific methods for each main group
 
-        # combine them all into one list
-        res_recs = list(it.chain(*res_recs))
+    # resampling
+    def resampling_records(self, run_idx):
 
-        if sort:
-            res_recs.sort()
-
-        return res_recs
+        return self.run_records(run_idx, RESAMPLING)
 
     def resampling_records_dataframe(self, run_idx):
 
-        return pd.DataFrame(data=self.resampling_records(run_idx), columns=RESAMPLING_RECORD_FIELDS)
+        return pd.DataFrame(self.resampling_records(run_idx))
+
+    # resampler records
+    def resampler_records(self, run_idx):
+
+        return self.run_records(run_idx, RESAMPLER)
+
+    def resampler_records_dataframe(self, run_idx):
+
+        return pd.DataFrame(self.resampler_records(run_idx))
+
+    # warping
+    def warping_records(self, run_idx):
+
+        return self.run_records(run_idx, WARPING)
+
+    def warping_records_dataframe(self, run_idx):
+
+        return pd.DataFrame(self.warping_records(run_idx))
+
+    # boundary conditions
+    def bc_records(self, run_idx):
+
+        return self.run_records(run_idx, BC)
+
+    def bc_records_dataframe(self, run_idx):
+
+        return pd.DataFrame(self.bc_records(run_idx))
+
+    # progress
+    def progress_records(self, run_idx):
+
+        return self.run_records(run_idx, PROGRESS)
+
+    def progress_records_dataframe(self, run_idx):
+
+        return pd.DataFrame(self.progress_records(run_idx))
 
     @staticmethod
     def resampling_panel(resampling_records, is_sorted=False):
@@ -2463,89 +2326,6 @@ class WepyHDF5(object):
     def run_resampling_panel(self, run_idx):
         return self.resampling_panel(self.resampling_records(run_idx))
 
-    def resampling_records_grp(self, run_idx):
-        return self._h5['runs/{}/resampling/records'.format(run_idx)]
-
-    def resampling_aux_data_fields(self, run_idx):
-
-        return list(self.resampling_aux_data_grp(run_idx))
-
-    def resampling_aux_data_field(self, run_idx, field):
-
-        aux_grp = self.resampling_aux_data_grp(run_idx)
-
-        return aux_grp[field][:]
-
-    def resampling_aux_data(self, run_idx):
-
-        fields_data = {}
-        for field in self.resampling_aux_data_fields(run_idx):
-            fields_data[field] = self.resampling_aux_data_grp(run_idx)[field][:]
-
-        return fields_data
-
-
-    def warp_records(self, run_idx):
-
-        warp_grp = self.warp_grp(run_idx)
-
-        return warp_grp['records'][:]
-
-    def warp_records_dataframe(self, run_idx):
-
-        return pd.DataFrame(data=self.warp_records(run_idx), columns=WARP_RECORD_FIELDS)
-
-    def warp_aux_data_grp(self, run_idx):
-        return self._h5['runs/{}/warping/aux_data'.format(run_idx)]
-
-    def warp_aux_data_fields(self, run_idx):
-        return list(self.warp_aux_data_grp(run_idx))
-
-    def warp_aux_data_field(self, run_idx, field):
-
-        aux_grp = self.warp_aux_data_grp(run_idx)
-
-        return aux_grp[field][:]
-
-    def warp_aux_data(self, run_idx):
-
-        fields_data = {}
-        for field in self.warp_aux_data_fields(run_idx):
-            fields_data[field] = self.warp_aux_data_grp(run_idx)[field][:]
-
-        return fields_data
-
-    def bc_records(self, run_idx):
-
-        bc_grp = self.bc_grp(run_idx)
-
-        return bc_grp['records'][:]
-
-    def bc_records_dataframe(self, run_idx):
-
-        return pd.DataFrame(data=self.bc_records(run_idx), columns=BC_RECORD_FIELDS)
-
-    def bc_aux_data_grp(self, run_idx):
-        return self._h5['runs/{}/boundary_conditions/aux_data'.format(run_idx)]
-
-    def bc_aux_data_fields(self, run_idx):
-        return list(self.bc_aux_data_grp(run_idx))
-
-    def bc_aux_data_field(self, run_idx, field):
-
-        aux_grp = self.bc_aux_data_grp(run_idx)
-
-        return aux_grp[field][:]
-
-    def bc_aux_data(self, run_idx):
-
-        fields_data = {}
-        for field in self.bc_aux_data_fields(run_idx):
-            fields_data[field] = self.bc_aux_data_grp(run_idx)[field][:]
-
-        return fields_data
-
-
     def join(self, other_h5):
         """Given another WepyHDF5 file object does a left join on this
         file. Renumbering the runs starting from this file.
@@ -2659,27 +2439,6 @@ class WepyHDF5(object):
         return traj
 
 
-
-
-def _extract_dict(keys, **kwargs):
-    traj_data = {}
-    for field in keys:
-        try:
-            traj_data[field] = kwargs[field]
-        except KeyError:
-            pass
-
-    return traj_data
-
-# this is just a prototype, code was copied into where it needs to be
-# as it is difficult to figure out which function received the kwargs,
-# i.e. passing the function being called to a function it is calling.
-def _warn_unknown_kwargs(**kwargs):
-    for key in kwargs.keys():
-        if not (key in TRAJ_DATA_FIELDS) and not (key in TRAJ_UNIT_FIELDS):
-            warn("kwarg {} not recognized and was ignored".format(key), RuntimeWarning)
-
-
 ## DATA COMPLIANCE STUFF
 def _check_data_compliance(traj_data, compliance_requirements=COMPLIANCE_REQUIREMENTS):
     """Given a dictionary of trajectory data it returns the
@@ -2708,10 +2467,6 @@ def _check_data_compliance(traj_data, compliance_requirements=COMPLIANCE_REQUIRE
             compliances.append(compliance_tag)
 
     return compliances
-
-# see TODO
-def concat(wepy_h5s):
-    pass
 
 def iter_field_paths(grp):
     field_paths = []

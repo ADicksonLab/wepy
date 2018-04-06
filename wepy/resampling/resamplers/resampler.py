@@ -15,10 +15,14 @@ class Resampler(object):
     RESAMPLING_SHAPES = ()
     RESAMPLING_DTYPES = ()
 
+    RESAMPLING_RECORD_FIELDS = ()
+
     # changes to the state of the resampler (sporadic)
     RESAMPLER_FIELDS = ()
     RESAMPLER_SHAPES = ()
     RESAMPLER_DTYPES = ()
+
+    RESAMPLER_RECORD_FIELDS = ()
 
 
     def __init__(self, scorer, decider):
@@ -40,6 +44,8 @@ class Resampler(object):
                    self.resampling_field_shapes(),
                    self.resampling_field_dtypes()))
 
+    def resampling_record_field_names(self):
+        return self.RESAMPLING_RECORD_FIELDS
 
     def resampler_field_names(self):
         return self.RESAMPLER_FIELDS
@@ -54,6 +60,9 @@ class Resampler(object):
         return list(zip(self.resampler_field_names(),
                    self.resampler_field_shapes(),
                    self.resampler_field_dtypes()))
+
+    def resampler_record_field_names(self):
+        return self.RESAMPLER_RECORD_FIELDS
 
     def resample(self, walkers):
 

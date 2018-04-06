@@ -16,15 +16,21 @@ class UnbindingBC(BoundaryConditions):
     BC_SHAPES = ((1,), )
     BC_DTYPES = (np.float, )
 
+    BC_RECORD_FIELDS = ('boundary_distance', )
+
     # warping (sporadic)
     WARPING_FIELDS = ('walker_idx', 'target_idx', 'weight')
     WARPING_SHAPES = ((1,), (1,), (1,))
     WARPING_DTYPES = (np.int, np.int, np.float)
 
+    WARPING_RECORD_FIELDS = ('walker_idx', 'target_idx', 'weight')
+
     # progress towards the boundary conditions (continual)
     PROGRESS_FIELDS = ('min_distances',)
     PROGRESS_SHAPES = (Ellipsis,)
     PROGRESS_DTYPES = (np.float,)
+
+    PROGRESS_RECORD_FIELDS = ()
 
     def __init__(self, initial_state=None,
                  cutoff_distance=1.0,

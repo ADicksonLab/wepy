@@ -138,7 +138,7 @@ with wepy_h5:
     wepy_h5.extend_cycle_warping_records(0, 0, warp_data)
 
 # report these
-reporter = WepyHDF5Reporter(hdf5_filename, mode='w',
+reporter = WepyHDF5Reporter(hdf5_filename, mode='r+',
                             save_fields=('positions', 'box_vectors', 'velocities'),
                             resampler=resampler,
                             boundary_conditions=ubc,

@@ -11,15 +11,21 @@ class BoundaryConditions(object):
     BC_SHAPES = ()
     BC_DTYPES = ()
 
+    BC_RECORD_FIELDS = ()
+
     # warping (sporadic)
     WARPING_FIELDS = ()
     WARPING_SHAPES = ()
     WARPING_DTYPES = ()
 
+    WARPING_RECORD_FIELDS = ()
+
     # progress towards the boundary conditions (continual)
     PROGRESS_FIELDS = ()
     PROGRESS_SHAPES = ()
     PROGRESS_DTYPES = ()
+
+    PROGRESS_RECORD_FIELDS = ()
 
     def __init__(self, **kwargs):
 
@@ -39,6 +45,9 @@ class BoundaryConditions(object):
                    self.bc_field_shapes(),
                    self.bc_field_dtypes())
 
+    def bc_record_field_names(self):
+        return self.BC_RECORD_FIELDS
+
     def warping_field_names(self):
         return self.WARPING_FIELDS
 
@@ -52,6 +61,9 @@ class BoundaryConditions(object):
         return list(zip(self.warping_field_names(),
                    self.warping_field_shapes(),
                    self.warping_field_dtypes()))
+
+    def warping_record_field_names(self):
+        return self.WARPING_RECORD_FIELDS
 
     def progress_field_names(self):
         return self.PROGRESS_FIELDS
@@ -67,6 +79,8 @@ class BoundaryConditions(object):
                    self.progress_field_shapes(),
                    self.progress_field_dtypes()))
 
+    def progress_record_field_names(self):
+        return self.PROGRESS_RECORD_FIELDS
 
     def progress(self, walker):
         """ Checks if a walker is in a boundary and returns which boundary it is in"""
