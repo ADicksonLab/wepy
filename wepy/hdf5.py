@@ -2314,7 +2314,7 @@ class WepyHDF5(object):
                 else:
                     # if the resampling record retrieved is from the next
                     # cycle we finish the last cycle
-                    if rec[RESAMPLING_RECORD_FIELDS.index(CYCLE_IDXS)] > cycle_idx:
+                    if rec.cycle_idx > cycle_idx:
                         cycle_stop = True
                         # save the current cycle as a special
                         # list which we will iterate through
@@ -2351,7 +2351,8 @@ class WepyHDF5(object):
 
                         # or if the next stop index has been obtained
                         else:
-                            if cycle_rec[RESAMPLING_RECORD_FIELDS.index(STEP)] > step_idx:
+                            #if cycle_rec[RESAMPLING_RECORD_FIELDS.index(STEP)] > step_idx:
+                            if cycle_rec.step_idx > step_idx:
                                 step_stop = True
                                 # save the current step as a special
                                 # list which we will iterate through
@@ -2373,12 +2374,9 @@ class WepyHDF5(object):
                             for walker_rec in curr_step_recs:
 
                                 # collect data from the record
-                                walker_idx = walker_rec[
-                                    RESAMPLING_RECORD_FIELDS.index(WALKER)]
-                                decision_id = walker_rec[
-                                    RESAMPLING_RECORD_FIELDS.index('decision_id')]
-                                instruction = walker_rec[
-                                    RESAMPLING_RECORD_FIELDS.index(INSTRUCTION)]
+                                walker_idx = walker_rec.walker_idx
+                                decision_id = walker_rec.decision_id
+                                instruction = walker_rec.target_idxs
 
                                 # set the resampling record for the walker in the step records
                                 step_row[walker_idx] = (decision_id, instruction)
