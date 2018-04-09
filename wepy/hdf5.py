@@ -122,7 +122,7 @@ CYCLE_IDXS = '_cycle_idxs'
 # cycle. There also is not a single record for each (cycle, step) like
 # there would be for continual ones because they can occur for single
 # walkers, boundary conditions, or resamplers.
-SPORADIC_RECORDS = (RESAMPLER, WARPING, RESAMPLING)
+SPORADIC_RECORDS = (RESAMPLER, WARPING, RESAMPLING, BC)
 
 ## Dataset Compliances
 # a file which has different levels of keys can be used for
@@ -2137,13 +2137,46 @@ class WepyHDF5(object):
 
     def run_records(self, run_idx, run_record_key):
 
-        rec_grp = self.records_grp(run_idx, run_record_key)
+        # if there are no fields return an empty list
+        record_fields = self.record_fields[run_record_key]
+        if len(record_fields) == 0:
+            return []
 
-        # a record namedtuple to make them with
+        # get the iterator for the record idxs, if the group is
+        # sporadic then we just use the cycle idxs
+        if self._is_sporadic_records(run_record_key):
+            records = self._run_records_sporadic(run_idx, run_record_key)
+        else:
+            records = self._run_records_continual(run_idx, run_record_key)
+
+        return records
+
+    def _run_record_namedtuple(self, run_record_key):
+
         Record = namedtuple('{}_Record'.format(run_record_key),
                             ['cycle_idx'] + self.record_fields[run_record_key])
 
+        return Record
+
+    @staticmethod
+    def _convert_array_to_record_field(datum):
+
+        if datum.shape[0] > 1:
+            rec_datum = tuple(datum)
+        else:
+            rec_datum = datum[0]
+
+        return rec_datum
+
+
+    def _run_records_sporadic(self, run_idx, run_record_key):
+
+        rec_grp = self.records_grp(run_idx, run_record_key)
+
+        Record = self._run_record_namedtuple(run_record_key)
+
         # for each record we make a tuple and yield it
+        records = []
         for record_idx in range(rec_grp[CYCLE_IDXS].shape[0]):
 
             # make a record for this cycle
@@ -2151,16 +2184,52 @@ class WepyHDF5(object):
             for record_field in self.record_fields[run_record_key]:
 
                 datum = rec_grp[record_field][record_idx]
-                if datum.shape[0] > 1:
-                    datum = tuple(datum)
-                else:
-                    datum = datum[0]
+                # data is stored as feature vector arrays, so we need
+                # to convert them to something better for records
+                datum = self._convert_array_to_record_field(datum)
 
                 record_d[record_field] = datum
 
             record = Record(**record_d)
 
-            yield record
+            records.append(record)
+
+        return records
+
+    def _run_records_continual(self, run_idx, run_record_key):
+
+        rec_grp = self.records_grp(run_idx, run_record_key)
+
+        Record = self._run_record_namedtuple(run_record_key)
+
+        # get one of the fields (if any to iterate over)
+        record_fields = self.record_fields[run_record_key]
+        main_record_field = record_fields[0]
+
+        # make the records
+        records = []
+        # iterate over the chosen field to get the cycle idxs
+        for cycle_idx, main_field_value in enumerate(rec_grp[main_record_field]):
+
+            # start the dictionary for the record with the cycle index
+            record_d = {'cycle_idx' : cycle_idx}
+
+            # add the rest of the fields
+            for field_key in record_fields:
+
+                datum = rec_grp[field_key][cycle_idx]
+                # data is stored as feature vector arrays, so we need
+                # to convert them to something better for records
+                datum = self._convert_array_to_record_field(datum)
+
+                record_d[field_key] = datum
+
+            # make a real record
+            record = Record(**record_d)
+
+            records.append(record)
+
+        return records
 
     def run_records_dataframe(self, run_idx, run_record_key):
         records = self.run_records(run_idx, run_record_key)
