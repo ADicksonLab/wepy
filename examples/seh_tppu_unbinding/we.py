@@ -301,6 +301,10 @@ def main(n_runs, n_cycles, steps, n_walkers, n_workers=1, debug_prints=False, se
     # set up the OpenMMRunner with the system
     runner = OpenMMRunner(system, psf.topology, integrator, platform=PLATFORM)
 
+
+    # the initial state, which is used as reference for many things
+    init_state = OpenMMState(omm_state)
+
     ## Make the distance Metric
 
     # load the crystal structure coordinates
@@ -311,14 +315,18 @@ def main(n_runs, n_cycles, steps, n_walkers, n_workers=1, debug_prints=False, se
     lig_idxs = ligand_idxs(crystal_traj.top, LIG_RESID)
     prot_idxs = protein_idxs(crystal_traj.top)
 
-    unb_distance = UnbindingDistance(lig_idxs, bs_idxs)
+    # make the distance metric with the ligand and binding site
+    # indices for selecting atoms for the image and for doing the
+    # alignments to only the binding site. All images will be aligned
+    # to the reference initial state
+    unb_distance = UnbindingDistance(lig_idxs, bs_idxs, init_state)
 
     ## Make the resampler
 
     # make a WExplore1 resampler with default parameters and our
     # distance metric
     resampler = WExplore1Resampler(distance=unb_distance,
-                                   init_state=OpenMMState(omm_state),
+                                   init_state=init_state,
                                    max_n_regions=MAX_N_REGIONS,
                                    max_region_sizes=MAX_REGION_SIZES,
                                    pmin=PMIN, pmax=PMAX)

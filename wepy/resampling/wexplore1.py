@@ -711,7 +711,8 @@ class WExplore1Resampler(Resampler):
     RESAMPLING_DTYPES = DECISION.DTYPES + (np.int, np.int, np.int,)
 
     # fields that can be used for a table like representation
-    RESAMPLING_RECORD_FIELDS = DECISION.RECORD_FIELDS + ('step_idx', 'walker_idx', 'region_assignment')
+    RESAMPLING_RECORD_FIELDS = DECISION.RECORD_FIELDS + \
+                               ('step_idx', 'walker_idx', 'region_assignment',)
 
 
     def __init__(self, seed=None, pmin=1e-12, pmax=0.1,
@@ -907,10 +908,9 @@ class WExplore1Resampler(Resampler):
         # records a lists of lists for steps and walkers
         resampled_walkers = self.DECISION.action(walkers, [resampling_data])
 
-        # then add the assignments for each walker
+        # then add the assignments and distance to image for each walker
         for walker_idx, assignment in enumerate(assignments):
             resampling_data[walker_idx]['region_assignment'] = assignment
-
 
         return resampled_walkers, resampling_data, resampler_data
 

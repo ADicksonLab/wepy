@@ -60,11 +60,16 @@ class AllToAllScorer(DistanceScorer):
         # initialize an all-to-all matrix, with 0.0 for self distances
         dist_mat = np.zeros((len(walkers), len(walkers)))
 
+        # make images for all the walker states for us to compute distances on
+        images = []
+        for walker in walkers:
+            image = self.distance.image(walker.state)
+
         # get the combinations of indices for all walker pairs
         for i, j in it.combinations(range(len(walkers)), 2):
 
             # calculate the distance between the two walkers
-            dist = self.distance.distance(walkers[i].state, walkers[j].state)
+            dist = self.distance.image_distance(images[i], images[j])
 
             # save this in the matrix in both spots
             dist_mat[i][j] = dist
