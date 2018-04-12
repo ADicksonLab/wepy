@@ -62,6 +62,7 @@ from wepy.runners.openmm import UNIT_NAMES, GET_STATE_KWARG_DEFAULTS
 from wepy.work_mapper.mapper import Mapper
 from wepy.boundary_conditions.unbinding import UnbindingBC
 from wepy.reporter.hdf5 import WepyHDF5Reporter
+from wepy.reporter.dashboard import WExploreDashboardReporter
 
 from scipy.spatial.distance import euclidean
 
@@ -207,8 +208,16 @@ hdf5_reporter = WepyHDF5Reporter(hdf5_path, mode='w',
                                  resampler=resampler,
                                  boundary_conditions=ubc,
                                  topology=json_str_top,
-                                 units=units,
-)
+                                 units=units,)
+
+dashboard_reporter = WExploreDashboardReporter('./outputs/wepy.dash.txt', mode='w',
+                                               step_time=STEP_SIZE.value_in_unit(unit.second),
+                                               max_n_regions=resampler.max_n_regions,
+                                               max_region_sizes=resampler.max_region_sizes,
+                                               bc_cutoff_distance=ubc.cutoff_distance)
+
+reporters = [hdf5_reporter, dashboard_reporter]
+
 
 
 ## Work Mapper
@@ -244,7 +253,7 @@ if __name__ == "__main__":
                               resampler=resampler,
                               boundary_conditions=ubc,
                               work_mapper=mapper,
-                              reporters=[hdf5_reporter])
+                              reporters=reporters)
 
         # make a number of steps for each cycle. In principle it could be
         # different each cycle

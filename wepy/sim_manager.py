@@ -120,7 +120,8 @@ class Manager(object):
                 reporter.report(cycle_idx, new_walkers,
                                 warp_data, bc_data, progress_data,
                                 resampling_data, resampler_data,
-                                debug_prints=debug_prints)
+                                debug_prints=debug_prints,
+                                n_steps=segment_length)
 
             # prepare resampled walkers for running new state changes
             walkers = resampled_walkers
