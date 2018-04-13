@@ -1,4 +1,5 @@
 from collections import defaultdict
+import itertools as it
 
 from wepy.reporter.reporter import FileReporter
 
@@ -105,9 +106,11 @@ Performance Log:
         # WExplore
 
         # resampler
-        root_region = tuple([0 for i in range(self.n_levels)])
-        self.region_ids = [root_region]
+        self.root_region = ()
+        init_leaf_region = tuple([0 for i in range(self.n_levels)])
+        self.region_ids = [init_leaf_region]
         self.regions_per_level = []
+        self.children_per_region = {}
 
         # resampling
         self.walker_assignments = []
@@ -247,7 +250,6 @@ Performance Log:
         # then just get the assignment since it is sorted
         self.walker_assignments = [assignment for walker, assignment in assignments]
 
-
         # add to the records for region creation in WExplore
         for resampler_record in resampler_data:
 
@@ -268,13 +270,46 @@ Performance Log:
             # save it in the records
             self.branch_records.append(branch_record)
 
+        # count the number of child regions each region has
+        self.children_per_region = {}
+        all_regions = self.leaf_regions_to_all_regions(self.region_ids)
+        for region_id in all_regions:
+            # if its a leaf region it has no children
+            if len(region_id) == self.n_levels:
+                self.regions_per_level[region_id] = 0
+
+            # all others we cound how many children it has
+            else:
+                # get all regions that have this one as a root
+                children_idxs = set()
+                for poss_child_id in all_regions:
+
+                    # get the root at the level of this region for the child
+                    poss_child_root = poss_child_id[0:len(region_id)]
+                    # if the root is the same we keep it without
+                    # counting children below the next level
+                    if (poss_child_root == region_id):
+                        child_idx = poss_child_id[len(region_id) + 1]
+                        children_idxs.add(child_idx)
+
+            # count the children of this region
+            self.regions_per_level[region_id] = len(children_idxs)
+
+        # count the number of regions at each level
+        self.regions_per_level = []
+        for region_id, n_children in self.children_per_region.items():
+            level = len(region_id)
+            self.regions_per_level[level] += n_children
+
+
     def update_performance_values(self):
         pass
 
 
     @staticmethod
     def leaf_regions_to_all_regions(region_ids):
-        regions = set()
+        # make a set of all the regions starting with the root region
+        regions = set([self.root_region])
         for region_id in region_ids:
             for i in range(len(region_id)):
                 regions.add(region_id[0:i+1])
@@ -287,7 +322,9 @@ Performance Log:
     def dashboard_string(self):
 
         regions = self.leaf_regions_to_all_regions(self.region_ids)
-        region_hierarchy = '\n'.join(['{}' for i in range(len(regions))]).format(*regions)
+        region_children = [self.children_per_region[region] for region in regions]
+        region_children_pairs = it.chain(zip(regions, region_children))
+        region_hierarchy = '\n'.join(['{}                              {}' for i in range(len(regions))]).format(*region_children_pairs)
 
         # make the table of walkers using pandas, using the order here
         # TODO add the image distances
