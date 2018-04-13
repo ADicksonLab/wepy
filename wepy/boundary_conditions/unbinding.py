@@ -37,7 +37,7 @@ class UnbindingBC(BoundaryConditions):
                  cutoff_distance=1.0,
                  topology=None,
                  ligand_idxs=None,
-                 binding_site_idxs=None):
+                 receptor_idxs=None):
 
         super().__init__()
 
@@ -45,7 +45,7 @@ class UnbindingBC(BoundaryConditions):
         assert initial_state is not None, "Must give an initial state"
         assert topology is not None, "Must give a reference topology"
         assert ligand_idxs is not None
-        assert binding_site_idxs is not None
+        assert receptor_idxs is not None
         assert type(cutoff_distance) is float
 
         self.initial_state = initial_state
@@ -53,7 +53,7 @@ class UnbindingBC(BoundaryConditions):
         self.topology = topology
 
         self.ligand_idxs = ligand_idxs
-        self.binding_site_idxs = binding_site_idxs
+        self.receptor_idxs = receptor_idxs
 
     def _calc_angle(self, v1, v2):
         return np.degrees(np.arccos(np.dot(v1, v2)/(la.norm(v1) * la.norm(v2))))
@@ -83,7 +83,7 @@ class UnbindingBC(BoundaryConditions):
         # and get hte minimum distance
         min_distance = np.min(mdj.compute_distances(walker_traj,
                                                     it.product(self.ligand_idxs,
-                                                               self.binding_site_idxs)))
+                                                               self.receptor_idxs)))
         return min_distance
 
     def check_boundaries(self, walker):

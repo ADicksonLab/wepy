@@ -330,7 +330,7 @@ def main(runtime, steps, n_walkers, n_workers=1, debug_prints=False, seed=None):
                       initial_state=omm_state,
                       topology=crystal_traj.topology,
                       ligand_idxs=lig_idxs,
-                      binding_site_idxs=bs_idxs)
+                      receptor_idxs=prot_idxs)
 
 
     ## make the reporters

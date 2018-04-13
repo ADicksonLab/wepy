@@ -192,7 +192,7 @@ ubc = UnbindingBC(cutoff_distance=CUTOFF_DISTANCE,
                   initial_state=init_state,
                   topology=mdtraj_topology,
                   ligand_idxs=np.array(test_sys.ligand_indices),
-                  binding_site_idxs=np.array(test_sys.receptor_indices))
+                  receptor_idxs=np.array(test_sys.receptor_indices))
 
 ## Reporters
 
