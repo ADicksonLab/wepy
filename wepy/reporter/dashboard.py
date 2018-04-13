@@ -23,7 +23,7 @@ WExplore:
     Number of Regions per level:
         {regions_per_level}
 
-    Defined Regions:
+Defined Regions with the number of child regions per parent region:
 {region_hierarchy}
 
 Walker Table:
@@ -126,9 +126,9 @@ Performance Log:
         ## Log of events variables
 
         # boundary conditions
-        self.exit_point_walkers = []
         self.exit_point_weights = []
-        self.exit_point_times = [] # seconds
+        self.exit_point_times = []
+        self.warp_records = []
 
         # wexplore
         self.branch_records = []
@@ -199,8 +199,11 @@ Performance Log:
 
             weight = warp_record['weight'][0]
             walker_idx = warp_record['walker_idx'][0]
-            # add the values for the records
-            self.exit_point_walkers.append(walker_idx)
+
+            record = (walker_idx, weight, self.walker_total_sampling_time)
+            self.warp_records.append(record)
+
+            # also add them to the individual records
             self.exit_point_weights.append(weight)
             self.exit_point_times.append(self.walker_total_sampling_time)
 
@@ -276,7 +279,7 @@ Performance Log:
         for region_id in all_regions:
             # if its a leaf region it has no children
             if len(region_id) == self.n_levels:
-                self.regions_per_level[region_id] = 0
+                self.children_per_region[region_id] = 0
 
             # all others we cound how many children it has
             else:
@@ -287,18 +290,28 @@ Performance Log:
                     # get the root at the level of this region for the child
                     poss_child_root = poss_child_id[0:len(region_id)]
                     # if the root is the same we keep it without
-                    # counting children below the next level
-                    if (poss_child_root == region_id):
-                        child_idx = poss_child_id[len(region_id) + 1]
+                    # counting children below the next level, but we skip the same region
+                    if (poss_child_root == region_id) and (poss_child_id != region_id):
+
+                        try:
+                            child_idx = poss_child_id[len(region_id)]
+                        except IndexError:
+                            import ipdb; ipdb.set_trace()
+
                         children_idxs.add(child_idx)
 
-            # count the children of this region
-            self.regions_per_level[region_id] = len(children_idxs)
+                # count the children of this region
+                self.children_per_region[region_id] = len(children_idxs)
 
         # count the number of regions at each level
-        self.regions_per_level = []
+        self.regions_per_level = [0 for i in range(self.n_levels)]
         for region_id, n_children in self.children_per_region.items():
             level = len(region_id)
+
+            # skip the leaves
+            if level == self.n_levels:
+                continue
+
             self.regions_per_level[level] += n_children
 
 
@@ -306,8 +319,7 @@ Performance Log:
         pass
 
 
-    @staticmethod
-    def leaf_regions_to_all_regions(region_ids):
+    def leaf_regions_to_all_regions(self, region_ids):
         # make a set of all the regions starting with the root region
         regions = set([self.root_region])
         for region_id in region_ids:
@@ -323,8 +335,8 @@ Performance Log:
 
         regions = self.leaf_regions_to_all_regions(self.region_ids)
         region_children = [self.children_per_region[region] for region in regions]
-        region_children_pairs = it.chain(zip(regions, region_children))
-        region_hierarchy = '\n'.join(['{}                              {}' for i in range(len(regions))]).format(*region_children_pairs)
+        region_children_pairs = it.chain(*zip(regions, region_children))
+        region_hierarchy = '\n'.join(['{}     {}' for i in range(len(regions))]).format(*region_children_pairs)
 
         # make the table of walkers using pandas, using the order here
         # TODO add the image distances
@@ -346,6 +358,17 @@ Performance Log:
         leaf_region_table_df.set_index('region', drop=True)
         leaf_region_table_str = leaf_region_table_df.to_string()
 
+        # log of branching events
+        branching_table_colnames = ('new_leaf_id', 'branching_level', 'trigger_distance')
+        branching_table_df = pd.DataFrame(self.branch_records, columns=branching_table_colnames)
+        branching_table_str = branching_table_df.to_string()
+
+        # log of warp events
+        warp_table_colnames = ('walker_idx', 'weight', 'time')
+        warp_table_df = pd.DataFrame(self.warp_records, columns=warp_table_colnames)
+        warp_table_str = warp_table_df.to_string()
+
+        # format the dashboard string
         dashboard = self.DASHBOARD_TEMPLATE.format(
             step_time=self.step_time,
             last_cycle_idx=self.last_cycle_idx,
@@ -369,9 +392,9 @@ Performance Log:
             walker_table=walker_table_str,
             leaf_region_table=leaf_region_table_str,
             # TODO
-            warping_log='',
+            warping_log=warp_table_str,
             # TODO
-            wexplore_log=self.branch_records,
+            wexplore_log=branching_table_str,
             # TODO
             performance_log=''
         )
