@@ -12,6 +12,23 @@ class WExplore2Resampler(Resampler):
 
     DECISION = MultiCloneMergeDecision
 
+    # state change data for the resampler
+    RESAMPLER_FIELDS = ('n_walkers', 'distance_matrix', 'spread')
+    RESAMPLER_SHAPES = ((1,), Ellipsis, (1,))
+    RESAMPLER_DTYPES = (np.int, np.float, np.float)
+
+    # fields that can be used for a table like representation
+    RESAMPLER_RECORD_FIELDS = ('spread',)
+
+    # fields for resampling data
+    RESAMPLING_FIELDS = DECISION.FIELDS + ('step_idx', 'walker_idx',)
+    RESAMPLING_SHAPES = DECISION.SHAPES + ((1,), (1,),)
+    RESAMPLING_DTYPES = DECISION.DTYPES + (np.int, np.int,)
+
+    # fields that can be used for a table like representation
+    RESAMPLING_RECORD_FIELDS = DECISION.RECORD_FIELDS + ('step_idx', 'walker_idx',)
+
+
     def __init__(self, seed=None, pmin=1e-12, pmax=0.1, dpower=4, merge_dist=2.5,
                  scorer=None):
 
@@ -260,7 +277,14 @@ class WExplore2Resampler(Resampler):
         # squashed walkers will be merged
         walker_actions = self.assign_clones(merge_groups, walker_clone_nums)
 
-        return([walker_actions]), spreads[-1]
+        # because there is only one step in resampling here we just
+        # add another field for the step as 0 and add the walker index
+        # to its record as well
+        for walker_idx, walker_record in enumerate(walker_actions):
+            walker_record['step_idx'] = np.array([0])
+            walker_record['walker_idx'] = np.array([walker_idx])
+
+        return walker_actions, spreads[-1]
 
     def resample(self, walkers, debug_prints=False):
 
@@ -277,12 +301,21 @@ class WExplore2Resampler(Resampler):
 
         # determine cloning and merging actions to be performed, by
         # maximizing the spread, i.e. the Decider
-        resampling_actions, spread = self.decide_clone_merge(walkerwt, amp, distance_matrix,
+        resampling_data, spread = self.decide_clone_merge(walkerwt, amp, distance_matrix,
                                                              debug_prints=debug_prints)
 
+        # convert the target idxs and decision_id to feature vector arrays
+        for record in resampling_data:
+            record['target_idxs'] = np.array(record['target_idxs'])
+            record['decision_id'] = np.array([record['decision_id']])
+
         # actually do the cloning and merging of the walkers
-        resampled_walkers = self.decision.action(walkers, resampling_actions)
+        resampled_walkers = self.decision.action(walkers, [resampling_data])
 
-        data = {'distance_matrix' : np.array(distance_matrix), 'spread' : np.array([spread]) }
+        # flatten the distance matrix and give the number of walkers
+        # as well for the resampler data, there is just one per cycle
+        resampler_data = [{'distance_matrix' : np.ravel(np.array(distance_matrix)),
+                           'n_walkers' : np.array([len(walkers)]),
+                           'spread' : np.array([spread]) }]
 
-        return resampled_walkers, resampling_actions, data
+        return resampled_walkers, resampling_data, resampler_data

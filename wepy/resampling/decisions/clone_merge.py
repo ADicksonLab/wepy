@@ -22,42 +22,46 @@ class MultiCloneMergeDecision(Decision):
 
     ENUM = CloneMergeDecisionEnum
 
+    FIELDS = ('decision_id', 'target_idxs',)
+    SHAPES = ((1,), Ellipsis,)
+    DTYPES = (np.int, np.int,)
 
-    # mapping of enumerations to the InstructionRecord names that will
-    # be passed to either namedtuple or VariableLengthRecord.
-    INSTRUCTION_NAMES = (
-        (ENUM.NOTHING, "NothingInstructionRecord"),
-        (ENUM.CLONE, "CloneInstructionRecord"),
-        (ENUM.SQUASH, "SquashInstructionRecord"),
-        (ENUM.KEEP_MERGE, "KeepMergeInstructionRecord"),
-    )
-
-    # mapping of enumerations to the field names for the record. An Ellipsis instead
-    # of fields indicate there is a variable number of fields.
-    INSTRUCTION_FIELDS = (
-        (ENUM.NOTHING, ('pos',)),
-        (ENUM.CLONE, (Ellipsis,)),
-        (ENUM.SQUASH, ('merge_to',)),
-        (ENUM.KEEP_MERGE, ('pos',)),
-    )
-
-    # datatypes for each instruction, useful for allocating memory in
-    # databases. These correspond to the fields defined in
-    # INSTRUCTION_FIELDS. The dtype mapped to an Ellipsis field will
-    # be the dtype for all of the fields it may create in a variable
-    # length record
-    INSTRUCTION_FIELD_DTYPES = (
-        (ENUM.NOTHING, (np.int,)),
-        (ENUM.CLONE, (np.int,)),
-        (ENUM.SQUASH, (np.int,)),
-        (ENUM.KEEP_MERGE, (np.int,)),
-    )
+    RECORD_FIELDS = ('decision_id', 'target_idxs')
 
 
     # the decision types that pass on their state
     ANCESTOR_DECISION_IDS = (ENUM.NOTHING.value,
                              ENUM.KEEP_MERGE.value,
                              ENUM.CLONE.value,)
+
+    @classmethod
+    def field_names(cls):
+        return cls.FIELDS
+
+    @classmethod
+    def field_shapes(cls):
+        return cls.SHAPES
+
+    @classmethod
+    def field_dtypes(cls):
+        return cls.DTYPES
+
+    @classmethod
+    def fields(cls):
+        return list(zip(cls.field_names(),
+                   cls.field_shapes(),
+                   cls.field_dtypes()))
+
+    @classmethod
+    def record_field_names(cls):
+        return self.RECORD_FIELDS
+
+    @classmethod
+    def record(cls, enum_value, target_idxs):
+        record = super().record(enum_value)
+        record['target_idxs'] = target_idxs
+
+        return record
 
     @classmethod
     def action(cls, walkers, decisions):
@@ -75,9 +79,11 @@ class MultiCloneMergeDecision(Decision):
             keep_walkers = {}
             # go through each decision and perform the decision
             # instructions
-            for walker_idx, decision in enumerate(step_recs):
+            for walker_idx, walker_rec in enumerate(step_recs):
 
-                decision_value, instruction = decision
+                decision_value = walker_rec['decision_id']
+                instruction = walker_rec['target_idxs']
+
                 if decision_value == cls.ENUM.NOTHING.value:
                     # check to make sure a walker doesn't already exist
                     # where you are going to put it
@@ -111,6 +117,7 @@ class MultiCloneMergeDecision(Decision):
                     keep_walkers[instruction[0]] = walker_idx
 
                 else:
+                    import ipdb; ipdb.set_trace()
                     raise ValueError("Decision not recognized")
 
             # do the merging for each merge group

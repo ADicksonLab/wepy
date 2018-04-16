@@ -22,21 +22,25 @@ class WepyHDF5Reporter(FileReporter):
                  # dictionary of alt_rep keys and a tuple of (idxs, freq)
                  alt_reps=None,
 
-                 # pass in the decision, resampler, and boundary
+                 # pass in the resampler and boundary
                  # conditions classes to automatically extract the
                  # needed data, the objects themselves are not saves
-                 decision=None,
                  resampler=None,
                  boundary_conditions=None,
 
                  # or pass the things we need from them in manually
-                 decisions=None, instruction_dtypes=None,
-                 resampling_aux_dtypes=None, resampling_aux_shapes=None,
-                 warp_dtype=None,
-                 warp_aux_dtypes=None, warp_aux_shapes=None,
-                 bc_dtype=None,
-                 bc_aux_dtypes=None, bc_aux_shapes=None,
+                 resampling_fields=None,
+                 decision_enum_dict=None,
+                 resampler_fields=None,
+                 warping_fields=None,
+                 progress_fields=None,
+                 bc_fields=None,
 
+                 resampling_records=None,
+                 resampler_records=None,
+                 warping_records=None,
+                 bc_records=None,
+                 progress_records=None,
                  ):
 
         super().__init__(file_path, mode=mode)
@@ -51,41 +55,82 @@ class WepyHDF5Reporter(FileReporter):
         self.feature_dtypes = feature_dtypes
         self.n_dims = n_dims
 
-        # either extract the information from the classes or accept
-        # the manual settings
-        if decision is not None:
-            self.decisions = decision.ENUM
-            self.instruction_dtypes = decision.instruction_dtypes()
+        # get and set the record fields (naems, shapes, dtypes) for
+        # the resampler and the boundary conditions
+        if (resampling_fields is not None) and (decision_enum_dict is not None):
+            self.resampling_fields = resampling_fields
+            self.decision_enum = decision_enum_dict
         elif resampler is not None:
-            self.decisions = resampler.DECISION.ENUM
-            self.instruction_dtypes = resampler.DECISION.instruction_dtypes()
+            self.resampling_fields = resampler.resampling_fields()
+            self.decision_enum = resampler.DECISION.enum_dict_by_name()
         else:
-            self.decisions = decisions
-            self.instruction_dtypes = instruction_dtypes
+            self.resampling_fields = None
+            self.decision_enum = None
 
-        # TODO these should all be accessed by methods, as of now
-        # these constants are just dictionaries themselves
-        if resampler is not None:
-            self.resampling_aux_dtypes = resampler.RESAMPLING_AUX_DTYPES
-            self.resampling_aux_shapes = resampler.RESAMPLING_AUX_SHAPES
+        if resampler_fields is not None:
+            self.resampler_fields = resampler_fields()
+        elif resampler is not None:
+            self.resampler_fields = resampler.resampler_fields()
         else:
-            self.resampling_aux_dtypes = resampling_aux_dtypes
-            self.resampling_aux_shapes = resampling_aux_shapes
+            self.resampler_fields = None
 
-        if boundary_conditions is not None:
-            self.warp_dtype = boundary_conditions.WARP_INSTRUCT_DTYPE
-            self.warp_aux_dtypes = boundary_conditions.WARP_AUX_DTYPES
-            self.warp_aux_shapes = boundary_conditions.WARP_AUX_SHAPES
-            self.bc_dtype = boundary_conditions.BC_INSTRUCT_DTYPE
-            self.bc_aux_dtypes = boundary_conditions.BC_AUX_DTYPES
-            self.bc_aux_shapes = boundary_conditions.BC_AUX_SHAPES
+        if warping_fields is not None:
+            self.warping_fields = warping_fields()
+        elif boundary_conditions is not None:
+            self.warping_fields = boundary_conditions.warping_fields()
         else:
-            self.warp_dtype = warp_dtype
-            self.bc_dtype = bc_dtype
-            self.warp_aux_dtypes = warp_aux_dtypes
-            self.warp_aux_shapes = warp_aux_shapes
-            self.bc_aux_dtypes = bc_aux_dtypes
-            self.bc_aux_shapes = bc_aux_shapes
+            self.warping_fields = None
+
+        if progress_fields is not None:
+            self.progress_fields = progress_fields()
+        elif boundary_conditions is not None:
+            self.progress_fields = boundary_conditions.progress_fields()
+        else:
+            self.progress_fields = None
+
+        if bc_fields is not None:
+            self.bc_fields = bc_fields()
+        elif boundary_conditions is not None:
+            self.bc_fields = boundary_conditions.bc_fields()
+        else:
+            self.bc_fields = None
+
+
+        # the fields which are records for table like reports
+        if resampling_records is not None:
+            self.resampling_records = resampling_records
+        elif resampler is not None:
+            self.resampling_records = resampler.resampling_record_field_names()
+        else:
+            self.resampling_records = None
+
+        if resampler_records is not None:
+            self.resampler_records = resampler_records
+        elif resampler is not None:
+            self.resampler_records = resampler.resampler_record_field_names()
+        else:
+            self.resampler_records = None
+
+        if bc_records is not None:
+            self.bc_records = bc_records
+        elif boundary_conditions is not None:
+            self.bc_records = boundary_conditions.bc_record_field_names()
+        else:
+            self.bc_records = None
+
+        if warping_records is not None:
+            self.warping_records = warping_records
+        elif boundary_conditions is not None:
+            self.warping_records = boundary_conditions.warping_record_field_names()
+        else:
+            self.warping_records = None
+
+        if progress_records is not None:
+            self.progress_records = progress_records
+        elif boundary_conditions is not None:
+            self.progress_records = boundary_conditions.progress_record_field_names()
+        else:
+            self.progress_records = None
 
 
         # the atom indices of the whole system that will be saved as
@@ -151,22 +196,21 @@ class WepyHDF5Reporter(FileReporter):
             run_grp = self.wepy_h5.new_run()
             self.wepy_run_idx = run_grp.attrs['run_idx']
 
-            # initialize the resampling group within this run
-            self.wepy_h5.init_run_resampling(self.wepy_run_idx,
-                                        self.decisions,
-                                        self.instruction_dtypes,
-                                        resampling_aux_dtypes=self.resampling_aux_dtypes,
-                                        resampling_aux_shapes=self.resampling_aux_shapes)
+            # initialize the run record groups using their fields
+            self.wepy_h5.init_run_fields_resampling(self.wepy_run_idx, self.resampling_fields)
+            # the enumeration for the values of resampling
+            self.wepy_h5.init_run_fields_resampling_decision(self.wepy_run_idx, self.decision_enum)
+            self.wepy_h5.init_run_fields_resampler(self.wepy_run_idx, self.resampler_fields)
+            self.wepy_h5.init_run_fields_warping(self.wepy_run_idx, self.warping_fields)
+            self.wepy_h5.init_run_fields_progress(self.wepy_run_idx, self.progress_fields)
+            self.wepy_h5.init_run_fields_bc(self.wepy_run_idx, self.bc_fields)
 
-            # initialize the boundary condition group within this run
-            self.wepy_h5.init_run_warp(self.wepy_run_idx, self.warp_dtype,
-                                  warp_aux_dtypes=self.warp_aux_dtypes,
-                                  warp_aux_shapes=self.warp_aux_shapes)
-
-            # initialize the boundary condition group within this run
-            self.wepy_h5.init_run_bc(self.wepy_run_idx, self.bc_dtype,
-                                  bc_aux_dtypes=self.bc_aux_dtypes,
-                                  bc_aux_shapes=self.bc_aux_shapes)
+            # set the fields that are records
+            self.wepy_h5.init_record_fields('resampling', self.resampling_records)
+            self.wepy_h5.init_record_fields('resampler', self.resampler_records)
+            self.wepy_h5.init_record_fields('warping', self.warping_records)
+            self.wepy_h5.init_record_fields('boundary_conditions', self.bc_records)
+            self.wepy_h5.init_record_fields('progress', self.progress_records)
 
         # if this was opened in a truncation mode, we don't want to
         # overwrite old runs with future calls to init(). so we
@@ -174,13 +218,18 @@ class WepyHDF5Reporter(FileReporter):
         if self.mode == 'w':
             self.mode = 'r+'
 
+    def cleanup(self, *args):
+
+        # it should be already closed at this point but just in case
+        if not self.wepy_h5.closed:
+            self.wepy_h5.close()
 
 
     def report(self, cycle_idx, walkers,
-               warp_records, warp_aux_data,
-               bc_records, bc_aux_data,
-               resampling_records, resampling_aux_data,
-               debug_prints=False):
+               warp_data, bc_data, progress_data,
+               resampling_data, resampler_data,
+               debug_prints=False,
+               *args, **kwargs):
 
         n_walkers = len(walkers)
 
@@ -191,7 +240,7 @@ class WepyHDF5Reporter(FileReporter):
         else:
             save_fields = self.save_fields
 
-        with self.wepy_h5 as wepy_h5:
+        with self.wepy_h5:
 
             # add trajectory data for the walkers
             for walker_idx, walker in enumerate(walkers):
@@ -223,7 +272,6 @@ class WepyHDF5Reporter(FileReporter):
                             continue
 
 
-
                 # Add the alt_reps fields by slicing the positions
                 for alt_rep_key, alt_rep_idxs in self.alt_reps_idxs.items():
                     alt_rep_path = "alt_reps/{}".format(alt_rep_key)
@@ -253,54 +301,60 @@ class WepyHDF5Reporter(FileReporter):
                 # save the data to the HDF5 file for this walker
 
                 # check to see if the walker has a trajectory in the run
-                if walker_idx in wepy_h5.run_traj_idxs(self.wepy_run_idx):
+                if walker_idx in self.wepy_h5.run_traj_idxs(self.wepy_run_idx):
 
                     # if it does then append to the trajectory
-                    wepy_h5.extend_traj(self.wepy_run_idx, walker_idx,
+                    self.wepy_h5.extend_traj(self.wepy_run_idx, walker_idx,
                                              weights=np.array([[walker.weight]]),
                                              data=walker_data)
                 # start a new trajectory
                 else:
                     # add the traj for the walker with the data
 
-                    traj_grp = wepy_h5.add_traj(self.wepy_run_idx, weights=np.array([[walker.weight]]),
+                    traj_grp = self.wepy_h5.add_traj(self.wepy_run_idx,
+                                                     weights=np.array([[walker.weight]]),
                                                      data=walker_data)
 
                     # add as metadata the cycle idx where this walker started
                     traj_grp.attrs['starting_cycle_idx'] = cycle_idx
 
 
+            # report the boundary conditions records data
+            self.report_warping(cycle_idx, warp_data)
+            self.report_bc(cycle_idx, bc_data)
+            self.report_progress(cycle_idx, progress_data)
 
-            # if there was warping done by the boundary conditions save those records
-            if len(warp_records) > 0:
-                # add warp records
-                wepy_h5.add_cycle_warp_records(self.wepy_run_idx, warp_records)
-
-                # add warp data
-                wepy_h5.add_cycle_warp_aux_data(self.wepy_run_idx, warp_aux_data)
-
-            # if any boundary conditions records were given we add
-            # these to the records
-            if len(bc_records) > 0:
-                # add warp records
-                wepy_h5.add_cycle_bc_records(self.wepy_run_idx, bc_records)
-
-            # unlike warping boundary conditions return auxiliary data
-            # every cycle (when given) thus we save these regardless
-            # of whether any bc_records were given
-            if len(bc_aux_data) > 0:
-                # add the auxiliary data from checking boundary conditions
-                wepy_h5.add_cycle_bc_aux_data(self.wepy_run_idx, bc_aux_data)
-
-            # add resampling records
-            wepy_h5.add_cycle_resampling_records(self.wepy_run_idx, resampling_records)
-
-            # add resampling data
-            wepy_h5.add_cycle_resampling_aux_data(self.wepy_run_idx, resampling_aux_data)
+            # report the resampling records data
+            self.report_resampling(cycle_idx, resampling_data)
+            self.report_resampler(cycle_idx, resampler_data)
 
 
-    def cleanup(self, *args):
+    # sporadic
+    def report_warping(self, cycle_idx, warping_data):
 
-        # it should be already closed at this point but just in case
-        if not self.wepy_h5.closed:
-            self.wepy_h5.close()
+        if len(warping_data) > 0:
+            self.wepy_h5.extend_cycle_warping_records(self.wepy_run_idx, cycle_idx, warping_data)
+
+    def report_bc(self, cycle_idx, bc_data):
+
+        if len(bc_data) > 0:
+            self.wepy_h5.extend_cycle_bc_records(self.wepy_run_idx, cycle_idx, bc_data)
+
+    def report_resampler(self, cycle_idx, resampler_data):
+
+        if len(resampler_data) > 0:
+            self.wepy_h5.extend_cycle_resampler_records(self.wepy_run_idx, cycle_idx, resampler_data)
+
+    # the resampling records are provided every cycle but they need to
+    # be saved as sporadic because of the variable number of walkers
+    def report_resampling(self, cycle_idx, resampling_data):
+
+        self.wepy_h5.extend_cycle_resampling_records(self.wepy_run_idx, cycle_idx, resampling_data)
+
+    # continual
+    def report_progress(self, cycle_idx, progress_data):
+
+        self.wepy_h5.extend_cycle_progress_records(self.wepy_run_idx, cycle_idx, [progress_data])
+
+
+

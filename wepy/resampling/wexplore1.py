@@ -205,7 +205,9 @@ class RegionTree(nx.DiGraph):
                         print("state: ", state.dict())
                         print("state_image: ", state_image)
                         print("image: ", image)
-                        raise ValueError("If you have triggered this error you have encountered a rare bug. Please attempt to report this using the printed outputs.")
+                        raise ValueError("If you have triggered this error you have"
+                                         " encountered a rare bug. Please attempt to"
+                                         " report this using the printed outputs.")
 
                     # save in the dist_cache
                     dist_cache[image_idx] = dist
@@ -247,6 +249,9 @@ class RegionTree(nx.DiGraph):
         # clear all the walkers and reset node attributes to defaults
         self.clear_walkers()
 
+        # keep track of new branches made
+        new_branches = []
+
         # place each walker
         for walker_idx, walker in enumerate(walkers):
 
@@ -261,12 +266,22 @@ class RegionTree(nx.DiGraph):
                 # if we are over the max region distance and we are
                 # not above max number of regions we have found a new
                 # region so we branch the region_tree at that level
-
                 if distance > self.max_region_sizes[level] and \
                    len(self.children(assignment[:level])) < self.max_n_regions[level]:
+
+                    # make an image for the region
                     image = self.distance.image(walker.state)
                     parent_id = assignment[:level]
+
+                    # make the new branch
                     assignment = self.branch_tree(parent_id, image)
+
+                    # save it to keep track of new branches as they occur
+                    new_branches.append({'distance' : np.array([distance]),
+                                         'branching_level' : np.array([level]),
+                                         'new_leaf_id' : np.array(assignment),
+                                         'image' : image,})
+
                     # we have made a new branch so we don't need to
                     # continue this loop
                     break
@@ -322,6 +337,8 @@ class RegionTree(nx.DiGraph):
                 for level in reversed(range(self.n_levels)):
                     branch_node_id = node_id[:level]
                     self.node[branch_node_id]['n_mergeable'] += self.node[node_id]['n_mergeable']
+
+        return new_branches
 
     def minmax_beneficiaries(self, children):
 
@@ -657,7 +674,7 @@ class RegionTree(nx.DiGraph):
             leaf_node_balance = self.node[leaf]['balance']
             if leaf_node_balance != 0:
                 merge_groups, walkers_num_clones = \
-                                                self.settle_balance(leaf, merge_groups, walkers_num_clones)
+                            self.settle_balance(leaf, merge_groups, walkers_num_clones)
 
         # count up the number of clones and merges in the merge_groups
         # and the walkers_num_clones
@@ -675,11 +692,38 @@ class WExplore1Resampler(Resampler):
 
     DECISION = MultiCloneMergeDecision
 
+    # datatype for the state change records of the resampler, here
+    # that is the defnition of a new branch of the region tree, the
+    # value is the level of the tree that is branched. Most of the
+    # useful information will be in the auxiliary data, like the
+    # image, distance the walker was away from the image at that
+    # level, and the id of the leaf node
+    RESAMPLER_FIELDS = ('branching_level', 'distance', 'new_leaf_id', 'image')
+    RESAMPLER_SHAPES = ((1,), (1,), Ellipsis, None)
+    RESAMPLER_DTYPES = (np.int, np.float, np.int, None)
+
+    # fields that can be used for a table like representation
+    RESAMPLER_RECORD_FIELDS = ('branching_level', 'distance', 'new_leaf_id')
+
+    # fields for resampling data
+    RESAMPLING_FIELDS = DECISION.FIELDS + ('step_idx', 'walker_idx', 'region_assignment',)
+    RESAMPLING_SHAPES = DECISION.SHAPES + ((1,), (1,), Ellipsis,)
+    RESAMPLING_DTYPES = DECISION.DTYPES + (np.int, np.int, np.int,)
+
+    # fields that can be used for a table like representation
+    RESAMPLING_RECORD_FIELDS = DECISION.RECORD_FIELDS + \
+                               ('step_idx', 'walker_idx', 'region_assignment',)
+
+
     def __init__(self, seed=None, pmin=1e-12, pmax=0.1,
                  distance=None,
                  max_n_regions=(10, 10, 10, 10),
                  max_region_sizes=(1, 0.5, 0.35, 0.25),
-    ):
+                 init_state=None
+                ):
+
+        assert distance is not None, "Distance object must be given."
+        assert init_state is not None, "An initial state must be given."
 
         self.decision = self.DECISION
 
@@ -703,28 +747,82 @@ class WExplore1Resampler(Resampler):
         # distance metric
         self.distance = distance
 
+        # we do not know the shape and dtype of the images until
+        # runtime so we determine them here
+        image = self.distance.image(init_state)
+        self.image_shape = image.shape
+        self.image_dtype = image.dtype
+
+
+        # initialize the region tree with the first state
+        self._region_tree = RegionTree(init_state,
+                                      max_n_regions=self.max_n_regions,
+                                      max_region_sizes=self.max_region_sizes,
+                                       distance=self.distance,
+                                       pmin=self.pmin,
+                                       pmax=self.pmax)
+
+
+    def resampler_field_shapes(self):
+
+        # index of the image idx
+        image_idx = self.resampler_field_names().index('image')
+
+        # shapes adding the image shape
+        shapes = list(super().resampler_field_shapes())
+        shapes[image_idx] = self.image_shape
+
+        return tuple(shapes)
+
+    def resampler_field_dtypes(self):
+
+        # index of the image idx
+        image_idx = self.resampler_field_names().index('image')
+
+        # dtypes adding the image dtype
+        dtypes = list(super().resampler_field_dtypes())
+        dtypes[image_idx] = self.image_dtype
+
+        return tuple(dtypes)
+
+    # override the superclass methods to utilize the decision class
+    def resampling_field_names(self):
+        return self.RESAMPLING_FIELDS
+
+    def resampling_field_shapes(self):
+        return self.RESAMPLING_SHAPES
+
+    def resampling_field_dtypes(self):
+        return self.RESAMPLING_DTYPES
+
+    def resampling_fields(self):
+        return list(zip(self.resampling_field_names(),
+                   self.resampling_field_shapes(),
+                   self.resampling_field_dtypes()))
+
     @property
     def region_tree(self):
         return self._region_tree
 
-    def resample(self, walkers, delta_walkers=0, debug_prints=False):
-
-        # if the region tree has not been initialized, do so
-        if self.region_tree is None:
-            self._region_tree = RegionTree(walkers[0].state,
-                                          max_n_regions=self.max_n_regions,
-                                          max_region_sizes=self.max_region_sizes,
-                                           distance=self.distance,
-                                           pmin=self.pmin,
-                                           pmax=self.pmax)
-
-        ## "Score" the walkers based on the current defined Voronoi
+    def assign(self, walkers, debug_prints=False):
+        ## Assign the walkers based on the current defined Voronoi
         ## images which assign them to bins/leaf-nodes, possibly
         ## creating new regions, do this by calling the method to
         ## "place_walkers"  on the tree which changes the tree's state
-        self.region_tree.place_walkers(walkers)
-        if debug_prints:
-            print("Assigned regions=\n{}".format(self.region_tree.walker_assignments))
+        new_branches = self.region_tree.place_walkers(walkers)
+
+        # data records about changes to the resampler, here is just
+        # the new branches data
+        resampler_data = new_branches
+
+        # the assignments
+        assignments = np.array(self.region_tree.walker_assignments)
+
+        # return the assignments and the resampler records of changed
+        # resampler state, which is addition of new regions
+        return assignments, resampler_data
+
+    def decide(self, delta_walkers=0, debug_prints=False):
 
         ## Given the assignments ("scores") (which are on the tree
         ## nodes) decide on which to merge and clone
@@ -736,6 +834,7 @@ class WExplore1Resampler(Resampler):
         if debug_prints:
             print("merge_groups\n{}".format(merge_groups))
             print("Walker number of clones\n{}".format(walkers_num_clones))
+
 
         # check to make sure we have selected appropriate walkers to clone
         #print images
@@ -757,28 +856,63 @@ class WExplore1Resampler(Resampler):
 
         # using the merge groups and the non-specific number of clones
         # for walkers create resampling actions for them (from the
-        # Resampler superclass)
-        resampling_actions = [self.assign_clones(merge_groups, walkers_num_clones)]
-
-        for step in resampling_actions:
-            taken_slots = []
-            for decision, instruction in step:
-
-                # unless it is a squash add it to the taken slots
-                if decision != 3:
-                    try:
-                        taken_slots.extend(instruction)
-                    except TypeError:
-                        taken_slots.append(instruction)
-
-            if len(set(taken_slots)) < len(taken_slots):
-                raise ValueError("Multiple assignments to the same slot")
-
-        # perform the cloning and merging
-        resampled_walkers = self.DECISION.action(walkers, resampling_actions)
-
-        # Auxiliary data
-        aux_data = {"walker_assignments" : np.array(self.region_tree.walker_assignments)}
+        # Resampler superclass).
+        resampling_actions = self.assign_clones(merge_groups, walkers_num_clones)
 
 
-        return resampled_walkers, resampling_actions, aux_data
+        # check to make sure there are no multiple assignments by
+        # keeping track of the taken slots
+        taken_slots = []
+        for walker_record in resampling_actions:
+
+            # unless it is a squash (which has no slot in the next
+            # cycle) add it to the taken slots
+            if walker_record['decision_id'] != 3:
+                taken_slots.extend(walker_record['target_idxs'])
+
+        if len(set(taken_slots)) < len(taken_slots):
+            raise ValueError("Multiple assignments to the same slot")
+
+        # because there is only one step in resampling here we just
+        # add another field for the step as 0 and add the walker index
+        # to its record as well
+        for walker_idx, walker_record in enumerate(resampling_actions):
+            walker_record['step_idx'] = np.array([0])
+            walker_record['walker_idx'] = np.array([walker_idx])
+
+        return resampling_actions
+
+    def resample(self, walkers, delta_walkers=0, debug_prints=False):
+
+        # if the region tree has not been initialized, do so
+        if self.region_tree is None:
+            self.init(walkers)
+
+        ## assign/score the walkers, also getting changes in the
+        ## resampler state
+        assignments, resampler_data = self.assign(walkers)
+
+        if debug_prints:
+            print("Assigned regions=\n{}".format(self.region_tree.walker_assignments))
+
+        # make the decisions for the the walkers
+        resampling_data = self.decide(delta_walkers=delta_walkers,
+                                         debug_prints=debug_prints)
+
+        # convert the target idxs and decision_id to feature vector arrays
+        for record in resampling_data:
+            record['target_idxs'] = np.array(record['target_idxs'])
+            record['decision_id'] = np.array([record['decision_id']])
+
+        # perform the cloning and merging, the action function expects
+        # records a lists of lists for steps and walkers
+        resampled_walkers = self.DECISION.action(walkers, [resampling_data])
+
+        # then add the assignments and distance to image for each walker
+        for walker_idx, assignment in enumerate(assignments):
+            resampling_data[walker_idx]['region_assignment'] = assignment
+
+        return resampled_walkers, resampling_data, resampler_data
+
+
+

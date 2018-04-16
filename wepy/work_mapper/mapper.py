@@ -1,5 +1,6 @@
 from multiprocessing import Queue, JoinableQueue
 import queue
+import time
 
 import multiprocessing as mp
 
@@ -10,8 +11,7 @@ PY_MAP = map
 class Mapper(object):
 
     def __init__(self, *args, **kwargs):
-        # nothing to do
-        pass
+        self.worker_segment_times = {0 : []}
 
     def init(self, func, **kwargs):
         self._func = func
@@ -23,7 +23,22 @@ class Mapper(object):
 
     def map(self, *args, **kwargs):
 
-        return list(PY_MAP(self._func, *args))
+        args = [list(arg) for arg in args]
+
+        segment_times = []
+        results = []
+        for arg_idx in range(len(args[0])):
+            start = time.time()
+            result = self._func(*[arg[arg_idx] for arg in args])
+            end = time.time()
+            segment_time = end - start
+            segment_times.append(segment_time)
+
+            results.append(result)
+
+        self.worker_segment_times[0] = segment_times
+
+        return results
 
 class WorkerMapper(Mapper):
 
@@ -31,6 +46,9 @@ class WorkerMapper(Mapper):
                  debug_prints=False):
 
         self.num_workers = num_workers
+        self.worker_segment_times = {worker_idx : [] for i in range(num_workers)}
+
+        # choose the type of the worker
         if worker_type is None:
             self.worker_type = Worker
         else:
@@ -141,5 +159,11 @@ class WorkerMapper(Mapper):
         # sort the results according to their task_idx
         results.sort()
 
+        # save the task run times, so they can be accessed if desired,
+        # after clearing the task times from the last mapping
+        self.worker_segment_times = {worker_idx : [] for i in range(num_workers)}
+        for task_idx, worker_idx, task_time, result in results:
+            self.worker_segment_times[worker_idx].append(task_time)
+
         # then just return the values of the function
-        return [result for task_idx, worker_idx, result in results]
+        return [result for task_idx, worker_idx, task_time, result in results]

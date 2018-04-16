@@ -1,4 +1,7 @@
 import itertools as it
+from collections import defaultdict
+
+import numpy as np
 
 from wepy.resampling.decisions.decision import NoDecision
 
@@ -7,17 +10,59 @@ class Resampler(object):
     """Superclass for resamplers that use the the Novelty->Decider
     framework."""
 
-    # TODO these all should be more like constants like in the
-    # decision class and dictionaries obtained through methods
+    # data for resampling performed (continual)
+    RESAMPLING_FIELDS = ()
+    RESAMPLING_SHAPES = ()
+    RESAMPLING_DTYPES = ()
 
-    RESAMPLING_AUX_DTYPES = {}
-    RESAMPLING_AUX_SHAPES = {}
+    RESAMPLING_RECORD_FIELDS = ()
+
+    # changes to the state of the resampler (sporadic)
+    RESAMPLER_FIELDS = ()
+    RESAMPLER_SHAPES = ()
+    RESAMPLER_DTYPES = ()
+
+    RESAMPLER_RECORD_FIELDS = ()
 
 
     def __init__(self, scorer, decider):
         self.scorer = scorer
         self.decider = decider
         self.decision = decider.DECISION
+
+    def resampling_field_names(self):
+        return self.RESAMPLING_FIELDS
+
+    def resampling_field_shapes(self):
+        return self.RESAMPLING_SHAPES
+
+    def resampling_field_dtypes(self):
+        return self.RESAMPLING_DTYPES
+
+    def resampling_fields(self):
+        return list(zip(self.resampling_field_names(),
+                   self.resampling_field_shapes(),
+                   self.resampling_field_dtypes()))
+
+    def resampling_record_field_names(self):
+        return self.RESAMPLING_RECORD_FIELDS
+
+    def resampler_field_names(self):
+        return self.RESAMPLER_FIELDS
+
+    def resampler_field_shapes(self):
+        return self.RESAMPLER_SHAPES
+
+    def resampler_field_dtypes(self):
+        return self.RESAMPLER_DTYPES
+
+    def resampler_fields(self):
+        return list(zip(self.resampler_field_names(),
+                   self.resampler_field_shapes(),
+                   self.resampler_field_dtypes()))
+
+    def resampler_record_field_names(self):
+        return self.RESAMPLER_RECORD_FIELDS
 
     def resample(self, walkers):
 
@@ -29,7 +74,7 @@ class Resampler(object):
 
         aux_data.update([scorer_aux, decider_aux])
 
-        return resampled_walkers, decisions, aux_data
+        return resampled_walkers, resampling_records, resampler_records
 
     def assign_clones(self, merge_groups, walker_clone_nums):
 
@@ -38,7 +83,6 @@ class Resampler(object):
         # determine resampling actions
         walker_actions = [self.decision.record(self.decision.ENUM.NOTHING.value, (i,))
                     for i in range(n_walkers)]
-
 
         # keep track of which slots will be free due to squashing
         free_slots = []
@@ -98,5 +142,5 @@ class NoResampler(Resampler):
         # determine resampling actions
         walker_actions = [self.decision.record(self.decision.ENUM.NOTHING.value, (i,))
                     for i in range(n_walkers)]
-        
+
         return walkers, [walker_actions], {}

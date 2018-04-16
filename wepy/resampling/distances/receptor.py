@@ -9,7 +9,7 @@ from geomm.rmsd import calc_rmsd
 from wepy.resampling.distances.distance import Distance
 
 class UnbindingDistance(Distance):
-    def __init__(self, ligand_idxs, binding_site_idxs):
+    def __init__(self, ligand_idxs, binding_site_idxs, ref_state):
 
         # the idxs of the ligand and binding site from the whole state
         self._lig_idxs = ligand_idxs
@@ -26,6 +26,11 @@ class UnbindingDistance(Distance):
         self._image_lig_idxs = np.arange(self._n_lig_atoms)
         self._image_bs_idxs = np.arange(self._n_lig_atoms, self._n_lig_atoms + self._n_bs_atoms)
 
+        # save the reference state's image so we can align all further
+        # images to it
+        self.ref_image = self.image(ref_state)
+
+
     def image(self, state):
 
         # get the box lengths from the vectors
@@ -36,21 +41,17 @@ class UnbindingDistance(Distance):
         rece_positions = recenter_pair(state['positions'], box_lengths,
                                    self._image_bs_idxs, self._image_lig_idxs)
 
+
         # slice these positions to get the image
         state_image = rece_positions[self._image_idxs]
 
-        return state_image
+        sup_image = superimpose(self.ref_image, state_image, idxs=self._image_bs_idxs)
+        return sup_image
 
     def image_distance(self, image_a, image_b):
 
-        # superimpose the two structures according to the
-        # binding site, and by translating and rotating only one of
-        # the images, image_b by convention.
-        sup_image_b = superimpose(image_a, image_b, idxs=self._image_bs_idxs)
-
-
         # then we calculate the rmsd of only the ligands between the
         # images
-        lig_rmsd = calc_rmsd(image_a, sup_image_b, idxs=self._image_lig_idxs)
+        lig_rmsd = calc_rmsd(image_a, image_b, idxs=self._image_lig_idxs)
 
         return lig_rmsd

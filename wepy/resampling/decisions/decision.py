@@ -4,58 +4,19 @@ from string import ascii_lowercase
 
 import numpy as np
 
-# the record type for all resampling records
-ResamplingRecord = namedtuple("ResamplingRecord", ['decision', 'instruction'])
-
-# for naming the fields of the VariableLengthRecord
-def _alphabet_iterator():
-    num_chars = 1
-    alphabet_it = iter(ascii_lowercase)
-    while True:
-        try:
-            letter = next(alphabet_it)
-        except StopIteration:
-            alphabet_it = iter(ascii_lowercase)
-            letter = next(alphabet_it)
-            num_chars += 1
-
-        yield letter * num_chars
-
-# class that mimics a namedtuple (for at least how it is used in wepy)
-# that doesn't specify the number of fields
-class VariableLengthRecord(object):
-    def __init__(self, name, *values):
-        self._fields = ()
-        self._data = values
-        self._name = name
-
-        key_it = _alphabet_iterator()
-        # add them to the object namespace alphanumerically
-        for value in values:
-            key = next(key_it)
-            self.__dict__[key] = value
-            self._fields += (key,)
-
-    def __getitem__(self, idx):
-        return self._data[idx]
-
-    def __len__(self):
-        return len(self._data)
-
-    def __str__(self):
-        return "{}({})".format(self._name,
-                    ', '.join(["{}={}".format(key, self.__dict__[key]) for key in self._fields]))
-
-    def __repr__(self):
-        return self.__str__()
-
-
 # ABC for the Decision class
 class Decision(object):
     ENUM = None
-    INSTRUCTION_NAMES = None
-    INSTRUCTION_FIELDS = None
-    INSTRUCTION_FIELD_DTYPES = None
+
+    FIELDS = ('decision_id')
+    # suggestion for subclassing
+    # FIELDS = super().FIELDS + ('target_idxs',)
+    # etc.
+
+    #  An Ellipsis instead of fields indicate there is a variable
+    # number of fields.
+    SHAPES = ((1,),)
+    DTYPES = (np.int,)
 
 
     @classmethod
@@ -65,7 +26,7 @@ class Decision(object):
 
         d = {}
         for enum in cls.ENUM:
-            d[enum.name] = enum
+            d[enum.name] = enum.value
         return d
 
     @classmethod
@@ -88,47 +49,11 @@ class Decision(object):
         d = cls.enum_dict_by_name()
         return d[enum_name]
 
-    @classmethod
-    def instruction_records(cls):
-        if cls.INSTRUCTION_NAMES is None or cls.INSTRUCTION_FIELDS is None:
-            raise NotImplementedError
-
-        names = dict(cls.INSTRUCTION_NAMES)
-        fields = dict(cls.INSTRUCTION_FIELDS)
-        return {enum : (name, fields[enum]) for enum, name in names.items()}
 
     @classmethod
-    def instruction_dtypes(cls):
-        if cls.INSTRUCTION_FIELD_DTYPES is None or cls.INSTRUCTION_FIELDS is None:
-            raise NotImplementedError
-
-        fields = dict(cls.INSTRUCTION_FIELDS)
-        dtypes_l = dict(cls.INSTRUCTION_FIELD_DTYPES)
-        return {enum : list(zip(fields, dtypes_l[enum])) for enum, fields in fields.items()}
-
-    @classmethod
-    def instruct_record(cls, enum_value, data):
-        enum = cls.enum_by_value(enum_value)
-        instruct_records = cls.instruction_records()
-        rec_name, fields = instruct_records[enum]
-
-        # if fields is Ellipsis this indicates it is variable length
-        if Ellipsis in fields:
-            instruct_record = VariableLengthRecord(rec_name, *data)
-        else:
-            InstructRecord = namedtuple(rec_name, fields)
-            instruct_record = InstructRecord(*data)
-
-        return instruct_record
-
-    @classmethod
-    def record(cls, enum_value, data):
-        instruct_record = cls.instruct_record(enum_value, data)
-
-        resampling_record = ResamplingRecord(decision=enum_value,
-                                             instruction=instruct_record)
-
-        return resampling_record
+    def record(cls, enum_value):
+        # TODO check to make sure the enum value is valid
+        return {'decision_id' : enum_value}
 
     @classmethod
     def action(cls, walkers, decisions):

@@ -57,8 +57,11 @@ class Manager(object):
                 sys.stdout.write("Begin cycle {}\n".format(cycle_idx))
 
             # run the segment
+            start = time.time()
             new_walkers = self.run_segment(walkers, segment_length,
                                            debug_prints=debug_prints)
+            end = time.time()
+            runner_time = end - start
 
             if debug_prints:
                 sys.stdout.write("End cycle {}\n".format(cycle_idx))
@@ -72,17 +75,22 @@ class Manager(object):
             warp_aux_data = []
             bc_records = []
             bc_aux_data = []
+            bc_time = 0.0
             if self.boundary_conditions is not None:
 
                 # apply rules of boundary conditions and warp walkers through space
+                start = time.time()
                 bc_results  = self.boundary_conditions.warp_walkers(new_walkers,
                                                                     cycle_idx,
                                                                     debug_prints=debug_prints)
+                end = time.time()
+                bc_time = end - start
 
                 # warping results
                 warped_walkers = bc_results[0]
-                warp_records = bc_results[1]
-                warp_aux_data = bc_results[2]
+                warp_data = bc_results[1]
+                bc_data = bc_results[2]
+                progress_data = bc_results[3]
 
                 if debug_prints:
                     if len(warp_records) > 0:
@@ -92,14 +100,17 @@ class Manager(object):
                         print("Returned warp aux_data in cycle {}".format(cycle_idx))
 
 
-                # boundary conditions checking results
-                bc_records = bc_results[3]
-                bc_aux_data = bc_results[4]
 
             # resample walkers
-            resampled_walkers, resampling_records, resampling_aux_data =\
-                           self.resampler.resample(warped_walkers,
-                                                   debug_prints=debug_prints)
+            start = time.time()
+            resampling_results = self.resampler.resample(warped_walkers,
+                                                       debug_prints=debug_prints)
+            end = time.time()
+            resampling_time = end - start
+
+            resampled_walkers = resampling_results[0]
+            resampling_data = resampling_results[1]
+            resampler_data = resampling_results[2]
 
             if debug_prints:
                 # print results for this cycle
@@ -117,10 +128,14 @@ class Manager(object):
             # report results to the reporters
             for reporter in self.reporters:
                 reporter.report(cycle_idx, new_walkers,
-                                     warp_records, warp_aux_data,
-                                     bc_records, bc_aux_data,
-                                     resampling_records, resampling_aux_data,
-                                     debug_prints=debug_prints)
+                                warp_data, bc_data, progress_data,
+                                resampling_data, resampler_data,
+                                debug_prints=debug_prints,
+                                n_steps=segment_length,
+                                worker_segment_times=self.work_mapper.worker_segment_times,
+                                cycle_runner_time=runner_time,
+                                cycle_bc_time=bc_time,
+                                cycle_resampling_time=resampling_time)
 
             # prepare resampled walkers for running new state changes
             walkers = resampled_walkers
