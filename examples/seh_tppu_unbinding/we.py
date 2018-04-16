@@ -336,7 +336,7 @@ def main(n_runs, n_cycles, steps, n_walkers, n_workers=1, debug_prints=False, se
     # makes ref_traj and selects lingand_atom and protein atom  indices
     # instantiate a wexplore2 unbindingboudaryconditiobs
     ubc = UnbindingBC(cutoff_distance=CUTOFF_DISTANCE,
-                      initial_state=omm_state,
+                      initial_state=init_state,
                       topology=crystal_traj.topology,
                       ligand_idxs=lig_idxs,
                       receptor_idxs=prot_idxs)

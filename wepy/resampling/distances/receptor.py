@@ -28,10 +28,10 @@ class UnbindingDistance(Distance):
 
         # save the reference state's image so we can align all further
         # images to it
-        self.ref_image = self.image(ref_state)
 
+        self.ref_image = self._unaligned_image(ref_state)
 
-    def image(self, state):
+    def _unaligned_image(self, state):
 
         # get the box lengths from the vectors
         box_lengths, box_angles = box_vectors_to_lengths_angles(state['box_vectors'])
@@ -45,7 +45,16 @@ class UnbindingDistance(Distance):
         # slice these positions to get the image
         state_image = rece_positions[self._image_idxs]
 
+        return state_image
+
+    def image(self, state):
+
+        # get the unaligned image
+        state_image = self._unaligned_image(state)
+
+        # then superimpose it to the reference structure
         sup_image = superimpose(self.ref_image, state_image, idxs=self._image_bs_idxs)
+
         return sup_image
 
     def image_distance(self, image_a, image_b):
