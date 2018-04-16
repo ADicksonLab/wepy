@@ -1,5 +1,6 @@
 from multiprocessing import Process
 import multiprocessing as mp
+import time
 
 class Worker(Process):
 
@@ -48,11 +49,14 @@ class Worker(Process):
                     self.name, task_idx, next_task.args))
 
             # run the task
+            start = time.time()
             answer = self.run_task(next_task)
+            end = time.time()
+            task_time = end - start
 
             if self.debug_prints:
-                print('Worker: {}; task_idx : {}; COMPLETED '.format(
-                    self.name, task_idx))
+                print('Worker: {}; task_idx : {}; COMPLETED in {} s'.format(
+                    self.name, task_idx, task_time))
 
             # (for joinable queue) tell the queue that the formerly
             # enqued task is complete
@@ -60,7 +64,7 @@ class Worker(Process):
 
             # put the results into the results queue with it's task
             # index so we can sort them later
-            self.result_queue.put((task_idx, self.worker_idx, answer))
+            self.result_queue.put((task_idx, self.worker_idx, task_time, answer))
 
 
 class Task(object):

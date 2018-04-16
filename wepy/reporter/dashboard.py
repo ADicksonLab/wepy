@@ -21,6 +21,7 @@ WExplore:
     Max Number of Regions: {max_n_regions}
     Max Region Sizes: {max_region_sizes}
     Number of Regions per level:
+
         {regions_per_level}
 
 Defined Regions with the number of child regions per parent region:
@@ -41,6 +42,14 @@ Warping through boundary conditions:
     Expected Reactive Traj. Rate: {reactive_traj_rate} 1/seconds
     Rate: {exit_rate} 1/seconds
 
+Performance:
+    Average Runner Time: {avg_runner_time}
+    Average Boundary Conditions Time: {avg_bc_time}
+    Average Resampling Time: {avg_resampling_time}
+    Average Cycle Time: {avg_cycle_time}
+    Worker Avg. Segment Times:
+{worker_avg_segment_time}
+
 Warping Log:
 
 {warping_log}
@@ -49,11 +58,12 @@ WExplore Log:
 
 {wexplore_log}
 
-Performance:
-    Average Cycle Time: {avg_cycle_time}
-    Worker Avg. Segment Times: {worker_avg_segment_time}
 
-Performance Log:
+Cycle Performance Log:
+
+{cycle_log}
+
+Worker Performance Log:
 
 {performance_log}
 
@@ -63,7 +73,7 @@ Performance Log:
                  step_time=None, # seconds
                  max_n_regions=None,
                  max_region_sizes=None,
-                 bc_cutoff_distance=None
+                 bc_cutoff_distance=None,
                 ):
 
         super().__init__(file_path, mode=mode)
@@ -81,7 +91,6 @@ Performance Log:
 
         assert bc_cutoff_distance is not None, "cutoff distance for the boundary conditions must be given"
         self.bc_cutoff_distance = bc_cutoff_distance
-
 
         ## recalculated values
 
@@ -120,7 +129,10 @@ Performance Log:
 
         # performance
         self.avg_cycle_time = np.nan
-        self.worker_avg_segment_time = []
+        self.avg_runner_time = np.nan
+        self.avg_bc_time = np.nan
+        self.avg_resampling_time = np.nan
+        self.worker_agg_table = None
 
 
         ## Log of events variables
@@ -135,7 +147,10 @@ Performance Log:
 
         # performance
         self.cycle_compute_times = []
-        self.worker_compute_times = []
+        self.cycle_runner_times = []
+        self.cycle_bc_times = []
+        self.cycle_resampling_times = []
+        self.worker_records = []
 
 
     def init(self):
@@ -148,6 +163,10 @@ Performance Log:
                warp_data, bc_data, progress_data,
                resampling_data, resampler_data,
                n_steps=None,
+               worker_segment_times=None,
+               cycle_runner_time=None,
+               cycle_bc_time=None,
+               cycle_resampling_time=None,
                *args, **kwargs):
 
         # first recalculate the total sampling time, update the
@@ -165,7 +184,8 @@ Performance Log:
         self.update_wexplore_values(resampling_data, resampler_data)
 
         # update the performance of the workers for our simulation
-        self.update_performance_values()
+        self.update_performance_values(cycle_idx, n_steps, worker_segment_times,
+                                       cycle_runner_time, cycle_bc_time, cycle_resampling_time)
 
         # write the dashboard
         self.write_dashboard()
@@ -315,8 +335,40 @@ Performance Log:
             self.regions_per_level[level] += n_children
 
 
-    def update_performance_values(self):
-        pass
+    def update_performance_values(self, cycle_idx, n_steps, worker_segment_times,
+                                  cycle_runner_time, cycle_bc_time, cycle_resampling_time):
+
+        # log of segment times for workers
+        for worker_idx, segment_times in worker_segment_times.items():
+            for segment_time in segment_times:
+                record = (cycle_idx, n_steps, worker_idx, segment_time)
+                self.worker_records.append(record)
+
+        # make a table out of these and compute the averages for each
+        # worker
+        worker_df = pd.DataFrame(self.worker_records, columns=('cycle_idx', 'n_steps',
+                                                               'worker_idx', 'segment_time'))
+        # the aggregated table for the workers
+        self.worker_agg_table = worker_df.groupby('worker_idx')[['segment_time']].aggregate(np.mean)
+
+        # log of the components times
+        self.cycle_runner_times.append(cycle_runner_time)
+        self.cycle_bc_times.append(cycle_bc_time)
+        self.cycle_resampling_times.append(cycle_resampling_time)
+
+        # add up the three components to get the overall cycle time
+        cycle_time = cycle_runner_time + cycle_bc_time + cycle_resampling_time
+
+        # log of cycle times
+        self.cycle_compute_times.append(cycle_time)
+
+        # average of cycle components times
+        self.avg_runner_time = np.mean(self.cycle_runner_times)
+        self.avg_bc_time = np.mean(self.cycle_bc_times)
+        self.avg_resampling_time = np.mean(self.cycle_resampling_times)
+
+        # average cycle time
+        self.avg_cycle_time = np.mean(self.cycle_compute_times)
 
 
     def leaf_regions_to_all_regions(self, region_ids):
@@ -358,6 +410,9 @@ Performance Log:
         leaf_region_table_df.set_index('region', drop=True)
         leaf_region_table_str = leaf_region_table_df.to_string()
 
+        # table for aggregeated worker stats
+        worker_agg_table_str = self.worker_agg_table.to_string()
+
         # log of branching events
         branching_table_colnames = ('new_leaf_id', 'branching_level', 'trigger_distance')
         branching_table_df = pd.DataFrame(self.branch_records, columns=branching_table_colnames)
@@ -367,6 +422,22 @@ Performance Log:
         warp_table_colnames = ('walker_idx', 'weight', 'time')
         warp_table_df = pd.DataFrame(self.warp_records, columns=warp_table_colnames)
         warp_table_str = warp_table_df.to_string()
+
+        # log of cycle times
+        cycle_table_colnames = ('cycle_time', 'runner_time', 'boundary_conditions_time',
+                                'resampling_time')
+        cycle_table_df = pd.DataFrame({'cycle_times' : self.cycle_compute_times,
+                                       'runner_time' : self.cycle_runner_times,
+                                       'boundary_conditions_time' : self.cycle_bc_times,
+                                       'resampling_time' : self.cycle_resampling_times},
+                                      columns=cycle_table_colnames)
+        cycle_table_str = cycle_table_df.to_string()
+
+
+        # log of workers performance
+        worker_table_colnames = ('cycle_idx', 'n_steps', 'worker_idx', 'segment_time',)
+        worker_table_df = pd.DataFrame(self.worker_records, columns=worker_table_colnames)
+        worker_table_str = worker_table_df.to_string()
 
         # format the dashboard string
         dashboard = self.DASHBOARD_TEMPLATE.format(
@@ -387,16 +458,17 @@ Performance Log:
             max_region_sizes=self.max_region_sizes,
             regions_per_level=self.regions_per_level,
             region_hierarchy=region_hierarchy,
+            avg_runner_time=self.avg_runner_time,
+            avg_bc_time=self.avg_bc_time,
+            avg_resampling_time=self.avg_resampling_time,
             avg_cycle_time=self.avg_cycle_time,
-            worker_avg_segment_time=self.worker_avg_segment_time,
+            worker_avg_segment_time=worker_agg_table_str,
             walker_table=walker_table_str,
             leaf_region_table=leaf_region_table_str,
-            # TODO
             warping_log=warp_table_str,
-            # TODO
             wexplore_log=branching_table_str,
-            # TODO
-            performance_log=''
+            cycle_log=cycle_table_str,
+            performance_log=worker_table_str,
         )
 
         return dashboard
