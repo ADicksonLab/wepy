@@ -96,7 +96,7 @@ def run_transition_counts_matrix(wepy_hdf5, run_idx, assignment_key, transitions
         end = transition[-1]
 
         # Gets cluster pair from the hdf5 file
-        assignments = wepy_hdf5.get_trace_fields(run_idx, [start, end],
+        assignments = wepy_hdf5.get_run_trace_fields(run_idx, [start, end],
                                                   [assignment_key])[assignment_key]
 
         # Add a count to the cluster pair in the dictionary

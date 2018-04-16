@@ -2158,36 +2158,56 @@ class WepyHDF5(object):
 
         return Record
 
-    @staticmethod
-    def _convert_array_to_record_field(datum):
+    def _convert_record_field_to_table_column(self, run_idx, run_record_key, record_field):
 
-        if datum.shape[0] > 1:
-            rec_datum = tuple(datum)
-        else:
-            rec_datum = datum[0]
-
-        return rec_datum
-
-
-    def _run_records_sporadic(self, run_idx, run_record_key):
-
+        # get the field dataset
         rec_grp = self.records_grp(run_idx, run_record_key)
+        dset = rec_grp[record_field]
 
+        # if it is variable length or if it has more than one element
+        # cast all elements to tuples
+        if h5py.check_dtype(vlen=dset.dtype) is not None:
+            rec_dset = [tuple(value) for value in dset[:]]
+
+        # if it is not variable length make sure it is not more than a
+        # 1D feature vector
+        elif len(dset.shape) > 2:
+            raise TypeError(
+                "cannot convert fields with feature vectors more than 1 dimension,"
+                " was given {} for {}/{}".format(
+                    dset.shape[1:], run_record_key, record_field))
+
+        # if it is only a rank 1 feature vector and it has more than
+        # one element make a tuple out of it
+        elif dset.shape[1] > 1:
+            rec_dset = [tuple(value) for value in dset[:]]
+
+        # otherwise just get the single value instead of keeping it as
+        # a single valued feature vector
+        else:
+            rec_dset = [value[0] for value in dset[:]]
+
+        return rec_dset
+
+    def _convert_record_fields_to_table_columns(self, run_idx, run_record_key):
+        fields = {}
+        for record_field in self.record_fields[run_record_key]:
+            fields[record_field] = self._convert_record_field_to_table_column(
+                                           run_idx, run_record_key, record_field)
+
+        return fields
+
+    def _make_records(self, run_record_key, cycle_idxs, fields):
         Record = self._run_record_namedtuple(run_record_key)
 
         # for each record we make a tuple and yield it
         records = []
-        for record_idx in range(rec_grp[CYCLE_IDXS].shape[0]):
+        for record_idx in range(len(cycle_idxs)):
 
             # make a record for this cycle
-            record_d = {'cycle_idx' : rec_grp[CYCLE_IDXS][record_idx]}
-            for record_field in self.record_fields[run_record_key]:
-
-                datum = rec_grp[record_field][record_idx]
-                # data is stored as feature vector arrays, so we need
-                # to convert them to something better for records
-                datum = self._convert_array_to_record_field(datum)
-
+            record_d = {'cycle_idx' : cycle_idxs[record_idx]}
+            for record_field, column in fields.items():
+                datum = column[record_idx]
                 record_d[record_field] = datum
 
             record = Record(**record_d)
@@ -2196,38 +2216,36 @@ class WepyHDF5(object):
 
         return records
 
+    def _run_records_sporadic(self, run_idx, run_record_key):
+
+        # get all the value columns from the datasets, and convert
+        # them to something amenable to a table
+        fields = self._convert_record_fields_to_table_columns(run_idx, run_record_key)
+
+        # get the cycle idxs
+        rec_grp = self.records_grp(run_idx, run_record_key)
+        cycle_idxs = rec_grp[CYCLE_IDXS][:]
+
+        # then make the records from the fields
+        records = self._make_records(run_record_key, cycle_idxs, fields)
+
+        return records
+
     def _run_records_continual(self, run_idx, run_record_key):
 
-        rec_grp = self.records_grp(run_idx, run_record_key)
-
-        Record = self._run_record_namedtuple(run_record_key)
+        # get all the value columns from the datasets, and convert
+        # them to something amenable to a table
+        fields = self._convert_record_fields_to_table_columns(run_idx, run_record_key)
 
         # get one of the fields (if any to iterate over)
         record_fields = self.record_fields[run_record_key]
         main_record_field = record_fields[0]
 
-        # make the records
-        records = []
-        # iterate over the chosen field to get the cycle idxs
-        for cycle_idx, main_field_value in enumerate(rec_grp[main_record_field]):
+        # make the cycle idxs from that
+        cycle_idxs = list(range(rec_grp[main_record_field].shape[0]))
 
-            # start the dictionary for the record with the cycle index
-            record_d = {'cycle_idx' : cycle_idx}
-
-            # add the rest of the fields
-            for field_key in record_fields:
-
-                datum = rec_grp[field_key][cycle_idx]
-                # data is stored as feature vector arrays, so we need
-                # to convert them to something better for records
-                datum = self._convert_array_to_record_field(datum)
-
-                record_d[field_key] = datum
-
-            # make a real record
-            record = Record(**record_d)
-
-            records.append(record)
+        # then make the records from the fields
+        records = self._make_records(run_record_key, cycle_idxs, fields)
 
         return records
 

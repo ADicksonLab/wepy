@@ -6,7 +6,7 @@ from wepy.analysis.transitions import run_transition_probability_matrix
 from wepy.analysis.tree import sliding_window
 
 # Load wepy hdf5 file into python script
-wepy_h5 = WepyHDF5('wexplore1_results.wepy.h5', mode = 'r+')
+wepy_h5 = WepyHDF5('../outputs/results.wepy.h5', mode = 'r+')
 wepy_h5.open()
 
 run_idx = 0
