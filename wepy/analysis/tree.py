@@ -28,9 +28,9 @@ def ancestors(parent_matrix, cycle_idx, walker_idx, ancestor_cycle=0):
 
     previous_walker = walker_idx
 
-    for cycle_idx in range(cycle_idx, ancestor_cycle, -1):
-            previous_walker = parent_matrix[cycle_idx][previous_walker]
-            previous_point = (cycle_idx - 1, previous_walker)
+    for curr_cycle_idx in range(cycle_idx, ancestor_cycle, -1):
+            previous_walker = parent_matrix[curr_cycle_idx][previous_walker]
+            previous_point = (curr_cycle_idx - 1, previous_walker)
             ancestors.insert(0, previous_point)
 
     return ancestors

@@ -48,6 +48,7 @@ Performance:
     Average Resampling Time: {avg_resampling_time}
     Average Cycle Time: {avg_cycle_time}
     Worker Avg. Segment Times:
+
 {worker_avg_segment_time}
 
 Warping Log:
@@ -350,6 +351,8 @@ Worker Performance Log:
                                                                'worker_idx', 'segment_time'))
         # the aggregated table for the workers
         self.worker_agg_table = worker_df.groupby('worker_idx')[['segment_time']].aggregate(np.mean)
+        self.worker_agg_table.rename(columns={'segment_time' : 'avg_segment_time (s)'},
+                                     inplace=True)
 
         # log of the components times
         self.cycle_runner_times.append(cycle_runner_time)
@@ -419,13 +422,13 @@ Worker Performance Log:
         branching_table_str = branching_table_df.to_string()
 
         # log of warp events
-        warp_table_colnames = ('walker_idx', 'weight', 'time')
+        warp_table_colnames = ('walker_idx', 'weight', 'time (s)')
         warp_table_df = pd.DataFrame(self.warp_records, columns=warp_table_colnames)
         warp_table_str = warp_table_df.to_string()
 
         # log of cycle times
-        cycle_table_colnames = ('cycle_time', 'runner_time', 'boundary_conditions_time',
-                                'resampling_time')
+        cycle_table_colnames = ('cycle_time (s)', 'runner_time (s)', 'boundary_conditions_time (s)',
+                                'resampling_time (s)')
         cycle_table_df = pd.DataFrame({'cycle_times' : self.cycle_compute_times,
                                        'runner_time' : self.cycle_runner_times,
                                        'boundary_conditions_time' : self.cycle_bc_times,
@@ -435,7 +438,7 @@ Worker Performance Log:
 
 
         # log of workers performance
-        worker_table_colnames = ('cycle_idx', 'n_steps', 'worker_idx', 'segment_time',)
+        worker_table_colnames = ('cycle_idx', 'n_steps', 'worker_idx', 'segment_time (s)',)
         worker_table_df = pd.DataFrame(self.worker_records, columns=worker_table_colnames)
         worker_table_str = worker_table_df.to_string()
 
