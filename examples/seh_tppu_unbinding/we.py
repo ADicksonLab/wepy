@@ -213,6 +213,7 @@ starting_coords_pdb = 'sEH_TPPU_system.pdb'
 
 # outputs
 hdf5_filename = 'results.wepy.h5'
+dashboard_filename = 'wepy.dash.txt'
 
 # normalize the input paths
 json_top_path = osp.join(inputs_dir, json_top_filename)
@@ -225,6 +226,7 @@ pdb_path = osp.join(inputs_dir, starting_coords_pdb)
 
 # normalize the output paths
 hdf5_path = osp.join(outputs_dir, hdf5_filename)
+dashboard_path = osp.join(outputs_dir, dashboard_filename)
 
 def ligand_idxs(mdtraj_topology, ligand_resid):
     return mdtraj_topology.select('resname "{}"'.format(ligand_resid))
@@ -371,7 +373,7 @@ def main(n_runs, n_cycles, steps, n_walkers, n_workers=1, debug_prints=False, se
                                      all_atoms_rep_freq=ALL_ATOMS_SAVE_FREQ
     )
 
-    dashboard_reporter = WExploreDashboardReporter('./outputs/wepy.dash.txt', mode='w',
+    dashboard_reporter = WExploreDashboardReporter(dashboard_path, mode='w',
                                                    step_time=STEP_SIZE.value_in_unit(unit.second),
                                                    max_n_regions=resampler.max_n_regions,
                                                    max_region_sizes=resampler.max_region_sizes,
