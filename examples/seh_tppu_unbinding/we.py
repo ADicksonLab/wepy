@@ -72,6 +72,8 @@ by setting the debug_prints option to main to False.
 import os
 import os.path as osp
 import pickle
+import logging
+import multiprocessing as mp
 
 import numpy as np
 import mdtraj as mdj
@@ -416,10 +418,12 @@ if __name__ == "__main__":
     import time
     import multiprocessing as mp
     import sys
+    import logging
 
     # needs to call spawn for starting processes due to CUDA not
     # tolerating fork
     mp.set_start_method('spawn')
+    mp.log_to_stderr(logging.DEBUG)
 
     if sys.argv[1] == "--help" or sys.argv[1] == '-h':
         print("arguments: n_runs, n_cycles, n_steps, n_walkers, n_workers")

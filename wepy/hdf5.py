@@ -2428,19 +2428,23 @@ class WepyHDF5(object):
 
     def to_mdtraj(self, run_idx, traj_idx, frames=None, alt_rep=None):
 
+        traj_grp = self.traj(run_idx, traj_idx)
+
         # the default for alt_rep is the main rep
         if alt_rep is None:
             rep_key = POSITIONS
             rep_path = rep_key
+            pos_dset = traj_grp['positions']
         else:
             rep_key = alt_rep
             rep_path = 'alt_reps/{}'.format(alt_rep)
+            # if the alt_rep is sparse we get the dataset for the actual data
+            if rep_path in self.sparse_fields:
+                pos_dset = traj_grp[rep_path]['data']
+            else:
+                pos_dset = traj_grp[rep_path]
 
         topology = self.get_mdtraj_topology(alt_rep=rep_key)
-
-        traj_grp = self.traj(run_idx, traj_idx)
-
-        pos_dset = self.get_traj_field(run_idx, traj_idx, rep_path)
 
         # get the data for all or for the frames specified
         time = None
