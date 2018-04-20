@@ -371,7 +371,7 @@ def main(n_runs, n_cycles, steps, n_walkers, n_workers=1, debug_prints=False, se
                                      # sparse (in time) fields
                                      sparse_fields=dict(SPARSE_FIELDS),
                                      # sparse atoms fields
-                                     main_rep_idxs=np.concatenate((prot_idxs, lig_idxs)),
+                                     main_rep_idxs=np.concatenate((lig_idxs, prot_idxs)),
                                      all_atoms_rep_freq=ALL_ATOMS_SAVE_FREQ
     )
 
