@@ -1636,8 +1636,16 @@ class WepyHDF5(object):
                 # add the new data
                 field[-n_new_frames:, ...] = field_data
 
-    def get_traj_field(self, run_idx, traj_idx, field_path, frames=None):
-        """Returns a numpy array for the given field."""
+    def get_traj_field(self, run_idx, traj_idx, field_path, frames=None, masked=True):
+        """Returns a numpy array for the given field.
+
+        You can control how sparse fields are returned using the
+        `masked` option. When True (default) a masked numpy array will
+        be returned such that you can get which cycles it is from,
+        when False an unmasked array of the data will be returned
+        which has no cycle information.
+
+        """
 
         traj_path = "/runs/{}/trajectories/{}".format(run_idx, traj_idx)
 
@@ -1649,7 +1657,7 @@ class WepyHDF5(object):
         # get the field depending on whether it is sparse or not
         if field_path in self.sparse_fields:
             return self._get_sparse_traj_field(run_idx, traj_idx, field_path,
-                                               frames=frames)
+                                               frames=frames, masked=masked)
         else:
             return self._get_contiguous_traj_field(run_idx, traj_idx, field_path,
                                                    frames=frames)
@@ -1665,7 +1673,7 @@ class WepyHDF5(object):
 
         return field
 
-    def _get_sparse_traj_field(self, run_idx, traj_idx, field_path, frames=None):
+    def _get_sparse_traj_field(self, run_idx, traj_idx, field_path, frames=None, masked=True):
 
         traj_path = "/runs/{}/trajectories/{}".format(run_idx, traj_idx)
         traj_grp = self.h5[traj_path]
@@ -1675,38 +1683,48 @@ class WepyHDF5(object):
 
         if frames is None:
             data = field['data'][:]
-            sparse_idxs = field['_sparse_idxs'][:]
 
-            filled_data = np.full( (n_frames, *data.shape[1:]), np.nan)
-            filled_data[sparse_idxs] = data
+            # if it is to be masked make the masked array
+            if masked:
+                sparse_idxs = field['_sparse_idxs'][:]
 
-            mask = np.full( (n_frames, *data.shape[1:]), True)
-            mask[sparse_idxs] = False
+                filled_data = np.full( (n_frames, *data.shape[1:]), np.nan)
+                filled_data[sparse_idxs] = data
 
-            masked_array = np.ma.masked_array(filled_data, mask=mask)
+                mask = np.full( (n_frames, *data.shape[1:]), True)
+                mask[sparse_idxs] = False
+
+                data = np.ma.masked_array(filled_data, mask=mask)
 
         else:
-            # the empty arrays the size of the number of requested frames
-            filled_data = np.full( (len(frames), *field['data'].shape[1:]), np.nan)
-            mask = np.full( (len(frames), *field['data'].shape[1:]), True )
 
+            # get the sparse idxs and the frames to slice from the
+            # data
             sparse_idxs = field['_sparse_idxs'][:]
 
             # we get a boolean array of the rows of the data table
             # that we are to slice from
             sparse_frame_idxs = np.argwhere(np.isin(sparse_idxs, frames))
 
-            # take the data which exists and is part of the frames
-            # selection, and put it into the filled data where it is
-            # supposed to be
-            filled_data[np.isin(frames, sparse_idxs)] = field['data'][list(sparse_frame_idxs)]
+            data = field['data'][list(sparse_frame_idxs)]
 
-            # unmask the present values
-            mask[np.isin(frames, sparse_idxs)] = False
+            # if it is to be masked make the masked array
+            if masked:
+                # the empty arrays the size of the number of requested frames
+                filled_data = np.full( (len(frames), *field['data'].shape[1:]), np.nan)
+                mask = np.full( (len(frames), *field['data'].shape[1:]), True )
 
-            masked_array = np.ma.masked_array(filled_data, mask=mask)
+                # take the data which exists and is part of the frames
+                # selection, and put it into the filled data where it is
+                # supposed to be
+                filled_data[np.isin(frames, sparse_idxs)] = data
 
-        return masked_array
+                # unmask the present values
+                mask[np.isin(frames, sparse_idxs)] = False
+
+                data = np.ma.masked_array(filled_data, mask=mask)
+
+        return data
 
 
     def get_trace_fields(self, frame_tups, fields):
@@ -2434,48 +2452,45 @@ class WepyHDF5(object):
         if alt_rep is None:
             rep_key = POSITIONS
             rep_path = rep_key
-            pos_dset = traj_grp['positions']
         else:
             rep_key = alt_rep
             rep_path = 'alt_reps/{}'.format(alt_rep)
-            # if the alt_rep is sparse we get the dataset for the actual data
-            if rep_path in self.sparse_fields:
-                pos_dset = traj_grp[rep_path]['data']
-            else:
-                pos_dset = traj_grp[rep_path]
 
         topology = self.get_mdtraj_topology(alt_rep=rep_key)
 
         # get the data for all or for the frames specified
-        time = None
-        box_vectors = None
-        if frames is None:
-            positions = pos_dset[:]
-            try:
-                time = traj_grp[TIME][:, 0]
-            except KeyError:
-                warn("time not in this trajectory, ignoring")
-            try:
-                box_vectors = traj_grp[BOX_VECTORS][:]
-            except KeyError:
-                warn("box_vectors not in this trajectory, ignoring")
+        positions = self.get_traj_field(run_idx, traj_idx, rep_path,
+                                        frames=frames, masked=False)
+        try:
+            time = self.get_traj_field(run_idx, traj_idx, TIME,
+                                       frames=frames, masked=False)[:, 0]
+        except KeyError:
+            warn("time not in this trajectory, ignoring")
+            time = None
+
+        try:
+            box_vectors = self.get_traj_field(run_idx, traj_idx, BOX_VECTORS,
+                                              frames=frames, masked=False)
+        except KeyError:
+            warn("box_vectors not in this trajectory, ignoring")
+            box_vectors = None
+
+
+        if box_vectors is not None:
+            unitcell_lengths, unitcell_angles = traj_box_vectors_to_lengths_angles(box_vectors)
+
+        if (box_vectors is not None) and (time is not None):
+            traj = mdj.Trajectory(positions, topology,
+                           time=time,
+                           unitcell_lengths=unitcell_lengths, unitcell_angles=unitcell_angles)
+        elif box_vectors is not None:
+            traj = mdj.Trajectory(positions, topology,
+                           unitcell_lengths=unitcell_lengths, unitcell_angles=unitcell_angles)
+        elif time is not None:
+            traj = mdj.Trajectory(positions, topology,
+                           time=time)
         else:
-            positions = pos_dset[frames]
-            try:
-                time = traj_grp[TIME][frames][:, 0]
-            except KeyError:
-                warn("time not in this trajectory, ignoring")
-            try:
-                box_vectors = traj_grp[BOX_VECTORS][frames]
-            except KeyError:
-                warn("box_vectors not in this trajectory, ignoring")
-
-
-        unitcell_lengths, unitcell_angles = traj_box_vectors_to_lengths_angles(box_vectors)
-
-        traj = mdj.Trajectory(positions, topology,
-                       time=time,
-                       unitcell_lengths=unitcell_lengths, unitcell_angles=unitcell_angles)
+            traj = mdj.Trajectory(positions, topology)
 
         return traj
 
