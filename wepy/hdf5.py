@@ -1688,7 +1688,7 @@ class WepyHDF5(object):
         if frames is None:
             field = self._h5[full_path][:]
         else:
-            field = self._h5[full_path][frames]
+            field = self._h5[full_path][list(frames)]
 
         return field
 
