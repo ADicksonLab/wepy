@@ -1636,6 +1636,25 @@ class WepyHDF5(object):
                 # add the new data
                 field[-n_new_frames:, ...] = field_data
 
+    def get_traj_field_cycle_idxs(self, run_idx, traj_idx, field_path):
+        """ Returns the sparse indices for a field"""
+
+        traj_path = "/runs/{}/trajectories/{}".format(run_idx, traj_idx)
+
+        # if the field doesn't exist return None
+        if not field_path in self._h5[traj_path]:
+            raise KeyError("key for field {} not found".format(field_path))
+            # return None
+
+        # if the field is not sparse just return the cycle indices for
+        # that run
+        if field_path not in self.sparse_fields:
+            cycle_idxs = np.array(range(self.run_n_cycles(run_idx)))
+        else:
+            cycle_idxs = self._h5[traj_path][field_path]['_sparse_idxs'][:]
+
+        return cycle_idxs
+
     def get_traj_field(self, run_idx, traj_idx, field_path, frames=None, masked=True):
         """Returns a numpy array for the given field.
 
@@ -2457,6 +2476,8 @@ class WepyHDF5(object):
             rep_path = 'alt_reps/{}'.format(alt_rep)
 
         topology = self.get_mdtraj_topology(alt_rep=rep_key)
+
+        frames = self.get_traj_field_cycle_idxs(run_idx, traj_idx, rep_path)
 
         # get the data for all or for the frames specified
         positions = self.get_traj_field(run_idx, traj_idx, rep_path,
