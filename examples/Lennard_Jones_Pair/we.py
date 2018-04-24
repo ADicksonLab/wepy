@@ -55,7 +55,7 @@ from wepy.util.mdtraj import mdtraj_to_json_topology
 from wepy.sim_manager import Manager
 
 from wepy.resampling.distances.distance import Distance
-from wepy.resampling.wexplore1 import WExplore1Resampler
+from wepy.resampling.resamplers.wexplore import WExploreResampler
 from wepy.walker import Walker
 from wepy.runners.openmm import OpenMMRunner, OpenMMState
 from wepy.runners.openmm import UNIT_NAMES, GET_STATE_KWARG_DEFAULTS
@@ -178,7 +178,7 @@ class PairDistance(Distance):
 distance = PairDistance()
 
 ## Resampler
-resampler = WExplore1Resampler(distance=distance,
+resampler = WExploreResampler(distance=distance,
                                init_state=init_state,
                                max_region_sizes=MAX_REGION_SIZES,
                                max_n_regions=MAX_N_REGIONS,

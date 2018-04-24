@@ -3,7 +3,7 @@ import os.path as osp
 
 from wepy.hdf5 import WepyHDF5
 from wepy.analysis.tree import ancestors
-from wepy.resampling.wexplore1 import WExplore1Resampler
+from wepy.resampling.resamplers.wexplore import WExploreResampler
 
 if sys.argv[1] == '-h' or sys.argv[1] == '--help':
     print("walker_lineage.py run_index walker_index output_DCD_path")
@@ -26,8 +26,8 @@ else:
 
     resampling_panel = wepy_h5.run_resampling_panel(run_idx)
 
-    parent_panel = WExplore1Resampler.DECISION.parent_panel(resampling_panel)
-    parent_table = WExplore1Resampler.DECISION.net_parent_table(parent_panel)
+    parent_panel = WExploreResampler.DECISION.parent_panel(resampling_panel)
+    parent_table = WExploreResampler.DECISION.net_parent_table(parent_panel)
 
     lineage = ancestors(parent_table, cycle_idx, walker_idx)
 

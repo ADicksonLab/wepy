@@ -1,4 +1,4 @@
-from wepy.resampling.wexplore1 import WExplore1Resampler
+from wepy.resampling.resamplers.wexplore import WExploreResampler
 
 from wepy.resampling.distances.randomwalk import RandomWalkDistance
 from wepy.resampling.scoring.scorer import AllToAllScorer
@@ -12,8 +12,8 @@ if __name__=="__main__":
     distance = RandomWalkDistance();
 
 
-    #set up the WExplore1 Resampler with the parameters
-    resampler = WExplore1Resampler(pmax=0.1, pmin=10e-100,
+    #set up the Wexplore Resampler with the parameters
+    resampler = WExploreResampler(pmax=0.1, pmin=10e-100,
                                        max_region_sizes=[16, 4, 1, 0.25], distance=distance)
 
     # set up a RandomWalkProfilier

@@ -91,7 +91,7 @@ class RandomwalkProfiler(object):
         runner = RandomWalkRunner(dimension=dimension, probability=self.probability)
 
         units = dict(UNIT_NAMES)
-        # instantiate a wexplore2 unbindingboudaryconditiobs
+        # instantiate a revo unbindingboudaryconditiobs
         segment_length = 10
 
         # set up the reporter
@@ -232,18 +232,18 @@ class RandomwalkProfiler(object):
 
 if __name__=="__main__":
 
-    from wepy.resampling.wexplore1 import WExplore1Resampler
+    from wepy.resampling.resamplers.wexplore import WExploreResampler
     from wepy.resampling.distances.randomwalk import RandomWalkDistance
 
     # set up  the distance function
     distance = RandomWalkDistance()
 
-    # set up the WExplore2 Resampler with the parameters
-    # resampler = WExplore2Resampler(pmax=0.1, pmin=10e-100,
+    # set up the Revo Resampler with the parameters
+    # resampler = REVOResampler(pmax=0.1, pmin=10e-100,
     #                                    scorer=scorer)
 
-    # # set up the WExplore1 Resampler with the parameters
-    resampler = WExplore1Resampler(pmax=0.1, pmin=10e-100,
+    # # set up the Wexplore Resampler with the parameters
+    resampler = WExploreResampler(pmax=0.1, pmin=10e-100,
                                        cellsize=[16, 4, 1,0.25], distance=distance)
 
     # set up a RandomWalkProfilier

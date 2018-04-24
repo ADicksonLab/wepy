@@ -6,7 +6,7 @@ import numpy as np
 from openmmtools.testsystems import LennardJonesPair
 
 from wepy.hdf5 import WepyHDF5
-from wepy.resampling.wexplore1 import WExplore1Resampler
+from wepy.resampling.resamplers.wexplore import WExploreResampler
 from wepy.boundary_conditions.unbinding import UnbindingBC
 from wepy.resampling.distances.distance import Distance
 from scipy.spatial.distance import euclidean
@@ -84,7 +84,7 @@ PMAX = 0.5
 PMIN = 1e-12
 MAX_N_REGIONS = (10, 10, 10, 10)
 MAX_REGION_SIZES = (0.6, 0.4, 0.2, 0.1) # nanometers
-resampler = WExplore1Resampler(distance=PairDistance(),
+resampler = WExploreResampler(distance=PairDistance(),
                                init_state=init_state,
                                max_region_sizes=MAX_REGION_SIZES,
                                max_n_regions=MAX_N_REGIONS,

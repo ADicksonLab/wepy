@@ -97,7 +97,7 @@ from wepy.walker import Walker
 
 # classes for making the resampler
 from wepy.resampling.distances.receptor import UnbindingDistance
-from wepy.resampling.wexplore1 import WExplore1Resampler
+from wepy.resampling.resamplers.wexplore import WExploreResampler
 
 # A standard Boundary condition object for unbinding
 from wepy.boundary_conditions.unbinding import UnbindingBC
@@ -331,9 +331,9 @@ def main(n_runs, n_cycles, steps, n_walkers, n_workers=1, debug_prints=False, se
 
     ## Make the resampler
 
-    # make a WExplore1 resampler with default parameters and our
+    # make a Wexplore resampler with default parameters and our
     # distance metric
-    resampler = WExplore1Resampler(distance=unb_distance,
+    resampler = WExploreResampler(distance=unb_distance,
                                    init_state=init_state,
                                    max_n_regions=MAX_N_REGIONS,
                                    max_region_sizes=MAX_REGION_SIZES,
@@ -342,7 +342,7 @@ def main(n_runs, n_cycles, steps, n_walkers, n_workers=1, debug_prints=False, se
     ## Make the Boundary Conditions
 
     # makes ref_traj and selects lingand_atom and protein atom  indices
-    # instantiate a wexplore2 unbindingboudaryconditiobs
+    # instantiate a revo unbindingboudaryconditiobs
     ubc = UnbindingBC(cutoff_distance=CUTOFF_DISTANCE,
                       initial_state=init_state,
                       topology=crystal_traj.topology,

@@ -1,4 +1,4 @@
-from wepy.resampling.wexplore2 import WExplore2Resampler
+from wepy.resampling.resamplers.revo import REVOResampler
 
 from wepy.resampling.distances.randomwalk import RandomWalkDistance
 from wepy.resampling.scoring.scorer import AllToAllScorer
@@ -12,8 +12,8 @@ if __name__=="__main__":
     distance = RandomWalkDistance();
     scorer = AllToAllScorer(distance=distance)
 
-    # set up the WExplore2 Resampler with the parameters
-    resampler = WExplore2Resampler(pmax=0.1, pmin=10e-100,
+    # set up the Revo Resampler with the parameters
+    resampler = REVOResampler(pmax=0.1, pmin=10e-100,
                                         scorer=scorer)
 
 

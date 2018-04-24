@@ -688,7 +688,7 @@ class RegionTree(nx.DiGraph):
 
         return merge_groups, walkers_num_clones
 
-class WExplore1Resampler(Resampler):
+class WExploreResampler(Resampler):
 
     DECISION = MultiCloneMergeDecision
 

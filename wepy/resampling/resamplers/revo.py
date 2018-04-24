@@ -5,7 +5,6 @@ import itertools as it
 import numpy as np
 
 from wepy.resampling.resamplers.resampler import Resampler
-from wepy.resampling.scoring.scorer import AllToAllScorer
 from wepy.resampling.decisions.clone_merge import MultiCloneMergeDecision
 
 class WExplore2Resampler(Resampler):
@@ -30,7 +29,7 @@ class WExplore2Resampler(Resampler):
 
 
     def __init__(self, seed=None, pmin=1e-12, pmax=0.1, dpower=4, merge_dist=2.5,
-                 scorer=None):
+                 distance=None):
 
         self.decision = self.DECISION
 
@@ -48,17 +47,14 @@ class WExplore2Resampler(Resampler):
         #
         self.merge_dist = merge_dist
 
+        # the distance metric
+        assert distance is not None, "Must give a distance metric class"
+        self.distance = distance
+
         # setting the random seed
         self.seed = seed
         if seed is not None:
             rand.seed(seed)
-
-        # the scorer class that will perform the all-to-all distances
-        # between walkers
-
-        # assert issubclass(type(scorer), AllToAllScorer), "The
-        # scorer class must be an AllToAllScorer class"
-        self.scorer = scorer
 
     def _calcspread(self, walkerwt, amp, distance_matrix):
 
@@ -285,6 +281,30 @@ class WExplore2Resampler(Resampler):
             walker_record['walker_idx'] = np.array([walker_idx])
 
         return walker_actions, spreads[-1]
+
+    def _all_to_all_distance(self, walkers):
+        # initialize an all-to-all matrix, with 0.0 for self distances
+        dist_mat = np.zeros((len(walkers), len(walkers)))
+
+        # make images for all the walker states for us to compute distances on
+        images = []
+        for walker in walkers:
+            image = self.distance.image(walker.state)
+            image.append(image)
+
+        # get the combinations of indices for all walker pairs
+        for i, j in it.combinations(range(len(images)), 2):
+
+            # calculate the distance between the two walkers
+            dist = self.distance.image_distance(images[i], images[j])
+
+            # save this in the matrix in both spots
+            dist_mat[i][j] = dist
+            dist_mat[j][i] = dist
+
+        # each row is the novelty vector for the walker, i.e. its
+        # distance to all the other walkers
+        return [walker_dists for walker_dists in dist_mat]
 
     def resample(self, walkers, debug_prints=False):
 
