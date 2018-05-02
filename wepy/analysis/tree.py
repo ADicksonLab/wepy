@@ -30,6 +30,12 @@ def ancestors(parent_matrix, cycle_idx, walker_idx, ancestor_cycle=0):
 
     for curr_cycle_idx in range(cycle_idx, ancestor_cycle, -1):
             previous_walker = parent_matrix[curr_cycle_idx][previous_walker]
+
+            # check for discontinuities, e.g. warping events
+            if previous_walker == -1:
+                # there are no more continuous ancestors for this walker
+                break
+
             previous_point = (curr_cycle_idx - 1, previous_walker)
             ancestors.insert(0, previous_point)
 

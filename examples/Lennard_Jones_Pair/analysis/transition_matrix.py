@@ -2,6 +2,7 @@ import numpy as np
 
 from wepy.hdf5 import WepyHDF5
 from wepy.resampling.decisions.clone_merge import MultiCloneMergeDecision
+from wepy.boundary_conditions.unbinding import UnbindingBC
 from wepy.analysis.transitions import run_transition_probability_matrix
 from wepy.analysis.tree import sliding_window
 
@@ -28,9 +29,12 @@ resampling_panel = wepy_h5.run_resampling_panel(run_idx)
 parent_panel = MultiCloneMergeDecision.parent_panel(resampling_panel)
 parent_matrix = MultiCloneMergeDecision.net_parent_table(parent_panel)
 
+# take into account warping events as discontinuities in the lineage
+parent_matrix_disc = UnbindingBC.lineage_discontinuities(parent_matrix, wepy_h5.warping_records(0))
+
 # use the parent matrix to generate the sliding windows
 window_length = 10
-windows = sliding_window(parent_matrix, window_length)
+windows = list(sliding_window(np.array(parent_matrix_disc), window_length))
 
 # make the transition matrix from the windows
 transprob_mat = run_transition_probability_matrix(wepy_h5, run_idx,

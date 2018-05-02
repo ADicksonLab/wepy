@@ -92,6 +92,7 @@ class BoundaryConditions(object):
         raise NotImplementedError
 
 
+
 class NoBC(BoundaryConditions):
 
     def check_boundaries(self, walker):

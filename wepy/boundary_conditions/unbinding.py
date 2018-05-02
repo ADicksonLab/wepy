@@ -1,6 +1,7 @@
 import sys
 import itertools as it
 from collections import defaultdict
+from copy import copy
 
 import numpy as np
 import numpy.linalg as la
@@ -31,6 +32,10 @@ class UnbindingBC(BoundaryConditions):
     PROGRESS_DTYPES = (np.float,)
 
     PROGRESS_RECORD_FIELDS = ()
+
+
+    DISCONTINUITY_TARGET_IDXS = (0,)
+    DISCONTINUITY_VALUE = -1
 
     def __init__(self, initial_state=None,
                  cutoff_distance=1.0,
@@ -180,3 +185,31 @@ class UnbindingBC(BoundaryConditions):
         bc_data = self.update_bc(new_walkers, warp_data, progress_data, cycle)
 
         return new_walkers, warp_data, bc_data, progress_data
+
+
+    @classmethod
+    def lineage_discontinuities(cls, parent_table, warping_records):
+
+        new_parent_table = copy(parent_table)
+
+        # get the (cycle_idx, walker_idx) from the warping records
+        warp_ids = [(rec[0], rec[1]) for rec in warping_records]
+        target_idxs = [rec[2] for rec in warping_records]
+
+        for cycle_idx in range(len(parent_table) -1, 0, -1):
+
+            for walker_idx in range(len(parent_table[cycle_idx])):
+
+                parent_idx = parent_table[cycle_idx][walker_idx]
+
+                # check if my parent was warped
+                if (cycle_idx, parent_idx) in warp_ids:
+                    warp_rec_idx = warp_ids.index((cycle_idx, parent_idx))
+                    # check if the warp created a discontinuity
+                    if target_idxs[warp_rec_idx] in cls.DISCONTINUITY_TARGET_IDXS:
+
+                        # then register a discontuity in the parent
+                        # matrix by replacing my parent with a -1
+                        new_parent_table[cycle_idx][walker_idx] = cls.DISCONTINUITY_VALUE
+
+        return new_parent_table
