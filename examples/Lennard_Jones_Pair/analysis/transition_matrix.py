@@ -30,11 +30,11 @@ parent_panel = MultiCloneMergeDecision.parent_panel(resampling_panel)
 parent_matrix = MultiCloneMergeDecision.net_parent_table(parent_panel)
 
 # take into account warping events as discontinuities in the lineage
-parent_matrix_disc = UnbindingBC.lineage_discontinuities(parent_matrix, wepy_h5.warping_records(0))
+parent_matrix = UnbindingBC.lineage_discontinuities(parent_matrix, wepy_h5.warping_records(0))
 
 # use the parent matrix to generate the sliding windows
 window_length = 10
-windows = list(sliding_window(np.array(parent_matrix_disc), window_length))
+windows = list(sliding_window(np.array(parent_matrix), window_length))
 
 # make the transition matrix from the windows
 transprob_mat = run_transition_probability_matrix(wepy_h5, run_idx,
