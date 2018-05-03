@@ -35,8 +35,9 @@ def ancestors(parent_matrix, cycle_idx, walker_idx, ancestor_cycle=0):
             if previous_walker == -1:
                 # there are no more continuous ancestors for this
                 # walker so we cannot return ancestors back to the
-                # requested cycle, return None
-                return None
+                # requested cycle just return the ancestors to this
+                # point
+                break
 
             previous_point = (curr_cycle_idx - 1, previous_walker)
             ancestors.insert(0, previous_point)
@@ -136,9 +137,9 @@ def sliding_window(parent_matrix, window_length):
             window = ancestors(parent_matrix, cycle_idx, walker_idx,
                                ancestor_cycle=cycle_idx-(window_length-1))
 
-            # if there wasn't a history back to that cycle we skip to
-            # the next window
-            if window is None:
+            # if the window is too short because the lineage has a
+            # discontinuity in it skip to the next window
+            if len(window) < window_length:
                 continue
 
             yield window
