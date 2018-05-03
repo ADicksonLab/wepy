@@ -33,8 +33,10 @@ def ancestors(parent_matrix, cycle_idx, walker_idx, ancestor_cycle=0):
 
             # check for discontinuities, e.g. warping events
             if previous_walker == -1:
-                # there are no more continuous ancestors for this walker
-                break
+                # there are no more continuous ancestors for this
+                # walker so we cannot return ancestors back to the
+                # requested cycle, return None
+                return None
 
             previous_point = (curr_cycle_idx - 1, previous_walker)
             ancestors.insert(0, previous_point)
@@ -133,6 +135,11 @@ def sliding_window(parent_matrix, window_length):
             # then get the ancestors according to the sliding window
             window = ancestors(parent_matrix, cycle_idx, walker_idx,
                                ancestor_cycle=cycle_idx-(window_length-1))
+
+            # if there wasn't a history back to that cycle we skip to
+            # the next window
+            if window is None:
+                continue
 
             yield window
 
