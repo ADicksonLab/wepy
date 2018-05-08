@@ -201,17 +201,21 @@ class WepyHDF5Reporter(FileReporter):
             # the enumeration for the values of resampling
             self.wepy_h5.init_run_fields_resampling_decision(self.wepy_run_idx, self.decision_enum)
             self.wepy_h5.init_run_fields_resampler(self.wepy_run_idx, self.resampler_fields)
+            # set the fields that are records for tables etc.
+            self.wepy_h5.init_record_fields('resampling', self.resampling_records)
+            self.wepy_h5.init_record_fields('resampler', self.resampler_records)
+
+            # if there were no warping fields set there is no boundary
+            # conditions and we don't initialize them
             if self.warping_fields is not None:
                 self.wepy_h5.init_run_fields_warping(self.wepy_run_idx, self.warping_fields)
                 self.wepy_h5.init_run_fields_progress(self.wepy_run_idx, self.progress_fields)
                 self.wepy_h5.init_run_fields_bc(self.wepy_run_idx, self.bc_fields)
+                # table records
                 self.wepy_h5.init_record_fields('warping', self.warping_records)
                 self.wepy_h5.init_record_fields('boundary_conditions', self.bc_records)
                 self.wepy_h5.init_record_fields('progress', self.progress_records)
 
-            # set the fields that are records
-            self.wepy_h5.init_record_fields('resampling', self.resampling_records)
-            self.wepy_h5.init_record_fields('resampler', self.resampler_records)
 
         # if this was opened in a truncation mode, we don't want to
         # overwrite old runs with future calls to init(). so we
@@ -320,7 +324,8 @@ class WepyHDF5Reporter(FileReporter):
                     traj_grp.attrs['starting_cycle_idx'] = cycle_idx
 
 
-            # report the boundary conditions records data
+            # report the boundary conditions records data, if boundary
+            # conditions were initialized
             if self.warping_fields is not None:
                 self.report_warping(cycle_idx, warp_data)
                 self.report_bc(cycle_idx, bc_data)
