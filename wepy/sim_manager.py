@@ -71,10 +71,9 @@ class Manager(object):
             # initialize the warped walkers to the new_walkers and
             # change them later if need be
             warped_walkers = new_walkers
-            warp_records = []
-            warp_aux_data = []
-            bc_records = []
-            bc_aux_data = []
+            warp_data = []
+            bc_data = []
+            progress_data = []
             bc_time = 0.0
             if self.boundary_conditions is not None:
 
@@ -93,11 +92,8 @@ class Manager(object):
                 progress_data = bc_results[3]
 
                 if debug_prints:
-                    if len(warp_records) > 0:
+                    if len(warp_data) > 0:
                         print("Returned warp record in cycle {}".format(cycle_idx))
-
-                    if len(warp_aux_data) > 0:
-                        print("Returned warp aux_data in cycle {}".format(cycle_idx))
 
 
 

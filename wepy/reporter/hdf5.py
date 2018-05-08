@@ -201,16 +201,17 @@ class WepyHDF5Reporter(FileReporter):
             # the enumeration for the values of resampling
             self.wepy_h5.init_run_fields_resampling_decision(self.wepy_run_idx, self.decision_enum)
             self.wepy_h5.init_run_fields_resampler(self.wepy_run_idx, self.resampler_fields)
-            self.wepy_h5.init_run_fields_warping(self.wepy_run_idx, self.warping_fields)
-            self.wepy_h5.init_run_fields_progress(self.wepy_run_idx, self.progress_fields)
-            self.wepy_h5.init_run_fields_bc(self.wepy_run_idx, self.bc_fields)
+            if self.warping_fields is not None:
+                self.wepy_h5.init_run_fields_warping(self.wepy_run_idx, self.warping_fields)
+                self.wepy_h5.init_run_fields_progress(self.wepy_run_idx, self.progress_fields)
+                self.wepy_h5.init_run_fields_bc(self.wepy_run_idx, self.bc_fields)
+                self.wepy_h5.init_record_fields('warping', self.warping_records)
+                self.wepy_h5.init_record_fields('boundary_conditions', self.bc_records)
+                self.wepy_h5.init_record_fields('progress', self.progress_records)
 
             # set the fields that are records
             self.wepy_h5.init_record_fields('resampling', self.resampling_records)
             self.wepy_h5.init_record_fields('resampler', self.resampler_records)
-            self.wepy_h5.init_record_fields('warping', self.warping_records)
-            self.wepy_h5.init_record_fields('boundary_conditions', self.bc_records)
-            self.wepy_h5.init_record_fields('progress', self.progress_records)
 
         # if this was opened in a truncation mode, we don't want to
         # overwrite old runs with future calls to init(). so we
@@ -320,9 +321,10 @@ class WepyHDF5Reporter(FileReporter):
 
 
             # report the boundary conditions records data
-            self.report_warping(cycle_idx, warp_data)
-            self.report_bc(cycle_idx, bc_data)
-            self.report_progress(cycle_idx, progress_data)
+            if self.warping_fields is not None:
+                self.report_warping(cycle_idx, warp_data)
+                self.report_bc(cycle_idx, bc_data)
+                self.report_progress(cycle_idx, progress_data)
 
             # report the resampling records data
             self.report_resampling(cycle_idx, resampling_data)

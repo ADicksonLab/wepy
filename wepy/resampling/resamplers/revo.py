@@ -290,7 +290,7 @@ class WExplore2Resampler(Resampler):
         images = []
         for walker in walkers:
             image = self.distance.image(walker.state)
-            image.append(image)
+            images.append(image)
 
         # get the combinations of indices for all walker pairs
         for i, j in it.combinations(range(len(images)), 2):
@@ -313,7 +313,7 @@ class WExplore2Resampler(Resampler):
         amp = [1 for i in range(n_walkers)]
 
         # calculate distance matrix
-        distance_matrix = self.scorer.score(walkers)
+        distance_matrix = self._all_to_all_distance(walkers)
 
         if debug_prints:
             print("distance_matrix")
