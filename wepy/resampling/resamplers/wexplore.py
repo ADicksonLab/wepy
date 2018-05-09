@@ -699,7 +699,7 @@ class WExploreResampler(Resampler):
     # image, distance the walker was away from the image at that
     # level, and the id of the leaf node
     RESAMPLER_FIELDS = ('branching_level', 'distance', 'new_leaf_id', 'image')
-    RESAMPLER_SHAPES = ((1,), (1,), Ellipsis, None)
+    RESAMPLER_SHAPES = ((1,), (1,), Ellipsis, Ellipsis)
     RESAMPLER_DTYPES = (np.int, np.float, np.int, None)
 
     # fields that can be used for a table like representation

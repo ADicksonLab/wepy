@@ -7,14 +7,14 @@ import numpy as np
 from wepy.resampling.resamplers.resampler import Resampler
 from wepy.resampling.decisions.clone_merge import MultiCloneMergeDecision
 
-class WExplore2Resampler(Resampler):
+class REVOResampler(Resampler):
 
     DECISION = MultiCloneMergeDecision
 
     # state change data for the resampler
-    RESAMPLER_FIELDS = ('n_walkers', 'distance_matrix', 'spread')
-    RESAMPLER_SHAPES = ((1,), Ellipsis, (1,))
-    RESAMPLER_DTYPES = (np.int, np.float, np.float)
+    RESAMPLER_FIELDS = ('n_walkers', 'distance_matrix', 'spread', 'image_shape', 'images')
+    RESAMPLER_SHAPES = ((1,), Ellipsis, (1,), Ellipsis, Ellipsis)
+    RESAMPLER_DTYPES = (np.int, np.float, np.float, np.int, None)
 
     # fields that can be used for a table like representation
     RESAMPLER_RECORD_FIELDS = ('spread',)
@@ -29,7 +29,7 @@ class WExplore2Resampler(Resampler):
 
 
     def __init__(self, seed=None, pmin=1e-12, pmax=0.1, dpower=4, merge_dist=2.5,
-                 distance=None):
+                 distance=None, init_state=None):
 
         self.decision = self.DECISION
 
@@ -55,6 +55,25 @@ class WExplore2Resampler(Resampler):
         self.seed = seed
         if seed is not None:
             rand.seed(seed)
+
+        # we do not know the shape and dtype of the images until
+        # runtime so we determine them here
+        assert init_state is not None, "must give an initial state to infer data about the image"
+        image = self.distance.image(init_state)
+        self.image_dtype = image.dtype
+
+    # we need this to on the fly find out what the datatype of the
+    # image is
+    def resampler_field_dtypes(self):
+
+        # index of the image idx
+        image_idx = self.resampler_field_names().index('images')
+
+        # dtypes adding the image dtype
+        dtypes = list(super().resampler_field_dtypes())
+        dtypes[image_idx] = self.image_dtype
+
+        return tuple(dtypes)
 
     def _calcspread(self, walkerwt, amp, distance_matrix):
 
@@ -302,9 +321,7 @@ class WExplore2Resampler(Resampler):
             dist_mat[i][j] = dist
             dist_mat[j][i] = dist
 
-        # each row is the novelty vector for the walker, i.e. its
-        # distance to all the other walkers
-        return [walker_dists for walker_dists in dist_mat]
+        return [walker_dists for walker_dists in dist_mat], images
 
     def resample(self, walkers, debug_prints=False):
 
@@ -313,7 +330,7 @@ class WExplore2Resampler(Resampler):
         amp = [1 for i in range(n_walkers)]
 
         # calculate distance matrix
-        distance_matrix = self._all_to_all_distance(walkers)
+        distance_matrix, images = self._all_to_all_distance(walkers)
 
         if debug_prints:
             print("distance_matrix")
@@ -336,6 +353,8 @@ class WExplore2Resampler(Resampler):
         # as well for the resampler data, there is just one per cycle
         resampler_data = [{'distance_matrix' : np.ravel(np.array(distance_matrix)),
                            'n_walkers' : np.array([len(walkers)]),
-                           'spread' : np.array([spread]) }]
+                           'spread' : np.array([spread]),
+                           'images' : np.ravel(np.array(images)),
+                           'image_shape' : np.array(images[0].shape)}]
 
         return resampled_walkers, resampling_data, resampler_data
