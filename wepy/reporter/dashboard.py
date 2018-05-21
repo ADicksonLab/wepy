@@ -9,10 +9,10 @@ import pandas as pd
 class WExploreDashboardReporter(FileReporter):
 
     DASHBOARD_TEMPLATE =\
-"""
-* Weighted Ensemble Simulation:
+"""* Weighted Ensemble Simulation
+
     Integration Step Size: {step_time} seconds
-                           {step_time_femotoseconds} femtoseconds
+                           {step_time_femtoseconds} femtoseconds
     Last Cycle Index: {last_cycle_idx}
     Number of Cycles: {n_cycles}
     Single Walker Sampling Time: {walker_total_sampling_time} seconds
@@ -20,7 +20,8 @@ class WExploreDashboardReporter(FileReporter):
     Total Sampling Time: {total_sampling_time} seconds
                          {total_sampling_time_microseconds} microseconds
 
-* WExplore:
+* WExplore
+
     Max Number of Regions: {max_n_regions}
     Max Region Sizes: {max_region_sizes}
     Number of Regions per level:
@@ -31,18 +32,18 @@ class WExploreDashboardReporter(FileReporter):
 Defined Regions with the number of child regions per parent region:
 {region_hierarchy}
 
-** WExplore Log:
+** WExplore Log
 
 {wexplore_log}
 
 
-* Walker Table:
+* Walker Table
 {walker_table}
 
-* Leaf Region Table:
+* Leaf Region Table
 {leaf_region_table}
 
-* Warping through boundary conditions:
+* Warping through boundary conditions
     Cutoff Distance: {cutoff_distance}
     Number of Exit Points this Cycle: {cycle_n_exit_points}
     Total Number of Exit Points: {n_exit_points}
@@ -51,12 +52,12 @@ Defined Regions with the number of child regions per parent region:
     Expected Reactive Traj. Rate: {reactive_traj_rate} 1/seconds
     Rate: {exit_rate} 1/seconds
 
-** Warping Log:
+** Warping Log
 
 {warping_log}
 
 
-* Performance:
+* Performance
     Average Runner Time: {avg_runner_time}
     Average Boundary Conditions Time: {avg_bc_time}
     Average Resampling Time: {avg_resampling_time}
@@ -67,11 +68,11 @@ Defined Regions with the number of child regions per parent region:
 
 
 
-** Cycle Performance Log:
+** Cycle Performance Log
 
 {cycle_log}
 
-** Worker Performance Log:
+** Worker Performance Log
 
 {performance_log}
 
