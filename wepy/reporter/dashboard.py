@@ -10,30 +10,39 @@ class WExploreDashboardReporter(FileReporter):
 
     DASHBOARD_TEMPLATE =\
 """
-Weighted Ensemble Simulation:
+* Weighted Ensemble Simulation:
     Integration Step Size: {step_time} seconds
+                           {step_time_femotoseconds} femtoseconds
     Last Cycle Index: {last_cycle_idx}
     Number of Cycles: {n_cycles}
     Single Walker Sampling Time: {walker_total_sampling_time} seconds
+                                 {walker_total_sampling_time_microseconds} microseconds
     Total Sampling Time: {total_sampling_time} seconds
+                         {total_sampling_time_microseconds} microseconds
 
-WExplore:
+* WExplore:
     Max Number of Regions: {max_n_regions}
     Max Region Sizes: {max_region_sizes}
     Number of Regions per level:
 
         {regions_per_level}
 
+** Region Hierarchy
 Defined Regions with the number of child regions per parent region:
 {region_hierarchy}
 
-Walker Table:
+** WExplore Log:
+
+{wexplore_log}
+
+
+* Walker Table:
 {walker_table}
 
-Leaf Region Table:
+* Leaf Region Table:
 {leaf_region_table}
 
-Warping through boundary conditions:
+* Warping through boundary conditions:
     Cutoff Distance: {cutoff_distance}
     Number of Exit Points this Cycle: {cycle_n_exit_points}
     Total Number of Exit Points: {n_exit_points}
@@ -42,7 +51,12 @@ Warping through boundary conditions:
     Expected Reactive Traj. Rate: {reactive_traj_rate} 1/seconds
     Rate: {exit_rate} 1/seconds
 
-Performance:
+** Warping Log:
+
+{warping_log}
+
+
+* Performance:
     Average Runner Time: {avg_runner_time}
     Average Boundary Conditions Time: {avg_bc_time}
     Average Resampling Time: {avg_resampling_time}
@@ -51,20 +65,13 @@ Performance:
 
 {worker_avg_segment_time}
 
-Warping Log:
-
-{warping_log}
-
-WExplore Log:
-
-{wexplore_log}
 
 
-Cycle Performance Log:
+** Cycle Performance Log:
 
 {cycle_log}
 
-Worker Performance Log:
+** Worker Performance Log:
 
 {performance_log}
 
@@ -445,10 +452,13 @@ Worker Performance Log:
         # format the dashboard string
         dashboard = self.DASHBOARD_TEMPLATE.format(
             step_time=self.step_time,
+            step_time_femtoseconds=self.step_time * 10e-15,
             last_cycle_idx=self.last_cycle_idx,
             n_cycles=self.n_cycles,
             walker_total_sampling_time=self.walker_total_sampling_time,
+            walker_total_sampling_time_microseconds=self.walker_total_sampling_time * 10e-6,
             total_sampling_time=self.total_sampling_time,
+            total_sampling_time_microseconds=self.total_sampling_time * 10e-6,
             cutoff_distance=self.bc_cutoff_distance,
             n_exit_points=self.n_exit_points,
             cycle_n_exit_points=self.cycle_n_exit_points,
