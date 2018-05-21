@@ -161,13 +161,6 @@ Defined Regions with the number of child regions per parent region:
         self.cycle_resampling_times = []
         self.worker_records = []
 
-
-    def init(self):
-        pass
-
-    def cleanup(self):
-        pass
-
     def report(self, cycle_idx, walkers,
                warp_data, bc_data, progress_data,
                resampling_data, resampler_data,

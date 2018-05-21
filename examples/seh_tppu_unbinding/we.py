@@ -108,6 +108,7 @@ from wepy.reporter.hdf5 import WepyHDF5Reporter
 # reporter that saves a pickle of the important objects which may be
 # useful for doing analysis after the run
 from wepy.reporter.setup import SetupReporter
+from wepy.reporter.restart import RestartReporter
 
 # a reporter to show a dashboard in plaintext of current summarized
 # results of the simulation
@@ -221,6 +222,7 @@ starting_coords_pdb = 'sEH_TPPU_system.pdb'
 hdf5_filename = 'results.wepy.h5'
 dashboard_filename = 'wepy.dash.org'
 setup_state_filename = 'setup.pkl'
+restart_state_filename = 'restart.pkl'
 
 # normalize the input paths
 json_top_path = osp.join(inputs_dir, json_top_filename)
@@ -235,6 +237,7 @@ pdb_path = osp.join(inputs_dir, starting_coords_pdb)
 hdf5_path = osp.join(outputs_dir, hdf5_filename)
 dashboard_path = osp.join(outputs_dir, dashboard_filename)
 setup_state_path = osp.join(outputs_dir, setup_state_filename)
+restart_state_path = osp.join(outputs_dir, restart_state_filename)
 
 def ligand_idxs(mdtraj_topology, ligand_resid):
     return mdtraj_topology.select('resname "{}"'.format(ligand_resid))
@@ -387,11 +390,11 @@ def main(n_runs, n_cycles, steps, n_walkers, n_workers=1, debug_prints=False, se
                                                    max_region_sizes=resampler.max_region_sizes,
                                                    bc_cutoff_distance=ubc.cutoff_distance)
 
-    setup_reporter = SetupReporter(setup_state_path, mode='w',
-                                   resampler=resampler,
-                                   boundary_conditions=ubc)
+    setup_reporter = SetupReporter(setup_state_path, mode='w')
 
-    reporters = [hdf5_reporter, dashboard_reporter, setup_reporter]
+    restart_reporter = RestartReporter(restart_state_path, mode='w')
+
+    reporters = [hdf5_reporter, dashboard_reporter, setup_reporter, restart_reporter]
 
     ## The work mapper
 

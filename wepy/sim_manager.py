@@ -131,7 +131,8 @@ class Manager(object):
                                 worker_segment_times=self.work_mapper.worker_segment_times,
                                 cycle_runner_time=runner_time,
                                 cycle_bc_time=bc_time,
-                                cycle_resampling_time=resampling_time)
+                                cycle_resampling_time=resampling_time,
+                                resampled_walkers=resampled_walkers)
 
             # prepare resampled walkers for running new state changes
             walkers = resampled_walkers
@@ -152,15 +153,26 @@ class Manager(object):
 
         # init the reporter
         for reporter in self.reporters:
-            reporter.init()
+            reporter.init(init_walkers=self.init_walkers,
+                          runner=self.runner,
+                          resampler=self.resampler,
+                          boundary_conditions=self.boundary_conditions,
+                          work_mapper=self.work_mapper,
+                          reporters=self.reporters)
 
     def cleanup(self, debug_prints=False):
-        # cleanup things associated with the reporter
-        for reporter in self.reporters:
-            reporter.cleanup()
 
         # cleanup the mapper
         self.work_mapper.cleanup()
+
+        # cleanup things associated with the reporter
+        for reporter in self.reporters:
+            reporter.cleanup(runner=self.runner,
+                             work_mapper=self.work_mapper,
+                             resampler=self.resampler,
+                             boundary_conditions=self.boundary_conditions,
+                             reporters=self.reporters)
+
 
     def run_simulation_by_time(self, run_time, segments_length, num_workers=None,
                                debug_prints=False):

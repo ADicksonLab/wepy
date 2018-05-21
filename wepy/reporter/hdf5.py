@@ -177,7 +177,7 @@ class WepyHDF5Reporter(FileReporter):
             self.units = units
 
 
-    def init(self):
+    def init(self, *args, **kwargs):
 
         # open and initialize the HDF5 file
 
@@ -195,15 +195,19 @@ class WepyHDF5Reporter(FileReporter):
             # initialize a new run
             run_grp = self.wepy_h5.new_run()
             self.wepy_run_idx = run_grp.attrs['run_idx']
+            print("RUN: {}".format(self.wepy_run_idx))
 
             # initialize the run record groups using their fields
             self.wepy_h5.init_run_fields_resampling(self.wepy_run_idx, self.resampling_fields)
             # the enumeration for the values of resampling
             self.wepy_h5.init_run_fields_resampling_decision(self.wepy_run_idx, self.decision_enum)
             self.wepy_h5.init_run_fields_resampler(self.wepy_run_idx, self.resampler_fields)
-            # set the fields that are records for tables etc.
-            self.wepy_h5.init_record_fields('resampling', self.resampling_records)
-            self.wepy_h5.init_record_fields('resampler', self.resampler_records)
+            # set the fields that are records for tables etc. unless
+            # they are already set
+            if 'resampling' not in self.wepy_h5.record_fields:
+                self.wepy_h5.init_record_fields('resampling', self.resampling_records)
+            if 'resampler' not in self.wepy_h5.record_fields:
+                self.wepy_h5.init_record_fields('resampler', self.resampler_records)
 
             # if there were no warping fields set there is no boundary
             # conditions and we don't initialize them
@@ -212,9 +216,12 @@ class WepyHDF5Reporter(FileReporter):
                 self.wepy_h5.init_run_fields_progress(self.wepy_run_idx, self.progress_fields)
                 self.wepy_h5.init_run_fields_bc(self.wepy_run_idx, self.bc_fields)
                 # table records
-                self.wepy_h5.init_record_fields('warping', self.warping_records)
-                self.wepy_h5.init_record_fields('boundary_conditions', self.bc_records)
-                self.wepy_h5.init_record_fields('progress', self.progress_records)
+                if 'warping' not in self.wepy_h5.record_fields:
+                    self.wepy_h5.init_record_fields('warping', self.warping_records)
+                if 'boundary_conditions' not in self.wepy_h5.record_fields:
+                    self.wepy_h5.init_record_fields('boundary_conditions', self.bc_records)
+                if 'progress' not in self.wepy_h5.record_fields:
+                    self.wepy_h5.init_record_fields('progress', self.progress_records)
 
 
         # if this was opened in a truncation mode, we don't want to
@@ -223,11 +230,14 @@ class WepyHDF5Reporter(FileReporter):
         if self.mode == 'w':
             self.mode = 'r+'
 
-    def cleanup(self, *args):
+    def cleanup(self, *args, **kwargs):
 
         # it should be already closed at this point but just in case
         if not self.wepy_h5.closed:
             self.wepy_h5.close()
+
+        # remove reference to the WepyHDF5 file so we can serialize this object
+        del self.wepy_h5
 
 
     def report(self, cycle_idx, walkers,

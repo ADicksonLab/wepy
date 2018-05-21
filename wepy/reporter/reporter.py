@@ -7,13 +7,13 @@ class Reporter(object):
     def __init__(self):
         pass
 
-    def init(self):
+    def init(self, *args, **kwargs):
         pass
 
     def report(self, *args, **kwargs):
         pass
 
-    def cleanup(self):
+    def cleanup(self, *args, **kwargs):
         pass
 
 class FileReporter(Reporter):
@@ -34,7 +34,7 @@ class WalkersPickleReporter(Reporter):
         # the last `num_backups`
         self.num_backups = num_backups
 
-    def init(self):
+    def init(self, *args, **kwargs):
         # make sure the save_dir exists
         if not osp.exists(self.save_dir):
             os.makedirs(self.save_dir)
