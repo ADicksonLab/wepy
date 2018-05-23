@@ -41,9 +41,9 @@ class BoundaryConditions(object):
         return self.BC_DTYPES
 
     def bc_fields(self):
-        return zip(self.bc_field_names(),
+        return list(zip(self.bc_field_names(),
                    self.bc_field_shapes(),
-                   self.bc_field_dtypes())
+                   self.bc_field_dtypes()))
 
     def bc_record_field_names(self):
         return self.BC_RECORD_FIELDS

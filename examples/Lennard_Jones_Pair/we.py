@@ -63,6 +63,8 @@ from wepy.work_mapper.mapper import Mapper
 from wepy.boundary_conditions.unbinding import UnbindingBC
 from wepy.reporter.hdf5 import WepyHDF5Reporter
 from wepy.reporter.dashboard import WExploreDashboardReporter
+from wepy.reporter.setup import SetupReporter
+from wepy.reporter.restart import RestartReporter
 
 from scipy.spatial.distance import euclidean
 
@@ -127,12 +129,16 @@ json_top_filename = "pair.top.json"
 
 # outputs
 hdf5_filename = 'results.wepy.h5'
+setup_state_filename = 'setup.pkl'
+restart_state_filename = 'restart.pkl'
 
 # normalize the input paths
 json_top_path = osp.join(inputs_dir, json_top_filename)
 
 # normalize the output paths
 hdf5_path = osp.join(outputs_dir, hdf5_filename)
+setup_state_path = osp.join(outputs_dir, setup_state_filename)
+restart_state_path = osp.join(outputs_dir, restart_state_filename)
 
 ## System and OpenMMRunner
 
@@ -216,7 +222,11 @@ dashboard_reporter = WExploreDashboardReporter('./outputs/wepy.dash.txt', mode='
                                                max_region_sizes=resampler.max_region_sizes,
                                                bc_cutoff_distance=ubc.cutoff_distance)
 
-reporters = [hdf5_reporter, dashboard_reporter]
+setup_reporter = SetupReporter(setup_state_path, mode='w')
+
+restart_reporter = RestartReporter(restart_state_path, mode='w')
+
+reporters = [hdf5_reporter, dashboard_reporter, setup_reporter, restart_reporter]
 
 
 

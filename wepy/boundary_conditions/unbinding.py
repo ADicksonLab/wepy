@@ -31,7 +31,7 @@ class UnbindingBC(BoundaryConditions):
     PROGRESS_SHAPES = (Ellipsis,)
     PROGRESS_DTYPES = (np.float,)
 
-    PROGRESS_RECORD_FIELDS = ()
+    PROGRESS_RECORD_FIELDS = ('min_distances', )
 
 
     DISCONTINUITY_TARGET_IDXS = (0,)

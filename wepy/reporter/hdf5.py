@@ -195,7 +195,6 @@ class WepyHDF5Reporter(FileReporter):
             # initialize a new run
             run_grp = self.wepy_h5.new_run()
             self.wepy_run_idx = run_grp.attrs['run_idx']
-            print("RUN: {}".format(self.wepy_run_idx))
 
             # initialize the run record groups using their fields
             self.wepy_h5.init_run_fields_resampling(self.wepy_run_idx, self.resampling_fields)

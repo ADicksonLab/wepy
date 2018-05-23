@@ -26,7 +26,7 @@ if __name__ == "__main__":
     # needs to call spawn for starting processes due to CUDA not
     # tolerating fork
     mp.set_start_method('spawn')
-    mp.log_to_stderr(logging.DEBUG)
+    mp.log_to_stderr(logging.INFO)
 
     if sys.argv[1] == "--help" or sys.argv[1] == '-h':
         print("arguments: n_runs, n_cycles, n_steps, n_walkers, n_workers")
