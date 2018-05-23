@@ -485,6 +485,13 @@ class WepyHDF5(object):
         # create the group for the run data records
         records_grp = settings_grp.create_group('record_fields')
 
+        # create a dataset for the continuation run tuples
+        # (continuation_run, continues_run), where the first element
+        # of the new run that is continuing the run in the second
+        # position
+        settings_grp.create_dataset('continuations', shape=(0,2), dtype=np.int,
+                                    maxshape=(None, 2))
+
 
     def _read_write_init(self):
         """Write over values if given but do not reinitialize any old ones. """
@@ -881,7 +888,7 @@ class WepyHDF5(object):
 
         return record_fields_dict
 
-    def new_run(self, **kwargs):
+    def new_run(self, continue_run=None, **kwargs):
         # create a new group named the next integer in the counter
         run_grp = self._h5.create_group('runs/{}'.format(str(self._run_idx_counter)))
 
@@ -890,6 +897,13 @@ class WepyHDF5(object):
 
         # add the run idx as metadata in the run group
         self._h5['runs/{}'.format(self._run_idx_counter)].attrs['run_idx'] = self._run_idx_counter
+
+        # if this is continuing another run add the tuple (this_run,
+        # continues_run) to the contig settings
+        if continue_run is not None:
+            contig_dset = self.settings_grp['continuations']
+            contig_dset.resize((contig_dset.shape[0] + 1, contig_dset.shape[1],))
+            contig_dset[contig_dset.shape[0] - 1] = np.array([self._run_idx_counter, continue_run])
 
         # increment the run idx counter
         self._run_idx_counter += 1

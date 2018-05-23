@@ -139,7 +139,7 @@ class Manager(object):
 
             return walkers
 
-    def init(self, num_workers, debug_prints=False):
+    def init(self, num_workers, continue_run=None, debug_prints=False):
 
         if debug_prints:
             self.result_template_str = "|".join(["{:^5}" for i in range(self.n_init_walkers + 1)])
@@ -158,7 +158,8 @@ class Manager(object):
                           resampler=self.resampler,
                           boundary_conditions=self.boundary_conditions,
                           work_mapper=self.work_mapper,
-                          reporters=self.reporters)
+                          reporters=self.reporters,
+                          continue_run=continue_run)
 
     def cleanup(self, debug_prints=False):
 
@@ -228,5 +229,24 @@ class Manager(object):
 
         return walkers
 
+    def continue_run_simulation(self, run_idx, n_cycles, segment_lengths, num_workers=None,
+                                debug_prints=False):
+        """Continue a simulation. All this does is provide a run idx to the
+        reporters, which is the run that is intended to be
+        continued. This simulation manager knows no details and is
+        left up to the reporters to handle this appropriately.
 
+        """
 
+        self.init(num_workers, continue_run=run_idx,
+                  debug_prints=debug_prints)
+
+        walkers = self.init_walkers
+        # the main cycle loop
+        for cycle_idx in range(n_cycles):
+            walkers = self.run_cycle(walkers, segment_lengths[cycle_idx], cycle_idx,
+                                         debug_prints=debug_prints)
+
+        self.cleanup(debug_prints=debug_prints)
+
+        return walkers

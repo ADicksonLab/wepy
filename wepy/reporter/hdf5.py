@@ -192,8 +192,17 @@ class WepyHDF5Reporter(FileReporter):
                                 alt_reps=self.alt_reps_idxs)
 
         with self.wepy_h5:
+
+            # if this is a continuation run of another run we want to
+            # initialize it as such
+            continue_run = None
+            # get the run to continue if specified
+            if "continue_run" in kwargs:
+                if kwargs['continue_run'] is not None:
+                    continue_run = kwargs['continue_run']
+
             # initialize a new run
-            run_grp = self.wepy_h5.new_run()
+            run_grp = self.wepy_h5.new_run(continue_run=continue_run)
             self.wepy_run_idx = run_grp.attrs['run_idx']
 
             # initialize the run record groups using their fields
