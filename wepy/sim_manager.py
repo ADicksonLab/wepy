@@ -250,3 +250,37 @@ class Manager(object):
         self.cleanup(debug_prints=debug_prints)
 
         return walkers
+
+
+    def continue_run_simulation_by_time(self, run_idx, run_time, segments_length, num_workers=None,
+                               debug_prints=False):
+        """Continue a simulation. All this does is provide a run idx to the
+        reporters, which is the run that is intended to be
+        continued. This simulation manager knows no details and is
+        left up to the reporters to handle this appropriately.
+
+        """
+
+        start_time = time.time()
+
+        self.init(num_workers, continue_run=run_idx,
+                  debug_prints=debug_prints)
+
+        cycle_idx = 0
+        walkers = self.init_walkers
+        while time.time() - start_time < run_time:
+
+            if debug_prints:
+                print("starting cycle {} at time {}".format(cycle_idx, time.time() - start_time))
+
+            walkers = self.run_cycle(walkers, segments_length, cycle_idx,
+                                       debug_prints=debug_prints)
+
+            if debug_prints:
+                print("ending cycle {} at time {}".format(cycle_idx, time.time() - start_time))
+
+            cycle_idx += 1
+
+        self.cleanup(debug_prints=debug_prints)
+
+        return walkers
