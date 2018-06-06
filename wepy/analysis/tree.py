@@ -20,11 +20,11 @@ def ancestors(parent_matrix, cycle_idx, walker_idx, ancestor_cycle=0):
     Output:
 
     ancestors: A list of 2x1 tuples indicating the
-                  cycle and walker parents
+                   walker and cycle parents
 
     """
 
-    ancestors = [(cycle_idx, walker_idx)]
+    ancestors = [(walker_idx, cycle_idx)]
 
     previous_walker = walker_idx
 
@@ -39,7 +39,7 @@ def ancestors(parent_matrix, cycle_idx, walker_idx, ancestor_cycle=0):
                 # point
                 break
 
-            previous_point = (curr_cycle_idx - 1, previous_walker)
+            previous_point = (previous_walker, curr_cycle_idx - 1)
             ancestors.insert(0, previous_point)
 
     return ancestors
@@ -69,7 +69,7 @@ def ancestor_matrix(parent_matrix, ancestor_cycle=0):
 
     Outputs:
 
-    acestor_matrix (2D numpy array): A matrix of the ancestor walker index
+    ancestor_matrix (2D numpy array): A matrix of the ancestor walker index
     for walkers after the ancestor cycle idx.
 
     """
@@ -143,4 +143,3 @@ def sliding_window(parent_matrix, window_length):
                 continue
 
             yield window
-

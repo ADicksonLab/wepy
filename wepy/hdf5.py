@@ -1777,7 +1777,7 @@ class WepyHDF5(object):
 
     def get_run_trace_fields(self, run_idx, frame_tups, fields):
         frame_fields = {field : [] for field in fields}
-        for cycle_idx, traj_idx in frame_tups:
+        for traj_idx, cycle_idx in frame_tups:
             for field in fields:
                 frame_field = self.get_traj_field(run_idx, traj_idx, field, frames=[cycle_idx])
                 # the first dimension doesn't matter here since we
