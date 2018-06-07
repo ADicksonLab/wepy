@@ -126,6 +126,8 @@ def sliding_window(parent_matrix, window_length):
     assert parent_matrix.dtype == np.int, \
         "parent matrix values must be integers, not {}".format(parent_matrix.dtype)
 
+    assert window_length > 1, "window length must be greater than one"
+
     # we make a range iterator which goes from the last cycle to the
     # cycle which would be the end of the first possible sliding window
     for cycle_idx in range(len(parent_matrix)-1, window_length-2, -1):
