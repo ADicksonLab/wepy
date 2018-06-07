@@ -190,26 +190,34 @@ class UnbindingBC(BoundaryConditions):
     @classmethod
     def lineage_discontinuities(cls, parent_table, warping_records):
 
+        # Make a copy of the parent table
         new_parent_table = copy(parent_table)
+
+        # Find the number of walkers and cycles
+        n_cycles = np.shape(parent_table)[0]
+        n_walker = np.shape(parent_table)[1]
 
         # get the (cycle_idx, walker_idx) from the warping records
         warp_ids = [(rec[0], rec[1]) for rec in warping_records]
         target_idxs = [rec[2] for rec in warping_records]
+       
+  
+        for (cycle_idx, parent_idx) in warp_ids:
+            
+            # Get the index of the warped walker in the warping records
+            warp_rec_idx = warp_ids.index((cycle_idx, parent_idx))
+            
+            # Cycle through the walkers in the next time step 
+            for walker in range(n_walker):
+ 
+                # Check to see if the walker was warped at the last time step
+                if cycle_idx + 1!= n_cycles:
 
-        for cycle_idx in range(len(parent_table) -1, 0, -1):
+                    # Check to see if any walkers originated from the warped walkers
+                    # in the previous time step.
+                    if parent_table[cycle_idx + 1][walker] == parent_idx:
+                        if target_idxs[warp_rec_idx][0] in cls.DISCONTINUITY_TARGET_IDXS:
+                            new_parent_table[cycle_idx + 1][ walker] = cls.DISCONTINUITY_VALUE
 
-            for walker_idx in range(len(parent_table[cycle_idx])):
-
-                parent_idx = parent_table[cycle_idx][walker_idx]
-
-                # check if my parent was warped
-                if (cycle_idx, parent_idx) in warp_ids:
-                    warp_rec_idx = warp_ids.index((cycle_idx, parent_idx))
-                    # check if the warp created a discontinuity
-                    if target_idxs[warp_rec_idx] in cls.DISCONTINUITY_TARGET_IDXS:
-
-                        # then register a discontuity in the parent
-                        # matrix by replacing my parent with a -1
-                        new_parent_table[cycle_idx][walker_idx] = cls.DISCONTINUITY_VALUE
 
         return new_parent_table
