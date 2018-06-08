@@ -200,24 +200,33 @@ class UnbindingBC(BoundaryConditions):
         # get the (cycle_idx, walker_idx) from the warping records
         warp_ids = [(rec[0], rec[1]) for rec in warping_records]
         target_idxs = [rec[2] for rec in warping_records]
-       
-  
+
+
         for (cycle_idx, parent_idx) in warp_ids:
-            
+
+            # if this is the last cycle there is no need/way to write
+            # in a discontinuity in the next cycle
+            if cycle_idx + 1 == n_cycles:
+                continue
+
             # Get the index of the warped walker in the warping records
             warp_rec_idx = warp_ids.index((cycle_idx, parent_idx))
-            
-            # Cycle through the walkers in the next time step 
-            for walker in range(n_walker):
- 
-                # Check to see if the walker was warped at the last time step
-                if cycle_idx + 1!= n_cycles:
 
-                    # Check to see if any walkers originated from the warped walkers
-                    # in the previous time step.
-                    if parent_table[cycle_idx + 1][walker] == parent_idx:
-                        if target_idxs[warp_rec_idx][0] in cls.DISCONTINUITY_TARGET_IDXS:
-                            new_parent_table[cycle_idx + 1][ walker] = cls.DISCONTINUITY_VALUE
+            # Check to see if any walkers in the next step
+            # originated from this warped walker
+            for walker_idx in range(n_walker):
+
+                # if it's parent is the walker in this warping event
+                # we also need to check to see if that warping event
+                # was a discontinuous warping event
+                if parent_table[cycle_idx + 1][walker_idx] == parent_idx:
+
+                    # if the target index of the warping is in the
+                    # list of discontinuous targets then we mark the
+                    # parent of the child walker as the DISCONTINUITY
+                    # value (i.e. -1)
+                    if target_idxs[warp_rec_idx][0] in cls.DISCONTINUITY_TARGET_IDXS:
+                        new_parent_table[cycle_idx + 1][walker_idx] = cls.DISCONTINUITY_VALUE
 
 
         return new_parent_table
