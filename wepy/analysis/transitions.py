@@ -6,9 +6,12 @@ import numpy as np
 def transition_counts(assignments, transitions):
     """Make a dictionary of transition counts.
 
-    assignments: KxN matrix of ints.
+    assignments: a list of N_run, [N_traj x N_cycle] arrays of ints
+    where N_runs is the number of runs, N_traj is the number of
+    trajectories, and N_cycle is the number of cycles
 
-    transitions: list of tuples of type (K[i], N[j])
+    transitions: list of traces (a trace is a list of tuples
+    specifying the run, trajectory, and frame).
 
     """
 
@@ -21,8 +24,8 @@ def transition_counts(assignments, transitions):
         end = transition[-1]
 
         # get the assignments for the transition
-        start_assignment = assignments[start[0]][start[1]]
-        end_assignment = assignments[end[0]][end[1]]
+        start_assignment = assignments[start[0]][start[1]][start[2]]
+        end_assignment = assignments[end[0]][end[1]][end[2]]
 
         countsmat_d[(start_assignment, end_assignment)] += 1
 
@@ -33,11 +36,15 @@ def normalize_counts(transition_counts_matrix):
     return np.divide(transition_counts_matrix, transition_counts_matrix.sum(axis=0))
 
 def transition_counts_matrix(assignments, transitions):
-    """Make a transition count matrix.
+    """Make a transition count matrix for a single run.
 
-    assignments: KxN matrix of ints.
 
-    transitions: list of tuples of type (K[i], N[j])
+    assignments: a list of N_run, [N_traj x N_cycle] arrays of ints
+    where N_runs is the number of runs, N_traj is the number of
+    trajectories, and N_cycle is the number of cycles
+
+    transitions: list of traces (a trace is a list of tuples
+    specifying the run, trajectory, and frame).
 
     """
 
