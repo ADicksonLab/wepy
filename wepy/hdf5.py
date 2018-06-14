@@ -796,7 +796,7 @@ class WepyHDF5(object):
 
     @property
     def run_idxs(self):
-        return range(len(self._h5['runs']))
+        return list(range(len(self._h5['runs'])))
 
 
     def run(self, run_idx):
