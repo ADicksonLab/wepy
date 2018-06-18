@@ -442,9 +442,13 @@ class WepyHDF5(object):
         new_h5.flush()
 
         # copy the existing datasets to the new one
-        h5py.h5o.copy(self._h5.id, '_settings', new_h5.id, '_settings')
         h5py.h5o.copy(self._h5.id, 'topology', new_h5.id, 'topology')
         h5py.h5o.copy(self._h5.id, 'units', new_h5.id, 'units')
+        h5py.h5o.copy(self._h5.id, '_settings', new_h5.id, '_settings')
+
+        # for the settings we need to get rid of the data for interun
+        # relationships like the continuations
+        del new_h5['_settings/continuations']
 
         return new_h5
 
