@@ -1,3 +1,4 @@
+import os.path as osp
 from collections import Sequence, namedtuple
 import itertools as it
 import json
@@ -160,16 +161,6 @@ class WepyHDF5(object):
         w        Create file, truncate if exists
         x or w-  Create file, fail if exists
         a        Read/write if exists, create otherwise
-        c        Append (concatenate) file if exists, create otherwise,
-                   read access only to existing data,
-                   can append to existing datasets
-        c-       Append file if exists, create otherwise,
-                   read access only to existing data,
-                   cannot append to existing datasets
-
-        The c and c- modes use the h5py 'a' mode underneath and limit
-        access to data that is read in.
-
 
         """
 
@@ -189,11 +180,12 @@ class WepyHDF5(object):
         # the lower level h5py mode
         self._h5py_mode = h5py_mode
 
+
+
+        # Temporary metadata: used to initialize the object but not
+        # used after that
+
         self._n_dims = n_dims
-
-        # initialize the list of run record fields that are variable length
-        self._run_records_fields_vlen = []
-
 
         # set hidden feature shapes and dtype, which are only
         # referenced if needed when trajectories are created. These
@@ -222,66 +214,11 @@ class WepyHDF5(object):
         else:
             self._alt_reps = {}
 
-        # counter for the new runs, specific constructors will update
-        # this if needed
-        self._run_idx_counter = 0
-        # count the number of trajectories each run has
-        self._run_traj_idx_counter = {}
-
-        # the counter for the cycle the records are on, incremented
-        # each time the add_cycle_resampling_records is called
-        self._current_resampling_rec_cycle = 0
-
-        # for each run there will be a special mapping for the
-        # instruction dtypes which we need for a single session,
-        # stored here organized by run (int) as the key
-        self.instruction_dtypes_tokens = {}
 
 
-        # the dtypes for the record group instruction records
-        self.run_record_dtypes = {}
 
-
-        ## OLD
-        # the dtypes for the resampling auxiliary data
-        self.resampling_aux_dtypes = {}
-        self.resampling_aux_shapes = {}
-        # whether or not the auxiliary datasets have been initialized
-        self._resampling_aux_init = []
-
-        # initialize the attribute for the dtype for the boundary
-        # conditions warp records
-        self.warp_dtype = None
-
-        # the dtypes for warping auxiliary data
-        self.warp_aux_dtypes = {}
-        self.warp_aux_shapes = {}
-        # whether or not the auxiliary datasets have been initialized
-        self._warp_aux_init = []
-
-        # the dtypes for the boundary conditions auxiliary data
-        self.bc_aux_dtypes = {}
-        self.bc_aux_shapes = {}
-        # whether or not the auxiliary datasets have been initialized
-        self._bc_aux_init = []
-        ##
-
-        ### HDF5 file wrapper specific variables
-
-        # all the keys for the top-level items in this class
-        self._keys = ['topology', 'runs', 'resampling', 'warping']
-
-        # initialize the exist flags, which say whether a dataset
-        # exists or not
-        self._exist_flags = {key : False for key in self._keys}
-
-        # initialize the append flags dictionary, this keeps track of
-        # whether a data field can be appended to or not
-        self._append_flags = {key : True for key in self._keys}
-
-        # TODO Dataset Complianaces
-
-        # open the file
+        # open the file and then run the different constructors based
+        # on the mode
         with h5py.File(filename, mode=self._h5py_mode) as h5:
             self._h5 = h5
 
@@ -298,22 +235,25 @@ class WepyHDF5(object):
 
             # add mode: read/write create if doesn't exist
             elif self._wepy_mode in ['a']:
-                self._add_init(topology, units)
-
-            # append mode
-            elif self._wepy_mode in ['c', 'c-']:
-                # use the hidden init function for appending data
-                self._append_init()
+                if osp.exists(self._filename):
+                    self._read_write_init()
+                else:
+                    self._create_init(topology, units)
 
             # read only mode
             elif self._wepy_mode == 'r':
+
                 # if any data was given, warn the user
-                if topology is not None:
-                   warn("Cannot set topology on read only", RuntimeWarning)
+                if any([kwarg is not None for kwarg in
+                        [topology, units, sparse_fields,
+                         feature_shapes, feature_dtypes,
+                         n_dims, alt_reps, main_rep_idxs]]):
+                   warn("Data was given but opening in read-only mode", RuntimeWarning)
 
                 # then run the initialization process
                 self._read_init()
 
+            # flush the buffers
             self._h5.flush()
 
             # set the h5py mode to the value in the actual h5py.File
@@ -321,11 +261,10 @@ class WepyHDF5(object):
             self._h5py_mode = self._h5.mode
 
 
-        # should be closed after initialization unless it is read and/or readwrite
+        # variable to reflect if it is closed or not, should be closed
+        # after initialization
         self.closed = True
 
-
-        # TODO update the compliance type flags of the dataset
 
     # context manager methods
 
@@ -338,40 +277,8 @@ class WepyHDF5(object):
         self._h5.flush()
         self.close()
 
-    def _update_exist_flags(self):
-        """Inspect the hdf5 object and set flags if data exists for the fields."""
-        for key in self._keys:
-            if key in list(self._h5.keys()):
-                self._exist_flags[key] = True
-            else:
-                self._exist_flags[key] = False
 
-    def _update_append_flags(self):
-        """Sets flags to False (they are initialized to True) if the dataset
-        currently exists."""
-        for dataset_key, exist_flag in self._exist_flags.items():
-            if exist_flag:
-                self._append_flags[dataset_key] = False
-
-    def _update_compliance_flags(self):
-        """Checks whether the flags for different datasets and updates the
-        flags for the compliance groups."""
-        for compliance_type in COMPLIANCE_TAGS:
-            # check if compliance for this type is met
-            result = self._check_compliance_keys(compliance_type)
-            # set the flag
-            self._compliance_flags[compliance_type] = result
-
-    def _check_compliance_keys(self, compliance_type):
-        """Checks whether the flags for the datasets have been set to True."""
-        results = []
-        compliance_requirements = dict(COMPLIANCE_REQUIREMENTS)
-        # go through each required dataset for this compliance
-        # requirements and see if they exist
-        for dataset_key in compliance_requirements[compliance_type]:
-            results.append(self._exist_flags[dataset_key])
-        return all(results)
-
+    # constructors
     def _create_init(self, topology, units):
         """Completely overwrite the data in the file. Reinitialize the values
         and set with the new ones if given."""
@@ -492,54 +399,54 @@ class WepyHDF5(object):
         settings_grp.create_dataset('continuations', shape=(0,2), dtype=np.int,
                                     maxshape=(None, 2))
 
-
     def _read_write_init(self):
         """Write over values if given but do not reinitialize any old ones. """
 
         self._read_init()
 
-        # set the counter for runs based on the groups already present
-        for run_grp in enumerate(self.h5['runs']):
-            self._run_idx_counter += 1
-
     def _add_init(self, topology, units):
         """Create the dataset if it doesn't exist and put it in r+ mode,
         otherwise, just open in r+ mode."""
-
-        # set the flags for existing data
-        self._update_exist_flags()
 
         if not any(self._exist_flags):
             self._create_init(topology)
         else:
             self._read_write_init()
 
-    def _append_init(self):
-        """Append mode initialization. Checks for given data and sets flags,
-        and adds new data if given."""
-
-        # if the file has any data to start we write the data to it
-        if not any(self._exist_flags):
-            self.topology = topology
-            if self._wepy_mode == 'c-':
-                self._update_append_flags()
-        # otherwise we first set the flags for what data was read and
-        # then add to it only
-        else:
-            # initialize the flags from the read data
-            self._update_exist_flags()
-
-            # restrict append permissions for those that have their flags
-            # set from the read init
-            if self._wepy_mode == 'c-':
-                self._update_append_flags()
-
     def _read_init(self):
-        """Read only mode initialization. Simply checks for the presence of
-        and sets attribute flags."""
-        # we just need to set the flags for which data is present and
-        # which is not
-        self._update_exist_flags()
+        """Read only initialization currently has nothing to do."""
+
+        pass
+
+
+    def clone(self, path, mode='x'):
+        """Clones this WepyHDF5 file without any of the actual runs and run
+        data. This includes the topology, units, sparse_fields,
+        feature shapes and dtypes, alt_reps, and main representation
+        information.
+
+        Does not preserve metadata pertaining to inter-run
+        relationships like continuations.
+
+        """
+
+        assert mode in ['w', 'w-', 'x'], "must be opened in a file creation mode"
+
+        # we manually construct an HDF5 and copy the groups over
+        new_h5 = h5py.File(path, mode=mode)
+
+        new_h5.create_group('runs')
+
+        # flush the datasets buffers
+        self.h5.flush()
+        new_h5.flush()
+
+        # copy the existing datasets to the new one
+        h5py.h5o.copy(self._h5.id, '_settings', new_h5.id, '_settings')
+        h5py.h5o.copy(self._h5.id, 'topology', new_h5.id, 'topology')
+        h5py.h5o.copy(self._h5.id, 'units', new_h5.id, 'units')
+
+        return new_h5
 
     def _get_field_path_grp(self, run_idx, traj_idx, field_path):
         """Given a field path for the trajectory returns the group the field's
@@ -663,28 +570,6 @@ class WepyHDF5(object):
         return self._h5['topology'][()]
 
 
-    @topology.setter
-    def topology(self, topology):
-        try:
-            json_d = json.loads(topology)
-            del json_d
-        except json.JSONDecodeError:
-            raise ValueError("topology must be a valid JSON string")
-
-        # check to see if this is the initial setting of it
-        if not self._exist_flags['topology']:
-            self._h5.create_dataset('topology', data=topology)
-            self._exist_flags['topology'] = True
-            # if we are in strict append mode we cannot append after we create something
-            if self._wepy_mode == 'c-':
-                self._append_flags['topology'] = False
-
-        # if not replace the old one if we are in a non-concatenate write mode
-        elif self._wepy_mode in ['w', 'r+', 'x', 'w-', 'a']:
-            self._h5['topology'][()] = topology
-        else:
-            raise IOError("In mode {} and cannot modify topology".format(self._wepy_mode))
-
     def get_mdtraj_topology(self, alt_rep=POSITIONS):
         """Get an MDTraj `Topology` object for a subset of the atoms in the
         positions of a particular representation. By default gives the
@@ -798,6 +683,8 @@ class WepyHDF5(object):
     def run_idxs(self):
         return range(len(self._h5['runs']))
 
+    def next_run_idx(self):
+        return self.n_runs
 
     def run(self, run_idx):
         return self._h5['runs/{}'.format(int(run_idx))]
@@ -819,6 +706,9 @@ class WepyHDF5(object):
 
     def n_run_trajs(self, run_idx):
         return len(self._h5['runs/{}/trajectories'.format(run_idx)])
+
+    def next_run_traj_idx(self, run_idx):
+        return self.n_run_trajs(run_idx)
 
     def run_traj_idxs(self, run_idx):
         return range(len(self._h5['runs/{}/trajectories'.format(run_idx)]))
@@ -888,29 +778,58 @@ class WepyHDF5(object):
 
         return record_fields_dict
 
-    def new_run(self, continue_run=None, **kwargs):
-        # create a new group named the next integer in the counter
-        run_grp = self._h5.create_group('runs/{}'.format(str(self._run_idx_counter)))
-
-        # initialize this run's counter for the number of trajectories
-        self._run_traj_idx_counter[self._run_idx_counter] = 0
+    def _add_run_init(self):
+        """Routines for creating a run includes updating and setting object
+        global variables, increasing the counter for the number of runs."""
 
         # add the run idx as metadata in the run group
-        self._h5['runs/{}'.format(self._run_idx_counter)].attrs['run_idx'] = self._run_idx_counter
+        self._h5['runs/{}'.format(self.next_run_idx())].attrs['run_idx'] = self.next_run_idx()
 
         # if this is continuing another run add the tuple (this_run,
         # continues_run) to the contig settings
         if continue_run is not None:
             contig_dset = self.settings_grp['continuations']
             contig_dset.resize((contig_dset.shape[0] + 1, contig_dset.shape[1],))
-            contig_dset[contig_dset.shape[0] - 1] = np.array([self._run_idx_counter, continue_run])
+            contig_dset[contig_dset.shape[0] - 1] = np.array([self.next_run_idx(), continue_run])
 
-        # increment the run idx counter
-        self._run_idx_counter += 1
+    def link_run(self, filepath, run_index, continue_run=None, **kwargs):
+
+        # link to the external run
+        ext_run_link = h5py.ExternalLink(filepath, 'runs/{}'.format(run_index))
+
+        # the run index in this file, as determined by the counter
+        here_run_idx = self.next_run_idx()
+
+        # set the local run as the external link to the other run
+        self._h5['runs/{}'.format(here_run_idx)] = ext_run_link
+
+        # run the initialization routines for adding a run
+        self._add_run_init(continue_run=continue_run)
+
+        # add metadata if given
+        for key, val in kwargs.items():
+            if key != 'run_idx':
+                run_grp.attrs[key] = val
+            else:
+                warn('run_idx metadata is set by wepy and cannot be used', RuntimeWarning)
+
+        return self._h5['runs/{}'.format(here_run_idx)]
+
+
+    def new_run(self, continue_run=None, **kwargs):
+
+        # create a new group named the next integer in the counter
+        run_grp = self._h5.create_group('runs/{}'.format(str(self.next_run_idx())))
 
         # initialize the walkers group
         traj_grp = run_grp.create_group('trajectories')
 
+
+        # run the initialization routines for adding a run
+        self._add_run_init(continue_run=continue_run)
+
+
+        # TODO get rid of this?
         # add metadata if given
         for key, val in kwargs.items():
             if key != 'run_idx':
@@ -1074,9 +993,6 @@ class WepyHDF5(object):
             dset = record_grp.create_dataset(field_name, (0,), dtype=vlen_dt,
                                         maxshape=(None,))
 
-            # add it to the listing of records fields with variable lengths
-            self._run_records_fields_vlen.append('{}/{}'.format(run_record_key, field_name))
-
         # its not just make it normally
         else:
             # create the group
@@ -1176,7 +1092,7 @@ class WepyHDF5(object):
                 "weights and the number of frames must be the same length"
 
         # current traj_idx
-        traj_idx = self._run_traj_idx_counter[run_idx]
+        traj_idx = self.next_run_traj_idx(run_idx)
         # make a group for this trajectory, with the current traj_idx
         # for this run
         traj_grp = self._h5.create_group(
@@ -1195,9 +1111,6 @@ class WepyHDF5(object):
             else:
                 warn("run_idx and traj_idx are used by wepy and cannot be set", RuntimeWarning)
 
-
-        # increment the traj_idx_count for this run
-        self._run_traj_idx_counter[run_idx] += 1
 
         # check to make sure the positions are the right shape
         assert traj_data[POSITIONS].shape[1] == self.n_atoms, \
@@ -1600,10 +1513,15 @@ class WepyHDF5(object):
         # of datase new frames
         n_new_frames = field_data.shape[0]
 
-        # check whether it is a variable length record
-        field_path = '{}/{}'.format(run_record_key, field_name)
-        if field_path in self._run_records_fields_vlen:
+        # check whether it is a variable length record, by getting the
+        # record dataset dtype and using the checker to see if it is
+        # the vlen special type in h5py
+        if h5py.check_dtype(vlen=field.dtype) is not None:
 
+            # if it is we have to treat it differently, since it
+            # cannot be multidimensional
+
+            # if the dataset has no data in it we need to reshape it
             if all([i == 0 for i in field.shape]):
                 # initialize this array
                 # if it is empty resize it to make an array the size of
@@ -1615,6 +1533,7 @@ class WepyHDF5(object):
                 for i, row in enumerate(field_data):
                     field[i] = row
 
+            # otherwise just add the data
             else:
 
                 # resize the array but it is only of rank because
@@ -1625,7 +1544,11 @@ class WepyHDF5(object):
                 for i, row in enumerate(field_data):
                     field[(field.shape[0] - 1) + i] = row
 
+        # if it is not variable length we don't have to treat it
+        # differently
         else:
+
+            # if this is empty we need to reshape the dataset to accomodate data
             if all([i == 0 for i in field.shape]):
 
                 # check the feature shape against the maxshape which gives
@@ -1642,6 +1565,7 @@ class WepyHDF5(object):
                 # set the new data to this
                 field[0:, ...] = field_data
 
+            # otherwise just add the data
             else:
                 # append to the dataset on the first dimension, keeping the
                 # others the same, these must be feature vectors and therefore
@@ -2472,10 +2396,7 @@ class WepyHDF5(object):
                 # the other run group handle
                 other_run = h5.run(run_idx)
                 # copy this run to this file in the next run_idx group
-                self.h5.copy(other_run, 'runs/{}'.format(self._run_idx_counter))
-                # increment the run_idx counter
-                self._run_idx_counter += 1
-
+                self.h5.copy(other_run, 'runs/{}'.format(self.next_run_idx()))
 
     def to_mdtraj(self, run_idx, traj_idx, frames=None, alt_rep=None):
 
@@ -2577,8 +2498,6 @@ class WepyHDF5(object):
 
         return traj
 
-
-## DATA COMPLIANCE STUFF
 def _check_data_compliance(traj_data, compliance_requirements=COMPLIANCE_REQUIREMENTS):
     """Given a dictionary of trajectory data it returns the
        COMPLIANCE_TAGS that the data satisfies. """
