@@ -149,7 +149,8 @@ class WepyHDF5(object):
                  sparse_fields=None,
                  feature_shapes=None, feature_dtypes=None,
                  n_dims=None,
-                 alt_reps=None, main_rep_idxs=None
+                 alt_reps=None, main_rep_idxs=None,
+                 expert_mode=False
     ):
         """Initialize a new Wepy HDF5 file. This is a file that organizes
         wepy.TrajHDF5 dataset subsets by simulations by runs and
@@ -164,28 +165,38 @@ class WepyHDF5(object):
 
         """
 
+        self._filename = filename
+
+        if expert_mode is True:
+            self._h5 = None
+            self._wepy_mode = None
+            self._h5py_mode = None
+            self.closed = None
+
+            # terminate the constructor here
+            return None
+
         assert mode in ['r', 'r+', 'w', 'w-', 'x', 'a', 'c', 'c-'], \
           "mode must be either 'r', 'r+', 'w', 'x', 'w-', 'a', 'c', or 'c-'"
 
 
-        self._filename = filename
+
         # the top level mode enforced by wepy.hdf5
         self._wepy_mode = mode
 
-        # get h5py compatible I/O mode
-        if self._wepy_mode in ['c', 'c-']:
-            h5py_mode = 'a'
-        else:
-            h5py_mode = self._wepy_mode
-        # the lower level h5py mode
-        self._h5py_mode = h5py_mode
-
-
+        # the lower level h5py mode. THis was originally different to
+        # accomodate different modes at teh wepy level for
+        # concatenation. I will leave these separate because this is
+        # used elsewhere and could be a feature in the future.
+        self._h5py_mode = mode
 
         # Temporary metadata: used to initialize the object but not
         # used after that
 
+        self._topology = topology
+        self._units = units
         self._n_dims = n_dims
+        self._n_coords = None
 
         # set hidden feature shapes and dtype, which are only
         # referenced if needed when trajectories are created. These
@@ -193,6 +204,8 @@ class WepyHDF5(object):
         # file
         self._field_feature_shapes_kwarg = feature_shapes
         self._field_feature_dtypes_kwarg = feature_dtypes
+        self._field_feature_dtypes = None
+        self._field_feature_shapes = None
 
         # save the sparse fields as a private variable for use in the
         # create constructor
@@ -215,8 +228,6 @@ class WepyHDF5(object):
             self._alt_reps = {}
 
 
-
-
         # open the file and then run the different constructors based
         # on the mode
         with h5py.File(filename, mode=self._h5py_mode) as h5:
@@ -225,7 +236,7 @@ class WepyHDF5(object):
             # create file mode: 'w' will create a new file or overwrite,
             # 'w-' and 'x' will not overwrite but will create a new file
             if self._wepy_mode in ['w', 'w-', 'x']:
-                self._create_init(topology, units)
+                self._create_init()
 
             # read/write mode: in this mode we do not completely overwrite
             # the old file and start again but rather write over top of
@@ -238,7 +249,7 @@ class WepyHDF5(object):
                 if osp.exists(self._filename):
                     self._read_write_init()
                 else:
-                    self._create_init(topology, units)
+                    self._create_init()
 
             # read only mode
             elif self._wepy_mode == 'r':
@@ -260,10 +271,25 @@ class WepyHDF5(object):
             # object after creation
             self._h5py_mode = self._h5.mode
 
+        # get rid of the temporary variables
+        del self._topology
+        del self._units
+        del self._n_dims
+        del self._n_coords
+        del self._field_feature_shapes_kwarg
+        del self._field_feature_dtypes_kwarg
+        del self._field_feature_shapes
+        del self._field_feature_dtypes
+        del self._sparse_fields
+        del self._main_rep_idxs
+        del self._alt_reps
 
         # variable to reflect if it is closed or not, should be closed
         # after initialization
         self.closed = True
+
+        # end of the constructor
+        return None
 
 
     # context manager methods
@@ -279,19 +305,21 @@ class WepyHDF5(object):
 
 
     # constructors
-    def _create_init(self, topology, units):
+    def _create_init(self):
         """Completely overwrite the data in the file. Reinitialize the values
         and set with the new ones if given."""
 
-        assert topology is not None, "Topology must be given"
+        assert self._topology is not None, \
+            "Topology must be given for a creation constructor"
 
-        # assign the topology
-        self.topology = topology
-
-        # attributes needed just for construction
+        # initialize the runs group
+        runs_grp = self._h5.create_group('runs')
 
         # initialize the settings group
         settings_grp = self._h5.create_group('_settings')
+
+        # create the topology dataset
+        self._h5.create_dataset('topology', data=self._topology)
 
         # sparse fields
         if self._sparse_fields is not None:
@@ -315,7 +343,9 @@ class WepyHDF5(object):
 
         # field feature shapes and dtypes
 
-        # initialize to the defaults
+        # initialize to the defaults, this gives values to
+        # self._n_coords, and self.field_feature_dtypes, and
+        # self.field_feature_shapes
         self._set_default_init_field_attributes(n_dims=self._n_dims)
 
         # save the number of dimensions and number of atoms in settings
@@ -372,13 +402,13 @@ class WepyHDF5(object):
         unit_grp = self._h5.create_group('units')
 
         # if units were not given set them all to None
-        if units is None:
-            units = {}
+        if self._units is None:
+            self._units = {}
             for field_path in self._field_feature_shapes.keys():
-                units[field_path] = None
+                self._units[field_path] = None
 
         # set the units
-        for field_path, unit_value in units.items():
+        for field_path, unit_value in self._units.items():
 
             # ignore the field if not given
             if unit_value is None:
@@ -393,7 +423,7 @@ class WepyHDF5(object):
         records_grp = settings_grp.create_group('record_fields')
 
         # create a dataset for the continuation run tuples
-        # (continuation_run, continues_run), where the first element
+        # (continuation_run, base_run), where the first element
         # of the new run that is continuing the run in the second
         # position
         settings_grp.create_dataset('continuations', shape=(0,2), dtype=np.int,
@@ -404,12 +434,12 @@ class WepyHDF5(object):
 
         self._read_init()
 
-    def _add_init(self, topology, units):
+    def _add_init(self):
         """Create the dataset if it doesn't exist and put it in r+ mode,
         otherwise, just open in r+ mode."""
 
         if not any(self._exist_flags):
-            self._create_init(topology)
+            self._create_init()
         else:
             self._read_write_init()
 
@@ -417,40 +447,6 @@ class WepyHDF5(object):
         """Read only initialization currently has nothing to do."""
 
         pass
-
-
-    def clone(self, path, mode='x'):
-        """Clones this WepyHDF5 file without any of the actual runs and run
-        data. This includes the topology, units, sparse_fields,
-        feature shapes and dtypes, alt_reps, and main representation
-        information.
-
-        Does not preserve metadata pertaining to inter-run
-        relationships like continuations.
-
-        """
-
-        assert mode in ['w', 'w-', 'x'], "must be opened in a file creation mode"
-
-        # we manually construct an HDF5 and copy the groups over
-        new_h5 = h5py.File(path, mode=mode)
-
-        new_h5.create_group('runs')
-
-        # flush the datasets buffers
-        self.h5.flush()
-        new_h5.flush()
-
-        # copy the existing datasets to the new one
-        h5py.h5o.copy(self._h5.id, 'topology', new_h5.id, 'topology')
-        h5py.h5o.copy(self._h5.id, 'units', new_h5.id, 'units')
-        h5py.h5o.copy(self._h5.id, '_settings', new_h5.id, '_settings')
-
-        # for the settings we need to get rid of the data for interun
-        # relationships like the continuations
-        del new_h5['_settings/continuations']
-
-        return new_h5
 
     def _get_field_path_grp(self, run_idx, traj_idx, field_path):
         """Given a field path for the trajectory returns the group the field's
@@ -515,6 +511,7 @@ class WepyHDF5(object):
         self._field_feature_shapes = field_feature_shapes
         self._field_feature_dtypes = field_feature_dtypes
 
+
     @property
     def filename(self):
         return self._filename
@@ -534,6 +531,61 @@ class WepyHDF5(object):
     # TODO is this right? shouldn't we actually delete the data then close
     def __del__(self):
         self.close()
+
+    def clone(self, path, mode='x'):
+        """Clones this WepyHDF5 file without any of the actual runs and run
+        data. This includes the topology, units, sparse_fields,
+        feature shapes and dtypes, alt_reps, and main representation
+        information.
+
+        This method will flush the buffers for this file.
+
+        Does not preserve metadata pertaining to inter-run
+        relationships like continuations.
+
+        """
+
+        assert mode in ['w', 'w-', 'x'], "must be opened in a file creation mode"
+
+        # we manually construct an HDF5 and copy the groups over
+        new_h5 = h5py.File(path, mode=mode)
+
+        new_h5.create_group('runs')
+
+        # flush the datasets buffers
+        self.h5.flush()
+        new_h5.flush()
+
+        # copy the existing datasets to the new one
+        h5py.h5o.copy(self._h5.id, b'topology', new_h5.id, b'topology')
+        h5py.h5o.copy(self._h5.id, b'units', new_h5.id, b'units')
+        h5py.h5o.copy(self._h5.id, b'_settings', new_h5.id, b'_settings')
+
+        # for the settings we need to get rid of the data for interun
+        # relationships like the continuations
+        del new_h5['_settings/continuations']
+
+        # now make a WepyHDF5 object in "expert_mode" which means it
+        # is just empy and we construct it manually, "surgically" as I
+        # like to call it
+        new_wepy_h5 = WepyHDF5(path, expert_mode=True)
+
+        # perform the surgery:
+
+        # attach the h5py.File
+        new_wepy_h5._h5 = new_h5
+        # set the wepy mode to read-write since the creation flags
+        # were already used in construction of the h5py.File object
+        new_wepy_h5._wepy_mode = 'r+'
+        new_wepy_h5._h5py_mode = 'r+'
+
+        # close the h5py.File and set the attribute to closed
+        new_wepy_h5._h5.close()
+        new_wepy_h5.closed = True
+
+
+        # return the runless WepyHDF5 object
+        return new_wepy_h5
 
     @property
     def mode(self):
@@ -669,6 +721,10 @@ class WepyHDF5(object):
         return dtypes
 
     @property
+    def continuations(self):
+        return self.settings_grp()['continuations'][:]
+
+    @property
     def metadata(self):
         return dict(self._h5.attrs)
 
@@ -782,24 +838,39 @@ class WepyHDF5(object):
 
         return record_fields_dict
 
-    def _add_run_init(self):
+    def _add_run_init(self, run_idx, continue_run=None):
         """Routines for creating a run includes updating and setting object
         global variables, increasing the counter for the number of runs."""
 
         # add the run idx as metadata in the run group
-        self._h5['runs/{}'.format(self.next_run_idx())].attrs['run_idx'] = self.next_run_idx()
+        self._h5['runs/{}'.format(run_idx)].attrs['run_idx'] = run_idx
 
         # if this is continuing another run add the tuple (this_run,
         # continues_run) to the contig settings
         if continue_run is not None:
-            contig_dset = self.settings_grp['continuations']
-            contig_dset.resize((contig_dset.shape[0] + 1, contig_dset.shape[1],))
-            contig_dset[contig_dset.shape[0] - 1] = np.array([self.next_run_idx(), continue_run])
 
-    def link_run(self, filepath, run_index, continue_run=None, **kwargs):
+            self._add_continuation(run_idx, continue_run)
+
+
+    def _add_continuation(self, continuation_run, base_run):
+        """Add a continuation between runs.
+
+        continuation_run :: the run index of the run that continues base_run
+
+        base_run :: the run that is being continued
+
+        """
+
+        continuations_dset = self.settings_grp['continuations']
+        continuations_dset.resize((continuations_dset.shape[0] + 1, continuations_dset.shape[1],))
+        continuations_dset[continuations_dset.shape[0] - 1] = np.array([continuation_run, base_run])
+
+    def link_run(self, filepath, run_idx, continue_run=None, **kwargs):
+        """Add a run from another file to this one as an HDF5 external
+        link. Intuitively this is like mounting a drive in a filesystem."""
 
         # link to the external run
-        ext_run_link = h5py.ExternalLink(filepath, 'runs/{}'.format(run_index))
+        ext_run_link = h5py.ExternalLink(filepath, 'runs/{}'.format(run_idx))
 
         # the run index in this file, as determined by the counter
         here_run_idx = self.next_run_idx()
@@ -808,7 +879,7 @@ class WepyHDF5(object):
         self._h5['runs/{}'.format(here_run_idx)] = ext_run_link
 
         # run the initialization routines for adding a run
-        self._add_run_init(continue_run=continue_run)
+        self._add_run_init(here_run_idx, continue_run=continue_run)
 
         # add metadata if given
         for key, val in kwargs.items():
@@ -819,18 +890,48 @@ class WepyHDF5(object):
 
         return self._h5['runs/{}'.format(here_run_idx)]
 
+    def link_file_runs(self, wepy_h5_path):
+        """Link all runs from another WepyHDF5 file. This preserves
+        continuations within that file.
+
+        returns the indices of the new runs in this file.
+        """
+
+        wepy_h5 = WepyHDF5(wepy_h5_path, mode='r')
+
+        # add the runs
+        new_run_idxs = []
+        for ext_run_idx in wepy_h5.run_idxs:
+            new_run_idxs.append(self.new_run_idx())
+            new_run_grp = self.link_run(wepy_h5_path, ext_run_idx)
+
+        # copy the continuations over translating the run idxs,
+        # for each continuation in the other files continuations
+        for continuation in wepy_h5.continuations:
+
+            # translate each run index from the external file
+            # continuations to the run idxs they were just assigned in
+            # this file
+            self._add_continuation(new_run_idxs[continuation[0]],
+                                   new_run_idxs[continuation[1]])
+
+        return new_run_idxs
+
 
     def new_run(self, continue_run=None, **kwargs):
 
+        # get the index for this run
+        new_run_idx = self.next_run_idx()
+
         # create a new group named the next integer in the counter
-        run_grp = self._h5.create_group('runs/{}'.format(str(self.next_run_idx())))
+        run_grp = self._h5.create_group('runs/{}'.format(new_run_idx))
 
         # initialize the walkers group
         traj_grp = run_grp.create_group('trajectories')
 
 
         # run the initialization routines for adding a run
-        self._add_run_init(continue_run=continue_run)
+        self._add_run_init(new_run_idx, continue_run=continue_run)
 
 
         # TODO get rid of this?
