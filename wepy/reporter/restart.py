@@ -36,7 +36,6 @@ class RestartReporter(FileReporter):
         self.work_mapper = work_mapper
 
         # copy this reporter
-        import ipdb; ipdb.set_trace()
         self_copy = deepcopy(self)
 
         # save this object as a pickle, open it in the mode
@@ -89,8 +88,7 @@ class RestartReporter(FileReporter):
 
         # copy the reporters from this objects list of reporters, we
         # also need to replace, the restart reporter in that list with
-        # this one... Some weird recursion going on here and I
-        # apologize
+        # this one.
         reporters = []
         for reporter in self.reporters:
 
