@@ -1,3 +1,4 @@
+import os.path as osp
 from copy import deepcopy
 import pickle
 
@@ -10,6 +11,7 @@ class RestartReporter(FileReporter):
     def __init__(self, file_path, mode='x'):
 
         super().__init__(file_path, mode=mode)
+
 
     def init(self, *args,
              runner=None,
@@ -33,11 +35,12 @@ class RestartReporter(FileReporter):
 
         self.work_mapper = work_mapper
 
-        # copy the sim_manager
+        # copy this reporter
+        import ipdb; ipdb.set_trace()
         self_copy = deepcopy(self)
 
         # save this object as a pickle, open it in the mode
-        with open(self.file_path, mode=self.mode+"+b") as wf:
+        with open(self.file_path, mode=self.mode+"b") as wf:
             pickle.dump(self_copy, wf)
 
 
@@ -56,12 +59,108 @@ class RestartReporter(FileReporter):
 
 
 
-    def new_sim_manager(self):
+    def new_sim_manager(self, file_report_suffix=None, reporter_base_path=None):
+        """Generate a simulation manager from the objects in this restarter.
 
-        sim_manager = Manager(self.restart_walkers,
-                              runner=self.runner,
-                              resampler=self.resampler,
-                              boundary_conditions=self.boundary_conditions,
-                              work_mapper=self.work_mapper,
-                              reporters=self.reporters)
+        All objects are deepcopied so that this restarter object can
+        be used multiple times, without reading from disk again.
+
+        If a `file_report_suffix` string is given all reporters
+        inheriting from FileReporter will have their `file_path`
+        attribute modified. `file_report_suffix` will be appended to
+        the first clause (clauses here are taken to be portions of the
+        file name separated by '.'s) so that for 'file.txt' the
+        substring 'file' will be replaced by 'file{}'. Where the
+        suffix is formatted into that string.
+
+        """
+
+        # check the arguments for correctness
+        if (file_report_suffix is not None) or (reporter_base_path is not None):
+
+            # if just the base path is given
+            if file_report_suffix is None:
+                assert type(reporter_base_path) is str, \
+                    "'reporter_base_path' must be a string, given {}".format(type(reporter_base_path))
+
+            if reporter_base_path is None:
+                assert type(file_report_suffix) is str, \
+                    "'file_report_suffix' must be a string, given {}".format(type(file_report_suffix))
+
+        # copy the reporters from this objects list of reporters, we
+        # also need to replace, the restart reporter in that list with
+        # this one... Some weird recursion going on here and I
+        # apologize
+        reporters = []
+        for reporter in self.reporters:
+
+            # if the reporter is a restart reporter we replace it with
+            # a copy of this reporter, it will be mutated later
+            # potentially to change the path to save the pickle
+            if isinstance(reporter, RestartReporter):
+                reporters.append(deepcopy(self))
+            else:
+                # otherwise make a copy of the reporter
+                reporters.append(deepcopy(reporter))
+
+        # copy all of the other objects before construction
+        restart_walkers = deepcopy(self.restart_walkers)
+        runner = deepcopy(self.runner)
+        resampler = deepcopy(self.resampler)
+        boundary_conditions = deepcopy(self.boundary_conditions)
+        work_mapper = deepcopy(self.work_mapper)
+
+        # modify them if this was specified
+
+        # update the FileReporter paths
+        # iterate through the reporters and add the suffix to the
+        # FileReporter subclasses
+        for reporter in self.reporters:
+
+            # check if the reporter class is a FileReporter subclass
+            if issubclass(type(reporter), FileReporter):
+
+                # because we are making a new file with any change, we
+                # need to modify the access mode to a conservative
+                # creation mode
+                reporter.mode = 'x'
+
+                if file_report_suffix is not None:
+                    filename = osp.basename(reporter.file_path)
+                    # get the clauses
+                    clauses = filename.split('.')
+                    # make a template out of the first clause
+                    template_clause = clauses[0] + "{}"
+
+                    # fill in the suffix to the template clause
+                    mod_clause = template_clause.format(file_report_suffix)
+
+                    # combine them back into a filename
+                    new_filename = '.'.join([mod_clause, *clauses[1:]])
+                else:
+                    # if we don't have a suffix just return the original name
+                    filename = osp.basename(reporter.file_path)
+                    new_filename = filename
+
+                # if a new base path was given make that the path
+                # to the filename
+                if reporter_base_path is not None:
+                    new_path = osp.join(reporter_base_path, new_filename)
+
+                # if it wasn't given, add the rest of the original path back
+                else:
+                    new_path = osp.join(osp.dirname(reporter.file_path), new_filename)
+
+                # make a copy of the reporter and pass this to the
+                # sim manager instead of the one in the object
+                new_reporter = reporter
+                new_reporter.file_path = new_path
+
+        # construct the sim manager
+        sim_manager = Manager(restart_walkers,
+                              runner=runner,
+                              resampler=resampler,
+                              boundary_conditions=boundary_conditions,
+                              work_mapper=work_mapper,
+                              reporters=reporters)
         return sim_manager

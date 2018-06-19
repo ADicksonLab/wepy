@@ -304,6 +304,9 @@ class WepyHDF5(object):
         self.close()
 
 
+    # custom deepcopy to avoid copying the actual HDF5 object
+
+
     # constructors
     def _create_init(self):
         """Completely overwrite the data in the file. Reinitialize the values
