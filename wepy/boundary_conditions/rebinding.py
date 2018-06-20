@@ -110,7 +110,6 @@ class RebindingBC(BoundaryConditions):
 
             # if the walker is unbound we need to warp it
             if rebound:
-                # import ipdb; ipdb.set_trace()
                 # warp the walker
                 warped_walker, warp_record, warp_data = self.warp(walker,cycle)
 

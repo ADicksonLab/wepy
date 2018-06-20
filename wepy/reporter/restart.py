@@ -36,7 +36,6 @@ class RestartReporter(FileReporter):
         self.work_mapper = work_mapper
 
         # copy this reporter
-        import ipdb; ipdb.set_trace()
         self_copy = deepcopy(self)
 
         # save this object as a pickle, open it in the mode

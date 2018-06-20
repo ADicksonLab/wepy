@@ -11,7 +11,6 @@ def main(continue_run, n_cycles, steps, basepath=None, suffix=None, debug_prints
 
     # make a new sim manager with the suffix and new file path if
     # given
-    import ipdb; ipdb.set_trace()
     sim_manager = restarter.new_sim_manager(reporter_base_path=basepath,
                                             file_report_suffix=suffix)
 
