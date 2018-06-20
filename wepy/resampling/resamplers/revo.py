@@ -241,16 +241,16 @@ class REVOResampler(Resampler):
                         keep_idx = minwind
                         squash_idx = closewalk
 
-                    if keep_idx == maxwind:
-                        import ipdb; ipdb.set_trace()
+                    # if keep_idx == maxwind:
+                    #     import ipdb; ipdb.set_trace()
 
-                    if len(merge_groups[maxwind]) > 0:
-                        import ipdb; ipdb.set_trace()
-                        print("Attempting to clone a walker which is a keep idx of a merge group")
+                    # if len(merge_groups[maxwind]) > 0:
+                    #     import ipdb; ipdb.set_trace()
+                    #     print("Attempting to clone a walker which is a keep idx of a merge group")
 
-                    if walker_clone_nums[keep_idx] > 0:
-                        import ipdb; ipdb.set_trace()
-                        print("Attempting to merge a walker which is to be cloned")
+                    # if walker_clone_nums[keep_idx] > 0:
+                    #     import ipdb; ipdb.set_trace()
+                    #     print("Attempting to merge a walker which is to be cloned")
 
                     # update weight
                     new_wt[keep_idx] += new_wt[squash_idx]

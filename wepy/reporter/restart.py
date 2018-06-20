@@ -75,7 +75,8 @@ class RestartReporter(FileReporter):
         """
 
         # check the arguments for correctness
-        if (file_report_suffix is not None) or (reporter_base_path is not None):
+        if (file_report_suffix is not None) or \
+           (reporter_base_path is not None):
 
             # if just the base path is given
             if file_report_suffix is None:
@@ -113,7 +114,7 @@ class RestartReporter(FileReporter):
         # update the FileReporter paths
         # iterate through the reporters and add the suffix to the
         # FileReporter subclasses
-        for reporter in self.reporters:
+        for reporter in reporters:
 
             # check if the reporter class is a FileReporter subclass
             if issubclass(type(reporter), FileReporter):

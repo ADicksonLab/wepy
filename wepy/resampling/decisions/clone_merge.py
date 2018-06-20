@@ -117,7 +117,6 @@ class MultiCloneMergeDecision(Decision):
                     keep_walkers[instruction[0]] = walker_idx
 
                 else:
-                    import ipdb; ipdb.set_trace()
                     raise ValueError("Decision not recognized")
 
             # do the merging for each merge group
