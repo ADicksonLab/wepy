@@ -2320,6 +2320,14 @@ class WepyHDF5(object):
 
     def run_records(self, run_idx, run_record_key):
 
+        # wrap this in a list since the underlying functions accept a
+        # list of records
+        run_idxs = [run_idx]
+
+        return self.contig_records(run_idxs, run_record_key)
+
+    def contig_records(self, run_idxs, record_key):
+
         # if there are no fields return an empty list
         record_fields = self.record_fields[run_record_key]
         if len(record_fields) == 0:
@@ -2328,11 +2336,12 @@ class WepyHDF5(object):
         # get the iterator for the record idxs, if the group is
         # sporadic then we just use the cycle idxs
         if self._is_sporadic_records(run_record_key):
-            records = self._run_records_sporadic(run_idx, run_record_key)
+            records = self._run_records_sporadic(run_idxs, run_record_key)
         else:
-            records = self._run_records_continual(run_idx, run_record_key)
+            records = self._run_records_continual(run_idxs, run_record_key)
 
         return records
+
 
     def _run_record_namedtuple(self, run_record_key):
 
@@ -2399,33 +2408,77 @@ class WepyHDF5(object):
 
         return records
 
-    def _run_records_sporadic(self, run_idx, run_record_key):
+    def _run_records_sporadic(self, run_idxs, run_record_key):
 
-        # get all the value columns from the datasets, and convert
-        # them to something amenable to a table
-        fields = self._convert_record_fields_to_table_columns(run_idx, run_record_key)
+        # we loop over the run_idxs in the contig and get the fields
+        # and cycle idxs for the whole contig
+        fields = []
+        cycle_idxs = np.array([], dtype=int)
+        # keep a cumulative total of the runs cycle idxs
+        prev_run_cycle_total = 0
+        for run_idx in run_idxs:
 
-        # get the cycle idxs
-        rec_grp = self.records_grp(run_idx, run_record_key)
-        cycle_idxs = rec_grp[CYCLE_IDXS][:]
+            # get all the value columns from the datasets, and convert
+            # them to something amenable to a table
+            run_fields = self._convert_record_fields_to_table_columns(run_idx, run_record_key)
+
+            # just add it to the list of fields that will be concatenated later
+            fields.extend(run_fields)
+
+            # get the cycle idxs for this run
+            rec_grp = self.records_grp(run_idx, run_record_key)
+            run_cycle_idxs = rec_grp[CYCLE_IDXS][:]
+
+            # add the total number of cycles that came before this run
+            # to each of the cycle idxs to get the cycle_idxs in terms
+            # of the full contig
+            run_contig_cycle_indices = run_cycle_idxs + prev_run_cycle_total
+
+            # add these cycle indices to the records for the whole contig
+            cycle_idxs = np.hstack( (cycle_idxs, run_contig_cycle_idxs) )
+
+            # add the total number of cycle_idxs from this run to the
+            # running total
+            prev_run_cycle_total += self.run_n_cycles(run_idx)
 
         # then make the records from the fields
         records = self._make_records(run_record_key, cycle_idxs, fields)
 
         return records
 
-    def _run_records_continual(self, run_idx, run_record_key):
+    def _run_records_continual(self, run_idxs, run_record_key):
 
-        # get all the value columns from the datasets, and convert
-        # them to something amenable to a table
-        fields = self._convert_record_fields_to_table_columns(run_idx, run_record_key)
+        cycle_idxs = np.array([], dtype=int)
+        fields = []
+        prev_run_cycle_total = 0
+        for run_idx in run_idxs:
+            # get all the value columns from the datasets, and convert
+            # them to something amenable to a table
+            run_fields = self._convert_record_fields_to_table_columns(run_idx, run_record_key)
 
-        # get one of the fields (if any to iterate over)
-        record_fields = self.record_fields[run_record_key]
-        main_record_field = record_fields[0]
+            # just add it to the list of fields that will be concatenated later
+            fields.extend(run_fields)
 
-        # make the cycle idxs from that
-        cycle_idxs = list(range(rec_grp[main_record_field].shape[0]))
+            # get one of the fields (if any to iterate over)
+            record_fields = self.record_fields[run_record_key]
+            main_record_field = record_fields[0]
+
+            # make the cycle idxs from that
+            run_rec_grp = self.records_grp(run_idx, run_record_key)
+            run_cycle_idxs = list(range(run_rec_grp[main_record_field].shape[0]))
+
+            # add the total number of cycles that came before this run
+            # to each of the cycle idxs to get the cycle_idxs in terms
+            # of the full contig
+            run_contig_cycle_indices = run_cycle_idxs + prev_run_cycle_total
+
+            # add these cycle indices to the records for the whole contig
+            cycle_idxs = np.hstack( (cycle_idxs, run_contig_cycle_idxs) )
+
+            # add the total number of cycle_idxs from this run to the
+            # running total
+            prev_run_cycle_total += self.run_n_cycles(run_idx)
+
 
         # then make the records from the fields
         records = self._make_records(run_record_key, cycle_idxs, fields)
@@ -2436,52 +2489,56 @@ class WepyHDF5(object):
         records = self.run_records(run_idx, run_record_key)
         return pd.DataFrame(records)
 
+    def contig_records_dataframe(self, run_idxs, run_record_key):
+        records = self.contig_records(run_idxs, run_record_key)
+        return pd.DataFrame(records)
+
     # application level specific methods for each main group
 
     # resampling
-    def resampling_records(self, run_idx):
+    def resampling_records(self, run_idxs):
 
-        return self.run_records(run_idx, RESAMPLING)
+        return self.contig_records(run_idxs, RESAMPLING)
 
-    def resampling_records_dataframe(self, run_idx):
+    def resampling_records_dataframe(self, run_idxs):
 
-        return pd.DataFrame(self.resampling_records(run_idx))
+        return pd.DataFrame(self.resampling_records(run_idxs))
 
     # resampler records
-    def resampler_records(self, run_idx):
+    def resampler_records(self, run_idxs):
 
-        return self.run_records(run_idx, RESAMPLER)
+        return self.contig_records(run_idxs, RESAMPLER)
 
-    def resampler_records_dataframe(self, run_idx):
+    def resampler_records_dataframe(self, run_idxs):
 
-        return pd.DataFrame(self.resampler_records(run_idx))
+        return pd.DataFrame(self.resampler_records(run_idxs))
 
     # warping
-    def warping_records(self, run_idx):
+    def warping_records(self, run_idxs):
 
-        return self.run_records(run_idx, WARPING)
+        return self.contig_records(run_idxs, WARPING)
 
-    def warping_records_dataframe(self, run_idx):
+    def warping_records_dataframe(self, run_idxs):
 
-        return pd.DataFrame(self.warping_records(run_idx))
+        return pd.DataFrame(self.warping_records(run_idxs))
 
     # boundary conditions
-    def bc_records(self, run_idx):
+    def bc_records(self, run_idxs):
 
-        return self.run_records(run_idx, BC)
+        return self.contig_records(run_idxs, BC)
 
-    def bc_records_dataframe(self, run_idx):
+    def bc_records_dataframe(self, run_idxs):
 
-        return pd.DataFrame(self.bc_records(run_idx))
+        return pd.DataFrame(self.bc_records(run_idxs))
 
     # progress
-    def progress_records(self, run_idx):
+    def progress_records(self, run_idxs):
 
-        return self.run_records(run_idx, PROGRESS)
+        return self.contig_records(run_idxs, PROGRESS)
 
-    def progress_records_dataframe(self, run_idx):
+    def progress_records_dataframe(self, run_idxs):
 
-        return pd.DataFrame(self.progress_records(run_idx))
+        return pd.DataFrame(self.progress_records(run_idxs))
 
     @staticmethod
     def resampling_panel(resampling_records, is_sorted=False):
