@@ -2324,6 +2324,23 @@ class WepyHDF5(object):
             spanning_contigs.extend(root_spanning_contigs)
 
         return spanning_contigs
+    
+    def is_contig(self, run_idxs):
+        """This method checks that if a given list of run indices is a valid
+        contig or not.
+        """
+        run_idx_subcontigs = [np.array([run_idxs[idx+1], run_idxs[idx]])
+                            for idx in range(len(run_idxs)-1)]
+        #gets the contigs array
+        contigs = self.settings_grp['continuations'][:]
+
+        # checks if sub contigs are in contigs list or not.
+        for run_subcontig in run_idx_subcontigs:
+            for subcontig in contigs:
+                if not np.array_equal(run_subcontig, subcontig):
+                    return False
+
+        return True
 
 
     def contig_trace_to_trace(self, run_idxs, contig_trace):
