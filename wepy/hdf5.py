@@ -744,7 +744,7 @@ class WepyHDF5(object):
 
     @property
     def run_idxs(self):
-        return range(len(self._h5['runs']))
+        return list(range(len(self._h5['runs'])))
 
     def next_run_idx(self):
         return self.n_runs
@@ -895,33 +895,42 @@ class WepyHDF5(object):
 
     def link_file_runs(self, wepy_h5_path):
         """Link all runs from another WepyHDF5 file. This preserves
-        continuations within that file.
+        continuations within that file. This will open the file if not
+        already opened.
 
         returns the indices of the new runs in this file.
+
         """
 
         wepy_h5 = WepyHDF5(wepy_h5_path, mode='r')
+        with wepy_h5:
 
-        # add the runs
-        new_run_idxs = []
-        for ext_run_idx in wepy_h5.run_idxs:
-            new_run_idxs.append(self.new_run_idx())
-            new_run_grp = self.link_run(wepy_h5_path, ext_run_idx)
+            # add the runs
+            new_run_idxs = []
+            for ext_run_idx in wepy_h5.run_idxs:
+                new_run_idxs.append(self.new_run_idx())
+                new_run_grp = self.link_run(wepy_h5_path, ext_run_idx)
 
-        # copy the continuations over translating the run idxs,
-        # for each continuation in the other files continuations
-        for continuation in wepy_h5.continuations:
+            # copy the continuations over translating the run idxs,
+            # for each continuation in the other files continuations
+            for continuation in wepy_h5.continuations:
 
-            # translate each run index from the external file
-            # continuations to the run idxs they were just assigned in
-            # this file
-            self._add_continuation(new_run_idxs[continuation[0]],
-                                   new_run_idxs[continuation[1]])
+                # translate each run index from the external file
+                # continuations to the run idxs they were just assigned in
+                # this file
+                self._add_continuation(new_run_idxs[continuation[0]],
+                                       new_run_idxs[continuation[1]])
 
         return new_run_idxs
 
 
     def new_run(self, continue_run=None, **kwargs):
+
+        # check to see if the continue_run is actually in this file
+        if continue_run is not None:
+            if continue_run not in self.run_idxs:
+                raise ValueError("The continue_run idx given, {}, is not present in this file".format(
+                    continue_run))
 
         # get the index for this run
         new_run_idx = self.next_run_idx()
