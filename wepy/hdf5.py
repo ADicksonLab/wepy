@@ -429,8 +429,7 @@ class WepyHDF5(object):
         # (continuation_run, base_run), where the first element
         # of the new run that is continuing the run in the second
         # position
-        settings_grp.create_dataset('continuations', shape=(0,2), dtype=np.int,
-                                    maxshape=(None, 2))
+        self._init_continuations()
 
     def _read_write_init(self):
         """Write over values if given but do not reinitialize any old ones. """
@@ -565,8 +564,9 @@ class WepyHDF5(object):
         h5py.h5o.copy(self._h5.id, b'_settings', new_h5.id, b'_settings')
 
         # for the settings we need to get rid of the data for interun
-        # relationships like the continuations
-        del new_h5['_settings/continuations']
+        # relationships like the continuations, so we reinitialize the
+        # continuations
+        self._init_continuations()
 
         # now make a WepyHDF5 object in "expert_mode" which means it
         # is just empy and we construct it manually, "surgically" as I
@@ -788,6 +788,26 @@ class WepyHDF5(object):
 
         return tups
 
+    def _init_continuations(self):
+        """This will either create a dataset in the settings for the
+        continuations or if continuations already exist it will reinitialize
+        them and delete the data that exists there.
+
+        """
+
+        # if the continuations dset already exists we reinitialize the
+        # data
+        if 'continuations' in self.settings_grp:
+            cont_dset = self.settings_grp['continuations']
+            cont_dset.resize( (0,2) )
+
+        # otherwise we just create the data
+        else:
+            cont_dset = self.settings_grp.create_dataset('continuations', shape=(0,2), dtype=np.int,
+                                    maxshape=(None, 2))
+
+        return cont_dset
+
 
     def init_record_fields(self, run_record_key, record_fields):
         """Save which records are to be considered from a run record group's
@@ -908,7 +928,7 @@ class WepyHDF5(object):
             # add the runs
             new_run_idxs = []
             for ext_run_idx in wepy_h5.run_idxs:
-                new_run_idxs.append(self.new_run_idx())
+                new_run_idxs.append(self.next_run_idx())
                 new_run_grp = self.link_run(wepy_h5_path, ext_run_idx)
 
             # copy the continuations over translating the run idxs,
