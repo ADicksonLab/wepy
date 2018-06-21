@@ -2322,16 +2322,19 @@ class WepyHDF5(object):
         """This method checks that if a given list of run indices is a valid
         contig or not.
         """
-        run_idx_subcontigs = [np.array([run_idxs[idx+1], run_idxs[idx]])
+        run_idx_continuations = [np.array([run_idxs[idx+1], run_idxs[idx]])
                             for idx in range(len(run_idxs)-1)]
         #gets the contigs array
-        contigs = self.settings_grp['continuations'][:]
+        continuations = self.settings_grp['continuations'][:]
 
         # checks if sub contigs are in contigs list or not.
-        for run_subcontig in run_idx_subcontigs:
-            for subcontig in contigs:
-                if not np.array_equal(run_subcontig, subcontig):
-                    return False
+        for run_continuous in run_idx_continuations:
+            contig = False
+            for continuous in continuations:
+                if np.array_equal(run_continuous, continuous):
+                    contig = True
+            if not contig:
+                return False
 
         return True
 
