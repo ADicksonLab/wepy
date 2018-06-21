@@ -2241,8 +2241,6 @@ class WepyHDF5(object):
 
         return final_root_paths
 
-
-
     def spanning_contigs(self):
         """Returns a list of all possible spanning contigs given the
         continuations present in this file. Contigs are a list of runs
@@ -2297,6 +2295,54 @@ class WepyHDF5(object):
             spanning_contigs.extend(root_spanning_contigs)
 
         return spanning_contigs
+
+
+    def contig_trace_to_trace(self, run_idxs, contig_trace):
+        """This method takes a trace of frames over the given contig
+        (run_idxs), itself a list of tuples (traj_idx, cycle_idx) and
+        converts it to a trace valid for actually accessing values
+        from a WepyHDF5 object i.e. a list of tuples
+        (run_idx, traj_idx, cycle_idx).
+
+        """
+
+        # check the contig to make sure it is a valid contig
+        if not self.is_contig:
+            raise ValueError("The run_idxs provided are not a valid contig, {}.".format(
+                run_idxs))
+
+        # get the number of cycles in each of the runs in the contig
+        runs_n_cycles = []
+        for run_idx in run_idxs:
+            runs_n_cycles.append(self.run_n_cycles(run_idx))
+
+        # cumulative number of cycles
+        run_cum_cycles = np.cumsum(runs_n_cycles)
+
+        # add a zero to the beginning for the starting point of no
+        # frames
+        run_cum_cycles = np.hstack( ([0], run_cum_cycles) )
+
+        # go through the frames of the contig trace and convert them
+        new_trace = []
+        for traj_idx, contig_cycle_idx in contig_trace:
+
+            # get the index of the run that this cycle idx of the
+            # contig is in
+            frame_run_idx = np.searchsorted(run_cum_cycles, contig_cycle_idx, side='right') - 1
+
+            # use that to get the total number of frames up until the
+            # point of that and subtract that from the contig cycle
+            # idx to get the cycle index in the run
+            run_frame_idx = contig_cycle_idx - run_cum_cycles[frame_run_idx]
+
+            # the tuple for this frame for the whole file
+            trace_frame_idx = (frame_run_idx, traj_idx, run_frame_idx)
+
+            # add it to the trace
+            new_trace.append(trace_frame_idx)
+
+        return new_trace
 
 
     def records_grp(self, run_idx, run_record_key):
