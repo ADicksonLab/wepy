@@ -764,6 +764,19 @@ class WepyHDF5(object):
     def run_n_cycles(self, run_idx):
         return self.run_n_frames(run_idx)
 
+    def contig_n_cycles(self, run_idxs):
+
+        # check the contig to make sure it is a valid contig
+        if not self.is_contig(run_idxs):
+            raise ValueError("The run_idxs provided are not a valid contig, {}.".format(
+                run_idxs))
+
+        n_cycles = 0
+        for run_idx in run_idxs:
+            n_cycles += self.run_n_cycles(run_idx)
+
+        return n_cycles
+
     def run_trajs(self, run_idx):
         return self._h5['runs/{}/trajectories'.format(run_idx)]
 
@@ -2349,7 +2362,7 @@ class WepyHDF5(object):
         """
 
         # check the contig to make sure it is a valid contig
-        if not self.is_contig:
+        if not self.is_contig(run_idxs):
             raise ValueError("The run_idxs provided are not a valid contig, {}.".format(
                 run_idxs))
 
@@ -2764,15 +2777,12 @@ class WepyHDF5(object):
 
     def contig_resampling_panel(self, run_idxs):
         # check the contig to make sure it is a valid contig
-        if not self.is_contig:
+        if not self.is_contig(run_idxs):
             raise ValueError("The run_idxs provided are not a valid contig, {}.".format(
                 run_idxs))
 
-        contig_resampling_records = []
-        for run_idx in run_idxs:
-            contig_resampling_records.extend(self.resampling_records(run_idxs))
-
-        contig_resampling_panel = self.resampling_panel(contig_resampling_records)
+        # make the resampling panel from the resampling records for the contig
+        contig_resampling_panel = self.resampling_panel(self.resampling_records(run_idxs))
 
         return contig_resampling_panel
 
