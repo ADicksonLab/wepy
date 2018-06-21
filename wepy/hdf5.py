@@ -2228,8 +2228,8 @@ class WepyHDF5(object):
         if return_results:
             return results
 
-    @staticmethod
-    def _spanning_paths(edges, root):
+    @classmethod
+    def _spanning_paths(cls, edges, root):
 
         # nodes targetting this root
         root_sources = []
@@ -2255,7 +2255,7 @@ class WepyHDF5(object):
 
             # add these paths for this new root to the paths for the
             # current root
-            root_paths.extend(spanning_paths(edges, new_root))
+            root_paths.extend(cls._spanning_paths(edges, new_root))
 
         # if there are no more sources to this root it is a leaf node and
         # we terminate recursion, by not entering the loop above, however
@@ -2291,25 +2291,18 @@ class WepyHDF5(object):
         # a list of all the unique nodes (runs)
         nodes = list(self.run_idxs)
 
-        # first find the roots and leaves of the forest, start with
-        # all of them and eliminate them if any directed edge points
-        # out of them (in the first position of a continuation; read a
+        # first find the roots of the forest, start with all of them
+        # and eliminate them if any directed edge points out of them
+        # (in the first position of a continuation; read a
         # continuation (say (B,A)) as B continues A, thus the edge is
         # A <- B)
         roots = nodes
-        leaves = nodes
         for edge_source, edge_target in self.continuations:
 
             # if the edge source node is still in roots pop it out,
             # because a root can never be a source in an edge
             if edge_source in roots:
                 _ = roots.pop(roots.index(edge_source))
-
-            # conversely, if the edge target node is still in the
-            # leaves pop it out, since a leaf can never be a target
-            if edge_target in roots:
-                _ = leaves.pop(roots.index(edge_target))
-
 
         # collect all the spanning contigs
         spanning_contigs = []
@@ -2324,7 +2317,7 @@ class WepyHDF5(object):
             spanning_contigs.extend(root_spanning_contigs)
 
         return spanning_contigs
-    
+
     def is_contig(self, run_idxs):
         """This method checks that if a given list of run indices is a valid
         contig or not.
@@ -2418,7 +2411,7 @@ class WepyHDF5(object):
 
         return self.contig_records(run_idxs, run_record_key)
 
-    def contig_records(self, run_idxs, record_key):
+    def contig_records(self, run_idxs, run_record_key):
 
         # if there are no fields return an empty list
         record_fields = self.record_fields[run_record_key]
@@ -2504,7 +2497,7 @@ class WepyHDF5(object):
 
         # we loop over the run_idxs in the contig and get the fields
         # and cycle idxs for the whole contig
-        fields = []
+        fields = None
         cycle_idxs = np.array([], dtype=int)
         # keep a cumulative total of the runs cycle idxs
         prev_run_cycle_total = 0
@@ -2514,8 +2507,19 @@ class WepyHDF5(object):
             # them to something amenable to a table
             run_fields = self._convert_record_fields_to_table_columns(run_idx, run_record_key)
 
-            # just add it to the list of fields that will be concatenated later
-            fields.extend(run_fields)
+            # we need to concatenate each field to the end of the
+            # field in the master dictionary, first we need to
+            # initialize it if it isn't already made
+            if fields is None:
+                # if it isn't initialized we just set it as this first
+                # run fields dictionary
+                fields = run_fields
+            else:
+                # if it is already initialized we need to go through
+                # each field and concatenate
+                for field_name, field_data in run_fields.items():
+                    # just add it to the list of fields that will be concatenated later
+                    fields[field_name].extend(field_data)
 
             # get the cycle idxs for this run
             rec_grp = self.records_grp(run_idx, run_record_key)
@@ -2524,7 +2528,7 @@ class WepyHDF5(object):
             # add the total number of cycles that came before this run
             # to each of the cycle idxs to get the cycle_idxs in terms
             # of the full contig
-            run_contig_cycle_indices = run_cycle_idxs + prev_run_cycle_total
+            run_contig_cycle_idxs = run_cycle_idxs + prev_run_cycle_total
 
             # add these cycle indices to the records for the whole contig
             cycle_idxs = np.hstack( (cycle_idxs, run_contig_cycle_idxs) )
@@ -2541,15 +2545,26 @@ class WepyHDF5(object):
     def _run_records_continual(self, run_idxs, run_record_key):
 
         cycle_idxs = np.array([], dtype=int)
-        fields = []
+        fields = None
         prev_run_cycle_total = 0
         for run_idx in run_idxs:
             # get all the value columns from the datasets, and convert
             # them to something amenable to a table
             run_fields = self._convert_record_fields_to_table_columns(run_idx, run_record_key)
 
-            # just add it to the list of fields that will be concatenated later
-            fields.extend(run_fields)
+            # we need to concatenate each field to the end of the
+            # field in the master dictionary, first we need to
+            # initialize it if it isn't already made
+            if fields is None:
+                # if it isn't initialized we just set it as this first
+                # run fields dictionary
+                fields = run_fields
+            else:
+                # if it is already initialized we need to go through
+                # each field and concatenate
+                for field_name, field_data in run_fields.items():
+                    # just add it to the list of fields that will be concatenated later
+                    fields[field_name].extend(field_data)
 
             # get one of the fields (if any to iterate over)
             record_fields = self.record_fields[run_record_key]
@@ -2741,7 +2756,22 @@ class WepyHDF5(object):
 
 
     def run_resampling_panel(self, run_idx):
-        return self.resampling_panel(self.resampling_records(run_idx))
+        return self.contig_resampling_panel([run_idx])
+
+
+    def contig_resampling_panel(self, run_idxs):
+        # check the contig to make sure it is a valid contig
+        if not self.is_contig:
+            raise ValueError("The run_idxs provided are not a valid contig, {}.".format(
+                run_idxs))
+
+        contig_resampling_records = []
+        for run_idx in run_idxs:
+            contig_resampling_records.extend(self.resampling_records(run_idxs))
+
+        contig_resampling_panel = self.resampling_panel(contig_resampling_records)
+
+        return contig_resampling_panel
 
     def join(self, other_h5):
         """Given another WepyHDF5 file object does a left join on this
