@@ -7,6 +7,7 @@ from copy import copy
 
 import numpy as np
 import h5py
+import networkx as nx
 
 from wepy.util.mdtraj import mdtraj_to_json_topology, json_to_mdtraj_topology
 from wepy.util.util import traj_box_vectors_to_lengths_angles, json_top_atom_count
@@ -2331,6 +2332,21 @@ class WepyHDF5(object):
 
         return spanning_contigs
 
+    def contig_tree(self):
+        """Returns a networkx directed graph where each node is a run index
+        and the connections between them are the continuations.
+
+        """
+
+        contig_tree = nx.DiGraph()
+        # first add all the runs as nodes
+        contig_tree.add_nodes_from(self.run_idxs)
+
+        # then add the continuations as edges
+        contig_tree.add_edges_from(self.continuations)
+
+        return contig_tree
+
     def is_contig(self, run_idxs):
         """This method checks that if a given list of run indices is a valid
         contig or not.
@@ -2442,6 +2458,23 @@ class WepyHDF5(object):
             records = self._run_records_continual(run_idxs, run_record_key)
 
         return records
+
+    def contig_tree_records(self, run_record_keys):
+        """Get records in the form of a tree for the whole contig tree. Each
+        collection of records for a run will be in the node of the
+        contig tree corresponding to the run.
+
+        """
+
+        contig_tree = self.contig_tree()
+
+        # just loop through each run and get the records for it then
+        # assign it to the node in the contig tree
+        for run_idx in self.run_idxs:
+            for run_record_key in run_record_keys:
+                contig_tree.nodes[run_idx][run_record_key] = self.run_records(run_idx, run_record_key)
+
+        return contig_tree
 
 
     def _run_record_namedtuple(self, run_record_key):
@@ -2665,6 +2698,13 @@ class WepyHDF5(object):
 
     @staticmethod
     def resampling_panel(resampling_records, is_sorted=False):
+        """Converts a simple collection of resampling records into a list of
+        elements corresponding to cycles. It is like doing a pivot on
+        the step indices into an extra dimension. Hence it can be
+        thought of as a list of tables indexed by the cycle, hence the
+        name panel.
+
+        """
 
         resampling_panel = []
 
@@ -2785,6 +2825,14 @@ class WepyHDF5(object):
         contig_resampling_panel = self.resampling_panel(self.resampling_records(run_idxs))
 
         return contig_resampling_panel
+
+    def contig_tree_resampling_panel(self):
+        """Instead of a resampling panel this is the same thing except each
+        cycle is a node rather than a table in the panel.
+
+        """
+
+        pass
 
     def join(self, other_h5):
         """Given another WepyHDF5 file object does a left join on this
