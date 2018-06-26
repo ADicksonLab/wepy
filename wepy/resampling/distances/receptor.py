@@ -39,7 +39,7 @@ class UnbindingDistance(Distance):
         # recenter the protein-ligand complex into the center of the
         # periodic boundary conditions
         rece_positions = recenter_pair(state['positions'], box_lengths,
-                                   self._image_bs_idxs, self._image_lig_idxs)
+                                   self._bs_idxs, self._lig_idxs)
 
 
         # slice these positions to get the image

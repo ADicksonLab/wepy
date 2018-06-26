@@ -1,3 +1,4 @@
+import os.path as osp
 from collections import Sequence, namedtuple
 import itertools as it
 import json
@@ -148,7 +149,8 @@ class WepyHDF5(object):
                  sparse_fields=None,
                  feature_shapes=None, feature_dtypes=None,
                  n_dims=None,
-                 alt_reps=None, main_rep_idxs=None
+                 alt_reps=None, main_rep_idxs=None,
+                 expert_mode=False
     ):
         """Initialize a new Wepy HDF5 file. This is a file that organizes
         wepy.TrajHDF5 dataset subsets by simulations by runs and
@@ -160,40 +162,41 @@ class WepyHDF5(object):
         w        Create file, truncate if exists
         x or w-  Create file, fail if exists
         a        Read/write if exists, create otherwise
-        c        Append (concatenate) file if exists, create otherwise,
-                   read access only to existing data,
-                   can append to existing datasets
-        c-       Append file if exists, create otherwise,
-                   read access only to existing data,
-                   cannot append to existing datasets
-
-        The c and c- modes use the h5py 'a' mode underneath and limit
-        access to data that is read in.
-
 
         """
+
+        self._filename = filename
+
+        if expert_mode is True:
+            self._h5 = None
+            self._wepy_mode = None
+            self._h5py_mode = None
+            self.closed = None
+
+            # terminate the constructor here
+            return None
 
         assert mode in ['r', 'r+', 'w', 'w-', 'x', 'a', 'c', 'c-'], \
           "mode must be either 'r', 'r+', 'w', 'x', 'w-', 'a', 'c', or 'c-'"
 
 
-        self._filename = filename
+
         # the top level mode enforced by wepy.hdf5
         self._wepy_mode = mode
 
-        # get h5py compatible I/O mode
-        if self._wepy_mode in ['c', 'c-']:
-            h5py_mode = 'a'
-        else:
-            h5py_mode = self._wepy_mode
-        # the lower level h5py mode
-        self._h5py_mode = h5py_mode
+        # the lower level h5py mode. THis was originally different to
+        # accomodate different modes at teh wepy level for
+        # concatenation. I will leave these separate because this is
+        # used elsewhere and could be a feature in the future.
+        self._h5py_mode = mode
 
+        # Temporary metadata: used to initialize the object but not
+        # used after that
+
+        self._topology = topology
+        self._units = units
         self._n_dims = n_dims
-
-        # initialize the list of run record fields that are variable length
-        self._run_records_fields_vlen = []
-
+        self._n_coords = None
 
         # set hidden feature shapes and dtype, which are only
         # referenced if needed when trajectories are created. These
@@ -201,6 +204,8 @@ class WepyHDF5(object):
         # file
         self._field_feature_shapes_kwarg = feature_shapes
         self._field_feature_dtypes_kwarg = feature_dtypes
+        self._field_feature_dtypes = None
+        self._field_feature_shapes = None
 
         # save the sparse fields as a private variable for use in the
         # create constructor
@@ -222,73 +227,16 @@ class WepyHDF5(object):
         else:
             self._alt_reps = {}
 
-        # counter for the new runs, specific constructors will update
-        # this if needed
-        self._run_idx_counter = 0
-        # count the number of trajectories each run has
-        self._run_traj_idx_counter = {}
 
-        # the counter for the cycle the records are on, incremented
-        # each time the add_cycle_resampling_records is called
-        self._current_resampling_rec_cycle = 0
-
-        # for each run there will be a special mapping for the
-        # instruction dtypes which we need for a single session,
-        # stored here organized by run (int) as the key
-        self.instruction_dtypes_tokens = {}
-
-
-        # the dtypes for the record group instruction records
-        self.run_record_dtypes = {}
-
-
-        ## OLD
-        # the dtypes for the resampling auxiliary data
-        self.resampling_aux_dtypes = {}
-        self.resampling_aux_shapes = {}
-        # whether or not the auxiliary datasets have been initialized
-        self._resampling_aux_init = []
-
-        # initialize the attribute for the dtype for the boundary
-        # conditions warp records
-        self.warp_dtype = None
-
-        # the dtypes for warping auxiliary data
-        self.warp_aux_dtypes = {}
-        self.warp_aux_shapes = {}
-        # whether or not the auxiliary datasets have been initialized
-        self._warp_aux_init = []
-
-        # the dtypes for the boundary conditions auxiliary data
-        self.bc_aux_dtypes = {}
-        self.bc_aux_shapes = {}
-        # whether or not the auxiliary datasets have been initialized
-        self._bc_aux_init = []
-        ##
-
-        ### HDF5 file wrapper specific variables
-
-        # all the keys for the top-level items in this class
-        self._keys = ['topology', 'runs', 'resampling', 'warping']
-
-        # initialize the exist flags, which say whether a dataset
-        # exists or not
-        self._exist_flags = {key : False for key in self._keys}
-
-        # initialize the append flags dictionary, this keeps track of
-        # whether a data field can be appended to or not
-        self._append_flags = {key : True for key in self._keys}
-
-        # TODO Dataset Complianaces
-
-        # open the file
+        # open the file and then run the different constructors based
+        # on the mode
         with h5py.File(filename, mode=self._h5py_mode) as h5:
             self._h5 = h5
 
             # create file mode: 'w' will create a new file or overwrite,
             # 'w-' and 'x' will not overwrite but will create a new file
             if self._wepy_mode in ['w', 'w-', 'x']:
-                self._create_init(topology, units)
+                self._create_init()
 
             # read/write mode: in this mode we do not completely overwrite
             # the old file and start again but rather write over top of
@@ -298,34 +246,51 @@ class WepyHDF5(object):
 
             # add mode: read/write create if doesn't exist
             elif self._wepy_mode in ['a']:
-                self._add_init(topology, units)
-
-            # append mode
-            elif self._wepy_mode in ['c', 'c-']:
-                # use the hidden init function for appending data
-                self._append_init()
+                if osp.exists(self._filename):
+                    self._read_write_init()
+                else:
+                    self._create_init()
 
             # read only mode
             elif self._wepy_mode == 'r':
+
                 # if any data was given, warn the user
-                if topology is not None:
-                   warn("Cannot set topology on read only", RuntimeWarning)
+                if any([kwarg is not None for kwarg in
+                        [topology, units, sparse_fields,
+                         feature_shapes, feature_dtypes,
+                         n_dims, alt_reps, main_rep_idxs]]):
+                   warn("Data was given but opening in read-only mode", RuntimeWarning)
 
                 # then run the initialization process
                 self._read_init()
 
+            # flush the buffers
             self._h5.flush()
 
             # set the h5py mode to the value in the actual h5py.File
             # object after creation
             self._h5py_mode = self._h5.mode
 
+        # get rid of the temporary variables
+        del self._topology
+        del self._units
+        del self._n_dims
+        del self._n_coords
+        del self._field_feature_shapes_kwarg
+        del self._field_feature_dtypes_kwarg
+        del self._field_feature_shapes
+        del self._field_feature_dtypes
+        del self._sparse_fields
+        del self._main_rep_idxs
+        del self._alt_reps
 
-        # should be closed after initialization unless it is read and/or readwrite
+        # variable to reflect if it is closed or not, should be closed
+        # after initialization
         self.closed = True
 
+        # end of the constructor
+        return None
 
-        # TODO update the compliance type flags of the dataset
 
     # context manager methods
 
@@ -338,53 +303,26 @@ class WepyHDF5(object):
         self._h5.flush()
         self.close()
 
-    def _update_exist_flags(self):
-        """Inspect the hdf5 object and set flags if data exists for the fields."""
-        for key in self._keys:
-            if key in list(self._h5.keys()):
-                self._exist_flags[key] = True
-            else:
-                self._exist_flags[key] = False
 
-    def _update_append_flags(self):
-        """Sets flags to False (they are initialized to True) if the dataset
-        currently exists."""
-        for dataset_key, exist_flag in self._exist_flags.items():
-            if exist_flag:
-                self._append_flags[dataset_key] = False
+    # custom deepcopy to avoid copying the actual HDF5 object
 
-    def _update_compliance_flags(self):
-        """Checks whether the flags for different datasets and updates the
-        flags for the compliance groups."""
-        for compliance_type in COMPLIANCE_TAGS:
-            # check if compliance for this type is met
-            result = self._check_compliance_keys(compliance_type)
-            # set the flag
-            self._compliance_flags[compliance_type] = result
 
-    def _check_compliance_keys(self, compliance_type):
-        """Checks whether the flags for the datasets have been set to True."""
-        results = []
-        compliance_requirements = dict(COMPLIANCE_REQUIREMENTS)
-        # go through each required dataset for this compliance
-        # requirements and see if they exist
-        for dataset_key in compliance_requirements[compliance_type]:
-            results.append(self._exist_flags[dataset_key])
-        return all(results)
-
-    def _create_init(self, topology, units):
+    # constructors
+    def _create_init(self):
         """Completely overwrite the data in the file. Reinitialize the values
         and set with the new ones if given."""
 
-        assert topology is not None, "Topology must be given"
+        assert self._topology is not None, \
+            "Topology must be given for a creation constructor"
 
-        # assign the topology
-        self.topology = topology
-
-        # attributes needed just for construction
+        # initialize the runs group
+        runs_grp = self._h5.create_group('runs')
 
         # initialize the settings group
         settings_grp = self._h5.create_group('_settings')
+
+        # create the topology dataset
+        self._h5.create_dataset('topology', data=self._topology)
 
         # sparse fields
         if self._sparse_fields is not None:
@@ -408,7 +346,9 @@ class WepyHDF5(object):
 
         # field feature shapes and dtypes
 
-        # initialize to the defaults
+        # initialize to the defaults, this gives values to
+        # self._n_coords, and self.field_feature_dtypes, and
+        # self.field_feature_shapes
         self._set_default_init_field_attributes(n_dims=self._n_dims)
 
         # save the number of dimensions and number of atoms in settings
@@ -465,13 +405,13 @@ class WepyHDF5(object):
         unit_grp = self._h5.create_group('units')
 
         # if units were not given set them all to None
-        if units is None:
-            units = {}
+        if self._units is None:
+            self._units = {}
             for field_path in self._field_feature_shapes.keys():
-                units[field_path] = None
+                self._units[field_path] = None
 
         # set the units
-        for field_path, unit_value in units.items():
+        for field_path, unit_value in self._units.items():
 
             # ignore the field if not given
             if unit_value is None:
@@ -486,60 +426,29 @@ class WepyHDF5(object):
         records_grp = settings_grp.create_group('record_fields')
 
         # create a dataset for the continuation run tuples
-        # (continuation_run, continues_run), where the first element
+        # (continuation_run, base_run), where the first element
         # of the new run that is continuing the run in the second
         # position
-        settings_grp.create_dataset('continuations', shape=(0,2), dtype=np.int,
-                                    maxshape=(None, 2))
-
+        self._init_continuations()
 
     def _read_write_init(self):
         """Write over values if given but do not reinitialize any old ones. """
 
         self._read_init()
 
-        # set the counter for runs based on the groups already present
-        for run_grp in enumerate(self.h5['runs']):
-            self._run_idx_counter += 1
-
-    def _add_init(self, topology, units):
+    def _add_init(self):
         """Create the dataset if it doesn't exist and put it in r+ mode,
         otherwise, just open in r+ mode."""
 
-        # set the flags for existing data
-        self._update_exist_flags()
-
         if not any(self._exist_flags):
-            self._create_init(topology)
+            self._create_init()
         else:
             self._read_write_init()
 
-    def _append_init(self):
-        """Append mode initialization. Checks for given data and sets flags,
-        and adds new data if given."""
-
-        # if the file has any data to start we write the data to it
-        if not any(self._exist_flags):
-            self.topology = topology
-            if self._wepy_mode == 'c-':
-                self._update_append_flags()
-        # otherwise we first set the flags for what data was read and
-        # then add to it only
-        else:
-            # initialize the flags from the read data
-            self._update_exist_flags()
-
-            # restrict append permissions for those that have their flags
-            # set from the read init
-            if self._wepy_mode == 'c-':
-                self._update_append_flags()
-
     def _read_init(self):
-        """Read only mode initialization. Simply checks for the presence of
-        and sets attribute flags."""
-        # we just need to set the flags for which data is present and
-        # which is not
-        self._update_exist_flags()
+        """Read only initialization currently has nothing to do."""
+
+        pass
 
     def _get_field_path_grp(self, run_idx, traj_idx, field_path):
         """Given a field path for the trajectory returns the group the field's
@@ -604,6 +513,7 @@ class WepyHDF5(object):
         self._field_feature_shapes = field_feature_shapes
         self._field_feature_dtypes = field_feature_dtypes
 
+
     @property
     def filename(self):
         return self._filename
@@ -623,6 +533,62 @@ class WepyHDF5(object):
     # TODO is this right? shouldn't we actually delete the data then close
     def __del__(self):
         self.close()
+
+    def clone(self, path, mode='x'):
+        """Clones this WepyHDF5 file without any of the actual runs and run
+        data. This includes the topology, units, sparse_fields,
+        feature shapes and dtypes, alt_reps, and main representation
+        information.
+
+        This method will flush the buffers for this file.
+
+        Does not preserve metadata pertaining to inter-run
+        relationships like continuations.
+
+        """
+
+        assert mode in ['w', 'w-', 'x'], "must be opened in a file creation mode"
+
+        # we manually construct an HDF5 and copy the groups over
+        new_h5 = h5py.File(path, mode=mode)
+
+        new_h5.create_group('runs')
+
+        # flush the datasets buffers
+        self.h5.flush()
+        new_h5.flush()
+
+        # copy the existing datasets to the new one
+        h5py.h5o.copy(self._h5.id, b'topology', new_h5.id, b'topology')
+        h5py.h5o.copy(self._h5.id, b'units', new_h5.id, b'units')
+        h5py.h5o.copy(self._h5.id, b'_settings', new_h5.id, b'_settings')
+
+        # for the settings we need to get rid of the data for interun
+        # relationships like the continuations, so we reinitialize the
+        # continuations
+        self._init_continuations()
+
+        # now make a WepyHDF5 object in "expert_mode" which means it
+        # is just empy and we construct it manually, "surgically" as I
+        # like to call it
+        new_wepy_h5 = WepyHDF5(path, expert_mode=True)
+
+        # perform the surgery:
+
+        # attach the h5py.File
+        new_wepy_h5._h5 = new_h5
+        # set the wepy mode to read-write since the creation flags
+        # were already used in construction of the h5py.File object
+        new_wepy_h5._wepy_mode = 'r+'
+        new_wepy_h5._h5py_mode = 'r+'
+
+        # close the h5py.File and set the attribute to closed
+        new_wepy_h5._h5.close()
+        new_wepy_h5.closed = True
+
+
+        # return the runless WepyHDF5 object
+        return new_wepy_h5
 
     @property
     def mode(self):
@@ -662,28 +628,6 @@ class WepyHDF5(object):
         """
         return self._h5['topology'][()]
 
-
-    @topology.setter
-    def topology(self, topology):
-        try:
-            json_d = json.loads(topology)
-            del json_d
-        except json.JSONDecodeError:
-            raise ValueError("topology must be a valid JSON string")
-
-        # check to see if this is the initial setting of it
-        if not self._exist_flags['topology']:
-            self._h5.create_dataset('topology', data=topology)
-            self._exist_flags['topology'] = True
-            # if we are in strict append mode we cannot append after we create something
-            if self._wepy_mode == 'c-':
-                self._append_flags['topology'] = False
-
-        # if not replace the old one if we are in a non-concatenate write mode
-        elif self._wepy_mode in ['w', 'r+', 'x', 'w-', 'a']:
-            self._h5['topology'][()] = topology
-        else:
-            raise IOError("In mode {} and cannot modify topology".format(self._wepy_mode))
 
     def get_mdtraj_topology(self, alt_rep=POSITIONS):
         """Get an MDTraj `Topology` object for a subset of the atoms in the
@@ -780,6 +724,10 @@ class WepyHDF5(object):
         return dtypes
 
     @property
+    def continuations(self):
+        return self.settings_grp['continuations'][:]
+
+    @property
     def metadata(self):
         return dict(self._h5.attrs)
 
@@ -798,6 +746,8 @@ class WepyHDF5(object):
     def run_idxs(self):
         return list(range(len(self._h5['runs'])))
 
+    def next_run_idx(self):
+        return self.n_runs
 
     def run(self, run_idx):
         return self._h5['runs/{}'.format(int(run_idx))]
@@ -814,11 +764,27 @@ class WepyHDF5(object):
     def run_n_cycles(self, run_idx):
         return self.run_n_frames(run_idx)
 
+    def contig_n_cycles(self, run_idxs):
+
+        # check the contig to make sure it is a valid contig
+        if not self.is_contig(run_idxs):
+            raise ValueError("The run_idxs provided are not a valid contig, {}.".format(
+                run_idxs))
+
+        n_cycles = 0
+        for run_idx in run_idxs:
+            n_cycles += self.run_n_cycles(run_idx)
+
+        return n_cycles
+
     def run_trajs(self, run_idx):
         return self._h5['runs/{}/trajectories'.format(run_idx)]
 
     def n_run_trajs(self, run_idx):
         return len(self._h5['runs/{}/trajectories'.format(run_idx)])
+
+    def next_run_traj_idx(self, run_idx):
+        return self.n_run_trajs(run_idx)
 
     def run_traj_idxs(self, run_idx):
         return range(len(self._h5['runs/{}/trajectories'.format(run_idx)]))
@@ -834,6 +800,26 @@ class WepyHDF5(object):
                 tups.append((run_idx, traj_idx))
 
         return tups
+
+    def _init_continuations(self):
+        """This will either create a dataset in the settings for the
+        continuations or if continuations already exist it will reinitialize
+        them and delete the data that exists there.
+
+        """
+
+        # if the continuations dset already exists we reinitialize the
+        # data
+        if 'continuations' in self.settings_grp:
+            cont_dset = self.settings_grp['continuations']
+            cont_dset.resize( (0,2) )
+
+        # otherwise we just create the data
+        else:
+            cont_dset = self.settings_grp.create_dataset('continuations', shape=(0,2), dtype=np.int,
+                                    maxshape=(None, 2))
+
+        return cont_dset
 
 
     def init_record_fields(self, run_record_key, record_fields):
@@ -888,29 +874,112 @@ class WepyHDF5(object):
 
         return record_fields_dict
 
-    def new_run(self, continue_run=None, **kwargs):
-        # create a new group named the next integer in the counter
-        run_grp = self._h5.create_group('runs/{}'.format(str(self._run_idx_counter)))
-
-        # initialize this run's counter for the number of trajectories
-        self._run_traj_idx_counter[self._run_idx_counter] = 0
+    def _add_run_init(self, run_idx, continue_run=None):
+        """Routines for creating a run includes updating and setting object
+        global variables, increasing the counter for the number of runs."""
 
         # add the run idx as metadata in the run group
-        self._h5['runs/{}'.format(self._run_idx_counter)].attrs['run_idx'] = self._run_idx_counter
+        self._h5['runs/{}'.format(run_idx)].attrs['run_idx'] = run_idx
 
         # if this is continuing another run add the tuple (this_run,
         # continues_run) to the contig settings
         if continue_run is not None:
-            contig_dset = self.settings_grp['continuations']
-            contig_dset.resize((contig_dset.shape[0] + 1, contig_dset.shape[1],))
-            contig_dset[contig_dset.shape[0] - 1] = np.array([self._run_idx_counter, continue_run])
 
-        # increment the run idx counter
-        self._run_idx_counter += 1
+            self._add_continuation(run_idx, continue_run)
+
+
+    def _add_continuation(self, continuation_run, base_run):
+        """Add a continuation between runs.
+
+        continuation_run :: the run index of the run that continues base_run
+
+        base_run :: the run that is being continued
+
+        """
+
+        continuations_dset = self.settings_grp['continuations']
+        continuations_dset.resize((continuations_dset.shape[0] + 1, continuations_dset.shape[1],))
+        continuations_dset[continuations_dset.shape[0] - 1] = np.array([continuation_run, base_run])
+
+    def link_run(self, filepath, run_idx, continue_run=None, **kwargs):
+        """Add a run from another file to this one as an HDF5 external
+        link. Intuitively this is like mounting a drive in a filesystem."""
+
+        # link to the external run
+        ext_run_link = h5py.ExternalLink(filepath, 'runs/{}'.format(run_idx))
+
+        # the run index in this file, as determined by the counter
+        here_run_idx = self.next_run_idx()
+
+        # set the local run as the external link to the other run
+        self._h5['runs/{}'.format(here_run_idx)] = ext_run_link
+
+        # run the initialization routines for adding a run
+        self._add_run_init(here_run_idx, continue_run=continue_run)
+
+        # add metadata if given
+        for key, val in kwargs.items():
+            if key != 'run_idx':
+                run_grp.attrs[key] = val
+            else:
+                warn('run_idx metadata is set by wepy and cannot be used', RuntimeWarning)
+
+        return self._h5['runs/{}'.format(here_run_idx)]
+
+    def link_file_runs(self, wepy_h5_path):
+        """Link all runs from another WepyHDF5 file. This preserves
+        continuations within that file. This will open the file if not
+        already opened.
+
+        returns the indices of the new runs in this file.
+
+        """
+
+        wepy_h5 = WepyHDF5(wepy_h5_path, mode='r')
+        with wepy_h5:
+
+            # add the runs
+            new_run_idxs = []
+            for ext_run_idx in wepy_h5.run_idxs:
+                new_run_idxs.append(self.next_run_idx())
+                new_run_grp = self.link_run(wepy_h5_path, ext_run_idx)
+
+            # copy the continuations over translating the run idxs,
+            # for each continuation in the other files continuations
+            for continuation in wepy_h5.continuations:
+
+                # translate each run index from the external file
+                # continuations to the run idxs they were just assigned in
+                # this file
+                self._add_continuation(new_run_idxs[continuation[0]],
+                                       new_run_idxs[continuation[1]])
+
+        return new_run_idxs
+
+
+    def new_run(self, continue_run=None, **kwargs):
+
+        # check to see if the continue_run is actually in this file
+        if continue_run is not None:
+            if continue_run not in self.run_idxs:
+                raise ValueError("The continue_run idx given, {}, is not present in this file".format(
+                    continue_run))
+
+        # get the index for this run
+        new_run_idx = self.next_run_idx()
+
+        # create a new group named the next integer in the counter
+        run_grp = self._h5.create_group('runs/{}'.format(new_run_idx))
 
         # initialize the walkers group
         traj_grp = run_grp.create_group('trajectories')
 
+
+        # run the initialization routines for adding a run
+        self._add_run_init(new_run_idx, continue_run=continue_run)
+
+
+        # TODO get rid of this?
         # add metadata if given
         for key, val in kwargs.items():
             if key != 'run_idx':
@@ -1074,9 +1143,6 @@ class WepyHDF5(object):
             dset = record_grp.create_dataset(field_name, (0,), dtype=vlen_dt,
                                         maxshape=(None,))
 
-            # add it to the listing of records fields with variable lengths
-            self._run_records_fields_vlen.append('{}/{}'.format(run_record_key, field_name))
-
         # its not just make it normally
         else:
             # create the group
@@ -1176,7 +1242,7 @@ class WepyHDF5(object):
                 "weights and the number of frames must be the same length"
 
         # current traj_idx
-        traj_idx = self._run_traj_idx_counter[run_idx]
+        traj_idx = self.next_run_traj_idx(run_idx)
         # make a group for this trajectory, with the current traj_idx
         # for this run
         traj_grp = self._h5.create_group(
@@ -1195,9 +1261,6 @@ class WepyHDF5(object):
             else:
                 warn("run_idx and traj_idx are used by wepy and cannot be set", RuntimeWarning)
 
-
-        # increment the traj_idx_count for this run
-        self._run_traj_idx_counter[run_idx] += 1
 
         # check to make sure the positions are the right shape
         assert traj_data[POSITIONS].shape[1] == self.n_atoms, \
@@ -1600,10 +1663,15 @@ class WepyHDF5(object):
         # of datase new frames
         n_new_frames = field_data.shape[0]
 
-        # check whether it is a variable length record
-        field_path = '{}/{}'.format(run_record_key, field_name)
-        if field_path in self._run_records_fields_vlen:
+        # check whether it is a variable length record, by getting the
+        # record dataset dtype and using the checker to see if it is
+        # the vlen special type in h5py
+        if h5py.check_dtype(vlen=field.dtype) is not None:
 
+            # if it is we have to treat it differently, since it
+            # cannot be multidimensional
+
+            # if the dataset has no data in it we need to reshape it
             if all([i == 0 for i in field.shape]):
                 # initialize this array
                 # if it is empty resize it to make an array the size of
@@ -1615,6 +1683,7 @@ class WepyHDF5(object):
                 for i, row in enumerate(field_data):
                     field[i] = row
 
+            # otherwise just add the data
             else:
 
                 # resize the array but it is only of rank because
@@ -1625,7 +1694,11 @@ class WepyHDF5(object):
                 for i, row in enumerate(field_data):
                     field[(field.shape[0] - 1) + i] = row
 
+        # if it is not variable length we don't have to treat it
+        # differently
         else:
+
+            # if this is empty we need to reshape the dataset to accomodate data
             if all([i == 0 for i in field.shape]):
 
                 # check the feature shape against the maxshape which gives
@@ -1642,6 +1715,7 @@ class WepyHDF5(object):
                 # set the new data to this
                 field[0:, ...] = field_data
 
+            # otherwise just add the data
             else:
                 # append to the dataset on the first dimension, keeping the
                 # others the same, these must be feature vectors and therefore
@@ -2167,6 +2241,165 @@ class WepyHDF5(object):
         if return_results:
             return results
 
+    @classmethod
+    def _spanning_paths(cls, edges, root):
+
+        # nodes targetting this root
+        root_sources = []
+
+        # go through all the edges and find those with this
+        # node as their target
+        for edge_source, edge_target in edges:
+
+            # check if the target_node we are looking for matches
+            # the edge target node
+            if root == edge_target:
+
+                # if this root is a target of the source add it to the
+                # list of edges targetting this root
+                root_sources.append(edge_source)
+
+        # from the list of source nodes targetting this root we choose
+        # the lowest index one, so we sort them and iterate through
+        # finding the paths starting from it recursively
+        root_paths = []
+        root_sources.sort()
+        for new_root in root_sources:
+
+            # add these paths for this new root to the paths for the
+            # current root
+            root_paths.extend(cls._spanning_paths(edges, new_root))
+
+        # if there are no more sources to this root it is a leaf node and
+        # we terminate recursion, by not entering the loop above, however
+        # we manually generate an empty list for a path so that we return
+        # this "root" node as a leaf, for default.
+        if len(root_paths) < 1:
+            root_paths = [[]]
+
+        final_root_paths = []
+        for root_path in root_paths:
+            final_root_paths.append([root] + root_path)
+
+        return final_root_paths
+
+    def spanning_contigs(self):
+        """Returns a list of all possible spanning contigs given the
+        continuations present in this file. Contigs are a list of runs
+        in the order that makes a continuous set of data. Spanning
+        contigs are always as long as possible, thus all must start
+        from a root and end at a leaf node.
+
+        This algorithm always returns them in a canonical order (as
+        long as the runs are not rearranged after being added). This
+        means that the indices here are the indices of the contigs.
+
+        Contigs can in general are any such path drawn from what we
+        call the "contig tree" which is the tree (or forest of trees)
+        generated by the directed edges of the 'continuations'. They
+        needn't be spanning from root to leaf.
+
+        """
+
+        # a list of all the unique nodes (runs)
+        nodes = list(self.run_idxs)
+
+        # first find the roots of the forest, start with all of them
+        # and eliminate them if any directed edge points out of them
+        # (in the first position of a continuation; read a
+        # continuation (say (B,A)) as B continues A, thus the edge is
+        # A <- B)
+        roots = nodes
+        for edge_source, edge_target in self.continuations:
+
+            # if the edge source node is still in roots pop it out,
+            # because a root can never be a source in an edge
+            if edge_source in roots:
+                _ = roots.pop(roots.index(edge_source))
+
+        # collect all the spanning contigs
+        spanning_contigs = []
+
+        # roots should be sorted already, so we just iterate over them
+        for root in roots:
+
+            # get the spanning paths by passing the continuation edges
+            # and this root to this recursive static method
+            root_spanning_contigs = self._spanning_paths(self.continuations, root)
+
+            spanning_contigs.extend(root_spanning_contigs)
+
+        return spanning_contigs
+
+    def is_contig(self, run_idxs):
+        """This method checks that if a given list of run indices is a valid
+        contig or not.
+        """
+        run_idx_continuations = [np.array([run_idxs[idx+1], run_idxs[idx]])
+                            for idx in range(len(run_idxs)-1)]
+        #gets the contigs array
+        continuations = self.settings_grp['continuations'][:]
+
+        # checks if sub contigs are in contigs list or not.
+        for run_continuous in run_idx_continuations:
+            contig = False
+            for continuous in continuations:
+                if np.array_equal(run_continuous, continuous):
+                    contig = True
+            if not contig:
+                return False
+
+        return True
+
+
+    def contig_trace_to_trace(self, run_idxs, contig_trace):
+        """This method takes a trace of frames over the given contig
+        (run_idxs), itself a list of tuples (traj_idx, cycle_idx) and
+        converts it to a trace valid for actually accessing values
+        from a WepyHDF5 object i.e. a list of tuples
+        (run_idx, traj_idx, cycle_idx).
+
+        """
+
+        # check the contig to make sure it is a valid contig
+        if not self.is_contig(run_idxs):
+            raise ValueError("The run_idxs provided are not a valid contig, {}.".format(
+                run_idxs))
+
+        # get the number of cycles in each of the runs in the contig
+        runs_n_cycles = []
+        for run_idx in run_idxs:
+            runs_n_cycles.append(self.run_n_cycles(run_idx))
+
+        # cumulative number of cycles
+        run_cum_cycles = np.cumsum(runs_n_cycles)
+
+        # add a zero to the beginning for the starting point of no
+        # frames
+        run_cum_cycles = np.hstack( ([0], run_cum_cycles) )
+
+        # go through the frames of the contig trace and convert them
+        new_trace = []
+        for traj_idx, contig_cycle_idx in contig_trace:
+
+            # get the index of the run that this cycle idx of the
+            # contig is in
+            frame_run_idx = np.searchsorted(run_cum_cycles, contig_cycle_idx, side='right') - 1
+
+            # use that to get the total number of frames up until the
+            # point of that and subtract that from the contig cycle
+            # idx to get the cycle index in the run
+            run_frame_idx = contig_cycle_idx - run_cum_cycles[frame_run_idx]
+
+            # the tuple for this frame for the whole file
+            trace_frame_idx = (frame_run_idx, traj_idx, run_frame_idx)
+
+            # add it to the trace
+            new_trace.append(trace_frame_idx)
+
+        return new_trace
+
+
     def records_grp(self, run_idx, run_record_key):
         path = "runs/{}/{}".format(run_idx, run_record_key)
         return self.h5[path]
@@ -2188,6 +2421,14 @@ class WepyHDF5(object):
 
     def run_records(self, run_idx, run_record_key):
 
+        # wrap this in a list since the underlying functions accept a
+        # list of records
+        run_idxs = [run_idx]
+
+        return self.contig_records(run_idxs, run_record_key)
+
+    def contig_records(self, run_idxs, run_record_key):
+
         # if there are no fields return an empty list
         record_fields = self.record_fields[run_record_key]
         if len(record_fields) == 0:
@@ -2196,11 +2437,12 @@ class WepyHDF5(object):
         # get the iterator for the record idxs, if the group is
         # sporadic then we just use the cycle idxs
         if self._is_sporadic_records(run_record_key):
-            records = self._run_records_sporadic(run_idx, run_record_key)
+            records = self._run_records_sporadic(run_idxs, run_record_key)
         else:
-            records = self._run_records_continual(run_idx, run_record_key)
+            records = self._run_records_continual(run_idxs, run_record_key)
 
         return records
+
 
     def _run_record_namedtuple(self, run_record_key):
 
@@ -2267,33 +2509,99 @@ class WepyHDF5(object):
 
         return records
 
-    def _run_records_sporadic(self, run_idx, run_record_key):
+    def _run_records_sporadic(self, run_idxs, run_record_key):
 
-        # get all the value columns from the datasets, and convert
-        # them to something amenable to a table
-        fields = self._convert_record_fields_to_table_columns(run_idx, run_record_key)
+        # we loop over the run_idxs in the contig and get the fields
+        # and cycle idxs for the whole contig
+        fields = None
+        cycle_idxs = np.array([], dtype=int)
+        # keep a cumulative total of the runs cycle idxs
+        prev_run_cycle_total = 0
+        for run_idx in run_idxs:
 
-        # get the cycle idxs
-        rec_grp = self.records_grp(run_idx, run_record_key)
-        cycle_idxs = rec_grp[CYCLE_IDXS][:]
+            # get all the value columns from the datasets, and convert
+            # them to something amenable to a table
+            run_fields = self._convert_record_fields_to_table_columns(run_idx, run_record_key)
+
+            # we need to concatenate each field to the end of the
+            # field in the master dictionary, first we need to
+            # initialize it if it isn't already made
+            if fields is None:
+                # if it isn't initialized we just set it as this first
+                # run fields dictionary
+                fields = run_fields
+            else:
+                # if it is already initialized we need to go through
+                # each field and concatenate
+                for field_name, field_data in run_fields.items():
+                    # just add it to the list of fields that will be concatenated later
+                    fields[field_name].extend(field_data)
+
+            # get the cycle idxs for this run
+            rec_grp = self.records_grp(run_idx, run_record_key)
+            run_cycle_idxs = rec_grp[CYCLE_IDXS][:]
+
+            # add the total number of cycles that came before this run
+            # to each of the cycle idxs to get the cycle_idxs in terms
+            # of the full contig
+            run_contig_cycle_idxs = run_cycle_idxs + prev_run_cycle_total
+
+            # add these cycle indices to the records for the whole contig
+            cycle_idxs = np.hstack( (cycle_idxs, run_contig_cycle_idxs) )
+
+            # add the total number of cycle_idxs from this run to the
+            # running total
+            prev_run_cycle_total += self.run_n_cycles(run_idx)
 
         # then make the records from the fields
         records = self._make_records(run_record_key, cycle_idxs, fields)
 
         return records
 
-    def _run_records_continual(self, run_idx, run_record_key):
+    def _run_records_continual(self, run_idxs, run_record_key):
 
-        # get all the value columns from the datasets, and convert
-        # them to something amenable to a table
-        fields = self._convert_record_fields_to_table_columns(run_idx, run_record_key)
+        cycle_idxs = np.array([], dtype=int)
+        fields = None
+        prev_run_cycle_total = 0
+        for run_idx in run_idxs:
+            # get all the value columns from the datasets, and convert
+            # them to something amenable to a table
+            run_fields = self._convert_record_fields_to_table_columns(run_idx, run_record_key)
 
-        # get one of the fields (if any to iterate over)
-        record_fields = self.record_fields[run_record_key]
-        main_record_field = record_fields[0]
+            # we need to concatenate each field to the end of the
+            # field in the master dictionary, first we need to
+            # initialize it if it isn't already made
+            if fields is None:
+                # if it isn't initialized we just set it as this first
+                # run fields dictionary
+                fields = run_fields
+            else:
+                # if it is already initialized we need to go through
+                # each field and concatenate
+                for field_name, field_data in run_fields.items():
+                    # just add it to the list of fields that will be concatenated later
+                    fields[field_name].extend(field_data)
 
-        # make the cycle idxs from that
-        cycle_idxs = list(range(rec_grp[main_record_field].shape[0]))
+            # get one of the fields (if any to iterate over)
+            record_fields = self.record_fields[run_record_key]
+            main_record_field = record_fields[0]
+
+            # make the cycle idxs from that
+            run_rec_grp = self.records_grp(run_idx, run_record_key)
+            run_cycle_idxs = list(range(run_rec_grp[main_record_field].shape[0]))
+
+            # add the total number of cycles that came before this run
+            # to each of the cycle idxs to get the cycle_idxs in terms
+            # of the full contig
+            run_contig_cycle_indices = run_cycle_idxs + prev_run_cycle_total
+
+            # add these cycle indices to the records for the whole contig
+            cycle_idxs = np.hstack( (cycle_idxs, run_contig_cycle_idxs) )
+
+            # add the total number of cycle_idxs from this run to the
+            # running total
+            prev_run_cycle_total += self.run_n_cycles(run_idx)
+
 
         # then make the records from the fields
         records = self._make_records(run_record_key, cycle_idxs, fields)
@@ -2304,52 +2612,56 @@ class WepyHDF5(object):
         records = self.run_records(run_idx, run_record_key)
         return pd.DataFrame(records)
 
+    def contig_records_dataframe(self, run_idxs, run_record_key):
+        records = self.contig_records(run_idxs, run_record_key)
+        return pd.DataFrame(records)
+
     # application level specific methods for each main group
 
     # resampling
-    def resampling_records(self, run_idx):
+    def resampling_records(self, run_idxs):
 
-        return self.run_records(run_idx, RESAMPLING)
+        return self.contig_records(run_idxs, RESAMPLING)
 
-    def resampling_records_dataframe(self, run_idx):
+    def resampling_records_dataframe(self, run_idxs):
 
-        return pd.DataFrame(self.resampling_records(run_idx))
+        return pd.DataFrame(self.resampling_records(run_idxs))
 
     # resampler records
-    def resampler_records(self, run_idx):
+    def resampler_records(self, run_idxs):
 
-        return self.run_records(run_idx, RESAMPLER)
+        return self.contig_records(run_idxs, RESAMPLER)
 
-    def resampler_records_dataframe(self, run_idx):
+    def resampler_records_dataframe(self, run_idxs):
 
-        return pd.DataFrame(self.resampler_records(run_idx))
+        return pd.DataFrame(self.resampler_records(run_idxs))
 
     # warping
-    def warping_records(self, run_idx):
+    def warping_records(self, run_idxs):
 
-        return self.run_records(run_idx, WARPING)
+        return self.contig_records(run_idxs, WARPING)
 
-    def warping_records_dataframe(self, run_idx):
+    def warping_records_dataframe(self, run_idxs):
 
-        return pd.DataFrame(self.warping_records(run_idx))
+        return pd.DataFrame(self.warping_records(run_idxs))
 
     # boundary conditions
-    def bc_records(self, run_idx):
+    def bc_records(self, run_idxs):
 
-        return self.run_records(run_idx, BC)
+        return self.contig_records(run_idxs, BC)
 
-    def bc_records_dataframe(self, run_idx):
+    def bc_records_dataframe(self, run_idxs):
 
-        return pd.DataFrame(self.bc_records(run_idx))
+        return pd.DataFrame(self.bc_records(run_idxs))
 
     # progress
-    def progress_records(self, run_idx):
+    def progress_records(self, run_idxs):
 
-        return self.run_records(run_idx, PROGRESS)
+        return self.contig_records(run_idxs, PROGRESS)
 
-    def progress_records_dataframe(self, run_idx):
+    def progress_records_dataframe(self, run_idxs):
 
-        return pd.DataFrame(self.progress_records(run_idx))
+        return pd.DataFrame(self.progress_records(run_idxs))
 
     @staticmethod
     def resampling_panel(resampling_records, is_sorted=False):
@@ -2460,7 +2772,19 @@ class WepyHDF5(object):
 
 
     def run_resampling_panel(self, run_idx):
-        return self.resampling_panel(self.resampling_records(run_idx))
+        return self.contig_resampling_panel([run_idx])
+
+
+    def contig_resampling_panel(self, run_idxs):
+        # check the contig to make sure it is a valid contig
+        if not self.is_contig(run_idxs):
+            raise ValueError("The run_idxs provided are not a valid contig, {}.".format(
+                run_idxs))
+
+        # make the resampling panel from the resampling records for the contig
+        contig_resampling_panel = self.resampling_panel(self.resampling_records(run_idxs))
+
+        return contig_resampling_panel
 
     def join(self, other_h5):
         """Given another WepyHDF5 file object does a left join on this
@@ -2472,10 +2796,7 @@ class WepyHDF5(object):
                 # the other run group handle
                 other_run = h5.run(run_idx)
                 # copy this run to this file in the next run_idx group
-                self.h5.copy(other_run, 'runs/{}'.format(self._run_idx_counter))
-                # increment the run_idx counter
-                self._run_idx_counter += 1
-
+                self.h5.copy(other_run, 'runs/{}'.format(self.next_run_idx()))
 
     def to_mdtraj(self, run_idx, traj_idx, frames=None, alt_rep=None):
 
@@ -2578,7 +2899,7 @@ class WepyHDF5(object):
         return traj
 
 
-## DATA COMPLIANCE STUFF
+
 def _check_data_compliance(traj_data, compliance_requirements=COMPLIANCE_REQUIREMENTS):
     """Given a dictionary of trajectory data it returns the
        COMPLIANCE_TAGS that the data satisfies. """

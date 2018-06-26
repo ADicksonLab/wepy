@@ -50,10 +50,10 @@ class WepyHDF5Reporter(FileReporter):
         self.save_fields = save_fields
         # dictionary of sparse_field_name -> int : frequency of cycles
         # to save the field
-        self.sparse_fields = sparse_fields
-        self.feature_shapes = feature_shapes
-        self.feature_dtypes = feature_dtypes
-        self.n_dims = n_dims
+        self._sparse_fields = sparse_fields
+        self._feature_shapes = feature_shapes
+        self._feature_dtypes = feature_dtypes
+        self._n_dims = n_dims
 
         # get and set the record fields (naems, shapes, dtypes) for
         # the resampler and the boundary conditions
@@ -144,7 +144,7 @@ class WepyHDF5Reporter(FileReporter):
 
             # add the frequencies for these alt_reps to the
             # sparse_fields frequency dictionary
-            self.sparse_fields.update({"alt_reps/{}".format(key): tup[1] for key, tup
+            self._sparse_fields.update({"alt_reps/{}".format(key): tup[1] for key, tup
                                        in alt_reps.items()})
         else:
             self.alt_reps_idxs = {}
@@ -164,11 +164,11 @@ class WepyHDF5Reporter(FileReporter):
             self.alt_reps_idxs[self.ALL_ATOMS_REP_KEY] = np.arange(n_atoms)
             # add the frequency for this sparse fields to the
             # sparse fields dictionary
-            self.sparse_fields["alt_reps/{}".format(self.ALL_ATOMS_REP_KEY)] = all_atoms_rep_freq
+            self._sparse_fields["alt_reps/{}".format(self.ALL_ATOMS_REP_KEY)] = all_atoms_rep_freq
 
         # if there are no sparse fields set it as an empty dictionary
-        if self.sparse_fields is None:
-            self.sparse_fields = {}
+        if self._sparse_fields is None:
+            self._sparse_fields = {}
 
         # if units were given add them otherwise set as an empty dictionary
         if units is None:
@@ -184,10 +184,10 @@ class WepyHDF5Reporter(FileReporter):
         self.wepy_h5 = WepyHDF5(self.file_path, mode=self.mode,
                                 topology=self._tmp_topology,
                                 units=self.units,
-                                sparse_fields=list(self.sparse_fields.keys()),
-                                feature_shapes=self.feature_shapes,
-                                feature_dtypes=self.feature_dtypes,
-                                n_dims=self.n_dims,
+                                sparse_fields=list(self._sparse_fields.keys()),
+                                feature_shapes=self._feature_shapes,
+                                feature_dtypes=self._feature_dtypes,
+                                n_dims=self._n_dims,
                                 main_rep_idxs=self.main_rep_idxs,
                                 alt_reps=self.alt_reps_idxs)
 
@@ -231,7 +231,6 @@ class WepyHDF5Reporter(FileReporter):
                 if 'progress' not in self.wepy_h5.record_fields:
                     self.wepy_h5.init_record_fields('progress', self.progress_records)
 
-
         # if this was opened in a truncation mode, we don't want to
         # overwrite old runs with future calls to init(). so we
         # change the mode to read/write 'r+'
@@ -239,6 +238,7 @@ class WepyHDF5Reporter(FileReporter):
             self.mode = 'r+'
 
     def cleanup(self, *args, **kwargs):
+
 
         # it should be already closed at this point but just in case
         if not self.wepy_h5.closed:
@@ -287,8 +287,8 @@ class WepyHDF5Reporter(FileReporter):
 
                     # if this is a sparse field we decide
                     # whether it is a valid cycle to save on
-                    if field_path in self.sparse_fields:
-                        if cycle_idx % self.sparse_fields[field_path] != 0:
+                    if field_path in self._sparse_fields:
+                        if cycle_idx % self._sparse_fields[field_path] != 0:
                             # this is not a valid cycle so we
                             # remove from the walker_data
                             walker_data.pop(field_path)
@@ -300,7 +300,7 @@ class WepyHDF5Reporter(FileReporter):
                     alt_rep_path = "alt_reps/{}".format(alt_rep_key)
                     # check to make sure this is a cycle this is to be
                     # saved to, if it is add it to the walker_data
-                    if cycle_idx % self.sparse_fields[alt_rep_path] == 0:
+                    if cycle_idx % self._sparse_fields[alt_rep_path] == 0:
                         # if the idxs are None we want all of the atoms
                         if alt_rep_idxs is None:
                             alt_rep_data = walker_data['positions'][:]

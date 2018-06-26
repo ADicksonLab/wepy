@@ -23,6 +23,8 @@ class FileReporter(Reporter):
         self.mode = mode
 
 
+
+
 class WalkersPickleReporter(Reporter):
 
     def __init__(self, save_dir='./', freq=100, num_backups=2):

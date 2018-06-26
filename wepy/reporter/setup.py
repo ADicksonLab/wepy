@@ -22,5 +22,6 @@ class SetupReporter(FileReporter):
         self_copy = deepcopy(self)
 
         # save this object as a pickle, open it in the mode
-        with open(self.file_path, mode=self.mode+"+b") as wf:
+        with open(self.file_path, mode=self.mode+"b") as wf:
             pickle.dump(self_copy, wf)
+

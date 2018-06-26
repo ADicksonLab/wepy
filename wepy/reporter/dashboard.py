@@ -1,3 +1,4 @@
+import os.path as osp
 from collections import defaultdict
 import itertools as it
 
@@ -160,6 +161,24 @@ Defined Regions with the number of child regions per parent region:
         self.cycle_bc_times = []
         self.cycle_resampling_times = []
         self.worker_records = []
+
+    def init(self, *args, **kwargs):
+        # because we want to overwrite the dashboard at every cycle we
+        # need to change the mode to write with truncate. This allows
+        # the file to first be opened in 'x' or 'w-' and check whether
+        # the file already exists (say from another run), and warn the
+        # user. However, once the file has been created for this run
+        # we need to overwrite it many times forcefully.
+
+        # so if the mode is 'x' or 'w-' we check to make sure the file
+        # doesn't exist
+        if self.mode in ['x', 'w-']:
+            if osp.exists(self.file_path):
+                raise FileExistsError("File exists: '{}'".format(self.file_path))
+
+        # now that we have checked if the file exists we set it into
+        # overwrite mode
+        self.mode = 'w'
 
     def report(self, cycle_idx, walkers,
                warp_data, bc_data, progress_data,

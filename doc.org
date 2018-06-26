@@ -1,3 +1,396 @@
+* Introduction to Wepy
+
+~wepy~ is a library, framework, and application for running weighted
+ensemble simulations with a strong focus on molecular dynamics.
+
+** What do I need to get started?
+
+The major components of ~wepy~ are:
+
+- runners
+- resamplers
+- boundary conditions
+- reporters
+
+Of these only a runner and resampler are technically needed to run a
+~wepy~ simulation, although some form of reporter should be used in
+order to get results.
+
+Boundary conditions are not necessary although are useful for certain
+types fo simulations.
+
+*** Runner: Molecular Dynamics
+
+The major use case for wepy is molecular dynamics. For this the core
+developers intend to natively support and focus on using OpenMM for
+running dynamics, that is the "runner" component.
+
+OpenMM can use a wide variety of forcefields from other simulation
+engines and is very fast for use on GPUs. One very useful feature of
+OpenMM that makes it amenable to use in ~wepy~ is that it can be
+called as a library and is not dependent on writing to the
+filesystem. This is important for weighted ensemble simulations
+because of the resampling steps which need to compare states of
+parallel trajectories and the overhead of I/O to do this can slow down
+this process a lot, not to mention introducing unneeded complexities
+of managing filepaths for multiple processes etc.
+
+That said, in principle there is nothing stopping any MD engine from
+being used as a runner. All that needs to be done is to write a
+wrapper for that runner that implements the runner interface.
+
+Runners are not limited to molecular dynamics and any stochastic
+process could be used.
+
+*** Resamplers: WExplore
+
+The architecture of ~wepy~ is such that, like the runner, any
+resampling procedure can be used in wepy, as long as it implements the
+standard interface.
+
+While, BYO resamplers is useful, many users are likely going to want
+to use a built-in resampler.
+
+At this time WExplore is a popular resampler developed by the Dickson
+lab that has been shown to perform well for sampling rare events in
+biomolecular systems and was the primary motivation for writing
+~wepy~.
+
+Along with WExplore ~wepy~ also provides a framework for implementing
+new resamplers. This is used to manage things like specifying clones
+and merges and utilizing distance metrics.
+
+*** Distance Metrics: Unbinding distance
+
+*This is the most important part for new users.*
+
+While strictly not necessary for a resampler (i.e. a resampler can
+make arbitrary selections for cloning and merging) the use of a
+distance metric is the primary way of extracting structural
+information from the state produced by the runners.
+
+The resampling framework that WExplore utilizes defines an interface
+for defining distance metrics in an attempt to make them portable
+between different resamplers.
+
+Of all the components the distance metric is the one you likely cannot
+use "off the shelf" unless you are satisfied with our ligand unbinding
+distance metric :)
+
+A distance metric is likely specific to the system that you are
+working in and to the type of phenomenon you want to observe.
+
+For example, the ligand unbinding distance metric is a class that
+requires 3 parameters: a reference state to align future states to and
+two lists of indices that correspond to the ligand and the binding
+site.
+
+After you construct the distance metric object for your system you can
+call it's distance method on two states you want to get the distance
+between.
+
+It first aligns both binding sites to the reference binding site
+(using the external package geomm) and then computes the RMSD between
+the ligands of the two queried states.
+
+So, minimally to make your own distance metric you need to implement a
+class that inherits from the abstract ~Distance~ class and implements
+the method ~distance~.
+
+Here is the most basic example:
+#+BEGIN_SRC python
+  # the abstract distance class to inherit from
+  from wepy.resampling.distances.distance import Distance
+
+  # make a class that inherits from Distance
+  class MyDistance(Distance):
+
+      def distance(self, state_a, state_b):
+
+          # compare state a and state b to get a single number
+          distance_value = compute_distance()
+          # return only that number
+          return distance_value
+#+END_SRC
+
+You can then use this within resamplers that support the ~Distance~
+interface.
+
+Like most things in ~wepy~ however you don't have to do it this way
+and if you want something more complex it is possible. 
+
+However, for many users this will be sufficient and is the suggested
+way to do things.
+
+The use of ~Distance~ types is not type-checked and so any "distance"
+duck type that implements the interface will work, which means you
+don't have to implement it if you don't want to.
+
+However, the ~Distance~ interface actually consists of two more
+methods that are used to improve memory usage and efficiency.
+
+Each ~Distance~ object also has the two methods ~image~ and ~image_distance~.
+
+"Images" are projections of your states onto another space.
+
+This space is the actual metric space the ~image_distance~ method
+works on.
+
+This is especially useful for large systems, because by default the
+image of a state is just the whole system, and in MD this is mostly
+uninteresting stuff like water, and can be a significant memory burden.
+
+For instance, in ~UnbindingDistance~ the image is just the coordinates
+of the binding site and the ligand aligned to the reference state.
+
+But an image could be the torsion angles or some other computation.
+
+For WExplore this means that when you create a region you don't need
+to save the full coordinates for a region but only the image, and when
+you create hundreds or thousands of regions you no longer need to
+store them on the disk and can compute your distance calculations much
+faster.
+
+Furthermore, putting some preprocessing in the ~image~ function allows
+for some key optimizations for pairwise distance calculations.
+
+For example, if you need to compare 10 states with 10 other states and
+you do an alignment for each of those you are recomputing that
+alignment many times unnecessarily. However, if you first do a single
+pass over all the states to compute the images and do the alignments
+all to a refernce state and then do the pairwise distance
+calculations, you only have to compute the RMSDs.
+
+While any given resampler may not take advantage of this good ones
+will, such as WExplore.
+
+To summarive these functions:
+
+runner.run: C_0 -> C_1
+image: C -> X
+image_distance: X * X -> R
+distance: C * C -> R
+
+where distance can be the composition of image and image_distance:
+
+distance: image_distance(image(C), image(C)) -> R
+
+Where C is the state of the system produced by the runner, X is the
+image, and R is real number distance.
+
+*** Boundary Conditions: Nonequilibrium unbinding ensembles
+
+As said previously boundary conditions are only used if you require
+them, but I will give one motivating case for them and some hints as
+to the generality of them.
+
+Take for instance a ligand unbinding simulation.
+
+We want to simulate the ligand going from a single bound pose to an
+unbound state far from the protein.
+
+If we are only interested in this one way process we might stop the
+simulation of a ligand which has crossed a threshold far away from the
+protein and restart it in the original bound pose.
+
+This is exactly what the unbinding boundary conditions given in the
+boundary conditions framework of ~wepy~ does.
+
+Just like all the other components there is a standard interface that
+a boundary condition must implement.
+
+But why create a whole subsystem to deal with this?
+
+One reason is that when you are analyzing your results and you have
+noncontinuous jumps in your data you want to know where that occurs
+and account for it when finding continuous trajectories from walker
+lineages or create transition probability matrices for a Markov State
+Network etc.
+
+Furthermore, the possibilities for boundary conditions are endless and
+providing an interface allows for the user to do whatever they wish in
+this step in a way that integrates with the whole system.
+
+For instance, taking again the ligand unbinding example, we may also
+be interested in running so called "colored" trajectories that do not
+warp back to the starting pose in a nonequilibrium manner, but instead
+just merely keep track of the state last visited by that walker.
+
+So we could write a boundary condition that is triggered by either the
+unbound or the bound state and instead of modifying the coordinates of
+the walker's state, merely changes the 'last_visited' field to either
+'bound' or 'unbound' respectively.
+
+Or you might be interested in getting rates between alternate bound
+poses and have multiple end points.
+
+In any of these cases the boundry conditions interface will be able to
+handle them and will require no special code by the user to get good
+reporting of these events.
+
+All that is required is the focus on the logic of what is happening
+physically in their system.
+
+
+*** Reporting: HDF5
+
+Despite what you may think the code for all the previously described
+functionality is quite simple and easy.
+
+Most of the magic in making weighted ensemble simulations work for you
+is in the production of a high quality, integrated dataset that is
+configurable in a number of ways to make efficient use of disk when
+you want it, and not when you don't and just do what you want.
+
+So in reality the biggest challenge in writing ~wepy~ was some clear
+thinking about interfaces and writing the ~WepyHDF5~ class.
+
+In general any number of reporters can be used in a simulation which
+can do anything they well please with the data they receive from the
+runner, boundary conditions, and resampler.
+
+They can write a trajectory file, plaintext reports, restart
+checkpoints, email your boss, or publish to a web page or database to
+give live reporting on your phone!
+
+~wepy~ doesn't implement the latter ones, and we anticipate that the
+HDF5 format will be pretty universally used.
+
+For those that don't know HDF5 it stands for Hierarchical Data Format
+(version 5) and is an industry standardized format for storing
+scientific data.
+
+It is the backbone of other technologies such as the newer versions of
+NetCDF and has wide support on many platforms and does many things
+fast and intuitively.
+
+The main motivation for using HDF5 for weighted ensemble simulations
+is that trajectories in weighted ensemble simulations are all tied
+together into more of a tree rather than single independent runs.
+
+This is primarily because of the cloning and mergin operations that
+occur when you resample.
+
+This means that looking at a single trajectory, while not meaningless,
+makes it really hard to get the correct, bigger, picture in the
+context of the other ones.
+
+Add in discontinuities due to warping states around in their space and
+you see very quickly why you want all the information in one place!
+
+Furthermore, experience has taught me that doing analyses on multiple
+files is extremely and painfully inefficient.
+
+Take clustering as an example. Say you have 50 independent
+trajectories that you have clustered each being 2Gb.
+
+Then you choose an interesting cluster containing several hundred
+individual frames.
+
+These frames are likely to be scattered between a large number of
+these 50 trajectory files.
+
+So if you want to retrieve the frames from these trajectories you are
+going to be opening close to 50 different 2 Gb files.
+
+Most trajectory formats must be completely loaded into memory before
+any operation can be performed.
+
+This means you are loading close to 50 different trajectories into
+memory to get your query. 
+
+In my experience this is a very slow process.
+
+Using HDF5 we get random access to the files so you only load into
+memory the parts of the file that are necessary with much better
+big-Os.
+
+**** Structure of WepyHDF5
+
+HDF5 files are organized hierarchically much like a filesystem, except
+files are datasets and directories are groups.
+
+Each WepyHDF5 file consists of a collection of runs and some top level
+information that applies to all runs or makes relationships between
+runs, for instance the system topology and the continuations
+(i.e. restarts).
+
+Each run corresponds to a single weighted ensemble simulation, itself
+composed of the data from each parallel walker, the records for the
+resampler and the boundary conditions.
+
+Each "trajectory" in the file corresponds to a walker in the
+simulation, however, as alluded before these trajectories are not
+necessarily continuous.
+
+**** Features of WepyHDF5
+
+WepyHDF5 supports a number of really cool features I haven't seen
+anywhere else.
+
+***** Sparse (in time) Data
+
+Its important to note that a "trajectory" is just a collection of
+fields with data in them that are returned from a runner State.
+
+The only necessary field is the "positions", but this may change in
+the future if there are some use cases where "positions" aren't really
+the main piece of data you want to store.
+
+So basically think just like a key-value database where the values are
+arrays and the first dimension always corresponds to the cycle of the
+wepy simulation.
+
+That is unless the field is "sparse", in which case it can skip some
+cycles.
+
+For example, lets say you don't want to save the velocities each and
+every cycle, but you do want to save them every 10 cycles.
+
+In the reporter you can specify the frequency at which you want to
+save a field and whenever the HDF5 writer receives data if will save
+it and record it for the correct cycle.
+
+These are accessed as masked arrays from numpy so as to keep your data
+aligned with all the rest.
+
+***** Alternate representatives of positions (sparse in space)
+
+To run molecular dynamics simulations you need the entire system
+(including water, ions, membrane, etc.), however, you may not want to
+save the whole thing every cycle just for structural analysis, but
+only for restart points.
+
+You can do this by specifying alternate representatives, which are
+just lists of atom indices that are included in a given
+representative.
+
+The main use case of this is to make the main "positions" field just
+the e.g. protein and ligand and then to make an alternate
+representative called "all_atoms" that is all the atoms, and save it
+only every so often.
+
+One potential use case that is not supported yet would be to define a
+constraint and only save coordinates that satisfy that constraint.
+
+Such as defining a sphere around protein and only include the waters
+in that sphere, however, this requires some more technical solutions
+because you also need to keep track of which water atoms are in the
+sphere.
+
+***** Continuations and restarts
+
+WepyHDF5 also supports specifying runs as continuations of other runs.
+
+These can then be referred to as if they were whole simulations.
+
+**** Analyzing WepyHDF5
+
+
+
+
+
+
 ** Terminology
 
 - cycle :: the running of an MD segment and the walker resampling
@@ -45,21 +438,3 @@
 - walker tree :: a tree rooted at a particular point in a walker's
                  history and contains all the walkers that were cloned
                  and not squashed from the root.
-
-
-** Resampling data format
-
-Walker resampling is to be recorded as a list of the action taken and
-the associated data. For cloning and merging there is 4 enumerated
-actions with the data associated:
-- NOTHING, walker_slot_idx :: the walker is not to be cloned or merged
-     the index is the slot it will occupy in the next step which must be open
-- CLONED, walker_slot_idxs[n_clones] :: the walker is to be cloned to
-     the given walker slots, these slots must be available
-- SQUASHED, keep_merge_walker_slot_idx :: this walker will donate it's
-     probability to another walker and "merged" but its state will be
-     lost, the index is the walker_slot_idx of the KEEP_MERGE walker
-     before resampling
-- KEEP_MERGE, walker_slot_idx :: this walker will have at least one
-     squashed walker donate its probability and be merged, the index
-     is the walker slot index it will occupy in the next cycle.

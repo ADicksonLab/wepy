@@ -225,7 +225,7 @@ class UnbindingBC(BoundaryConditions):
                     # list of discontinuous targets then we mark the
                     # parent of the child walker as the DISCONTINUITY
                     # value (i.e. -1)
-                    if target_idxs[warp_rec_idx][0] in cls.DISCONTINUITY_TARGET_IDXS:
+                    if target_idxs[warp_rec_idx] in cls.DISCONTINUITY_TARGET_IDXS:
                         new_parent_table[cycle_idx + 1][walker_idx] = cls.DISCONTINUITY_VALUE
 
 
