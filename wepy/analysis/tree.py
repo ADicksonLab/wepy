@@ -93,6 +93,81 @@ def ancestor_matrix(parent_matrix, ancestor_cycle=0):
 
     return ancestor_mat
 
+def parent_panel(decision_class, resampling_panel):
+
+    parent_panel = []
+    for cycle_idx, cycle in enumerate(resampling_panel):
+
+        # each stage in the resampling for that cycle
+        # make a stage parent table
+        parent_table = []
+
+        # now iterate through the rest of the stages
+        for step in cycle:
+
+            # get the parents idxs for the children of this step
+            step_parents = decision_class.parents(step)
+
+            # for the full stage table save all the intermediate parents
+            parent_table.append(step_parents)
+
+        # for the full parent panel
+        parent_panel.append(parent_table)
+
+    return parent_panel
+
+def cycle_tree_parent_table(decision_class, cycle_tree):
+    """Determines the net parents for each cycle and sets them in-place to
+    the cycle tree given."""
+
+    # just go through each node individually in the tree
+    for node in cycle_tree:
+        # get the records for each step in this node
+        node_recs = cycle_tree.nodes[node]['resampling_steps']
+
+        # get the node parent table by using the parent panel method
+        # on the node records
+        node_parent_panel = parent_panel(decision_class, [node_recs])
+        # then get the net parents from this parent panel, and slice
+        # out the only entry from it
+        node_parents = net_parent_table(node_parent_panel)[0]
+
+        # put this back into the cycle_tree
+        cycle_tree.nodes[node]['parent_idxs'] = node_parents
+
+    return cycle_tree
+
+def net_parent_table(parent_panel):
+
+    net_parent_table = []
+
+    # each cycle
+    for cycle_idx, step_parent_table in enumerate(parent_panel):
+        # for the net table we only want the end results,
+        # we start at the last cycle and look at its parent
+        step_net_parents = []
+        n_steps = len(step_parent_table)
+        for walker_idx, parent_idx in enumerate(step_parent_table[-1]):
+            # initialize the root_parent_idx which will be updated
+            root_parent_idx = parent_idx
+
+            # if no resampling skip the loop and just return the idx
+            if n_steps > 0:
+                # go back through the steps getting the parent at each step
+                for prev_step_idx in range(n_steps):
+                    prev_step_parents = step_parent_table[-(prev_step_idx+1)]
+                    root_parent_idx = prev_step_parents[root_parent_idx]
+
+            # when this is done we should have the index of the root parent,
+            # save this as the net parent index
+            step_net_parents.append(root_parent_idx)
+
+        # for this step save the net parents
+        net_parent_table.append(step_net_parents)
+
+    return net_parent_table
+
+
 def parent_graph(parent_matrix):
 
     graph = nx.Graph()
