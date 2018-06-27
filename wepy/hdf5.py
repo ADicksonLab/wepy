@@ -2826,13 +2826,69 @@ class WepyHDF5(object):
 
         return contig_resampling_panel
 
-    def contig_tree_resampling_panel(self):
+    def cycle_tree(self):
+        # make a network which has nodes (run_idx, cycle_idx) and the
+        # main attibute is the resampling steps for that cycle
+        cycle_tree = nx.DiGraph()
+
+        # first go through each run without continuations
+        for run_idx in self.run_idxs:
+            n_cycles = self.run_n_cycles(run_idx)
+
+            # make all the nodes for this run
+            nodes = [(run_idx, step_idx) for step_idx in range(n_cycles)]
+            cycle_tree.add_nodes_from(nodes)
+
+            # the same for the edges
+            edges = list(zip(range(1, n_cycles), range(n_cycles - 1)))
+            cycle_tree.add_edges_from(edges)
+
+        # after we have added all the nodes and edges for the run
+        # subgraphs we need to connect them together with the
+        # information in the contig tree.
+        for edge_source, edge_target in self.continuations:
+
+            # for the source node (the restart run) we use the run_idx
+            # from the edge source node and the index of the first
+            # cycle
+            source_node = (edge_source, 0)
+
+            # for the target node (the run being continued) we use the
+            # run_idx from the edge_target and the last cycle index in
+            # the run
+            target_node = (edge_target, self.run_n_cycles(edge_target)-1)
+
+            # make the edge
+            edge = (target_node, source_node)
+
+            # add this connector edge to the network
+            cycle_tree.add_edge(edge)
+
+        return cycle_tree
+
+
+    def cycle_tree_resampling_panel(self):
         """Instead of a resampling panel this is the same thing except each
         cycle is a node rather than a table in the panel.
 
         """
 
-        pass
+        # get the cycle tree
+        cycle_tree = self.cycle_tree()
+
+        # then get the resampling tables for each cycle and put them
+        # as attributes to the appropriate nodes
+        for run_idx in self.run_idxs:
+
+            run_resampling_panel = self.run_resampling_panel(run_idx)
+
+            # add each cycle of this panel to the network by adding
+            # them in as nodes with the resampling steps first
+            for step_idx, step in enumerate(run_resampling_panel):
+                node = (run_idx, step_idx)
+                cycle_tree.nodes[node]["resampling_steps"] = step
+
+        return cycle_tree
 
     def join(self, other_h5):
         """Given another WepyHDF5 file object does a left join on this

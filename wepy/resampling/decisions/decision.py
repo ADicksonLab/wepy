@@ -62,6 +62,27 @@ class Decision(object):
         raise NotImplementedError
 
     @classmethod
+    def parents(self, step):
+        """Given a row of resampling records (for a single resampling step)
+        returns the parents of the children of this step."""
+
+        # initialize a list for the parents of this stages walkers
+        step_parents = [None for i in range(len(step))]
+
+        # the rest of the stages parents are based on the previous stage
+        for parent_idx, parent_rec in enumerate(step):
+
+            # if the decision is an ancestor then the instruction
+            # values will be the children
+            if parent_rec[0] in cls.ANCESTOR_DECISION_IDS:
+                child_idxs = parent_rec[1]
+                for child_idx in child_idxs:
+                    step_parents[child_idx] = parent_idx
+
+        return step_parents
+
+
+    @classmethod
     def parent_panel(cls, resampling_panel):
 
         parent_panel = []
