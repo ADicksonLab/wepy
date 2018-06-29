@@ -2896,16 +2896,6 @@ class WepyHDF5(object):
         return cycle_tree
 
 
-    def run_parent_panel(self, decision_class, run_idx):
-
-        return parent_panel(decision_class, self.run_resampling_panel(run_idx))
-
-    def run_net_parent_table(self, decision_class, run_idx):
-
-        parent_panel = self.run_parent_panel(decision_class, run_idx)
-
-        return net_parent_table(parent_panel)
-
     def join(self, other_h5):
         """Given another WepyHDF5 file object does a left join on this
         file. Renumbering the runs starting from this file.
