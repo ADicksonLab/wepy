@@ -130,16 +130,6 @@ class Fstab(object):
     def __init__(self):
         self.lines = []
     
-    def open_file(self, filespec, mode):
-        if type(filespec) in (str, bytes):
-            return file(filespec, mode)
-        else:
-            return filespec
-
-    def close_file(self, f, filespec):
-        if type(filespec) in (str, bytes):
-            f.close()
-
     def get_perms(self, filename):
         return os.stat(filename).st_mode # pragma: no cover
 
@@ -163,13 +153,11 @@ class Fstab(object):
         The existing content is replaced.
         
         """
-        
-        f = self.open_file(filespec, "r")
         lines = []
-        for line in f:
-            lines.append(Line(line))
+        with open(filespec) as f:
+            for line in f:
+                lines.append(Line(line))
         self.lines = lines
-        self.close_file(filespec, f)
 
     def write(self, filespec):
         """Write out a new file.
@@ -192,10 +180,9 @@ class Fstab(object):
         else:
             tempname = filespec
     
-        f = self.open_file(tempname, "w")
-        for line in self.lines:
-            f.write(line.raw)
-        self.close_file(filespec, f)
+        with open(tempname, "w") as f:
+            for line in self.lines:
+                f.write(line.raw)
 
         if type(filespec) in (str, bytes):
             self.chmod_file(tempname, self.get_perms(filespec))
