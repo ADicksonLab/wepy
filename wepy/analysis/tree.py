@@ -1,8 +1,6 @@
 import networkx as nx
 import numpy as np
 
-
-
 def parent_panel(decision_class, resampling_panel):
 
     parent_panel = []
@@ -25,27 +23,6 @@ def parent_panel(decision_class, resampling_panel):
         parent_panel.append(parent_table)
 
     return parent_panel
-
-def cycle_tree_parent_table(decision_class, cycle_tree):
-    """Determines the net parents for each cycle and sets them in-place to
-    the cycle tree given."""
-
-    # just go through each node individually in the tree
-    for node in cycle_tree:
-        # get the records for each step in this node
-        node_recs = cycle_tree.nodes[node]['resampling_steps']
-
-        # get the node parent table by using the parent panel method
-        # on the node records
-        node_parent_panel = parent_panel(decision_class, [node_recs])
-        # then get the net parents from this parent panel, and slice
-        # out the only entry from it
-        node_parents = net_parent_table(node_parent_panel)[0]
-
-        # put this back into the cycle_tree
-        cycle_tree.nodes[node]['parent_idxs'] = node_parents
-
-    return cycle_tree
 
 def net_parent_table(parent_panel):
 
@@ -76,29 +53,6 @@ def net_parent_table(parent_panel):
         net_parent_table.append(step_net_parents)
 
     return net_parent_table
-
-
-def parent_graph(parent_table):
-
-    graph = nx.Graph()
-
-    n_walkers = parent_table.shape[1]
-
-    for step_idx, parent_idxs in enumerate(parent_table):
-
-        # the first step is useless
-        if step_idx == 0:
-            continue
-
-        # make edge between each walker of this step to the previous step
-        for curr_walker_idx in range(n_walkers):
-
-            # make an edge between the parent of this walker and this walker
-            edge = ((step_idx, curr_walker_idx), (step_idx - 1, parent_idxs[curr_walker_idx]))
-
-            graph.add_edge(*edge)
-
-    return graph
 
 def ancestors(parent_table, cycle_idx, walker_idx, ancestor_cycle=0):
     """Given a parent table, step_idx, and walker idx returns the
@@ -143,145 +97,6 @@ def ancestors(parent_table, cycle_idx, walker_idx, ancestor_cycle=0):
 
     return lineage
 
-def parent_table_from_tree(cycle_tree, run_idx, cycle_idx):
-    # to make this easy we just first generate a parent table from the
-    # tree that is relevant for the query
-    parent_table = []
-
-    # initialize the current node
-    curr_node = (run_idx, cycle_idx)
-
-    # stop the loop when we reach the root of the cycle tree
-    at_root = False
-    while not at_root:
-
-        # first we get the cycle node previous to this one because it
-        # has the parents for the current node
-        parent_nodes = list(cycle_tree.adj[curr_node].keys())
-
-        # if there is no parent then this is the root of the
-        # cycle_tree and we should stop after this step of the loop
-        if len(parent_nodes) == 0:
-            at_root = True
-
-        # if there are any parents there should only be one, since it is a tree
-        prev_node = parent_nodes[0]
-
-        # get the parents from the previous node
-        parents = cycle_tree.nodes[prev_node]['parent_idxs']
-
-        # add these parents to the parent table at the beginning
-        parent_table.insert(0, parents)
-
-        # then update the current node to the previous one
-        curr_node = prev_node
-
-    return parent_table
-
-def run_cycle_to_spanning_contig_cycle(cycle_tree, run_idx, cycle_idx):
-    # initialize the current node
-    curr_node = (run_idx, cycle_idx)
-
-    # the cycle idxs for the whole contig, this will tally the number
-    # of movements back through the tree
-    contig_cycle_idx = 0
-
-    # stop the loop when we reach the root of the cycle tree
-    at_root = False
-    while not at_root:
-
-        # first we get the cycle node previous to this one because it
-        # has the parents for the current node
-        parent_nodes = list(cycle_tree.adj[curr_node].keys())
-
-        # if there is no parent then this is the root of the
-        # cycle_tree and we should stop after this step of the loop
-        if len(parent_nodes) == 0:
-            at_root = True
-
-        # if there are any parents there should only be one, since it is a tree
-        prev_node = parent_nodes[0]
-
-        # add to the count of cycles
-        contig_cycle_idx += 1
-
-        # then update the current node to the previous one
-        curr_node = prev_node
-
-    return contig_cycle_idx
-
-
-def ancestors_from_tree(cycle_tree, run_idx, cycle_idx, walker_idx, ancestor_node=None):
-
-    # first we generate the parent table given the walker we want
-    # parents from
-    parent_table = parent_table_from_tree(cycle_tree, run_idx, cycle_idx)
-
-    # get the cycle index within the parent table (contig) and not the
-    # one given for within the run
-    contig_cycle_idx = run_cycle_to_spanning_contig_cycle(cycle_tree, run_idx, cycle_idx)
-
-    # the same for the index of the ancestor node if it is given
-    if ancestor_node is not None:
-        ancestor_contig_cycle_idx = run_cycle_to_spanning_contig_cycle(cycle_tree, *ancestor_node)
-    else:
-        ancestor_contig_cycle_idx = 0
-
-    # then we just perform a normal ancestors function on that table
-    # using a corrected cycle index from the contig
-    return ancestors(parent_table, contig_cycle_idx, walker_idx, ancestor_contig_cycle_idx)
-
-def ancestor_table(parent_table, ancestor_cycle=0):
-    """Given a parent table and a cycle index, will return a table that
-    gives the index of the walker that was the ancestor to the walker.
-
-    The table wil be of size (n_cycles - ancestor_cycle, n_walkers),
-    because only walkers after the ancestor_cycle will be assigned
-    values. Walkers at the ancestor cycle index will be assigned their own
-    index.
-
-    Defaults to the zeroth cycle which is the initial walkers.
-
-
-    This function will create a table that tracks the ultimate
-    parent of the walkers. Each row is a timestep, and the
-    value in the table corresponds to the original walker
-    that the walker was associated from at the start of the
-    MD simulation.
-
-    Inputs:
-
-    parent_table (2D numpy array): A table that shows how walkers from different time
-    steps are related to each other.
-
-    Outputs:
-
-    ancestor_table (2D numpy array): A table of the ancestor walker index
-    for walkers after the ancestor cycle idx.
-
-    """
-
-    n_steps = parent_table.shape[0]
-    n_walkers = parent_table.shape[1]
-    ancestor_mat = np.zeros((n_steps - ancestor_cycle, n_walkers))
-
-    for step_idx in range(ancestor_cycle, n_steps):
-
-        for walker_idx in range(n_walkers):
-
-            # if this is the ancestor cycel we set the ancestor idx to itself
-            if step_idx == ancestor_cycle:
-                ancestor_mat[step_idx, walker_idx] = walker_idx
-
-            else:
-                ancestor_mat[step_idx, walker_idx] = \
-                                        ancestor_mat[step_idx - 1,
-                                                        parent_table[step_idx, walker_idx]]
-
-    return ancestor_mat
-
-
-
 def sliding_window(parent_table, window_length):
     """Returns traces (lists of frames across a run) on a sliding window
     on the branching structure of a run of a WepyHDF5 file. There is
@@ -312,13 +127,133 @@ def sliding_window(parent_table, window_length):
 
             yield window
 
+## contig trees for of parent panels
+
+def cycle_tree_parent_table(decision_class, cycle_tree):
+    """Determines the net parents for each cycle and sets them in-place to
+    the cycle tree given."""
+
+    # just go through each node individually in the tree
+    for node in cycle_tree:
+        # get the records for each step in this node
+        node_recs = cycle_tree.nodes[node]['resampling_steps']
+
+        # get the node parent table by using the parent panel method
+        # on the node records
+        node_parent_panel = parent_panel(decision_class, [node_recs])
+        # then get the net parents from this parent panel, and slice
+        # out the only entry from it
+        node_parents = net_parent_table(node_parent_panel)[0]
+
+        # put this back into the cycle_tree
+        cycle_tree.nodes[node]['parent_idxs'] = node_parents
+
+    return cycle_tree
+
+def cycle_tree_contig_trace(cycle_tree, run_idx, cycle_idx, start_contig_idx=0):
+    """Given a single cycle tree and a (run_idx, cycle_idx) in that tree
+    and a starting contig index generate a contig trace of (run_idx,
+    cycle_idx) indices for that contig.
+
+    """
+
+    assert start_contig_idx >= 0, "start_contig_idx must be a valid index"
+
+    # initialize the current node
+    curr_node = (run_idx, cycle_idx)
+
+    # make a trace of this contig
+    contig_trace = [curr_node]
+
+    # stop the loop when we reach the root of the cycle tree
+    at_root = False
+    while not at_root:
+
+        # first we get the cycle node previous to this one because it
+        # has the parents for the current node
+        parent_nodes = list(cycle_tree.adj[curr_node].keys())
+
+        # if there is no parent then this is the root of the
+        # cycle_tree and we should stop after this step of the loop
+        if len(parent_nodes) == 0:
+            at_root = True
+
+        # or else we put the node into the contig trace
+        else:
+            parent_node = parent_nodes[0]
+            contig_trace.insert(0, parent_node)
+
+            # if there are any parents there should only be one, since it is a tree
+            prev_node = parent_nodes[0]
+
+            # then update the current node to the previous one
+            curr_node = prev_node
+
+    return contig_trace
+
+def contig_cycle(cycle_tree, run_idx, cycle_idx):
+    """Get the contig cycle idx for a (run_idx, cycle_idx) pair."""
+
+    # make the contig trace
+    contig_trace = cycle_tree_contig_trace(cycle_tree, run_idx, cycle_idx)
+
+    # get the length and subtract one for the index
+    return len(contig_trace) - 1
+
+def _tree_leaves(root, tree):
+
+    # traverse the tree away from the root node until a branch point
+    # is found then iterate over the subtrees from there and
+    # recursively call this function on them
+    branch_child_nodes = []
+    curr_node = root
+    leaves = []
+    leaf_found = False
+    while (len(branch_child_nodes) == 0) and (not leaf_found):
+
+        # get the child nodes
+        child_nodes = list(tree.adj[curr_node].keys())
+
+        # if there is more than one child node, the current node is a
+        # branch node
+        if len(child_nodes) > 1:
+
+            # we will use the branch child nodes as the roots of the
+            # next recursion level
+            branch_child_nodes = child_nodes
+
+        # if there are no children then this is a leaf node
+        elif len(child_nodes) == 0:
+            # set the current node as the only leaf
+            leaves = [curr_node]
+
+            # and break out of the loop
+            leaf_found = True
+
+        # otherwise reset the current node
+        else:
+            # there will only be one child node
+            curr_node = child_nodes[0]
+
+    # this will run if any child nodes were found to find more leaves,
+    # which won't happen when the loop ended upon finding a leaf node
+    for branch_child_node in branch_child_nodes:
+        branch_leaves = _tree_leaves(branch_child_node, tree)
+        leaves.extend(branch_leaves)
+
+    return leaves
+
 def cycle_tree_leaves(root, cycle_tree):
 
     # get the reversed directions of the cycle tree as a view, we
     # don't need a copy
     rev_tree = cycle_tree.reverse(copy=False)
 
-    # then
+    # then we use the adjacencies to find the last node in the network
+    # using a recursive algorithm
+    leaves = _tree_leaves(root, rev_tree)
+
+    return leaves
 
 def cycle_tree_root(cycle_tree):
 
@@ -352,13 +287,49 @@ def cycle_tree_root(cycle_tree):
 
     return curr_node
 
-def cycle_tree_sliding_windows(cycle_tree, window_length):
+def contig_trace_parent_table(cycle_tree, contig_trace):
+    """Given a cycle tree with parents and a contig trace returns a parent
+    table for that contig."""
+
+    parent_table = []
+    for run_idx, cycle_idx in contig_trace:
+        parent_idxs = cycle_tree.node[(run_idx, cycle_idx)]['parent_idxs']
+        parent_table.append(parent_idxs)
+
+    return parent_table
+
+def ancestors_from_tree(cycle_tree, run_idx, cycle_idx, walker_idx, ancestor_node=None):
+
+    raise NotImplementedError
+
+    # make the contig trace for this to the root
+    contig_trace = cycle_tree_contig_trace(cycle_tree, run_idx, cycle_idx)
+
+    # first we generate the parent table given the walker we want
+    # parents from
+    parent_table = parent_table_from_tree(cycle_tree, run_idx, cycle_idx)
+
+    # get the cycle index within the parent table (contig) and not the
+    # one given for within the run
+    contig_cycle_idx = run_cycle_to_spanning_contig_cycle(cycle_tree, run_idx, cycle_idx)
+
+    # the same for the index of the ancestor node if it is given
+    if ancestor_node is not None:
+        ancestor_contig_cycle_idx = run_cycle_to_spanning_contig_cycle(cycle_tree, *ancestor_node)
+    else:
+        ancestor_contig_cycle_idx = 0
+
+    # then we just perform a normal ancestors function on that table
+    # using a corrected cycle index from the contig
+    return ancestors(parent_table, contig_cycle_idx, walker_idx, ancestor_contig_cycle_idx)
+
+def contig_sliding_windows(cycle_tree, window_length):
 
     # to generate all the sliding windows over a connected cycle tree
     # it is useful to think of it as a braid, since within this tree
     # there is a forest of trees which are the lineages of the
     # walkers. To simplify things we can first generate window traces
-    # over the cycle tree (ignoring the fin structure of the walkers),
+    # over the cycle tree (ignoring the fine structure of the walkers),
     # which is a very similar process as to the original process of
     # the sliding windows over trees, and then treat each window trace
     # as it's own parent table, which can then be treated using the
@@ -380,7 +351,60 @@ def cycle_tree_sliding_windows(cycle_tree, window_length):
     # directions of the edges and recursively walk the tree until we
     # find nodes with no adjacent edges
 
-    # first we need to find the root
+    # first we need to find the root and leaves for this tree
+    root = cycle_tree_root(cycle_tree)
+    leaves = cycle_tree_root(root, cycle_tree)
+
+    # now we use these leaves to move backwards in the tree with the
+    # window length to get contiguous segments
+    contig_windows = []
+
+    # starting with the leaf nodes we generate contig trace windows
+    # until the last nodes are the same as other windows from other
+    # leaves, i.e. until a branch point has been arrived at between 2
+    # or more leaf branches. To do this we start at the leaf of the
+    # longest spanning contig and make windows until the endpoint is
+    # no longer the largest contig cycle index. Then we alternate
+    # between them until we find they have converged
+
+    # initialize the list of active branches
+    branch_contigs = [cycle_tree_contig_trace(cycle_tree, *leaf) for leaf in leaves]
+
+    done = False
+    while not done:
+
+        # make a window for the largest endpoint, no need to break
+        # ties since the next iteration will get it
+        contig_lengths = [len(contig) for contig in branch_contigs]
+        longest_branch_idx = np.argmax(contig_lengths)
+
+        # if the branch is not long enough for the window we end this
+        # process
+        if window_length > branch_contigs[longest_branch_idx]:
+            done = True
+
+        # otherwise we get the next window and do the other processing
+        else:
+            # get the next window for this branch
+            window = branch_contigs[longest_branch_idx][-window_length:]
+
+            contig_windows.append(window)
+
+            # pop the last element off of this branch contig
+            last_node = branch_contigs[longest_branch_idx].pop()
+
+            # if there are any other branches of the same length that have
+            # this as their last node then we have reached a branch point
+            # and that other branch must be eliminated
+            for branch_idx, branch_contig in enumerate(branch_contigs):
+
+                # compare the last node in contig and if it is the same as
+                # the node that was just used as a window end
+                if branch_contig[-1] == last_node:
+                    # this branch is the same so we just get rid of it
+                    _ = branch_contigs.pop(branch_idx)
+
+    return contig_windows
 
 
 def cycle_forest_sliding_windows(cycle_forest, window_length):
@@ -396,7 +420,7 @@ def cycle_forest_sliding_windows(cycle_forest, window_length):
         cycle_tree = cycle_forest.subgraph(component_nodes)
 
         # then we can get the windows on this connected tree
-        subtree_windows = cycle_forest_sliding_windows(cycle_tree, window_length)
+        subtree_windows = cycle_tree_sliding_windows(cycle_tree, window_length)
 
         forest_windows.extend(subtree_windows)
 
