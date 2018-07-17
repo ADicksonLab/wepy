@@ -127,6 +127,8 @@ def sliding_window(parent_table, window_length):
 
             windows.append(window)
 
+    return windows
+
 ## contig trees for of parent panels
 
 def cycle_tree_parent_table(decision_class, cycle_tree):
