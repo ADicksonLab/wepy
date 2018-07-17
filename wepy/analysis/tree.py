@@ -353,7 +353,7 @@ def contig_sliding_windows(cycle_tree, window_length):
 
     # first we need to find the root and leaves for this tree
     root = cycle_tree_root(cycle_tree)
-    leaves = cycle_tree_root(root, cycle_tree)
+    leaves = cycle_tree_leaves(root, cycle_tree)
 
     # now we use these leaves to move backwards in the tree with the
     # window length to get contiguous segments
@@ -380,7 +380,7 @@ def contig_sliding_windows(cycle_tree, window_length):
 
         # if the branch is not long enough for the window we end this
         # process
-        if window_length > branch_contigs[longest_branch_idx]:
+        if window_length > len(branch_contigs[longest_branch_idx]):
             done = True
 
         # otherwise we get the next window and do the other processing

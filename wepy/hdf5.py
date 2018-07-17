@@ -2497,10 +2497,10 @@ class WepyHDF5(object):
             target_node = (edge_target, self.run_n_cycles(edge_target)-1)
 
             # make the edge
-            edge = (target_node, source_node)
+            edge = (source_node, target_node)
 
             # add this connector edge to the network
-            cycle_tree.add_edge(edge)
+            cycle_tree.add_edge(*edge)
 
         return cycle_tree
 
