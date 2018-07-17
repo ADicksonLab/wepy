@@ -204,29 +204,25 @@ class UnbindingBC(BoundaryConditions):
 
         for (cycle_idx, parent_idx) in warp_ids:
 
-            # if this is the last cycle there is no need/way to write
-            # in a discontinuity in the next cycle
-            if cycle_idx + 1 == n_cycles:
-                continue
-
-            # Get the index of the warped walker in the warping records
+            # Get the index of the warped walker record indicies in
+            # the warping records
             warp_rec_idx = warp_ids.index((cycle_idx, parent_idx))
 
-            # Check to see if any walkers in the next step
+            # Check to see if any walkers in the current step
             # originated from this warped walker
             for walker_idx in range(n_walker):
 
                 # if it's parent is the walker in this warping event
                 # we also need to check to see if that warping event
                 # was a discontinuous warping event
-                if parent_table[cycle_idx + 1][walker_idx] == parent_idx:
+                if parent_table[cycle_idx][walker_idx] == parent_idx:
 
                     # if the target index of the warping is in the
                     # list of discontinuous targets then we mark the
                     # parent of the child walker as the DISCONTINUITY
                     # value (i.e. -1)
                     if target_idxs[warp_rec_idx] in cls.DISCONTINUITY_TARGET_IDXS:
-                        new_parent_table[cycle_idx + 1][walker_idx] = cls.DISCONTINUITY_VALUE
+                        new_parent_table[cycle_idx][walker_idx] = cls.DISCONTINUITY_VALUE
 
 
         return new_parent_table
