@@ -104,15 +104,15 @@ def sliding_window(parent_table, window_length):
 
     """
 
-    assert parent_table.dtype == np.int, \
-        "parent table values must be integers, not {}".format(parent_table.dtype)
+    # assert parent_table.dtype == np.int, \
+    #     "parent table values must be integers, not {}".format(parent_table.dtype)
 
     assert window_length > 1, "window length must be greater than one"
 
+    windows = []
     # we make a range iterator which goes from the last cycle to the
     # cycle which would be the end of the first possible sliding window
     for cycle_idx in range(len(parent_table)-1, window_length-2, -1):
-
         # then iterate for each walker at this cycle
         for walker_idx in range(len(parent_table[0])):
 
@@ -125,7 +125,7 @@ def sliding_window(parent_table, window_length):
             if len(window) < window_length:
                 continue
 
-            yield window
+            windows.append(window)
 
 ## contig trees for of parent panels
 
@@ -190,6 +190,19 @@ def cycle_tree_contig_trace(cycle_tree, run_idx, cycle_idx, start_contig_idx=0):
             curr_node = prev_node
 
     return contig_trace
+
+
+def contig_sliding_window(cycle_tree, contig_trace, window_length):
+    """Given a contig trace (run_idx, cycle_idx) get the sliding windows
+    over it (run_idx, traj_idx, cycle_idx)."""
+
+    # make a parent table for the contig trace
+    parent_table = contig_trace_parent_table(cycle_tree, contig_trace)
+
+    windows = sliding_window(parent_table, window_length)
+
+    return windows
+
 
 def contig_cycle(cycle_tree, run_idx, cycle_idx):
     """Get the contig cycle idx for a (run_idx, cycle_idx) pair."""
@@ -323,7 +336,7 @@ def ancestors_from_tree(cycle_tree, run_idx, cycle_idx, walker_idx, ancestor_nod
     # using a corrected cycle index from the contig
     return ancestors(parent_table, contig_cycle_idx, walker_idx, ancestor_contig_cycle_idx)
 
-def contig_sliding_windows(cycle_tree, window_length):
+def sliding_contig_windows(cycle_tree, window_length):
 
     # to generate all the sliding windows over a connected cycle tree
     # it is useful to think of it as a braid, since within this tree
@@ -406,22 +419,34 @@ def contig_sliding_windows(cycle_tree, window_length):
 
     return contig_windows
 
-
-def cycle_forest_sliding_windows(cycle_forest, window_length):
+def forest_sliding_contig_windows(cycle_forest, window_length):
 
     assert window_length > 1, "window length must be greater than one"
 
     # we can deal with each tree in this forest of trees separately,
     # that is runs that are not connected
-    forest_windows = []
+    forest_contig_windows = []
     for component_nodes in nx.weakly_connected_components(cycle_forest):
 
         # actually get the subtree from the main tree
-        cycle_tree = cycle_forest.subgraph(component_nodes)
+        subtree = cycle_forest.subgraph(component_nodes)
 
-        # then we can get the windows on this connected tree
-        subtree_windows = cycle_tree_sliding_windows(cycle_tree, window_length)
+        # get the contig windows for the individual tree
+        subtree_contig_windows = sliding_contig_windows(subtree, window_length)
 
-        forest_windows.extend(subtree_windows)
+        forest_contig_windows.extend(subtree_contig_windows)
 
-    return forest_windows
+    return forest_contig_windows
+
+def contig_tree_sliding_windows(cycle_tree, window_length):
+
+    # get all of the contig traces for these trees
+    contig_traces = forest_sliding_contig_windows(cycle_tree, window_length)
+
+    # for each of these we generate all of the actual frame sliding windows
+    windows = []
+    for contig_trace in contig_traces:
+        contig_windows = contig_sliding_window(cycle_tree, contig_trace, window_length)
+        windows.extend(contig_windows)
+
+    return windows
