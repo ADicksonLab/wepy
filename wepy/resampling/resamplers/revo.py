@@ -29,7 +29,7 @@ class REVOResampler(Resampler):
 
 
     def __init__(self, seed=None, pmin=1e-12, pmax=0.1, dpower=4, merge_dist=2.5,
-                 distance=None, init_state=None):
+                 distance=None, init_state=None, weights=True):
 
         self.decision = self.DECISION
 
@@ -55,6 +55,9 @@ class REVOResampler(Resampler):
         self.seed = seed
         if seed is not None:
             rand.seed(seed)
+
+        # setting the weights parameter
+        self.weights = weights
 
         # we do not know the shape and dtype of the images until
         # runtime so we determine them here
@@ -91,7 +94,10 @@ class REVOResampler(Resampler):
         for i in range(n_walkers):
 
             if walkerwt[i] > 0 and amp[i] > 0:
-                wtfac[i] = np.log(walkerwt[i]/amp[i]) - self.lpmin
+                if self.weights:
+                    wtfac[i] = np.log(walkerwt[i]/amp[i]) - self.lpmin
+                else:
+                    wtfac[i] = 1
 
             else:
                 wtfac[i] = 0
