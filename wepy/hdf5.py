@@ -9,8 +9,6 @@ import numpy as np
 import h5py
 import networkx as nx
 
-from wepy.analysis.tree import parent_panel, net_parent_table
-
 from wepy.util.mdtraj import mdtraj_to_json_topology, json_to_mdtraj_topology
 from wepy.util.util import traj_box_vectors_to_lengths_angles, json_top_atom_count
 
