@@ -1,6 +1,8 @@
 import networkx as nx
 import numpy as np
 
+DISCONTINUITY_VALUE = -1
+
 def parent_panel(decision_class, resampling_panel):
 
     parent_panel = []
@@ -130,6 +132,11 @@ def sliding_window(parent_table, window_length):
     return windows
 
 ## contig trees for of parent panels
+
+class ContigTree(nx.DiGraph):
+
+    def __init__(self, wepy_h5):
+        pass
 
 def cycle_tree_parent_table(decision_class, cycle_tree):
     """Determines the net parents for each cycle and sets them in-place to
@@ -452,3 +459,86 @@ def contig_tree_sliding_windows(cycle_tree, window_length):
         windows.extend(contig_windows)
 
     return windows
+
+
+def parent_table_discontinuities(boundary_condition_class, parent_table, warping_records):
+    """Given a parent table and warping records returns a new parent table
+    with the discontinuous warping events for parents set to -1"""
+
+    # Make a copy of the parent table
+    new_parent_table = copy(parent_table)
+
+    # Find the number of walkers and cycles
+    n_walker = np.shape(parent_table)[1]
+
+    for rec_idx, warp_record in enumerate(warping_records):
+
+        cycle_idx = warp_record[0]
+        parent_idx = warp_record[1]
+
+        # Check to see if any walkers in the current step
+        # originated from this warped walker
+        for walker_idx in range(n_walker):
+
+            # if it's parent is the walker in this warping event
+            # we also need to check to see if that warping event
+            # was a discontinuous warping event
+            if parent_table[cycle_idx][walker_idx] == parent_idx:
+
+                # just check by using the method from the boundary
+                # condition class used
+                if boundary_condition_class.warping_discontinuity(warp_record):
+
+                    # set the element in the parent table to the
+                    # discontinuity value if it is
+                    new_parent_table[cycle_idx][walker_idx] = DISCONTINUITY_VALUE
+
+    return new_parent_table
+
+def cycle_tree_discontinuities(boundary_conditions_class, cycle_tree, run_warping_records):
+
+    # initialize the attributes for discontinuities to 0s for no
+    # discontinuities
+    run_idxs = set([])
+    for node in cycle_tree.nodes:
+        n_walkers = len(cycle_tree.node[node]['parent_idxs'])
+        cycle_tree.node[node]['discontinuity'] = [0 for i in range(n_walkers)]
+
+        # collect all the run idxs for the cycle tree
+        node_run_idx = node[0]
+        run_idxs.add(node_run_idx)
+
+    #
+    for run_idx in run_idxs:
+
+        warping_records = run_warping_records[run_idx]
+
+        warp_cycle_idxs = set([rec[0] for rec in warping_records])
+
+        # go through the nodes
+        for node in cycle_tree.nodes:
+            node_run_idx = node[0]
+            node_cycle_idx = node[1]
+
+            # for a node which is in this run and has warp records
+            if (node_run_idx == run_idx) and (node_cycle_idx in warp_cycle_idxs):
+
+                # if there is then we want to apply the
+                # warping records for this cycle to the
+                # discontinuities for this cycle
+                cycle_warp_records = [rec for rec in warping_records
+                                      if (rec[0] == node_cycle_idx)]
+
+                # go through each record and test if it is a
+                # discontinuous warp
+                for rec in cycle_warp_records:
+
+                    rec_traj_idx = rec[1]
+
+                    # if it is discontinuous we need to mark that,
+                    # otherwise do nothing
+                    if boundary_conditions_class.warping_discontinuity(rec):
+
+                        cycle_tree.node[node]['discontinuity'][rec_traj_idx] = -1
+
+    return cycle_tree

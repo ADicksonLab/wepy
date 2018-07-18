@@ -34,8 +34,9 @@ class UnbindingBC(BoundaryConditions):
     PROGRESS_RECORD_FIELDS = ('min_distances', )
 
 
+    # for boundary conditions that warp things around certain targets
+    # mayb not introduce discontiuities, these target idxs do
     DISCONTINUITY_TARGET_IDXS = (0,)
-    DISCONTINUITY_VALUE = -1
 
     def __init__(self, initial_state=None,
                  cutoff_distance=1.0,
@@ -186,6 +187,16 @@ class UnbindingBC(BoundaryConditions):
 
         return new_walkers, warp_data, bc_data, progress_data
 
+    @classmethod
+    def warping_discontinuity(cls, warping_record):
+        """Given a warping record returns either True for a discontiuity
+        occured or False if a discontinuity did not occur."""
+
+        # the target_idxs are one of the discontinuous targets
+        if warping_record[2] in cls.DISCONTINUITY_TARGET_IDXS:
+            return True
+        else:
+            return False
 
     @classmethod
     def lineage_discontinuities(cls, parent_table, warping_records):
