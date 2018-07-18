@@ -2462,6 +2462,7 @@ class WepyHDF5(object):
         return records
 
 
+    # TODO remove
     def cycle_tree(self):
         # make a network which has nodes (run_idx, cycle_idx) and the
         # main attibute is the resampling steps for that cycle
@@ -2872,6 +2873,7 @@ class WepyHDF5(object):
         return contig_resampling_panel
 
 
+    # TODO remove
     def cycle_tree_resampling_panel(self):
         """Instead of a resampling panel this is the same thing except each
         cycle is a node rather than a table in the panel.
