@@ -465,13 +465,13 @@ Defined Regions with the number of child regions per parent region:
         # format the dashboard string
         dashboard = self.DASHBOARD_TEMPLATE.format(
             step_time=self.step_time,
-            step_time_femtoseconds=self.step_time * 10e-15,
+            step_time_femtoseconds=self.step_time * 10e15,
             last_cycle_idx=self.last_cycle_idx,
             n_cycles=self.n_cycles,
             walker_total_sampling_time=self.walker_total_sampling_time,
-            walker_total_sampling_time_microseconds=self.walker_total_sampling_time * 10e-6,
+            walker_total_sampling_time_microseconds=self.walker_total_sampling_time * 10e6,
             total_sampling_time=self.total_sampling_time,
-            total_sampling_time_microseconds=self.total_sampling_time * 10e-6,
+            total_sampling_time_microseconds=self.total_sampling_time * 10e6,
             cutoff_distance=self.bc_cutoff_distance,
             n_exit_points=self.n_exit_points,
             cycle_n_exit_points=self.cycle_n_exit_points,
