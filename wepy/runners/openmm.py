@@ -176,7 +176,7 @@ class OpenMMState(WalkerState):
             if key == 'positions':
                 return self.positions_values()
             elif key == 'velocities':
-                return self.velocities_values
+                return self.velocities_values()
             elif key == 'forces':
                 return self.forces_values()
             elif key == 'kinetic_energy':
