@@ -2,10 +2,13 @@ from collections import defaultdict
 
 import networkx as nx
 
+from wepy.analysis.transitions import transition_counts, counts_d_to_matrix, \
+                                      normalize_counts
+
 class MacroStateNetwork(nx.DiGraph):
 
-    def __init__(self, wepy_hdf5, assg_field_key=None, assignments=None,
-                 transition_lag_time=1):
+    def __init__(self, contig_tree, assg_field_key=None, assignments=None,
+                 transition_lag_time=2):
 
         super().__init__()
 
@@ -15,7 +18,8 @@ class MacroStateNetwork(nx.DiGraph):
         assert assg_field_key is not None or assignments is not None, \
             "one of assg_field_key or assignments must be given"
 
-        self._wepy_hdf5 = wepy_hdf5
+        self._contig_tree = contig_tree
+        self._wepy_hdf5 = self._contig_tree.wepy_h5
 
         self._assg_field_key = None
 
@@ -37,15 +41,56 @@ class MacroStateNetwork(nx.DiGraph):
         for assg_key, assigs in self._assignments.items():
             self.add_node(assg_key, assignments=assigs)
 
+
+        # now count the transitions between the states and set those
+        # as the edges between nodes
+
+        # first get the sliding window transitions from the contig
+        # tree, once we set edges for a tree we don't really want to
+        # have multiple sets of transitions on the same network so we
+        # don't provide the method to add different assignments
+        if transition_lag_time is not None:
+
+            # set the lag time attribute
+            self._transition_lag_time = transition_lag_time
+
+            # get the transitions
+            transitions = []
+            for window in self._contig_tree.sliding_windows(self._transition_lag_time):
+
+                transition = [window[0], window[-1]]
+
+                # convert the window trace on the contig to a trace
+                # over the runs
+                
+
+                transitions.append(transition)
+
+            # then get the counts for those edges
+            counts_d = transition_counts(self._assignments, transitions)
+
+            # the keys of this are the edges, so we add them to our
+            # network
+            self.add_edges_from(counts_d.keys())
+
+            # then we also want to get the transition probabilities so
+            # we get the counts matrix and compute the probabilities
+            self._countsmat = counts_d_to_matrix(counts_d)
+            self._probmat = normalize_counts(self._countsmat)
+
+            # then we add these attributes to the edges in the network
+            for i, j in self.edges:
+                self.edge[(i,j)]['counts'] = self._countsmat[i,j]
+                self.edge[(i,j)]['probability'] = self._probmat[i,j]
+
         # then get rid of the assignments dictionary, this information
         # can be accessed from the network
         del self._assignments
 
-        # now count the transitions between the states and set those
-        # as the edges between nodes, this is a multistep process
 
-        # 1. generate the resampling panel for the contig tree of all
-        # the runs
+
+        return transitions
+
 
     def _key_init(self, assg_field_key):
         # the key for the assignment in the wepy dataset
@@ -72,6 +117,10 @@ class MacroStateNetwork(nx.DiGraph):
                 for frame_idx, assignment in enumerate(traj):
                     self._assignments[assignment].append( (run_idx, traj_idx, frame_idx) )
 
+
+    @property
+    def contig_tree(self):
+        return self._contig_tree
 
     @property
     def wepy_hdf5(self):

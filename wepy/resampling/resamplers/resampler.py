@@ -86,7 +86,11 @@ class Resampler(object):
 
         # keep track of which slots will be free due to squashing
         free_slots = []
-        # go through the merge groups and write the records for them
+
+        # go through the merge groups and write the records for them,
+        # the index of a merge group determines the KEEP_MERGE walker
+        # and the indices in the merge group are the walkers that will
+        # be squashed
         for walker_idx, merge_group in enumerate(merge_groups):
 
             if len(merge_group) > 0:
@@ -114,12 +118,39 @@ class Resampler(object):
             # slot
             if num_clones > 0:
 
+                # we first check to see if there are any free "slots"
+                # for cloned walkers to go. If there are not we can
+                # make room. The number of extra slots needed should
+                # be default 0
+                num_slots_needed = 0
+                # initialize the lists of open slots
+                this_free_slots = []
+                new_slots = []
                 if num_clones > len(free_slots):
-                    raise ValueError("The number of clones exceeds the number of free slots.")
+                    # in the past we just raised an error which
+                    # excludes having a variable number of walkers
+                    #raise ValueError("The number of clones exceeds the number of free slots.")
 
-                # collect free slots for this clone, plus keeping one
-                # at the original location
-                slots = [free_slots.pop() for clone in range(num_clones)] + [walker_idx]
+                    # we get the difference in them in order to figure
+                    # out how many extra slots will be created
+                    num_slots_needed = num_clones - len(free_slots)
+
+                    # collect free slots for this clone if there are any
+                    if len(free_slots) > 0:
+                        this_free_slots = [free_slots.pop() for clone in range(num_clones)]
+
+                    # and make a list of the new slots
+                    new_slots = [n_walkers + i for i in range(num_slots_needed)]
+
+                    # then increase the number of walkers to match
+                    n_walkers += num_slots_needed
+
+                # then combine all the sources of slots, which
+                # includes the spot this walker currently sits, slots
+                # opened up by squashing, and newly created slots
+                slots = [walker_idx] + \
+                        this_free_slots + \
+                        new_slots
 
                 # make a record for this clone
                 walker_actions[walker_idx] = self.decision.record(self.decision.ENUM.CLONE.value,

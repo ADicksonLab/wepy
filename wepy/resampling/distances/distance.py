@@ -1,7 +1,7 @@
 class Distance(object):
 
     def __init__(self):
-        raise NotImplementedError
+        pass
 
     def image(self, state):
         """Return the reduced representation of a state that is the only

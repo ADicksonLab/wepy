@@ -6,7 +6,7 @@ import numpy as np
 def transition_counts(assignments, transitions):
     """Make a dictionary of transition counts.
 
-    assignments: a list of N_run, [N_traj x N_cycle] arrays of ints
+    assignments: a list of [N_run, [N_traj x N_cycle]] arrays of ints
     where N_runs is the number of runs, N_traj is the number of
     trajectories, and N_cycle is the number of cycles
 
@@ -31,6 +31,14 @@ def transition_counts(assignments, transitions):
 
     return countsmat_d
 
+def counts_d_to_matrix(counts_d):
+    max_assignment = max(it.chain(*countsmat_d.keys()))
+    countsmat = np.zeros((max_assignment+1, max_assignment+1))
+    for transition, n_trans in countsmat_d.items():
+        countsmat[transition] = n_trans
+
+    return countsmat
+
 def normalize_counts(transition_counts_matrix):
 
     return np.divide(transition_counts_matrix, transition_counts_matrix.sum(axis=0))
@@ -52,10 +60,7 @@ def transition_counts_matrix(assignments, transitions):
     countsmat_d = transition_counts(assignments, transitions)
 
     # convert to matrix
-    max_assignment = max(it.chain(*countsmat_d.keys()))
-    countsmat = np.zeros((max_assignment+1, max_assignment+1))
-    for transition, n_trans in countsmat_d.items():
-        countsmat[transition] = n_trans
+    countsmat = counts_d_to_matrix(counts_d)
 
     return countsmat
 

@@ -25,11 +25,11 @@ class ContigTree(nx.DiGraph):
 
         self._set_resampling_panels()
 
-        if decision_class:
+        if decision_class is not None:
             self._set_parents(decision_class)
 
-        if boundary_condition_class is not None:
-            self._set_discontinuities(boundary_condition_class)
+            if boundary_condition_class is not None:
+                self._set_discontinuities(boundary_condition_class)
 
     def _create_tree(self):
 
@@ -347,11 +347,12 @@ class ContigTree(nx.DiGraph):
 
     def contig_sliding_windows(self, contig_trace, window_length):
         """Given a contig trace (run_idx, cycle_idx) get the sliding windows
-        over it (run_idx, traj_idx, cycle_idx)."""
+        over it (traj_idx, cycle_idx)."""
 
         # make a parent table for the contig trace
         parent_table = self.trace_parent_table(contig_trace)
 
+        # this gives you windows of trace elements (traj_idx, cycle_idx)
         windows = sliding_window(parent_table, window_length)
 
         return windows
@@ -465,7 +466,14 @@ class ContigTree(nx.DiGraph):
         # for each of these we generate all of the actual frame sliding windows
         windows = []
         for contig_trace in contig_traces:
+
+            # these are windows of trace element (traj_idx, cycle_idx)
+            # all over this contig
             contig_windows = self.contig_sliding_windows(contig_trace, window_length)
-            windows.extend(contig_windows)
+
+            # convert those traces to the corresponding (run_idx, traj_idx, cycle_idx)
+            # trace
+            for contig_window in contig_windows:
+                windows.append(run_trace_window)
 
         return windows

@@ -314,7 +314,7 @@ class RegionTree(nx.DiGraph):
 
         # for each leaf node calculate the number of reducible walkers
         # (i.e. the largest possible number of merges that could occur
-        # taking in to account the pmax (max weight) constraint)
+        # taking into account the pmax (max weight) constraint)
         for node_id in self.leaf_nodes():
             if self.node[node_id]['n_walkers'] > 1:
 
@@ -324,13 +324,7 @@ class RegionTree(nx.DiGraph):
 
                 # figure out the most possible mergeable walkers
                 # assuming they cannot ever be larger than pmax
-                sum_weights = 0
-                for i in range(len(weights)):
-                    sum_weights += weights[i]
-                    # if we still haven't gone past pmax set the n_red
-                    # to the current index
-                    if sum_weights < self.pmax and i+1 < len(weights):
-                        self.node[node_id]['n_mergeable'] = i + 1
+                self.node[node_id]['n_mergeable'] = self._calc_mergeable_walkers(weights)
 
                 # increase the reducible walkers for the higher nodes
                 # in this leaf's branch
@@ -339,6 +333,89 @@ class RegionTree(nx.DiGraph):
                     self.node[branch_node_id]['n_mergeable'] += self.node[node_id]['n_mergeable']
 
         return new_branches
+
+    @classmethod
+    def _max_n_merges(cls, pmax, root, weights):
+
+        # indices of the weights
+        walker_idxs = [i for i, weight in enumerate(weights)]
+
+        # remove the root from the weights
+        unused_walker_idxs = list(set(walker_idxs).difference(root))
+
+        # initialize the number of merges identified by the length of
+        # the current root
+        max_n_merges = len(root) - 1
+
+
+        # then combine the root with the unused weights
+        for root, merge_candidate in it.product([root], unused_walker_idxs):
+
+            # get the weights for this combo
+            combo_weights = [weights[i] for i in root] + [weights[merge_candidate]]
+
+            # sum them
+            sum_weight = sum(combo_weights)
+
+            # if the sum of the weights is less than or equal than the
+            # pmax then this combination beats the current record of
+            # the root
+            if sum_weight <= pmax:
+
+                # then we know that the number of merges is at least
+                # one more than the root
+                max_n_merges += 1
+
+                # if we still haven't reached the pmax continue making
+                # merges to see if we can beat this record
+                if sum_weight < pmax:
+
+                    # make a new root for this combo and recursively call
+                    # this method
+                    new_combo = (*root, merge_candidate,)
+
+                    # this will return the maximum number of merges from
+                    # this subset of the walkers
+                    n_merges = cls._max_n_merges(pmax, new_combo, weights)
+
+                    # if this is greater than the current record
+                    # overwrite it
+                    if n_merges > max_n_merges:
+                        max_n_merges = n_merges
+
+                # if it is exactly pmax then no more merges can be
+                # done so we can just end here and return this record
+                elif sum_weight == pmax:
+                    break
+
+
+        # if no combination of this root and other candidates can make
+        # any more merges than we just return the roots number of merges
+
+        return max_n_merges
+
+    def _new_calc_mergeable_walkers(self, walker_weights):
+
+        max_n_merges = self._max_n_merges(self.pmax, (), walker_weights)
+
+        return max_n_merges
+
+
+    def _calc_mergeable_walkers(self, walker_weights):
+
+        # figure out the most possible mergeable walkers
+        # assuming they cannot ever be larger than pmax
+        sum_weights = 0
+        n_mergeable = 0
+        for i in range(len(walker_weights)):
+            sum_weights += walker_weights[i]
+            # if we still haven't gone past pmax set the n_red
+            # to the current index
+            if sum_weights < self.pmax and i+1 < len(walker_weights):
+                n_mergeable = i + 1
+
+        return n_mergeable
+
 
     def minmax_beneficiaries(self, children):
 
@@ -434,6 +511,8 @@ class RegionTree(nx.DiGraph):
                         parental_balance += diff
                         self.node[child]['balance'] -= diff
 
+                # if the parental balance is still not zero the
+                # children cannot balance it given their constraints
                 if parental_balance < 0:
                     raise ValueError("Children cannot pay their parent's debt")
 
@@ -447,6 +526,8 @@ class RegionTree(nx.DiGraph):
                         self.node[child]['balance'] += parental_balance
                         parental_balance = 0
 
+                # if the parental balance is still not zero the
+                # children cannot balance it given their constraints
                 if parental_balance > 0:
                     raise ValueError("Children cannot perform any clones.")
 
@@ -523,11 +604,14 @@ class RegionTree(nx.DiGraph):
     def merge_leaf(self, leaf, merge_groups, walkers_num_clones):
 
         leaf_balance = self.node[leaf]['balance']
+
         # we need to check that we aren't squashing or merging an
         # already cloned walker
         mergeable_walkers = [walker_idx for walker_idx, num_clones
                              in enumerate(walkers_num_clones)
+                             # no clones assigned to this walker
                              if (num_clones == 0) and
+                             # it is also apart of this leaf node
                                 (walker_idx in self.node[leaf]['walker_idxs'])]
 
         mergeable_weights = [self.walker_weights[walker_idx] for walker_idx in mergeable_walkers]
@@ -535,27 +619,32 @@ class RegionTree(nx.DiGraph):
         # the number of walkers we need to choose in order to be
         # able to do the required amount of merges
         num_merge_walkers = abs(leaf_balance) + 1
+
         # select the lowest weight walkers to use for merging
         selected_walkers = np.argsort(mergeable_weights)[:num_merge_walkers]
 
-        # get the walker_idx of the selected walkers
-        walker_idxs = [mergeable_idx for i, mergeable_idx in enumerate(mergeable_walkers)
-                          if i in selected_walkers]
+        # get the walker_idx of the selected walkers, the
+        # mergeable_idx is the walker idx, and sorted_idx is the index
+        # from argsort which indexes the mergeable_weights list thus
+        # the mergeable_walkers list
+        chosen_walker_idxs = [mergeable_idx for sorted_idx, mergeable_idx in enumerate(mergeable_walkers)
+                          if sorted_idx in selected_walkers]
 
+        # get the weights of these chosen_walker_idxs that were chosen
         chosen_weights = [weight for i, weight in enumerate(self.walker_weights)
-                          if i in walker_idxs]
+                          if i in chosen_walker_idxs]
 
         # choose the one to keep the state of (e.g. KEEP_MERGE
         # in the Decision) based on their weights
-        #keep_idx = rand.choices(walker_idxs, k=1, weights=chosen_weights)
+        # keep_idx = rand.choices(chosen_walker_idxs, k=1, weights=chosen_weights)
         # normalize weights to a distribution
         chosen_pdist = np.array(chosen_weights) / sum(chosen_weights)
-        keep_idx = np.random.choice(walker_idxs, 1, p=chosen_pdist)[0]
+        keep_idx = np.random.choice(chosen_walker_idxs, 1, p=chosen_pdist)[0]
 
         # pop the keep idx from the walkers so we can use them as the squash idxs
-        walker_idxs.pop(walker_idxs.index(keep_idx))
+        chosen_walker_idxs.pop(chosen_walker_idxs.index(keep_idx))
         # the rest are squash_idxs
-        squash_idxs = walker_idxs
+        squash_idxs = chosen_walker_idxs
 
         # account for the weight from the squashed walker to
         # the keep walker
@@ -681,9 +770,15 @@ class RegionTree(nx.DiGraph):
         num_clones = sum(walkers_num_clones)
         num_squashed = sum([len(merge_group) for merge_group in merge_groups])
 
-        if num_clones != num_squashed:
-            raise RegionTreeError("The number of squashed walkers in the merge group"
-                                  "is not the same as the number of clones planned.")
+        # NOTE this was here to make sure that the squashes and merges
+        # balanced out which is at odds with allowing net changes from
+        # delta_walkers, I am leaving here in case we find later it is
+        # necessary
+
+        # if num_clones != num_squashed:
+        #     raise RegionTreeError("The number of squashed walkers in the merge group ({}) "
+        #                           "is not the same as the number of clones planned ({}).".format(
+        #                               num_squashed, num_clones))
 
 
         return merge_groups, walkers_num_clones
@@ -756,8 +851,8 @@ class WExploreResampler(Resampler):
 
         # initialize the region tree with the first state
         self._region_tree = RegionTree(init_state,
-                                      max_n_regions=self.max_n_regions,
-                                      max_region_sizes=self.max_region_sizes,
+                                       max_n_regions=self.max_n_regions,
+                                       max_region_sizes=self.max_region_sizes,
                                        distance=self.distance,
                                        pmin=self.pmin,
                                        pmax=self.pmax)
@@ -824,20 +919,32 @@ class WExploreResampler(Resampler):
 
     def decide(self, delta_walkers=0, debug_prints=False):
 
-        ## Given the assignments ("scores") (which are on the tree
-        ## nodes) decide on which to merge and clone
+        ## Given the assignments (which are on the tree nodes) decide
+        ## on which to merge and clone
 
         # do this by "balancing" the tree. delta_walkers can be
         # specified to increase or decrease the total number of
         # walkers
         merge_groups, walkers_num_clones = self.region_tree.balance_tree(delta_walkers=delta_walkers)
+
         if debug_prints:
             print("merge_groups\n{}".format(merge_groups))
             print("Walker number of clones\n{}".format(walkers_num_clones))
+            print("Walker assignments\n{}".format(self.region_tree.walker_assignments))
+            print("Walker weights\n{}".format(self.region_tree.walker_weights))
 
+        # check that there are no walkers violating the pmin and pmax
+
+        # check that all of the weights are less than or equal to the pmax
+        assert all([weight <= self.pmax for weight in self.region_tree.walker_weights]), \
+            "All walker weights must be less than the pmax"
+
+        # check that all of the weights are greater than or equal to the pmin
+        assert all([weight >= self.pmin for weight in self.region_tree.walker_weights]), \
+            "All walker weights must be less than the pmin"
 
         # check to make sure we have selected appropriate walkers to clone
-        #print images
+        # print images
         if debug_prints:
             print("images_assignments\n{}".format(self.region_tree.regions))
 
@@ -850,9 +957,6 @@ class WExploreResampler(Resampler):
                 squash_idxs = list(it.chain(merge_groups))
                 if walker_idx in squash_idxs:
                     raise ValueError("trying to clone a SQUASH walker")
-
-        # clear the tree of walker information
-        self.region_tree.clear_walkers()
 
         # using the merge groups and the non-specific number of clones
         # for walkers create resampling actions for them (from the
@@ -884,10 +988,6 @@ class WExploreResampler(Resampler):
 
     def resample(self, walkers, delta_walkers=0, debug_prints=False):
 
-        # if the region tree has not been initialized, do so
-        if self.region_tree is None:
-            self.init(walkers)
-
         ## assign/score the walkers, also getting changes in the
         ## resampler state
         assignments, resampler_data = self.assign(walkers)
@@ -908,9 +1008,29 @@ class WExploreResampler(Resampler):
         # records a lists of lists for steps and walkers
         resampled_walkers = self.DECISION.action(walkers, [resampling_data])
 
+        # check that the weights of the resampled walkers are not
+        # beyond the bounds of what they are supposed to be
+
+        # check that all of the weights are less than or equal to the pmax
+        assert all([walker.weight <= self.pmax for walker in resampled_walkers]), \
+            "All walker weights must be less than the pmax"
+
+        # check that all of the weights are greater than or equal to the pmin
+        assert all([walker.weight >= self.pmin for walker in resampled_walkers]), \
+            "All walker weights must be less than the pmin"
+
+        # check that the results of the resampling matches what was
+        # intended
+        # TODO implement this
+        pass
+
+
         # then add the assignments and distance to image for each walker
         for walker_idx, assignment in enumerate(assignments):
             resampling_data[walker_idx]['region_assignment'] = assignment
+
+        # clear the tree of walker information for the next resampling
+        self.region_tree.clear_walkers()
 
         return resampled_walkers, resampling_data, resampler_data
 
