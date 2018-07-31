@@ -32,9 +32,10 @@ def transition_counts(assignments, transitions):
     return countsmat_d
 
 def counts_d_to_matrix(counts_d):
-    max_assignment = max(it.chain(*countsmat_d.keys()))
+    # get the number of unique nodes in the counts_d
+    max_assignment = max(it.chain(*counts_d.keys()))
     countsmat = np.zeros((max_assignment+1, max_assignment+1))
-    for transition, n_trans in countsmat_d.items():
+    for transition, n_trans in counts_d.items():
         countsmat[transition] = n_trans
 
     return countsmat

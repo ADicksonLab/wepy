@@ -1,16 +1,20 @@
 from collections import defaultdict
+from copy import deepcopy
 
 import networkx as nx
 
 from wepy.analysis.transitions import transition_counts, counts_d_to_matrix, \
                                       normalize_counts
 
-class MacroStateNetwork(nx.DiGraph):
+class MacroStateNetwork():
+
+
+    ASSIGNMENTS = 'assignments'
 
     def __init__(self, contig_tree, assg_field_key=None, assignments=None,
                  transition_lag_time=2):
 
-        super().__init__()
+        self._graph = nx.DiGraph()
 
         assert not (assg_field_key is None and assignments is None), \
             "either assg_field_key or assignments must be given"
@@ -24,6 +28,8 @@ class MacroStateNetwork(nx.DiGraph):
         self._assg_field_key = None
 
         # the temporary assignments dictionary
+        self._node_assignments = None
+        # and temporary raw assignments
         self._assignments = None
 
         # map the keys to their lists of assignments, depending on
@@ -38,9 +44,15 @@ class MacroStateNetwork(nx.DiGraph):
 
         # once we have made th dictionary add the nodes to the network
         # and reassign the assignments to the nodes
-        for assg_key, assigs in self._assignments.items():
-            self.add_node(assg_key, assignments=assigs)
+        self._node_idxs = {}
+        for node_idx, assg_item in enumerate(self._node_assignments.items()):
+            assg_key, assigs = assg_item
+            self._graph.add_node(assg_key, node_idx=node_idx, assignments=assigs)
+            self._node_idxs[assg_key] = node_idx
 
+        # then we compute the total weight of the macrostate and set
+        # that as the default node weight
+        #self.set_macrostate_weights()
 
         # now count the transitions between the states and set those
         # as the edges between nodes
@@ -62,61 +74,116 @@ class MacroStateNetwork(nx.DiGraph):
 
                 # convert the window trace on the contig to a trace
                 # over the runs
-                
-
                 transitions.append(transition)
 
             # then get the counts for those edges
             counts_d = transition_counts(self._assignments, transitions)
 
-            # the keys of this are the edges, so we add them to our
-            # network
-            self.add_edges_from(counts_d.keys())
+            # create the edges and set the counts into them
+            for edge, trans_counts in counts_d.items():
+                self._graph.add_edge(*edge, counts=trans_counts)
 
             # then we also want to get the transition probabilities so
             # we get the counts matrix and compute the probabilities
-            self._countsmat = counts_d_to_matrix(counts_d)
+            # we first have to replace the keys of the counts of the
+            # node_ids with the node_idxs
+            node_id_to_idx_dict = self.node_id_to_idx_dict()
+            self._countsmat = counts_d_to_matrix(
+                                {(node_id_to_idx_dict[edge[0]],
+                                  node_id_to_idx_dict[edge[1]]) : counts
+                                 for edge, counts in counts_d.items()})
             self._probmat = normalize_counts(self._countsmat)
 
             # then we add these attributes to the edges in the network
-            for i, j in self.edges:
-                self.edge[(i,j)]['counts'] = self._countsmat[i,j]
-                self.edge[(i,j)]['probability'] = self._probmat[i,j]
+            node_idx_to_id_dict = self.node_id_to_idx_dict()
+            for i_id, j_id in self._graph.edges:
+                # i and j are the node idxs so we need to get the
+                # actual node_ids of them
+                i_idx = node_idx_to_id_dict[i_id]
+                j_idx = node_idx_to_id_dict[j_id]
+
+                # convert to a normal float and set it as an explicitly named attribute
+                self._graph.edges[i_id, j_id]['transition_probability'] = \
+                                                            float(self._probmat[i_idx, j_idx])
+
+                # we also set the general purpose default weight of
+                # the edge to be this.
+                self._graph.edges[i_id, j_id]['Weight'] = \
+                                                float(self._probmat[i_idx, j_idx])
+
 
         # then get rid of the assignments dictionary, this information
         # can be accessed from the network
+        del self._node_assignments
         del self._assignments
 
-
-
-        return transitions
-
-
     def _key_init(self, assg_field_key):
+
         # the key for the assignment in the wepy dataset
         self._assg_field_key = assg_field_key
 
-        # make a dictionary that maps the assignment keys to frames
-        # across the whole file {assignment_key : (run_idx, traj_idx, frame_idx)}
-        self._assignments = defaultdict(list)
+        # blank assignments
+        assignments = [[[] for i in range(self._wepy_hdf5.n_run_trajs(run_idx))]
+                             for run_idx in self._wepy_hdf5.run_idxs]
 
-        for idx_tup, fields_d in self._wepy_hdf5.iter_trajs_fields([self.assg_field_key], idxs=True):
+        # the raw assignments
+        curr_run_idx = -1
+        for idx_tup, fields_d in self._wepy_hdf5.iter_trajs_fields(
+                                         [self.assg_field_key], idxs=True):
             run_idx = idx_tup[0]
             traj_idx = idx_tup[1]
             assg_field = fields_d[self.assg_field_key]
 
-            for frame_idx, assg in enumerate(assg_field):
-                self._assignments[assg].append( (run_idx, traj_idx, frame_idx) )
+            if len(assignments) < curr_run_idx:
+
+                assignments.append(assg_field)
+
+        # then just call the assignments constructor to do it the same
+        # way
+        self._assignments_init(assignments)
+
+
+        # # make a dictionary that maps the assignment keys to frames
+        # # across the whole file {assignment_key : (run_idx, traj_idx, frame_idx)}
+        # self._node_assignments = defaultdict(list)
+
+        # for idx_tup, fields_d in self._wepy_hdf5.iter_trajs_fields([self.assg_field_key], idxs=True):
+        #     run_idx = idx_tup[0]
+        #     traj_idx = idx_tup[1]
+        #     assg_field = fields_d[self.assg_field_key]
+
+        #     for frame_idx, assg in enumerate(assg_field):
+        #         self._node_assignments[assg].append( (run_idx, traj_idx, frame_idx) )
 
     def _assignments_init(self, assignments):
 
-        self._assignments = defaultdict(list)
+        # set the raw assignments to the temporary attribute
+        self._assignments = assignments
+
+        # this is the dictionary mapping node_id -> the (run_idx, traj_idx, cycle_idx) frames
+        self._node_assignments = defaultdict(list)
 
         for run_idx, run in enumerate(assignments):
             for traj_idx, traj in enumerate(run):
                 for frame_idx, assignment in enumerate(traj):
-                    self._assignments[assignment].append( (run_idx, traj_idx, frame_idx) )
+                    self._node_assignments[assignment].append( (run_idx, traj_idx, frame_idx) )
 
+    def node_id_to_idx(self, assg_key):
+        return self.node_id_to_idx_dict()[assg_key]
+
+    def node_idx_to_id(self, node_idx):
+        return self.node_idx_to_id_dict()[node_idx]
+
+    def node_id_to_idx_dict(self):
+        return self._node_idxs
+
+    def node_idx_to_id_dict(self):
+        # just reverse the dictionary and return
+        return {node_idx : node_id for node_id, node_idx in self._node_idxs}
+
+    @property
+    def graph(self):
+        return self._graph
 
     @property
     def contig_tree(self):
@@ -130,17 +197,84 @@ class MacroStateNetwork(nx.DiGraph):
     def assg_field_key(self):
         return self._assg_field_key
 
-    @property
-    def assg_values(self):
-        return list(self._assignments.keys())
+    def node_assignments(self, node_id):
+        return self.graph.nodes[node_id][self.ASSIGNMENTS]
 
-    @property
-    def assignments(self):
-        return self._assignments
+    def get_node_fields(self, node_id, fields):
+        node_trace = self.node_assignments(node_id)
 
-    def state_fields(self, state_label, fields):
-        fields = self.wepy_hdf5.get_trace_fields(self.assignments[state_label], fields)
-        return fields
+        # use the node_trace to get the weights from the HDF5
+        fields_d = self.wepy_hdf5.get_trace_fields(node_trace, fields)
 
-    def state_to_mdtraj(self, state_label, alt_rep=None):
-        return self.wepy_hdf5.trace_to_mdtraj(self.assignments[state_label], alt_rep=alt_rep)
+        return fields_d
+
+    def iter_nodes_fields(self, fields):
+
+        nodes_d = {}
+        for node_id in self.graph.nodes:
+            fields_d = self.get_node_fields(node_id)
+            nodes_d[node_id] = fields_d
+
+        return iter_nodes_fields
+
+    def set_nodes_field(self, key, values_dict):
+        for node_id, value in values_dict.items():
+            self.graph.nodes[node_id][key] = value
+
+    def node_map(self, func, *args, map_func, idxs=False, node_sel=None):
+        pass
+
+    def node_fields_map(self, func, fields, *args, map_func=map, idxs=False, node_sel=None):
+        pass
+
+    def compute_macrostate_attr(self, func, fields, *args,
+                                map_func=map,
+                                node_sel=None,
+                                idxs=False,
+                                attr_name=None,
+                                return_results=True):
+        pass
+
+
+    def microstate_weights(self):
+        """Calculates and returns the sums of the weights of all the nodes as
+        a dictionary mapping node_id -> frame weights"""
+
+        node_weights = {}
+        for node_id in self.graph.nodes:
+            # get the trace of the frames in the node
+            node_trace = self.node_assignments(node_id)
+
+            # use the node_trace to get the weights from the HDF5
+            trace_weights = self.wepy_hdf5.get_trace_fields(node_trace, ['weights'])['weights']
+
+            node_weights[node_id] = trace_weights
+
+        return node_weights
+
+    def macrostate_weights(self):
+
+        macrostate_weights = {}
+        microstate_weights = self.microstate_weights()
+        for node_id, weights in microstate_weights.items():
+            macrostate_weights[node_id] = float(sum(weights)[0])
+
+        return macrostate_weights
+
+    def set_macrostate_weights(self):
+        self.set_nodes_field('Weight', self.macrostate_weights())
+
+    def node_to_mdtraj(self, node_id, alt_rep=None):
+        return self.wepy_hdf5.trace_to_mdtraj(self.node_assignments(node_id), alt_rep=alt_rep)
+
+    def write_gexf(self, filepath):
+
+        # to do this we need to get rid of the assignments in the
+        # nodes though since this is not really supported or good to
+        # store in a gexf file which is more for visualization as an
+        # XML format, so we copy and modify then write the copy
+        gexf_graph = deepcopy(self._graph)
+        for node in gexf_graph:
+            del gexf_graph.nodes[node][self.ASSIGNMENTS]
+
+        nx.write_gexf(gexf_graph, filepath)

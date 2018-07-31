@@ -1,3 +1,5 @@
+import itertools as it
+
 import networkx as nx
 import numpy as np
 
@@ -13,12 +15,44 @@ class ContigTree(nx.DiGraph):
 
 
     def __init__(self, wepy_h5,
+                 continuations=Ellipsis,
+                 runs=Ellipsis,
                  boundary_condition_class=None,
                  decision_class=None):
 
         super().__init__()
 
-        self.wepy_h5 = wepy_h5
+        self._wepy_h5 = wepy_h5
+
+        # we can optionally specify which continuations to use when
+        # creating the contig tree instead of defaulting to the whole file
+        self._continuations = set()
+        self._run_idxs = set()
+
+        # if specific runs were specified we add them right away, they
+        # should be unique
+        if runs is Ellipsis:
+            self._run_idxs.update(self.wepy_h5.run_idxs)
+        elif runs is not None:
+            self._run_idxs.update(runs)
+
+        # the continuations also give extra runs to incorporate into
+        # this contig tree
+
+        # if it is Ellipsis (...) then we include all runs and all the continuations
+        if continuations is Ellipsis:
+            self._run_idxs.update(self.wepy_h5.run_idxs)
+            self._continuations.update([(a,b) for a, b in self.wepy_h5.continuations])
+
+        # otherwise we make the tree based on the runs in the
+        # continuations
+        elif continuations is not None:
+            # the unique run_idxs
+            self._run_idxs.update(it.chain(*self._continuations))
+
+            # the continuations themselves
+            self._continuations.update([(a,b) for a, b in continuations])
+
 
         # using the wepy_h5 create a tree of the cycles
         self._create_tree()
@@ -34,7 +68,7 @@ class ContigTree(nx.DiGraph):
     def _create_tree(self):
 
         # first go through each run without continuations
-        for run_idx in self.wepy_h5.run_idxs:
+        for run_idx in self._run_idxs:
             n_cycles = self.wepy_h5.run_n_cycles(run_idx)
 
             # make all the nodes for this run
@@ -50,7 +84,7 @@ class ContigTree(nx.DiGraph):
         # after we have added all the nodes and edges for the run
         # subgraphs we need to connect them together with the
         # information in the contig tree.
-        for edge_source, edge_target in self.wepy_h5.continuations:
+        for edge_source, edge_target in self._continuations:
 
             # for the source node (the restart run) we use the run_idx
             # from the edge source node and the index of the first
@@ -72,7 +106,7 @@ class ContigTree(nx.DiGraph):
 
         # then get the resampling tables for each cycle and put them
         # as attributes to the appropriate nodes
-        for run_idx in self.wepy_h5.run_idxs:
+        for run_idx in self.run_idxs:
 
             run_resampling_panel = self.wepy_h5.run_resampling_panel(run_idx)
 
@@ -91,7 +125,7 @@ class ContigTree(nx.DiGraph):
             self.node[node][self.DISCONTINUITY_KEY] = [0 for i in range(n_walkers)]
 
         #
-        for run_idx in self.wepy_h5.run_idxs:
+        for run_idx in self.run_idxs:
 
             # get the warping records for this run
             warping_records = self.wepy_h5.warping_records([run_idx])
@@ -145,7 +179,71 @@ class ContigTree(nx.DiGraph):
             # put this back into the self
             self.nodes[node][self.PARENTS_KEY] = node_parents
 
+    @property
+    def run_idxs(self):
+        return self._run_idxs
+
+    @property
+    def continuations(self):
+        return self._continuations
+
+    @property
+    def wepy_h5(self):
+        return self._wepy_h5
+
+    def contig_trace_to_run_trace(self, contig_trace, contig_walker_trace):
+        """Given a trace of a contig with elements (run_idx, cycle_idx) and
+        walker based trace of elements (traj_idx, cycle_idx) over that
+        contig get the trace of elements (run_idx, traj_idx, cycle_idx)
+
+        """
+
+        trace = []
+
+        for frame_idx, contig_el in enumerate(contig_trace):
+
+            run_idx, cycle_idx = contig_el
+            traj_idx = contig_walker_trace[frame_idx][0]
+            frame = (run_idx, traj_idx, cycle_idx)
+            trace.append(frame)
+
+        return trace
+
+
+    def contig_to_run_trace(self, contig, contig_walker_trace):
+        """Convert a trace of elements (traj_idx, cycle_idx) over the contig
+        trace given over this contig tree and return a trace over the
+        runs with elements (run_idx, traj_idx, cycle_idx).
+
+        """
+
+        # go through the contig and get the lengths of the runs that
+        # are its components, and slice that many trace elements and
+        # build up the new trace
+        runs_trace = []
+        cum_n_frames = 0
+        for run_idx in contig:
+
+            # number of frames in this run
+            n_frames = self.wepy_h5.run_n_frames(run_idx)
+
+            # get the contig trace elements for this run
+            contig_trace_elements = contig_trace[cum_n_frames : n_frames + cum_n_frames]
+
+            # convert the cycle_idxs to the run indexing and add a run_idx to each
+            run_trace_elements = [(run_idx, traj_idx, cycle_idx - cum_n_frames)
+                                  for traj_idx, contig_cycle_idx in contig_trace_elements]
+
+            # add these to the trace
+            runs_trace.extend(run_trace_elements)
+
+            # then increase the cumulative n_frames for the next run
+            cum_n_frames += n_frames
+
+        return run_trace_elements
+
     def contig_cycle_idx(self, run_idx, cycle_idx):
+
         """Get the contig cycle idx for a (run_idx, cycle_idx) pair."""
 
         # make the contig trace
@@ -474,6 +572,7 @@ class ContigTree(nx.DiGraph):
             # convert those traces to the corresponding (run_idx, traj_idx, cycle_idx)
             # trace
             for contig_window in contig_windows:
+                run_trace_window = self.contig_trace_to_run_trace(contig_trace, contig_window)
                 windows.append(run_trace_window)
 
         return windows

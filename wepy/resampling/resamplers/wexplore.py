@@ -1033,6 +1033,3 @@ class WExploreResampler(Resampler):
         self.region_tree.clear_walkers()
 
         return resampled_walkers, resampling_data, resampler_data
-
-
-
