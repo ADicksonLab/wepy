@@ -638,7 +638,7 @@ class RegionTree(nx.DiGraph):
         # in the Decision) based on their weights
         # keep_idx = rand.choices(chosen_walker_idxs, k=1, weights=chosen_weights)
         # normalize weights to a distribution
-        chosen_pdist = np.array(chosen_weights) / sum(chosen_weights)
+        chosen_pdist = np.array(chosen_weights).flatten() / sum(chosen_weights)
         keep_idx = np.random.choice(chosen_walker_idxs, 1, p=chosen_pdist)[0]
 
         # pop the keep idx from the walkers so we can use them as the squash idxs
@@ -699,8 +699,11 @@ class RegionTree(nx.DiGraph):
                              for walker_idx, weight in
                              zip(cloneable_walker_idxs, cloneable_walker_weights)]
 
+            child_weights = np.array(child_weights).flatten()
+
             # get the walker_idx with the highest child weight
             chosen_walker_idx = cloneable_walker_idxs[np.argsort(child_weights)[-1]]
+
             walkers_num_clones[chosen_walker_idx] += 1
 
             clones_left -= 1
