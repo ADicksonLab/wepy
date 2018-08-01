@@ -56,6 +56,33 @@ def decide_merge_groups_single_method(walker_weights, balance, max_weight):
     # return the chosen idxs as the sole full merge group
     return [chosen_idxs], result
 
+## Clone methods
+def calc_max_num_clones(walker_weights, min_weight):
+
+    # initialize an array for the counts of each walker given
+    max_n_clones = [0 for weight in walker_weights]
+
+    # go through each weight and calculate its max clones for it
+    for idx, walker_weight in enumerate(walker_weights):
+
+        # start with a two splitting
+        n_splits = 2
+        # then increase it every time it passes
+        while (walker_weight / n_splits) >= min_weight:
+            n_splits += 1
+
+        # the last step failed so the number of splits is one less
+        # then we counted
+        n_splits -= 1
+
+        # we want the number of clones so we subtract one from the
+        # number of splits to get that, and we save this for this
+        # walker
+        max_n_clones[idx] = n_splits - 1
+
+    return max_n_clones
+
+
 class RegionTree(nx.DiGraph):
 
     # the strings for choosing a method of solving how deciding how
@@ -361,13 +388,6 @@ class RegionTree(nx.DiGraph):
             self._walker_assignments.append(assignment)
             self._walker_weights.append(walker.weight)
 
-            # test to see if this walker has a weight greater than the
-            # minimum, and raise a flag to tally it in the node
-            # attributes if it does (in the next loop)
-            above_pmin = False
-            if walker.weight > self.pmin:
-                above_pmin = True
-
             # go back through the nodes in this walker's branch
             # increase the n_walkers for each node, and save the
             # walkers (index in self.walker_assignments) it has, and
@@ -377,21 +397,22 @@ class RegionTree(nx.DiGraph):
 
                 self.node[node_id]['n_walkers'] += 1
                 self.node[node_id]['walker_idxs'].append(walker_idx)
-                if above_pmin:
-                    self.node[node_id]['n_cloneable'] += 1
 
         # after placing all the walkers we calculate the number of
-        # reducible walkers for each node
-
-        # for each leaf node calculate the number of reducible walkers
-        # (i.e. the largest possible number of merges that could occur
-        # taking into account the pmax (max weight) constraint)
+        # reducible walkers for each node for each leaf node calculate
+        # the number of reducible walkers (i.e. the largest possible
+        # number of merges that could occur taking into account the
+        # pmax (max weight) constraint) and the number of possible
+        # clones
         for node_id in self.leaf_nodes():
-            if self.node[node_id]['n_walkers'] > 1:
 
-                # the weights of the walkers in this node
-                weights = np.sort([self.walker_weights[i]
-                                   for i in self.node[node_id]['walker_idxs']])
+            leaf_walker_idxs = self.node[node_id]['walker_idxs']
+            leaf_weights = [self.walker_weights[i] for i in leaf_walker_idxs]
+
+            # first we see how many merges we can do. FIrst we check
+            # to see there are more than 1 walker so we can actually
+            # do a merge
+            if self.node[node_id]['n_walkers'] > 1:
 
                 # figure out the most possible mergeable walkers
                 # assuming they cannot ever be larger than pmax
@@ -402,6 +423,21 @@ class RegionTree(nx.DiGraph):
                 for level in reversed(range(self.n_levels)):
                     branch_node_id = node_id[:level]
                     self.node[branch_node_id]['n_mergeable'] += self.node[node_id]['n_mergeable']
+
+            # now we figure out how many clones are possible, we only
+            # need one walker to have potential clones
+            if self.node[node_id]['n_walkers'] > 0:
+
+                # get the max number of clones for each walker and sum
+                # them up to get the total number of cloneable walkers
+                self.node[node_id]['n_cloneable'] = sum(self._calc_max_num_clones(weights))
+
+                # propagate this up the tree summing to get a number
+                # for the higher levels
+                for level in reversed(range(self.n_levels)):
+                    branch_node_id = node_id[:level]
+                    self.node[branch_node_id]['n_cloneable'] += self.node[node_id]['n_cloneable']
+
 
         return new_branches
 
@@ -465,12 +501,6 @@ class RegionTree(nx.DiGraph):
 
         return max_n_merges
 
-    def _new_calc_mergeable_walkers(self, walker_weights):
-
-        max_n_merges = self._max_n_merges(self.pmax, (), walker_weights)
-
-        return max_n_merges
-
     def _calc_mergeable_walkers(self, walker_weights):
 
         if self.merge_method == 'single':
@@ -479,6 +509,10 @@ class RegionTree(nx.DiGraph):
             raise ValueError("merge method {} not recognized".format(self.merge_method))
 
         return n_mergeable
+
+    def _calc_max_num_clones(walker_weights):
+
+        return calc_max_num_clones(walker_weights, self.pmin)
 
 
     def minmax_beneficiaries(self, children):
@@ -547,6 +581,10 @@ class RegionTree(nx.DiGraph):
         return n_shares
 
     def resample_regions(self, parental_balance, children):
+
+        # the goal of this subroutine is to balance a parental balance
+        # to it's children.
+
         # there are more than one child so we accredit balances
         # between them
         if len(children) > 1:
@@ -819,24 +857,7 @@ class RegionTree(nx.DiGraph):
         # walker less than the pmin, so we figure out the maximum
         # number of splittings of the weight each cloneable walker can
         # do. initialize to 0 for each
-        max_n_clones = [0 for walker_idx in cloneable_walker_idxs]
-        for cloneable_walker_idx, cloneable_walker_weight in \
-            zip(cloneable_walker_idxs, cloneable_walker_weights):
-
-            # start with a two splitting
-            n_splits = 2
-            # then increase it every time it passes
-            while (cloneable_walker_weight / n_splits) >= pmin:
-                n_splits += 1
-
-            # the last step failed so the number of splits is one less
-            # then we counted
-            n_splits -= 1
-
-            # we want the number of clones so we subtract one from the
-            # number of splits to get that, and we save this for this
-            # walker
-            max_n_clones[cloneable_walker_idx] = n_splits - 1
+        max_n_clones = self._calc_max_num_clones(cloneable_walker_weights)
 
         # the sum of the possible clones needs to be greater than or
         # equal to the balance
