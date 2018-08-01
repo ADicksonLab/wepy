@@ -127,9 +127,6 @@ class Resampler(object):
                 this_free_slots = []
                 new_slots = []
                 if num_clones > len(free_slots):
-                    # in the past we just raised an error which
-                    # excludes having a variable number of walkers
-                    #raise ValueError("The number of clones exceeds the number of free slots.")
 
                     # we get the difference in them in order to figure
                     # out how many extra slots will be created
@@ -151,6 +148,12 @@ class Resampler(object):
                 slots = [walker_idx] + \
                         this_free_slots + \
                         new_slots
+
+                # DEBUG
+                # check to see if there are any new slot assignments
+                # if any([(True if idx >= n_walkers else False) for idx in slots]):
+                #     # raise ValueError("Assignment of a clone to nonexistent slots")
+                #     import ipdb; ipdb.set_trace()
 
                 # make a record for this clone
                 walker_actions[walker_idx] = self.decision.record(self.decision.ENUM.CLONE.value,

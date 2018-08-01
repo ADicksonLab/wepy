@@ -95,15 +95,27 @@ class MultiCloneMergeDecision(Decision):
                     # instruction
                     mod_walkers[instruction[0]] = walkers[walker_idx]
 
+                # for a clone
                 elif decision_value == cls.ENUM.CLONE.value:
+
+                    # get the walker to be cloned
                     walker = walkers[walker_idx]
+                    # "clone" it by splitting it into walkers of the
+                    # same state with even weights
                     clones = split(walker, number=len(instruction))
 
-                    for i, walker_idx in enumerate(instruction):
-                        if mod_walkers[walker_idx] is not None:
+                    # then assign each of these clones to a target
+                    # walker index in the next step
+                    for clone_idx, target_idx in enumerate(instruction):
+
+                        # check that there are not another walker
+                        # already assigned to this position
+                        if mod_walkers[target_idx] is not None:
                             raise ValueError(
                                 "Multiple walkers assigned to position {}".format(instruction[0]))
-                        mod_walkers[walker_idx] = clones[i]
+
+                        # assign the clone to the modified walkers of the next step
+                        mod_walkers[walker_idx] = clones[clone_idx]
 
                 # if it is a decision for merging we must perform this
                 # once we know all the merge targets for each merge group

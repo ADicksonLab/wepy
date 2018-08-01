@@ -14,7 +14,71 @@ from wepy.resampling.decisions.clone_merge import MultiCloneMergeDecision
 class RegionTreeError(Exception):
     pass
 
+
+## Merge methods
+
+# algorithms for finding the number of mergeable walkers in a group
+def calc_mergeable_walkers_single_method(walker_weights, max_weight):
+
+    # figure out the most possible mergeable walkers
+    # assuming they cannot ever be larger than pmax
+    sum_weights = 0
+    n_mergeable = 0
+    for i in range(len(walker_weights)):
+        sum_weights += walker_weights[i]
+        # if we still haven't gone past pmax set the n_red
+        # to the current index
+        if sum_weights < max_weight and i+1 < len(walker_weights):
+            n_mergeable = i + 1
+
+    return n_mergeable
+
+
+# algorithms for actually generating the merge groups
+def decide_merge_groups_single_method(walker_weights, balance, max_weight):
+
+    assert balance < 0, "target balance must be negative"
+
+    # the number of walkers we need to choose in order to be
+    # able to do the required amount of merges
+    num_merge_walkers = abs(balance) + 1
+
+    # select the lowest weight walkers to use for merging, these
+    # are idxs on the mergeable walkers and not the walker_idxs
+    chosen_idxs = np.argsort(walker_weights)[:num_merge_walkers]
+
+    # check that this is not greater than the max weight
+    if sum([walker_weights[chosen_idx] for chosen_idx in chosen_idxs]) > max_weight:
+        result = False
+    else:
+        result = True
+
+    # return the chosen idxs as the sole full merge group
+    return [chosen_idxs], result
+
 class RegionTree(nx.DiGraph):
+
+    # the strings for choosing a method of solving how deciding how
+    # many walkers can be merged together given a group of walkers and
+    # the associated algorithm for actually choosing them
+    MERGE_METHODS = ('single',)
+
+    # Description of the methods
+
+    # 'single' : this method simplifies the problem (likely giving
+    # very suboptimal solutions especially early in sampling when
+    # walkers are of similar large weights) by enforcing that within a
+    # group of walkers (i.e. in a leaf region node) only one merge
+    # will take place. To decide how large a given merge group can be
+    # then is simply found by consecutively summing the weights of the
+    # smallest walkers until the inclusion of the next highest
+    # violates the maximum weight. Thus the algorithm for actually
+    # finding the walkers that shall be merged is as simple as taking
+    # the K lowest walkers given by the first algorithm. This is then
+    # guaranteed to satisfy the potential.
+
+    # as further methods are mathematically proven and algorithms
+    # designed this will be the chosen method.
 
     ROOT_NODE = ()
 
@@ -22,7 +86,8 @@ class RegionTree(nx.DiGraph):
                  max_n_regions=None,
                  max_region_sizes=None,
                  distance=None,
-                 pmin=None, pmax=None):
+                 pmin=None, pmax=None,
+                 merge_method='single'):
 
         super().__init__()
 
@@ -39,6 +104,12 @@ class RegionTree(nx.DiGraph):
         self._distance = distance
         self._pmin = pmin
         self._pmax = pmax
+
+        assert merge_method in self.MERGE_METHODS, \
+            "the merge method given, '{}', must be one of the methods available {}".format(
+                merge_method, self.MERGE_METHODS)
+
+        self._merge_method = merge_method
 
         self._walker_weights = []
         self._walker_assignments = []
@@ -400,19 +471,12 @@ class RegionTree(nx.DiGraph):
 
         return max_n_merges
 
-
     def _calc_mergeable_walkers(self, walker_weights):
 
-        # figure out the most possible mergeable walkers
-        # assuming they cannot ever be larger than pmax
-        sum_weights = 0
-        n_mergeable = 0
-        for i in range(len(walker_weights)):
-            sum_weights += walker_weights[i]
-            # if we still haven't gone past pmax set the n_red
-            # to the current index
-            if sum_weights < self.pmax and i+1 < len(walker_weights):
-                n_mergeable = i + 1
+        if self.merge_method == 'single':
+            n_mergeable = calc_mergeable_walkers_single_method(walker_weights, self.pmax)
+        else:
+            raise ValueError("merge method {} not recognized".format(self.merge_method))
 
         return n_mergeable
 
@@ -601,90 +665,183 @@ class RegionTree(nx.DiGraph):
             # increase the balance of the only child
             self.node[children[0]]['balance'] = parental_balance
 
-    def merge_leaf(self, leaf, merge_groups, walkers_num_clones):
+    def decide_merge_leaf(self, leaf, merge_groups):
 
+        # this method assumes no cloning has been performed before this
+
+        # TODO: potentially unneeded
+        # all the walker idxs
+        walker_idxs = list(range(len(merge_groups)))
+
+        # the balance of this leaf
         leaf_balance = self.node[leaf]['balance']
 
-        # we need to check that we aren't squashing or merging an
-        # already cloned walker
-        mergeable_walkers = [walker_idx for walker_idx, num_clones
-                             in enumerate(walkers_num_clones)
-                             # no clones assigned to this walker
-                             if (num_clones == 0) and
-                             # it is also apart of this leaf node
-                                (walker_idx in self.node[leaf]['walker_idxs'])]
+        # there should not be any taken walkers in this leaf since a
+        # leaf should only have this method run for it once during
+        # decision making, so the mergeable walkers are just all the
+        # walkers in this leaf
+        leaf_walker_idxs = self.node[leaf]['walker_idxs']
+        leaf_walker_weights = [self.walker_weights[walker_idx] for walker_idx in leaf_walker_idxs]
 
-        mergeable_weights = [self.walker_weights[walker_idx] for walker_idx in mergeable_walkers]
 
-        # the number of walkers we need to choose in order to be
-        # able to do the required amount of merges
-        num_merge_walkers = abs(leaf_balance) + 1
+        # now that we have the walkers that may potentially be merged
+        # we need to actually find a set of groupings that satisfies
+        # the reduction in balance without any individual walker
+        # exceeding the maximum weight. In general this is a difficult
+        # problem both here and in deciding how balances are
+        # distributed (because the potential merges determine a leafs
+        # ability to pay a portion of a debt from a higher level in
+        # the region tree).
 
-        # select the lowest weight walkers to use for merging
-        selected_walkers = np.argsort(mergeable_weights)[:num_merge_walkers]
+        # currently we avoid this general problem (potentially of the
+        # backpack kind if you want to help solve this issue) and
+        # simply assume that we will perform a single merge of the
+        # walkers of the lowest weights to achieve our balance
+        # reduction goal. As long as this assumption holds in how the
+        # balances are determined this will succeed, if not this will
+        # fail
 
-        # get the walker_idx of the selected walkers, the
-        # mergeable_idx is the walker idx, and sorted_idx is the index
-        # from argsort which indexes the mergeable_weights list thus
-        # the mergeable_walkers list
-        chosen_walker_idxs = [mergeable_idx for sorted_idx, mergeable_idx in enumerate(mergeable_walkers)
-                          if sorted_idx in selected_walkers]
+        # to allow for easy improvements later on pending this problem
+        # becoming solved it is functionalized here to make a set of
+        # pairings that satisfy the balance reduction goal, these are
+        # "merge groups" except that at this point we haven't chosen
+        # one to be the KEEP_MERGE walker and have its state
+        # retained. This will be decided further on. So these "full
+        # merge groups" include all the walkers that will be merged
+        # and the sum of their weights will be the weight of the final
+        # merged walker and should satisfy the maximum weight
+        # requirement, i.e. it will not be checked here.
+        full_merge_groups_leaf_walker_idxs = \
+                                self.solve_merge_groupings(leaf_walker_weights, leaf_balance)
 
-        # get the weights of these chosen_walker_idxs that were chosen
-        chosen_weights = [weight for i, weight in enumerate(self.walker_weights)
-                          if i in chosen_walker_idxs]
+        # now we go through each of these "full merge groups" and make
+        # the "merge groups". Pardon the terminology, but the
+        # distinction is trivial and is only relevant to the
+        # implementation. The "merge groups" are what is returned. To
+        # make them we just choose which walker to keep and which
+        # walkers to squash in each full merge group
+        for full_merge_group_leaf_walker_idxs in full_merge_groups_leaf_walker_idxs:
 
-        # choose the one to keep the state of (e.g. KEEP_MERGE
-        # in the Decision) based on their weights
-        # keep_idx = rand.choices(chosen_walker_idxs, k=1, weights=chosen_weights)
-        # normalize weights to a distribution
-        chosen_pdist = np.array(chosen_weights).flatten() / sum(chosen_weights)
-        keep_idx = np.random.choice(chosen_walker_idxs, 1, p=chosen_pdist)[0]
+            # the indices from this are in terms of the list of weights
+            # given to the method so we translate them back to the actual
+            # walker indices
+            chosen_walker_idxs = [leaf_walker_idxs[leaf_walker_idx]
+                                  for leaf_walker_idx in full_merge_group_leaf_walker_idxs]
 
-        # pop the keep idx from the walkers so we can use them as the squash idxs
-        chosen_walker_idxs.pop(chosen_walker_idxs.index(keep_idx))
-        # the rest are squash_idxs
-        squash_idxs = chosen_walker_idxs
+            # get the weights of these chosen_walker_idxs
+            chosen_weights = [self.walker_weights[walker_idx] for walker_idx in chosen_walker_idxs]
 
-        # account for the weight from the squashed walker to
-        # the keep walker
-        squashed_weight = sum([self.walker_weights[i] for i in squash_idxs])
-        self._walker_weights[keep_idx] += squashed_weight
-        for squash_idx in squash_idxs:
-            self._walker_weights[squash_idx] = 0.0
+            # choose the one to keep the state of (e.g. KEEP_MERGE
+            # in the Decision) based on their weights
 
-        # update the merge group
-        merge_groups[keep_idx].extend(squash_idxs)
+            # normalize weights to the sum of all the chosen weights
+            chosen_pdist = chosen_weights / sum(chosen_weights)
 
-        return merge_groups, walkers_num_clones
+            # then choose one of the the walker idxs to keep according to
+            # their normalized weights
+            keep_walker_idx = np.random.choice(chosen_walker_idxs, 1, p=chosen_pdist)[0]
 
-    def clone_leaf(self, leaf, merge_groups, walkers_num_clones):
+            # pop the keep idx from the walkers so we can use the rest of
+            # them as the squash idxs
+            chosen_walker_idxs.pop(chosen_walker_idxs.index(keep_walker_idx))
+
+            # the rest are squash_idxs
+            squash_walker_idxs = chosen_walker_idxs
+
+            # update the merge group based on this decision
+            merge_groups[keep_walker_idx].extend(squash_walker_idxs)
+
+        return merge_groups
+
+    def solve_merge_groupings(self, walker_weights, balance):
+
+        # this method chooses between the methods for solving the
+        # backpack problem of how to merge walkers together to satisfy
+        # a goal
+
+        # as a method for easy transition between potential methods (I
+        # expect there are multiple solutions to the problem with
+        # different tradeoffs that will want to be tested) a method
+        # can be chosen when the region tree is created and a constant
+        # string identifier will be set indicating which method is in use
+
+        # so we use that string to find which method to use
+        if self.merge_method == 'single':
+            full_merge_groups, result = single_merge_method(walker_weights, balance, self.pmax)
+
+        else:
+            raise ValueError("merge method {} not recognized".format(self.merge_method))
+
+        # if the result came out false then a solution could not be
+        # found
+        if not result:
+            raise RegionTreeError(
+                "A solution to the merging problem could not be found given the constraints")
+
+        else:
+            return full_merge_groups
+
+    def decide_clone_leaf(self, leaf, merge_groups, walkers_num_clones):
+
+        # this assumes that the all squashes have already been
+        # specified in the merge group, this is so that we can use
+        # unused walker slots.
 
         # if this leaf node was assigned a debt we need to merge
         # walkers
         leaf_balance = self.node[leaf]['balance']
-
-        # all of the squashed walkers
-        squashed_walkers = list(it.chain(merge_groups))
-        keep_walkers = [i for i, merge_group in enumerate(merge_groups)
-                        if len(merge_group) > 0]
-        merged_walkers = squashed_walkers + keep_walkers
-
-        # get the weights of just the walkers in this leaf
+        leaf_walker_idxs = self.node[leaf]['walker_idxs']
         leaf_weights = [self.walker_weights[walker_idx]
                         for walker_idx in self.node[leaf]['walker_idxs']]
 
-        # get the idxs of the cloneable walkers that are above the
-        # pmin and are not being squashed that are in this leaf
-        cloneable_walker_idxs = [walker_idx for walker_idx, weight
-                                 in zip(self.node[leaf]['walker_idxs'], leaf_weights)
-                                 if (weight >= self.pmin) and (walker_idx not in merged_walkers)]
+        # all of the squashed walkers from the merge groups leave
+        # behind slots we can fill with cloned walkers, we acquire
+        # these slots
+        free_slot_idxs = list(it.chain(merge_groups))
 
-        cloneable_walker_weights = [self.walker_weights[walker_idx]
-                                    for walker_idx in cloneable_walker_idxs]
+        # we also need to choose walkers for cloning which cannot be
+        # either squashed or merged walkers
+        taken_walker_idxs = list(it.chain([[keep_idx, *squashed_idxs]
+                                           for keep_idx, squashed_idxs in merge_groups
+                                           if len(squashed_idxs) > 0]))
 
-        assert len(cloneable_walker_idxs) >= 1, "there must be at least one walker to clone"
+        # get the idxs of the cloneable walkers that when split at
+        # least 1 time will have children with weights equal to or
+        # greater than the pmin, also we have the condition that they
+        # are not already taken for merging
+        cloneable_walker_idxs, cloneable_walker_weights = \
+                                zip(*[(walker_idx, weight) for walker_idx, weight
+                                      in zip(leaf_walker_idxs, leaf_weights)
+                                      if (weight/2 >= self.pmin) and
+                                         (walker_idx not in taken_walker_idxs)])
 
+        # each walker can only be cloned until it would produce a
+        # walker less than the pmin, so we figure out the maximum
+        # number of splittings of the weight each cloneable walker can
+        # do. initialize to 0 for each
+        max_n_clones = [0 for walker_idx in cloneable_walker_idxs]
+        for cloneable_walker_idx, cloneable_walker_weight in \
+            zip(cloneable_walker_idxs, cloneable_walker_weights):
+
+            # start with a two splitting
+            n_splits = 2
+            # then increase it every time it passes
+            while (cloneable_walker_weight / n_splits) >= pmin:
+                n_splits += 1
+
+            # the last step failed so the number of splits is one less
+            # then we counted
+            n_splits -= 1
+
+            # we want the number of clones so we subtract one from the
+            # number of splits to get that, and we save this for this
+            # walker
+            max_n_clones[cloneable_walker_idx] = n_splits - 1
+
+        # the sum of the possible clones needs to be greater than or
+        # equal to the balance
+        assert sum(max_n_clones) >= leaf_balance, \
+            "there isn't enough clones possible to pay the balance"
 
         # to distribute the clones we iteratively choose the walker
         # with the highest weight after amplification weight/(n_clones
@@ -693,39 +850,137 @@ class RegionTree(nx.DiGraph):
         clones_left = leaf_balance
         while clones_left > 0:
 
-            # calculate the weights of the walkers children given the
-            # current number of clones
-            child_weights = [weight/(walkers_num_clones[walker_idx]+1)
-                             for walker_idx, weight in
-                             zip(cloneable_walker_idxs, cloneable_walker_weights)]
+            # calculate the weights of the walker's children given the
+            # current number of clones, if num_clones is 0 then it is
+            # just it's own weight
+            child_weights = []
+            for walker_idx, weight in zip(cloneable_walker_idxs, cloneable_walker_weights):
 
-            child_weights = np.array(child_weights).flatten()
+                # the weight of its children given the number of
+                # clones already assigned to it
+                child_weight = weight / (walkers_num_clones[walker_idx]+1)
 
-            # get the walker_idx with the highest child weight
+                # TODO: this strict adherence to the pmin is not
+                # supported by the way the number of possible clones
+                # for a leaf region are calculated and thus when we
+                # stick to strict adherence there are potentially
+                # situations a positive balance is assigned according
+                # to the method that allows children to be less than
+                # pmin that then REQUIRES this leaf produce that many
+                # when in reality it cannot because the strict method
+                # generates less possible children. So until strict
+                # pmin adherence is observed by the balancing
+                # subroutines then this cannot be used. Of course I
+                # would add that repeated cloning of a walker that
+                # originally was above the pmin but is cloned many
+                # times could get walkers that are significantly lower
+                # than the pmin.
+
+                # if this child weight is less than the pmin then this
+                # one has maxed out on the number of clones it can do
+                # so we set the child weight to -1. When we select a
+                # walker to clone below we always select the one with
+                # the highest child weight and since all real child
+                # weights should be greater than zero (except
+                # accounting for floating point tolerances) so these
+                # will never be selected unless all cloneable walkers
+                # are used up, which was already checked for above
+                # that it could not happen
+                if child_weight < self.pmin:
+                    child_weight = -1
+
+                child_weights.append(child_weight)
+
+            # just a double check (triple check?) that they are not all -1 values
+            assert not all([True if child_weight == -1 else False
+                            for child_weight in child_weights]), \
+                                "All walkers are unable to produce children over the pmin"
+
+            # get the walker_idx with the highest current child weight
             chosen_walker_idx = cloneable_walker_idxs[np.argsort(child_weights)[-1]]
 
+            # add a clone to it
             walkers_num_clones[chosen_walker_idx] += 1
 
+            # we are one step closer to satisfying the cloning
+            # requirement
             clones_left -= 1
 
+        return walkers_num_clones
+
+    def decide_settle_balance(self):
+        """Given the balances of all the leaves figure out actually how to
+        settle all the balances. Returns the merge_groups and
+        walkers_num_clones
+
+        """
+
+        # initialize the main data structures for specifying how to
+        # merge and clone a set of walkers. These will be modified for
+        # clones and merges but in the initialized state they will
+        # generate all NOTHING records.
+
+        # the merge groups, a list of lists where the elements of the
+        # outer list are individual "merge groups" that themselves
+        # contain the elements of the walkers that will be squashed in
+        # a merge and the index of the merge group in the outer list
+        # is the index of the walker that will be kept
+        # (i.e. KEEP_MERGE and have its state persist to the next
+        # step). Indices appearing in any merge group can themselves
+        # not have a merge group
+        merge_groups = [[] for i in self.walker_weights]
+
+        # the number of clones to make for each walker. Simply a list
+        # of 0 or positive integers that specify how many EXTRA clones
+        # will be made. E.g. if a cloned walker is to have 3 children
+        # then the number of clones is 2. We consider clones copies
+        # from the original walker which is given by the index in the
+        # list. This number then gives the number of new slots needed
+        # for a cloning event
+        walkers_num_clones = [0 for i in self.walker_weights]
+
+        # get all the leaf balances
+        leaf_nodes = self.leaf_nodes()
+        leaf_balances = [self.node[leaf]['balance'] for leaf in leaf_nodes]
+
+        # get the negative and positive balanced leaves
+        neg_leaves = [leaf_nodes[leaf_idx] for leaf_idx in np.argwhere(leaf_balances < 0)]
+        pos_leaves = [leaf_nodes[leaf_idx] for leaf_idx in np.argwhere(leaf_balances > 0)]
+
+        # we decide on how the walkers will be cloned and
+        # merged. These steps are purely functional and do not modify
+        # any attributes on the RegionTree. The merge_groups and
+        # walkers_num_clones can be used to commit these changes
+        # elsewhere if desired.
+
+        # first do all leaves with negative balances, so that after we
+        # have freed up slots we can fill them with clones since in
+        # WEXplore we want to have an economy of slots and not create
+        # them if we don't have to
+        for leaf in neg_leaves:
+            merge_groups = self.decide_merge_leaf(leaf, merge_groups)
+
+        # then do all the leaves with positive balances to fill the
+        # slots left from squashing walkers
+        for leaf in neg_leaves:
+            walkers_num_clones = self.decide_clone_leaf(leaf, merge_groups, walkers_num_clones)
+
+
         return merge_groups, walkers_num_clones
 
-    def settle_balance(self, leaf, merge_groups, walkers_num_clones):
+    def merge_leaf(self, leaf, merge_groups, walkers_num_clones):
+        """Actually perform the merges on a leaf."""
 
-        # if this leaf node was assigned a debt we need to merge
-        # walkers
-        leaf_balance = self.node[leaf]['balance']
-        if leaf_balance < 0:
+        # account for the weight from the squashed walker to
+        # the keep walker
+        squashed_weight = sum([self.walker_weights[i] for i in squash_walker_idxs])
+        self._walker_weights[keep_walker_idx] += squashed_weight
+        for squash_idx in squash_walker_idxs:
+            self._walker_weights[squash_idx] = 0.0
 
-            merge_groups, walkers_num_clones = self.merge_leaf(leaf, merge_groups, walkers_num_clones)
 
-        # if this leaf node was assigned a credit then it can spend
-        # them on cloning walkers
-        elif leaf_balance > 0:
-
-            merge_groups, walkers_num_clones = self.clone_leaf(leaf, merge_groups, walkers_num_clones)
-
-        return merge_groups, walkers_num_clones
+    def clone_leaf(leaf, merge_groups, walkers_num_clones):
+        pass
 
 
     def balance_tree(self, delta_walkers=0):
@@ -746,42 +1001,57 @@ class RegionTree(nx.DiGraph):
             # parents, distribute walkers between
             self.resample_regions(self.node[parent]['balance'], children)
 
-        # check the balance of all the leaves and make sure they add
-        # up to 0
-        balance = sum([self.node[leaf]['balance'] for leaf in self.leaf_nodes()])
-        if balance != delta_walkers:
-            raise RegionTreeError("Leaf node balances do sum to delta_walkers")
+        # check that the sum of the balances of the leaf nodes
+        # balances to delta_walkers
+        leaf_balances = [self.node[leaf]['balance'] for leaf in self.leaf_nodes()]
+        if sum(leaf_balances) != delta_walkers:
+            raise RegionTreeError(
+                "The balances of the leaf nodes ({}) do not balance to delta_walkers ({})".format(
+                    leaf_balances, delta_walkers))
 
-        # for each leaf-group decide how to actually settle (pay) the
-        # balances through cloning and merging
-        merge_groups = [[] for i in self.walker_weights]
-        walkers_num_clones = [0 for i in self.walker_weights]
+        # decide on how to settle all the balances between leaves
+        merge_groups, walkers_num_clones = self.decide_settle_balances()
 
-        # The buck ends here! Iterate over the leaves and settle the
-        # balances for each child according to how they were
-        # distributed in balancing
-        for leaf in self.leaf_nodes():
+        # # The buck ends here! Iterate over the leaves and determine
+        # # how to actually settle the balances for each child according
+        # # to how they were distributed in balancing.
+        # for leaf in self.leaf_nodes():
 
-            # clone and merge groups for this leaf
-            leaf_node_balance = self.node[leaf]['balance']
-            if leaf_node_balance != 0:
-                merge_groups, walkers_num_clones = \
-                            self.settle_balance(leaf, merge_groups, walkers_num_clones)
+        #     # clone and merge groups for this leaf
+        #     leaf_node_balance = self.node[leaf]['balance']
+        #     if leaf_node_balance != 0:
+
+        #         # DEBUG: testing for errors for negative balances
+        #         if leaf_node_balance < 0:
+        #             import ipdb; ipdb.set_trace()
+
+        #         # make decisions on how to merge and clone for this
+        #         # leaf and update the merge_groups and
+        #         # walkers_num_clones. This doesn't actually modify any
+        #         # object state yet. Which will be performed after
+        #         # everything is decided.
+        #         merge_groups, walkers_num_clones = \
+        #                     self.decide_settle_balance(leaf, merge_groups, walkers_num_clones)
 
         # count up the number of clones and merges in the merge_groups
         # and the walkers_num_clones
         num_clones = sum(walkers_num_clones)
         num_squashed = sum([len(merge_group) for merge_group in merge_groups])
 
-        # NOTE this was here to make sure that the squashes and merges
-        # balanced out which is at odds with allowing net changes from
-        # delta_walkers, I am leaving here in case we find later it is
-        # necessary
+        # check that the number of clones and number of squashed
+        # walkers balance to the delta_walkers amount
+        if num_clones - num_squashed != delta_walkers:
+            # DEBUG
+            import ipdb; ipdb.set_trace()
 
-        # if num_clones != num_squashed:
-        #     raise RegionTreeError("The number of squashed walkers in the merge group ({}) "
-        #                           "is not the same as the number of clones planned ({}).".format(
-        #                               num_squashed, num_clones))
+            # raise RegionTreeError("The number of new clones ({}) is not balanced by the number of"
+            #                       "squashed walkers ({}) to the delta_walkers specified ({})".format(
+            #                           num_clones, num_squashed, delta_walkers))
+
+
+        # now that we have made decisions about which walkers to clone
+        # and merge we actually modify the weights of them
+        self.settle_balances(merge_groups, walkers_num_clones)
 
 
         return merge_groups, walkers_num_clones
@@ -921,6 +1191,7 @@ class WExploreResampler(Resampler):
         return assignments, resampler_data
 
     def decide(self, delta_walkers=0, debug_prints=False):
+        """ Make decisions for resampling for a single step. """
 
         ## Given the assignments (which are on the tree nodes) decide
         ## on which to merge and clone
@@ -936,6 +1207,10 @@ class WExploreResampler(Resampler):
             print("Walker assignments\n{}".format(self.region_tree.walker_assignments))
             print("Walker weights\n{}".format(self.region_tree.walker_weights))
 
+        # this is here to check that the walkers in the tree
+        # were of valid weights. THis is only necessary if another
+        # decision step is going to be made
+
         # check that there are no walkers violating the pmin and pmax
 
         # check that all of the weights are less than or equal to the pmax
@@ -944,13 +1219,15 @@ class WExploreResampler(Resampler):
 
         # check that all of the weights are greater than or equal to the pmin
         assert all([weight >= self.pmin for weight in self.region_tree.walker_weights]), \
-            "All walker weights must be less than the pmin"
+            "All walker weights must be greater than the pmin"
 
         # check to make sure we have selected appropriate walkers to clone
         # print images
         if debug_prints:
             print("images_assignments\n{}".format(self.region_tree.regions))
 
+        # check that clones are not performed on KEEP_MERGE and SQUASH
+        # walkers
         for walker_idx, n_clones in enumerate(walkers_num_clones):
 
             if n_clones > 0:
@@ -961,9 +1238,13 @@ class WExploreResampler(Resampler):
                 if walker_idx in squash_idxs:
                     raise ValueError("trying to clone a SQUASH walker")
 
+        # DEBUG
         # using the merge groups and the non-specific number of clones
         # for walkers create resampling actions for them (from the
         # Resampler superclass).
+        # if sum(walkers_num_clones) > 0:
+        #     import ipdb; ipdb.set_trace()
+
         resampling_actions = self.assign_clones(merge_groups, walkers_num_clones)
 
 
@@ -980,11 +1261,8 @@ class WExploreResampler(Resampler):
         if len(set(taken_slots)) < len(taken_slots):
             raise ValueError("Multiple assignments to the same slot")
 
-        # because there is only one step in resampling here we just
-        # add another field for the step as 0 and add the walker index
-        # to its record as well
+        # add the walker_idx to the record
         for walker_idx, walker_record in enumerate(resampling_actions):
-            walker_record['step_idx'] = np.array([0])
             walker_record['walker_idx'] = np.array([walker_idx])
 
         return resampling_actions
@@ -998,9 +1276,14 @@ class WExploreResampler(Resampler):
         if debug_prints:
             print("Assigned regions=\n{}".format(self.region_tree.walker_assignments))
 
-        # make the decisions for the the walkers
+        # make the decisions for the the walkers in a single step
         resampling_data = self.decide(delta_walkers=delta_walkers,
                                          debug_prints=debug_prints)
+
+        # normally decide is only for a single step and so does not
+        # include the step_idx, so we add this to the records
+        for walker_idx, walker_record in enumerate(resampling_data):
+            walker_record['step_idx'] = np.array([0])
 
         # convert the target idxs and decision_id to feature vector arrays
         for record in resampling_data:
