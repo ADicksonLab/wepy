@@ -69,6 +69,8 @@ def calc_max_num_clones(walker_weights, min_weight):
         n_splits = 2
         # then increase it every time it passes
         while (walker_weight / n_splits) >= min_weight:
+            if n_splits % 100 == 0:
+                print(n_splits)
             n_splits += 1
 
         # the last step failed so the number of splits is one less
@@ -136,6 +138,7 @@ class RegionTree(nx.DiGraph):
             "the merge method given, '{}', must be one of the methods available {}".format(
                 merge_method, self.MERGE_METHODS)
 
+        print(merge_method)
         self._merge_method = merge_method
 
         self._walker_weights = []
@@ -168,6 +171,10 @@ class RegionTree(nx.DiGraph):
 
         # add the region for this branch to the regions list
         self._regions = [tuple([0 for i in range(self._n_levels)])]
+
+    @property
+    def merge_method(self):
+        return self._merge_method
 
     @property
     def distance(self):
@@ -416,7 +423,7 @@ class RegionTree(nx.DiGraph):
 
                 # figure out the most possible mergeable walkers
                 # assuming they cannot ever be larger than pmax
-                self.node[node_id]['n_mergeable'] = self._calc_mergeable_walkers(weights)
+                self.node[node_id]['n_mergeable'] = self._calc_mergeable_walkers(leaf_weights)
 
                 # increase the reducible walkers for the higher nodes
                 # in this leaf's branch
@@ -430,7 +437,7 @@ class RegionTree(nx.DiGraph):
 
                 # get the max number of clones for each walker and sum
                 # them up to get the total number of cloneable walkers
-                self.node[node_id]['n_cloneable'] = sum(self._calc_max_num_clones(weights))
+                self.node[node_id]['n_cloneable'] = sum(self._calc_max_num_clones(leaf_weights))
 
                 # propagate this up the tree summing to get a number
                 # for the higher levels
@@ -510,198 +517,372 @@ class RegionTree(nx.DiGraph):
 
         return n_mergeable
 
-    def _calc_max_num_clones(walker_weights):
+    def _calc_max_num_clones(self, walker_weights):
 
         return calc_max_num_clones(walker_weights, self.pmin)
 
 
-    def minmax_beneficiaries(self, children):
-
-        #min_n_walkers = None
-        min_n_shares = None
-        min_child_idx = None
-
-        #max_n_walkers = None
-        max_n_shares = None
-        max_child_idx = None
-
-        # test each walker sequentially
-        for i, child in enumerate(children):
-
-            n_mergeable = self.node[child]['n_mergeable']
-            n_cloneable = self.node[child]['n_cloneable']
-
-            # we need to take into account the balance inherited
-            # from the parent when calculating the total number of
-            # walkers that can be given to other node/regions
-            #total_n_walkers = n_walkers + self.node[child]['balance']
-            #total_n_mergeable = n_mergeable + self.node[child]['balance']
-
-            # the number of shares the walker currently has which is
-            # the sum of the number of mergeable (squashable) plus the
-            # balance
-            n_shares =  n_mergeable + self.node[child]['balance']
-
-            # the maximum number of walkers that will exist after
-            # cloning, if the number of reducible walkers is 1 or more
-            if ((max_child_idx is None) or (n_shares >  max_n_shares)) and \
-               (n_shares >= 1):
-
-                max_n_shares = n_shares
-                max_child_idx = i
-
-            # the minimum number of walkers that will exist after
-            # cloning, if the number of number of walkers above the
-            # minimum weight is 1 or more
-            if ((min_child_idx is None) or (n_shares < min_n_shares)) and \
-               (n_cloneable >= 1):
-
-                min_n_shares = n_shares
-                min_child_idx = i
-
-        return min_child_idx, max_child_idx
-
-    def calc_share_donation(self, donor, recipient):
-
-        total_donor_n_walkers = self.node[donor]['n_mergeable'] + \
-                                self.node[donor]['balance']
-        total_recipient_n_walkers = self.node[recipient]['n_mergeable'] + \
-                                    self.node[recipient]['balance']
-
-        # the sibling with the greater number of shares
-        # (from both previous resamplings and inherited
-        # from the parent) will give shares to the sibling
-        # with the least. The number it will share is the
-        # number that will make them most similar rounding
-        # down (i.e. midpoint)
 
 
-        n_shares = math.floor((total_donor_n_walkers - total_recipient_n_walkers)/2)
+    def _propagate_and_balance_shares(self, parental_balance, children_node_ids):
 
-        return n_shares
+        # talk about "shares" which basically are the number of
+        # slots/replicas that will be allocated to this region for
+        # running sampling on
 
-    def resample_regions(self, parental_balance, children):
+        # Our first goal in this subroutine is to dispense a parental
+        # balance to it's children in a simply valid manner
+        children_shares = self._dispense_shares(parental_balance, children_node_ids)
 
-        # the goal of this subroutine is to balance a parental balance
-        # to it's children.
+        # Now that we have dispensed the shares to the children in a
+        # valid way we use an algorithm to now distribute the shares
+        # between the regions as evenly as possible
+        children_net_balances = self._balance_children_shares(children_shares)
+
+        # no state changes to the object have been made up until this
+        # point, but now that the net change in the balances for the
+        # children have been generated we set them into their nodes
+        for child_node_id, child_net_balance for children_net_balances.items():
+
+            self.node[child_node_id]['balance'] = child_net_balance
+
+
+    def _dispense_debit_shares(self, parental_balance, children_node_ids):
+        """For a negative parental balance we dispense it to the children
+        nodes"""
+
+        # the number of shares for each region before the
+        # balancing/resampling we are doing here is equal just to the
+        # number of walkers they have
+        children_shares = {child_id : self.node[child_id]['walker_idxs']
+                           for child_id in children_node_ids}
+
+        # dispense the negative shares as quickly as possible,
+        # they will be balanced later
+        child_idx = 0
+        while remaining_balance < 0:
+            # get the node id
+            child_node_id = children_node_ids[child_idx]
+
+            n_squashable = self.node[child_node_id]['n_squashable']
+
+            # if this child has any squashable walkers
+            if n_squashable > 0:
+
+                # we use those for paying the parent's debt
+
+                # the amount of the parental debt that can be
+                # paid (the payment) for this child region is
+                # either the number of squashable walkers or
+                # the absolute value of the parental balance
+                # (since it is negative for debts), whichever
+                # is smaller
+                payment = min(n_squashable, abs(parental_balance))
+
+                # take this from the remaining balance
+                remaining_balance += payment
+
+                # and take it away from the childs due balance and shares
+                children_shares[node_id] -= payment
+
+        # if the parental balance is still not zero the
+        # children cannot balance it given their constraints
+        # and there is an error
+        if parental_balance < 0:
+            raise ValueError("Children cannot pay their parent's debt")
+
+        # double check the balance is precisely 0, we want to
+        # dispense all the shares as well as not accidentally
+        # overdispensing
+        assert remaining_balance == 0, "balance is not 0"
+
+
+        return children_shares
+
+    def _dispense_credit_shares(self, parental_balance, children_node_ids):
+
+        # the number of shares for each region before the
+        # balancing/resampling we are doing here is equal just to the
+        # number of walkers they have
+        children_shares = {child_id : self.node[child_id]['walker_idxs']
+                           for child_id in children_node_ids}
+
+        # dispense the shares to the able children as quickly
+        # as possible, they will be redistributed in the next
+        # step
+        child_idx = 0
+        while remaining_balance > 0:
+            # get the node id
+            child_node_id = children_node_ids[child_idx]
+
+            # give as much of the parental balance as we can
+            # to the walkers. In the next step all this
+            # balance will be shared among the children so all
+            # we need to do is dispense all the shares without
+            # care as to who gets them, as long as they can
+            # keep it
+            n_possible_clones = self.node[child_node_id]['n_possible_clones']
+
+            # the amount to be disbursed to this region is
+            # either the number of possible clones (the
+            # maximum it can receive) or the full parental
+            # balance, whichever is smaller
+            disbursement = min(n_possible_clones, abs(parental_balance))
+
+            # give this disbursement by taking away from the
+            # positive balance
+            remaining_balance -= disbursement
+
+            # add these shares to the net balances and share
+            # totals
+            children_shares[node_id] += payment
+
+            # go to the next child node
+            child_idx += 1
+
+        # if the parental balance is still not zero the
+        # children cannot balance it given their constraints
+        if parental_balance > 0:
+            raise ValueError("Children cannot accept all parental shares of the balance")
+
+        # double check the balance is precisely 0, we want to
+        # dispense all the shares as well as not accidentally
+        # overdispensing
+        assert remaining_balance == 0, "balance is not 0"
+
+        return children_shares
+
+
+
+    def _dispense_parental_shares(self, parental_balance, children_node_ids):
+        """Given a parental balance and a set of children nodes, we dispense
+        the shares indicated by the balance to the children nodes in a
+        VALID but not necessarily optimal or desirable way. This
+        merely checks for the hard constraints on the number of shares
+        a region can either give or receive based on their capacity to
+        clone and merge walkers.
+
+        An additional balancing step can be performed to redistribute them.
+
+        """
+
+        # if there is only one child it just inherits all of the
+        # balance no matter what
+        if len(children_node_ids) == 1:
+
+            # increase the balance of the only child
+            self.node[children_node_ids[0]]['balance'] = parental_balance
 
         # there are more than one child so we accredit balances
         # between them
-        if len(children) > 1:
-
-            # if the node had a balance assigned to previously,
-            # apply this to the number of walkers it has
-            #self.node[parent]['n_mergeable'] += parental_balance
-            #self.node[parent]['n_walkers'] += parental_balance
+        elif len(children_node_ids) > 1:
 
             # if the parent has a non-zero balance we either
             # increase (clone) or decrease (merge) the balance
 
             # these poor children are inheriting a debt and must
-            # decrease the total number of their credits :(
+            # decrease the total number of their shares :(
             if parental_balance < 0:
 
-                # find children with mergeable walkers and account
-                # for them in their balance
-                for child in children:
-
-                    # if this child has any mergeable walkers
-                    if self.node[child]['n_mergeable'] >= 1:
-                        # we use those for paying the parent's debt
-                        diff = min(self.node[child]['n_mergeable'],
-                                       abs(parental_balance))
-                        parental_balance += diff
-                        self.node[child]['balance'] -= diff
-
-                # if the parental balance is still not zero the
-                # children cannot balance it given their constraints
-                if parental_balance < 0:
-                    raise ValueError("Children cannot pay their parent's debt")
-
+                children_shares = self._dispense_debit_shares(parental_balance, children_node_ids)
 
             # these lucky children are inheriting a positive number of
-            # credits!! :)
+            # shares!! :)
             elif parental_balance > 0:
 
-                for child in children:
-                    if self.node[child]['n_cloneable']:
-                        self.node[child]['balance'] += parental_balance
-                        parental_balance = 0
+                children_shares = self._dispense_credit_shares(parental_balance, children_node_ids)
 
-                # if the parental balance is still not zero the
-                # children cannot balance it given their constraints
-                if parental_balance > 0:
-                    raise ValueError("Children cannot perform any clones.")
+        return children_shares
 
-            ## Balance the walkers between the children. To do
-            ## this we iteratively identify nodes/regions to trade
-            ## walkers between. We choose the two regions with the
-            ## highest and the lowest number of walkers (that have
-            ## at least one reducible walker and have at least one
-            ## walker that is cloneable (above pmin)
-            ## respectively). We then tally these trades and
-            ## repeat until no further trades can be made.
+    def _gen_best_donation(self, children_shares):
+        """Given a the children shares generate the best donation. Returns the
+        donor_node_id the acceptor_node_id and the donation that
+        should be done between them and that will be guaranteed to be
+        valid. (this is done by checking the attributes of the regions
+        node however, no changes to node state are performed)
 
-            # get the children with the max and min numbers of walkers
-            min_child_idx, max_child_idx = self.minmax_beneficiaries(children)
+        returns donor_node_id, acceptor_node_id, donation_amount
 
-            # get the actual node_ids for the children from their
-            # index among children
-            if max_child_idx is not None:
-                max_child = children[max_child_idx]
-            else:
-                max_child = None
-            if min_child_idx is not None:
-                min_child = children[min_child_idx]
-            else:
-                min_child = None
+        """
 
-            # The recipient needs to have at least one clonable
-            # walker and the donor needs to have at least one
-            # mergeable walker. If they do not (None from the
-            # minmax function) then we cannot assign a number of
-            # shares for them to give each other
-            if None in (max_child, min_child):
-                n_shares = 0
-            else:
-                # calculate the number of share donations to take from
-                # the max child and give to the min child
-                n_shares = self.calc_share_donation(max_child,
-                                                    min_child)
+        # first find the pair of node regions that will give the best
+        # donation outcome
+        result = self._find_best_donation_pair(children_shares)
 
-                # account for these in the nodes
-                self.node[max_child]['balance'] -= n_shares
-                self.node[min_child]['balance'] += n_shares
+        # if the result is False then no possible donation could be
+        # found, so we set the donation amount to 0, the loop will not
+        # enter and the balancing will be considered done
+        if not result:
+            donor_node_id = None
+            acceptor_node_id = None
+            donation_amount = 0
 
-            # iteratively repeat this process until the number of
-            # shares being donated is 1 or less which means the
-            # distribution is as uniform as possible
-            while(n_shares >= 1):
-                # repeat above steps
-                min_child_idx, max_child_idx = self.minmax_beneficiaries(children)
+        # otherwise we figure out what the appropriate donation
+        # actually is and account for it
+        else:
+            donor_node_id, acceptor_node_id = result
 
-                # get the actual node_ids for the children from their
-                # index among children
-                if max_child_idx is not None:
-                    max_child = children[max_child_idx]
-                else:
-                    max_child = None
-                if min_child_idx is not None:
-                    min_child = children[min_child_idx]
-                else:
-                    min_child = None
+            # calculate the number of share donations to take from
+            # the max child and give to the min child
+            donation_amount = self._calc_share_donation(max_child_node_id,
+                                                        min_child_node_id,
+                                                        children_shares)
+
+        return donor_node_id, acceptor_node_id, donation_amount
 
 
-                n_shares = self.calc_share_donation(max_child,
-                                                    min_child)
-                self.node[max_child]['balance'] -= n_shares
-                self.node[min_child]['balance'] += n_shares
+    def _balance_children_shares(self, children_shares):
+        """Given a dictionary mapping the child node_ids to the total number
+        of shares they currently hold we balance between them in order
+        to get an even distribution of the shares as possible.
 
-        # only one child so it just inherits balance
-        elif len(children) == 1:
+        """
 
-            # increase the balance of the only child
-            self.node[children[0]]['balance'] = parental_balance
+        # this is the net change in balance that will be generated by
+        # this subroutine
+        children_net_balances = {child_node_id : 0 for child_node_id in children_node_ids}
+
+        # generate the actual donation pair and the amount that should
+        # be donated for the best outcome
+        donor_node_id, acceptor_node_id, donation_amount = self._gen_best_donation(children_shares)
+
+        # account for this donation in the net changes in the net balances and the total shares
+        children_net_balances[donor_node_id] -= n_shares
+        children_net_balances[acceptor_node_id] += n_shares
+
+        # and the total shares
+        children_shares[donor_node_id] -= n_shares
+        children_shares[acceptor_node_id] += n_shares
+
+        # we have decided the first donation, however more will be
+        # performed as long as the amount of the donation is either 0
+        # or that two donations of only 1 share occur twice in a
+        # row. The former occurs in scenarios when there is an even
+        # balance and the latter in an odd scenario and the last odd
+        # share would get passed back and forth
+
+        # we keep track of the previous donation, and initialize it to
+        # None for now
+        previous_donation_amount = None
+
+        while (donation_amount > 0) and \
+              not (previous_donation_amount == 1 and donation_amount == 1):
+
+            # get the next best donation
+            donor_node_id, acceptor_node_id, donation_amount = self._gen_best_donation(children_shares)
+
+            # account for this donation in the net changes in balances
+            children_net_balances[donor_node_id] -= n_shares
+            children_net_balances[acceptor_node_id] += n_shares
+
+            # and the total shares
+            children_shares[donor_node_id] -= n_shares
+            children_shares[acceptor_node_id] += n_shares
+
+            # update the previous donation amount
+            previous_donation_amount = donation_amount
+
+        return children_net_balances
+
+    def _find_best_donation_pair(self, children_shares):
+        """This method just returns which children have the most and least
+        number of 'shares' which are the effective number of walker
+        slots it will be granted in the next segment of dynamics in
+        the simulation. This is essentially the amount of sampling
+        effort that will be allocated to this region.
+
+        This method is give the dictionary of the childrens
+
+        """
+
+        # one region will be the donor of shares
+        donor_child_node_id = None
+
+        # the other will accept them
+        acceptor_child_node_id = None
+
+        # record for maximum number of donateable shares
+        max_donatable_shares = None
+
+        # records for the max and min number of shares of the acceptor
+        # and donor regions
+        donor_n_shares = None
+        acceptor_n_shares = None
+
+        # go through every walker and test it to see if it is either
+        # the highest or lowest, record it if it is
+        for child_node_id, n_shares in enumerate(children_shares):
+
+            # the number of donatable shares is equal to the number
+            # of squashable walkers
+            n_donatable_shares = self.node[child_node_id]['n_squashable']
+
+            # the number of possible shares this node can receive is
+            # equal to the number of possible clones it can make
+            n_receivable_shares = self.node[child_node_id]['n_possible_clones']
+
+            # we see if this node region is the max region by testing
+            # if it is the new highest in shares. It must also be able
+            # to donate a share by having at least 1 squashable walker
+            if ((donor_child_node_id is None) or (n_shares >  donor_n_shares)) and \
+               (n_donatable_shares > 0):
+
+                # this is a new record
+                max_donatable_shares = n_donatable_shares
+
+                # save how many shares this region has in total
+                donor_n_shares = n_shares
+                donor_child_node_id = child_node_id
+
+
+            # test if this is the region with the lowest number of
+            # shares that is still able to receive at least one share
+            if ((acceptor_child_node_id is None) or (n_shares < acceptor_n_shares)) and \
+               (n_receivable_shares > 0):
+
+                acceptor_n_shares = n_shares
+                acceptor_child_node_id = child_node_id
+
+        # check that both a donor and acceptor were identified and
+        # that values for there shares were given
+        assert all([True if val is not None else False
+                    for val in [donor_n_shares, acceptor_n_shares,
+                                donor_child_node_id, acceptor_child_node_id]]), \
+                "A donor or acceptor was not found"
+
+        # if the acceptor's number of shares is not less then the
+        # donor then there is not possible donation
+        if acceptor_n_shares >= donor_n_shares:
+            return False
+        # if there is a net donation we return the donor and acceptor
+        else:
+            return donor_child_node_id, acceptor_child_node_id
+
+    def _calc_share_donation(self, donor_node_id, recipient_node_id, children_shares):
+
+        # get the total shares each child node region has
+        donor_n_shares = children_shares[donor_node_id]
+        acceptor_n_shares = children_shares[acceptor_node_id]
+
+        # then we get the total number of donatable shares the donor
+        # actually has
+        n_donatable_shares = self.node[child_node_id]['n_squashable']
+
+        # the sibling with the greater number of shares (from both
+        # previous resamplings and inherited from the parent) will
+        # give shares to the sibling with the least.
+
+        # To decide how many it shall give we first propose a desired
+        # donation that will make them the most similar, rounding down
+        # (i.e. midpoint)
+        desired_donation = math.floor((donor_n_shares - recipient_n_shares)/2)
+
+        # however, the donor only has a certain capability of donation
+        # if this is lower than the desired donation then we donate
+        # all that this region has
+        actual_donation = min(desired_donation, n_donatable_shares)
+
+        return actual_donation
 
     def decide_merge_leaf(self, leaf, merge_groups):
 
@@ -1018,9 +1199,13 @@ class RegionTree(nx.DiGraph):
         # do a breadth first traversal and balance at each level
         for parent, children in nx.bfs_successors(self, self.ROOT_NODE):
 
-            # pass on the balances to the children from the
+            # pass on the balance of this parent to the children from the
             # parents, distribute walkers between
-            self.resample_regions(self.node[parent]['balance'], children)
+            parental_balance = self.node[parent]['balance']
+
+            # this will both propagate the balance set for the root
+            # walker down the tree and balance between the children
+            self._propagate_and_balance_shares(parental_balance, children)
 
         # check that the sum of the balances of the leaf nodes
         # balances to delta_walkers
@@ -1033,27 +1218,6 @@ class RegionTree(nx.DiGraph):
         # decide on how to settle all the balances between leaves
         merge_groups, walkers_num_clones = self.decide_settle_balances()
 
-        # # The buck ends here! Iterate over the leaves and determine
-        # # how to actually settle the balances for each child according
-        # # to how they were distributed in balancing.
-        # for leaf in self.leaf_nodes():
-
-        #     # clone and merge groups for this leaf
-        #     leaf_node_balance = self.node[leaf]['balance']
-        #     if leaf_node_balance != 0:
-
-        #         # DEBUG: testing for errors for negative balances
-        #         if leaf_node_balance < 0:
-        #             import ipdb; ipdb.set_trace()
-
-        #         # make decisions on how to merge and clone for this
-        #         # leaf and update the merge_groups and
-        #         # walkers_num_clones. This doesn't actually modify any
-        #         # object state yet. Which will be performed after
-        #         # everything is decided.
-        #         merge_groups, walkers_num_clones = \
-        #                     self.decide_settle_balance(leaf, merge_groups, walkers_num_clones)
-
         # count up the number of clones and merges in the merge_groups
         # and the walkers_num_clones
         num_clones = sum(walkers_num_clones)
@@ -1062,16 +1226,16 @@ class RegionTree(nx.DiGraph):
         # check that the number of clones and number of squashed
         # walkers balance to the delta_walkers amount
         if num_clones - num_squashed != delta_walkers:
-            # DEBUG
-            import ipdb; ipdb.set_trace()
 
-            # raise RegionTreeError("The number of new clones ({}) is not balanced by the number of"
-            #                       "squashed walkers ({}) to the delta_walkers specified ({})".format(
-            #                           num_clones, num_squashed, delta_walkers))
+            raise RegionTreeError("The number of new clones ({}) is not balanced by the number of"
+                                  "squashed walkers ({}) to the delta_walkers specified ({})".format(
+                                      num_clones, num_squashed, delta_walkers))
 
 
         # now that we have made decisions about which walkers to clone
-        # and merge we actually modify the weights of them
+        # and merge we actually modify the weights of them in the
+        # region tree, thus this is a state change (this is not really
+        # necessary except for error checking)
         self.settle_balances(merge_groups, walkers_num_clones)
 
 
@@ -1222,6 +1386,8 @@ class WExploreResampler(Resampler):
         # walkers
         merge_groups, walkers_num_clones = self.region_tree.balance_tree(delta_walkers=delta_walkers)
 
+
+        ## DEBUGGING AND ERROR CHECKING
         if debug_prints:
             print("merge_groups\n{}".format(merge_groups))
             print("Walker number of clones\n{}".format(walkers_num_clones))
@@ -1266,8 +1432,13 @@ class WExploreResampler(Resampler):
         # if sum(walkers_num_clones) > 0:
         #     import ipdb; ipdb.set_trace()
 
-        resampling_actions = self.assign_clones(merge_groups, walkers_num_clones)
+        ## END DEBUGGING
 
+        # take the specs for cloning and merging and generate the
+        # actual resampling actions (instructions) for each walker,
+        # this does not change the state of the resampler or region
+        # tree
+        resampling_actions = self.assign_clones(merge_groups, walkers_num_clones)
 
         # check to make sure there are no multiple assignments by
         # keeping track of the taken slots
@@ -1297,7 +1468,8 @@ class WExploreResampler(Resampler):
         if debug_prints:
             print("Assigned regions=\n{}".format(self.region_tree.walker_assignments))
 
-        # make the decisions for the the walkers in a single step
+        # make the decisions for the the walkers for only a single
+        # step
         resampling_data = self.decide(delta_walkers=delta_walkers,
                                          debug_prints=debug_prints)
 
