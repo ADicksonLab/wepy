@@ -5,11 +5,10 @@ import numpy as np
 
 from wepy.resampling.decisions.decision import NoDecision
 
+class ResamplerError(Exception):
+    pass
 
-class Resampler(object):
-    """Superclass for resamplers that use the the Novelty->Decider
-    framework."""
-
+class Resampler():
     # data for resampling performed (continual)
     RESAMPLING_FIELDS = ()
     RESAMPLING_SHAPES = ()
@@ -25,10 +24,29 @@ class Resampler(object):
     RESAMPLER_RECORD_FIELDS = ()
 
 
-    def __init__(self, scorer, decider):
-        self.scorer = scorer
-        self.decider = decider
-        self.decision = decider.DECISION
+    def __init__(self, min_num_walkers=Ellipsis,
+                 max_num_walkers=Ellipsis):
+
+        # the min and max number of walkers that can be generated in
+        # resampling.
+
+        # Ellipsis means to keep bound it by the number of
+        # walkers given to the resample method (e.g. if
+        # max_num_walkers == Ellipsis and min_num_walkers == 5 and
+        # resample is given 10 then the max will be set to 10 for that
+        # resampling and the min will always be 5. If both are
+        # Ellipsis then the number of walkers is kept the same)
+
+        # None means that there is no bound, e.g. max_num_walkers ==
+        # None then there is no maximum number of walkers, however a
+        # min_num_walkers of None in practice is 1 since there must
+        # always be at least 1 walker
+
+        if min_num_walkers < 1:
+            raise ResamplerError("The minimum number of walkers should be at least 1")
+
+        self._min_num_walkers = min_num_walkers
+        self._max_num_walkers = max_num_walkers
 
     def resampling_field_names(self):
         return self.RESAMPLING_FIELDS
@@ -66,15 +84,105 @@ class Resampler(object):
 
     def resample(self, walkers):
 
-        aux_data = {}
+        raise NotImplementedError
 
-        scores, scorer_aux = self.scorer.scores(walkers)
-        decisions, decider_aux = self.decider.decide(scores)
-        resampled_walkers = self.decider.decision.action(walkers, decisions)
-
-        aux_data.update([scorer_aux, decider_aux])
-
+        # first set how many walkers there are in this resampling
+        self._set_resample_num_walkers(len(walkers))
         return resampled_walkers, resampling_records, resampler_records
+
+    @property
+    def max_num_walkers_setting(self):
+        return self._max_num_walkers
+
+    @property
+    def min_num_walkers_setting(self):
+        return self._min_num_walkers
+
+    def max_num_walkers(self):
+        """" Get the max number of walkers allowed currently"""
+
+        # first check to make sure that a resampling is occuring and
+        # we have a number of walkers to even reference
+        if self._resampling_num_walkers is None:
+            raise ResamplerError(
+            "A resampling is currently not taking place so the"\
+            " current number of walkers is not known.")
+
+        # we are in a resampling so there is a current value for the
+        # max number of walkers
+        else:
+
+            # if the max is None then there is no max number of
+            # walkers so we just return None
+            if self.max_num_walkers_setting is None:
+                return None
+
+            # if the max is Ellipsis then we just return what the
+            # current number of walkers is
+            elif self.max_num_walkers_setting is Ellipsis:
+                return self._resampling_num_walkers
+
+            # if it is not those then it is a hard number and we just
+            # return it
+            else:
+                return self.max_num_walkers_setting
+
+    def min_num_walkers(self):
+        """" Get the min number of walkers allowed currently"""
+
+        # first check to make sure that a resampling is occuring and
+        # we have a number of walkers to even reference
+        if self._resampling_num_walkers is None:
+            raise ResamplerError(
+            "A resampling is currently not taking place so the"\
+            " current number of walkers is not known.")
+
+        # we are in a resampling so there is a current value for the
+        # min number of walkers
+        else:
+
+            # if the min is None then there is no min number of
+            # walkers so we just return None
+            if self.min_num_walkers_setting is None:
+                return None
+
+            # if the min is Ellipsis then we just return what the
+            # current number of walkers is
+            elif self.min_num_walkers_setting is Ellipsis:
+                return self._resampling_num_walkers
+
+            # if it is not those then it is a hard number and we just
+            # return it
+            else:
+                return self.min_num_walkers_setting
+
+
+    def _set_resampling_num_walkers(self, num_walkers):
+
+        # there must be at least 1 walker in order to do resampling
+        if num_walkers < 1:
+            raise ResamplerError("No walkers were given to resample")
+
+        # if the min number of walkers is not dynamic check to see if
+        # this number violates the hard boundary
+        if self._min_num_walkers in (None, Ellipsis):
+            self._resampling_num_walkers = num_walkers
+        elif num_walkers < self._min_num_walkers:
+            raise ResamplerError(
+                "The number of walkers given to resample is less than the minimum")
+
+        # if the max number of walkers is not dynamic check to see if
+        # this number violates the hard boundary
+        if self._max_num_walkers in (None, Ellipsis):
+            self._resampling_num_walkers = num_walkers
+        elif num_walkers < self._max_num_walkers:
+            raise ResamplerError(
+                "The number of walkers given to resample is less than the maximum")
+
+    def _unset_resampling_num_walkers(self):
+
+        self._resampling_num_walkers = None
+
 
     def assign_clones(self, merge_groups, walker_clone_nums):
 
@@ -160,6 +268,34 @@ class Resampler(object):
                                                          tuple(slots))
 
         return walker_actions
+
+class ScoreDecideResampler(Resampler):
+    """Superclass for resamplers that use the the Novelty->Decider
+    framework."""
+
+    def __init__(self, scorer, decider):
+        self.scorer = scorer
+        self.decider = decider
+        self.decision = decider.DECISION
+
+    def resample(self, walkers):
+
+        # first set how many walkers there are in this resampling
+        self._set_resample_num_walkers(len(walkers))
+
+        aux_data = {}
+
+        scores, scorer_aux = self.scorer.scores(walkers)
+        decisions, decider_aux = self.decider.decide(scores)
+        resampled_walkers = self.decider.decision.action(walkers, decisions)
+
+        aux_data.update([scorer_aux, decider_aux])
+
+        # unset the number of walkers for this resampling
+        self._unset_resampling_num_walkers()
+
+        return resampled_walkers, resampling_records, resampler_records
+
 
 class NoResampler(Resampler):
 
