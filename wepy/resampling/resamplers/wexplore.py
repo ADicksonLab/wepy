@@ -53,7 +53,6 @@ def calc_squashable_walkers_single_method(walker_weights, max_weight):
 
 
     else:
-        print("while-else found")
         # the loop condition failed so we remove the last count of
         # merge size from the merge group. This won't run if we break
         # out of the loop because of we are out of walkers to include
@@ -105,8 +104,7 @@ def calc_max_num_clones(walker_weights, min_weight, max_num_walkers):
         # max number of walkers
         while ((walker_weight / n_splits) >= min_weight) and \
               (n_splits <= max_num_walkers):
-            if n_splits % 100 == 0:
-                print(n_splits)
+
             n_splits += 1
 
         # the last step failed so the number of splits is one less
@@ -455,49 +453,39 @@ class RegionTree(nx.DiGraph):
                 self.node[node_id]['n_walkers'] += 1
                 self.node[node_id]['walker_idxs'].append(walker_idx)
 
-
-        # TODO: DO we really need to do this here!!
-
-        # after placing all the walkers we calculate the number of
-        # reducible walkers for each node for each leaf node calculate
-        # the number of reducible walkers (i.e. the largest possible
-        # number of merges that could occur taking into account the
-        # pmax (max weight) constraint) and the number of possible
-        # clones
+        # We also want to find out some details about the ability of
+        # the leaf nodes to clone and merge walkers. This is useful
+        # for being able to balance the tree. Once this has been
+        # figured out for the leaf nodes we want to aggregate these
+        # numbers for the higher level regions
         for node_id in self.leaf_nodes():
 
             leaf_walker_idxs = self.node[node_id]['walker_idxs']
             leaf_weights = [self.walker_weights[i] for i in leaf_walker_idxs]
 
-            # first we see how many merges we can do. FIrst we check
-            # to see there are more than 1 walker so we can actually
-            # do a merge
-            if self.node[node_id]['n_walkers'] > 1:
+            # first figure out how many walkers are squashable (AKA
+            # reducible)
+            n_squashable = self._calc_squashable_walkers(leaf_weights)
 
-                # figure out the most possible mergeable walkers
-                # assuming they cannot ever be larger than pmax
-                self.node[node_id]['n_mergeable'] = self._calc_mergeable_walkers(leaf_weights)
+            # get the max number of clones for each walker and sum
+            # them up to get the total number of cloneable walkers
+            n_possible_clones = sum(self._calc_max_num_clones(leaf_weights))
 
-                # increase the reducible walkers for the higher nodes
-                # in this leaf's branch
-                for level in reversed(range(self.n_levels)):
-                    branch_node_id = node_id[:level]
-                    self.node[branch_node_id]['n_mergeable'] += self.node[node_id]['n_mergeable']
+            # actually set them as attributes for the node
+            self.node[node_id]['n_squashable'] = n_squashable
+            self.node[node_id]['n_possible_clones'] = n_possible_clones
 
-            # now we figure out how many clones are possible, we only
-            # need one walker to have potential clones
-            if self.node[node_id]['n_walkers'] > 0:
+            # also add this amount to all of the nodes above it
 
-                # get the max number of clones for each walker and sum
-                # them up to get the total number of cloneable walkers
-                self.node[node_id]['n_cloneable'] = sum(self._calc_max_num_clones(leaf_weights))
+            # n_squashable
+            for level in reversed(range(self.n_levels)):
+                branch_node_id = node_id[:level]
+                self.node[branch_node_id]['n_squashable'] += self.node[node_id]['n_squashable']
 
-                # propagate this up the tree summing to get a number
-                # for the higher levels
-                for level in reversed(range(self.n_levels)):
-                    branch_node_id = node_id[:level]
-                    self.node[branch_node_id]['n_cloneable'] += self.node[node_id]['n_cloneable']
-
+            # n_posssible_clones
+            for level in reversed(range(self.n_levels)):
+                branch_node_id = node_id[:level]
+                self.node[branch_node_id]['n_possible_clones'] += n_possible_clones
 
         return new_branches
 
@@ -561,14 +549,14 @@ class RegionTree(nx.DiGraph):
 
         return max_n_merges
 
-    def _calc_mergeable_walkers(self, walker_weights):
+    def _calc_squashable_walkers(self, walker_weights):
 
         if self.merge_method == 'single':
-            n_mergeable = calc_mergeable_walkers_single_method(walker_weights, self.pmax)
+            n_squashable = calc_squashable_walkers_single_method(walker_weights, self.pmax)
         else:
             raise ValueError("merge method {} not recognized".format(self.merge_method))
 
-        return n_mergeable
+        return n_squashable
 
     def _calc_max_num_clones(self, walker_weights):
 
@@ -1064,37 +1052,19 @@ class RegionTree(nx.DiGraph):
         leaf_weights = [self.walker_weights[walker_idx]
                         for walker_idx in self.node[leaf]['walker_idxs']]
 
-        # all of the squashed walkers from the merge groups leave
-        # behind slots we can fill with cloned walkers, we acquire
-        # these slots
-        free_slot_idxs = list(it.chain(merge_groups))
-
-        # we also need to choose walkers for cloning which cannot be
-        # either squashed or merged walkers
-        taken_walker_idxs = list(it.chain([[keep_idx, *squashed_idxs]
-                                           for keep_idx, squashed_idxs in merge_groups
-                                           if len(squashed_idxs) > 0]))
-
-        # get the idxs of the cloneable walkers that when split at
-        # least 1 time will have children with weights equal to or
-        # greater than the pmin, also we have the condition that they
-        # are not already taken for merging
-        cloneable_walker_idxs, cloneable_walker_weights = \
-                                zip(*[(walker_idx, weight) for walker_idx, weight
-                                      in zip(leaf_walker_idxs, leaf_weights)
-                                      if (weight/2 >= self.pmin) and
-                                         (walker_idx not in taken_walker_idxs)])
-
-        # each walker can only be cloned until it would produce a
-        # walker less than the pmin, so we figure out the maximum
-        # number of splittings of the weight each cloneable walker can
-        # do. initialize to 0 for each
-        max_n_clones = self._calc_max_num_clones(cloneable_walker_weights)
+        # calculate the maximum possible number of clones each free walker
+        # could produce
+        n_possible_clones = self._calc_max_num_clones(leaf_walker_weights)
 
         # the sum of the possible clones needs to be greater than or
         # equal to the balance
-        assert sum(max_n_clones) >= leaf_balance, \
+        assert sum(n_possible_clones) >= leaf_balance, \
             "there isn't enough clones possible to pay the balance"
+
+        # go through the list of free walkers and see which ones have
+        # any possible clones and make a list of them
+        cloneable_walker_idxs = [walker_idx for walker_idx in leaf_walker_idxs
+                                 if max_n_possible_clones[walker_idx] > 0]
 
         # to distribute the clones we iteratively choose the walker
         # with the highest weight after amplification weight/(n_clones
@@ -1112,22 +1082,6 @@ class RegionTree(nx.DiGraph):
                 # the weight of its children given the number of
                 # clones already assigned to it
                 child_weight = weight / (walkers_num_clones[walker_idx]+1)
-
-                # TODO: this strict adherence to the pmin is not
-                # supported by the way the number of possible clones
-                # for a leaf region are calculated and thus when we
-                # stick to strict adherence there are potentially
-                # situations a positive balance is assigned according
-                # to the method that allows children to be less than
-                # pmin that then REQUIRES this leaf produce that many
-                # when in reality it cannot because the strict method
-                # generates less possible children. So until strict
-                # pmin adherence is observed by the balancing
-                # subroutines then this cannot be used. Of course I
-                # would add that repeated cloning of a walker that
-                # originally was above the pmin but is cloned many
-                # times could get walkers that are significantly lower
-                # than the pmin.
 
                 # if this child weight is less than the pmin then this
                 # one has maxed out on the number of clones it can do
