@@ -42,8 +42,9 @@ class Resampler():
         # min_num_walkers of None in practice is 1 since there must
         # always be at least 1 walker
 
-        if min_num_walkers < 1:
-            raise ResamplerError("The minimum number of walkers should be at least 1")
+        if min_num_walkers not in (Ellipsis, None):
+            if min_num_walkers < 1:
+                raise ResamplerError("The minimum number of walkers should be at least 1")
 
         self._min_num_walkers = min_num_walkers
         self._max_num_walkers = max_num_walkers
