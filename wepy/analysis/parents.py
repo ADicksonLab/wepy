@@ -1,3 +1,5 @@
+from copy import copy
+
 import numpy as np
 
 DISCONTINUITY_VALUE = -1
