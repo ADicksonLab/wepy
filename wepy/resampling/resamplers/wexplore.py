@@ -2,8 +2,7 @@ import math
 import random as rand
 import itertools as it
 from collections import namedtuple
-from copy import copy
-from copy import deepcopy
+from copy import copy, deepcopy
 
 import numpy as np
 import networkx as nx
@@ -20,8 +19,6 @@ class RegionTreeError(Exception):
 # algorithms for finding the number of mergeable walkers in a group
 def calc_squashable_walkers_single_method(walker_weights, max_weight):
 
-    # sort the weights smallest to biggest
-    walker_weights.sort()
 
     # to get an estimate of the number of squashable walkers we start
     # summing the weights starting from the smallest walker. When the
@@ -31,6 +28,16 @@ def calc_squashable_walkers_single_method(walker_weights, max_weight):
     # for the fact that one of them won't be squashed if a merge of
     # all of them was to occur
     n_squashable = 0
+
+    # there must be at least 2 walkers in order to be able to do a
+    # merge, so if there are not enough the number of squashable
+    # walkers is 0
+    if len(walker_weights) < 2:
+        return n_squashable
+
+
+    # sort the weights smallest to biggest
+    walker_weights.sort()
 
     idx = 0
     sum_weights = walker_weights[idx]
@@ -907,7 +914,7 @@ class RegionTree(nx.DiGraph):
             # find the largest difference comparing (a,b) and (b,a),
             # this will give the donor, acceptor pair
             permutations = [(a,b), (b,a)]
-            perm_idx = argmax([children_shares[i] - children_shares[j]
+            perm_idx = np.argmax([children_shares[i] - children_shares[j]
                                for i, j in permutations])
 
             donor_acceptor_pair = permutations[perm_idx]
@@ -936,7 +943,7 @@ class RegionTree(nx.DiGraph):
 
                 # as well as the donatable and receivable shares
                 donor_donatable_shares = children_donatable_shares[donor_node_id]
-                acceptor_receivable_shares = children_receivable_shares[acceptro_node_id]
+                acceptor_receivable_shares = children_receivable_shares[acceptor_node_id]
 
                 # actually calculate the maximum donation
                 donation_amount = self._calc_share_donation(donor_n_shares, acceptor_n_shares,
@@ -984,7 +991,7 @@ class RegionTree(nx.DiGraph):
         # donor, acceptor order from when we created it
         donor_node_id, acceptor_node_id = best_pair
 
-        return donor_node_id, acceptor_node_id, donation_amount
+        return donor_node_id, acceptor_node_id, best_donation_amount
 
 
     def _find_best_donation_pair(self, children_donatable_shares,
