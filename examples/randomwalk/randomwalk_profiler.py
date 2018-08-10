@@ -17,16 +17,19 @@ from wepy.sim_manager import Manager
 from wepy.walker import Walker, WalkerState
 from wepy.runners.randomwalk import RandomWalkRunner, UNIT_NAMES
 from wepy.hdf5 import WepyHDF5
+SAVE_FIELDS = ('positions')
+UNITS=UNIT_NAMES
 
 class RandomwalkProfiler(object):
 
-    def __init__(self, resampler, move_prob=0.25, hdf5_reporter=None):
+    def __init__(self, resampler, move_prob=0.25, hdf5_reporter_path=None):
         self.resampler = resampler
         self.probability = move_prob
-        self.hdf5_reporter = hdf5_reporter
 
-        if self.hdf5_reporter is None:
-            self.hdf5_reporter = "rw_results.h5"
+        if hdf5_reporter_path is None:
+            self.hdf5_reporter_path = "rw_results.h5"
+        else:
+            self.hdf5_reporter_path = hdf5_reporter_path
 
     def generate_topology(self):
         n_atoms = 1
@@ -60,10 +63,10 @@ class RandomwalkProfiler(object):
     def run_test(self, num_walkers=200, num_cycles=100, dimension=5,
                  debug_prints=False):
 
-        hdf5_filepath = self._runtest(num_walkers, num_cycles,
+        self._runtest(num_walkers, num_cycles,
                                       dimension, debug_prints=debug_prints)
 
-        return self.analyse(hdf5_filepath, num_walkers)
+        self.analyse(num_walkers)
 
     def _runtest(self, num_walkers, num_cycles, dimension, debug_prints=False):
         print("Random walk simulation with: ")
@@ -95,23 +98,20 @@ class RandomwalkProfiler(object):
         segment_length = 10
 
         # set up the reporter
-        report_path = self.hdf5_reporter
         randomwalk_system_top_json = self.generate_topology()
-        reporter = WepyHDF5Reporter(report_path, mode='w',
-                                    save_fields=['positions', 'weights'],
-                                    decisions=self.resampler.DECISION.ENUM,
-                                    instruction_dtypes=self.resampler.DECISION.instruction_dtypes(),
-                                    topology=randomwalk_system_top_json,
-                                    units=units,
-                                    n_dims=dimension)
 
-
+        hdf5_reporter = WepyHDF5Reporter(self.hdf5_reporter_path, mode='w',
+                                save_fields=SAVE_FIELDS,
+                                topology=randomwalk_system_top_json,
+                                resampler=self.resampler,
+                                units=dict(UNITS),
+                                n_dims=dimension)
         # running the simulation
         sim_manager = Manager(init_walkers,
                               runner=runner,
                               resampler=self.resampler,
                               work_mapper=Mapper(),
-                              reporters=[reporter])
+                              reporters=[hdf5_reporter])
 
 
         # run a simulation with the manager for n_steps cycles of length 1000 each
@@ -121,7 +121,7 @@ class RandomwalkProfiler(object):
         sim_manager.run_simulation(num_cycles, steps, debug_prints=debug_prints)
 
         print("Finished Simulation")
-        return report_path
+
 
     # implements kronecker_delta function
     def kronecker_delta(self, x):
@@ -185,11 +185,11 @@ class RandomwalkProfiler(object):
 
         return pcycles
 
-    def analyse(self, result_h5file_path, num_walkers):
+    def analyse(self, num_walkers):
 
 
 
-        wepy_h5 = WepyHDF5(result_h5file_path, mode='r')
+        wepy_h5 = WepyHDF5(self.hdf5_reporter_path, mode='r')
         wepy_h5.open()
 
         max_x, max_range = self.find_max_range(wepy_h5, num_walkers)
@@ -227,25 +227,5 @@ class RandomwalkProfiler(object):
 
         results = {"max_x": max_x, "max_range": max_range,
                    "px":prob_x, "accuracy":acc}
-
         return results
 
-if __name__=="__main__":
-
-    from wepy.resampling.resamplers.wexplore import WExploreResampler
-    from wepy.resampling.distances.randomwalk import RandomWalkDistance
-
-    # set up  the distance function
-    distance = RandomWalkDistance()
-
-    # set up the Revo Resampler with the parameters
-    # resampler = REVOResampler(pmax=0.1, pmin=10e-100,
-    #                                    scorer=scorer)
-
-    # # set up the Wexplore Resampler with the parameters
-    resampler = WExploreResampler(pmax=0.1, pmin=10e-100,
-                                       cellsize=[16, 4, 1,0.25], distance=distance)
-
-    # set up a RandomWalkProfilier
-    rw_profiler = RandomwalkProfiler(resampler)
-    rw_profiler.run_test(num_walkers=200, num_cycles=100, dimension=5, debug_prints=False)
