@@ -10,8 +10,9 @@ allow extension, but provide a "killer app" for most uses that just
 works, no questions asked.
 
 Comes equipped with support for [[https://github.com/pandegroup/openmm][OpenMM]] molecular dynamics,
-parallelization using multiprocessing, the [[http://pubs.acs.org/doi/abs/10.1021/jp411479c][WExplore]] resampling
-algorithm, and an HDF5 file format and library for storing and
+parallelization using multiprocessing, the [[http://pubs.acs.org/doi/abs/10.1021/jp411479c][WExplore]] 
+and REVO (Resampling Ensembles by Variance Optimization) resampling
+algorithms, and an HDF5 file format and library for storing and
 querying your WE datasets that can be used from the command line.
 
 The deeper architecture of ~wepy~ is intended to be loosely coupled,
@@ -47,7 +48,7 @@ The only absolutely necessary dependencies are ~numpy~ and ~h5py~
 which are used in the core classes.
 
 Outside of the core classes there are a couple of dependencies which
-are needed for this distribution but not in general if you use wepy as
+are needed for this distribution but not in general if you use ~wepy~ as
 a library:
 - OpenMM (http://openmm.org/) (7.2 suggested)
 - pandas (https://pandas.pydata.org/)
@@ -59,10 +60,10 @@ To install these see their pages and the instructions below for geomm.
 
 The default ~Runner~ is for ~OpenMM~ and should also be installed
 automatically when following these instructions (defined in
-~setup.py~) although it is not necessary to use openmm when using wepy
+~setup.py~) although it is not necessary to use openmm when using ~wepy~
 as a library.
 
-Currently, some things are still coupled to mdtraj and thus this is
+Currently, some things are still coupled to ~mdtraj~ and thus this is
 also a dependency for some functionality, although this will be
 relaxed in the future and replaced with a dependency on our nascent
 project ~geomm~.
@@ -79,14 +80,14 @@ pip install -e .
 #+END_SRC
 
 
-There are other uses for mdtraj such as export of trajectories to
+There are other uses for ~mdtraj~ such as export of trajectories to
 mdtraj trajectories, which will not be removed.
 
 Pandas is used for outputting some data records, for which there is
 always a non-pandas option.
 
-NetworkX is used in the WExplore1 resampler for the region tree and
-also for the tree module for manipulating the walker cloning/mergin
+NetworkX is used in the WExplore resampler for the region tree and
+also for the tree module for manipulating the walker cloning/merging
 trees.
 
 ** Roadmap
@@ -96,6 +97,7 @@ trees.
 - [X] Resampling sub-module
   - [X] Random clone-merge resampler
   - [X] WExplore
+  - [X] REVO
 - [X] OpenMM support
 - [X] HDF5 output and API
 - [ ] Command Line Interface
