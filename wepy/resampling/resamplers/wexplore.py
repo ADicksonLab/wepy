@@ -1810,18 +1810,30 @@ class WExploreResampler(Resampler):
         n_slots = len(resampling_data)
 
         taken_slot_idxs = []
+        squash_slot_idxs = []
+        keep_merge_slot_idxs = []
         for rec_d in resampling_data:
             if rec_d['decision_id'] in (1, 2, 4):
                 taken_slot_idxs.extend(rec_d['target_idxs'])
+
+            if rec_d['decision_id'] == 3:
+                squash_slot_idxs.extend(rec_d['target_idxs'])
+
+            if rec_d['decision_id'] == 4:
+                keep_merge_slot_idxs.extend(rec_d['target_idxs'])
+
 
         # see if there are any repeated targets
         if len(set(taken_slot_idxs)) < len(taken_slot_idxs):
             raise ResamplerError("repeated slots to be used")
 
+        # check that the number of targets is exactly the number of slots available
         if len(taken_slot_idxs) < n_slots:
             raise ResamplerError("Number of slots used is less than the number of slots")
-
         elif len(taken_slot_idxs) > n_slots:
             raise ResamplerError("Number of slots used is greater than the number of slots")
 
         # check that all squashes are going to a merge slot
+        if not all([False if squash_slot_idx not in keep_merge_slot_idxs else True
+         for squash_slot_idx in set(squash_slot_idxs)]):
+            raise ResamplerError("Not all squashes are assigned to keep_merge slots")
