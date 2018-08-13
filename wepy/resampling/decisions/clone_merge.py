@@ -114,8 +114,13 @@ class MultiCloneMergeDecision(Decision):
                             raise ValueError(
                                 "Multiple walkers assigned to position {}".format(instruction[0]))
 
+                        # TODO this comment was just fixed so I
+                        # believe that there was some serious problems
+                        # before
+                        # mod_walkers[walker_idx] = clones[clone_idx]
+
                         # assign the clone to the modified walkers of the next step
-                        mod_walkers[walker_idx] = clones[clone_idx]
+                        mod_walkers[target_idx] = clones[clone_idx]
 
                 # if it is a decision for merging we must perform this
                 # once we know all the merge targets for each merge group
@@ -133,6 +138,13 @@ class MultiCloneMergeDecision(Decision):
 
             # do the merging for each merge group
             for target_idx, walker_idxs in squash_walkers.items():
+
+                # DEBUG
+                try:
+                    keep_idx = keep_walkers[target_idx]
+                except:
+                    import ipdb; ipdb.set_trace()
+
                 keep_idx = keep_walkers[target_idx]
                 # collect the walkers in the merge group, the keep idx is
                 # always the first in the list
@@ -148,6 +160,11 @@ class MultiCloneMergeDecision(Decision):
 
                 # set it in the slot for the keep_idx
                 mod_walkers[target_idx] = merged_walker
+
+
+        if not all([False if walker is None else True for walker in mod_walkers]):
+
+            raise ValueError("Some walkers were not created")
 
         return mod_walkers
 

@@ -220,8 +220,8 @@ class Resampler():
         # for each walker, if it is to be cloned assign open slots for it
         for walker_idx, num_clones in enumerate(walker_clone_nums):
 
-            # if num_clones > 0 and len(merge_groups[walker_idx]) > 0:
-            #     raise ValueError("Error! cloning and merging occuring with the same walker")
+            if num_clones > 0 and len(merge_groups[walker_idx]) > 0:
+                raise ResamplerError("Error! cloning and merging occuring with the same walker")
 
             # if this walker is to be cloned do so and consume the free
             # slot
@@ -231,19 +231,23 @@ class Resampler():
                 # for cloned walkers to go. If there are not we can
                 # make room. The number of extra slots needed should
                 # be default 0
-                num_slots_needed = 0
-                # initialize the lists of open slots
-                this_free_slots = []
-                new_slots = []
-                if num_clones > len(free_slots):
 
-                    # we get the difference in them in order to figure
-                    # out how many extra slots will be created
-                    num_slots_needed = num_clones - len(free_slots)
 
-                    # collect free slots for this clone if there are any
-                    if len(free_slots) > 0:
-                        this_free_slots = [free_slots.pop() for clone in range(num_clones)]
+                # we choose the targets for this cloning, we start
+                # with the walker initiating the cloning
+                clone_targets = [walker_idx]
+
+                # if there are any free slots, then we use those first
+                if len(free_slots) > 0:
+                    clone_targets.extend([free_slots.pop() for clone in range(num_clones)])
+
+                # if there are more slots needed then we will have to
+                # create them
+                num_slots_needed = num_clones - len(clone_targets)
+                if num_slots_needed > 0:
+
+                    # initialize the lists of open slots
+                    new_slots = []
 
                     # and make a list of the new slots
                     new_slots = [n_walkers + i for i in range(num_slots_needed)]
@@ -251,22 +255,12 @@ class Resampler():
                     # then increase the number of walkers to match
                     n_walkers += num_slots_needed
 
-                # then combine all the sources of slots, which
-                # includes the spot this walker currently sits, slots
-                # opened up by squashing, and newly created slots
-                slots = [walker_idx] + \
-                        this_free_slots + \
-                        new_slots
-
-                # DEBUG
-                # check to see if there are any new slot assignments
-                # if any([(True if idx >= n_walkers else False) for idx in slots]):
-                #     # raise ValueError("Assignment of a clone to nonexistent slots")
-                #     import ipdb; ipdb.set_trace()
+                    # then add these to the clone targets
+                    clone_targets.extend(new_slots)
 
                 # make a record for this clone
                 walker_actions[walker_idx] = self.decision.record(self.decision.ENUM.CLONE.value,
-                                                         tuple(slots))
+                                                         tuple(clone_targets))
 
         return walker_actions
 

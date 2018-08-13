@@ -7,7 +7,7 @@ from copy import copy, deepcopy
 import numpy as np
 import networkx as nx
 
-from wepy.resampling.resamplers.resampler  import Resampler
+from wepy.resampling.resamplers.resampler  import Resampler, ResamplerError
 from wepy.resampling.decisions.clone_merge import MultiCloneMergeDecision
 
 class RegionTreeError(Exception):
@@ -97,31 +97,28 @@ def decide_merge_groups_single_method(walker_weights, balance, max_weight):
     return [chosen_idxs], result
 
 ## Clone methods
-def calc_max_num_clones(walker_weights, min_weight, max_num_walkers):
+def calc_max_num_clones(walker_weight, min_weight, max_num_walkers):
 
-    # initialize an array for the counts of each walker given
-    max_n_clones = [0 for weight in walker_weights]
+    # initialize it to no more clones
+    max_n_clones = 0
 
-    # go through each weight and calculate its max clones for it
-    for idx, walker_weight in enumerate(walker_weights):
+    # start with a two splitting
+    n_splits = 2
+    # then increase it every time it passes or until we get to the
+    # max number of walkers
+    while ((walker_weight / n_splits) >= min_weight) and \
+          (n_splits <= max_num_walkers):
 
-        # start with a two splitting
-        n_splits = 2
-        # then increase it every time it passes or until we get to the
-        # max number of walkers
-        while ((walker_weight / n_splits) >= min_weight) and \
-              (n_splits <= max_num_walkers):
+        n_splits += 1
 
-            n_splits += 1
+    # the last step failed so the number of splits is one less
+    # then we counted
+    n_splits -= 1
 
-        # the last step failed so the number of splits is one less
-        # then we counted
-        n_splits -= 1
-
-        # we want the number of clones so we subtract one from the
-        # number of splits to get that, and we save this for this
-        # walker
-        max_n_clones[idx] = n_splits - 1
+    # we want the number of clones so we subtract one from the
+    # number of splits to get that, and we save this for this
+    # walker
+    max_n_clones = n_splits - 1
 
     return max_n_clones
 
@@ -503,7 +500,9 @@ class RegionTree(nx.DiGraph):
 
             # get the max number of clones for each walker and sum
             # them up to get the total number of cloneable walkers
-            n_possible_clones = sum(self._calc_max_num_clones(leaf_weights))
+            walker_max_n_clones = [self._calc_max_num_clones(walker_weight)
+                                   for walker_weight in leaf_weights]
+            n_possible_clones = sum(walker_max_n_clones)
 
             # actually set them as attributes for the node
             self.node[node_id]['n_squashable'] = n_squashable
@@ -514,7 +513,7 @@ class RegionTree(nx.DiGraph):
             # n_squashable
             for level in reversed(range(self.n_levels)):
                 branch_node_id = node_id[:level]
-                self.node[branch_node_id]['n_squashable'] += self.node[node_id]['n_squashable']
+                self.node[branch_node_id]['n_squashable'] += n_squashable
 
             # n_posssible_clones
             for level in reversed(range(self.n_levels)):
@@ -592,11 +591,12 @@ class RegionTree(nx.DiGraph):
 
         return n_squashable
 
-    def _calc_max_num_clones(self, walker_weights):
+    def _calc_max_num_clones(self, walker_weight):
 
-        return calc_max_num_clones(walker_weights, self.pmin, self.max_num_walkers)
+        return calc_max_num_clones(walker_weight, self.pmin, self.max_num_walkers)
 
     def _propagate_and_balance_shares(self, parental_balance, children_node_ids):
+
 
         # talk about "shares" which basically are the number of
         # slots/replicas that will be allocated to this region for
@@ -616,7 +616,6 @@ class RegionTree(nx.DiGraph):
         # the donatable (squashable) walkers to start with
         children_receivable_shares = {child_id : self.node[child_id]['n_possible_clones']
                                      for child_id in children_node_ids}
-
 
         # Our first goal in this subroutine is to dispense a parental
         # balance to it's children in a simply valid manner
@@ -651,6 +650,13 @@ class RegionTree(nx.DiGraph):
         # calculate the net change in the balances for each region
         net_balances = {child_id : children_shares[child_id] - orig_children_shares[child_id]
                         for child_id in children_shares.keys()}
+
+        children_balances = [balance for balance in net_balances.values()]
+        if sum(children_balances) != parental_balance:
+
+            raise RegionTreeError(
+                "The balances of the child nodes ({}) do not balance to the parental balance ({})".format(
+                    children_balances, parental_balance))
 
         # no state changes to the object have been made up until this
         # point, but now that the net change in the balances for the
@@ -712,7 +718,7 @@ class RegionTree(nx.DiGraph):
                                                                       children_receivable_shares)
 
         else:
-            raise ResamplerError("no children nodes to give parental balance")
+            raise RegionTreeError("no children nodes to give parental balance")
 
         return children_dispensations
 
@@ -721,6 +727,8 @@ class RegionTree(nx.DiGraph):
         """For a negative parental balance we dispense it to the children
         nodes"""
 
+        children_donatable_shares = copy(children_donatable_shares)
+
         children_dispensations = {child_id : 0 for child_id in children_shares.keys()}
 
         # list of the keys so we can iterate through them
@@ -728,10 +736,18 @@ class RegionTree(nx.DiGraph):
 
         # dispense the negative shares as quickly as possible,
         # they will be balanced later
-        child_idx = 0
+        child_iter = iter(children_node_ids)
+        remaining_balance = parental_balance
         while remaining_balance < 0:
             # get the node id
-            child_node_id = children_node_ids[child_idx]
+            try:
+                child_node_id = next(child_iter)
+            except StopIteration:
+                # if the parental balance is still not zero and there
+                # are no more children then the children cannot
+                # balance it given their constraints and there is an
+                # error
+                raise RegionTreeError("Children cannot pay their parent's debt")
 
             n_donatable = children_donatable_shares[child_node_id]
 
@@ -746,19 +762,16 @@ class RegionTree(nx.DiGraph):
                 # the absolute value of the parental balance
                 # (since it is negative for debts), whichever
                 # is smaller
-                payment = min(n_donatable, abs(parental_balance))
+                payment = min(n_donatable, abs(remaining_balance))
 
                 # take this from the remaining balance
                 remaining_balance += payment
 
                 # and take it away from the childs due balance and shares
-                children_dispensations[node_id] -= payment
+                children_dispensations[child_node_id] -= payment
 
-        # if the parental balance is still not zero the
-        # children cannot balance it given their constraints
-        # and there is an error
-        if parental_balance < 0:
-            raise ValueError("Children cannot pay their parent's debt")
+                # also account for that in its donatable shares
+                children_donatable_shares[child_node_id] -= payment
 
         # double check the balance is precisely 0, we want to
         # dispense all the shares as well as not accidentally
@@ -768,9 +781,10 @@ class RegionTree(nx.DiGraph):
 
         return children_dispensations
 
-    def _dispense_credit_shares(self, parental_balance, children_node_ids,
+    def _dispense_credit_shares(self, parental_balance, children_shares,
                                 children_receivable_shares):
 
+        children_receivable_shares = copy(children_receivable_shares)
 
         children_dispensations = {child_id : 0 for child_id in children_shares.keys()}
 
@@ -780,10 +794,19 @@ class RegionTree(nx.DiGraph):
         # dispense the shares to the able children as quickly
         # as possible, they will be redistributed in the next
         # step
-        child_idx = 0
+        child_iter = iter(children_node_ids)
+        remaining_balance = parental_balance
         while remaining_balance > 0:
+
             # get the node id
-            child_node_id = children_node_ids[child_idx]
+            try:
+                child_node_id = next(child_iter)
+            except StopIteration:
+                # if the parental balance is still not zero and there
+                # are no more children then the children cannot
+                # balance it given their constraints and there is an
+                # error
+                raise RegionTreeError("Children cannot accept their parent's credit")
 
             # give as much of the parental balance as we can
             # to the walkers. In the next step all this
@@ -797,7 +820,7 @@ class RegionTree(nx.DiGraph):
             # either the number of possible clones (the
             # maximum it can receive) or the full parental
             # balance, whichever is smaller
-            disbursement = min(n_receivable, abs(parental_balance))
+            disbursement = min(n_receivable, abs(remaining_balance))
 
             # give this disbursement by taking away from the
             # positive balance
@@ -805,22 +828,18 @@ class RegionTree(nx.DiGraph):
 
             # add these shares to the net balances and share
             # totals
-            children_dispensations[node_id] += disbursement
+            children_dispensations[child_node_id] += disbursement
 
-            # go to the next child node
-            child_idx += 1
-
-        # if the parental balance is still not zero the
-        # children cannot balance it given their constraints
-        if parental_balance > 0:
-            raise ValueError("Children cannot accept all parental shares of the balance")
+            # also subtract this from the number of receivable shares
+            # for the child
+            children_receivable_shares[child_node_id] -= disbursement
 
         # double check the balance is precisely 0, we want to
         # dispense all the shares as well as not accidentally
         # overdispensing
         assert remaining_balance == 0, "balance is not 0"
 
-        return children_shares
+        return children_dispensations
 
     def _balance_children_shares(self, children_shares,
                                  children_donatable_shares,
@@ -847,6 +866,16 @@ class RegionTree(nx.DiGraph):
             children_shares[donor_node_id] -= donation_amount
             children_shares[acceptor_node_id] += donation_amount
 
+            # subtract the donation donatable_shares from the donor
+            # and add the donation to the donatable_shares of the
+            # acceptor
+            children_donatable_shares[donor_node_id] -= donation_amount
+            children_donatable_shares[acceptor_node_id] += donation_amount
+
+            # do the opposite to the receivable shares
+            children_receivable_shares[donor_node_id] += donation_amount
+            children_receivable_shares[acceptor_node_id] -= donation_amount
+
         # we have decided the first donation, however more will be
         # performed as long as the amount of the donation is either 0
         # or that two donations of only 1 share occur twice in a
@@ -866,7 +895,9 @@ class RegionTree(nx.DiGraph):
 
             # get the next best donation
             donor_node_id, acceptor_node_id, donation_amount = \
-                                                    self._gen_best_donation(children_shares)
+                                            self._gen_best_donation(children_shares,
+                                                                    children_donatable_shares,
+                                                                    children_receivable_shares)
 
             # if there is a donation to be made make it
             if donation_amount > 0:
@@ -874,6 +905,17 @@ class RegionTree(nx.DiGraph):
                 # account for this donation in the shares
                 children_shares[donor_node_id] -= donation_amount
                 children_shares[acceptor_node_id] += donation_amount
+
+                # subtract the donation donatable_shares from the donor
+                # and add the donation to the donatable_shares of the
+                # acceptor
+                children_donatable_shares[donor_node_id] -= donation_amount
+                children_donatable_shares[acceptor_node_id] += donation_amount
+
+                # do the opposite to the receivable shares
+                children_receivable_shares[donor_node_id] += donation_amount
+                children_receivable_shares[acceptor_node_id] -= donation_amount
+
 
 
         return children_shares
@@ -904,6 +946,18 @@ class RegionTree(nx.DiGraph):
         # use arguments instead of accessing the attributes of the
         # object because so this can be done in an iterative manner
         # before modifying the node attributes.
+
+        # default values for the results
+        best_pair = (None, None)
+        best_donation_amount = 0
+
+        # if there are not enough children regions to acutally make
+        # pairings between then we just return the default negative
+        # result
+        if len(children_shares) < 2:
+            donor_node_id, acceptor_node_id = best_pair
+            return donor_node_id, acceptor_node_id, best_donation_amount
+
 
         # we want to get the list of pairings where each pairing is
         # (donor, acceptor)
@@ -967,11 +1021,28 @@ class RegionTree(nx.DiGraph):
         # now we take the pairing that has the highest difference and
         # has a nonzero donation size. Note there may be other
         # pairings with the same numbers that will just be ignored.
-        best_pair = (None, None)
-        best_donation_amount = 0
         pair_iter = iter(pair_values)
-        while best_pair[0] is not None:
 
+
+        # loop through until the first best donation is found.
+        # get the first pairing
+        try:
+            diff, donation, pairing = next(pair_iter)
+        except StopIteration:
+            raise RegionTreeError("No pairings to make donations between")
+
+        done = False
+        while not done:
+
+            # since the pair_values are sorted first by the total diff
+            # and then the donation size, the first one that has a
+            # positive donation is the best donation
+            if donation > 0:
+                best_pair = pairing
+                best_donation_amount = donation
+                done = True
+
+            # try to get the next pairing if there is one
             try:
                 diff, donation, pairing = next(pair_iter)
             except StopIteration:
@@ -981,11 +1052,6 @@ class RegionTree(nx.DiGraph):
                 best_pair = pairing
                 break
 
-            # since the pair_values are sorted the first one that has
-            # a positive donation is the best donation
-            if donation > 0:
-                best_pair = pairing
-                best_donation_amount = donation
 
         # now we have the best donation and the pair is already in the
         # donor, acceptor order from when we created it
@@ -1160,7 +1226,7 @@ class RegionTree(nx.DiGraph):
             # in the Decision) based on their weights
 
             # normalize weights to the sum of all the chosen weights
-            chosen_pdist = chosen_weights / sum(chosen_weights)
+            chosen_pdist = np.array(chosen_weights) / sum(chosen_weights)
 
             # then choose one of the the walker idxs to keep according to
             # their normalized weights
@@ -1192,8 +1258,10 @@ class RegionTree(nx.DiGraph):
 
         # so we use that string to find which method to use
         if self.merge_method == 'single':
+
             full_merge_groups, result = decide_merge_groups_single_method(
-                                             walker_weights, balance, self.pmax)
+                walker_weights, balance, self.pmax)
+
         else:
             raise ValueError("merge method {} not recognized".format(self.merge_method))
 
@@ -1217,22 +1285,27 @@ class RegionTree(nx.DiGraph):
         # walkers
         leaf_balance = self.node[leaf]['balance']
         leaf_walker_idxs = self.node[leaf]['walker_idxs']
-        leaf_weights = [self.walker_weights[walker_idx]
-                        for walker_idx in self.node[leaf]['walker_idxs']]
+        leaf_walker_weights = {walker_idx : self.walker_weights[walker_idx]
+                               for walker_idx in self.node[leaf]['walker_idxs']}
 
         # calculate the maximum possible number of clones each free walker
         # could produce
-        n_possible_clones = self._calc_max_num_clones(leaf_walker_weights)
+        walker_n_possible_clones = {walker_idx : self._calc_max_num_clones(leaf_weight)
+                                    for walker_idx, leaf_weight in leaf_walker_weights.items()}
 
         # the sum of the possible clones needs to be greater than or
         # equal to the balance
-        assert sum(n_possible_clones) >= leaf_balance, \
+        assert sum(walker_n_possible_clones.values()) >= leaf_balance, \
             "there isn't enough clones possible to pay the balance"
+
 
         # go through the list of free walkers and see which ones have
         # any possible clones and make a list of them
         cloneable_walker_idxs = [walker_idx for walker_idx in leaf_walker_idxs
-                                 if max_n_possible_clones[walker_idx] > 0]
+                                 if walker_n_possible_clones[walker_idx] > 0]
+
+        cloneable_walker_weights = [leaf_walker_weights[walker_idx]
+                                    for walker_idx in cloneable_walker_idxs]
 
         # to distribute the clones we iteratively choose the walker
         # with the highest weight after amplification weight/(n_clones
@@ -1318,13 +1391,6 @@ class RegionTree(nx.DiGraph):
         leaf_nodes = self.leaf_nodes()
         leaf_balances = [self.node[leaf]['balance'] for leaf in leaf_nodes]
 
-        # DEBUG
-        try:
-            neg_leaves = [leaf_nodes[leaf_idx[0]] for leaf_idx in np.argwhere(np.array(leaf_balances) < 0)]
-        except:
-            import ipdb; ipdb.set_trace()
-
-
         # get the negative and positive balanced leaves
         neg_leaves = [leaf_nodes[leaf_idx[0]] for leaf_idx in
                       np.argwhere(np.array(leaf_balances) < 0)]
@@ -1396,6 +1462,7 @@ class RegionTree(nx.DiGraph):
         # balances to delta_walkers
         leaf_balances = [self.node[leaf]['balance'] for leaf in self.leaf_nodes()]
         if sum(leaf_balances) != delta_walkers:
+
             raise RegionTreeError(
                 "The balances of the leaf nodes ({}) do not balance to delta_walkers ({})".format(
                     leaf_balances, delta_walkers))
@@ -1600,8 +1667,6 @@ class WExploreResampler(Resampler):
         merge_groups, walkers_num_clones = \
                         self.region_tree.balance_tree(delta_walkers=delta_walkers)
 
-
-
         ## ERROR CHECKING
         if debug_prints:
             print("merge_groups\n{}".format(merge_groups))
@@ -1663,7 +1728,7 @@ class WExploreResampler(Resampler):
 
         # add the walker_idx to the record
         for walker_idx, walker_record in enumerate(resampling_actions):
-            walker_record['walker_idx'] = np.array([walker_idx])
+            walker_record['walker_idx'] = walker_idx
 
         return resampling_actions
 
@@ -1684,6 +1749,15 @@ class WExploreResampler(Resampler):
         resampling_data = self.decide(delta_walkers=delta_walkers,
                                       debug_prints=debug_prints)
 
+        # doing some checks on the decisions to make sure that
+        # all the slots are filled in the results
+        self._check_resampling_data(resampling_data)
+
+
+        # perform the cloning and merging, the action function expects
+        # records a lists of lists for steps and walkers
+        resampled_walkers = self.DECISION.action(walkers, [resampling_data])
+
         # normally decide is only for a single step and so does not
         # include the step_idx, so we add this to the records
         for walker_idx, walker_record in enumerate(resampling_data):
@@ -1693,10 +1767,7 @@ class WExploreResampler(Resampler):
         for record in resampling_data:
             record['target_idxs'] = np.array(record['target_idxs'])
             record['decision_id'] = np.array([record['decision_id']])
-
-        # perform the cloning and merging, the action function expects
-        # records a lists of lists for steps and walkers
-        resampled_walkers = self.DECISION.action(walkers, [resampling_data])
+            record['walker_idx'] = np.array([walker_idx])
 
         # check that the weights of the resampled walkers are not
         # beyond the bounds of what they are supposed to be
@@ -1726,3 +1797,31 @@ class WExploreResampler(Resampler):
         self._unset_resampling_num_walkers()
 
         return resampled_walkers, resampling_data, resampler_data
+
+
+    @staticmethod
+    def _check_resampling_data(resampling_data):
+
+        # in WExplore we don't increase or decrease the number of
+        # walkers and thus all slots must be filled so we go through
+        # each decision that targets slots in the next stop and
+        # collect all of those
+
+        n_slots = len(resampling_data)
+
+        taken_slot_idxs = []
+        for rec_d in resampling_data:
+            if rec_d['decision_id'] in (1, 2, 4):
+                taken_slot_idxs.extend(rec_d['target_idxs'])
+
+        # see if there are any repeated targets
+        if len(set(taken_slot_idxs)) < len(taken_slot_idxs):
+            raise ResamplerError("repeated slots to be used")
+
+        if len(taken_slot_idxs) < n_slots:
+            raise ResamplerError("Number of slots used is less than the number of slots")
+
+        elif len(taken_slot_idxs) > n_slots:
+            raise ResamplerError("Number of slots used is greater than the number of slots")
+
+        # check that all squashes are going to a merge slot
