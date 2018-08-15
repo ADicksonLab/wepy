@@ -69,6 +69,8 @@ class Resampler():
         self.set_debug_mode(debug_mode)
         self.set_logging_mode(logging_mode)
 
+
+
     def resampling_field_names(self):
         return self.RESAMPLING_FIELDS
 
@@ -113,6 +115,13 @@ class Resampler():
             raise ValueError("debug mode, {}, not valid".format(mode))
 
         self._debug_mode = mode
+
+        # if you want to use debug mode you have to have ipdb installed
+        if self.is_debug on:
+            try:
+                import ipdb
+            except ModuleNotFoundError:
+                raise ModuleNotFoundError("You must have ipdb installed to use the debug feature")
 
     def debug_on(self):
         if self.is_debug_on:
