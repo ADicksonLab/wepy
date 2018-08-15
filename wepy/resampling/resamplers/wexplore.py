@@ -1,7 +1,7 @@
 import math
 import random as rand
 import itertools as it
-from collections import namedtuple
+from collections import namedtuple, defaultdict
 from copy import copy, deepcopy
 
 import numpy as np
@@ -1277,6 +1277,9 @@ class RegionTree(nx.DiGraph):
 
     def _decide_clone_leaf(self, leaf, merge_groups, walkers_num_clones):
 
+        # just follow the instructions in the walkers_num_clones and
+        # find them slots
+
         # this assumes that the all squashes have already been
         # specified in the merge group, this is so that we can use
         # unused walker slots.
@@ -1295,9 +1298,8 @@ class RegionTree(nx.DiGraph):
 
         # the sum of the possible clones needs to be greater than or
         # equal to the balance
-        assert sum(walker_n_possible_clones.values()) >= leaf_balance, \
-            "there isn't enough clones possible to pay the balance"
-
+        if not sum(walker_n_possible_clones.values()) >= leaf_balance:
+            raise RegionTreeError("there isn't enough clones possible to pay the balance")
 
         # go through the list of free walkers and see which ones have
         # any possible clones and make a list of them
@@ -1307,45 +1309,68 @@ class RegionTree(nx.DiGraph):
         cloneable_walker_weights = [leaf_walker_weights[walker_idx]
                                     for walker_idx in cloneable_walker_idxs]
 
+        # if the sum of them is equal to the leaf balance then we
+        # don't have to optimally distribute them and we just give them out
+        if sum(walker_n_possible_clones.values()) == leaf_balance:
+
+            for walker_idx in cloneable_walker_idxs:
+                walkers_num_clones[walker_idx] = walker_n_possible_clones[walker_idx]
+
+            # return this without doing all the prioritization
+            return walkers_num_clones
+
+        # otherwise we want to optimally distribute the clones to the
+        # walkers such that we split the largest walkers first
+
         # to distribute the clones we iteratively choose the walker
-        # with the highest weight after amplification weight/(n_clones
-        # +1) where n_clones is the current number of clones assigned
-        # to it (plus itself)
+        # with the highest weight after a single clone
+        # weight/(n_clones +1) where n_clones is the current number of
+        # clones assigned to it (plus itself), and then add another
+        # clone to it as long as it is within the range of the number
+        # of clones it can make
+
+        # go until the balance is paid off
         clones_left = leaf_balance
         while clones_left > 0:
+
+            # determine which walkers are still in the running for
+            # receiving clones
+            still_cloneable_walker_idxs = []
+            still_cloneable_walker_weights = []
+            for walker_idx, weight in zip(cloneable_walker_idxs, cloneable_walker_weights):
+
+                # if the number of clones is less than its maximum
+                # possible add it to the still applicable ones
+                if (walkers_num_clones[walker_idx] < walker_n_possible_clones[walker_idx]):
+
+                    still_cloneable_walker_idxs.append(walker_idx)
+                    still_cloneable_walker_weights.append(weight)
+
+            # if there is only one applicable walker left give it the
+            # rest of the balance and return
+            if len(still_cloneable_walker_idxs) == 1:
+                walkers_num_clones[still_cloneable_walker_idxs[0]] += clones_left
+                clones_left -= clones_left
+
+                # end this loop iteration, skipping the decision part
+                continue
+
+            # if there are multiple walkers left we decide between them
 
             # calculate the weights of the walker's children given the
             # current number of clones, if num_clones is 0 then it is
             # just it's own weight
             child_weights = []
-            for walker_idx, weight in zip(cloneable_walker_idxs, cloneable_walker_weights):
+            for walker_idx, weight in zip(still_cloneable_walker_idxs, still_cloneable_walker_weights):
 
                 # the weight of its children given the number of
                 # clones already assigned to it
                 child_weight = weight / (walkers_num_clones[walker_idx]+1)
 
-                # if this child weight is less than the pmin then this
-                # one has maxed out on the number of clones it can do
-                # so we set the child weight to -1. When we select a
-                # walker to clone below we always select the one with
-                # the highest child weight and since all real child
-                # weights should be greater than zero (except
-                # accounting for floating point tolerances) so these
-                # will never be selected unless all cloneable walkers
-                # are used up, which was already checked for above
-                # that it could not happen
-                if child_weight < self.pmin:
-                    child_weight = -1
-
                 child_weights.append(child_weight)
 
-            # just a double check (triple check?) that they are not all -1 values
-            assert not all([True if child_weight == -1 else False
-                            for child_weight in child_weights]), \
-                                "All walkers are unable to produce children over the pmin"
-
-            # get the walker_idx with the highest current child weight
-            chosen_walker_idx = cloneable_walker_idxs[np.argsort(child_weights)[-1]]
+            # get the walker_idx with the highest would-be child weight
+            chosen_walker_idx = still_cloneable_walker_idxs[np.argsort(child_weights)[-1]]
 
             # add a clone to it
             walkers_num_clones[chosen_walker_idx] += 1
@@ -1418,23 +1443,148 @@ class RegionTree(nx.DiGraph):
 
         return merge_groups, walkers_num_clones
 
-    def settle_balances(self, merge_groups, walkers_num_clones):
-        pass
+    def _check_clone_merge_specs(self, merge_groups, walkers_num_clones):
+        """This will perform the computations to get the weights of the clones
+        and merges but does not actually assign them to slots. This is
+        mainly for checking that we have not violated any rules.
 
-    def merge_leaf(self, leaf, merge_groups, walkers_num_clones):
-        """Actually perform the merges on a leaf."""
+        """
 
-        # account for the weight from the squashed walker to
-        # the keep walker
-        squashed_weight = sum([self.walker_weights[i] for i in squash_walker_idxs])
-        self._walker_weights[keep_walker_idx] += squashed_weight
-        for squash_idx in squash_walker_idxs:
-            self._walker_weights[squash_idx] = 0.0
+        # keep a dictionary of all the walkers that will be parents to
+        # at least one child walker and make a list of the weights
+        # what each of the children will be
+        walker_children_weights = defaultdict(list)
 
+        # walkers that will be keep merges
+        keep_merge_walker_idxs = []
 
-    def clone_leaf(leaf, merge_groups, walkers_num_clones):
-        pass
+        # walkers that will parents of clones
+        clone_parent_walker_idxs = []
 
+        # walkers that do nothing and keep their state and weight
+        nothing_walker_idxs = []
+
+        # if that passes then we can check whether or not the weights make sense
+        new_walker_weights = []
+
+        # get all the squash idxs so we can pass over them
+        all_squash_idxs = list(it.chain(*merge_groups))
+
+        # go through each walker and see what the results of it would
+        # be without assigning it to anywhere in particular
+        for walker_idx, num_clones in enumerate(walkers_num_clones):
+
+            # check that clones are not performed on KEEP_MERGE and SQUASH
+            # walkers
+            if num_clones > 0:
+                if len(merge_groups[walker_idx]) > 0:
+                    raise ResamplerError("trying to clone a KEEP_MERGE walker")
+
+                squash_idxs = list(it.chain(merge_groups))
+                if walker_idx in squash_idxs:
+                    raise ResamplerError("trying to clone a SQUASH walker")
+
+            squash_walker_idxs = merge_groups[walker_idx]
+
+            # if it is a squashed walker ignore it
+            if walker_idx in all_squash_idxs:
+                pass
+
+            # split the weight up evenly, the numbers in the list is
+            # the extra number of walkers that should exist so that we
+            # should add 1 to get the total number of child walkers
+            # after the split
+            elif num_clones > 0 and len(squash_walker_idxs) == 0:
+
+                # add this to the list of clone parents
+                clone_parent_walker_idxs.append(walker_idx)
+
+                # get the weight each of the children will have
+                clone_weights = self._walker_weights[walker_idx] / (num_clones + 1)
+
+                # add them to the new_walker_weights and as the
+                # children of this walkers weights
+                for i in range(num_clones + 1):
+                    # weights of all walkers
+                    new_walker_weights.append(clone_weights)
+
+                    # weights of the children
+                    walker_children_weights[walker_idx].append(clone_weights)
+
+            # if this is a merge group keep idx then we add the
+            # weights of the merge group together
+            elif len(squash_walker_idxs) > 0:
+
+                # add this to the list of keep merge parents
+                keep_merge_walker_idxs.append(walker_idx)
+
+                # add up the weights of the squashed walkers
+                squashed_weight = sum([self.walker_weights[i] for i in squash_walker_idxs])
+                # add them to the weight for the keep walker
+                walker_weight = self._walker_weights[walker_idx] + squashed_weight
+
+                new_walker_weights.append(walker_weight)
+                walker_children_weights[walker_idx].append(walker_weight)
+
+            # this is then a nothing instruction so we just add its
+            # weight to the list as is
+            else:
+                nothing_walker_idxs.append(walker_idx)
+                new_walker_weights.append(self._walker_weights[walker_idx])
+                walker_children_weights[walker_idx].append(self._walker_weights[walker_idx])
+
+        # check that we have the same number of walkers as when we started
+        if not len(new_walker_weights) == len(self._walker_weights):
+            raise ResamplerError("There is not the same number of walkers as before the clone-merges")
+
+        # then we check that the total weight before and after is the
+        # same or close to the same
+        if not np.isclose(sum(self._walker_weights), sum(new_walker_weights)):
+            raise ResamplerError("There has been a change in total amount of weight")
+
+        # check that none of the walkers are outside the range of
+        # probabilities
+        new_walker_weights = np.array(new_walker_weights)
+
+        overweight_walker_idxs = np.where(new_walker_weights > self.pmax)[0]
+        # check that all of the weights are less than or equal to the pmax
+        if len(overweight_walker_idxs > 0):
+
+            # list of parents that produce overweight children
+            overweight_producer_idxs = []
+
+            # figure out which parent created them, this will have
+            # come from a merge so we just go through the parents that
+            # are keep merges
+            for keep_merge_walker_idx in keep_merge_walker_idxs:
+                child_weight = walker_children_weights[keep_merge_walker_idx][0]
+                if child_weight >= self.pmax:
+                    overweight_producer_idxs.append(keep_merge_walker_idx)
+
+            raise ResamplerError(
+                "Merge specs produce overweight walkers for merge groups {}".format(
+                    [str(i) for i in overweight_producer_idxs]))
+
+        # check that all of the weights are less than or equal to the pmin
+        underweight_walker_idxs = np.where(new_walker_weights < self.pmin)[0]
+        if len(underweight_walker_idxs > 0):
+
+            # list of clone parents that will produce underweight
+            # walkers
+            underweight_producer_idxs = []
+
+            # figure out which parents create underweight walkers,
+            # only clones will do this so we just look through them
+            for clone_parent_walker_idx in clone_parent_walker_idxs:
+                # all children will be the same weight so we just get
+                # one of the weights
+                child_weight = walker_children_weights[clone_parent_walker_idx][0]
+                if child_weight <= self.pmin:
+                    underweight_producer_idxs.append(clone_parent_walker_idx)
+
+            raise ResamplerError(
+                "Clone specs produce underweight walkers for clone walkers {}".format(
+                    [str(i) for i in underweight_producer_idxs]))
 
     def balance_tree(self, delta_walkers=0):
         """Do balancing between the branches of the tree. the `delta_walkers`
@@ -1483,13 +1633,14 @@ class RegionTree(nx.DiGraph):
                                   "squashed walkers ({}) to the delta_walkers specified ({})".format(
                                       num_clones, num_squashed, delta_walkers))
 
-
-        # now that we have made decisions about which walkers to clone
-        # and merge we actually modify the weights of them in the
-        # region tree, thus this is a state change (this is not really
-        # necessary except for error checking)
-        self.settle_balances(merge_groups, walkers_num_clones)
-
+        # DEBUG
+        # check the merge groups and walkers_num_clones to make sure
+        # they are valid
+        try:
+            self._check_clone_merge_specs(merge_groups, walkers_num_clones)
+        except ResamplerError as resampler_err:
+            print(resampler_err)
+            import ipdb; ipdb.set_trace()
 
         return merge_groups, walkers_num_clones
 
@@ -1525,12 +1676,14 @@ class WExploreResampler(Resampler):
                  max_n_regions=(10, 10, 10, 10),
                  max_region_sizes=(1, 0.5, 0.35, 0.25),
                  init_state=None,
+                 **kwargs
                 ):
 
         # we call the common methods in the Resampler superclass. We
         # set the min and max number of walkers to be constant
         super().__init__(min_num_walkers=Ellipsis,
-                         max_num_walkers=Ellipsis)
+                         max_num_walkers=Ellipsis,
+                         **kwargs)
 
         assert distance is not None, "Distance object must be given."
         assert init_state is not None, "An initial state must be given."
@@ -1613,31 +1766,8 @@ class WExploreResampler(Resampler):
     def region_tree(self):
         return self._region_tree
 
-    # override the resampler method for setting and unsetting the
-    # number of walkers in this resampling so that we can also set
-    # them for the region tree
-    def _set_resampling_num_walkers(self, num_walkers):
 
-        # just use the superclass method
-        super()._set_resampling_num_walkers(num_walkers)
-
-        # then get the walker nums using our methods to get it for
-        # this resampling and just give that to the region tree
-        self.region_tree.max_num_walkers = self.max_num_walkers()
-        self.region_tree.min_num_walkers = self.min_num_walkers()
-
-    def _unset_resampling_num_walkers(self):
-
-        # just use the superclass method
-        super()._unset_resampling_num_walkers()
-
-        # then get the walker nums using our methods to get it for
-        # this resampling and just give that to the region tree
-        self.region_tree.max_num_walkers = False
-        self.region_tree.min_num_walkers = False
-
-
-    def assign(self, walkers, debug_prints=False):
+    def assign(self, walkers):
         ## Assign the walkers based on the current defined Voronoi
         ## images which assign them to bins/leaf-nodes, possibly
         ## creating new regions, do this by calling the method to
@@ -1655,7 +1785,7 @@ class WExploreResampler(Resampler):
         # resampler state, which is addition of new regions
         return assignments, resampler_data
 
-    def decide(self, delta_walkers=0, debug_prints=False):
+    def decide(self, delta_walkers=0):
         """ Make decisions for resampling for a single step. """
 
         ## Given the assignments (which are on the tree nodes) decide
@@ -1667,45 +1797,15 @@ class WExploreResampler(Resampler):
         merge_groups, walkers_num_clones = \
                         self.region_tree.balance_tree(delta_walkers=delta_walkers)
 
-        ## ERROR CHECKING
-        if debug_prints:
+        if self.is_debug_on:
             print("merge_groups\n{}".format(merge_groups))
             print("Walker number of clones\n{}".format(walkers_num_clones))
             print("Walker assignments\n{}".format(self.region_tree.walker_assignments))
             print("Walker weights\n{}".format(self.region_tree.walker_weights))
 
-        # this is here to check that the walkers in the tree
-        # were of valid weights. THis is only necessary if another
-        # decision step is going to be made
-
-        # check that there are no walkers violating the pmin and pmax
-
-        # check that all of the weights are less than or equal to the pmax
-        assert all([weight <= self.pmax for weight in self.region_tree.walker_weights]), \
-            "All walker weights must be less than the pmax"
-
-        # check that all of the weights are greater than or equal to the pmin
-        assert all([weight >= self.pmin for weight in self.region_tree.walker_weights]), \
-            "All walker weights must be greater than the pmin"
-
-        # check to make sure we have selected appropriate walkers to clone
-        # print images
-        if debug_prints:
+            # check to make sure we have selected appropriate walkers to clone
+            # print images
             print("images_assignments\n{}".format(self.region_tree.regions))
-
-        # check that clones are not performed on KEEP_MERGE and SQUASH
-        # walkers
-        for walker_idx, n_clones in enumerate(walkers_num_clones):
-
-            if n_clones > 0:
-                if len(merge_groups[walker_idx]) > 0:
-                    raise ValueError("trying to clone a KEEP_MERGE walker")
-
-                squash_idxs = list(it.chain(merge_groups))
-                if walker_idx in squash_idxs:
-                    raise ValueError("trying to clone a SQUASH walker")
-
-        ## END ERROR CHECKING
 
         # take the specs for cloning and merging and generate the
         # actual resampling actions (instructions) for each walker,
@@ -1713,90 +1813,19 @@ class WExploreResampler(Resampler):
         # tree
         resampling_actions = self.assign_clones(merge_groups, walkers_num_clones)
 
-        # check to make sure there are no multiple assignments by
-        # keeping track of the taken slots
-        taken_slots = []
-        for walker_record in resampling_actions:
+        if self.is_debug_on:
+            # check that the actions were performed correctly
+            try:
+                self._check_resampling_data(resampling_actions)
+            except ResamplerError as resampler_err:
+                print(resampler_err)
+                import ipdb; ipdb.set_trace()
 
-            # unless it is a squash (which has no slot in the next
-            # cycle) add it to the taken slots
-            if walker_record['decision_id'] != 3:
-                taken_slots.extend(walker_record['target_idxs'])
-
-        if len(set(taken_slots)) < len(taken_slots):
-            raise ValueError("Multiple assignments to the same slot")
-
-        # add the walker_idx to the record
+        # add the walker_idx to the records to be returned
         for walker_idx, walker_record in enumerate(resampling_actions):
             walker_record['walker_idx'] = walker_idx
 
         return resampling_actions
-
-    def resample(self, walkers, delta_walkers=0, debug_prints=False):
-
-        # first set how many walkers there are in this resampling
-        self._set_resampling_num_walkers(len(walkers))
-
-        ## assign/score the walkers, also getting changes in the
-        ## resampler state
-        assignments, resampler_data = self.assign(walkers)
-
-        if debug_prints:
-            print("Assigned regions=\n{}".format(self.region_tree.walker_assignments))
-
-        # make the decisions for the the walkers for only a single
-        # step
-        resampling_data = self.decide(delta_walkers=delta_walkers,
-                                      debug_prints=debug_prints)
-
-        # doing some checks on the decisions to make sure that
-        # all the slots are filled in the results
-        self._check_resampling_data(resampling_data)
-
-
-        # perform the cloning and merging, the action function expects
-        # records a lists of lists for steps and walkers
-        resampled_walkers = self.DECISION.action(walkers, [resampling_data])
-
-        # normally decide is only for a single step and so does not
-        # include the step_idx, so we add this to the records
-        for walker_idx, walker_record in enumerate(resampling_data):
-            walker_record['step_idx'] = np.array([0])
-
-        # convert the target idxs and decision_id to feature vector arrays
-        for record in resampling_data:
-            record['target_idxs'] = np.array(record['target_idxs'])
-            record['decision_id'] = np.array([record['decision_id']])
-            record['walker_idx'] = np.array([walker_idx])
-
-        # check that the weights of the resampled walkers are not
-        # beyond the bounds of what they are supposed to be
-
-        # check that all of the weights are less than or equal to the pmax
-        assert all([walker.weight <= self.pmax for walker in resampled_walkers]), \
-            "All walker weights must be less than the pmax"
-
-        # check that all of the weights are greater than or equal to the pmin
-        assert all([walker.weight >= self.pmin for walker in resampled_walkers]), \
-            "All walker weights must be less than the pmin"
-
-        # check that the results of the resampling matches what was
-        # intended
-        # TODO implement this
-        pass
-
-
-        # then add the assignments and distance to image for each walker
-        for walker_idx, assignment in enumerate(assignments):
-            resampling_data[walker_idx]['region_assignment'] = assignment
-
-        # clear the tree of walker information for the next resampling
-        self.region_tree.clear_walkers()
-
-        # unset the number of walkers for this resampling
-        self._unset_resampling_num_walkers()
-
-        return resampled_walkers, resampling_data, resampler_data
 
 
     @staticmethod
@@ -1837,3 +1866,123 @@ class WExploreResampler(Resampler):
         if not all([False if squash_slot_idx not in keep_merge_slot_idxs else True
          for squash_slot_idx in set(squash_slot_idxs)]):
             raise ResamplerError("Not all squashes are assigned to keep_merge slots")
+
+    def _resample_init(self, walkers):
+
+        super()._resample_init(walkers)
+
+        # then get the walker nums using our methods to get it for
+        # this resampling and just give that to the region tree
+        self.region_tree.max_num_walkers = self.max_num_walkers()
+        self.region_tree.min_num_walkers = self.min_num_walkers()
+
+        if self.is_debug_on:
+
+            # cache a copy of the region_tree in its state before putting
+            # these walkers through it so we can replay steps if necessary
+            self._cached_region_tree = deepcopy(self._region_tree)
+
+            # and keep the walkers too
+            self._input_walkers = deepcopy(walkers)
+
+    def _resample_cleanup(self, resampling_data, resampler_data, resampled_walkers):
+
+        if self.is_debug_on:
+
+            # check that the weights of the resampled walkers are not
+            # beyond the bounds of what they are supposed to be
+            try:
+                self._check_resampled_walkers(resampled_walkers)
+            except ResamplerError as resampler_err:
+                print(resampler_err)
+                import ipdb; ipdb.set_trace()
+
+                # keep the tree we just used
+                curr_region_tree = self._region_tree
+
+                # replace the region tree with the cached region_tree
+                self._region_tree = self._cached_region_tree
+
+                # then run resample again with the original walkers
+                self.resample(self._input_walkers)
+
+                # then reset the old region tree
+                self._region_tree = curr_region_tree
+
+                # and clean out the debug variables
+                del self._cached_region_tree
+                del self._input_walkers
+
+        # clear the tree of walker information for the next resampling
+        self.region_tree.clear_walkers()
+
+        # just use the superclass method
+        super()._resample_cleanup()
+
+        # then get the walker nums using our methods to get it for
+        # this resampling and just give that to the region tree
+        self.region_tree.max_num_walkers = False
+        self.region_tree.min_num_walkers = False
+
+
+    def resample(self, walkers, debug_prints=False):
+
+        # do some initialiation routines and debugging preparations if
+        # necessary
+        self._resample_init(walkers)
+
+        ## assign/score the walkers, also getting changes in the
+        ## resampler state
+        assignments, resampler_data = self.assign(walkers)
+
+        # make the decisions for the the walkers for only a single
+        # step
+        resampling_data = self.decide(delta_walkers=0)
+
+        # perform the cloning and merging, the action function expects
+        # records a lists of lists for steps and walkers
+        resampled_walkers = self.DECISION.action(walkers, [resampling_data])
+
+        # normally decide is only for a single step and so does not
+        # include the step_idx, so we add this to the records
+        for walker_idx, walker_record in enumerate(resampling_data):
+            walker_record['step_idx'] = np.array([0])
+
+        # convert the target idxs and decision_id to feature vector arrays
+        for record in resampling_data:
+            record['target_idxs'] = np.array(record['target_idxs'])
+            record['decision_id'] = np.array([record['decision_id']])
+            record['walker_idx'] = np.array([walker_idx])
+
+
+        # then add the assignments and distance to image for each walker
+        for walker_idx, assignment in enumerate(assignments):
+            resampling_data[walker_idx]['region_assignment'] = assignment
+
+        self._resample_cleanup(resampling_data, resampler_data, resampled_walkers)
+
+        return resampled_walkers, resampling_data, resampler_data
+
+
+    def _check_resampled_walkers(self, resampled_walkers):
+
+        walker_weights = np.array([walker.weight for walker in resampled_walkers])
+
+        # check that all of the weights are less than or equal to the pmax
+        overweight_walker_idxs = np.where(walker_weights > self.pmax)[0]
+        if len(overweight_walker_idxs) > 0:
+
+
+
+            raise ResamplerError("All walker weights must be less than the pmax, "
+                                 "walkers {} are all overweight".format(
+                                     ','.join([str(i) for i in overweight_walker_idxs])))
+
+        # check that all walkers are greater than or equal to the pmin
+        underweight_walker_idxs = np.where(walker_weights < self.pmin)[0]
+        if len(underweight_walker_idxs) > 0:
+
+            raise ResamplerError("All walker weights must be greater than the pmin, "
+                                 "walkers {} are all underweight".format(
+                                     ','.join([str(i) for i in underweight_walker_idxs])))
+

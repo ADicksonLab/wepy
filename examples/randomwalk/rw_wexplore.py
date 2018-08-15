@@ -42,8 +42,9 @@ if __name__=="__main__":
                                                  init_state=init_state,
                                                  max_n_regions=MAX_N_REGIONS,
                                                  max_region_sizes=MAX_REGION_SIZES,
-                                                 pmin=PMIN, pmax=PMAX)
+                                                 pmin=PMIN, pmax=PMAX,
+                                      debug_mode=True)
 
         # set up a RandomWalkProfilier
         rw_profiler = RandomwalkProfiler(resampler)
-        rw_profiler.run_test(num_walkers=num_walkers, num_cycles=num_cycles, dimension=dimension, debug_prints=True)
+        rw_profiler.run_test(num_walkers=num_walkers, num_cycles=num_cycles, dimension=dimension, debug_prints=False)

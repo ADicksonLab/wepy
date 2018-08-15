@@ -1,5 +1,6 @@
 import itertools as it
 from collections import defaultdict
+from warnings import warn
 
 import numpy as np
 
@@ -24,8 +25,19 @@ class Resampler():
     RESAMPLER_RECORD_FIELDS = ()
 
 
+    # logging and debugging
+
+    # valid debug modes
+    DEBUG_MODES = (True, False,)
+
+    # valid logging modes
+    LOGGING_MODES = (None,)
+
+
     def __init__(self, min_num_walkers=Ellipsis,
-                 max_num_walkers=Ellipsis):
+                 max_num_walkers=Ellipsis,
+                 debug_mode=False,
+                 logging_mode=None):
 
         # the min and max number of walkers that can be generated in
         # resampling.
@@ -48,6 +60,14 @@ class Resampler():
 
         self._min_num_walkers = min_num_walkers
         self._max_num_walkers = max_num_walkers
+
+        # initialize variables for debug and logging modes
+        self._debug_mode = False
+        self._logging_mode = None
+
+        # set them to the args given
+        self.set_debug_mode(debug_mode)
+        self.set_logging_mode(logging_mode)
 
     def resampling_field_names(self):
         return self.RESAMPLING_FIELDS
@@ -83,13 +103,41 @@ class Resampler():
     def resampler_record_field_names(self):
         return self.RESAMPLER_RECORD_FIELDS
 
-    def resample(self, walkers):
+    @property
+    def is_debug_on(self):
+        return self._debug_mode
 
-        raise NotImplementedError
+    def set_debug_mode(self, mode):
 
-        # first set how many walkers there are in this resampling
-        self._set_resample_num_walkers(len(walkers))
-        return resampled_walkers, resampling_records, resampler_records
+        if mode not in self.DEBUG_MODES:
+            raise ValueError("debug mode, {}, not valid".format(mode))
+
+        self._debug_mode = mode
+
+    def debug_on(self):
+        if self.is_debug_on:
+            warn("Debug mode is already on")
+
+        self.set_debug_mode(True)
+
+    def debug_off(self):
+        if not self.is_debug_on:
+            warn("Debug mode is already off")
+
+        self.set_debug_mode(False)
+
+    @property
+    def logging_mode(self):
+        return self._logging_mode
+
+    def set_logging_mode(self, mode):
+        if mode not in self.LOGGING_MODES:
+            raise ValueError("logging mode, {}, not valid".format(mode))
+
+        self._logging_mode = mode
+
+    def logging_off(self):
+        self.set_logging_mode(None)
 
     @property
     def max_num_walkers_setting(self):
@@ -183,6 +231,26 @@ class Resampler():
     def _unset_resampling_num_walkers(self):
 
         self._resampling_num_walkers = None
+
+
+
+    def _resample_init(self, walkers):
+        """Common initialization stuff for resamplers. """
+
+        # first set how many walkers there are in this resampling
+        self._set_resampling_num_walkers(len(walkers))
+
+    def _resample_cleanup(self):
+
+        # unset the number of walkers for this resampling
+        self._unset_resampling_num_walkers()
+
+
+    def resample(self, walkers, debug_mode=False, logging=False):
+
+        raise NotImplemented
+
+        self._resample_init(walkers, debug_mode=debug_mode, logging=logging)
 
 
     def assign_clones(self, merge_groups, walker_clone_nums):
