@@ -117,7 +117,7 @@ class Resampler():
         self._debug_mode = mode
 
         # if you want to use debug mode you have to have ipdb installed
-        if self.is_debug on:
+        if self.is_debug_on:
             try:
                 import ipdb
             except ModuleNotFoundError:
