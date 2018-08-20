@@ -23,9 +23,9 @@ class MacroStateNetwork():
             "one of assg_field_key or assignments must be given"
 
         self._contig_tree = contig_tree
-        self._wepy_hdf5 = self._contig_tree.wepy_h5
+        self._wepy_h5 = self._contig_tree.wepy_h5
 
-        self._assg_field_key = None
+        self._assg_field_key = assg_field_key
 
         # the temporary assignments dictionary
         self._node_assignments = None
@@ -123,37 +123,22 @@ class MacroStateNetwork():
         self._assg_field_key = assg_field_key
 
         # blank assignments
-        assignments = [[[] for i in range(self._wepy_hdf5.n_run_trajs(run_idx))]
-                             for run_idx in self._wepy_hdf5.run_idxs]
+        assignments = [[[] for traj_idx in range(self._wepy_h5.n_run_trajs(run_idx))]
+                             for run_idx in self._wepy_h5.run_idxs]
 
         # the raw assignments
         curr_run_idx = -1
-        for idx_tup, fields_d in self._wepy_hdf5.iter_trajs_fields(
+        for idx_tup, fields_d in self._wepy_h5.iter_trajs_fields(
                                          [self.assg_field_key], idxs=True):
             run_idx = idx_tup[0]
             traj_idx = idx_tup[1]
             assg_field = fields_d[self.assg_field_key]
 
-            if len(assignments) < curr_run_idx:
-
-                assignments.append(assg_field)
+            assignments[run_idx][traj_idx].extend(assg_field)
 
         # then just call the assignments constructor to do it the same
         # way
         self._assignments_init(assignments)
-
-
-        # # make a dictionary that maps the assignment keys to frames
-        # # across the whole file {assignment_key : (run_idx, traj_idx, frame_idx)}
-        # self._node_assignments = defaultdict(list)
-
-        # for idx_tup, fields_d in self._wepy_hdf5.iter_trajs_fields([self.assg_field_key], idxs=True):
-        #     run_idx = idx_tup[0]
-        #     traj_idx = idx_tup[1]
-        #     assg_field = fields_d[self.assg_field_key]
-
-        #     for frame_idx, assg in enumerate(assg_field):
-        #         self._node_assignments[assg].append( (run_idx, traj_idx, frame_idx) )
 
     def _assignments_init(self, assignments):
 
@@ -190,8 +175,8 @@ class MacroStateNetwork():
         return self._contig_tree
 
     @property
-    def wepy_hdf5(self):
-        return self._wepy_hdf5
+    def wepy_h5(self):
+        return self._wepy_h5
 
     @property
     def assg_field_key(self):
@@ -204,7 +189,7 @@ class MacroStateNetwork():
         node_trace = self.node_assignments(node_id)
 
         # use the node_trace to get the weights from the HDF5
-        fields_d = self.wepy_hdf5.get_trace_fields(node_trace, fields)
+        fields_d = self.wepy_h5.get_trace_fields(node_trace, fields)
 
         return fields_d
 
@@ -246,7 +231,7 @@ class MacroStateNetwork():
             node_trace = self.node_assignments(node_id)
 
             # use the node_trace to get the weights from the HDF5
-            trace_weights = self.wepy_hdf5.get_trace_fields(node_trace, ['weights'])['weights']
+            trace_weights = self.wepy_h5.get_trace_fields(node_trace, ['weights'])['weights']
 
             node_weights[node_id] = trace_weights
 
@@ -264,8 +249,8 @@ class MacroStateNetwork():
     def set_macrostate_weights(self):
         self.set_nodes_field('Weight', self.macrostate_weights())
 
-    def node_to_mdtraj(self, node_id, alt_rep=None):
-        return self.wepy_hdf5.trace_to_mdtraj(self.node_assignments(node_id), alt_rep=alt_rep)
+    def state_to_mdtraj(self, node_id, alt_rep=None):
+        return self.wepy_h5.trace_to_mdtraj(self.node_assignments(node_id), alt_rep=alt_rep)
 
     def write_gexf(self, filepath):
 
