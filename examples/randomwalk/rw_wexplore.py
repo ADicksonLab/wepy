@@ -29,6 +29,7 @@ if __name__=="__main__":
         num_cycles = int(sys.argv[1])
         num_walkers = int(sys.argv[2])
         dimension =  int(sys.argv[3])
+        h5_path = str(sys.argv[4])
         # set up  the distance function
         rw_distance = RandomWalkDistance();
 
@@ -46,5 +47,9 @@ if __name__=="__main__":
                                       debug_mode=True)
 
         # set up a RandomWalkProfilier
-        rw_profiler = RandomwalkProfiler(resampler)
-        rw_profiler.run_test(num_walkers=num_walkers, num_cycles=num_cycles, dimension=dimension, debug_prints=False)
+        rw_profiler = RandomwalkProfiler(resampler,
+                                         hdf5_reporter_path=h5_path)
+
+        rw_profiler.run_test(num_walkers=num_walkers,
+                             num_cycles=num_cycles,
+                             dimension=dimension)
