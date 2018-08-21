@@ -1952,7 +1952,7 @@ class WExploreResampler(Resampler):
         for record in resampling_data:
             record['target_idxs'] = np.array(record['target_idxs'])
             record['decision_id'] = np.array([record['decision_id']])
-            record['walker_idx'] = np.array([walker_idx])
+            record['walker_idx'] = np.array([record['walker_idx']])
 
 
         # then add the assignments and distance to image for each walker

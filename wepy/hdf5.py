@@ -886,10 +886,10 @@ class WepyHDF5(object):
         # continues_run) to the contig settings
         if continue_run is not None:
 
-            self._add_continuation(run_idx, continue_run)
+            self.add_continuation(run_idx, continue_run)
 
 
-    def _add_continuation(self, continuation_run, base_run):
+    def add_continuation(self, continuation_run, base_run):
         """Add a continuation between runs.
 
         continuation_run :: the run index of the run that continues base_run
@@ -918,6 +918,8 @@ class WepyHDF5(object):
         # run the initialization routines for adding a run
         self._add_run_init(here_run_idx, continue_run=continue_run)
 
+        run_grp = self._h5['runs/{}'.format(here_run_idx)]
+
         # add metadata if given
         for key, val in kwargs.items():
             if key != 'run_idx':
@@ -925,7 +927,7 @@ class WepyHDF5(object):
             else:
                 warn('run_idx metadata is set by wepy and cannot be used', RuntimeWarning)
 
-        return self._h5['runs/{}'.format(here_run_idx)]
+        return here_run_idx
 
     def link_file_runs(self, wepy_h5_path):
         """Link all runs from another WepyHDF5 file. This preserves
@@ -938,22 +940,28 @@ class WepyHDF5(object):
 
         wepy_h5 = WepyHDF5(wepy_h5_path, mode='r')
         with wepy_h5:
+            ext_run_idxs = wepy_h5.run_idxs
+            continuations = wepy_h5.continuations
 
-            # add the runs
-            new_run_idxs = []
-            for ext_run_idx in wepy_h5.run_idxs:
-                new_run_idxs.append(self.next_run_idx())
-                new_run_grp = self.link_run(wepy_h5_path, ext_run_idx)
+        # add the runs
+        new_run_idxs = []
+        for ext_run_idx in ext_run_idxs:
 
-            # copy the continuations over translating the run idxs,
-            # for each continuation in the other files continuations
-            for continuation in wepy_h5.continuations:
+            # link the next run, and get its new run index
+            new_run_idx = self.link_run(wepy_h5_path, ext_run_idx)
 
-                # translate each run index from the external file
-                # continuations to the run idxs they were just assigned in
-                # this file
-                self._add_continuation(new_run_idxs[continuation[0]],
-                                       new_run_idxs[continuation[1]])
+            # save that run idx
+            new_run_idxs.append(new_run_idx)
+
+        # copy the continuations over translating the run idxs,
+        # for each continuation in the other files continuations
+        for continuation in continuations:
+
+            # translate each run index from the external file
+            # continuations to the run idxs they were just assigned in
+            # this file
+            self.add_continuation(new_run_idxs[continuation[0]],
+                                  new_run_idxs[continuation[1]])
 
         return new_run_idxs
 

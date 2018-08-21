@@ -38,5 +38,5 @@ with all_wepy_h5:
     file_run_idxs = all_wepy_h5.link_file_runs(file1)
 
     # add the continuation run that is in another file
-    run2_grp = all_wepy_h5.link_run(file2, 0, continues=0)
+    run_idx = all_wepy_h5.link_run(file2, 0, continues=0)
 

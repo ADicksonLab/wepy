@@ -6,6 +6,9 @@ import networkx as nx
 from wepy.analysis.transitions import transition_counts, counts_d_to_matrix, \
                                       normalize_counts
 
+class MacroStateNetworkError(Exception):
+    pass
+
 class MacroStateNetwork():
 
 
@@ -182,6 +185,26 @@ class MacroStateNetwork():
     def assg_field_key(self):
         return self._assg_field_key
 
+    @property
+    def countsmat(self):
+        try:
+            return self._countsmat
+        except AttributeError:
+            raise MacroStateNetworkError("transition counts matrix not calculated")
+
+    @property
+    def probmat(self):
+        try:
+            return self._probmat
+        except AttributeError:
+            raise MacroStateNetworkError("transition probability matrix not set")
+
+    def get_node_attributes(self, node_id):
+        pass
+
+    def get_node_attribute(self, node_id, attribute_key):
+        pass
+
     def node_assignments(self, node_id):
         return self.graph.nodes[node_id][self.ASSIGNMENTS]
 
@@ -197,10 +220,12 @@ class MacroStateNetwork():
 
         nodes_d = {}
         for node_id in self.graph.nodes:
-            fields_d = self.get_node_fields(node_id)
+            fields_d = self.get_node_fields(node_id, fields)
             nodes_d[node_id] = fields_d
 
-        return iter_nodes_fields
+        return nodes_d
+
+
 
     def set_nodes_field(self, key, values_dict):
         for node_id, value in values_dict.items():
