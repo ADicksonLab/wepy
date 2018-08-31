@@ -112,7 +112,7 @@ from wepy.reporter.restart import RestartReporter
 
 # a reporter to show a dashboard in plaintext of current summarized
 # results of the simulation
-from wepy.reporter.dashboard import WExploreDashboardReporter
+from wepy.reporter.wexplore.dashboard import WExploreDashboardReporter
 
 ## PARAMETERS
 
@@ -136,7 +136,7 @@ VOLUME_MOVE_FREQ = 50
 # kernels. Options are: Reference, CPU, OpenCL, CUDA.
 
 # CUDA is the best for NVIDIA GPUs
-PLATFORM = 'CUDA'
+PLATFORM = 'OpenCL'
 
 # Langevin Integrator
 FRICTION_COEFFICIENT = 1/unit.picosecond
@@ -167,7 +167,7 @@ MAX_N_REGIONS = (10, 10, 10, 10)
 # the maximum size of regions, new regions will be created if a walker
 # is beyond this distance from each voronoi image unless there is an
 # already maximal number of regions
-MAX_REGION_SIZES = (1, 0.5, .35, .25) # nanometers
+MAX_REGION_SIZES = (1, 0.5, .35, 0.25) # nanometers
 
 # boundary condition parameters
 
@@ -436,7 +436,7 @@ if __name__ == "__main__":
     # needs to call spawn for starting processes due to CUDA not
     # tolerating fork
     mp.set_start_method('spawn')
-    mp.log_to_stderr(logging.DEBUG)
+    mp.log_to_stderr(logging.WARNING)
 
     if sys.argv[1] == "--help" or sys.argv[1] == '-h':
         print("arguments: n_runs, n_cycles, n_steps, n_walkers, n_workers")

@@ -22,7 +22,35 @@ class FileReporter(Reporter):
         self.file_path = file_path
         self.mode = mode
 
+class ProgressiveFileReporter(FileReporter):
+    """Super class for a reporter that will successively overwrite the
+    same file over and over again. The base FileReporter really only
+    supports creation of file one time.
 
+    """
+
+    def __init__(self, file_path, mode='x'):
+
+        super().__init__(file_path, mode=mode)
+
+    def init(self, *args, **kwargs):
+
+        # because we want to overwrite the file at every cycle we
+        # need to change the mode to write with truncate. This allows
+        # the file to first be opened in 'x' or 'w-' and check whether
+        # the file already exists (say from another run), and warn the
+        # user. However, once the file has been created for this run
+        # we need to overwrite it many times forcefully.
+
+        # so if the mode is 'x' or 'w-' we check to make sure the file
+        # doesn't exist
+        if self.mode in ['x', 'w-']:
+            if osp.exists(self.file_path):
+                raise FileExistsError("File exists: '{}'".format(self.file_path))
+
+        # now that we have checked if the file exists we set it into
+        # overwrite mode
+        self.mode = 'w'
 
 
 class WalkersPickleReporter(Reporter):
