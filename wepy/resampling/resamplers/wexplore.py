@@ -181,7 +181,6 @@ class RegionTree(nx.DiGraph):
             "the merge method given, '{}', must be one of the methods available {}".format(
                 merge_method, self.MERGE_METHODS)
 
-        print(merge_method)
         self._merge_method = merge_method
 
         self._walker_weights = []
