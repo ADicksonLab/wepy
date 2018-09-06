@@ -29,7 +29,7 @@ class REVOResampler(Resampler):
 
 
     def __init__(self, seed=None, pmin=1e-12, pmax=0.1, dpower=4, merge_dist=2.5,
-                 distance=None, init_state=None, weights=True):
+                 distance_characteristic=None, distance=None, init_state=None, weights=True):
 
         self.decision = self.DECISION
 
@@ -50,6 +50,10 @@ class REVOResampler(Resampler):
         # the distance metric
         assert distance is not None, "Must give a distance metric class"
         self.distance = distance
+
+        # the distance_characteristic
+        assert distance_characteristic is not None, "Must given a distance_characteristic value"
+        self.distance_characteristic = distance_characteristic
 
         # setting the random seed
         self.seed = seed
@@ -110,7 +114,7 @@ class REVOResampler(Resampler):
             if amp[i] > 0:
                 for j in range(i+1, n_walkers):
                     if amp[j] > 0:
-                        d = ((distance_matrix[i][j])**self.dpower) * wtfac[i] * wtfac[j]
+                        d = ((distance_matrix[i][j]/self.distance_characteristic)**self.dpower) * wtfac[i] * wtfac[j]
                         spread += d * amp[i] * amp[j]
                         wsum[i] += d * amp[j]
                         wsum[j] += d * amp[i]
@@ -354,7 +358,6 @@ class REVOResampler(Resampler):
 
         # actually do the cloning and merging of the walkers
         resampled_walkers = self.decision.action(walkers, [resampling_data])
-
         # flatten the distance matrix and give the number of walkers
         # as well for the resampler data, there is just one per cycle
         resampler_data = [{'distance_matrix' : np.ravel(np.array(distance_matrix)),
