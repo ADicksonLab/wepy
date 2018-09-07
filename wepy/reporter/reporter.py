@@ -4,6 +4,8 @@ import pickle
 
 class Reporter(object):
 
+    PARAMETERS = ()
+
     def __init__(self):
         pass
 
@@ -18,9 +20,61 @@ class Reporter(object):
 
 class FileReporter(Reporter):
 
-    def __init__(self, file_path, mode='x'):
-        self.file_path = file_path
-        self.mode = mode
+    MODES = ('x', 'w', 'w-', 'r', 'r+',)
+
+    PARAMETERS = ('modes', 'file_paths')
+
+    DEFAULT_MODE = 'x'
+
+    def __init__(self, file_paths, modes=None):
+
+        self._file_paths = file_paths
+
+        # if modes is none set the default for each file
+        if modes is None:
+            modes = [self.DEFAULT_MODE for i in range(len(self._file_paths))]
+
+        self._modes = modes
+
+    def validate_mode(self, mode):
+        if mode in self.MODES:
+            return True
+        else:
+            return False
+
+    @property
+    def file_paths(self):
+        return self._file_paths
+
+    def set_path(self, file_idx, path):
+        self._paths[file_idx] = path
+
+    @property
+    def modes(self):
+        return self._modes
+
+    def set_mode(self, file_idx, mode):
+
+        if self._validate_mode(mode):
+            self._modes[file_idx] = mode
+        else:
+            raise ValueError("Incorrect mode {}".format(mode))
+
+class SingleFileReporter(FileReporter):
+
+    def __init__(self, file_path, mode=None):
+
+        super().__init__([file_path], modes=[mode])
+
+
+    @property
+    def mode(self):
+        return self._modes[0]
+
+    @property
+    def file_path(self):
+        return self._file_paths[0]
+
 
 class ProgressiveFileReporter(FileReporter):
     """Super class for a reporter that will successively overwrite the
@@ -29,28 +83,32 @@ class ProgressiveFileReporter(FileReporter):
 
     """
 
-    def __init__(self, file_path, mode='x'):
+    def __init__(self, file_paths, modes=None):
 
-        super().__init__(file_path, mode=mode)
+        super().__init__(file_paths, modes=modes)
 
     def init(self, *args, **kwargs):
 
         # because we want to overwrite the file at every cycle we
-        # need to change the mode to write with truncate. This allows
+        # need to change the modes to write with truncate. This allows
         # the file to first be opened in 'x' or 'w-' and check whether
         # the file already exists (say from another run), and warn the
         # user. However, once the file has been created for this run
         # we need to overwrite it many times forcefully.
 
-        # so if the mode is 'x' or 'w-' we check to make sure the file
-        # doesn't exist
-        if self.mode in ['x', 'w-']:
-            if osp.exists(self.file_path):
-                raise FileExistsError("File exists: '{}'".format(self.file_path))
+        # go thourgh each file managed by this reporter
+        for file_i, mode in enumerate(self.modes):
 
-        # now that we have checked if the file exists we set it into
-        # overwrite mode
-        self.mode = 'w'
+            # if the mode is 'x' or 'w-' we check to make sure the file
+            # doesn't exist
+            if self.mode in ['x', 'w-']:
+                file_path = self.file_paths[file_i]
+                if osp.exists(file_path):
+                    raise FileExistsError("File exists: '{}'".format(file_path))
+
+            # now that we have checked if the file exists we set it into
+            # overwrite mode
+            self.set_mode(file_i, 'w')
 
 
 class WalkersPickleReporter(Reporter):

@@ -1,5 +1,6 @@
 import sys
 import time
+from copy import deepcopy
 
 from wepy.work_mapper.mapper import Mapper
 
@@ -137,7 +138,20 @@ class Manager(object):
             # prepare resampled walkers for running new state changes
             walkers = resampled_walkers
 
-            return walkers
+
+            # we also return a list of the "filters" which are the
+            # classes that are run on the initial walkers to produce
+            # the final walkers. THis is to satisfy a future looking
+            # interface in which the order and components of these
+            # filters are completely parametrizable. This may or may
+            # not be implemented in a future release of wepy but this
+            # interface is assumed by the orchestration classes for
+            # making snapshots of the simulations. The receiver of
+            # these should perform the copy to make sure they aren't
+            # mutated. We don't do this here for efficiency.
+            filters = [self.runner, self.boundary_conditions, self.resampler]
+
+            return walkers, filters
 
     def init(self, num_workers, continue_run=None, debug_prints=False):
 
@@ -198,8 +212,8 @@ class Manager(object):
             if debug_prints:
                 print("starting cycle {} at time {}".format(cycle_idx, time.time() - start_time))
 
-            walkers = self.run_cycle(walkers, segments_length, cycle_idx,
-                                       debug_prints=debug_prints)
+            walkers, filters = self.run_cycle(walkers, segments_length, cycle_idx,
+                                              debug_prints=debug_prints)
 
             if debug_prints:
                 print("ending cycle {} at time {}".format(cycle_idx, time.time() - start_time))
@@ -208,7 +222,7 @@ class Manager(object):
 
         self.cleanup(debug_prints=debug_prints)
 
-        return walkers
+        return walkers, deepcopy(filters)
 
     def run_simulation(self, n_cycles, segment_lengths, num_workers=None,
                        debug_prints=False):
@@ -222,12 +236,12 @@ class Manager(object):
         walkers = self.init_walkers
         # the main cycle loop
         for cycle_idx in range(n_cycles):
-            walkers = self.run_cycle(walkers, segment_lengths[cycle_idx], cycle_idx,
+            walkers, filters = self.run_cycle(walkers, segment_lengths[cycle_idx], cycle_idx,
                                          debug_prints=debug_prints)
 
         self.cleanup(debug_prints=debug_prints)
 
-        return walkers
+        return walkers, deepcopy(filters)
 
     def continue_run_simulation(self, run_idx, n_cycles, segment_lengths, num_workers=None,
                                 debug_prints=False):
@@ -244,12 +258,12 @@ class Manager(object):
         walkers = self.init_walkers
         # the main cycle loop
         for cycle_idx in range(n_cycles):
-            walkers = self.run_cycle(walkers, segment_lengths[cycle_idx], cycle_idx,
+            walkers, filters = self.run_cycle(walkers, segment_lengths[cycle_idx], cycle_idx,
                                          debug_prints=debug_prints)
 
         self.cleanup(debug_prints=debug_prints)
 
-        return walkers
+        return walkers, filters
 
 
     def continue_run_simulation_by_time(self, run_idx, run_time, segments_length, num_workers=None,
@@ -273,7 +287,7 @@ class Manager(object):
             if debug_prints:
                 print("starting cycle {} at time {}".format(cycle_idx, time.time() - start_time))
 
-            walkers = self.run_cycle(walkers, segments_length, cycle_idx,
+            walkers, filters = self.run_cycle(walkers, segments_length, cycle_idx,
                                        debug_prints=debug_prints)
 
             if debug_prints:
@@ -283,4 +297,4 @@ class Manager(object):
 
         self.cleanup(debug_prints=debug_prints)
 
-        return walkers
+        return walkers, filters

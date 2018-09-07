@@ -86,7 +86,7 @@ Defined Regions with the number of child regions per parent region:
                  bc_cutoff_distance=None,
                 ):
 
-        super().__init__(file_path, mode=mode)
+        super().__init__([file_path], modes=[mode])
 
         assert step_time is not None, "length of integration time step must be given"
         self.step_time = step_time
@@ -192,6 +192,14 @@ Defined Regions with the number of child regions per parent region:
 
         # write the dashboard
         self.write_dashboard()
+
+    @property
+    def file_path(self):
+        return self._file_paths[0]
+
+    @property
+    def mode(self):
+        return self._modes[0]
 
     def update_weighted_ensemble_values(self, cycle_idx, n_steps, walkers):
 
