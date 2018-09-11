@@ -62,7 +62,7 @@ from wepy.runners.openmm import UNIT_NAMES, GET_STATE_KWARG_DEFAULTS
 from wepy.work_mapper.mapper import Mapper
 from wepy.boundary_conditions.unbinding import UnbindingBC
 from wepy.reporter.hdf5 import WepyHDF5Reporter
-from wepy.reporter.dashboard import WExploreDashboardReporter
+from wepy.reporter.wexplore.dashboard import WExploreDashboardReporter
 from wepy.reporter.setup import SetupReporter
 from wepy.reporter.restart import RestartReporter
 
@@ -209,24 +209,20 @@ json_str_top = mdtraj_to_json_topology(mdtraj_topology)
 units = dict(UNIT_NAMES)
 
 # open it in truncate mode first, then switch after first run
-hdf5_reporter = WepyHDF5Reporter(hdf5_path, mode='w',
+hdf5_reporter = WepyHDF5Reporter(file_path=hdf5_path, mode='w',
                                  save_fields=SAVE_FIELDS,
                                  resampler=resampler,
                                  boundary_conditions=ubc,
                                  topology=json_str_top,
-                                 units=units,)
+                                 units=units)
 
-dashboard_reporter = WExploreDashboardReporter('./outputs/wepy.dash.txt', mode='w',
+dashboard_reporter = WExploreDashboardReporter(file_path='./outputs/wepy.dash.txt', mode='w',
                                                step_time=STEP_SIZE.value_in_unit(unit.second),
                                                max_n_regions=resampler.max_n_regions,
                                                max_region_sizes=resampler.max_region_sizes,
                                                bc_cutoff_distance=ubc.cutoff_distance)
 
-setup_reporter = SetupReporter(setup_state_path, mode='w')
-
-restart_reporter = RestartReporter(restart_state_path, mode='w')
-
-reporters = [hdf5_reporter, dashboard_reporter, setup_reporter, restart_reporter]
+reporters = [hdf5_reporter, dashboard_reporter]
 
 
 

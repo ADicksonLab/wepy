@@ -520,15 +520,36 @@ class Orchestrator():
         return run_tup, mutation_tup
 
     def orchestrate_run_by_time(self, init_walkers, run_time, n_steps,
-                                apparatus_hash=None, configuration=None,
+                                apparatus_hash=None,
                                 checkpoint_freq=None,
                                 checkpoint_dir=None,
                                 orchestrator_path=None,
+                                configuration=None,
+                                reporter_reconfig_params=None, work_mapper_reconfig_params=None,
                                 n_workers=None):
 
         # make the starting snapshot from the walkers
         start_hash = self.gen_start_snapshot(init_walkers,
                                              apparatus_hash=apparatus_hash)
+
+        # a boolean if the right parameters for reconfiguring things were passed
+        reconfiguration_params = False if \
+                                 (reporter_reconfig_params is not None) or \
+                                 (work_mapper_reconfig_params is not None) \
+                                 else True
+
+        # reconfigure the configuration unless a configuration was
+        # passed to this
+        if (configuration is None) and reconfiguration_params:
+
+            # make a new configuration object with the reconfiguration parameters
+            configuration = self.default_configuration.reparametrize(
+                work_mapper_reconfig_params, reporter_reconfig_params)
+
+        elif (configuration is not None) and reconfiguration_params:
+
+            raise OrcestratorError(
+                "either provide the full configuration or reconfigure the default, but not both")
 
         # orchestrate from the snapshot
         return self.orchestrate_snapshot_run_by_time(start_hash, run_time, n_steps,

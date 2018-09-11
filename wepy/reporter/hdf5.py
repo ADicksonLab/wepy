@@ -2,15 +2,15 @@ from copy import deepcopy
 
 import numpy as np
 
-from wepy.reporter.reporter import FileReporter
+from wepy.reporter.reporter import ParametrizableFileReporter
 from wepy.hdf5 import WepyHDF5
 from wepy.util.util import json_top_atom_count
 
-class WepyHDF5Reporter(SingleFileReporter):
+class WepyHDF5Reporter(ParametrizableFileReporter):
 
     ALL_ATOMS_REP_KEY = 'all_atoms'
 
-    def __init__(self, file_path, mode='a',
+    def __init__(self,
                  save_fields=None,
                  topology=None,
                  units=None,
@@ -41,9 +41,15 @@ class WepyHDF5Reporter(SingleFileReporter):
                  warping_records=None,
                  bc_records=None,
                  progress_records=None,
+
+                 **kwargs
                  ):
 
-        super().__init__(file_path, modes=mode)
+        # initialize inherited attributes
+        super().__init__(**kwargs)
+
+        # do all the WepyHDF5 specific stuff
+
         self.wepy_run_idx = None
         self._tmp_topology = topology
         # which fields from the walker to save, if None then save all of them
@@ -177,7 +183,11 @@ class WepyHDF5Reporter(SingleFileReporter):
             self.units = units
 
 
-    def init(self, *args, **kwargs):
+    def init(self, continue_run=None,
+             **kwargs):
+
+        # do the inherited stuff
+        super().init(**kwargs)
 
         # open and initialize the HDF5 file
 
@@ -195,11 +205,6 @@ class WepyHDF5Reporter(SingleFileReporter):
 
             # if this is a continuation run of another run we want to
             # initialize it as such
-            continue_run = None
-            # get the run to continue if specified
-            if "continue_run" in kwargs:
-                if kwargs['continue_run'] is not None:
-                    continue_run = kwargs['continue_run']
 
             # initialize a new run
             run_grp = self.wepy_h5.new_run(continue_run=continue_run)
@@ -235,9 +240,9 @@ class WepyHDF5Reporter(SingleFileReporter):
         # overwrite old runs with future calls to init(). so we
         # change the mode to read/write 'r+'
         if self.mode == 'w':
-            self.mode = 'r+'
+            self.set_mode(0, 'r+')
 
-    def cleanup(self, *args, **kwargs):
+    def cleanup(self, **kwargs):
 
 
         # it should be already closed at this point but just in case
@@ -247,12 +252,14 @@ class WepyHDF5Reporter(SingleFileReporter):
         # remove reference to the WepyHDF5 file so we can serialize this object
         del self.wepy_h5
 
+        super().cleanup(**kwargs)
+
 
     def report(self, cycle_idx, walkers,
                warp_data, bc_data, progress_data,
                resampling_data, resampler_data,
                debug_prints=False,
-               *args, **kwargs):
+               **kwargs):
 
         n_walkers = len(walkers)
 
@@ -352,6 +359,8 @@ class WepyHDF5Reporter(SingleFileReporter):
             # report the resampling records data
             self.report_resampling(cycle_idx, resampling_data)
             self.report_resampler(cycle_idx, resampler_data)
+
+        super().report(**kwargs)
 
 
     # sporadic

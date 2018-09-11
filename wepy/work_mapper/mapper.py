@@ -45,14 +45,30 @@ class WorkerMapper(Mapper):
     def __init__(self, num_workers=None, worker_type=None,
                  debug_prints=False):
 
-        self.num_workers = num_workers
-        self.worker_segment_times = {i : [] for i in range(self.num_workers)}
+        self._num_workers = num_workers
+        self._worker_segment_times = {i : [] for i in range(self.num_workers)}
 
         # choose the type of the worker
         if worker_type is None:
-            self.worker_type = Worker
+            self._worker_type = Worker
         else:
-            self.worker_type = worker_type
+            self._worker_type = worker_type
+
+    @property
+    def num_workers(self):
+        return self._num_workers
+
+    @num_workers.setter
+    def num_workers(self, num_workers):
+        self._num_workers = num_workers
+
+    @property
+    def worker_type(self):
+        return self._worker_type
+
+    @worker_type.setter
+    def worker_type(self, worker_type):
+        self._worker_type = worker_type
 
     def init(self, func, num_workers=None, debug_prints=False):
 
@@ -161,9 +177,9 @@ class WorkerMapper(Mapper):
 
         # save the task run times, so they can be accessed if desired,
         # after clearing the task times from the last mapping
-        self.worker_segment_times = {i : [] for i in range(self.num_workers)}
+        self._worker_segment_times = {i : [] for i in range(self.num_workers)}
         for task_idx, worker_idx, task_time, result in results:
-            self.worker_segment_times[worker_idx].append(task_time)
+            self._worker_segment_times[worker_idx].append(task_time)
 
         # then just return the values of the function
         return [result for task_idx, worker_idx, task_time, result in results]

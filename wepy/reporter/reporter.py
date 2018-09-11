@@ -2,49 +2,128 @@ import os
 import os.path as osp
 import pickle
 
+class ReporterError(Exception):
+    pass
+
 class Reporter(object):
 
-    PARAMETERS = ()
-
-    def __init__(self):
+    def __init__(self, **kwargs):
         pass
 
-    def init(self, *args, **kwargs):
-        pass
+    def init(self, **kwargs):
+        method_name = 'init'
+        assert not hasattr(super(), method_name), \
+            "Superclass with method {} is masked".format(method_name)
 
-    def report(self, *args, **kwargs):
-        pass
+    def report(self, **kwargs):
+        method_name = 'report'
+        assert not hasattr(super(), method_name), \
+            "Superclass with method {} is masked".format(method_name)
 
-    def cleanup(self, *args, **kwargs):
-        pass
+    def cleanup(self, **kwargs):
+        method_name = 'cleanup'
+        assert not hasattr(super(), method_name), \
+            "Superclass with method {} is masked".format(method_name)
+
 
 class FileReporter(Reporter):
 
     MODES = ('x', 'w', 'w-', 'r', 'r+',)
 
-    PARAMETERS = ('modes', 'file_paths')
-
     DEFAULT_MODE = 'x'
 
-    def __init__(self, file_paths, modes=None):
+    # these are keywords that can be recognized by subclasses of
+    # FileReporter in kwargs in order to bypass path methods, in order
+    # to always support a direct file_path setting method. For example
+    # in the ParametrizableFileReporter if you don't want to set the
+    # parametrizable things then you just pass in one of the bypass
+    # keywords and it will skip its generation of the file_paths
+    # through components
+    BYPASS_KEYWORDS = ('file_path', 'file_paths',)
+
+    def __init__(self, file_paths=None, modes=None,
+                 file_path=None, mode=None,
+                 **kwargs):
+
+        # file paths
+
+        assert not ((file_paths is not None) and (file_path is not None)), \
+            "only file_paths or file_path kwargs can be specified"
+
+        # if only one file path is given then we handle it as multiple
+        if file_path is not None:
+            file_paths = [file_path]
 
         self._file_paths = file_paths
 
-        # if modes is none set the default for each file
+
+        # modes
+
+        assert not ((modes is not None) and (mode is not None)), \
+            "only modes or mode kwargs can be specified"
+
+        # if modes is None we make modes, from defaults if we have to
         if modes is None:
-            modes = [self.DEFAULT_MODE for i in range(len(self._file_paths))]
+
+            # if mode is None set it to the default
+            if modes is None and mode is None:
+                mode = self.DEFAULT_MODE
+
+            # if only one mode is given copy it for each file given
+            modes = [mode for i in range(len(self._file_paths))]
 
         self._modes = modes
 
-    def validate_mode(self, mode):
+        super().__init__(**kwargs)
+
+    def _bypass_dispatch(self, **kwargs):
+
+        # check if we are bypassing the parametrization for
+        # compatibility
+        if any([True if key in self.BYPASS_KEYWORDS else False
+                for key in kwargs.keys()]):
+
+            # we just call the superclass methods then
+            FileReporter.__init__(self, **kwargs)
+
+            # unfortunately without doing metaclass weird stuff the
+            # returned object will be an unparametrizable
+            # ParamatrizableFileReporter but I think its okay for the
+            # use cases it will be used for
+
+            return True
+        else:
+            return False
+
+
+    def _validate_mode(self, mode):
         if mode in self.MODES:
             return True
         else:
             return False
 
     @property
+    def mode(self):
+        if len(self._file_paths) > 1:
+            raise ReporterError("there are multiple files and modes defined")
+
+        return self._modes[0]
+
+    @property
+    def file_path(self):
+        if len(self._file_paths) > 1:
+            raise ReporterError("there are multiple files and modes defined")
+
+        return self._file_paths[0]
+
+    @property
     def file_paths(self):
         return self._file_paths
+
+    @file_paths.setter
+    def file_paths(self, file_paths):
+        for i, file_path in enumerate(file_paths):
+            self.set_path(i, file_path)
 
     def set_path(self, file_idx, path):
         self._paths[file_idx] = path
@@ -53,6 +132,11 @@ class FileReporter(Reporter):
     def modes(self):
         return self._modes
 
+    @modes.setter
+    def modes(self, modes):
+        for i, mode in enumerate(modes):
+            self.set_mode(i, mode)
+
     def set_mode(self, file_idx, mode):
 
         if self._validate_mode(mode):
@@ -60,20 +144,70 @@ class FileReporter(Reporter):
         else:
             raise ValueError("Incorrect mode {}".format(mode))
 
-class SingleFileReporter(FileReporter):
 
-    def __init__(self, file_path, mode=None):
+    def reparametrize(self, file_paths, modes):
 
-        super().__init__([file_path], modes=[mode])
+        self.file_paths = file_paths
+        self.modes = modes
 
+
+class ParametrizableFileReporter(FileReporter):
+
+    PATH_TEMPLATE = "{work_dir}/{root_name}{suffix}.{extensions}"
+    SUFFIX_TEMPLATE = "_{}"
+
+    def __init__(self, root_names=None, work_dir=None, suffix=None, extensions=None,
+                 **kwargs):
+
+        # we check if we should bypass this class initialization and
+        # just do the base stuff
+        if self._bypass_dispatch(**kwargs):
+            return None
+
+        # otherwise we do the parametrization
+
+        self._root_names = root_names
+
+        if work_dir is None:
+            self._work_dir = osp.realpath(osp.curdir)
+        else:
+            self._work_dir = work_dir
+
+        if suffix is None:
+            self._suffix = ""
+        else:
+            self._suffix = self.SUFFIX_TEMPLATE.format(suffix)
+
+        self._extensions = extensions
+
+        file_paths = []
+        for file_idx, root_name in enumerate(self._root_names):
+            # construct a path for this reporter
+            file_path = self.PATH_TEMPLATE.format(root_name=root_name,
+                                                  work_dir=osp.realpath(self._work_dir),
+                                                  suffix=self._suffix,
+                                                  extensions=self._extensions[file_idx].strip('.')
+            )
+
+            file_paths.append(file_path)
+
+        super().__init__(file_paths=file_paths, **kwargs)
 
     @property
-    def mode(self):
-        return self._modes[0]
+    def root_names(self):
+        return self._root_names
 
     @property
-    def file_path(self):
-        return self._file_paths[0]
+    def work_dir(self):
+        return self._work_dir
+
+    @property
+    def suffix(self):
+        return self._suffix
+
+    @property
+    def extensions(self):
+        return self._extensions
 
 
 class ProgressiveFileReporter(FileReporter):
@@ -83,11 +217,9 @@ class ProgressiveFileReporter(FileReporter):
 
     """
 
-    def __init__(self, file_paths, modes=None):
-
-        super().__init__(file_paths, modes=modes)
-
     def init(self, *args, **kwargs):
+
+        super().init(**kwargs)
 
         # because we want to overwrite the file at every cycle we
         # need to change the modes to write with truncate. This allows
@@ -109,46 +241,3 @@ class ProgressiveFileReporter(FileReporter):
             # now that we have checked if the file exists we set it into
             # overwrite mode
             self.set_mode(file_i, 'w')
-
-
-class WalkersPickleReporter(Reporter):
-
-    def __init__(self, save_dir='./', freq=100, num_backups=2):
-        # the directory to save the pickles in
-        self.save_dir = save_dir
-        # the frequency of cycles to backup the walkers as a pickle
-        self.backup_freq = freq
-        # the number of sets of walker pickles to keep, this will keep
-        # the last `num_backups`
-        self.num_backups = num_backups
-
-    def init(self, *args, **kwargs):
-        # make sure the save_dir exists
-        if not osp.exists(self.save_dir):
-            os.makedirs(self.save_dir)
-        # delete backup pickles in the save_dir if they exist
-        else:
-            for pkl_fname in os.listdir(self.save_dir):
-                os.remove(osp.join(self.save_dir, pkl_fname))
-
-    def report(self, cycle_idx, walkers,
-               *args, **kwargs):
-
-        # ignore all args and kwargs
-
-        # total number of cycles completed
-        n_cycles = cycle_idx + 1
-        # if the cycle is on the frequency backup walkers to a pickle
-        if n_cycles % self.backup_freq == 0:
-
-            pkl_name = "walkers_cycle_{}.pkl".format(cycle_idx)
-            pkl_path = osp.join(self.save_dir, pkl_name)
-            with open(pkl_path, 'wb') as wf:
-                pickle.dump(walkers, wf)
-
-            # remove old pickles if we have more than the `num_backups`
-            if self.num_backups is not None:
-                if (cycle_idx // self.backup_freq) >= self.num_backups:
-                    old_idx = cycle_idx - self.num_backups * self.backup_freq
-                    old_pkl_fname = "walkers_cycle_{}.pkl".format(old_idx)
-                    os.remove(osp.join(self.save_dir, old_pkl_fname))
