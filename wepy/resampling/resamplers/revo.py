@@ -29,7 +29,7 @@ class REVOResampler(Resampler):
 
 
     def __init__(self, seed=None, pmin=1e-12, pmax=0.1, dpower=4, merge_dist=2.5,
-                 distance_characteristic=None, distance=None, init_state=None, weights=True):
+                 d0=None, distance=None, init_state=None, weights=True):
 
         self.decision = self.DECISION
 
@@ -51,9 +51,9 @@ class REVOResampler(Resampler):
         assert distance is not None, "Must give a distance metric class"
         self.distance = distance
 
-        # the distance_characteristic
-        assert distance_characteristic is not None, "Must given a distance_characteristic value"
-        self.distance_characteristic = distance_characteristic
+        # the characteristic distance, d0
+        assert d0 is not None, "Must give a d0 value (characteristic distance)"
+        self.d0 = d0
 
         # setting the random seed
         self.seed = seed
@@ -114,7 +114,7 @@ class REVOResampler(Resampler):
             if amp[i] > 0:
                 for j in range(i+1, n_walkers):
                     if amp[j] > 0:
-                        d = ((distance_matrix[i][j]/self.distance_characteristic)**self.dpower) * wtfac[i] * wtfac[j]
+                        d = ((distance_matrix[i][j]/self.d0)**self.dpower) * wtfac[i] * wtfac[j]
                         spread += d * amp[i] * amp[j]
                         wsum[i] += d * amp[j]
                         wsum[j] += d * amp[i]
