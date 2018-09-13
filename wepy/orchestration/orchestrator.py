@@ -79,7 +79,9 @@ class Orchestrator():
     ORCH_FILENAME_TEMPLATE = "{config}{narration}.orch.pkl"
     DEFAULT_ORCHESTRATION_MODE = 'xb'
 
-    def __init__(self, sim_apparatus, default_configuration=None,
+    def __init__(self, sim_apparatus,
+                 default_init_walkers=None,
+                 default_configuration=None,
                  default_work_dir=None):
         # the main dictionary of snapshots keyed by their hashes
         self._snapshots = {}
@@ -145,6 +147,14 @@ class Orchestrator():
         else:
             self._work_dir = work_dir
 
+        # if initial walkers were given we save them and also make a
+        # snapshot for them
+        if default_init_walkers is not None:
+
+            self._init_walkers = default_init_walkers
+
+            self._start_hash = self.gen_start_snapshot(self._init_walkers)
+
 
 
     def hash_snapshot(self, snapshot):
@@ -167,6 +177,14 @@ class Orchestrator():
     @property
     def snapshot_hashes(self):
         return list(self._snapshots.keys())
+
+    @property
+    def default_snapshot_hash(self):
+        return self._start_hash
+
+    @property
+    def default_snapshot(self):
+        return self.get_snapshot(self.default_snapshot_hash)
 
     def get_apparatus(self, apparatus_hash):
         """Returns a copy of a apparatus."""
@@ -707,11 +725,16 @@ def reconcile_orchestrators(orch_a, orch_b):
 
 def orchestrate_run_by_time(orchestrator_pkl_path, start_hash,
                             run_time, n_steps,
-                            apparatus_hash=None, configuration=None,
+                            apparatus_hash=None,
                             checkpoint_freq=None,
                             checkpoint_dir=None,
                             orchestrator_path=None,
-                            n_workers=None):
+                            configuration=None,
+                            work_dir=None,
+                            config_name=None,
+                            narration=None,
+                            mode=None,
+                            **kwargs):
 
     # load the orchestrator
     with open(orchestrator_pkl_path, 'rb') as rf:
@@ -721,14 +744,16 @@ def orchestrate_run_by_time(orchestrator_pkl_path, start_hash,
     # run the snapshot
     return orchestrator.orchestrate_snapshot_run_by_time(start_hash, run_time, n_steps,
                                                          apparatus_hash=apparatus_hash,
-                                                         configuration=configuration,
                                                          checkpoint_freq=checkpoint_freq,
                                                          checkpoint_dir=checkpoint_dir,
                                                          orchestrator_path=orchestrator_path,
-                                                         n_workers=n_workers)
-
+                                                         configuration=configuration,
+                                                         work_dir=work_dir,
+                                                         config_name=config_name,
+                                                         narration=narration,
+                                                         mode=mode,
+                                                         **kwargs)
 
 if __name__ == "__main__":
 
-    # orchestrate a simulation from an orchestrator pickle
     pass
