@@ -2,13 +2,15 @@ from copy import deepcopy
 
 import numpy as np
 
-from wepy.reporter.reporter import ParametrizableFileReporter
+from wepy.reporter.reporter import FileReporter
 from wepy.hdf5 import WepyHDF5
 from wepy.util.util import json_top_atom_count
 
-class WepyHDF5Reporter(ParametrizableFileReporter):
+class WepyHDF5Reporter(FileReporter):
 
     ALL_ATOMS_REP_KEY = 'all_atoms'
+
+    SUGGESTED_EXTENSION = "wepy.h5"
 
     def __init__(self,
                  save_fields=None,

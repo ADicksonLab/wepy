@@ -153,7 +153,7 @@ class Manager(object):
 
             return walkers, filters
 
-    def init(self, num_workers, continue_run=None, debug_prints=False):
+    def init(self, num_workers=None, continue_run=None, debug_prints=False):
 
         if debug_prints:
             self.result_template_str = "|".join(["{:^5}" for i in range(self.n_init_walkers + 1)])
@@ -162,8 +162,9 @@ class Manager(object):
         # initialize the work_mapper with the function it will be
         # mapping and the number of workers, this may include things like starting processes
         # etc.
-        self.work_mapper.init(self.runner.run_segment, num_workers=num_workers,
-                               debug_prints=debug_prints)
+        self.work_mapper.init(segment_func=self.runner.run_segment,
+                              num_workers=num_workers,
+                              debug_prints=debug_prints)
 
         # init the reporter
         for reporter in self.reporters:
@@ -204,7 +205,7 @@ class Manager(object):
 
         """
         start_time = time.time()
-        self.init(num_workers, debug_prints=debug_prints)
+        self.init(num_workers=num_workers, debug_prints=debug_prints)
         cycle_idx = 0
         walkers = self.init_walkers
         while time.time() - start_time < run_time:
@@ -231,7 +232,8 @@ class Manager(object):
 
         """
 
-        self.init(num_workers, debug_prints=debug_prints)
+        self.init(num_workers=num_workers,
+                  debug_prints=debug_prints)
 
         walkers = self.init_walkers
         # the main cycle loop
@@ -252,7 +254,8 @@ class Manager(object):
 
         """
 
-        self.init(num_workers, continue_run=run_idx,
+        self.init(num_workers=num_workers,
+                  continue_run=run_idx,
                   debug_prints=debug_prints)
 
         walkers = self.init_walkers
@@ -277,7 +280,8 @@ class Manager(object):
 
         start_time = time.time()
 
-        self.init(num_workers, continue_run=run_idx,
+        self.init(num_workers=num_workers,
+                  continue_run=run_idx,
                   debug_prints=debug_prints)
 
         cycle_idx = 0

@@ -41,6 +41,10 @@ class FileReporter(Reporter):
     # through components
     BYPASS_KEYWORDS = ('file_path', 'file_paths',)
 
+    SUGGESTED_FILENAME_TEMPLATE = "{config}{narration}.{ext}"
+
+    SUGGESTED_EXTENSION = 'report'
+
     def __init__(self, file_paths=None, modes=None,
                  file_path=None, mode=None,
                  **kwargs):

@@ -7,6 +7,7 @@ import os
 import os.path as osp
 
 from wepy.sim_manager import Manager
+from wepy.orchestration.configuration import Configuration
 
 class SimApparatus():
     """The simulation apparatus are the components needed for running a
@@ -67,7 +68,16 @@ class OrchestratorError(Exception):
 
 class Orchestrator():
 
+
+    DEFAULT_WORKDIR = Configuration.DEFAULT_WORKDIR
+    DEFAULT_CONFIG_NAME = Configuration.DEFAULT_CONFIG_NAME
+    DEFAULT_NARRATION = Configuration.DEFAULT_NARRATION
+    DEFAULT_MODE = Configuration.DEFAULT_MODE
+
     CHECKPOINT_FILENAME_TEMPLATE = "{run_start_hash}_{checkpoint_hash}.chk.pkl"
+    DEFAULT_CHECKPOINT_DIR = 'checkpoints'
+    ORCH_FILENAME_TEMPLATE = "{config}{narration}.orch.pkl"
+    DEFAULT_ORCHESTRATION_MODE = 'xb'
 
     def __init__(self, sim_apparatus, default_configuration=None,
                  default_work_dir=None):
@@ -126,7 +136,7 @@ class Orchestrator():
         # the orchestrator is. That is the full real path will be
         # determined at runtime when a run is called, not on creation
         # of this object
-        if work_dir is None:
+        if default_work_dir is None:
             self._work_dir = "."
         # otherwise we just set it to wherever the path said to. This
         # can contain things that will be realized to a path later
@@ -391,8 +401,7 @@ class Orchestrator():
     def new_run_by_time(self, init_walkers, run_time, n_steps,
                         apparatus_hash=None, configuration=None,
                         checkpoint_freq=None,
-                        checkpoint_dir=None,
-                        n_workers=None):
+                        checkpoint_dir=None):
         """Start a new run that will go for a certain amount of time given a
         new set of initial conditions. """
 
@@ -405,14 +414,14 @@ class Orchestrator():
         return self.run_snapshot_by_time(start_hash, run_time, n_steps,
                                          configuration=configuration,
                                          checkpoint_freq=checkpoint_freq,
-                                         checkpoint_dir=checkpoint_dir,
-                                         n_workers=n_workers)
+                                         checkpoint_dir=checkpoint_dir)
 
 
     def run_snapshot_by_time(self, snapshot_hash, run_time, n_steps,
-                             configuration=None, checkpoint_freq=None,
+                             checkpoint_freq=None,
                              checkpoint_dir=None,
-                             n_workers=None):
+                             configuration=None,
+                             mode=None):
         """For a finished run continue it but resetting all the state of the
         resampler and boundary conditions"""
 
@@ -421,6 +430,9 @@ class Orchestrator():
         if checkpoint_dir is not None:
             checkpoint_dir = osp.realpath(checkpoint_dir)
             os.makedirs(checkpoint_dir, exist_ok=True)
+
+        if mode is None:
+            mode = self.DEFAULT_ORCHESTRATION_MODE
 
         start_time = time.time()
 
@@ -435,7 +447,7 @@ class Orchestrator():
         sim_manager = self.gen_sim_manager(snapshot, configuration=configuration)
 
         # run the init subroutine
-        sim_manager.init(n_workers)
+        sim_manager.init()
 
         # keep a running list of the checkpoints for this run
         run_checkpoint_hashes = []
@@ -472,7 +484,7 @@ class Orchestrator():
                         checkpoint_path = osp.join(checkpoint_dir, checkpoint_filename)
 
                         # write out the pickle to the file
-                        with open(checkpoint_path, 'wb') as wf:
+                        with open(checkpoint_path, mode) as wf:
                             pickle.dump(checkpoint_snapshot, wf)
 
             cycle_idx += 1
@@ -501,63 +513,141 @@ class Orchestrator():
         return (snapshot_hash, end_hash), (initial_apparatus_hash, mutated_apparatus_hash)
 
     def orchestrate_snapshot_run_by_time(self, snapshot_hash, run_time, n_steps,
-                                         apparatus_hash=None, configuration=None,
+                                         apparatus_hash=None,
                                          checkpoint_freq=None,
                                          checkpoint_dir=None,
                                          orchestrator_path=None,
-                                         n_workers=None):
+                                         configuration=None,
+                                         mode=None):
+
+        if mode is None:
+            mode = self.DEFAULT_ORCHESTRATION_MODE
 
         run_tup, mutation_tup = self.run_snapshot_by_time(snapshot_hash, run_time, n_steps,
-                                         configuration=configuration,
                                          checkpoint_freq=checkpoint_freq,
                                          checkpoint_dir=checkpoint_dir,
-                                         n_workers=n_workers)
+                                         configuration=configuration)
 
         # then pickle thineself
-        with open(orchestrator_path, 'wb') as wf:
+        with open(orchestrator_path, mode) as wf:
             pickle.dump(self, wf)
 
         return run_tup, mutation_tup
 
     def orchestrate_run_by_time(self, init_walkers, run_time, n_steps,
+                                # non-default orchestration components
                                 apparatus_hash=None,
                                 checkpoint_freq=None,
                                 checkpoint_dir=None,
                                 orchestrator_path=None,
                                 configuration=None,
-                                reporter_reconfig_params=None, work_mapper_reconfig_params=None,
-                                n_workers=None):
+                                # these can reparametrize the paths
+                                # for both the orchestrator produced
+                                # files as well as the configuration
+                                work_dir=None,
+                                config_name=None,
+                                narration=None,
+                                mode=None,
+                                # extra kwargs will be passed to the
+                                # configuration.reparametrize method
+                                **kwargs):
+
+        # there are two possible uses for the path reparametrizations:
+        # the configuration and the orchestrator file paths. If both
+        # of those are explicitly specified by passing in the whole
+        # configuration object or both of checkpoint_dir,
+        # orchestrator_path then those reparametrization kwargs will
+        # not be used. As this is likely not the intention of the user
+        # we will raise an error. If there is even one use for them no
+        # error will be raised.
+
+        # first check if any reparametrizations were even requested
+        parametrizations_requested = (True if work_dir is not None else False,
+                                      True if config_name is not None else False,
+                                      True if narration is not None else False,
+                                      True if mode is not None else False)
+
+        # check if there are any available targets for reparametrization
+        reparametrization_targets = (True if configuration is None else False,
+                                     True if checkpoint_dir is None else False,
+                                     True if orchestrator_path is None else False)
+
+        # if paramatrizations were requested and there are no targets
+        # we need to raise an error
+        if any(parametrizations_requested) and not any(reparametrization_targets):
+
+            raise OrchestratorError("Reparametrizations were requested but none are possible,"
+                                    " due to all possible targets being already explicitly given")
+
+
+        # if any paths were not given and no defaults for path
+        # parameters we want to fill in the defaults for them. This
+        # will also fill in any missing parametrizations with defaults
+
+        # we do this by just setting the path parameters if they
+        # aren't set, then later the parametrization targets will be
+        # tested for if they have been set or not, and if they haven't
+        # then these will be used to generate paths for them.
+        if work_dir is None:
+            work_dir = self.DEFAULT_WORKDIR
+        if config_name is None:
+            config_name = self.DEFAULT_CONFIG_NAME
+        if narration is None:
+            narration = self.DEFAULT_NARRATION
+        if mode is None:
+            mode = self.DEFAULT_MODE
+
+        # if no configuration was specified use the default one
+        if configuration is None:
+            configuration = self.default_configuration
+
+            # reparametrize the configuration with the given path
+            # parameters and anything else in kwargs. If they are none
+            # this will have no effect anyhow
+            configuration = configuration.reparametrize(work_dir=work_dir,
+                                                        config_name=config_name,
+                                                        narration=narration,
+                                                        mode=mode,
+                                                        **kwargs)
+
+        # make parametric paths for the checkpoint directory and the
+        # orchestrator pickle to be made, unless they are explicitly given
+
+        if checkpoint_dir is None:
+
+            # the checkpoint directory will be a directory called
+            # 'checkpoints' that will be placed in the work dir
+            checkpoint_dir = osp.join(work_dir, self.DEFAULT_CHECKPOINT_DIR)
+
+        if orchestrator_path is None:
+
+            # the orchestrator pickle will be of similar form to the
+            # reporters having the config name, and narration if
+            # given, and an identifying compound file extension
+            orch_narration = "_{}".format(narration) if len(narration) > 0 else ""
+            orch_filename = self.ORCH_FILENAME_TEMPLATE.format(config=config_name,
+                                                               narration=orch_narration)
+            orchestrator_path = osp.join(work_dir, orch_filename)
+
+
 
         # make the starting snapshot from the walkers
         start_hash = self.gen_start_snapshot(init_walkers,
                                              apparatus_hash=apparatus_hash)
 
-        # a boolean if the right parameters for reconfiguring things were passed
-        reconfiguration_params = False if \
-                                 (reporter_reconfig_params is not None) or \
-                                 (work_mapper_reconfig_params is not None) \
-                                 else True
-
-        # reconfigure the configuration unless a configuration was
-        # passed to this
-        if (configuration is None) and reconfiguration_params:
-
-            # make a new configuration object with the reconfiguration parameters
-            configuration = self.default_configuration.reparametrize(
-                work_mapper_reconfig_params, reporter_reconfig_params)
-
-        elif (configuration is not None) and reconfiguration_params:
-
-            raise OrcestratorError(
-                "either provide the full configuration or reconfigure the default, but not both")
+        # for the pickles in the orchestrator we want to use bytes
+        # mode for the pickles because that will be faster and smaller
+        # so unless bytes is already specified in the mode we will add it
+        if 'b' not in mode:
+            orch_mode = mode + 'b'
 
         # orchestrate from the snapshot
         return self.orchestrate_snapshot_run_by_time(start_hash, run_time, n_steps,
-                                             configuration=configuration,
-                                             checkpoint_freq=checkpoint_freq,
-                                             checkpoint_dir=checkpoint_dir,
+                                                     checkpoint_freq=checkpoint_freq,
+                                                     checkpoint_dir=checkpoint_dir,
                                                      orchestrator_path=orchestrator_path,
-                                             n_workers=n_workers)
+                                                     configuration=configuration,
+                                                     mode=orch_mode)
 
 
     def restart_snapshot(self, snapshot_hash):

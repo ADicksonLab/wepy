@@ -2,14 +2,16 @@ import os.path as osp
 from collections import defaultdict
 import itertools as it
 
-from wepy.reporter.reporter import ProgressiveFileReporter
+from wepy.reporter.dashboard import DashboardReporter
 
 import numpy as np
 import pandas as pd
 
-class WExploreDashboardReporter(ProgressiveFileReporter):
+class WExploreDashboardReporter(DashboardReporter):
 
-    DASHBOARD_TEMPLATE =\
+    SUGGESTED_EXTENSION = "wexplore.dash.org"
+
+    DASHBOARD_TEMPLATE = \
 """* Weighted Ensemble Simulation
 
     Integration Step Size: {step_time} seconds
@@ -79,14 +81,15 @@ Defined Regions with the number of child regions per parent region:
 
 """
 
-    def __init__(self, file_path, mode='x',
+    def __init__(self,
                  step_time=None, # seconds
                  max_n_regions=None,
                  max_region_sizes=None,
                  bc_cutoff_distance=None,
+                 **kwargs
                 ):
 
-        super().__init__([file_path], modes=[mode])
+        super().__init__(**kwargs)
 
         assert step_time is not None, "length of integration time step must be given"
         self.step_time = step_time
@@ -192,14 +195,6 @@ Defined Regions with the number of child regions per parent region:
 
         # write the dashboard
         self.write_dashboard()
-
-    @property
-    def file_path(self):
-        return self._file_paths[0]
-
-    @property
-    def mode(self):
-        return self._modes[0]
 
     def update_weighted_ensemble_values(self, cycle_idx, n_steps, walkers):
 
@@ -489,7 +484,3 @@ Defined Regions with the number of child regions per parent region:
 
         return dashboard
 
-    def write_dashboard(self):
-
-        with open(self.file_path, mode=self.mode) as dashboard_file:
-            dashboard_file.write(self.dashboard_string())

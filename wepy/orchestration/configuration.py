@@ -1,34 +1,97 @@
+import os.path as osp
+from copy import deepcopy
 
 # these are the supported reporter types for reparametrizing
 from wepy.reporter.reporter import FileReporter
 
 # supported work mapper types
-from wepy.work_mapper import WorkerMapper
+from wepy.work_mapper.mapper import WorkerMapper
 
 class Configuration():
 
-    SUPPORTED_REPORTERS = (FileReporter,)
-    SUPPORTED_WORK_MAPPERS = (WorkerMapper,)
+    DEFAULT_WORKDIR = osp.realpath(osp.curdir)
+    DEFAULT_CONFIG_NAME = "root"
+    DEFAULT_NARRATION = ""
+    DEFAULT_MODE = 'x'
 
-    ROOT_NAME_DEFAULT = 'root'
+    def __init__(self, config_name=None, work_dir=None, narration=None,
+                 mode=None,
+                 work_mapper=None,
+                 reporter_classes=None, reporter_partial_kwargs=None):
 
-    def __init__(self, root_name=None, work_mapper=None, reporters=None):
+        # reporters and partial kwargs
+        if reporter_classes is not None:
+            self.reporter_classes = reporter_classes
+        else:
+            self.reporter_classes = []
 
+        if reporter_partial_kwargs is not None:
+            self.reporter_partial_kwargs = reporter_partial_kwargs
+        else:
+            self.reporter_partial_kwargs = []
+
+        # file path localization variables
+
+        # config string
+        if config_name is not None:
+            self.config_name = config_name
+        else:
+            self.config_name = self.DEFAULT_CONFIG_NAME
+
+        if work_dir is not None:
+            self.work_dir = work_dir
+        else:
+            self.work_dir = self.DEFAULT_WORKDIR
+
+        # narration
+
+
+        if narration is not None:
+            narration = "_{}".format(narration) if len(narration) > 0 else ""
+            self.narration = narration
+        else:
+            self.narration = self.DEFAULT_NARRATION
+
+
+        # file modes, if none are given we set to the default, this
+        # needs to be done before generating the reporters
+        if mode is not None:
+            self.mode = mode
+        else:
+            self.mode = self.DEFAULT_MODE
+
+        # generate the reporters for this configuration
+        self._reporters = self._gen_reporters()
+
+        # work mapper
         if work_mapper is not None:
             self._work_mapper = work_mapper
         else:
             # set as a default
             self._work_mapper = None
 
-        if reporters is not None:
-            self._reporters = reporters
-        else:
-            self._reporters = []
+    def _gen_reporters(self):
 
-        if root_name is not None:
-            self._root_name = root_name
-        else:
-            self._root_name = self.ROOT_NAME_DEFAULT
+        reporters = []
+        for idx, reporter_class in enumerate(self.reporter_classes):
+
+            filename = reporter_class.SUGGESTED_FILENAME_TEMPLATE.format(
+                               narration=self.narration,
+                               config=self.config_name,
+                               ext=reporter_class.SUGGESTED_EXTENSION)
+
+            file_path = osp.join(self.work_dir, filename)
+
+            file_paths = [file_path]
+
+            modes = [self.mode for i in range(len(file_paths))]
+
+            reporter = reporter_class(file_paths=file_paths, modes=modes,
+                                      **self.reporter_partial_kwargs[idx])
+
+            reporters.append(reporter)
+
+        return reporters
 
     @property
     def reporters(self):
@@ -38,6 +101,30 @@ class Configuration():
     def work_mapper(self):
         return deepcopy(self._work_mapper)
 
+
+    def reparametrize(self, **kwargs):
+
+        # dictionary of the possible reparametrizations from the
+        # current configuration
+        params = {'mode' : self.mode,
+                  'config_name' : self.config_name,
+                  'work_dir' : self.work_dir,
+                  'narration' : self.narration,
+                  'work_mapper' : self.work_mapper,
+                  'reporter_classes' : self.reporter_classes,
+                  'reporter_partial_kwargs' : self.reporter_partial_kwargs}
+
+        for key, value in kwargs.items():
+            # if the value is given we replace the old one with it
+            if value is not None:
+                params[key] = value
+
+        new_configuration = type(self)(**params)
+
+        return new_configuration
+
+
+    ### TODO remove or not...
     # file reporter types
 
     def reparametrize_file_reporter(self, workdir_path, config_suffix):
@@ -99,20 +186,3 @@ class Configuration():
             new_work_mapper = self.work_mapper
 
         return new_work_mapper
-
-    def reparametrize(self, work_mapper_args, reporter_args):
-
-        if work_mapper_args is not None:
-            new_work_mapper = self.reparametrize_work_mapper(work_mapper_args)
-        else:
-            new_work_mapper = self.work_mapper
-
-        if reporter_args is not None:
-            new_reporters = self.reparametrize_reporters(*reporter_args)
-        else:
-            new_reporters = self.reporters
-
-        new_configuration = type(self)(work_mapper=new_work_mapper,
-                                       reporters=new_reporters)
-
-        return new_configuration

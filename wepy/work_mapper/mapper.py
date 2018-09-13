@@ -8,13 +8,31 @@ from wepy.work_mapper.worker import Worker, Task
 
 PY_MAP = map
 
+class ABCMapper(object):
+
+    def __init__(self, **kwargs):
+        pass
+
+    def init(self, **kwargs):
+        pass
+
+    def cleanup(self, **kwargs):
+        pass
+
+    def map(self, **kwargs):
+        pass
+
 class Mapper(object):
 
     def __init__(self, *args, **kwargs):
         self.worker_segment_times = {0 : []}
 
-    def init(self, func, **kwargs):
-        self._func = func
+    def init(self, segment_func=None, **kwargs):
+
+        if segment_func is None:
+            ValueError("segment_func must be given")
+
+        self._func = segment_func
 
 
     def cleanup(self, **kwargs):
@@ -70,16 +88,17 @@ class WorkerMapper(Mapper):
     def worker_type(self, worker_type):
         self._worker_type = worker_type
 
-    def init(self, func, num_workers=None, debug_prints=False):
+    def init(self, num_workers=None, debug_prints=False):
 
-        self._func = func
+        super().init(**kwargs)
 
         # the number of workers must be given here or set as an object attribute
         if num_workers is None and self.num_workers is None:
             raise ValueError("The number of workers must be given, received {}".format(num_workers))
 
-        # if it is set as an object attribute use that number if none
-        # was passed into this call to init
+        # if the number of walkers was given for this init() call use
+        # that, otherwise we use the default that was specified when
+        # the object was created
         elif num_workers is None and self.num_workers is not None:
             num_workers = self.num_workers
 
