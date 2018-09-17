@@ -10,6 +10,7 @@ setup(
         'numpy',
         'h5py',
         'networkx>=2',
-        'pandas'
+        'pandas',
+        'dill',
     ],
 )

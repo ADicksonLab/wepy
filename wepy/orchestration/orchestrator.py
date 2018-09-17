@@ -1,10 +1,14 @@
 from copy import copy, deepcopy
-import pickle
 from hashlib import md5
 from warnings import warn
 import time
 import os
 import os.path as osp
+from base64 import b64encode, b64decode
+from zlib import compress, decompress
+
+# instead of pickle we use dill
+import dill
 
 from wepy.sim_manager import Manager
 from wepy.orchestration.configuration import Configuration
@@ -39,14 +43,6 @@ class WepySimApparatus(SimApparatus):
 
         super().__init__(filters)
 
-    @property
-    def work_mapper(self):
-        return self._work_mapper
-
-    @property
-    def reporters(self):
-        return self._reporters
-
 class SimSnapshot():
 
     def __init__(self, walkers, apparatus):
@@ -68,6 +64,9 @@ class OrchestratorError(Exception):
 
 class Orchestrator():
 
+    # we freeze the pickle protocol for making hashes, because we care
+    # more about stability than efficiency of newer versions
+    HASH_PICKLE_PROTOCOL = 2
 
     DEFAULT_WORKDIR = Configuration.DEFAULT_WORKDIR
     DEFAULT_CONFIG_NAME = Configuration.DEFAULT_CONFIG_NAME
@@ -76,7 +75,7 @@ class Orchestrator():
 
     CHECKPOINT_FILENAME_TEMPLATE = "{run_start_hash}_{checkpoint_hash}.chk.pkl"
     DEFAULT_CHECKPOINT_DIR = 'checkpoints'
-    ORCH_FILENAME_TEMPLATE = "{config}{narration}.orch.pkl"
+    ORCH_FILENAME_TEMPLATE = "{config}{narration}.orch"
     DEFAULT_ORCHESTRATION_MODE = 'xb'
 
     def __init__(self, sim_apparatus,
@@ -85,9 +84,6 @@ class Orchestrator():
                  default_work_dir=None):
         # the main dictionary of snapshots keyed by their hashes
         self._snapshots = {}
-
-        # the main dictionary for the apparatuses keyed by their hashes
-        self._apparatuses = {}
 
         # list of "segments" which are 2-tuples of hashes, where the
         # first hash is the predecessor to the second hash. The second
@@ -103,15 +99,6 @@ class Orchestrator():
         # a dictionary of the checkpoints associated with each run
         self._run_checkpoints = {}
 
-        # the list of "mutations". Again a 2-tuple of hashes
-        # indicating an input and output snapshot. Mutations are when
-        # the the state of the walkers in the snapshot do not change
-        # but the state associated with the filters (e.g. resampler,
-        # boundary conditions, runner) or the number and weights of
-        # the walkers is subject to change
-        self._mutations = set()
-
-
         # the apparatus for the simulation. This is the configuration
         # and initial conditions independent components necessary for
         # running a simulation. The primary (and only necessary)
@@ -119,9 +106,6 @@ class Orchestrator():
         # here are used as the defaults when unspecified later
         # (e.g. resampler and boundary conditions)
         self._apparatus = deepcopy(sim_apparatus)
-
-        # then add the apparatus to the apparatuses
-        self._apparatus_hash = self.add_apparatus(self._apparatus)
 
         # if a configuration was given use this as the default
         # configuration, if none is given then we will use the default
@@ -155,15 +139,63 @@ class Orchestrator():
 
             self._start_hash = self.gen_start_snapshot(self._init_walkers)
 
+    def serialize(self):
 
+        serial_str = dill.dumps(self, recurse=True)
+        return serial_str
+
+    @classmethod
+    def deserialize(cls, serial_str):
+
+        orch = dill.loads(serial_str)
+        return orch
+
+    @classmethod
+    def load(cls, filepath, mode='rb'):
+
+        with open(filepath, mode) as rf:
+            orch = cls.deserialize(rf.read())
+
+        return orch
+
+
+    def dump(self, filepath, mode=None):
+
+        if mode is None:
+            mode = self.DEFAULT_ORCHESTRATION_MODE
+
+        with open(filepath, mode) as wf:
+            wf.write(self.serialize())
+
+    @classmethod
+    def encode(cls, obj):
+
+        # used for both snapshots and apparatuses even though they
+        # themselves have different methods in the API
+
+        # we use dill to dump to a string and we always do a deepcopy
+        # of the object to avoid differences in the resulting pickle
+        # object from having multiple references, then we encode in 64 bit
+        return b64encode(compress(dill.dumps(deepcopy(obj),
+                                             protocol=cls.HASH_PICKLE_PROTOCOL,
+                                             recurse=True)))
+
+    @classmethod
+    def decode(cls, encoded_str):
+
+        return dill.loads(decompress(b64decode(encoded_str)))
+
+    @classmethod
+    def hash(cls, serial_str):
+        return md5(serial_str).hexdigest()
+
+    def serialize_snapshot(self, snapshot):
+        return self.encode(snapshot)
 
     def hash_snapshot(self, snapshot):
 
-        return md5(pickle.dumps(snapshot)).hexdigest()
-
-    def hash_apparatus(self, apparatus):
-
-        return md5(pickle.dumps(apparatus)).hexdigest()
+        serialized_snapshot = self.serialize_snapshot(snapshot)
+        return self.hash(serialized_snapshot)
 
     def get_snapshot(self, snapshot_hash):
         """Returns a copy of a snapshot."""
@@ -185,19 +217,6 @@ class Orchestrator():
     @property
     def default_snapshot(self):
         return self.get_snapshot(self.default_snapshot_hash)
-
-    def get_apparatus(self, apparatus_hash):
-        """Returns a copy of a apparatus."""
-
-        return deepcopy(self._apparatuses[apparatus_hash])
-
-    @property
-    def apparatuses(self):
-        return deepcopy(list(self._apparatuses.values()))
-
-    @property
-    def apparatus_hashes(self):
-        return list(self._apparatuses.keys())
 
     @property
     def default_apparatus(self):
@@ -223,24 +242,9 @@ class Orchestrator():
         else:
             return False
 
-    def apparatus_registered(self, apparatus):
-
-        apparatus_md5 = self.hash_apparatus(apparatus)
-        if any([True if apparatus_md5 == h else False for h in self.apparatus_hashes]):
-            return True
-        else:
-            return False
-
     def snapshot_hash_registered(self, snapshot_hash):
 
         if any([True if snapshot_hash == h else False for h in self.snapshot_hashes]):
-            return True
-        else:
-            return False
-
-    def apparatus_hash_registered(self, apparatus_hash):
-
-        if any([True if apparatus_hash == h else False for h in self.apparatus_hashes]):
             return True
         else:
             return False
@@ -253,75 +257,36 @@ class Orchestrator():
     def runs(self):
         return list(deepcopy(self._runs))
 
-    @property
-    def mutations(self):
-        return deepcopy(self._mutations)
-
     def get_run_checkpoints(self, run_id):
         return deepcopy(self._run_checkpoints[run_id])
+
+    def _add_snapshot(self, snaphash, snapshot):
+
+        # check that the hash is not already in the snapshots
+        if any([True if snaphash == md5 else False for md5 in self.snapshot_hashes]):
+
+            # just skip the rest of the function and return the hash
+            return snaphash
+
+        self._snapshots[snaphash] = snapshot
+
+        return snaphash
+
 
     def add_snapshot(self, snapshot):
 
         # copy the snapshot
         snapshot = deepcopy(snapshot)
 
-
-        # add the apparatus to the apparatuses if it isn't there
-        # already
-        apparatus_hash = self.add_apparatus(snapshot.apparatus)
-
         # get the hash of the snapshot
-        snapshot_md5 = self.hash_snapshot(snapshot)
+        snaphash = self.hash_snapshot(snapshot)
 
-        # check that the hash is not already in the snapshots
-        if any([True if snapshot_md5 == md5 else False for md5 in self.snapshot_hashes]):
+        return self._add_snapshot(snaphash, snapshot)
 
-            # just skip the rest of the function and return the hash
-            return snapshot_md5
-
-        self._snapshots[snapshot_md5] = snapshot
-
-        return snapshot_md5
-
-    def add_apparatus(self, apparatus):
-
-        apparatus = deepcopy(apparatus)
-
-        apparatus_md5 = self.hash_apparatus(apparatus)
-
-        # check that the hash is not already in the snapshots
-        if any([True if apparatus_md5 == md5 else False for md5 in self.apparatus_hashes]):
-
-            # just skip the rest and return the hash
-            return apparatus_md5
-
-        self._apparatuses[apparatus_md5] = apparatus
-
-        return apparatus_md5
-
-    # TODO: not sure how to actually implement this but here is the
-    # bookkeeping stuff.
-    def mutate_apparatus(self, apparatus_hash):
-
-        # mutated_apparatus =
-
-        mutated_hash = self.add_apparatus(mutated_apparatus)
-
-        self.register_mutation(apparatus_hash, mutated_hash)
-
-
-    def gen_start_snapshot(self, init_walkers, apparatus_hash=None):
-
-        # if the apparatus_hash is None we will use the default one
-        if apparatus_hash is None:
-            apparatus_hash = self.default_apparatus_hash
-
-        # get the apparatus
-        apparatus = self.get_apparatus(apparatus_hash)
+    def gen_start_snapshot(self, init_walkers):
 
         # make a SimSnapshot object using the initial walkers and
-        # optionally replacing the apparatus with mutated values
-        start_snapshot = SimSnapshot(init_walkers, apparatus)
+        start_snapshot = SimSnapshot(init_walkers, self.default_apparatus)
 
         # save the snapshot, and generate its hash
         sim_start_md5 = self.add_snapshot(start_snapshot)
@@ -347,10 +312,6 @@ class Orchestrator():
 
         return sim_manager
 
-    # TODO: add in checking to make sure you don't add a mutation to
-    # either run or segments and vice versa adding in segments to
-    # mutations. So don't hurt yourself.
-
     def register_run(self, start_hash, end_hash, checkpoints=[]):
 
         # make sure it is a segment first
@@ -370,6 +331,7 @@ class Orchestrator():
             raise OrchestratorError(
                 "snapshot start_hash {} is not registered with the orchestrator".format(
                 start_hash))
+
         if not self.snapshot_hash_registered(end_hash):
             raise OrchestratorError(
                 "snapshot end_hash {} is not registered with the orchestrator".format(
@@ -377,26 +339,6 @@ class Orchestrator():
 
         # if they both are registered register the segment
         self._segments.add((start_hash, end_hash))
-
-    def register_mutation(self, start_hash, end_hash):
-
-        # check that the hashes are for apparatuss in the orchestrator
-        # if one is not registered raise an error
-        if not self.apparatus_hash_registered(start_hash):
-            raise OrchestratorError(
-                "apparatus start_hash {} is not registered with the orchestrator".format(
-                start_hash))
-        if not self.apparatus_hash_registered(end_hash):
-            raise OrchestratorError(
-                "apparatus end_hash {} is not registered with the orchestrator".format(
-                end_hash))
-
-        # if the hashes are the same there is no mutation so we don't
-        # add it
-        if start_hash == end_hash:
-            raise OrchestratorError("The hashes are the same, so no mutation detected")
-
-        self._mutations.add((start_hash, end_hash))
 
     def save_segment(self, start_snapshot_hash, end_snapshot):
 
@@ -406,26 +348,17 @@ class Orchestrator():
         # register it as a segment
         self.register_segment(start_snapshot_hash, end_hash)
 
-        # get the hashes of the apparatuses to check if there was a mutation
-        start_apparatus_hash = self.hash_apparatus(self.get_snapshot(start_snapshot_hash).apparatus)
-        end_apparatus_hash = self.hash_apparatus(end_snapshot.apparatus)
-
-        # register the mutation if it has mutated
-        if start_apparatus_hash != end_apparatus_hash:
-            self.register_mutation(start_apparatus_hash, end_apparatus_hash)
-
         return end_hash
 
     def new_run_by_time(self, init_walkers, run_time, n_steps,
-                        apparatus_hash=None, configuration=None,
+                        configuration=None,
                         checkpoint_freq=None,
                         checkpoint_dir=None):
         """Start a new run that will go for a certain amount of time given a
         new set of initial conditions. """
 
         # make the starting snapshot from the walkers
-        start_hash = self.gen_start_snapshot(init_walkers,
-                                             apparatus_hash=apparatus_hash)
+        start_hash = self.gen_start_snapshot(init_walkers)
 
         # then perform a run with the checkpoints etc using the
         # dedicated method that works on snapshots
@@ -450,15 +383,15 @@ class Orchestrator():
             os.makedirs(checkpoint_dir, exist_ok=True)
 
         if mode is None:
-            mode = self.DEFAULT_ORCHESTRATION_MODE
+            mode = self.DEFAULT_MODE
+
+        if 'b' not in mode:
+            dump_mode = mode + 'b'
 
         start_time = time.time()
 
         # get the snapshot
         snapshot = self.get_snapshot(snapshot_hash)
-
-        # the initial apparatus hash
-        initial_apparatus_hash = self.hash_apparatus(snapshot.apparatus)
 
         # generate the simulation manager given the snapshot and the
         # configuration
@@ -502,8 +435,8 @@ class Orchestrator():
                         checkpoint_path = osp.join(checkpoint_dir, checkpoint_filename)
 
                         # write out the pickle to the file
-                        with open(checkpoint_path, mode) as wf:
-                            pickle.dump(checkpoint_snapshot, wf)
+                        with open(checkpoint_path, dump_mode) as wf:
+                            wf.write(self.serialize_snapshot(checkpoint_snapshot))
 
             cycle_idx += 1
 
@@ -513,62 +446,40 @@ class Orchestrator():
         # run the cleanup subroutine
         sim_manager.cleanup()
 
-        # then we get the right stuff to register the segment, run,
-        # and mutations
-
-        # add the mutated apparatus
-        mutated_apparatus_hash = self.add_apparatus(end_snapshot.apparatus)
-
-        # register the mutation if it has mutated
-        if initial_apparatus_hash != mutated_apparatus_hash:
-            self.register_mutation(initial_apparatus_hash, mutated_apparatus_hash)
-
         # add the snapshot and the run for it
         end_hash = self.add_snapshot(end_snapshot)
 
         self.register_run(snapshot_hash, end_hash, checkpoints=run_checkpoint_hashes)
 
-        return (snapshot_hash, end_hash), (initial_apparatus_hash, mutated_apparatus_hash)
+        return (snapshot_hash, end_hash)
 
     def orchestrate_snapshot_run_by_time(self, snapshot_hash, run_time, n_steps,
-                                         apparatus_hash=None,
                                          checkpoint_freq=None,
                                          checkpoint_dir=None,
                                          orchestrator_path=None,
                                          configuration=None,
-                                         mode=None):
+                                         # these can reparametrize the paths
+                                         # for both the orchestrator produced
+                                         # files as well as the configuration
+                                         work_dir=None,
+                                         config_name=None,
+                                         narration=None,
+                                         mode=None,
+                                         # extra kwargs will be passed to the
+                                         # configuration.reparametrize method
+                                         **kwargs):
 
+
+        # for writing the orchestration files we set the default mode
+        # if mode is not given
         if mode is None:
-            mode = self.DEFAULT_ORCHESTRATION_MODE
+            # the orchestrator mode is used for pickling the
+            # orchestrator and so must be in bytes mode
+            orch_mode = self.DEFAULT_ORCHESTRATION_MODE
 
-        run_tup, mutation_tup = self.run_snapshot_by_time(snapshot_hash, run_time, n_steps,
-                                         checkpoint_freq=checkpoint_freq,
-                                         checkpoint_dir=checkpoint_dir,
-                                         configuration=configuration)
-
-        # then pickle thineself
-        with open(orchestrator_path, mode) as wf:
-            pickle.dump(self, wf)
-
-        return run_tup, mutation_tup
-
-    def orchestrate_run_by_time(self, init_walkers, run_time, n_steps,
-                                # non-default orchestration components
-                                apparatus_hash=None,
-                                checkpoint_freq=None,
-                                checkpoint_dir=None,
-                                orchestrator_path=None,
-                                configuration=None,
-                                # these can reparametrize the paths
-                                # for both the orchestrator produced
-                                # files as well as the configuration
-                                work_dir=None,
-                                config_name=None,
-                                narration=None,
-                                mode=None,
-                                # extra kwargs will be passed to the
-                                # configuration.reparametrize method
-                                **kwargs):
+        elif 'b' not in mode:
+            # add a bytes to the end of the mode for the orchestrator pickleization
+            mode = mode + 'b'
 
         # there are two possible uses for the path reparametrizations:
         # the configuration and the orchestrator file paths. If both
@@ -649,23 +560,30 @@ class Orchestrator():
 
 
 
-        # make the starting snapshot from the walkers
-        start_hash = self.gen_start_snapshot(init_walkers,
-                                             apparatus_hash=apparatus_hash)
 
-        # for the pickles in the orchestrator we want to use bytes
-        # mode for the pickles because that will be faster and smaller
-        # so unless bytes is already specified in the mode we will add it
-        if 'b' not in mode:
-            orch_mode = mode + 'b'
+        run_tup = self.run_snapshot_by_time(snapshot_hash, run_time, n_steps,
+                                            checkpoint_freq=checkpoint_freq,
+                                            checkpoint_dir=checkpoint_dir,
+                                            configuration=configuration,
+                                            mode=mode)
+
+        # then serialize thineself
+        self.dump(orchestrator_path, mode=orch_mode)
+
+        return run_tup
+
+    def orchestrate_run_by_time(self, init_walkers, run_time, n_steps,
+                                **kwargs):
+
+
+        # make the starting snapshot from the walkers and the
+        # apparatus if given, otherwise the default will be used
+        start_hash = self.gen_start_snapshot(init_walkers)
+
 
         # orchestrate from the snapshot
         return self.orchestrate_snapshot_run_by_time(start_hash, run_time, n_steps,
-                                                     checkpoint_freq=checkpoint_freq,
-                                                     checkpoint_dir=checkpoint_dir,
-                                                     orchestrator_path=orchestrator_path,
-                                                     configuration=configuration,
-                                                     mode=orch_mode)
+                                                     **kwargs)
 
 
     def restart_snapshot(self, snapshot_hash):
@@ -687,10 +605,30 @@ class Orchestrator():
         """Return a NetworkX graph of the runs """
         pass
 
-    def mutation_graph(self):
-        """Return a NetworkX graph of the apparatus mutations """
-        pass
 
+def serialize_orchestrator(orchestrator):
+
+    return orchestrator.serialize()
+
+def deserialize_orchestrator(serial_str):
+
+    return Orchestrator.deserialize(serial_str)
+
+def dump_orchestrator(orchestrator, filepath, mode='wb'):
+
+    orchestrator.dump(filepath, mode=mode)
+
+def load_orchestrator(filepath, mode='rb'):
+
+    return Orchestrator.load(filepath, mode=mode)
+
+def encode(obj):
+
+    return Orchestrator.encode(obj)
+
+def decode(encoded_str):
+
+    return Orchestrator.decode(encoded_str)
 
 def reconcile_orchestrators(orch_a, orch_b):
 
@@ -702,9 +640,16 @@ def reconcile_orchestrators(orch_a, orch_b):
     new_orch = Orchestrator(orch_a.default_apparatus,
                             default_configuration=orch_a.default_configuration)
 
-    # add in all snapshots from each orchestrator
-    for snapshot in orch_a.snapshots + orch_b.snapshots:
-        snaphash = new_orch.add_snapshot(snapshot)
+    # add in all snapshots from each orchestrator, by the hash not the
+    # snapshots themselves
+    for snaphash in orch_a.snapshot_hashes:
+        snapshot = orch_a.get_snapshot(snaphash)
+        new_orch._add_snapshot(snaphash, snapshot)
+
+    for snaphash in orch_b.snapshot_hashes:
+        snapshot = orch_b.get_snapshot(snaphash)
+        new_orch._add_snapshot(snaphash, snapshot)
+
 
     # register all the segments in each
     for segment in list(orch_a.segments) + list(orch_b.segments):
@@ -714,45 +659,8 @@ def reconcile_orchestrators(orch_a, orch_b):
     for run in list(orch_a.runs) + list(orch_b.runs):
         new_orch.register_run(*run)
 
-    # register all the mutations in each
-    for mutation in list(orch_a.mutations) + list(orch_b.mutations):
-        new_orch.register_mutation(*mutation)
-
     return new_orch
 
-
-
-
-def orchestrate_run_by_time(orchestrator_pkl_path, start_hash,
-                            run_time, n_steps,
-                            apparatus_hash=None,
-                            checkpoint_freq=None,
-                            checkpoint_dir=None,
-                            orchestrator_path=None,
-                            configuration=None,
-                            work_dir=None,
-                            config_name=None,
-                            narration=None,
-                            mode=None,
-                            **kwargs):
-
-    # load the orchestrator
-    with open(orchestrator_pkl_path, 'rb') as rf:
-        orchestrator = pickle.load(rf)
-
-
-    # run the snapshot
-    return orchestrator.orchestrate_snapshot_run_by_time(start_hash, run_time, n_steps,
-                                                         apparatus_hash=apparatus_hash,
-                                                         checkpoint_freq=checkpoint_freq,
-                                                         checkpoint_dir=checkpoint_dir,
-                                                         orchestrator_path=orchestrator_path,
-                                                         configuration=configuration,
-                                                         work_dir=work_dir,
-                                                         config_name=config_name,
-                                                         narration=narration,
-                                                         mode=mode,
-                                                         **kwargs)
 
 if __name__ == "__main__":
 

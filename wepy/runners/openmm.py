@@ -69,10 +69,22 @@ RAND_SEED_RANGE_MAX = 1000000
 class OpenMMRunner(Runner):
 
     def __init__(self, system, topology, integrator, platform=None):
+
+        # we save the different components. However, if we are to make
+        # this runner picklable we have to convert the SWIG objects to
+        # a picklable form
         self.system = system
-        self.topology = topology
         self.integrator = integrator
+
+        # these are not SWIG objects
+        self.topology = topology
         self.platform_name = platform
+
+    def _openmm_swig_objects(self):
+        """Just returns all of the foreign OpenMM module objects this class
+        uses that are actually SWIG wrappers."""
+
+        return (self.system, self.integrator)
 
     def run_segment(self, walker, segment_length, getState_kwargs=None, **kwargs):
 
