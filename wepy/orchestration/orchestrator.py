@@ -73,8 +73,7 @@ class Orchestrator():
     DEFAULT_NARRATION = Configuration.DEFAULT_NARRATION
     DEFAULT_MODE = Configuration.DEFAULT_MODE
 
-    CHECKPOINT_FILENAME_TEMPLATE = "{run_start_hash}_{checkpoint_hash}.chk.pkl"
-    DEFAULT_CHECKPOINT_DIR = 'checkpoints'
+    DEFAULT_CHECKPOINT_FILENAME = "checkpoint.chk"
     ORCH_FILENAME_TEMPLATE = "{config}{narration}.orch"
     DEFAULT_ORCHESTRATION_MODE = 'xb'
 
@@ -85,19 +84,11 @@ class Orchestrator():
         # the main dictionary of snapshots keyed by their hashes
         self._snapshots = {}
 
-        # list of "segments" which are 2-tuples of hashes, where the
-        # first hash is the predecessor to the second hash. The second
-        # hash may be an end of a run or a checkpoint of a run.
-        self._segments = set()
-
         # the list of "runs" which are tuples of hashes for the starts
         # and ends of runs. THis just excludes the checkpoints, this
         # really is for convenience so you can ignore all the
         # checkpoints when reconstructing full run continuations etc.
         self._runs = set()
-
-        # a dictionary of the checkpoints associated with each run
-        self._run_checkpoints = {}
 
         # the apparatus for the simulation. This is the configuration
         # and initial conditions independent components necessary for
@@ -189,8 +180,9 @@ class Orchestrator():
     def hash(cls, serial_str):
         return md5(serial_str).hexdigest()
 
-    def serialize_snapshot(self, snapshot):
-        return self.encode(snapshot)
+    @classmethod
+    def serialize_snapshot(cls, snapshot):
+        return cls.encode(snapshot)
 
     def hash_snapshot(self, snapshot):
 
@@ -250,15 +242,8 @@ class Orchestrator():
             return False
 
     @property
-    def segments(self):
-        return deepcopy(self._segments)
-
-    @property
     def runs(self):
         return list(deepcopy(self._runs))
-
-    def get_run_checkpoints(self, run_id):
-        return deepcopy(self._run_checkpoints[run_id])
 
     def _add_snapshot(self, snaphash, snapshot):
 
@@ -271,6 +256,52 @@ class Orchestrator():
         self._snapshots[snaphash] = snapshot
 
         return snaphash
+
+    def _save_checkpoint(self, checkpoint_snapshot, checkpoint_dir,
+                         mode='wb'):
+
+        if 'b' not in mode:
+            mode = mode + 'b'
+
+        # get the hash of the checkpoint
+        checkpoint_hash = self.hash_snapshot(checkpoint_snapshot)
+
+        # construct the checkpoint filename from the template using
+        # the hashes for the start and the checkpoint, we add a "new""
+        # at the end of the file to indicate that it was just written
+        # and if the other checkpoint is not removed you will be able
+        # to tell them apart, this will get renamed without the new
+        # once the other checkpoint is deleted successfully
+        new_checkpoint_filename = self.DEFAULT_CHECKPOINT_FILENAME + "new"
+
+        new_checkpoint_path = osp.join(checkpoint_dir, new_checkpoint_filename)
+
+        # write out the pickle to the file
+        with open(new_checkpoint_path, mode) as wf:
+            self.dump_snapshot(checkpoint_snapshot, wf)
+
+        # the path that the checkpoint should be existing
+        checkpoint_path = osp.join(checkpoint_dir, self.DEFAULT_CHECKPOINT_FILENAME)
+
+        # only after the writing is complete do we delete the old
+        # checkpoint, if there are any to delete
+        if osp.exists(checkpoint_path):
+            os.remove(checkpoint_path)
+
+        # then rename the one with "new" at the end to the final path
+        os.rename(new_checkpoint_path, checkpoint_path)
+
+        return checkpoint_hash
+
+    @classmethod
+    def load_snapshot(cls, file_handle):
+
+        return cls.decode(file_handle.read())
+
+    @classmethod
+    def dump_snapshot(cls, snapshot, file_handle):
+
+        file_handle.write(cls.serialize_snapshot(snapshot))
 
 
     def add_snapshot(self, snapshot):
@@ -312,18 +343,7 @@ class Orchestrator():
 
         return sim_manager
 
-    def register_run(self, start_hash, end_hash, checkpoints=[]):
-
-        # make sure it is a segment first
-        self.register_segment(start_hash, end_hash)
-
-        # then add it to the set of runs too
-        self._runs.add((start_hash, end_hash))
-
-        # add the checkpoints to the dictionary of run checkpoints
-        self._run_checkpoints[(start_hash, end_hash)] = checkpoints
-
-    def register_segment(self, start_hash, end_hash):
+    def register_run(self, start_hash, end_hash):
 
         # check that the hashes are for snapshots in the orchestrator
         # if one is not registered raise an error
@@ -338,17 +358,7 @@ class Orchestrator():
                 end_hash))
 
         # if they both are registered register the segment
-        self._segments.add((start_hash, end_hash))
-
-    def save_segment(self, start_snapshot_hash, end_snapshot):
-
-        # add the snapshot
-        end_hash = self.add_snapshot(end_snapshot)
-
-        # register it as a segment
-        self.register_segment(start_snapshot_hash, end_hash)
-
-        return end_hash
+        self._runs.add((start_hash, end_hash))
 
     def new_run_by_time(self, init_walkers, run_time, n_steps,
                         configuration=None,
@@ -385,7 +395,8 @@ class Orchestrator():
         if mode is None:
             mode = self.DEFAULT_MODE
 
-        if 'b' not in mode:
+        dump_mode = mode
+        if 'b' not in dump_mode:
             dump_mode = mode + 'b'
 
         start_time = time.time()
@@ -401,7 +412,7 @@ class Orchestrator():
         sim_manager.init()
 
         # keep a running list of the checkpoints for this run
-        run_checkpoint_hashes = []
+        self._curr_run_checkpoints = []
 
         # run each cycle manually creating checkpoints when necessary
         walkers = snapshot.walkers
@@ -418,25 +429,10 @@ class Orchestrator():
                     # make the checkpoint snapshot
                     checkpoint_snapshot = SimSnapshot(walkers, SimApparatus(filters))
 
-                    # save the checkpoint
-                    checkpoint_hash = self.save_segment(snapshot_hash, checkpoint_snapshot)
-
-                    # add the checkpoint to the list of checkpoints for this run
-                    run_checkpoint_hashes.append(checkpoint_hash)
-
-                    if checkpoint_dir is not None:
-
-                        # construct the checkpoint filename from the
-                        # template using the hashes for the start and the checkpoint
-                        checkpoint_filename = self.CHECKPOINT_FILENAME_TEMPLATE.format(
-                            run_start_hash=snapshot_hash,
-                            checkpoint_hash=checkpoint_hash)
-
-                        checkpoint_path = osp.join(checkpoint_dir, checkpoint_filename)
-
-                        # write out the pickle to the file
-                        with open(checkpoint_path, dump_mode) as wf:
-                            wf.write(self.serialize_snapshot(checkpoint_snapshot))
+                    # save the checkpoint (however taht is implemented)
+                    checkpoint_hash = self._save_checkpoint(checkpoint_snapshot,
+                                                            checkpoint_dir,
+                                                            mode=dump_mode)
 
             cycle_idx += 1
 
@@ -449,9 +445,12 @@ class Orchestrator():
         # add the snapshot and the run for it
         end_hash = self.add_snapshot(end_snapshot)
 
-        self.register_run(snapshot_hash, end_hash, checkpoints=run_checkpoint_hashes)
+        self.register_run(snapshot_hash, end_hash)
 
-        return (snapshot_hash, end_hash)
+        # clear the object variable for the current checkpoints
+        del self._curr_run_checkpoints
+
+        return snapshot_hash, end_hash
 
     def orchestrate_snapshot_run_by_time(self, snapshot_hash, run_time, n_steps,
                                          checkpoint_freq=None,
@@ -479,7 +478,9 @@ class Orchestrator():
 
         elif 'b' not in mode:
             # add a bytes to the end of the mode for the orchestrator pickleization
-            mode = mode + 'b'
+            orch_mode = mode + 'b'
+        else:
+            orch_mode = mode
 
         # there are two possible uses for the path reparametrizations:
         # the configuration and the orchestrator file paths. If both
@@ -544,9 +545,8 @@ class Orchestrator():
 
         if checkpoint_dir is None:
 
-            # the checkpoint directory will be a directory called
-            # 'checkpoints' that will be placed in the work dir
-            checkpoint_dir = osp.join(work_dir, self.DEFAULT_CHECKPOINT_DIR)
+            # the checkpoint directory will be in the work dir
+            checkpoint_dir = work_dir
 
         if orchestrator_path is None:
 
@@ -586,20 +586,27 @@ class Orchestrator():
                                                      **kwargs)
 
 
-    def restart_snapshot(self, snapshot_hash):
+    def continue_snapshot(self, snapshot_hash):
         """For a finished run continue it and don't reset the state of the
         resampler and boundary conditions."""
 
         pass
 
-    def recover_run(self, run_id):
+    def recover_run_by_time(self, start_hash, checkpoint_snapshot, run_time, n_steps,
+                            **kwargs):
         """For a run that ended in a bad state recover it and restart it. """
 
-        pass
+        # register this snapshot into the orchestrator
+        checkpoint_hash = self.add_snapshot(checkpoint_snapshot)
 
-    def snapshot_graph(self):
-        """Return a NetworkX graph of the segments """
-        pass
+        # we want to count the run to this checkpoint as it's own run
+        self.register_run(start_hash, checkpoint_hash)
+
+        # then all we need to do is orchestrate from this checkpoint
+        run_tup = self.orchestrate_snapshot_run_by_time(checkpoint_hash, run_time, n_steps,
+                                                        **kwargs)
+
+        return run_tup
 
     def run_graph(self):
         """Return a NetworkX graph of the runs """
@@ -649,11 +656,6 @@ def reconcile_orchestrators(orch_a, orch_b):
     for snaphash in orch_b.snapshot_hashes:
         snapshot = orch_b.get_snapshot(snaphash)
         new_orch._add_snapshot(snaphash, snapshot)
-
-
-    # register all the segments in each
-    for segment in list(orch_a.segments) + list(orch_b.segments):
-        new_orch.register_segment(*segment)
 
     # register all the runs in each
     for run in list(orch_a.runs) + list(orch_b.runs):

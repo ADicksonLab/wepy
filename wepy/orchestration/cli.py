@@ -31,6 +31,9 @@ def run(checkpoint_freq, job_dir, job_name, narration,
     if job_name == START_HASH:
         job_name = start_hash
 
+    if job_dir is None and job_name is not None:
+        job_dir = job_name
+
     # normalize the work dir
     if job_dir is not None:
         job_dir = osp.realpath(job_dir)
@@ -47,6 +50,45 @@ def run(checkpoint_freq, job_dir, job_name, narration,
     # write the run tuple out to the log
     run_line_str = "{}, {}".format(start_hash, end_hash)
     click.echo(run_line_str)
+
+@click.option('--checkpoint-freq', default=None, type=click.INT)
+@click.option('--job-dir', default=osp.realpath(osp.curdir), type=click.Path(writable=True))
+@click.option('--job-name', default=START_HASH)
+@click.option('--narration', default="recovery")
+@click.argument('n_cycle_steps', type=click.INT)
+@click.argument('run_time', type=click.FLOAT)
+@click.argument('checkpoint', type=click.File(mode='rb'))
+@click.argument('start_hash')
+@click.argument('orchestrator', type=click.File(mode='rb'))
+@click.command()
+def recover(checkpoint_freq, job_dir, job_name, narration,
+            n_cycle_steps, run_time, checkpoint, start_hash, orchestrator):
+
+    if job_name == START_HASH:
+        job_name = start_hash
+
+    if job_dir is None and job_name is not None:
+        job_dir = job_name
+
+    # normalize the work dir
+    if job_dir is not None:
+        job_dir = osp.realpath(job_dir)
+
+    orch = deserialize_orchestrator(orchestrator.read())
+
+    checkpoint_snapshot = orch.load_snapshot(checkpoint)
+
+    start_hash, end_hash = orch.recover_run_by_time(start_hash, checkpoint_snapshot,
+                                                    run_time, n_cycle_steps,
+                                                    checkpoint_freq=checkpoint_freq,
+                                                    work_dir=job_dir,
+                                                    config_name=job_name,
+                                                    narration=narration)
+
+    # write the run tuple out to the log
+    run_line_str = "{}, {}".format(start_hash, end_hash)
+    click.echo(run_line_str)
+
 
 @click.command()
 @click.argument('orchestrator_a', type=click.File(mode='rb'))
@@ -89,26 +131,12 @@ def ls_runs(orchestrator):
 
     click.echo(hash_listing_str)
 
-
-@click.argument('orchestrator', type=click.File(mode='rb'))
-@click.command()
-def ls_segments(orchestrator):
-
-    orch = deserialize_orchestrator(orchestrator.read())
-
-    runs = orch.segments
-
-    hash_listing_str = "\n".join(["{}, {}".format(start, end) for start, end in runs])
-
-    click.echo(hash_listing_str)
-
 # command groupings
 cli.add_command(run)
+cli.add_command(recover)
 cli.add_command(reconcile)
 cli.add_command(ls_snapshots)
 cli.add_command(ls_runs)
-cli.add_command(ls_segments)
-#cli.add_command(last_checkpoint)
 
 if __name__ == "__main__":
 
