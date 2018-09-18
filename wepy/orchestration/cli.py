@@ -91,20 +91,44 @@ def recover(checkpoint_freq, job_dir, job_name, narration,
 
 
 @click.command()
-@click.argument('orchestrator_a', type=click.File(mode='rb'))
-@click.argument('orchestrator_b', type=click.File(mode='rb'))
-@click.argument('output', type=click.File(mode='wb'))
-def reconcile(orchestrator_a, orchestrator_b, output):
+@click.option('--hdf5', type=click.Path(exists=False))
+@click.argument('orchestrators', nargs=-1, type=click.File(mode='rb'))
+@click.argument('output', nargs=1, type=click.File(mode='wb'))
+def reconcile(hdf5,
+              orchestrators, output):
 
-    # read in the two orchestrators
-    orch_a = deserialize_orchestrator(orchestrator_a.read())
-    orch_b = deserialize_orchestrator(orchestrator_b.read())
+    orches = []
+    for orchestrator in orchestrators:
+        orch = deserialize_orchestrator(orchestrator.read())
+        orches.append(orch)
 
     # reconcile the two orchestrators
-    new_orch = reconcile_orchestrators(orch_a, orch_b)
+    new_orch = reconcile_orchestrators(*orchs)
 
-    # then make and output
+    # combine the HDF5 files from those orchestrators
+    if hdf5 is not None:
+        # the path the new linker HDF5 will be in
+        new_hdf5_path = hdf5
+
+        for run_id in new_orch.runs:
+
+            run_config 
+            for reporter in run_config.reporters:
+                if isinstance(reporter, WepyHDF5Reporter):
+                    hdf5_paths[(orch_idx, run_idx)] = reporter
+
+
+        # go through each orchestrator and if they have an HDF5
+        # reporter use that path to find the HDF5 file they made
+        hdf5_paths = {}
+
+        # create the linker HDF5 file
+        
+
+    # then make and output the orchestrator
     output.write(new_orch.serialize())
+
+    # output the linker HDF5 if necessary
 
 def hash_listing_formatter(hashes):
     hash_listing_str = '\n'.join(hashes)

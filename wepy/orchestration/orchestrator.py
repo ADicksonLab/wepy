@@ -1,13 +1,14 @@
 from copy import copy, deepcopy
 from hashlib import md5
-from warnings import warn
 import time
 import os
 import os.path as osp
 from base64 import b64encode, b64decode
 from zlib import compress, decompress
+import itertools as it
 
-# instead of pickle we use dill
+# instead of pickle we use dill, so we can save dynamically defined
+# classes
 import dill
 
 from wepy.sim_manager import Manager
@@ -637,29 +638,28 @@ def decode(encoded_str):
 
     return Orchestrator.decode(encoded_str)
 
-def reconcile_orchestrators(orch_a, orch_b):
+def reconcile_orchestrators(*orchestrators):
 
-    # check that the hashes of the two apparatuses are the same
-    if orch_a.default_apparatus_hash != orch_b.default_apparatus_hash:
-        raise ValueError("orchestrator_a and orchestrator_b do not have the same default apparatus")
+    apparatuses = [orch.default_apparatus_hash for orch in orchestrators]
+
+    # check that all orchestrators have the same apparatus
+    if not all([a == b for a, b in it.combinations(apparatuses, 2)]):
+        raise ValueError("not all orchestrators have the same apparatus")
 
     # make a new orchestrator
-    new_orch = Orchestrator(orch_a.default_apparatus,
-                            default_configuration=orch_a.default_configuration)
+    new_orch = Orchestrator(orchestrators[0].default_apparatus,
+                            default_configuration=orchestrators[0].default_configuration)
 
-    # add in all snapshots from each orchestrator, by the hash not the
-    # snapshots themselves
-    for snaphash in orch_a.snapshot_hashes:
-        snapshot = orch_a.get_snapshot(snaphash)
-        new_orch._add_snapshot(snaphash, snapshot)
+    for orch in orchestrators:
+        # add in all snapshots from each orchestrator, by the hash not the
+        # snapshots themselves
+        for snaphash in orch.snapshot_hashes:
+            snapshot = orch.get_snapshot(snaphash)
+            new_orch._add_snapshot(snaphash, snapshot)
 
-    for snaphash in orch_b.snapshot_hashes:
-        snapshot = orch_b.get_snapshot(snaphash)
-        new_orch._add_snapshot(snaphash, snapshot)
-
-    # register all the runs in each
-    for run in list(orch_a.runs) + list(orch_b.runs):
-        new_orch.register_run(*run)
+        # register all the runs in each
+        for run in list(orch.runs):
+            new_orch.register_run(*run)
 
     return new_orch
 
