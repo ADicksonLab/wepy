@@ -74,14 +74,14 @@ class Orchestrator():
     DEFAULT_NARRATION = Configuration.DEFAULT_NARRATION
     DEFAULT_MODE = Configuration.DEFAULT_MODE
 
-    DEFAULT_CHECKPOINT_FILENAME = "checkpoint.chk"
+    DEFAULT_CHECKPOINT_FILENAME = "checkpoint.chk.orch"
     ORCH_FILENAME_TEMPLATE = "{config}{narration}.orch"
     DEFAULT_ORCHESTRATION_MODE = 'xb'
 
     def __init__(self, sim_apparatus,
                  default_init_walkers=None,
-                 default_configuration=None,
-                 default_work_dir=None):
+                 default_configuration=None):
+
         # the main dictionary of snapshots keyed by their hashes
         self._snapshots = {}
 
@@ -108,28 +108,14 @@ class Orchestrator():
         else:
             self._configuration = None
 
-
-        # if a default work dir was not given we set it as the current
-        # directory for wherever the process calling a run function of
-        # the orchestrator is. That is the full real path will be
-        # determined at runtime when a run is called, not on creation
-        # of this object
-        if default_work_dir is None:
-            self._work_dir = "."
-        # otherwise we just set it to wherever the path said to. This
-        # can contain things that will be realized to a path later
-        # with the osp.realpath() function such as "~/dir/for/running"
-        # will get expanded to the full path
-        else:
-            self._work_dir = work_dir
+        # we also need to save the configurations for each run
+        self._run_configurations = {}
 
         # if initial walkers were given we save them and also make a
         # snapshot for them
         if default_init_walkers is not None:
 
-            self._init_walkers = default_init_walkers
-
-            self._start_hash = self.gen_start_snapshot(self._init_walkers)
+            self._start_hash = self.gen_start_snapshot(default_init_walkers)
 
     def serialize(self):
 
@@ -212,20 +198,16 @@ class Orchestrator():
         return self.get_snapshot(self.default_snapshot_hash)
 
     @property
+    def default_init_walkers(self):
+        return self.default_snapshot.walkers
+
+    @property
     def default_apparatus(self):
         return self._apparatus
 
     @property
-    def default_apparatus_hash(self):
-        return self._apparatus_hash
-
-    @property
     def default_configuration(self):
         return self._configuration
-
-    @property
-    def default_work_dir(self):
-        return self._default_work_dir
 
     def snapshot_registered(self, snapshot):
 
@@ -246,6 +228,9 @@ class Orchestrator():
     def runs(self):
         return list(deepcopy(self._runs))
 
+    def run_configuration(self, start_hash, end_hash):
+        return deepcopy(self._run_configurations[(start_hash, end_hash)])
+
     def _add_snapshot(self, snaphash, snapshot):
 
         # check that the hash is not already in the snapshots
@@ -258,14 +243,38 @@ class Orchestrator():
 
         return snaphash
 
-    def _save_checkpoint(self, checkpoint_snapshot, checkpoint_dir,
+    def _gen_checkpoint_orch(self, start_hash, checkpoint_snapshot, configuration):
+        # make an orchestrator with the only run going from the start
+        # hash snapshot to the checkpoint
+        start_snapshot = self.get_snapshot(start_hash)
+        checkpoint_orch = type(self)(start_snapshot.apparatus)
+
+        # add the the starting snapshot to the orchestrator, we do
+        # this the sneaky way because I am worried about hash
+        # stability and we need to preserve the intial hash, so we
+        # force the hash to be the start_hash and add the object regardless
+        checkpoint_orch._add_snapshot(start_hash, deepcopy(start_snapshot))
+
+        # then add a run to this checkpoint orchestrator by adding the
+        # checkpoint snapshot and registering the run
+        checkpoint_hash = checkpoint_orch.add_snapshot(checkpoint_snapshot)
+
+        # register the run with the two hashes and the configuration
+        checkpoint_orch.register_run(start_hash, checkpoint_hash, configuration)
+
+        return checkpoint_orch
+
+    def _save_checkpoint(self, start_hash, checkpoint_snapshot, configuration,
+                         checkpoint_dir,
                          mode='wb'):
 
         if 'b' not in mode:
             mode = mode + 'b'
 
-        # get the hash of the checkpoint
-        checkpoint_hash = self.hash_snapshot(checkpoint_snapshot)
+        # make a checkpoint object which is an orchestrator with only
+        # 1 run in it which is the start and the checkpoint as its end
+        checkpoint_orch = self._gen_checkpoint_orch(start_hash, checkpoint_snapshot,
+                                                    configuration)
 
         # construct the checkpoint filename from the template using
         # the hashes for the start and the checkpoint, we add a "new""
@@ -279,7 +288,7 @@ class Orchestrator():
 
         # write out the pickle to the file
         with open(new_checkpoint_path, mode) as wf:
-            self.dump_snapshot(checkpoint_snapshot, wf)
+            wf.write(checkpoint_orch.serialize())
 
         # the path that the checkpoint should be existing
         checkpoint_path = osp.join(checkpoint_dir, self.DEFAULT_CHECKPOINT_FILENAME)
@@ -291,8 +300,6 @@ class Orchestrator():
 
         # then rename the one with "new" at the end to the final path
         os.rename(new_checkpoint_path, checkpoint_path)
-
-        return checkpoint_hash
 
     @classmethod
     def load_snapshot(cls, file_handle):
@@ -325,10 +332,7 @@ class Orchestrator():
 
         return sim_start_md5
 
-    def gen_sim_manager(self, start_snapshot, configuration=None):
-
-        if configuration is None:
-            configuration = deepcopy(self.default_configuration)
+    def gen_sim_manager(self, start_snapshot, configuration):
 
         # copy the snapshot to use for the sim_manager
         start_snapshot = deepcopy(start_snapshot)
@@ -344,7 +348,7 @@ class Orchestrator():
 
         return sim_manager
 
-    def register_run(self, start_hash, end_hash):
+    def register_run(self, start_hash, end_hash, configuration):
 
         # check that the hashes are for snapshots in the orchestrator
         # if one is not registered raise an error
@@ -360,6 +364,9 @@ class Orchestrator():
 
         # if they both are registered register the segment
         self._runs.add((start_hash, end_hash))
+
+        # add the configuration for this run
+        self._run_configurations[(start_hash, end_hash)] = configuration
 
     def new_run_by_time(self, init_walkers, run_time, n_steps,
                         configuration=None,
@@ -379,7 +386,7 @@ class Orchestrator():
                                          checkpoint_dir=checkpoint_dir)
 
 
-    def run_snapshot_by_time(self, snapshot_hash, run_time, n_steps,
+    def run_snapshot_by_time(self, start_hash, run_time, n_steps,
                              checkpoint_freq=None,
                              checkpoint_dir=None,
                              configuration=None,
@@ -400,14 +407,17 @@ class Orchestrator():
         if 'b' not in dump_mode:
             dump_mode = mode + 'b'
 
+        if configuration is None:
+            configuration = deepcopy(self.default_configuration)
+
         start_time = time.time()
 
         # get the snapshot
-        snapshot = self.get_snapshot(snapshot_hash)
+        start_snapshot = self.get_snapshot(start_hash)
 
         # generate the simulation manager given the snapshot and the
         # configuration
-        sim_manager = self.gen_sim_manager(snapshot, configuration=configuration)
+        sim_manager = self.gen_sim_manager(start_snapshot, configuration=configuration)
 
         # run the init subroutine
         sim_manager.init()
@@ -416,7 +426,7 @@ class Orchestrator():
         self._curr_run_checkpoints = []
 
         # run each cycle manually creating checkpoints when necessary
-        walkers = snapshot.walkers
+        walkers = start_snapshot.walkers
         cycle_idx = 0
         while time.time() - start_time < run_time:
 
@@ -430,10 +440,11 @@ class Orchestrator():
                     # make the checkpoint snapshot
                     checkpoint_snapshot = SimSnapshot(walkers, SimApparatus(filters))
 
-                    # save the checkpoint (however taht is implemented)
-                    checkpoint_hash = self._save_checkpoint(checkpoint_snapshot,
-                                                            checkpoint_dir,
-                                                            mode=dump_mode)
+                    # save the checkpoint (however that is implemented)
+                    self._save_checkpoint(start_hash, checkpoint_snapshot,
+                                          configuration,
+                                          checkpoint_dir,
+                                          mode=dump_mode)
 
             cycle_idx += 1
 
@@ -446,12 +457,12 @@ class Orchestrator():
         # add the snapshot and the run for it
         end_hash = self.add_snapshot(end_snapshot)
 
-        self.register_run(snapshot_hash, end_hash)
+        self.register_run(start_hash, end_hash, configuration)
 
         # clear the object variable for the current checkpoints
         del self._curr_run_checkpoints
 
-        return snapshot_hash, end_hash
+        return start_hash, end_hash
 
     def orchestrate_snapshot_run_by_time(self, snapshot_hash, run_time, n_steps,
                                          checkpoint_freq=None,
@@ -593,21 +604,8 @@ class Orchestrator():
 
         pass
 
-    def recover_run_by_time(self, start_hash, checkpoint_snapshot, run_time, n_steps,
-                            **kwargs):
-        """For a run that ended in a bad state recover it and restart it. """
 
-        # register this snapshot into the orchestrator
-        checkpoint_hash = self.add_snapshot(checkpoint_snapshot)
 
-        # we want to count the run to this checkpoint as it's own run
-        self.register_run(start_hash, checkpoint_hash)
-
-        # then all we need to do is orchestrate from this checkpoint
-        run_tup = self.orchestrate_snapshot_run_by_time(checkpoint_hash, run_time, n_steps,
-                                                        **kwargs)
-
-        return run_tup
 
     def run_graph(self):
         """Return a NetworkX graph of the runs """
@@ -638,17 +636,12 @@ def decode(encoded_str):
 
     return Orchestrator.decode(encoded_str)
 
-def reconcile_orchestrators(*orchestrators):
-
-    apparatuses = [orch.default_apparatus_hash for orch in orchestrators]
-
-    # check that all orchestrators have the same apparatus
-    if not all([a == b for a, b in it.combinations(apparatuses, 2)]):
-        raise ValueError("not all orchestrators have the same apparatus")
+def reconcile_orchestrators(template_orchestrator, *orchestrators):
 
     # make a new orchestrator
-    new_orch = Orchestrator(orchestrators[0].default_apparatus,
-                            default_configuration=orchestrators[0].default_configuration)
+    new_orch = Orchestrator(template_orchestrator.default_apparatus,
+                            default_init_walkers=template_orchestrator.default_init_walkers,
+                            default_configuration=template_orchestrator.default_configuration)
 
     for orch in orchestrators:
         # add in all snapshots from each orchestrator, by the hash not the
@@ -659,9 +652,31 @@ def reconcile_orchestrators(*orchestrators):
 
         # register all the runs in each
         for run in list(orch.runs):
-            new_orch.register_run(*run)
+            run_config = orch.run_configuration(*run)
+            new_orch.register_run(*run, run_config)
 
     return new_orch
+
+def recover_run_by_time(start_orch, checkpoint_orch,
+                        run_time, n_steps,
+                        **kwargs):
+
+    # reconcile the checkpoint orchestrator with the master the
+    # original orchestrator, we put the original orch first so that it
+    # preserves the defaults
+    new_orch = reconcile_orchestrators(start_orch, checkpoint_orch)
+
+    # now we need to get the hash of the checkpoint at the end of
+    # the checkpoint orch to start from that, a checkpoint orch
+    # should only have one run and the checkpoint will be the end
+    # of that run.
+    checkpoint_hash = checkpoint_orch.runs[0][-1]
+
+    # then all we need to do is orchestrate from this checkpoint
+    run_tup = new_orch.orchestrate_snapshot_run_by_time(checkpoint_hash, run_time, n_steps,
+                                                        **kwargs)
+
+    return new_orch, run_tup
 
 
 if __name__ == "__main__":

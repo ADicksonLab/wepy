@@ -4,7 +4,8 @@ import click
 
 from wepy.orchestration.orchestrator import deserialize_orchestrator, \
                                             reconcile_orchestrators, \
-                                            Orchestrator
+                                            Orchestrator, \
+                                            recover_run_by_time
 
 ORCHESTRATOR_DEFAULT_FILENAME = \
             Orchestrator.ORCH_FILENAME_TEMPLATE.format(config=Orchestrator.DEFAULT_CONFIG_NAME,
@@ -15,9 +16,31 @@ def cli():
     pass
 
 START_HASH = '<start_hash>'
+CURDIR = '<curdir>'
+
+def settle_run_options(job_dir, job_name, narration):
+
+    # the default for the job name is the start hash if none is given
+    if job_name == START_HASH:
+        job_name = start_hash
+
+    # if the job_name is given and the default value for th job_dir is
+    # given we set the job-dir as the job_name
+    if job_name is not None and job_dir == CURDIR:
+            job_dir = job_name
+
+    # if the special value for curdir is given we get the systems
+    # current directory, this is the default.
+    if job_dir == CURDIR:
+        job_dir = osp.curdir
+
+    # normalize the job_dir
+    job_dir = osp.realpath(job_dir)
+
+    return job_dir, job_name, narration
 
 @click.option('--checkpoint-freq', default=None, type=click.INT)
-@click.option('--job-dir', default=osp.realpath(osp.curdir), type=click.Path(writable=True))
+@click.option('--job-dir', default=CURDIR, type=click.Path(writable=True))
 @click.option('--job-name', default=START_HASH)
 @click.option('--narration', default="")
 @click.argument('n_cycle_steps', type=click.INT)
@@ -28,15 +51,7 @@ START_HASH = '<start_hash>'
 def run(checkpoint_freq, job_dir, job_name, narration,
         n_cycle_steps, run_time, start_hash, orchestrator):
 
-    if job_name == START_HASH:
-        job_name = start_hash
-
-    if job_dir is None and job_name is not None:
-        job_dir = job_name
-
-    # normalize the work dir
-    if job_dir is not None:
-        job_dir = osp.realpath(job_dir)
+    job_dir, job_name, narration = settle_run_options(job_dir, job_name, narration)
 
     orch = deserialize_orchestrator(orchestrator.read())
 
@@ -52,7 +67,7 @@ def run(checkpoint_freq, job_dir, job_name, narration,
     click.echo(run_line_str)
 
 @click.option('--checkpoint-freq', default=None, type=click.INT)
-@click.option('--job-dir', default=osp.realpath(osp.curdir), type=click.Path(writable=True))
+@click.option('--job-dir', default=CURDIR, type=click.Path(writable=True))
 @click.option('--job-name', default=START_HASH)
 @click.option('--narration', default="recovery")
 @click.argument('n_cycle_steps', type=click.INT)
@@ -64,29 +79,23 @@ def run(checkpoint_freq, job_dir, job_name, narration,
 def recover(checkpoint_freq, job_dir, job_name, narration,
             n_cycle_steps, run_time, checkpoint, start_hash, orchestrator):
 
-    if job_name == START_HASH:
-        job_name = start_hash
-
-    if job_dir is None and job_name is not None:
-        job_dir = job_name
-
-    # normalize the work dir
-    if job_dir is not None:
-        job_dir = osp.realpath(job_dir)
+    job_dir, job_name, narration = settle_run_options(job_dir, job_name, narration)
 
     orch = deserialize_orchestrator(orchestrator.read())
 
-    checkpoint_snapshot = orch.load_snapshot(checkpoint)
+    checkpoint_orch = deserialize_orchestrator(checkpoint.read())
 
-    start_hash, end_hash = orch.recover_run_by_time(start_hash, checkpoint_snapshot,
-                                                    run_time, n_cycle_steps,
-                                                    checkpoint_freq=checkpoint_freq,
-                                                    work_dir=job_dir,
-                                                    config_name=job_name,
-                                                    narration=narration)
+    # run the continuation from the new orchestrator with the update
+    # from the checkpoint
+    new_orch, run_tup = recover_run_by_time(orch, checkpoint_orch,
+                                            run_time, n_cycle_steps,
+                                            checkpoint_freq=checkpoint_freq,
+                                            work_dir=job_dir,
+                                            config_name=job_name,
+                                            narration=narration)
 
     # write the run tuple out to the log
-    run_line_str = "{}, {}".format(start_hash, end_hash)
+    run_line_str = "{}, {}".format(*run_tup)
     click.echo(run_line_str)
 
 
