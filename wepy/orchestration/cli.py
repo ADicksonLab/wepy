@@ -7,6 +7,9 @@ from wepy.orchestration.orchestrator import deserialize_orchestrator, \
                                             Orchestrator, \
                                             recover_run_by_time
 
+from wepy.reporter.hdf5 import WepyHDF5Reporter
+from wepy.hdf5 import WepyHDF5
+
 ORCHESTRATOR_DEFAULT_FILENAME = \
             Orchestrator.ORCH_FILENAME_TEMPLATE.format(config=Orchestrator.DEFAULT_CONFIG_NAME,
                                                        narration=Orchestrator.DEFAULT_NARRATION)
@@ -98,13 +101,80 @@ def recover(checkpoint_freq, job_dir, job_name, narration,
     run_line_str = "{}, {}".format(*run_tup)
     click.echo(run_line_str)
 
+def combine_orch_wepy_hdf5s(new_orch, new_hdf5_path):
+
+    # a key-value for the paths for each run
+    hdf5_paths = {}
+
+    # go through each run in the new orchestrator
+    for run_id in new_orch.runs:
+
+        # get the configuration used for this run
+        run_config = new_orch.run_configuration(*run_id)
+
+        # from that configuration find the WepyHDF5Reporters
+        for reporter in run_config.reporters:
+
+            if isinstance(reporter, WepyHDF5Reporter):
+
+                # and save the path for that run
+                hdf5_paths[run_id] = reporter.file_path
+
+    # now that we have the paths (or lack of paths) for all
+    # the runs we need to start linking them all
+    # together.
+
+    # first we need a master linker HDF5 to do this with
+
+    # so load a template WepyHDF5
+    template_wepy_h5_path = hdf5_paths[new_orch.runs[0]]
+    template_wepy_h5 = WepyHDF5(template_wepy_h5_path, mode='r')
+
+    # clone it
+    with template_wepy_h5:
+        master_wepy_h5 = template_wepy_h5.clone(new_hdf5_path, mode='x')
+
+    with master_wepy_h5:
+        # then link all the files to it
+        run_mapping = {}
+        for run_id, wepy_h5_path in hdf5_paths.items():
+
+            # we just link the whole file then sort out the
+            # continuations later since we aren't necessarily doing
+            # this in a logical order
+            new_run_idxs = master_wepy_h5.link_file_runs(wepy_h5_path)
+
+            # map the hash id to the new run idx created. There should
+            # only be one if we are following the orchestration
+            # workflow.
+            run_mapping[run_id] = new_run_idxs[0]
+
+        # now that they are all linked we need to set the
+        # continuations correctly, so for each run we find the run it
+        # continues in the orchestrator
+        for run_id, run_idx in run_mapping.items():
+
+            # find the run_id that this one continues
+            continued_run_id = new_orch.run_continues(*run_id)
+
+            # if a None is returned then there was no continuation
+            if continued_run_id is None:
+                # so we go to the next run_id and don't log any
+                # continuation
+                continue
+
+            # get the run_idx in the HDF5 that corresponds to this run
+            continued_run_idx = run_mapping[continued_run_id]
+
+            # add the continuation
+            master_wepy_h5.add_continuation(run_idx, continued_run_idx)
 
 @click.command()
 @click.option('--hdf5', type=click.Path(exists=False))
-@click.argument('orchestrators', nargs=-1, type=click.File(mode='rb'))
 @click.argument('output', nargs=1, type=click.File(mode='wb'))
+@click.argument('orchestrators', nargs=-1, type=click.File(mode='rb'))
 def reconcile(hdf5,
-              orchestrators, output):
+              output, orchestrators):
 
     orches = []
     for orchestrator in orchestrators:
@@ -112,32 +182,17 @@ def reconcile(hdf5,
         orches.append(orch)
 
     # reconcile the two orchestrators
-    new_orch = reconcile_orchestrators(*orchs)
+    new_orch = reconcile_orchestrators(*orches)
 
-    # combine the HDF5 files from those orchestrators
+    # if a path for an HDF5 file is given
     if hdf5 is not None:
-        # the path the new linker HDF5 will be in
-        new_hdf5_path = hdf5
+        hdf5_path = osp.realpath(hdf5)
+        # combine the HDF5 files from those orchestrators
+        combine_orch_wepy_hdf5s(new_orch, hdf5_path)
 
-        for run_id in new_orch.runs:
-
-            run_config 
-            for reporter in run_config.reporters:
-                if isinstance(reporter, WepyHDF5Reporter):
-                    hdf5_paths[(orch_idx, run_idx)] = reporter
-
-
-        # go through each orchestrator and if they have an HDF5
-        # reporter use that path to find the HDF5 file they made
-        hdf5_paths = {}
-
-        # create the linker HDF5 file
-        
 
     # then make and output the orchestrator
     output.write(new_orch.serialize())
-
-    # output the linker HDF5 if necessary
 
 def hash_listing_formatter(hashes):
     hash_listing_str = '\n'.join(hashes)

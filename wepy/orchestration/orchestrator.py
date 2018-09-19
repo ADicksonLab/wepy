@@ -74,7 +74,7 @@ class Orchestrator():
     DEFAULT_NARRATION = Configuration.DEFAULT_NARRATION
     DEFAULT_MODE = Configuration.DEFAULT_MODE
 
-    DEFAULT_CHECKPOINT_FILENAME = "checkpoint.chk.orch"
+    DEFAULT_CHECKPOINT_FILENAME = "checkpoint.chk"
     ORCH_FILENAME_TEMPLATE = "{config}{narration}.orch"
     DEFAULT_ORCHESTRATION_MODE = 'xb'
 
@@ -598,18 +598,29 @@ class Orchestrator():
                                                      **kwargs)
 
 
-    def continue_snapshot(self, snapshot_hash):
-        """For a finished run continue it and don't reset the state of the
-        resampler and boundary conditions."""
+    def run_continues(self, start_hash, end_hash):
+        """Return the run_id that this run continues."""
 
-        pass
+        # loop through the runs in this orchestrator until we find one
+        # where the start_hash matches the end hash
+        runs = self.runs
+        run_idx = 0
+        while True:
 
+            run_start_hash, run_end_hash = runs[run_idx]
 
+            # if the start hash of the queried run is the same as the
+            # end hash for this run we have found it
+            if start_hash == run_end_hash:
 
+                return (run_start_hash, run_end_hash)
 
-    def run_graph(self):
-        """Return a NetworkX graph of the runs """
-        pass
+            run_idx += 1
+
+            # if the index is over the number of runs we quit and
+            # return None as no match
+            if run_idx >= len(runs):
+                return None
 
 
 def serialize_orchestrator(orchestrator):
