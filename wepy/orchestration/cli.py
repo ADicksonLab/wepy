@@ -21,7 +21,10 @@ def cli():
 START_HASH = '<start_hash>'
 CURDIR = '<curdir>'
 
-def settle_run_options(job_dir, job_name, narration):
+def settle_run_options(n_workers=None,
+                       job_dir=None,
+                       job_name=None,
+                       narration=None):
 
     # the default for the job name is the start hash if none is given
     if job_name == START_HASH:
@@ -40,8 +43,21 @@ def settle_run_options(job_dir, job_name, narration):
     # normalize the job_dir
     job_dir = osp.realpath(job_dir)
 
-    return job_dir, job_name, narration
+    return n_workers, job_dir, job_name, narration
 
+def custom_configuration(n_workers=None):
+
+    # initialize to None, if no change is made then None will signal
+    # to use default in the call to orchestrate a run
+    config_kwargs = {}
+
+    if n_workers is not None:
+
+        config_kwargs[]
+
+    return configuration
+
+@click.option('--n-workers', type=click.INT)
 @click.option('--checkpoint-freq', default=None, type=click.INT)
 @click.option('--job-dir', default=CURDIR, type=click.Path(writable=True))
 @click.option('--job-name', default=START_HASH)
@@ -51,10 +67,19 @@ def settle_run_options(job_dir, job_name, narration):
 @click.argument('start_hash')
 @click.argument('orchestrator', type=click.File(mode='rb'))
 @click.command()
-def run(checkpoint_freq, job_dir, job_name, narration,
+def run(n_workers, checkpoint_freq, job_dir, job_name, narration,
         n_cycle_steps, run_time, start_hash, orchestrator):
 
-    job_dir, job_name, narration = settle_run_options(job_dir, job_name, narration)
+    # settle what the defaults etc. are for the different options as they are interdependent
+    n_workers, job_dir, job_name, narration = settle_run_options(n_workers=n_workers,
+                                                                 job_dir=job_dir,
+                                                                 job_name=job_name,
+                                                                 narration=narration)
+
+    # get a special configuration to run if the appropriate options
+    # were passed, otherwise the default in the orchestrator will be
+    # used, this will be None if no valid options were given
+    config = custom_configuration(n_workers=n_workers)
 
     orch = deserialize_orchestrator(orchestrator.read())
 
@@ -69,6 +94,7 @@ def run(checkpoint_freq, job_dir, job_name, narration,
     run_line_str = "{}, {}".format(start_hash, end_hash)
     click.echo(run_line_str)
 
+@click.option('--n_workers', type=click.INT)
 @click.option('--checkpoint-freq', default=None, type=click.INT)
 @click.option('--job-dir', default=CURDIR, type=click.Path(writable=True))
 @click.option('--job-name', default=START_HASH)
@@ -79,10 +105,13 @@ def run(checkpoint_freq, job_dir, job_name, narration,
 @click.argument('start_hash')
 @click.argument('orchestrator', type=click.File(mode='rb'))
 @click.command()
-def recover(checkpoint_freq, job_dir, job_name, narration,
+def recover(n_workers, checkpoint_freq, job_dir, job_name, narration,
             n_cycle_steps, run_time, checkpoint, start_hash, orchestrator):
 
-    job_dir, job_name, narration = settle_run_options(job_dir, job_name, narration)
+    n_workers, job_dir, job_name, narration = settle_run_options(n_workers=n_workers,
+                                                                 job_dir=job_dir,
+                                                                 job_name=job_name,
+                                                                 narration=narration)
 
     orch = deserialize_orchestrator(orchestrator.read())
 

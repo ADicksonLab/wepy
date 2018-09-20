@@ -654,6 +654,8 @@ def reconcile_orchestrators(template_orchestrator, *orchestrators):
                             default_init_walkers=template_orchestrator.default_init_walkers,
                             default_configuration=template_orchestrator.default_configuration)
 
+    # put the template back into the list of orchestrators
+    orchestrators = (template_orchestrator, *orchestrators)
     for orch in orchestrators:
         # add in all snapshots from each orchestrator, by the hash not the
         # snapshots themselves
