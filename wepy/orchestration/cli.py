@@ -45,18 +45,6 @@ def settle_run_options(n_workers=None,
 
     return n_workers, job_dir, job_name, narration
 
-def custom_configuration(n_workers=None):
-
-    # initialize to None, if no change is made then None will signal
-    # to use default in the call to orchestrate a run
-    config_kwargs = {}
-
-    if n_workers is not None:
-
-        config_kwargs[]
-
-    return configuration
-
 @click.option('--n-workers', type=click.INT)
 @click.option('--checkpoint-freq', default=None, type=click.INT)
 @click.option('--job-dir', default=CURDIR, type=click.Path(writable=True))
@@ -76,19 +64,15 @@ def run(n_workers, checkpoint_freq, job_dir, job_name, narration,
                                                                  job_name=job_name,
                                                                  narration=narration)
 
-    # get a special configuration to run if the appropriate options
-    # were passed, otherwise the default in the orchestrator will be
-    # used, this will be None if no valid options were given
-    config = custom_configuration(n_workers=n_workers)
-
     orch = deserialize_orchestrator(orchestrator.read())
 
     start_hash, end_hash = orch.orchestrate_snapshot_run_by_time(start_hash,
-                                                    run_time, n_cycle_steps,
-                                                    checkpoint_freq=checkpoint_freq,
-                                                    work_dir=job_dir,
-                                                    config_name=job_name,
-                                                    narration=narration)
+                                                                 run_time, n_cycle_steps,
+                                                                 checkpoint_freq=checkpoint_freq,
+                                                                 work_dir=job_dir,
+                                                                 config_name=job_name,
+                                                                 narration=narration,
+                                                                 n_workers=n_workers)
 
     # write the run tuple out to the log
     run_line_str = "{}, {}".format(start_hash, end_hash)

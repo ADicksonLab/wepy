@@ -25,7 +25,7 @@ class ABCMapper(object):
 class Mapper(object):
 
     def __init__(self, *args, **kwargs):
-        self.worker_segment_times = {0 : []}
+        self._worker_segment_times = {0 : []}
 
     def init(self, segment_func=None, **kwargs):
 
@@ -54,14 +54,18 @@ class Mapper(object):
 
             results.append(result)
 
-        self.worker_segment_times[0] = segment_times
+        self._worker_segment_times[0] = segment_times
 
         return results
+
+    @property
+    def worker_segment_times(self):
+        return self._worker_segment_times
 
 class WorkerMapper(Mapper):
 
     def __init__(self, num_workers=None, worker_type=None,
-                 debug_prints=False):
+                 debug_prints=False, **kwargs):
 
         self._num_workers = num_workers
         self._worker_segment_times = {i : [] for i in range(self.num_workers)}
@@ -88,7 +92,7 @@ class WorkerMapper(Mapper):
     def worker_type(self, worker_type):
         self._worker_type = worker_type
 
-    def init(self, num_workers=None, debug_prints=False):
+    def init(self, num_workers=None, debug_prints=False, **kwargs):
 
         super().init(**kwargs)
 

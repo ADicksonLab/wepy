@@ -344,20 +344,33 @@ Defined Regions with the number of child regions per parent region:
     def update_performance_values(self, cycle_idx, n_steps, worker_segment_times,
                                   cycle_runner_time, cycle_bc_time, cycle_resampling_time):
 
-        # log of segment times for workers
-        for worker_idx, segment_times in worker_segment_times.items():
-            for segment_time in segment_times:
-                record = (cycle_idx, n_steps, worker_idx, segment_time)
-                self.worker_records.append(record)
 
-        # make a table out of these and compute the averages for each
-        # worker
-        worker_df = pd.DataFrame(self.worker_records, columns=('cycle_idx', 'n_steps',
-                                                               'worker_idx', 'segment_time'))
-        # the aggregated table for the workers
-        self.worker_agg_table = worker_df.groupby('worker_idx')[['segment_time']].aggregate(np.mean)
-        self.worker_agg_table.rename(columns={'segment_time' : 'avg_segment_time (s)'},
-                                     inplace=True)
+        ## worker specific performance
+
+        # only do this part if there were any workers
+        if len(worker_segment_times) > 0:
+
+            # log of segment times for workers
+            for worker_idx, segment_times in worker_segment_times.items():
+                for segment_time in segment_times:
+                    record = (cycle_idx, n_steps, worker_idx, segment_time)
+                    self.worker_records.append(record)
+
+            # make a table out of these and compute the averages for each
+            # worker
+            worker_df = pd.DataFrame(self.worker_records, columns=('cycle_idx', 'n_steps',
+                                                                   'worker_idx', 'segment_time'))
+            # the aggregated table for the workers
+            self.worker_agg_table = worker_df.groupby('worker_idx')[['segment_time']].aggregate(np.mean)
+            self.worker_agg_table.rename(columns={'segment_time' : 'avg_segment_time (s)'},
+                                         inplace=True)
+
+        else:
+            self.worker_records = []
+            self.worker_agg_table = pd.DataFrame({'avg_segment_time (s)' : []})
+
+
+        ## cycle times
 
         # log of the components times
         self.cycle_runner_times.append(cycle_runner_time)

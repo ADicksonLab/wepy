@@ -410,7 +410,7 @@ class Orchestrator():
         if configuration is None:
             configuration = deepcopy(self.default_configuration)
 
-        start_time = time.time()
+
 
         # get the snapshot
         start_snapshot = self.get_snapshot(start_hash)
@@ -428,6 +428,7 @@ class Orchestrator():
         # run each cycle manually creating checkpoints when necessary
         walkers = start_snapshot.walkers
         cycle_idx = 0
+        start_time = time.time()
         while time.time() - start_time < run_time:
 
             # run the cycle

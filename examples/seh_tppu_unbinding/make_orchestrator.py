@@ -2,6 +2,7 @@ import os
 import os.path as osp
 import pickle
 import sys
+from copy import copy, deepcopy
 
 import numpy as np
 import h5py
@@ -12,14 +13,33 @@ import simtk.unit as unit
 
 import mdtraj as mdj
 
-from wepy.runners.openmm import OpenMMState
 from wepy.util.mdtraj import mdtraj_to_json_topology
 
+# the simulation manager and work mapper for actually running the simulation
+from wepy.sim_manager import Manager
+from wepy.work_mapper.mapper import WorkerMapper
 
+# the runner for running dynamics and making and it's particular
+# state class
+from wepy.runners.openmm import OpenMMRunner, OpenMMState, OpenMMGPUWorker, UNIT_NAMES
+from wepy.walker import Walker
 
-from wepy.orchestration.orchestrator import WepySimApparatus, Orchestrator
+# distance metric
+from wepy.resampling.distances.receptor import UnbindingDistance
+
+# resampler
+from wepy.resampling.resamplers.wexplore import WExploreResampler
+
+# boundary condition object for ligand unbinding
+from wepy.boundary_conditions.unbinding import UnbindingBC
+
+# reporters
+from wepy.reporter.hdf5 import WepyHDF5Reporter
+from wepy.reporter.wexplore.dashboard import WExploreDashboardReporter
+
+# Orchestration
+from wepy.orchestration.orchestrator import WepySimApparatus, Orchestrator, dump_orchestrator
 from wepy.orchestration.configuration import Configuration
-
 
 
 ## INPUTS/OUTPUTS
@@ -159,7 +179,7 @@ CUTOFF_DISTANCE = 1.0 # nm
 
 
 # minimization parameters
-NUMBER_OF_EQUILIB_STEPS = 1000
+NUMBER_OF_EQUILIB_STEPS = 10
 
 
 # Distance metric parameters, these are not used in OpenMM and so
@@ -224,7 +244,7 @@ psf.setBox(*LENGTHS, *ANGLES)
 # the method for calculation
 system = psf.createSystem(FORCE_FIELD,
                           nonbondedMethod=NONBONDED_METHOD,
-                          nonbondedCutoff=NONBONDED_CUTOFF
+                          nonbondedCutoff=NONBONDED_CUTOFF,
                           constraints=MD_CONSTRAINTS)
 
 # barostat to keep pressure constant
@@ -271,7 +291,6 @@ MINIMIZED_INIT_OMM_STATE = simulation.context.getState(getPositions=True,
 ### Apparatus
 
 ## Runner
-simulation = omma.Simulation(omm_topology, system, integrator, platform)
 RUNNER = OpenMMRunner(system, psf.topology, integrator, platform=PLATFORM)
 
 # the initial state, which is used as reference for many things
@@ -285,13 +304,13 @@ INIT_STATE = OpenMMState(MINIMIZED_INIT_OMM_STATE)
 # indices for selecting atoms for the image and for doing the
 # alignments to only the binding site. All images will be aligned
 # to the reference initial state
-DISTANCE_METRIC = UnbindingDistance(LIG_IDXS, BS_IDXS, init_state)
+DISTANCE_METRIC = UnbindingDistance(LIG_IDXS, BS_IDXS, INIT_STATE)
 
 # WExplore Resampler
 
 # make a Wexplore resampler with default parameters and our
 # distance metric
-RESAMPLER = WExploreResampler(distance=DISTANCE,
+RESAMPLER = WExploreResampler(distance=DISTANCE_METRIC,
                                init_state=INIT_STATE,
                                max_n_regions=MAX_N_REGIONS,
                                max_region_sizes=MAX_REGION_SIZES,
@@ -311,6 +330,7 @@ BC = UnbindingBC(cutoff_distance=CUTOFF_DISTANCE,
 APPARATUS = WepySimApparatus(RUNNER, resampler=RESAMPLER,
                              boundary_conditions=BC)
 
+print("created apparatus")
 
 ## CONFIGURATION
 
@@ -344,15 +364,21 @@ CONFIGURATION = Configuration(n_workers=N_WORKERS,
                               reporter_classes=REPORTER_CLASSES,
                               reporter_partial_kwargs=REPORTER_KWARGS)
 
+print("created configuration")
+
 ### Initial Walkers
 N_WALKERS = 48
 INIT_WEIGHT = 1.0 / N_WALKERS
 INIT_WALKERS = [Walker(deepcopy(INIT_STATE), INIT_WEIGHT) for i in range(N_WALKERS)]
+
+print("created init walkers")
 
 ### Orchestrator
 ORCHESTRATOR = Orchestrator(APPARATUS,
                             default_init_walkers=INIT_WALKERS,
                             default_configuration=CONFIGURATION)
 
+print("created orchestrator, creating object file now")
+
 ORCH_NAME = "sEH-TPPU"
-ORCHESTRATOR.dump("{}.orch".format(ORCH_NAME), mode='w')
+dump_orchestrator(ORCHESTRATOR, "{}.orch".format(ORCH_NAME), mode='wb')
