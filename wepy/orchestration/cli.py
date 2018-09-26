@@ -78,7 +78,7 @@ def run(n_workers, checkpoint_freq, job_dir, job_name, narration,
     run_line_str = "{}, {}".format(start_hash, end_hash)
     click.echo(run_line_str)
 
-@click.option('--n_workers', type=click.INT)
+@click.option('--n-workers', type=click.INT)
 @click.option('--checkpoint-freq', default=None, type=click.INT)
 @click.option('--job-dir', default=CURDIR, type=click.Path(writable=True))
 @click.option('--job-name', default=START_HASH)
