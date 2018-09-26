@@ -1,6 +1,7 @@
 import os.path as osp
 from copy import deepcopy
 import pickle
+import logging
 
 from wepy.reporter.reporter import FileReporter
 

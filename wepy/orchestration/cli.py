@@ -1,4 +1,5 @@
 import os.path as osp
+import logging
 
 import click
 
@@ -17,6 +18,21 @@ ORCHESTRATOR_DEFAULT_FILENAME = \
 @click.group()
 def cli():
     pass
+
+def set_loglevel(loglevel):
+
+    # try to cast the loglevel as an integer. If that fails interpret
+    # it as a string.
+    try:
+        loglevel_num = int(loglevel)
+    except ValueError:
+        loglevel_num = getattr(logging, loglevel, None)
+
+    # if no such log level exists in logging the string was invalid
+    if loglevel_num is None:
+        raise ValueError("invalid log level given")
+
+    logging.basicConfig(level=loglevel_num)
 
 START_HASH = '<start_hash>'
 CURDIR = '<curdir>'
@@ -45,6 +61,7 @@ def settle_run_options(n_workers=None,
 
     return n_workers, job_dir, job_name, narration
 
+@click.option('--logging', default="WARNING")
 @click.option('--n-workers', type=click.INT)
 @click.option('--checkpoint-freq', default=None, type=click.INT)
 @click.option('--job-dir', default=CURDIR, type=click.Path(writable=True))
@@ -55,8 +72,10 @@ def settle_run_options(n_workers=None,
 @click.argument('start_hash')
 @click.argument('orchestrator', type=click.File(mode='rb'))
 @click.command()
-def run(n_workers, checkpoint_freq, job_dir, job_name, narration,
+def run(logging, n_workers, checkpoint_freq, job_dir, job_name, narration,
         n_cycle_steps, run_time, start_hash, orchestrator):
+
+    set_loglevel(logging)
 
     # settle what the defaults etc. are for the different options as they are interdependent
     n_workers, job_dir, job_name, narration = settle_run_options(n_workers=n_workers,
@@ -65,6 +84,8 @@ def run(n_workers, checkpoint_freq, job_dir, job_name, narration,
                                                                  narration=narration)
 
     orch = deserialize_orchestrator(orchestrator.read())
+
+    logging.info("Orchestrator loaded")
 
     start_hash, end_hash = orch.orchestrate_snapshot_run_by_time(start_hash,
                                                                  run_time, n_cycle_steps,
@@ -75,7 +96,12 @@ def run(n_workers, checkpoint_freq, job_dir, job_name, narration,
                                                                  n_workers=n_workers)
 
     # write the run tuple out to the log
-    run_line_str = "{}, {}".format(start_hash, end_hash)
+    run_line_str = "Run start and end hashes: {}, {}".format(start_hash, end_hash)
+
+    # log it
+    logging.info(run_line_str)
+
+    # also put it to the terminal
     click.echo(run_line_str)
 
 @click.option('--n-workers', type=click.INT)
@@ -89,8 +115,10 @@ def run(n_workers, checkpoint_freq, job_dir, job_name, narration,
 @click.argument('start_hash')
 @click.argument('orchestrator', type=click.File(mode='rb'))
 @click.command()
-def recover(n_workers, checkpoint_freq, job_dir, job_name, narration,
+def recover(logging, n_workers, checkpoint_freq, job_dir, job_name, narration,
             n_cycle_steps, run_time, checkpoint, start_hash, orchestrator):
+
+    set_loglevel(logging)
 
     n_workers, job_dir, job_name, narration = settle_run_options(n_workers=n_workers,
                                                                  job_dir=job_dir,
@@ -99,7 +127,11 @@ def recover(n_workers, checkpoint_freq, job_dir, job_name, narration,
 
     orch = deserialize_orchestrator(orchestrator.read())
 
+    logging.info("Orchestrator loaded")
+
     checkpoint_orch = deserialize_orchestrator(checkpoint.read())
+
+    logging.info("Checkpoint loadeded")
 
     # run the continuation from the new orchestrator with the update
     # from the checkpoint
@@ -110,9 +142,17 @@ def recover(n_workers, checkpoint_freq, job_dir, job_name, narration,
                                             config_name=job_name,
                                             narration=narration)
 
+    start_hash, end_hash = run_tup
+
     # write the run tuple out to the log
-    run_line_str = "{}, {}".format(*run_tup)
+    run_line_str = "Run start and end hashes: {}, {}".format(start_hash, end_hash)
+
+    # log it
+    logging.info(run_line_str)
+
+    # also put it to the terminal
     click.echo(run_line_str)
+
 
 def combine_orch_wepy_hdf5s(new_orch, new_hdf5_path):
 
@@ -189,13 +229,14 @@ def combine_orch_wepy_hdf5s(new_orch, new_hdf5_path):
 def reconcile(hdf5,
               output, orchestrators):
 
-    orches = []
-    for orchestrator in orchestrators:
+    # reconcile them one by one as they are big and too expensive to
+    # load all into memory at once
+    new_orch = deserialize_orchestrator(orchestrators[0].read())
+    for orchestrator in orchestrators[1:]:
         orch = deserialize_orchestrator(orchestrator.read())
-        orches.append(orch)
 
-    # reconcile the two orchestrators
-    new_orch = reconcile_orchestrators(*orches)
+        # reconcile the two orchestrators
+        new_orch = reconcile_orchestrators(new_orch, orch)
 
     # if a path for an HDF5 file is given
     if hdf5 is not None:

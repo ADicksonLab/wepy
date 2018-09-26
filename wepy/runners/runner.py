@@ -1,3 +1,5 @@
+import logging
+
 class Runner(object):
 
     def run_segment(self, init_walkers, segment_length):

@@ -4,6 +4,7 @@ import itertools as it
 import json
 from warnings import warn
 from copy import copy
+import logging
 
 import numpy as np
 import h5py
@@ -1983,7 +1984,7 @@ class WepyHDF5(object):
         run_sel = self.run_traj_idx_tuples([run_idx])
         return self.iter_trajs(idxs=idxs, traj_sel=run_sel)
 
-    def iter_trajs_fields(self, fields, idxs=False, traj_sel=None, debug_prints=False):
+    def iter_trajs_fields(self, fields, idxs=False, traj_sel=None):
         """Generator for all of the specified non-compound fields
         h5py.Datasets for all trajectories in the dataset across all
         runs. Fields is a list of valid relative paths to datasets in
@@ -1998,9 +1999,8 @@ class WepyHDF5(object):
 
             # DEBUG if we ask for debug prints send in the run and
             # traj index so the function can print this out
-            if debug_prints:
-                dsets['run_idx'] = run_idx
-                dsets['traj_idx'] = traj_idx
+            dsets['run_idx'] = run_idx
+            dsets['traj_idx'] = traj_idx
 
             for field in fields:
                 try:
@@ -2114,8 +2114,7 @@ class WepyHDF5(object):
         else:
             return results
 
-    def traj_fields_map(self, func, fields, *args, map_func=map, idxs=False, traj_sel=None,
-                        debug_prints=False):
+    def traj_fields_map(self, func, fields, *args, map_func=map, idxs=False, traj_sel=None):
         """Function for mapping work onto field of trajectories in the
         WepyHDF5 file object. Similar to traj_map, except `h5py.Group`
         objects cannot be pickled for message passing. So we select
@@ -2151,8 +2150,7 @@ class WepyHDF5(object):
         # mapping inputs
         mapped_args = []
 
-        results = map_func(func, self.iter_trajs_fields(fields, traj_sel=traj_sel, idxs=False,
-                                                        debug_prints=debug_prints),
+        results = map_func(func, self.iter_trajs_fields(fields, traj_sel=traj_sel, idxs=False),
                            *args)
 
         if idxs:
@@ -2176,8 +2174,7 @@ class WepyHDF5(object):
     def compute_observable(self, func, fields, *args,
                            map_func=map,
                            traj_sel=None,
-                           save_to_hdf5=None, idxs=False, return_results=True,
-                           debug_prints=False):
+                           save_to_hdf5=None, idxs=False, return_results=True):
         """Compute an observable on the trajectory data according to a
         function. Optionally save that data in the observables data group for
         the trajectory.
@@ -2198,8 +2195,7 @@ class WepyHDF5(object):
             results = []
 
         for result in self.traj_fields_map(func, fields, *args,
-                                           map_func=map_func, traj_sel=traj_sel, idxs=True,
-                                           debug_prints=debug_prints):
+                                           map_func=map_func, traj_sel=traj_sel, idxs=True):
 
             idx_tup, obs_features = result
             run_idx, traj_idx = idx_tup
@@ -2207,17 +2203,15 @@ class WepyHDF5(object):
             # if we are saving this to the trajectories observables add it as a dataset
             if save_to_hdf5:
 
-                if debug_prints:
-                    print("Saving run {} traj {} observables/{}".format(
-                        run_idx, traj_idx, field_name))
+                logging.info("Saving run {} traj {} observables/{}".format(
+                    run_idx, traj_idx, field_name))
 
                 # try to get the observables group or make it if it doesn't exist
                 try:
                     obs_grp = self.traj(run_idx, traj_idx)[OBSERVABLES]
                 except KeyError:
 
-                    if debug_prints:
-                        print("Group uninitialized. Initializing.")
+                    logging.info("Group uninitialized. Initializing.")
 
                     obs_grp = self.traj(run_idx, traj_idx).create_group(OBSERVABLES)
 
@@ -2230,8 +2224,7 @@ class WepyHDF5(object):
                     # old dataset and add the new one, overwriting old data
                     if self.mode in ['w', 'w-', 'x', 'r+']:
 
-                        if debug_prints:
-                            print("Dataset already present. Overwriting.")
+                        logging.info("Dataset already present. Overwriting.")
 
                         del obs_grp[field_name]
                         obs_grp.create_dataset(field_name, data=obs_features)
@@ -3147,7 +3140,7 @@ class RunCycleSlice(object):
                 yield field, dsets
 
 
-    def iter_cycles_fields(self, fields, idxs=False, traj_sel=None, debug_prints=False):
+    def iter_cycles_fields(self, fields, idxs=False, traj_sel=None):
 
         for cycle_idx in self.cycles:
             dsets = {}
@@ -3159,8 +3152,7 @@ class RunCycleSlice(object):
                 yield dsets
 
 
-    def traj_cycles_map(self, func, fields, *args, map_func=map, idxs=False, traj_sel=None,
-                        debug_prints=False):
+    def traj_cycles_map(self, func, fields, *args, map_func=map, idxs=False, traj_sel=None):
         """Function for mapping work onto field of trajectories in the
         WepyHDF5 file object. Similar to traj_map, except `h5py.Group`
         objects cannot be pickled for message passing. So we select
@@ -3208,8 +3200,7 @@ class RunCycleSlice(object):
 
 
 
-        results = map_func(func, self.iter_cycles_fields(fields, traj_sel=traj_sel, idxs=False,
-                                                        debug_prints=debug_prints),
+        results = map_func(func, self.iter_cycles_fields(fields, traj_sel=traj_sel, idxs=False),
                            *mapped_args)
 
         if idxs:
@@ -3223,8 +3214,7 @@ class RunCycleSlice(object):
     def compute_observable(self, func, fields, *args,
                            map_func=map,
                            traj_sel=None,
-                           save_to_hdf5=None, idxs=False, return_results=True,
-                           debug_prints=False):
+                           save_to_hdf5=None, idxs=False, return_results=True):
         """Compute an observable on the trajectory data according to a
         function. Optionally save that data in the observables data group for
         the trajectory.
@@ -3243,25 +3233,22 @@ class RunCycleSlice(object):
         idx =0
 
         for result in self.traj_cycles_map(func, fields, *args,
-                                       map_func=map_func, traj_sel=traj_sel, idxs=True,
-                                       debug_prints=debug_prints):
+                                       map_func=map_func, traj_sel=traj_sel, idxs=True):
             idx_tup, obs_value = result
             run_idx, traj_idx = idx_tup
 
             # if we are saving this to the trajectories observables add it as a dataset
             if save_to_hdf5:
 
-                if debug_prints:
-                    print("Saving run {} traj {} observables/{}".format(
-                        run_idx, traj_idx, field_name))
+                logging.info("Saving run {} traj {} observables/{}".format(
+                    run_idx, traj_idx, field_name))
 
                 # try to get the observables group or make it if it doesn't exist
                 try:
                     obs_grp = self.traj(run_idx, traj_idx)[OBSERVABLES]
                 except KeyError:
 
-                    if debug_prints:
-                        print("Group uninitialized. Initializing.")
+                    logging.info("Group uninitialized. Initializing.")
 
                     obs_grp = self.traj(run_idx, traj_idx).create_group(OBSERVABLES)
 
@@ -3274,8 +3261,7 @@ class RunCycleSlice(object):
                     # old dataset and add the new one, overwriting old data
                     if self.mode in ['w', 'w-', 'x', 'r+']:
 
-                        if debug_prints:
-                            print("Dataset already present. Overwriting.")
+                        logging.info("Dataset already present. Overwriting.")
 
                         del obs_grp[field_name]
                         obs_grp.create_dataset(field_name, data=obs_value)

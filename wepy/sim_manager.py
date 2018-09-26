@@ -1,6 +1,7 @@
 import sys
 import time
 from copy import deepcopy
+import logging
 
 from wepy.work_mapper.mapper import Mapper
 
@@ -33,138 +34,118 @@ class Manager(object):
         self.work_mapper = work_mapper
 
 
-    def run_segment(self, walkers, segment_length, debug_prints=False):
+    def run_segment(self, walkers, segment_length):
         """Run a time segment for all walkers using the available workers. """
 
         num_walkers = len(walkers)
 
-        if debug_prints:
-            sys.stdout.write("Starting segment\n")
+        logging.info("Starting segment")
 
         new_walkers = list(self.work_mapper.map(walkers,
                                                 (segment_length for i in range(num_walkers)),
-                                                debug_prints=debug_prints
                                                )
                           )
-        if debug_prints:
-            sys.stdout.write("Ending segment\n")
+        logging.info("Ending segment")
 
         return new_walkers
 
-    def run_cycle(self, walkers, segment_length, cycle_idx,
-                  debug_prints=False):
+    def run_cycle(self, walkers, segment_length, cycle_idx):
 
-            if debug_prints:
-                sys.stdout.write("Begin cycle {}\n".format(cycle_idx))
+        logging.info("Begin cycle {}".format(cycle_idx))
 
-            # run the segment
+        # run the segment
+        start = time.time()
+        new_walkers = self.run_segment(walkers, segment_length)
+        end = time.time()
+        runner_time = end - start
+
+        logging.info("End cycle {}".format(cycle_idx))
+
+        # boundary conditions should be optional;
+
+        # initialize the warped walkers to the new_walkers and
+        # change them later if need be
+        warped_walkers = new_walkers
+        warp_data = []
+        bc_data = []
+        progress_data = []
+        bc_time = 0.0
+        if self.boundary_conditions is not None:
+
+            # apply rules of boundary conditions and warp walkers through space
             start = time.time()
-            new_walkers = self.run_segment(walkers, segment_length,
-                                           debug_prints=debug_prints)
+            bc_results  = self.boundary_conditions.warp_walkers(new_walkers,
+                                                                cycle_idx)
             end = time.time()
-            runner_time = end - start
+            bc_time = end - start
 
-            if debug_prints:
-                sys.stdout.write("End cycle {}\n".format(cycle_idx))
+            # warping results
+            warped_walkers = bc_results[0]
+            warp_data = bc_results[1]
+            bc_data = bc_results[2]
+            progress_data = bc_results[3]
 
-            # boundary conditions should be optional;
-
-            # initialize the warped walkers to the new_walkers and
-            # change them later if need be
-            warped_walkers = new_walkers
-            warp_data = []
-            bc_data = []
-            progress_data = []
-            bc_time = 0.0
-            if self.boundary_conditions is not None:
-
-                # apply rules of boundary conditions and warp walkers through space
-                start = time.time()
-                bc_results  = self.boundary_conditions.warp_walkers(new_walkers,
-                                                                    cycle_idx,
-                                                                    debug_prints=debug_prints)
-                end = time.time()
-                bc_time = end - start
-
-                # warping results
-                warped_walkers = bc_results[0]
-                warp_data = bc_results[1]
-                bc_data = bc_results[2]
-                progress_data = bc_results[3]
-
-                if debug_prints:
-                    if len(warp_data) > 0:
-                        print("Returned warp record in cycle {}".format(cycle_idx))
+            if len(warp_data) > 0:
+                logging.info("Returned warp record in cycle {}".format(cycle_idx))
 
 
 
-            # resample walkers
-            start = time.time()
-            resampling_results = self.resampler.resample(warped_walkers,
-                                                       debug_prints=debug_prints)
-            end = time.time()
-            resampling_time = end - start
+        # resample walkers
+        start = time.time()
+        resampling_results = self.resampler.resample(warped_walkers)
+        end = time.time()
+        resampling_time = end - start
 
-            resampled_walkers = resampling_results[0]
-            resampling_data = resampling_results[1]
-            resampler_data = resampling_results[2]
+        resampled_walkers = resampling_results[0]
+        resampling_data = resampling_results[1]
+        resampler_data = resampling_results[2]
 
-            if debug_prints:
-                # print results for this cycle
-                print("Net state of walkers after resampling:")
-                print("--------------------------------------")
-                # slots
-                slot_str = self.result_template_str.format("walker",
-                                                      *[i for i in range(len(resampled_walkers))])
-                print(slot_str)
-                # weights
-                walker_weight_str = self.result_template_str.format("weight",
-                    *[round(walker.weight, 3) for walker in resampled_walkers])
-                print(walker_weight_str)
+        # log the weights of the walkers after resampling
+        result_template_str = "|".join(["{:^5}" for i in range(self.n_init_walkers + 1)])
+        walker_weight_str = result_template_str.format("weight",
+            *[round(walker.weight, 3) for walker in resampled_walkers])
+        logging.info(walker_weight_str)
 
-            # report results to the reporters
-            for reporter in self.reporters:
-                reporter.report(cycle_idx, new_walkers,
-                                warp_data, bc_data, progress_data,
-                                resampling_data, resampler_data,
-                                debug_prints=debug_prints,
-                                n_steps=segment_length,
-                                worker_segment_times=self.work_mapper.worker_segment_times,
-                                cycle_runner_time=runner_time,
-                                cycle_bc_time=bc_time,
-                                cycle_resampling_time=resampling_time,
-                                resampled_walkers=resampled_walkers)
+        # report results to the reporters
+        for reporter in self.reporters:
+            reporter.report(cycle_idx, new_walkers,
+                            warp_data, bc_data, progress_data,
+                            resampling_data, resampler_data,
+                            n_steps=segment_length,
+                            worker_segment_times=self.work_mapper.worker_segment_times,
+                            cycle_runner_time=runner_time,
+                            cycle_bc_time=bc_time,
+                            cycle_resampling_time=resampling_time,
+                            resampled_walkers=resampled_walkers)
 
-            # prepare resampled walkers for running new state changes
-            walkers = resampled_walkers
+        # prepare resampled walkers for running new state changes
+        walkers = resampled_walkers
 
 
-            # we also return a list of the "filters" which are the
-            # classes that are run on the initial walkers to produce
-            # the final walkers. THis is to satisfy a future looking
-            # interface in which the order and components of these
-            # filters are completely parametrizable. This may or may
-            # not be implemented in a future release of wepy but this
-            # interface is assumed by the orchestration classes for
-            # making snapshots of the simulations. The receiver of
-            # these should perform the copy to make sure they aren't
-            # mutated. We don't do this here for efficiency.
-            filters = [self.runner, self.boundary_conditions, self.resampler]
+        # we also return a list of the "filters" which are the
+        # classes that are run on the initial walkers to produce
+        # the final walkers. THis is to satisfy a future looking
+        # interface in which the order and components of these
+        # filters are completely parametrizable. This may or may
+        # not be implemented in a future release of wepy but this
+        # interface is assumed by the orchestration classes for
+        # making snapshots of the simulations. The receiver of
+        # these should perform the copy to make sure they aren't
+        # mutated. We don't do this here for efficiency.
+        filters = [self.runner, self.boundary_conditions, self.resampler]
 
-            return walkers, filters
+        return walkers, filters
 
-    def init(self, num_workers=None, continue_run=None, debug_prints=False):
+    def init(self, num_workers=None, continue_run=None):
 
-        if debug_prints:
-            self.result_template_str = "|".join(["{:^5}" for i in range(self.n_init_walkers + 1)])
-            sys.stdout.write("Starting simulation\n")
+
+        logging.info("Starting simulation")
 
         # initialize the work_mapper with the function it will be
         # mapping and the number of workers, this may include things like starting processes
         # etc.
         self.work_mapper.init(segment_func=self.runner.run_segment,
-                              num_workers=num_workers,
-                              debug_prints=debug_prints)
+                              num_workers=num_workers)
 
         # init the reporter
         for reporter in self.reporters:
@@ -176,7 +157,7 @@ class Manager(object):
                           reporters=self.reporters,
                           continue_run=continue_run)
 
-    def cleanup(self, debug_prints=False):
+    def cleanup(self):
 
         # cleanup the mapper
         self.work_mapper.cleanup()
@@ -190,8 +171,7 @@ class Manager(object):
                              reporters=self.reporters)
 
 
-    def run_simulation_by_time(self, run_time, segments_length, num_workers=None,
-                               debug_prints=False):
+    def run_simulation_by_time(self, run_time, segments_length, num_workers=None):
         """Run a simulation for a certain amount of time. This starts timing
         as soon as this is called. If the time before running a new
         cycle is greater than the runtime the run will exit after
@@ -205,48 +185,41 @@ class Manager(object):
 
         """
         start_time = time.time()
-        self.init(num_workers=num_workers, debug_prints=debug_prints)
+        self.init(num_workers=num_workers)
         cycle_idx = 0
         walkers = self.init_walkers
         while time.time() - start_time < run_time:
 
-            if debug_prints:
-                print("starting cycle {} at time {}".format(cycle_idx, time.time() - start_time))
+            logging.info("starting cycle {} at time {}".format(cycle_idx, time.time() - start_time))
 
-            walkers, filters = self.run_cycle(walkers, segments_length, cycle_idx,
-                                              debug_prints=debug_prints)
+            walkers, filters = self.run_cycle(walkers, segments_length, cycle_idx)
 
-            if debug_prints:
-                print("ending cycle {} at time {}".format(cycle_idx, time.time() - start_time))
+            logging.info("ending cycle {} at time {}".format(cycle_idx, time.time() - start_time))
 
             cycle_idx += 1
 
-        self.cleanup(debug_prints=debug_prints)
+        self.cleanup()
 
         return walkers, deepcopy(filters)
 
-    def run_simulation(self, n_cycles, segment_lengths, num_workers=None,
-                       debug_prints=False):
+    def run_simulation(self, n_cycles, segment_lengths, num_workers=None):
         """Run a simulation for a given number of cycles with specified
         lengths of MD segments in between.
 
         """
 
-        self.init(num_workers=num_workers,
-                  debug_prints=debug_prints)
+        self.init(num_workers=num_workers)
 
         walkers = self.init_walkers
         # the main cycle loop
         for cycle_idx in range(n_cycles):
-            walkers, filters = self.run_cycle(walkers, segment_lengths[cycle_idx], cycle_idx,
-                                         debug_prints=debug_prints)
+            walkers, filters = self.run_cycle(walkers, segment_lengths[cycle_idx], cycle_idx)
 
-        self.cleanup(debug_prints=debug_prints)
+        self.cleanup()
 
         return walkers, deepcopy(filters)
 
-    def continue_run_simulation(self, run_idx, n_cycles, segment_lengths, num_workers=None,
-                                debug_prints=False):
+    def continue_run_simulation(self, run_idx, n_cycles, segment_lengths, num_workers=None):
         """Continue a simulation. All this does is provide a run idx to the
         reporters, which is the run that is intended to be
         continued. This simulation manager knows no details and is
@@ -255,22 +228,19 @@ class Manager(object):
         """
 
         self.init(num_workers=num_workers,
-                  continue_run=run_idx,
-                  debug_prints=debug_prints)
+                  continue_run=run_idx)
 
         walkers = self.init_walkers
         # the main cycle loop
         for cycle_idx in range(n_cycles):
-            walkers, filters = self.run_cycle(walkers, segment_lengths[cycle_idx], cycle_idx,
-                                         debug_prints=debug_prints)
+            walkers, filters = self.run_cycle(walkers, segment_lengths[cycle_idx], cycle_idx)
 
-        self.cleanup(debug_prints=debug_prints)
+        self.cleanup()
 
         return walkers, filters
 
 
-    def continue_run_simulation_by_time(self, run_idx, run_time, segments_length, num_workers=None,
-                               debug_prints=False):
+    def continue_run_simulation_by_time(self, run_idx, run_time, segments_length, num_workers=None):
         """Continue a simulation. All this does is provide a run idx to the
         reporters, which is the run that is intended to be
         continued. This simulation manager knows no details and is
@@ -281,24 +251,20 @@ class Manager(object):
         start_time = time.time()
 
         self.init(num_workers=num_workers,
-                  continue_run=run_idx,
-                  debug_prints=debug_prints)
+                  continue_run=run_idx)
 
         cycle_idx = 0
         walkers = self.init_walkers
         while time.time() - start_time < run_time:
 
-            if debug_prints:
-                print("starting cycle {} at time {}".format(cycle_idx, time.time() - start_time))
+            logging.info("starting cycle {} at time {}".format(cycle_idx, time.time() - start_time))
 
-            walkers, filters = self.run_cycle(walkers, segments_length, cycle_idx,
-                                       debug_prints=debug_prints)
+            walkers, filters = self.run_cycle(walkers, segments_length, cycle_idx)
 
-            if debug_prints:
-                print("ending cycle {} at time {}".format(cycle_idx, time.time() - start_time))
+            logging.info("ending cycle {} at time {}".format(cycle_idx, time.time() - start_time))
 
             cycle_idx += 1
 
-        self.cleanup(debug_prints=debug_prints)
+        self.cleanup()
 
         return walkers, filters

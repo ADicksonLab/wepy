@@ -1,6 +1,7 @@
 from collections import namedtuple
 from enum import Enum
 from string import ascii_lowercase
+import logging
 
 import numpy as np
 

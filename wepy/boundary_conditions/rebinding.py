@@ -2,6 +2,7 @@ import sys
 import itertools as it
 from collections import defaultdict
 from random import random
+import logging
 
 import numpy as np
 import numpy.linalg as la
@@ -87,7 +88,7 @@ class RebindingBC(BoundaryConditions):
 
         return warped_walker, warp_record, warp_data
 
-    def warp_walkers(self, walkers, cycle, debug_prints=False):
+    def warp_walkers(self, walkers, cycle):
 
         new_walkers = []
         warped_walkers_records = []
@@ -123,12 +124,10 @@ class RebindingBC(BoundaryConditions):
                 for key, value in warp_data.items():
                     cycle_warp_data[key].append(value)
 
-                # DEBUG
-                if debug_prints:
-                    sys.stdout.write('REBINDING observed at {} \n'.format(
-                        warp_data['passage_time']))
-                    sys.stdout.write('Warped Walker Weight = {} \n'.format(
-                        warp_data['warped_walker_weight']))
+                logging.info('REBINDING observed at {}'.format(
+                    warp_data['passage_time']))
+                logging.info('Warped Walker Weight = {}'.format(
+                    warp_data['warped_walker_weight']))
 
             # no warping so just return the original walker
             else:

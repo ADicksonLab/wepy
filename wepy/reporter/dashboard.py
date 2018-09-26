@@ -1,3 +1,4 @@
+import logging
 
 from wepy.reporter.reporter import ProgressiveFileReporter
 

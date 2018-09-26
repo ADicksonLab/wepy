@@ -1,6 +1,7 @@
 from multiprocessing import Queue, JoinableQueue
 import queue
 import time
+import logging
 
 import multiprocessing as mp
 
@@ -65,7 +66,7 @@ class Mapper(object):
 class WorkerMapper(Mapper):
 
     def __init__(self, num_workers=None, worker_type=None,
-                 debug_prints=False, **kwargs):
+                 **kwargs):
 
         self._num_workers = num_workers
         self._worker_segment_times = {i : [] for i in range(self.num_workers)}
@@ -92,7 +93,7 @@ class WorkerMapper(Mapper):
     def worker_type(self, worker_type):
         self._worker_type = worker_type
 
-    def init(self, num_workers=None, debug_prints=False, **kwargs):
+    def init(self, num_workers=None, **kwargs):
 
         super().init(**kwargs)
 
@@ -111,18 +112,17 @@ class WorkerMapper(Mapper):
         self._result_queue = Queue()
 
         # Start workers, giving them all the queues
-        self._workers = [self.worker_type(i, self._task_queue, self._result_queue,
-                                          debug_prints=debug_prints)
+        self._workers = [self.worker_type(i, self._task_queue, self._result_queue)
                          for i in range(num_workers)]
 
         # start the worker processes
         for worker in self._workers:
             worker.start()
-            if debug_prints:
-                print("Worker process started as name: {}; PID: {}".format(worker.name,
-                                                                       worker.pid))
 
-    def cleanup(self, debug_prints=False):
+            logging.info("Worker process started as name: {}; PID: {}".format(worker.name,
+                                                                              worker.pid))
+
+    def cleanup(self):
 
         # send poison pills (Stop signals) to the queues to stop them in a nice way
         # and let them finish up
@@ -137,11 +137,10 @@ class WorkerMapper(Mapper):
     def make_task(self, *args, **kwargs):
         return Task(self._func, *args, **kwargs)
 
-    def map(self, *args, debug_prints=False):
+    def map(self, *args):
 
         map_process = mp.current_process()
-        if debug_prints:
-            print("Mapping from process {}; PID {}".format(map_process.name, map_process.pid))
+        logging.info("Mapping from process {}; PID {}".format(map_process.name, map_process.pid))
 
         # make tuples for the arguments to each function call
         task_args = zip(*args)
@@ -155,8 +154,7 @@ class WorkerMapper(Mapper):
             self._task_queue.put((task_idx, self.make_task(*task_arg)))
 
 
-        if debug_prints:
-            print("Waiting for tasks to be run")
+        logging.info("Waiting for tasks to be run")
 
         # Wait for all of the tasks to finish
         self._task_queue.join()
@@ -171,29 +169,24 @@ class WorkerMapper(Mapper):
         # forever, since nothing is there. ALternatively it is risky
         # to implement a wait timeout or no wait in case there is a
         # small wait time.
-        if debug_prints:
-            print("Retrieving results")
+        logging.info("Retrieving results")
 
         n_results = num_tasks
         results = []
         while n_results > 0:
 
-            if debug_prints:
-                print("trying to retrieve result: {}".format(n_results))
+            logging.info("trying to retrieve result: {}".format(n_results))
 
             result = self._result_queue.get()
             results.append(result)
 
-            if debug_prints:
-                print("Retrieved result {}: {}".format(n_results, result))
+            logging.info("Retrieved result {}: {}".format(n_results, result))
 
             n_results -= 1
 
-        if debug_prints:
-            print("No more results")
+        logging.info("No more results")
 
-        if debug_prints:
-            print("Retrieved results")
+        logging.info("Retrieved results")
 
         # sort the results according to their task_idx
         results.sort()

@@ -1,5 +1,6 @@
 import os.path as osp
 from copy import deepcopy
+import logging
 
 from wepy.work_mapper.mapper import Mapper, WorkerMapper
 from wepy.work_mapper.worker import Worker

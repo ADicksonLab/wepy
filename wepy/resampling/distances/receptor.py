@@ -1,3 +1,5 @@
+import logging
+
 import numpy as np
 
 from wepy.util.util import box_vectors_to_lengths_angles

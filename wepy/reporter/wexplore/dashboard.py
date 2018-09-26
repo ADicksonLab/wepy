@@ -1,6 +1,7 @@
 import os.path as osp
 from collections import defaultdict
 import itertools as it
+import logging
 
 from wepy.reporter.dashboard import DashboardReporter
 

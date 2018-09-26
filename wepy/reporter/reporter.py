@@ -1,6 +1,7 @@
 import os
 import os.path as osp
 import pickle
+import logging
 
 class ReporterError(Exception):
     pass

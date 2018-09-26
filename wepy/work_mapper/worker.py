@@ -1,10 +1,11 @@
 from multiprocessing import Process
 import multiprocessing as mp
 import time
+import logging
 
 class Worker(Process):
 
-    def __init__(self, worker_idx, task_queue, result_queue, debug_prints=False):
+    def __init__(self, worker_idx, task_queue, result_queue):
 
         # call the Process constructor
         Process.__init__(self)
@@ -15,17 +16,15 @@ class Worker(Process):
         self.task_queue = task_queue
         self.result_queue = result_queue
 
-        self.debug_prints = debug_prints
-
     def run_task(self, task):
         return task()
 
     def run(self):
 
-        if self.debug_prints:
-            worker_process = mp.current_process()
-            print("Worker process started as name: {}; PID: {}\n".format(worker_process.name,
-                                                                       worker_process.pid))
+        worker_process = mp.current_process()
+        logging.info("Worker process started as name: {}; PID: {}".format(worker_process.name,
+                                                                          worker_process.pid))
+
         while True:
 
             # get the next task
@@ -34,9 +33,8 @@ class Worker(Process):
             # # check for the poison pill which is the signal to stop
             if next_task is None:
 
-                if self.debug_prints:
-                    print('Worker: {}; received {} {}: FINISHED'.format(
-                        self.name, task_idx, next_task))
+                logging.info('Worker: {}; received {} {}: FINISHED'.format(
+                    self.name, task_idx, next_task))
 
                 # mark the poison pill task as done
                 self.task_queue.task_done()
@@ -44,9 +42,8 @@ class Worker(Process):
                 # and exit the loop
                 break
 
-            if self.debug_prints:
-                print('Worker: {}; task_idx : {}; args : {} '.format(
-                    self.name, task_idx, next_task.args))
+            logging.info('Worker: {}; task_idx : {}; args : {} '.format(
+                self.name, task_idx, next_task.args))
 
             # run the task
             start = time.time()
@@ -54,9 +51,8 @@ class Worker(Process):
             end = time.time()
             task_time = end - start
 
-            if self.debug_prints:
-                print('Worker: {}; task_idx : {}; COMPLETED in {} s'.format(
-                    self.name, task_idx, task_time))
+            logging.info('Worker: {}; task_idx : {}; COMPLETED in {} s'.format(
+                self.name, task_idx, task_time))
 
             # (for joinable queue) tell the queue that the formerly
             # enqued task is complete

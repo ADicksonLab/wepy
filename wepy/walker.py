@@ -1,4 +1,5 @@
 import random as rand
+import logging
 
 def split(walker, number=2):
     # calculate the weight of all child walkers split uniformly

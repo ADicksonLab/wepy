@@ -1,4 +1,5 @@
 from copy import deepcopy
+import logging
 
 import numpy as np
 
@@ -260,7 +261,6 @@ class WepyHDF5Reporter(FileReporter):
     def report(self, cycle_idx, walkers,
                warp_data, bc_data, progress_data,
                resampling_data, resampler_data,
-               debug_prints=False,
                **kwargs):
 
         n_walkers = len(walkers)

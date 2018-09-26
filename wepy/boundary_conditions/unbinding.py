@@ -2,6 +2,7 @@ import sys
 import itertools as it
 from collections import defaultdict
 from copy import copy
+import logging
 
 import numpy as np
 import numpy.linalg as la
@@ -132,7 +133,7 @@ class UnbindingBC(BoundaryConditions):
         else:
             return []
 
-    def warp_walkers(self, walkers, cycle, debug_prints=False):
+    def warp_walkers(self, walkers, cycle):
 
         new_walkers = []
 
@@ -166,10 +167,9 @@ class UnbindingBC(BoundaryConditions):
                 # save the instruction record of the walker
                 warp_data.append(walker_warp_data)
 
-                if debug_prints:
-                    sys.stdout.write('EXIT POINT observed at {} \n'.format(cycle))
-                    sys.stdout.write('Warped Walker Weight = {} \n'.format(
-                        walker_warp_data['weight']))
+                logging.info('EXIT POINT observed at {}'.format(cycle))
+                logging.info('Warped Walker Weight = {}'.format(
+                    walker_warp_data['weight']))
 
             # no warping so just return the original walker
             else:

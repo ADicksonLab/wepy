@@ -1,3 +1,5 @@
+import logging
+
 from wepy.resampling.resamplers.resampler import Resampler
 
 # for the framework
@@ -133,7 +135,7 @@ class RandomCloneMergeResamplerMonolithic(Resampler):
 
 
 
-    def resample(self, walkers, debug_prints=False):
+    def resample(self, walkers):
 
         n_walkers = len(walkers)
 
@@ -145,16 +147,13 @@ class RandomCloneMergeResamplerMonolithic(Resampler):
         # choose number of clone-merges between 1 and 10
         n_clone_merges = rand.randint(0, self.n_resamplings)
 
-        if debug_prints:
-            result_template_str = "|".join(["{:^10}" for i in range(n_walkers+1)])
-            print("Number of clone-merges to perform: {}".format(n_clone_merges))
+        result_template_str = "|".join(["{:^10}" for i in range(n_walkers+1)])
+        logging.info("Number of clone-merges to perform: {}".format(n_clone_merges))
 
         resampling_actions = []
         for resampling_stage_idx in range(n_clone_merges):
 
-            if debug_prints:
-                print("Resampling Stage: {}".format(resampling_stage_idx))
-                print("---------------------")
+            logging.info("Resampling Stage: {}".format(resampling_stage_idx))
 
 
             # choose a random walker to clone
@@ -219,34 +218,32 @@ class RandomCloneMergeResamplerMonolithic(Resampler):
 
             resampling_actions.append(walker_actions)
 
-            # if debug_prints:
+            # walker slot indices
+            slot_str = result_template_str.format("slot", *[i for i in range(n_walkers)])
+            logging.info(slot_str)
 
-            #     # walker slot indices
-            #     slot_str = result_template_str.format("slot", *[i for i in range(n_walkers)])
-            #     print(slot_str)
+            # the resampling actions
+            decisions = []
+            instructions = []
+            for rec in walker_actions:
+                decisions.append(str(rec.decision.name))
+                if rec.decision is self.DECISION.ENUM.CLONE:
+                    instructions.append(str(",".join([str(i) for i in rec.instruction])))
+                else:
+                    instructions.append(str(rec.instruction))
 
-            #     # the resampling actions
-            #     decisions = []
-            #     instructions = []
-            #     for rec in walker_actions:
-            #         decisions.append(str(rec.decision.name))
-            #         if rec.decision is self.DECISION.ENUM.CLONE:
-            #             instructions.append(str(",".join([str(i) for i in rec.instruction])))
-            #         else:
-            #             instructions.append(str(rec.instruction))
+            decision_str = result_template_str.format("decision", *decisions)
+            instruction_str = result_template_str.format("instruct", *instructions)
+            logging.info(decision_str)
+            logging.info(instruction_str)
 
-            #     decision_str = result_template_str.format("decision", *decisions)
-            #     instruction_str = result_template_str.format("instruct", *instructions)
-            #     print(decision_str)
-            #     print(instruction_str)
-
-            #     # print the state of the walkers at this stage of resampling
-            #     walker_state_str = result_template_str.format("state",
-            #         *[str(walker.state) for walker in resampled_walkers])
-            #     print(walker_state_str)
-            #     walker_weight_str = result_template_str.format("weight",
-            #         *[str(walker.weight) for walker in resampled_walkers])
-            #     print(walker_weight_str)
+            # the state of the walkers at this stage of resampling
+            walker_state_str = result_template_str.format("state",
+                *[str(walker.state) for walker in resampled_walkers])
+            logging.info(walker_state_str)
+            walker_weight_str = result_template_str.format("weight",
+                *[str(walker.weight) for walker in resampled_walkers])
+            logging.info(walker_weight_str)
 
 
         # return values: resampled_walkers, resampler_records, resampling_data

@@ -1,6 +1,7 @@
 import multiprocessing as mulproc
 import random as rand
 import itertools as it
+import logging
 
 import numpy as np
 
@@ -125,7 +126,7 @@ class REVOResampler(Resampler):
 
         return spread, wsum
 
-    def decide_clone_merge(self, walkerwt, amp, distance_matrix, debug_prints=False):
+    def decide_clone_merge(self, walkerwt, amp, distance_matrix):
 
         n_walkers = len(walkerwt)
 
@@ -142,8 +143,7 @@ class REVOResampler(Resampler):
         spreads.append(spread)
 
         # maximize the variance through cloning and merging
-        if debug_prints:
-            print("Starting variance optimization:", spread)
+        logging.info("Starting variance optimization:", spread)
 
         productive = True
         while productive:
@@ -225,8 +225,7 @@ class REVOResampler(Resampler):
                 if newspread > spread:
                     spreads.append(newspread)
 
-                    if debug_prints:
-                        print("Variance move to", newspread, "accepted")
+                    logging.info("Variance move to", newspread, "accepted")
 
                     productive = True
                     spread = newspread
@@ -284,8 +283,7 @@ class REVOResampler(Resampler):
                     newspread, wsum = self._calcspread(new_wt, new_amp, distance_matrix)
                     spreads.append(newspread)
 
-                    if debug_prints:
-                        print("variance after selection:", newspread)
+                    logging.info("variance after selection:", newspread)
 
                 # if not productive
                 else:
@@ -329,7 +327,7 @@ class REVOResampler(Resampler):
 
         return [walker_dists for walker_dists in dist_mat], images
 
-    def resample(self, walkers, debug_prints=False):
+    def resample(self, walkers):
 
         n_walkers = len(walkers)
         walkerwt = [walker.weight for walker in walkers]
@@ -338,14 +336,12 @@ class REVOResampler(Resampler):
         # calculate distance matrix
         distance_matrix, images = self._all_to_all_distance(walkers)
 
-        if debug_prints:
-            print("distance_matrix")
-            print(np.array(distance_matrix))
+        logging.info("distance_matrix")
+        logging.info(np.array(distance_matrix))
 
         # determine cloning and merging actions to be performed, by
         # maximizing the spread, i.e. the Decider
-        resampling_data, spread = self.decide_clone_merge(walkerwt, amp, distance_matrix,
-                                                             debug_prints=debug_prints)
+        resampling_data, spread = self.decide_clone_merge(walkerwt, amp, distance_matrix)
 
         # convert the target idxs and decision_id to feature vector arrays
         for record in resampling_data:

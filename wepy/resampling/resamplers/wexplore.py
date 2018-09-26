@@ -3,6 +3,7 @@ import random as rand
 import itertools as it
 from collections import namedtuple, defaultdict
 from copy import copy, deepcopy
+import logging
 
 import numpy as np
 import networkx as nx
@@ -1796,15 +1797,13 @@ class WExploreResampler(Resampler):
         merge_groups, walkers_num_clones = \
                         self.region_tree.balance_tree(delta_walkers=delta_walkers)
 
-        if self.is_debug_on:
-            print("merge_groups\n{}".format(merge_groups))
-            print("Walker number of clones\n{}".format(walkers_num_clones))
-            print("Walker assignments\n{}".format(self.region_tree.walker_assignments))
-            print("Walker weights\n{}".format(self.region_tree.walker_weights))
+        logging.info("merge_groups\n{}".format(merge_groups))
+        logging.info("Walker number of clones\n{}".format(walkers_num_clones))
+        logging.info("Walker assignments\n{}".format(self.region_tree.walker_assignments))
+        logging.info("Walker weights\n{}".format(self.region_tree.walker_weights))
 
-            # check to make sure we have selected appropriate walkers to clone
-            # print images
-            print("images_assignments\n{}".format(self.region_tree.regions))
+        # check to make sure we have selected appropriate walkers to clone
+        logging.info("images_assignments\n{}".format(self.region_tree.regions))
 
         # take the specs for cloning and merging and generate the
         # actual resampling actions (instructions) for each walker,
@@ -1924,7 +1923,7 @@ class WExploreResampler(Resampler):
         self.region_tree.min_num_walkers = False
 
 
-    def resample(self, walkers, debug_prints=False):
+    def resample(self, walkers):
 
         # do some initialiation routines and debugging preparations if
         # necessary

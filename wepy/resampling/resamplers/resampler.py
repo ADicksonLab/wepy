@@ -1,6 +1,7 @@
 import itertools as it
 from collections import defaultdict
 from warnings import warn
+import logging
 
 import numpy as np
 
@@ -25,19 +26,12 @@ class Resampler():
     RESAMPLER_RECORD_FIELDS = ()
 
 
-    # logging and debugging
-
     # valid debug modes
     DEBUG_MODES = (True, False,)
 
-    # valid logging modes
-    LOGGING_MODES = (None,)
-
-
     def __init__(self, min_num_walkers=Ellipsis,
                  max_num_walkers=Ellipsis,
-                 debug_mode=False,
-                 logging_mode=None):
+                 debug_mode=False):
 
         # the min and max number of walkers that can be generated in
         # resampling.
@@ -61,15 +55,11 @@ class Resampler():
         self._min_num_walkers = min_num_walkers
         self._max_num_walkers = max_num_walkers
 
-        # initialize variables for debug and logging modes
+        # initialize debug mode
         self._debug_mode = False
-        self._logging_mode = None
 
         # set them to the args given
         self.set_debug_mode(debug_mode)
-        self.set_logging_mode(logging_mode)
-
-
 
     def resampling_field_names(self):
         return self.RESAMPLING_FIELDS
@@ -134,19 +124,6 @@ class Resampler():
             warn("Debug mode is already off")
 
         self.set_debug_mode(False)
-
-    @property
-    def logging_mode(self):
-        return self._logging_mode
-
-    def set_logging_mode(self, mode):
-        if mode not in self.LOGGING_MODES:
-            raise ValueError("logging mode, {}, not valid".format(mode))
-
-        self._logging_mode = mode
-
-    def logging_off(self):
-        self.set_logging_mode(None)
 
     @property
     def max_num_walkers_setting(self):
@@ -255,11 +232,11 @@ class Resampler():
         self._unset_resampling_num_walkers()
 
 
-    def resample(self, walkers, debug_mode=False, logging=False):
+    def resample(self, walkers, debug_mode=False):
 
         raise NotImplemented
 
-        self._resample_init(walkers, debug_mode=debug_mode, logging=logging)
+        self._resample_init(walkers, debug_mode=debug_mode)
 
 
     def assign_clones(self, merge_groups, walker_clone_nums):

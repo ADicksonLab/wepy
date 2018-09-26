@@ -1,3 +1,5 @@
+import logging
+
 class Distance(object):
 
     def __init__(self):
