@@ -182,13 +182,13 @@ Defined Regions with the number of child regions per parent region:
 
         # if there were any warps we need to set new values for the
         # warp variables and add records
-        self.update_warp_values(warp_data)
+        self.update_warp_values(cycle_idx, warp_data)
 
         # update progress towards the boundary conditions
-        self.update_progress_values(progress_data)
+        self.update_progress_values(cycle_idx, progress_data)
 
         # now we update the WExplore values
-        self.update_wexplore_values(resampling_data, resampler_data)
+        self.update_wexplore_values(cycle_idx, resampling_data, resampler_data)
 
         # update the performance of the workers for our simulation
         self.update_performance_values(cycle_idx, n_steps, worker_segment_times,
@@ -219,7 +219,7 @@ Defined Regions with the number of child regions per parent region:
         self.walker_weights = [walker.weight for walker in walkers]
 
 
-    def update_warp_values(self, warp_data):
+    def update_warp_values(self, cycle_idx, warp_data):
 
         self.cycle_n_exit_points = 0
         for warp_record in warp_data:
@@ -227,7 +227,7 @@ Defined Regions with the number of child regions per parent region:
             weight = warp_record['weight'][0]
             walker_idx = warp_record['walker_idx'][0]
 
-            record = (walker_idx, weight, self.walker_total_sampling_time)
+            record = (walker_idx, weight, cycle_idx, self.walker_total_sampling_time)
             self.warp_records.append(record)
 
             # also add them to the individual records
@@ -246,18 +246,18 @@ Defined Regions with the number of child regions per parent region:
         self.exit_rate = self.total_unbound_weight / self.total_sampling_time
 
         # calculate the expected value of unbinding times
-        self.expected_unbinding_time = np.sum([self.exit_point_weights[i] * self.exit_point_times[i] for
-                                               i in range(self.n_exit_points)])
+        self.expected_unbinding_time = np.sum([self.exit_point_weights[i] * self.exit_point_times[i]
+                                               for i in range(self.n_exit_points)])
 
         # expected rate of reactive trajectories
         self.reactive_traj_rate = 1 / self.expected_unbinding_time
 
 
-    def update_progress_values(self, progress_data):
+    def update_progress_values(self, cycle_idx, progress_data):
 
         self.walker_distance_to_prot = tuple(progress_data['min_distances'])
 
-    def update_wexplore_values(self, resampling_data, resampler_data):
+    def update_wexplore_values(self, cycle_idx, resampling_data, resampler_data):
 
         # the region assignments for walkers
         assignments = []
@@ -441,7 +441,7 @@ Defined Regions with the number of child regions per parent region:
         branching_table_str = branching_table_df.to_string()
 
         # log of warp events
-        warp_table_colnames = ('walker_idx', 'weight', 'time (s)')
+        warp_table_colnames = ('walker_idx', 'weight', 'cycle_idx', 'time (s)')
         warp_table_df = pd.DataFrame(self.warp_records, columns=warp_table_colnames)
         warp_table_str = warp_table_df.to_string()
 

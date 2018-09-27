@@ -61,7 +61,7 @@ def settle_run_options(n_workers=None,
 
     return n_workers, job_dir, job_name, narration
 
-@click.option('--logging', default="WARNING")
+@click.option('--log', default="WARNING")
 @click.option('--n-workers', type=click.INT)
 @click.option('--checkpoint-freq', default=None, type=click.INT)
 @click.option('--job-dir', default=CURDIR, type=click.Path(writable=True))
@@ -72,10 +72,10 @@ def settle_run_options(n_workers=None,
 @click.argument('start_hash')
 @click.argument('orchestrator', type=click.File(mode='rb'))
 @click.command()
-def run(logging, n_workers, checkpoint_freq, job_dir, job_name, narration,
+def run(log, n_workers, checkpoint_freq, job_dir, job_name, narration,
         n_cycle_steps, run_time, start_hash, orchestrator):
 
-    set_loglevel(logging)
+    set_loglevel(log)
 
     # settle what the defaults etc. are for the different options as they are interdependent
     n_workers, job_dir, job_name, narration = settle_run_options(n_workers=n_workers,
