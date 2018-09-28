@@ -2148,10 +2148,26 @@ class WepyHDF5(object):
 
         # check the args and kwargs to see if they need expanded for
         # mapping inputs
+        #first go through each run and get the number of cycles
+        n_cycles = 0
+        for run_idx in self.run_idxs:
+            n_cycles += self.run_n_cycles(run_idx)
+
         mapped_args = []
+        for arg in args:
+            # if it is a sequence or generator we keep just pass it to the mapper
+            if isinstance(arg, list) and not isinstance(arg, str):
+                assert len(arg) == len(n_cycles), "Sequence has fewer"
+                mapped_args.append(arg)
+            # if it is not a sequence or generator we make a generator out
+            # of it to map as inputs
+            else:
+                mapped_arg = (arg for i in range(n_cycles))
+                mapped_args.append(mapped_arg)
+
 
         results = map_func(func, self.iter_trajs_fields(fields, traj_sel=traj_sel, idxs=False),
-                           *args)
+                           *mapped_args)
 
         if idxs:
             if traj_sel is None:
