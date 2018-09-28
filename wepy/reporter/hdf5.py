@@ -268,7 +268,7 @@ class WepyHDF5Reporter(FileReporter):
         # determine which fields to save. If there were none specified
         # save all of them
         if self.save_fields is None:
-            save_fields = list(walkers[0].dict().keys())
+            save_fields = list(walkers[0].state.dict().keys())
         else:
             save_fields = self.save_fields
 

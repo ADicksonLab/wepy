@@ -61,7 +61,7 @@ def transition_counts_matrix(assignments, transitions):
     countsmat_d = transition_counts(assignments, transitions)
 
     # convert to matrix
-    countsmat = counts_d_to_matrix(counts_d)
+    countsmat = counts_d_to_matrix(countsmat_d)
 
     return countsmat
 
