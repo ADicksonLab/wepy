@@ -104,6 +104,7 @@ def run(log, n_workers, checkpoint_freq, job_dir, job_name, narration,
     # also put it to the terminal
     click.echo(run_line_str)
 
+@click.option('--log', default="WARNING")
 @click.option('--n-workers', type=click.INT)
 @click.option('--checkpoint-freq', default=None, type=click.INT)
 @click.option('--job-dir', default=CURDIR, type=click.Path(writable=True))
@@ -115,10 +116,10 @@ def run(log, n_workers, checkpoint_freq, job_dir, job_name, narration,
 @click.argument('start_hash')
 @click.argument('orchestrator', type=click.File(mode='rb'))
 @click.command()
-def recover(logging, n_workers, checkpoint_freq, job_dir, job_name, narration,
+def recover(log, n_workers, checkpoint_freq, job_dir, job_name, narration,
             n_cycle_steps, run_time, checkpoint, start_hash, orchestrator):
 
-    set_loglevel(logging)
+    set_loglevel(log)
 
     n_workers, job_dir, job_name, narration = settle_run_options(n_workers=n_workers,
                                                                  job_dir=job_dir,
