@@ -56,3 +56,11 @@ def json_top_atom_count(json_str):
 
     return atom_count
 
+def json_top_subset(json_str, atom_idxs):
+    """Given a JSON topology and atom indices from that topology returns
+    another JSON topology which is a subset of the first, preserving
+    the topology between remaining atoms
+
+    """
+
+    

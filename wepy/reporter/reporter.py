@@ -155,66 +155,6 @@ class FileReporter(Reporter):
         self.file_paths = file_paths
         self.modes = modes
 
-
-class ParametrizableFileReporter(FileReporter):
-
-    PATH_TEMPLATE = "{work_dir}/{root_name}{suffix}.{extensions}"
-    SUFFIX_TEMPLATE = "_{}"
-
-    def __init__(self, root_names=None, work_dir=None, suffix=None, extensions=None,
-                 **kwargs):
-
-        # we check if we should bypass this class initialization and
-        # just do the base stuff
-        if self._bypass_dispatch(**kwargs):
-            return None
-
-        # otherwise we do the parametrization
-
-        self._root_names = root_names
-
-        if work_dir is None:
-            self._work_dir = osp.realpath(osp.curdir)
-        else:
-            self._work_dir = work_dir
-
-        if suffix is None:
-            self._suffix = ""
-        else:
-            self._suffix = self.SUFFIX_TEMPLATE.format(suffix)
-
-        self._extensions = extensions
-
-        file_paths = []
-        for file_idx, root_name in enumerate(self._root_names):
-            # construct a path for this reporter
-            file_path = self.PATH_TEMPLATE.format(root_name=root_name,
-                                                  work_dir=osp.realpath(self._work_dir),
-                                                  suffix=self._suffix,
-                                                  extensions=self._extensions[file_idx].strip('.')
-            )
-
-            file_paths.append(file_path)
-
-        super().__init__(file_paths=file_paths, **kwargs)
-
-    @property
-    def root_names(self):
-        return self._root_names
-
-    @property
-    def work_dir(self):
-        return self._work_dir
-
-    @property
-    def suffix(self):
-        return self._suffix
-
-    @property
-    def extensions(self):
-        return self._extensions
-
-
 class ProgressiveFileReporter(FileReporter):
     """Super class for a reporter that will successively overwrite the
     same file over and over again. The base FileReporter really only
