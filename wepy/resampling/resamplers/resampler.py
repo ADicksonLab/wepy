@@ -244,7 +244,8 @@ class Resampler():
         n_walkers = len(walker_clone_nums)
 
         # determine resampling actions
-        walker_actions = [self.decision.record(self.decision.ENUM.NOTHING.value, (i,))
+        walker_actions = [self.decision.record(enum_value=self.decision.ENUM.NOTHING.value,
+                                               target_idxs=(i,))
                     for i in range(n_walkers)]
 
         # keep track of which slots will be free due to squashing
