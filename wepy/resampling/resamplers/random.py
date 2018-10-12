@@ -10,9 +10,6 @@ from wepy.resampling.scoring.scorer import RandomScorer
 import random as rand
 from wepy.resampling.decisions.clone_merge import MultiCloneMergeDecision
 
-
-import random as rand
-
 from wepy.resampling.decisions.clone_merge import CloneMergeDecision
 
 class RandomCloneMergeDecider(Resampler):
