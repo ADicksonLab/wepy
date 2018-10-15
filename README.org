@@ -33,8 +33,21 @@ samuel.lotz@salotz.info
 
 ** Installation
 
-Wepy is still in beta but you can install by cloning this repository,
-switching to the last release and installing with pip:
+We are on pip now:
+#+BEGIN_SRC bash
+  pip install wepy
+#+END_SRC
+
+Which will install most dependencies, except for OpenMM (which you
+potentially might not even need). To install it you can just use the
+omnia anaconda repository for the version you want.
+
+#+BEGIN_SRC bash
+  conda install -c omnia openmm
+#+END_SRC
+
+
+You can always install from git as well for the latest:
 
 #+BEGIN_SRC bash
   git clone https://github.com/ADicksonLab/wepy
@@ -42,71 +55,18 @@ switching to the last release and installing with pip:
   pip install -e .
 #+END_SRC
 
-PyPI and Anaconda repos are planned.
 
-The only absolutely necessary dependencies are ~numpy~ and ~h5py~
-which are used in the core classes.
+If installation went alright you should have this command line
+interface for working with orchestration available:
 
-Outside of the core classes there are a couple of dependencies which
-are needed for this distribution but not in general if you use ~wepy~ as
-a library:
-- OpenMM (http://openmm.org/) (7.2 suggested)
-- pandas (https://pandas.pydata.org/)
-- mdtraj (http://mdtraj.org)
-- networkx >=2 (https://networkx.github.io/)
-- geomm (https://github.com/ADicksonLab/geomm)
-
-To install these see their pages and the instructions below for geomm.
-
-The default ~Runner~ is for ~OpenMM~ and should also be installed
-automatically when following these instructions (defined in
-~setup.py~) although it is not necessary to use openmm when using ~wepy~
-as a library.
-
-Currently, some things are still coupled to ~mdtraj~ and thus this is
-also a dependency for some functionality, although this will be
-relaxed in the future and replaced with a dependency on our nascent
-project ~geomm~.
-
-To install geomm:
 #+BEGIN_SRC bash
-git clone https://github.com/ADicksonLab/geomm.git
-cd geomm
-# compile the cython modules
-python setup.py build_ext --inplace
-# install it
-pip install -e .
-
+  wepy --help
 #+END_SRC
-
-
-There are other uses for ~mdtraj~ such as export of trajectories to
-mdtraj trajectories, which will not be removed.
-
-Pandas is used for outputting some data records, for which there is
-always a non-pandas option.
-
-NetworkX is used in the WExplore resampler for the region tree and
-also for the tree module for manipulating the walker cloning/merging
-trees.
-
-** Roadmap
-
-- [X] Weighted Ensemble Layer
-  - [X] simulation manager
-- [X] Resampling sub-module
-  - [X] Random clone-merge resampler
-  - [X] WExplore
-  - [X] REVO
-- [X] OpenMM support
-- [X] HDF5 output and API
-- [ ] Command Line Interface
-- [ ] PyPI and Anaconda repositories
-
 
 ** Getting Started
 
-There are a few examples here (https://github.com/ADicksonLab/wepy/tree/master/examples).
+Until there is proper documentation there are a few examples here
+(https://github.com/ADicksonLab/wepy/tree/master/examples).
 
 There is an example with a pair of Lennard-Jones particles that runs
 on the reference implementation. This is the "Hello World" example and
@@ -117,31 +77,3 @@ unbinding WExplore simulation of the soluble epoxide hydrolase (sEH)
 protein with the inhibitor TPPU, which was the subject of this paper:
 
 Lotz and Dickson. 2018. JACS 140 (2) pp. 618-628 (DOI: 10.1021/jacs.7b08572)
-
-Be sure to install the extra dependencies for the examples as above in
-the installation instructions.
-
-** Architecture
-
-The overall architecture of the project is broken into separate modules:
-- Simulation Management :: a framework for running simulations, needs:
-  - Runner :: module that implements whatever dynamics you want to run
-    - e.g.
-      - OpenMM
-  - Resampler :: the key functionality of the Weighted Ensemble
-                 resampling procedure is implemented here
-    - e.g.
-      - WExplore
-  - WorkMapper :: a function that implements the map function that
-                   allows for arbitrary methods of parallelization
-  - Reporter :: Responsible for the collection and saving of data from wepy runs
-    - e.g. HDF5 or plaintext
-  - BoundaryConditions :: describes and performs boundary condition
-       transformations as the simulation progresses
-  - simulation manager :: coordinates all of these components to run simulations
-
-- helper sub-modules will make the construction of new simulation
-  management modules easier and standardized
-- Application Layer :: This is a convenience layer for building the
-     CLI and perhaps high level functions for users to write their own
-     scripts
