@@ -239,13 +239,20 @@ class Resampler():
         self._resample_init(walkers, debug_mode=debug_mode)
 
 
+    def _init_walker_actions(self):
+        # determine resampling actions
+        walker_actions = [self.decision.record(enum_value=self.decision.ENUM.NOTHING.value,
+                                               target_idxs=(i,))
+                    for i in range(n_walkers)]
+
+        return walker_actions
+
+
     def assign_clones(self, merge_groups, walker_clone_nums):
 
         n_walkers = len(walker_clone_nums)
 
-        # determine resampling actions
-        walker_actions = [self.decision.record(self.decision.ENUM.NOTHING.value, (i,))
-                    for i in range(n_walkers)]
+        walker_actions = self._init_walker_actions()
 
         # keep track of which slots will be free due to squashing
         free_slots = []
@@ -358,8 +365,16 @@ class NoResampler(Resampler):
 
         n_walkers = len(walkers)
 
-        # determine resampling actions
-        walker_actions = [self.decision.record(self.decision.ENUM.NOTHING.value, (i,))
-                    for i in range(n_walkers)]
+        # the walker actions are all nothings with the same walker
+        # index which is the default initialization
+        walker_actions = self._init_walker_actions()
 
-        return walkers, [walker_actions], {}
+        # we only have one step so our resampling_records are just the
+        # single list of walker actions
+        resampling_data = [walker_actions]
+
+        # there is no change in state in the resampler so there are no
+        # resampler records
+        resampler_data = [{}]
+
+        return walkers, resampling_data, resampler_data

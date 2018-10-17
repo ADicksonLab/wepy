@@ -1,9 +1,8 @@
+import multiprocessing as mp
 from multiprocessing import Queue, JoinableQueue
 import queue
 import time
 import logging
-
-import multiprocessing as mp
 
 from wepy.work_mapper.worker import Worker, Task
 

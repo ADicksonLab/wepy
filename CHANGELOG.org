@@ -3,6 +3,8 @@
 Early commits may not have entries because things move fast at that
 stage.
 
+** v0.9
+** v0.8
 ** v0.6
 
 ** v0.4
