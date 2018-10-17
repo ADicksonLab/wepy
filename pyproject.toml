@@ -1,5 +1,5 @@
 [build-system]
-requires = ['setuptools', 'wheel']
+requires = ['setuptools', 'wheel', 'cython', 'numpy']
 
 [tool.poetry]
 name = "wepy"
