@@ -6,12 +6,21 @@ import numpy as np
 from wepy.reporter.reporter import FileReporter
 from wepy.hdf5 import WepyHDF5
 from wepy.util.util import json_top_atom_count
-
 class WepyHDF5Reporter(FileReporter):
 
+    # this is the name of the dataset that the all atoms will be saved
+    # under in the HDF5 alt_reps group
     ALL_ATOMS_REP_KEY = 'all_atoms'
 
+    # this is the suggested extension for naming WepyHDF5 files used
+    # by this reporter, e.g. results.wepy.h5
     SUGGESTED_EXTENSION = "wepy.h5"
+
+    # these are the keys for the key-value (kwargs) that this reporter
+    # recognizes as inputs from the simulation manager
+    REPORT_ITEM_KEYS = ('cycle_idx', 'new_walkers', 'warp_data', 'bc_data',
+                     'progress_data', 'resampling_data', 'resampler_data')
+
 
     def __init__(self,
                  save_fields=None,
@@ -258,24 +267,24 @@ class WepyHDF5Reporter(FileReporter):
         super().cleanup(**kwargs)
 
 
-    def report(self, cycle_idx, walkers,
-               warp_data, bc_data, progress_data,
-               resampling_data, resampler_data,
-               **kwargs):
+    def report(self, **kwargs):
 
-        n_walkers = len(walkers)
+        # select the kwargs we need
+        kwargs = self._select_report_kwargs(**kwargs)
+
+        n_walkers = len(kwargs['new_walkers'])
 
         # determine which fields to save. If there were none specified
         # save all of them
         if self.save_fields is None:
-            save_fields = list(walkers[0].state.dict().keys())
+            save_fields = list(kwargs['new_walkers'][0].state.dict().keys())
         else:
             save_fields = self.save_fields
 
         with self.wepy_h5:
 
             # add trajectory data for the walkers
-            for walker_idx, walker in enumerate(walkers):
+            for walker_idx, walker in enumerate(kwargs['new_walkers']):
 
                 walker = deepcopy(walker)
                 walker_data = walker.state.dict()
@@ -297,7 +306,7 @@ class WepyHDF5Reporter(FileReporter):
                     # if this is a sparse field we decide
                     # whether it is a valid cycle to save on
                     if field_path in self._sparse_fields:
-                        if cycle_idx % self._sparse_fields[field_path] != 0:
+                        if kwargs['cycle_idx'] % self._sparse_fields[field_path] != 0:
                             # this is not a valid cycle so we
                             # remove from the walker_data
                             walker_data.pop(field_path)
@@ -309,7 +318,7 @@ class WepyHDF5Reporter(FileReporter):
                     alt_rep_path = "alt_reps/{}".format(alt_rep_key)
                     # check to make sure this is a cycle this is to be
                     # saved to, if it is add it to the walker_data
-                    if cycle_idx % self._sparse_fields[alt_rep_path] == 0:
+                    if kwargs['cycle_idx'] % self._sparse_fields[alt_rep_path] == 0:
                         # if the idxs are None we want all of the atoms
                         if alt_rep_idxs is None:
                             alt_rep_data = walker_data['positions'][:]
@@ -348,19 +357,19 @@ class WepyHDF5Reporter(FileReporter):
                                                      data=walker_data)
 
                     # add as metadata the cycle idx where this walker started
-                    traj_grp.attrs['starting_cycle_idx'] = cycle_idx
+                    traj_grp.attrs['cycle_idx'] = kwargs['cycle_idx']
 
 
             # report the boundary conditions records data, if boundary
             # conditions were initialized
             if self.warping_fields is not None:
-                self.report_warping(cycle_idx, warp_data)
-                self.report_bc(cycle_idx, bc_data)
-                self.report_progress(cycle_idx, progress_data)
+                self.report_warping(kwargs['cycle_idx'], kwargs['warp_data'])
+                self.report_bc(kwargs['cycle_idx'], kwargs['bc_data'])
+                self.report_progress(kwargs['cycle_idx'], kwargs['progress_data'])
 
             # report the resampling records data
-            self.report_resampling(cycle_idx, resampling_data)
-            self.report_resampler(cycle_idx, resampler_data)
+            self.report_resampling(kwargs['cycle_idx'], kwargs['resampling_data'])
+            self.report_resampler(kwargs['cycle_idx'], kwargs['resampler_data'])
 
         super().report(**kwargs)
 

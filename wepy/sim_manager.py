@@ -7,6 +7,14 @@ from wepy.work_mapper.mapper import Mapper
 
 class Manager(object):
 
+
+    REPORT_ITEM_KEYS = ('cycle_idx', 'n_segment_steps',
+                        'new_walkers', 'resampled_walkers',
+                        'warp_data', 'bc_data', 'progress_dat',
+                        'resampling_data', 'resampler_data',
+                        'worker_segment_times', 'cycle_runner_time',
+                        'cycle_bc_time', 'cycle_resampling_time',)
+
     def __init__(self, init_walkers,
                  runner = None,
                  resampler = None,
@@ -49,13 +57,13 @@ class Manager(object):
 
         return new_walkers
 
-    def run_cycle(self, walkers, segment_length, cycle_idx):
+    def run_cycle(self, walkers, n_segment_steps, cycle_idx):
 
         logging.info("Begin cycle {}".format(cycle_idx))
 
         # run the segment
         start = time.time()
-        new_walkers = self.run_segment(walkers, segment_length)
+        new_walkers = self.run_segment(walkers, n_segment_steps)
         end = time.time()
         runner_time = end - start
 
@@ -106,17 +114,31 @@ class Manager(object):
             *[round(walker.weight, 3) for walker in resampled_walkers])
         logging.info(walker_weight_str)
 
+        # make a dictionary of all the results that will be reported
+
+
+        report = {cycle_idx : cycle_idx,
+                  new_walkers : new_walkers,
+                  warp_data : warp_data,
+                  bc_data : bc_data,
+                  progress_data : progress_data,
+                  resampling_data : resampling_data,
+                  resampler_data : resampler_data,
+                  n_segment_steps : n_segment_steps,
+                  worker_segment_times : self.work_mapper.worker_segment_times,
+                  cycle_runner_time : runner_time,
+                  cycle_bc_time : bc_time,
+                  cycle_resampling_time : resampling_time,
+                  resampled_walkers : resampled_walkers}
+
+        # check that all of the keys that are specified for this sim
+        # manager are present
+        assert all([True rep_key in report else False
+                    for rep_key in self.REPORT_ITEM_KEYS])
+
         # report results to the reporters
         for reporter in self.reporters:
-            reporter.report(cycle_idx, new_walkers,
-                            warp_data, bc_data, progress_data,
-                            resampling_data, resampler_data,
-                            n_steps=segment_length,
-                            worker_segment_times=self.work_mapper.worker_segment_times,
-                            cycle_runner_time=runner_time,
-                            cycle_bc_time=bc_time,
-                            cycle_resampling_time=resampling_time,
-                            resampled_walkers=resampled_walkers)
+            reporter.report(report)
 
         # prepare resampled walkers for running new state changes
         walkers = resampled_walkers

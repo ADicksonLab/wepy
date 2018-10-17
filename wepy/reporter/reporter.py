@@ -8,6 +8,10 @@ class ReporterError(Exception):
 
 class Reporter(object):
 
+    # the keys of the values this reporter uses from the report given
+    # from the sim_manager
+    REPORT_ITEM_KEYS = (,)
+
     def __init__(self, **kwargs):
         pass
 
@@ -17,9 +21,23 @@ class Reporter(object):
             "Superclass with method {} is masked".format(method_name)
 
     def report(self, **kwargs):
+
         method_name = 'report'
         assert not hasattr(super(), method_name), \
             "Superclass with method {} is masked".format(method_name)
+
+    def _select_report_kwargs(self, **kwargs):
+        """Given kwargs to this function selects the values REPORT_ITEM_KEYS and
+        returns only the ones that are used by this reporter.
+
+        """
+
+        # make sure all the necessary keys are in the kwargs
+        assert all([True if rep_key in kwargs else False
+                    for rep_key in kwargs])
+
+        # then select them out
+        return {k : v for k, v in kwargs.items() if k in self.REPORT_ITEM_KEYS}
 
     def cleanup(self, **kwargs):
         method_name = 'cleanup'
