@@ -1,7 +1,6 @@
 import numpy as np
 
 from wepy.reporter.reporter import ProgressiveFileReporter
-
 from wepy.util import json_to_mdtraj_topology
 
 import mdtraj as mdj
@@ -23,11 +22,10 @@ class WalkerReporter(ProgressiveFileReporter):
     def report(self, new_walkers=None,
                **kwargs):
 
-        kwargs = self._select_report_kwargs(**kwargs)
-
         # make a trajectory from these walkers
-        traj = mdj.Trajectory(np.array([state['positions'] for state in new_walkers]),
-                              topology=self.mdtraj_top)
+        traj = mdj.join([walker.state.to_mdtraj(self.mdtraj_top)
+                         for walker in new_walkers],
+                        check_topology=False)
 
         # write to the file for this trajectory
         traj.save_dcd(self.file_path)

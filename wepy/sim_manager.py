@@ -10,7 +10,7 @@ class Manager(object):
 
     REPORT_ITEM_KEYS = ('cycle_idx', 'n_segment_steps',
                         'new_walkers', 'resampled_walkers',
-                        'warp_data', 'bc_data', 'progress_dat',
+                        'warp_data', 'bc_data', 'progress_data',
                         'resampling_data', 'resampler_data',
                         'worker_segment_times', 'cycle_runner_time',
                         'cycle_bc_time', 'cycle_resampling_time',)

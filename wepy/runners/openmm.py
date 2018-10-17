@@ -459,13 +459,14 @@ class OpenMMState(WalkerState):
             d[key] = value
         return d
 
-    def to_mdtraj(self):
+    def to_mdtraj(self, topology):
         """ Returns an mdtraj.Trajectory object from this walker's state."""
         raise NotImplementedError
         import mdtraj as mdj
         # resize the time to a 1D vector
         return mdj.Trajectory(self.positions_values,
-                              time=self.time_value[:,0], unitcell_vectors=self.box_vectors_values)
+                              unitcell_vectors=self.box_vectors_values,
+                              topology=topology)
 
 class OpenMMWalker(Walker):
 
