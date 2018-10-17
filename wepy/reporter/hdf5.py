@@ -16,12 +16,6 @@ class WepyHDF5Reporter(FileReporter):
     # by this reporter, e.g. results.wepy.h5
     SUGGESTED_EXTENSIONS = ("wepy.h5",)
 
-    # these are the keys for the key-value (kwargs) that this reporter
-    # recognizes as inputs from the simulation manager
-    REPORT_ITEM_KEYS = ('cycle_idx', 'new_walkers', 'warp_data', 'bc_data',
-                     'progress_data', 'resampling_data', 'resampler_data')
-
-
     def __init__(self,
                  save_fields=None,
                  topology=None,
