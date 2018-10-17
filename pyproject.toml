@@ -3,7 +3,7 @@ requires = ['setuptools', 'wheel', 'cython', 'numpy']
 
 [tool.poetry]
 name = "wepy"
-version = "0.9.4"
+version = "0.9.5"
 description = "A Weighted Ensemble simulation framework in pure Python with a focus on molecular dynamics."
 authors = ["Samuel Lotz <samuel.lotz@salotz.info>"]
 license = "MIT"
