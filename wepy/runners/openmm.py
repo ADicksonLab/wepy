@@ -13,6 +13,7 @@ from wepy.walker import Walker, WalkerState
 from wepy.runners.runner import Runner
 from wepy.work_mapper.worker import Worker
 from wepy.reporter.reporter import Reporter
+from wepy.util.util import box_vectors_to_lengths_angles
 
 
 ## Constants
@@ -461,11 +462,13 @@ class OpenMMState(WalkerState):
 
     def to_mdtraj(self, topology):
         """ Returns an mdtraj.Trajectory object from this walker's state."""
-        raise NotImplementedError
+
         import mdtraj as mdj
         # resize the time to a 1D vector
-        return mdj.Trajectory(self.positions_values,
-                              unitcell_vectors=self.box_vectors_values,
+        unitcell_lengths, unitcell_angles = box_vectors_to_lengths_angles(self.box_vectors)
+        return mdj.Trajectory(self.positions,
+                              unitcell_lengths=unitcell_lengths,
+                              unitcell_angles=unitcell_angles,
                               topology=topology)
 
 class OpenMMWalker(Walker):
