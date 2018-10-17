@@ -62,7 +62,7 @@ class FileReporter(Reporter):
 
     SUGGESTED_FILENAME_TEMPLATE = "{config}{narration}{reporter_class}.{ext}"
 
-    SUGGESTED_EXTENSION = 'report'
+    SUGGESTED_EXTENSIONS = ('report',)
 
     def __init__(self, file_paths=None, modes=None,
                  file_path=None, mode=None,

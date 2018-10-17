@@ -10,7 +10,7 @@ import pandas as pd
 
 class WExploreDashboardReporter(DashboardReporter):
 
-    SUGGESTED_EXTENSION = "wexplore.dash.org"
+    SUGGESTED_EXTENSIONS = ("wexplore.dash.org",)
 
     DASHBOARD_TEMPLATE = \
 """* Weighted Ensemble Simulation

@@ -14,7 +14,7 @@ class WepyHDF5Reporter(FileReporter):
 
     # this is the suggested extension for naming WepyHDF5 files used
     # by this reporter, e.g. results.wepy.h5
-    SUGGESTED_EXTENSION = "wepy.h5"
+    SUGGESTED_EXTENSIONS = ("wepy.h5",)
 
     # these are the keys for the key-value (kwargs) that this reporter
     # recognizes as inputs from the simulation manager

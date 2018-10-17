@@ -4,7 +4,7 @@ from wepy.reporter.reporter import ProgressiveFileReporter
 
 class DashboardReporter(ProgressiveFileReporter):
 
-    SUGGESTED_EXTENSION = "dash.org"
+    SUGGESTED_EXTENSIONS = ("dash.org",)
 
     def dashboard_string(self):
         raise NotImplementedError
