@@ -10,6 +10,10 @@ class Configuration():
     DEFAULT_WORKDIR = osp.realpath(osp.curdir)
     DEFAULT_CONFIG_NAME = "root"
     DEFAULT_NARRATION = ""
+    DEFAULT_REPORTER_CLASS = ""
+    # if there is to be reporter class in filenames use this template
+    # to put it into the filename
+    REPORTER_CLASS_SEG_TEMPLATE = ".{}"
     DEFAULT_MODE = 'x'
 
     def __init__(self,
@@ -157,17 +161,61 @@ class Configuration():
 
     def _gen_reporters(self):
 
+        # check the extensions of all the reporters. If any of them
+        # are the same raise a flag to add the reporter names to the
+        # filenames
+
+        # the number of filenames
+        all_exts = list(it.chain(*[ext for ext in rep.SUGGESTED_EXTENSIONS]))
+        n_exts = len(all_exts)
+
+        # the number of unique ones
+        n_unique_exts = len(set(all_exts))
+
+        duplicates = False
+        if n_unique_exts < n_exts:
+            duplicates = True
+
+        # then go through and make the inputs for each reporter
         reporters = []
         for idx, reporter_class in enumerate(self.reporter_classes):
 
-            filename = reporter_class.SUGGESTED_FILENAME_TEMPLATE.format(
-                               narration=self.narration,
-                               config=self.config_name,
-                               ext=reporter_class.SUGGESTED_EXTENSION)
+            # first we have to generate the filenames for all the
+            # files this reporter needs. The number of file names the
+            # reporter needs is given by the number of suggested
+            # extensions it has
+            file_paths = []
+            for extension in reporter_class.SUGGESTED_EXTENSIONS:
 
-            file_path = osp.join(self.work_dir, filename)
 
-            file_paths = [file_path]
+                # if previously found that there are duplicates in the
+                # extensions we need to name with the reporter class string
+                if duplicates:
+
+                    # use the __name__ attribute of the class and put
+                    # it into the template to make a segment out of it
+                    reporter_class_seg_str = self.REPORTER_CLASS_SEG_TEMPLATE.format(
+                        reporter_class.__name__)
+
+                    # then make the filename with this
+                    filename = reporter_class.SUGGESTED_FILENAME_TEMPLATE.format(
+                                       narration=self.narration,
+                                       config=self.config_name,
+                                       reporter_class=reporter_class_seg_str,
+                                       ext=extension)
+
+                # otherwise don't use the reporter class names to keep it clean
+                else:
+                    filename = reporter_class.SUGGESTED_FILENAME_TEMPLATE.format(
+                                       narration=self.narration,
+                                       config=self.config_name,
+                                       reporter_class=self.DEFAULT_REPORTER_CLASS
+                                       ext=extension)
+
+
+                file_path = osp.join(self.work_dir, filename)
+
+                file_paths.append(file_path)
 
             modes = [self.mode for i in range(len(file_paths))]
 

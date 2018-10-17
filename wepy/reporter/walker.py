@@ -7,12 +7,15 @@ import mdtraj as mdj
 
 class WalkerReporter(ProgressiveFileReporter):
 
+
+    SUGGESTED_EXTENSIONS = ('init.pdb', 'walkers.dcd')
+
     def __init__(self, json_topology=None,
                  main_rep_idxs=None,
                  init_state=None, init_state_path=None,
                  **kwargs):
 
-        super().__init__(**kwargs)
+
 
         assert json_topology is not None, "must give a JSON format topology"
         assert main_rep_idxs is not None, "must give the indices of the atoms the topology represents"
@@ -22,7 +25,15 @@ class WalkerReporter(ProgressiveFileReporter):
         self.json_top = json_topology
         self.main_rep_idxs = main_rep_idxs
         self.init_state = init_state
+
+        # the path for the init_state
         self.init_state_path = init_state_path
+
+        # the path for the actual walker trajectory
+        self.walker_path = kwargs['file_path']
+
+        # then we call the superclass method to validate etc the paths
+        super().__init__(file_paths=[self.walker_path, self.init_state_path]**kwargs)
 
         # make an mdtraj top so we can make trajs easily
         self.mdtraj_top = json_to_mdtraj_topology(self.json_top)
@@ -36,16 +47,19 @@ class WalkerReporter(ProgressiveFileReporter):
 
         # make a traj for the initial state to use as a topology for
         # visualizing the walkers
-        traj = mdj.Trajectory(main_rep_positions,
+        self.init_traj = mdj.Trajectory(main_rep_positions,
                               unitcell_lengths=unitcell_lengths,
                               unitcell_angles=unitcell_angles,
                               topology=self.mdtraj_top)
 
-        # save it
-        traj.save_pdb(self.init_state_path)
+        self.init_traj.save_pdb(self.init_state_path)
 
-    def report(self, new_walkers=None,
+    def report(self, cycle_idx=None, new_walkers=None,
                **kwargs):
+
+        # if this is the first cycle we need to save the initial state
+        if cycle_idx == 0:
+            self.init_traj
 
         # slice off the main_rep indices because that is all we want
         # to write for these

@@ -60,7 +60,7 @@ class FileReporter(Reporter):
     # through components
     BYPASS_KEYWORDS = ('file_path', 'file_paths',)
 
-    SUGGESTED_FILENAME_TEMPLATE = "{config}{narration}.{ext}"
+    SUGGESTED_FILENAME_TEMPLATE = "{config}{narration}{reporter_class}.{ext}"
 
     SUGGESTED_EXTENSION = 'report'
 
