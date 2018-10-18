@@ -10,17 +10,17 @@ class WalkerReporter(ProgressiveFileReporter):
 
     SUGGESTED_EXTENSIONS = ('init.pdb', 'walkers.dcd')
 
-    def __init__(self, json_topology=None,
-                 main_rep_idxs=None,
+    def __init__(self, *, walker_output_path=None,
                  init_state=None, init_state_path=None,
+                 json_topology=None,
+                 main_rep_idxs=None,
                  **kwargs):
-
-
 
         assert json_topology is not None, "must give a JSON format topology"
         assert main_rep_idxs is not None, "must give the indices of the atoms the topology represents"
         assert init_state is not None, "must give an init state for the topology PDB"
         assert init_state_path is not None, "must give a path to save an initial state PDB"
+        assert walker_output_path is not None, "must give a path to save the walkers"
 
         self.json_top = json_topology
         self.main_rep_idxs = main_rep_idxs
@@ -30,10 +30,10 @@ class WalkerReporter(ProgressiveFileReporter):
         self.init_state_path = init_state_path
 
         # the path for the actual walker trajectory
-        self.walker_path = kwargs['file_path']
+        self.walker_path = walker_output_path
 
         # then we call the superclass method to validate etc the paths
-        super().__init__(file_paths=[self.walker_path, self.init_state_path]**kwargs)
+        super().__init__(file_paths=[self.walker_path, self.init_state_path], **kwargs)
 
         # make an mdtraj top so we can make trajs easily
         self.mdtraj_top = json_to_mdtraj_topology(self.json_top)
