@@ -12,6 +12,8 @@ class WepyHDF5Reporter(FileReporter):
     # under in the HDF5 alt_reps group
     ALL_ATOMS_REP_KEY = 'all_atoms'
 
+    FILE_ORDER = ('wepy_hdf5_path',)
+
     # this is the suggested extension for naming WepyHDF5 files used
     # by this reporter, e.g. results.wepy.h5
     SUGGESTED_EXTENSIONS = ("wepy.h5",)

@@ -117,23 +117,23 @@ class Manager(object):
         # make a dictionary of all the results that will be reported
 
 
-        report = {cycle_idx : cycle_idx,
-                  new_walkers : new_walkers,
-                  warp_data : warp_data,
-                  bc_data : bc_data,
-                  progress_data : progress_data,
-                  resampling_data : resampling_data,
-                  resampler_data : resampler_data,
-                  n_segment_steps : n_segment_steps,
-                  worker_segment_times : self.work_mapper.worker_segment_times,
-                  cycle_runner_time : runner_time,
-                  cycle_bc_time : bc_time,
-                  cycle_resampling_time : resampling_time,
-                  resampled_walkers : resampled_walkers}
+        report = {'cycle_idx' : cycle_idx,
+                  'new_walkers' : new_walkers,
+                  'warp_data' : warp_data,
+                  'bc_data' : bc_data,
+                  'progress_data' : progress_data,
+                  'resampling_data' : resampling_data,
+                  'resampler_data' : resampler_data,
+                  'n_segment_steps' : n_segment_steps,
+                  'worker_segment_times' : self.work_mapper.worker_segment_times,
+                  'cycle_runner_time' : runner_time,
+                  'cycle_bc_time' : bc_time,
+                  'cycle_resampling_time' : resampling_time,
+                  'resampled_walkers' : resampled_walkers}
 
         # check that all of the keys that are specified for this sim
         # manager are present
-        assert all([True rep_key in report else False
+        assert all([True if rep_key in report else False
                     for rep_key in self.REPORT_ITEM_KEYS])
 
         # report results to the reporters

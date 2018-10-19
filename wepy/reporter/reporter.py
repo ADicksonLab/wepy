@@ -8,9 +8,6 @@ class ReporterError(Exception):
 
 class Reporter(object):
 
-    # the keys of the values this reporter uses from the report given
-    # from the sim_manager
-    REPORT_ITEM_KEYS = (,)
 
     def __init__(self, **kwargs):
         pass
@@ -62,7 +59,10 @@ class FileReporter(Reporter):
 
     SUGGESTED_FILENAME_TEMPLATE = "{config}{narration}{reporter_class}.{ext}"
 
-    SUGGESTED_EXTENSIONS = ('report',)
+    DEFAULT_SUGGESTED_EXTENSION = 'report'
+
+    FILE_ORDER = ()
+    SUGGESTED_EXTENSIONS = ()
 
     def __init__(self, file_paths=None, modes=None,
                  file_path=None, mode=None,
@@ -77,6 +77,73 @@ class FileReporter(Reporter):
         if file_path is not None:
             file_paths = [file_path]
 
+
+        # if any of the explicit paths are given (from the FILE_ORDER
+        # constant) in the kwargs then we automatically add those to
+        # the file_paths being sent to the super class constructor.
+
+        # we use a flag to condition this, initialize and fall back to
+        # using the 'file_paths' kwarg
+        use_explicit_path_kwargs = False
+
+        # we check the kwargs for the explicit file kwargs, and if
+        # they are given then we check whether they are valid and if
+        # they are, use them to set the 'file_paths' kwarg
+
+        # make a list of the presence of the given explicit keys
+        given_explicit_kwargs = [(True if file_key in kwargs else False)
+                                for file_key in self.FILE_ORDER]
+
+        # check that all the keys are present, if they aren't all
+        # present then the flag will stay false and the fallback of
+        # using the 'file_paths' kwarg will be used
+        if all(given_explicit_kwargs):
+
+            # then get the values and check them
+            valid_explicit_kwargs = [(True if kwargs[file_key] is not None else False)
+                                     for file_key in self.FILE_ORDER]
+
+
+            # if they are all valid then we can use them
+            if not all(valid_explicit_kwargs):
+
+                use_explicit_path_kwargs = True
+
+        # if only some were given this is wrong
+        elif any(given_explicit_kwargs):
+
+            raise ValueError("If you explicitly pass in the paths, all must be given explicitly")
+
+
+
+        # if we use the explicit path kwargs, then we need to put them
+        # into the 'file_paths' for superclass initialization
+        if use_explicit_path_kwargs:
+
+                file_paths = []
+                for file_key in self.FILE_ORDER:
+
+                    # add it to the file paths for superclass initialization
+                    file_paths.append(kwargs[file_key])
+
+        # otherwise we need to use the file_paths argument that should
+        # have been given
+        else:
+
+            # make sure it is in kwargs and valid
+            assert file_paths is not None, \
+                "if no explicit file path is given the 'file_paths' must have a value"
+
+            assert len(file_paths) == len(self.FILE_ORDER), \
+                "you must give file_paths {} paths".format(len(self.FILE_ORDER))
+
+        # using the file_path paths we got above we set them as
+        # attributes in this object
+        for i, file_key in enumerate(self.FILE_ORDER):
+            setattr(self, file_key, file_paths[i])
+
+
+        # set the underlying file paths
         self._file_paths = file_paths
 
 
@@ -180,7 +247,7 @@ class ProgressiveFileReporter(FileReporter):
 
     """
 
-    def init(self, *args, **kwargs):
+    def init(self, **kwargs):
 
         super().init(**kwargs)
 

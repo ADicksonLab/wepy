@@ -1,6 +1,7 @@
 import os.path as osp
 from copy import deepcopy
 import logging
+import itertools as it
 
 from wepy.work_mapper.mapper import Mapper, WorkerMapper
 from wepy.work_mapper.worker import Worker
@@ -166,7 +167,8 @@ class Configuration():
         # filenames
 
         # the number of filenames
-        all_exts = list(it.chain(*[ext for ext in rep.SUGGESTED_EXTENSIONS]))
+        all_exts = list(it.chain(*[[ext for ext in rep.SUGGESTED_EXTENSIONS]
+                                 for rep in self.reporter_classes]))
         n_exts = len(all_exts)
 
         # the number of unique ones
@@ -209,7 +211,7 @@ class Configuration():
                     filename = reporter_class.SUGGESTED_FILENAME_TEMPLATE.format(
                                        narration=self.narration,
                                        config=self.config_name,
-                                       reporter_class=self.DEFAULT_REPORTER_CLASS
+                                       reporter_class=self.DEFAULT_REPORTER_CLASS,
                                        ext=extension)
 
 
@@ -242,8 +244,6 @@ class Configuration():
 
 
     def reparametrize(self, **kwargs):
-
-        #import ipdb; ipdb.set_trace()
 
         # dictionary of the possible reparametrizations from the
         # current configuration

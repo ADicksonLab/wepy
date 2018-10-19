@@ -4,6 +4,7 @@ from wepy.reporter.reporter import ProgressiveFileReporter
 
 class DashboardReporter(ProgressiveFileReporter):
 
+    FILE_ORDER = ("dashboard_path",)
     SUGGESTED_EXTENSIONS = ("dash.org",)
 
     def dashboard_string(self):
