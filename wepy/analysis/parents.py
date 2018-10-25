@@ -168,12 +168,37 @@ def sliding_window(parent_table, window_length):
     return windows
 
 
-class ParentForest(nx.DiGraph):
-    def __init__(self, parent_table):
-        super().__init__()
+class ParentForest():
 
-        self._n_steps = parent_table.shape[0]
-        self._n_walkers = parent_table.shape[1]
+    GEXF_VIZ = 'viz'
+    GEXF_VIZ_COLOR = 'color'
+    GEXF_VIZ_COLOR_RED = 'r'
+    GEXF_VIZ_COLOR_GREEN = 'g'
+    GEXF_VIZ_COLOR_BLUE = 'b'
+    GEXF_VIZ_COLOR_ALPHA = 'a'
+
+    GEXF_VIZ_POSITION = 'position'
+    GEXF_VIZ_POSITION_X = 'x'
+    GEXF_VIZ_POSITION_Y = 'y'
+    GEXF_VIZ_POSITION_Z = 'z'
+
+    GEXF_VIZ_SIZE = 'size'
+    GEXF_VIZ_SHAPE = 'shape'
+
+    GEXF_EDGE_THICKNESS = 'thickness'
+    GEXF_EDGE_SHAPE = 'shape'
+
+    def __init__(self, parent_table):
+
+        self.parent_table = parent_table
+
+        self._graph = nx.DiGraph()
+
+        self._n_steps = len(parent_table)
+
+        # TODO this should be somehow removed so that we can
+        # generalize to a variable number of walkers
+        self._n_walkers = len(parent_table[0])
 
         # make the roots of each tree in the parent graph, the step is
         # 0
@@ -182,7 +207,7 @@ class ParentForest(nx.DiGraph):
 
 
         # set these as nodes
-        self.add_nodes_from(self.roots)
+        self.graph.add_nodes_from(self.roots)
 
         # go through the parent matrix and make edges from the parents
         # to children nodes
@@ -208,7 +233,16 @@ class ParentForest(nx.DiGraph):
                 edge = (parent_node, child_node)
 
 
-                self.add_edge(*edge, discontinuous=discontinuity)
+                self.graph.add_edge(*edge, discontinuous=discontinuity)
+
+        # add a "viz" attribute for all nodes for visualization
+        # puproses in gexf format
+        for node in self.graph.nodes:
+            self.graph.node[node][self.GEXF_VIZ] = {}
+
+    @property
+    def graph(self):
+        return self._graph
 
     @property
     def roots(self):
@@ -216,7 +250,7 @@ class ParentForest(nx.DiGraph):
 
     @property
     def trees(self):
-        trees_by_size = [self.subgraph(c) for c in nx.weakly_connected_components(self)]
+        trees_by_size = [self.graph.subgraph(c) for c in nx.weakly_connected_components(self.graph)]
         trees = []
         for root in self.roots:
             root_tree = [tree for tree in trees_by_size if root in tree][0]
@@ -235,7 +269,7 @@ class ParentForest(nx.DiGraph):
         """ Get the nodes at the step (level of the tree)."""
 
         step_nodes = []
-        for node in self.nodes:
+        for node in self.graph.nodes:
             if node[0] == step_idx:
                 step_nodes.append(node)
 
@@ -253,7 +287,7 @@ class ParentForest(nx.DiGraph):
         """ Get the nodes for this walker."""
 
         walker_nodes = []
-        for node in self.nodes:
+        for node in self.graph.nodes:
             if node[1] == walker_idx:
                 walker_nodes.append(node)
 
@@ -267,7 +301,84 @@ class ParentForest(nx.DiGraph):
 
         return node_walkers
 
-    def set_step_attrs(self, key, values):
+
+    @classmethod
+    def feature_vector_to_viz_position_dict(cls, coord_vec):
+
+        return {cls.GEXF_VIZ_POSITION_X : float(coord_vec[0]),
+                cls.GEXF_VIZ_POSITION_Y : float(coord_vec[1]),
+                cls.GEXF_VIZ_POSITION_Z : float(coord_vec[2])}
+
+    @classmethod
+    def feature_vector_to_viz_color_RGB_dict(cls, color_vec):
+
+        return {cls.GEXF_VIZ_COLOR_RED : float(color_vec[0]),
+                cls.GEXF_VIZ_COLOR_GREEN : float(color_vec[1]),
+                cls.GEXF_VIZ_COLOR_BLUE : float(color_vec[2])}
+
+    @classmethod
+    def feature_vector_to_viz_color_RGBA_dict(cls, color_vec):
+
+        return {cls.GEXF_VIZ_COLOR_RED : float(color_vec[0]),
+                cls.GEXF_VIZ_COLOR_GREEN : float(color_vec[1]),
+                cls.GEXF_VIZ_COLOR_BLUE : float(color_vec[2]),
+                cls.GEXF_VIZ_COLOR_ALPHA : float(color_vec[3])}
+
+    def set_node_viz(self, viz_key, node_dict):
+
+        for node_id, value in node_dict.items():
+
+            self.graph.nodes[node_id][self.GEXF_VIZ][viz_key] = value
+
+    def set_node_positions(self, node_positions_dict):
+
+        # convert the node positions values to a valid dictionary and
+        # set the positions viz for all the nodes
+        self.set_node_viz(self.GEXF_VIZ_POSITION,
+                          {node_id : self.feature_vector_to_viz_position_dict(coord)
+                           for node_id, coord in node_positions_dict.items()})
+
+    def set_node_colors_rgb(self, node_colors_dict):
+
+        # convert the node colors values to a valid dictionary and
+        # set the colors viz for all the nodes
+        self.set_node_viz(self.GEXF_VIZ_COLOR, {node_id : self.feature_vector_to_viz_color_RGB_dict(coord)
+                                        for node_id, coord in node_colors_dict.items()})
+
+    def set_node_colors_rgba(self, node_colors_dict):
+
+        # convert the node colors values to a valid dictionary and
+        # set the colors viz for all the nodes
+        self.set_node_viz(self.GEXF_VIZ_COLOR, {node_id : self.feature_vector_to_viz_color_RGBA_dict(coord)
+                                        for node_id, coord in node_colors_dict.items()})
+
+    def set_node_alphas(self, node_alphas_dict):
+
+        # convert the node colors values to a valid dictionary and
+        # set the colors viz for all the nodes
+        self.set_node_viz(self.GEXF_VIZ_COLOR, {node_id : {self.GEXF_VIZ_COLOR_ALPHA : value}
+                                   for node_id, value in node_alphas_dict.items()})
+
+    def set_node_sizes(self, node_sizes_dict):
+
+        # convert the node colors values to a valid dictionary and
+        # set the colors viz for all the nodes
+        self.set_node_viz(self.GEXF_VIZ_SIZE, node_sizes_dict)
+
+    def set_node_shape(self, node_sizes_dict):
+
+        # convert the node colors values to a valid dictionary and
+        # set the colors viz for all the nodes
+        self.set_node_viz(self.GEXF_VIZ_SHAPE, node_sizes_dict)
+
+
+    # WARNING:
+    # these were the "old" methods to set things by array. While it
+    # was convenient before it doesn't fit as an interface. SO these
+    # could stay here but the official interface will be to set by
+    # node id since that is universal.
+    def set_attrs_by_array(self, key, values):
+
         """Set attributes on a stepwise basis, i.e. expects a array/list that
         is n_steps long and has the appropriate number of values for
         the number of walkers at each step
@@ -275,24 +386,34 @@ class ParentForest(nx.DiGraph):
         """
         for step in self.steps():
             for node in step:
-                self.nodes[node][key] = values[node[0]][node[1]]
+                self.graph.nodes[node][key] = values[node[0]][node[1]]
 
-    def set_step_viz_properties(self, positions):
-        pass
-
-    def set_step_positions(self, positions):
+    def set_positions_by_array(self, positions):
         for step in self.steps():
             for node in step:
                 coord = positions[node[0]][node[1]]
-                viz_dict = {'position' : {'x' : float(coord[0]),
-                                           'y' : float(coord[1]),
-                                           'z' : float(coord[2])}
-                           }
+                position_dict = {self.GEXF_VIZ_POSITION_X : float(coord[0]),
+                                 self.GEXF_VIZ_POSITION_Y : float(coord[1]),
+                                 self.GEXF_VIZ_POSITION_Z : float(coord[2])}
 
-                self.nodes[node]['viz'] = viz_dict
+                self.graph.nodes[node][self.GEXF_VIZ][self.GEXF_VIZ_POSITION] = position_dict
 
-    def set_step_colors(self, color_values):
-        pass
+    def set_colors_by_array(self, color_values):
+        for step in self.steps():
+            for node in step:
+                color = color_values[node[0]][node[1]]
+                color_dict = {self.GEXF_VIZ_COLOR_RED : float(color[0]),
+                            self.GEXF_VIZ_COLOR_GREEN : float(color[1]),
+                            self.GEXF_VIZ_COLOR_BLUE : float(color[2])}
 
-    def set_step_sizes(self, sizes):
-        pass
+                self.graph.nodes[node][self.GEXF_VIZ][self.GEXF_VIZ_COLOR] = color_dict
+
+
+    def set_sizes_by_array(self, sizes):
+        for step in self.steps():
+            for node in step:
+                size = sizes[node[0]][node[1]]
+
+                self.graph.nodes[node][self.GEXF_VIZ]['size'] = size
+
+

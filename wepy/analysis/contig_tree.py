@@ -7,7 +7,7 @@ from wepy.analysis.parents import DISCONTINUITY_VALUE, \
                                   parent_panel, net_parent_table,\
                                   ancestors, sliding_window
 
-class ContigTree(nx.DiGraph):
+class ContigTree():
 
     RESAMPLING_PANEL_KEY = 'resampling_steps'
     PARENTS_KEY = 'parent_idxs'
@@ -20,7 +20,7 @@ class ContigTree(nx.DiGraph):
                  boundary_condition_class=None,
                  decision_class=None):
 
-        super().__init__()
+        self._graph = nx.DiGraph()
 
         self._wepy_h5 = wepy_h5
 
@@ -65,6 +65,10 @@ class ContigTree(nx.DiGraph):
             if boundary_condition_class is not None:
                 self._set_discontinuities(boundary_condition_class)
 
+    @property
+    def graph(self):
+        return self._graph
+
     def _create_tree(self):
 
         # first go through each run without continuations
@@ -73,13 +77,13 @@ class ContigTree(nx.DiGraph):
 
             # make all the nodes for this run
             nodes = [(run_idx, step_idx) for step_idx in range(n_cycles)]
-            self.add_nodes_from(nodes)
+            self.graph.add_nodes_from(nodes)
 
             # the same for the edges
             edge_node_idxs = list(zip(range(1, n_cycles), range(n_cycles - 1)))
 
             edges = [(nodes[a], nodes[b]) for a, b in edge_node_idxs]
-            self.add_edges_from(edges)
+            self.graph.add_edges_from(edges)
 
         # after we have added all the nodes and edges for the run
         # subgraphs we need to connect them together with the
@@ -100,7 +104,7 @@ class ContigTree(nx.DiGraph):
             edge = (source_node, target_node)
 
             # add this connector edge to the network
-            self.add_edge(*edge)
+            self.graph.add_edge(*edge)
 
     def _set_resampling_panels(self):
 
@@ -114,15 +118,15 @@ class ContigTree(nx.DiGraph):
             # them in as nodes with the resampling steps first
             for step_idx, step in enumerate(run_resampling_panel):
                 node = (run_idx, step_idx)
-                self.nodes[node][self.RESAMPLING_PANEL_KEY] = step
+                self.graph.nodes[node][self.RESAMPLING_PANEL_KEY] = step
 
     def _set_discontinuities(self, boundary_conditions_class):
 
         # initialize the attributes for discontinuities to 0s for no
         # discontinuities
-        for node in self.nodes:
-            n_walkers = len(self.node[node][self.PARENTS_KEY])
-            self.node[node][self.DISCONTINUITY_KEY] = [0 for i in range(n_walkers)]
+        for node in self.graph.nodes:
+            n_walkers = len(self.graph.node[node][self.PARENTS_KEY])
+            self.graph.node[node][self.DISCONTINUITY_KEY] = [0 for i in range(n_walkers)]
 
         #
         for run_idx in self.run_idxs:
@@ -134,7 +138,7 @@ class ContigTree(nx.DiGraph):
             warp_cycle_idxs = set([rec[0] for rec in warping_records])
 
             # go through the nodes
-            for node in self.nodes:
+            for node in self.graph.nodes:
                 node_run_idx = node[0]
                 node_cycle_idx = node[1]
 
@@ -158,16 +162,16 @@ class ContigTree(nx.DiGraph):
                         # otherwise do nothing
                         if boundary_conditions_class.warping_discontinuity(rec):
 
-                            self.node[node][self.DISCONTINUITY_KEY][rec_traj_idx] = -1
+                            self.graph.node[node][self.DISCONTINUITY_KEY][rec_traj_idx] = -1
 
     def _set_parents(self, decision_class):
         """Determines the net parents for each cycle and sets them in-place to
         the cycle tree given."""
 
         # just go through each node individually in the tree
-        for node in self.nodes:
+        for node in self.graph.nodes:
             # get the records for each step in this node
-            node_recs = self.node[node][self.RESAMPLING_PANEL_KEY]
+            node_recs = self.graph.node[node][self.RESAMPLING_PANEL_KEY]
 
             # get the node parent table by using the parent panel method
             # on the node records
@@ -177,7 +181,7 @@ class ContigTree(nx.DiGraph):
             node_parents = net_parent_table(node_parent_panel)[0]
 
             # put this back into the self
-            self.nodes[node][self.PARENTS_KEY] = node_parents
+            self.graph.nodes[node][self.PARENTS_KEY] = node_parents
 
     @property
     def run_idxs(self):
@@ -210,7 +214,7 @@ class ContigTree(nx.DiGraph):
         return trace
 
 
-    def contig_to_run_trace(self, contig, contig_walker_trace):
+    def contig_to_run_trace(self, contig, contig_trace):
         """Convert a trace of elements (traj_idx, cycle_idx) over the contig
         trace given over this contig tree and return a trace over the
         runs with elements (run_idx, traj_idx, cycle_idx).
@@ -231,7 +235,7 @@ class ContigTree(nx.DiGraph):
             contig_trace_elements = contig_trace[cum_n_frames : n_frames + cum_n_frames]
 
             # convert the cycle_idxs to the run indexing and add a run_idx to each
-            run_trace_elements = [(run_idx, traj_idx, cycle_idx - cum_n_frames)
+            run_trace_elements = [(run_idx, traj_idx, contig_cycle_idx - cum_n_frames)
                                   for traj_idx, contig_cycle_idx in contig_trace_elements]
 
             # add these to the trace
@@ -275,7 +279,7 @@ class ContigTree(nx.DiGraph):
 
             # first we get the cycle node previous to this one because it
             # has the parents for the current node
-            parent_nodes = list(self.adj[curr_node].keys())
+            parent_nodes = list(self.graph.adj[curr_node].keys())
 
             # if there is no parent then this is the root of the
             # cycle_tree and we should stop after this step of the loop
@@ -302,7 +306,7 @@ class ContigTree(nx.DiGraph):
 
         parent_table = []
         for run_idx, cycle_idx in contig_trace:
-            parent_idxs = self.node[(run_idx, cycle_idx)][self.PARENTS_KEY]
+            parent_idxs = self.graph.node[(run_idx, cycle_idx)][self.PARENTS_KEY]
             parent_table.append(parent_idxs)
 
         return parent_table
@@ -382,7 +386,7 @@ class ContigTree(nx.DiGraph):
         curr_node = node
 
         # we also get the adjacent nodes for this node
-        adj_nodes = list(self.adj[curr_node].keys())
+        adj_nodes = list(self.graph.adj[curr_node].keys())
 
         # there should only be one node in the dict
         assert len(adj_nodes) <= 1, "There should be at most 1 edge"
@@ -393,7 +397,7 @@ class ContigTree(nx.DiGraph):
 
             # we take another step backwards, and choose the node in the
             # adjacency
-            adj_nodes = list(self.adj[curr_node])
+            adj_nodes = list(self.graph.adj[curr_node])
 
             # there should only be 1 or none nodes
             assert len(adj_nodes) <= 1, "There should be at most 1 edge"
@@ -421,10 +425,10 @@ class ContigTree(nx.DiGraph):
     def subtrees(self):
 
         subtree_nxs = []
-        for component_nodes in nx.weakly_connected_components(self):
+        for component_nodes in nx.weakly_connected_components(self.graph):
 
             # actually get the subtree from the main tree
-            subtree = self.subgraph(component_nodes)
+            subtree = self.graph.subgraph(component_nodes)
 
             subtree_nxs.append(subtree)
 
