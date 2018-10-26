@@ -170,75 +170,84 @@ def sliding_window(parent_table, window_length):
 
 class ParentForest():
 
-    GEXF_VIZ = 'viz'
-    GEXF_VIZ_COLOR = 'color'
-    GEXF_VIZ_COLOR_RED = 'r'
-    GEXF_VIZ_COLOR_GREEN = 'g'
-    GEXF_VIZ_COLOR_BLUE = 'b'
-    GEXF_VIZ_COLOR_ALPHA = 'a'
+    WEIGHT = 'weight'
+    FREE_ENERGY = 'free_energy'
 
-    GEXF_VIZ_POSITION = 'position'
-    GEXF_VIZ_POSITION_X = 'x'
-    GEXF_VIZ_POSITION_Y = 'y'
-    GEXF_VIZ_POSITION_Z = 'z'
+    ROOT_CYCLE_IDX = -1
 
-    GEXF_VIZ_SIZE = 'size'
-    GEXF_VIZ_SHAPE = 'shape'
+    def __init__(self, contig):
 
-    GEXF_EDGE_THICKNESS = 'thickness'
-    GEXF_EDGE_SHAPE = 'shape'
+        self._contig = contig
 
-    def __init__(self, parent_table):
-
-        self.parent_table = parent_table
+        # from that contig make a parent table
+        self._parent_table = self.contig.parent_table()
 
         self._graph = nx.DiGraph()
 
-        self._n_steps = len(parent_table)
+        self._n_steps = len(self.parent_table)
 
         # TODO this should be somehow removed so that we can
         # generalize to a variable number of walkers
-        self._n_walkers = len(parent_table[0])
+        self._n_walkers = len(self.parent_table[0])
 
-        # make the roots of each tree in the parent graph, the step is
-        # 0
-        self._roots = [(0, i) for i in range(self.n_walkers)]
-
-
+        # make the roots of each tree in the parent graph, because
+        # this is outside the indexing of the steps we use a special
+        # index
+        self._roots = [(self.ROOT_CYCLE_IDX, i) for i in range(self.n_walkers)]
 
         # set these as nodes
         self.graph.add_nodes_from(self.roots)
 
         # go through the parent matrix and make edges from the parents
         # to children nodes
-        for step_idx, parent_idxs in enumerate(parent_table):
-            step_idx += 1
+        for step_idx, parent_idxs in enumerate(self.parent_table):
 
             # make edge between each walker of this step to the previous step
-            for curr_walker_idx in range(self.n_walkers):
+            edges, edges_attrs = self._make_child_parent_edges(step_idx, parent_idxs)
 
-                # get the parent index
-                parent_idx = parent_idxs[curr_walker_idx]
+            # then put them into this graph
+            for i, edge in enumerate(edges):
+                self.graph.add_edge(*edge, **edges_attrs[i])
 
-                # if it is a -1 indicating a discontinuity we add an
-                # attribute indicating this is a discontinuity
-                discontinuity = False
-                if parent_idx == -1:
-                    discontinuity = True
-
-                parent_node = (step_idx - 1, parent_idx)
-                child_node = (step_idx, curr_walker_idx)
-
-                # make an edge between the parent of this walker and this walker
-                edge = (parent_node, child_node)
+        # TODO: delete?
+        # make an extra set (row) of nodes for the resampling and
+        # warping at the last step using a step idx as the one extra
+        # edges, edges_attrs = self._make_child_parent_edges(len(self.parent_table), )
 
 
-                self.graph.add_edge(*edge, discontinuous=discontinuity)
 
-        # add a "viz" attribute for all nodes for visualization
-        # puproses in gexf format
-        for node in self.graph.nodes:
-            self.graph.node[node][self.GEXF_VIZ] = {}
+    def _make_child_parent_edges(self, step_idx, parent_idxs):
+
+        edges = []
+        edges_attrs = []
+        for curr_walker_idx, parent_idx in enumerate(parent_idxs):
+
+            # if it is a -1 indicating a discontinuity we add an
+            # attribute indicating this is a discontinuity
+            discontinuity = False
+            if parent_idx == -1:
+                discontinuity = True
+
+            parent_node = (step_idx - 1, parent_idx)
+            child_node = (step_idx, curr_walker_idx)
+
+            # make an edge between the parent of this walker and this walker
+            edge = (parent_node, child_node)
+
+            edge_attrs = {'discontinuous' : discontinuity}
+
+            edges.append(edge)
+            edges_attrs.append(edge_attrs)
+
+        return edges, edges_attrs
+
+    @property
+    def contig(self):
+        return self._contig
+
+    @property
+    def parent_table(self):
+        return self._parent_table
 
     @property
     def graph(self):
@@ -278,7 +287,7 @@ class ParentForest():
 
     def steps(self):
         node_steps = []
-        for step_idx in range(self.n_steps + 1):
+        for step_idx in range(self.n_steps):
             node_steps.append(self.step(step_idx))
 
         return node_steps
@@ -301,82 +310,11 @@ class ParentForest():
 
         return node_walkers
 
+    def set_node_attributes(self, attribute_key, node_attribute_dict):
 
-    @classmethod
-    def feature_vector_to_viz_position_dict(cls, coord_vec):
+        for node_id, value in node_attribute_dict.items():
+            self.graph.nodes[node_id][attribute_key] = value
 
-        return {cls.GEXF_VIZ_POSITION_X : float(coord_vec[0]),
-                cls.GEXF_VIZ_POSITION_Y : float(coord_vec[1]),
-                cls.GEXF_VIZ_POSITION_Z : float(coord_vec[2])}
-
-    @classmethod
-    def feature_vector_to_viz_color_RGB_dict(cls, color_vec):
-
-        return {cls.GEXF_VIZ_COLOR_RED : float(color_vec[0]),
-                cls.GEXF_VIZ_COLOR_GREEN : float(color_vec[1]),
-                cls.GEXF_VIZ_COLOR_BLUE : float(color_vec[2])}
-
-    @classmethod
-    def feature_vector_to_viz_color_RGBA_dict(cls, color_vec):
-
-        return {cls.GEXF_VIZ_COLOR_RED : float(color_vec[0]),
-                cls.GEXF_VIZ_COLOR_GREEN : float(color_vec[1]),
-                cls.GEXF_VIZ_COLOR_BLUE : float(color_vec[2]),
-                cls.GEXF_VIZ_COLOR_ALPHA : float(color_vec[3])}
-
-    def set_node_viz(self, viz_key, node_dict):
-
-        for node_id, value in node_dict.items():
-
-            self.graph.nodes[node_id][self.GEXF_VIZ][viz_key] = value
-
-    def set_node_positions(self, node_positions_dict):
-
-        # convert the node positions values to a valid dictionary and
-        # set the positions viz for all the nodes
-        self.set_node_viz(self.GEXF_VIZ_POSITION,
-                          {node_id : self.feature_vector_to_viz_position_dict(coord)
-                           for node_id, coord in node_positions_dict.items()})
-
-    def set_node_colors_rgb(self, node_colors_dict):
-
-        # convert the node colors values to a valid dictionary and
-        # set the colors viz for all the nodes
-        self.set_node_viz(self.GEXF_VIZ_COLOR, {node_id : self.feature_vector_to_viz_color_RGB_dict(coord)
-                                        for node_id, coord in node_colors_dict.items()})
-
-    def set_node_colors_rgba(self, node_colors_dict):
-
-        # convert the node colors values to a valid dictionary and
-        # set the colors viz for all the nodes
-        self.set_node_viz(self.GEXF_VIZ_COLOR, {node_id : self.feature_vector_to_viz_color_RGBA_dict(coord)
-                                        for node_id, coord in node_colors_dict.items()})
-
-    def set_node_alphas(self, node_alphas_dict):
-
-        # convert the node colors values to a valid dictionary and
-        # set the colors viz for all the nodes
-        self.set_node_viz(self.GEXF_VIZ_COLOR, {node_id : {self.GEXF_VIZ_COLOR_ALPHA : value}
-                                   for node_id, value in node_alphas_dict.items()})
-
-    def set_node_sizes(self, node_sizes_dict):
-
-        # convert the node colors values to a valid dictionary and
-        # set the colors viz for all the nodes
-        self.set_node_viz(self.GEXF_VIZ_SIZE, node_sizes_dict)
-
-    def set_node_shape(self, node_sizes_dict):
-
-        # convert the node colors values to a valid dictionary and
-        # set the colors viz for all the nodes
-        self.set_node_viz(self.GEXF_VIZ_SHAPE, node_sizes_dict)
-
-
-    # WARNING:
-    # these were the "old" methods to set things by array. While it
-    # was convenient before it doesn't fit as an interface. SO these
-    # could stay here but the official interface will be to set by
-    # node id since that is universal.
     def set_attrs_by_array(self, key, values):
 
         """Set attributes on a stepwise basis, i.e. expects a array/list that
@@ -387,33 +325,3 @@ class ParentForest():
         for step in self.steps():
             for node in step:
                 self.graph.nodes[node][key] = values[node[0]][node[1]]
-
-    def set_positions_by_array(self, positions):
-        for step in self.steps():
-            for node in step:
-                coord = positions[node[0]][node[1]]
-                position_dict = {self.GEXF_VIZ_POSITION_X : float(coord[0]),
-                                 self.GEXF_VIZ_POSITION_Y : float(coord[1]),
-                                 self.GEXF_VIZ_POSITION_Z : float(coord[2])}
-
-                self.graph.nodes[node][self.GEXF_VIZ][self.GEXF_VIZ_POSITION] = position_dict
-
-    def set_colors_by_array(self, color_values):
-        for step in self.steps():
-            for node in step:
-                color = color_values[node[0]][node[1]]
-                color_dict = {self.GEXF_VIZ_COLOR_RED : float(color[0]),
-                            self.GEXF_VIZ_COLOR_GREEN : float(color[1]),
-                            self.GEXF_VIZ_COLOR_BLUE : float(color[2])}
-
-                self.graph.nodes[node][self.GEXF_VIZ][self.GEXF_VIZ_COLOR] = color_dict
-
-
-    def set_sizes_by_array(self, sizes):
-        for step in self.steps():
-            for node in step:
-                size = sizes[node[0]][node[1]]
-
-                self.graph.nodes[node][self.GEXF_VIZ]['size'] = size
-
-

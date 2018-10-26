@@ -2,7 +2,7 @@ from collections import defaultdict
 from copy import copy
 
 import numpy as np
-
+import networkx as nx
 
 class ResamplingTreeLayout():
 
@@ -210,9 +210,6 @@ class ResamplingTreeLayout():
         # we use the last gen positions to make the next gen
         last_gen_positions = first_gen_positions
 
-        # DEBUG
-        # import ipdb; ipdb.set_trace()
-
         # propagate and minimize the rest of the step nodes
         for step_idx in range(n_timesteps):
 
@@ -254,7 +251,12 @@ class ResamplingTreeLayout():
         # make a dictionary mapping node ids to layout values
         node_coords = {}
         for cycle_idx, layout_row in enumerate(layout_array):
+
             for walker_idx, coord in enumerate(layout_row):
-                node_coords[(cycle_idx, walker_idx)] = coord
+
+                # since the layout array starts at the root nodes (cycle
+                # -1) we just reduce the cycle_idx by one when we set the
+                # node attribute
+                node_coords[(cycle_idx-1, walker_idx)] = coord
 
         return node_coords

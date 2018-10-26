@@ -1,5 +1,5 @@
 import os.path as osp
-from collections import Sequence, namedtuple
+from collections import Sequence, namedtuple, defaultdict
 import itertools as it
 import json
 from warnings import warn
@@ -765,19 +765,6 @@ class WepyHDF5(object):
 
     def run_n_cycles(self, run_idx):
         return self.run_n_frames(run_idx)
-
-    def contig_n_cycles(self, run_idxs):
-
-        # check the contig to make sure it is a valid contig
-        if not self.is_contig(run_idxs):
-            raise ValueError("The run_idxs provided are not a valid contig, {}.".format(
-                run_idxs))
-
-        n_cycles = 0
-        for run_idx in run_idxs:
-            n_cycles += self.run_n_cycles(run_idx)
-
-        return n_cycles
 
     def run_trajs(self, run_idx):
         return self._h5['runs/{}/trajectories'.format(run_idx)]
@@ -1874,6 +1861,74 @@ class WepyHDF5(object):
 
         return frame_fields
 
+
+    def get_contig_trace_fields(self, contig_trace, fields):
+        """Given a contig trace (run_idx, cycle_idx) returns a dictionary for
+        each field where each value is an array of the values
+        (N_cycles, N_trajs, *field_dims)
+
+        """
+
+        # to be efficient we want to group our grabbing of fields by run
+
+        # so we group them by run
+        runs_frames = defaultdict(list)
+        # and we get the runs in the order to fetch them
+        run_idxs = []
+        for run_idx, cycle_idx in contig_trace:
+            runs_frames[run_idx].append(cycle_idx)
+
+            if not run_idx in run_idxs:
+                run_idxs.append(run_idx)
+
+
+        # (there must be the same number of trajectories in each run)
+        n_trajs_test = self.n_run_trajs(run_idxs[0])
+        assert all([True if n_trajs_test == self.n_run_trajs(run_idx) else False
+                    for run_idx in run_idxs])
+
+        # then using this we go run by run and get all the
+        # trajectories
+        field_values = {}
+        for field in fields:
+
+            # we gather trajectories in "bundles" (think sticks
+            # strapped together) and each bundle represents a run, we
+            # will concatenate the ends of the bundles together to get
+            # the full array at the end
+            bundles = []
+            for run_idx in run_idxs:
+
+                run_bundle = []
+                for traj_idx in self.run_traj_idxs(run_idx):
+
+                    # get the values for this (field, run, trajectory)
+                    traj_field_vals = self.get_traj_field(run_idx, traj_idx, field,
+                                                          frames=runs_frames[run_idx],
+                                                          masked=True)
+
+                    run_bundle.append(traj_field_vals)
+
+                # convert this "bundle" of trajectory values (think
+                # sticks side by side) into an array
+                run_bundle = np.array(run_bundle)
+                bundles.append(run_bundle)
+
+            # stick the bundles together end to end to make the value
+            # for this field , the first dimension currently is the
+            # trajectory_index, but we want to make the cycles the
+            # first dimension. So we stack them along that axis then
+            # transpose the first two axes (not the rest of them which
+            # should stay the same). Pardon the log terminology, but I
+            # don't know a name for a bunch of bundles taped together.
+            field_log = np.hstack(tuple(bundles))
+            field_log = np.swapaxes(field_log, 0, 1)
+
+            field_values[field] = field_log
+
+
+        return field_values
+
     def _add_run_field(self, run_idx, field_path, data, sparse_idxs=None):
         """ Add a field to your trajectories runs"""
 
@@ -2259,178 +2314,6 @@ class WepyHDF5(object):
         if return_results:
             return results
 
-    @classmethod
-    def _spanning_paths(cls, edges, root):
-
-        # nodes targetting this root
-        root_sources = []
-
-        # go through all the edges and find those with this
-        # node as their target
-        for edge_source, edge_target in edges:
-
-            # check if the target_node we are looking for matches
-            # the edge target node
-            if root == edge_target:
-
-                # if this root is a target of the source add it to the
-                # list of edges targetting this root
-                root_sources.append(edge_source)
-
-        # from the list of source nodes targetting this root we choose
-        # the lowest index one, so we sort them and iterate through
-        # finding the paths starting from it recursively
-        root_paths = []
-        root_sources.sort()
-        for new_root in root_sources:
-
-            # add these paths for this new root to the paths for the
-            # current root
-            root_paths.extend(cls._spanning_paths(edges, new_root))
-
-        # if there are no more sources to this root it is a leaf node and
-        # we terminate recursion, by not entering the loop above, however
-        # we manually generate an empty list for a path so that we return
-        # this "root" node as a leaf, for default.
-        if len(root_paths) < 1:
-            root_paths = [[]]
-
-        final_root_paths = []
-        for root_path in root_paths:
-            final_root_paths.append([root] + root_path)
-
-        return final_root_paths
-
-    def spanning_contigs(self):
-        """Returns a list of all possible spanning contigs given the
-        continuations present in this file. Contigs are a list of runs
-        in the order that makes a continuous set of data. Spanning
-        contigs are always as long as possible, thus all must start
-        from a root and end at a leaf node.
-
-        This algorithm always returns them in a canonical order (as
-        long as the runs are not rearranged after being added). This
-        means that the indices here are the indices of the contigs.
-
-        Contigs can in general are any such path drawn from what we
-        call the "contig tree" which is the tree (or forest of trees)
-        generated by the directed edges of the 'continuations'. They
-        needn't be spanning from root to leaf.
-
-        """
-
-        # a list of all the unique nodes (runs)
-        nodes = list(self.run_idxs)
-
-        # first find the roots of the forest, start with all of them
-        # and eliminate them if any directed edge points out of them
-        # (in the first position of a continuation; read a
-        # continuation (say (B,A)) as B continues A, thus the edge is
-        # A <- B)
-        roots = nodes
-        for edge_source, edge_target in self.continuations:
-
-            # if the edge source node is still in roots pop it out,
-            # because a root can never be a source in an edge
-            if edge_source in roots:
-                _ = roots.pop(roots.index(edge_source))
-
-        # collect all the spanning contigs
-        spanning_contigs = []
-
-        # roots should be sorted already, so we just iterate over them
-        for root in roots:
-
-            # get the spanning paths by passing the continuation edges
-            # and this root to this recursive static method
-            root_spanning_contigs = self._spanning_paths(self.continuations, root)
-
-            spanning_contigs.extend(root_spanning_contigs)
-
-        return spanning_contigs
-
-    def contig_tree(self):
-        """Returns a networkx directed graph where each node is a run index
-        and the connections between them are the continuations.
-
-        """
-
-        contig_tree = nx.DiGraph()
-        # first add all the runs as nodes
-        contig_tree.add_nodes_from(self.run_idxs)
-
-        # then add the continuations as edges
-        contig_tree.add_edges_from(self.continuations)
-
-        return contig_tree
-
-    def is_contig(self, run_idxs):
-        """This method checks that if a given list of run indices is a valid
-        contig or not.
-        """
-        run_idx_continuations = [np.array([run_idxs[idx+1], run_idxs[idx]])
-                            for idx in range(len(run_idxs)-1)]
-        #gets the contigs array
-        continuations = self.settings_grp['continuations'][:]
-
-        # checks if sub contigs are in contigs list or not.
-        for run_continuous in run_idx_continuations:
-            contig = False
-            for continuous in continuations:
-                if np.array_equal(run_continuous, continuous):
-                    contig = True
-            if not contig:
-                return False
-
-        return True
-
-
-    def contig_trace_to_trace(self, run_idxs, contig_trace):
-        """This method takes a trace of frames over the given contig
-        (run_idxs), itself a list of tuples (traj_idx, cycle_idx) and
-        converts it to a trace valid for actually accessing values
-        from a WepyHDF5 object i.e. a list of tuples
-        (run_idx, traj_idx, cycle_idx).
-
-        """
-
-        # check the contig to make sure it is a valid contig
-        if not self.is_contig(run_idxs):
-            raise ValueError("The run_idxs provided are not a valid contig, {}.".format(
-                run_idxs))
-
-        # get the number of cycles in each of the runs in the contig
-        runs_n_cycles = []
-        for run_idx in run_idxs:
-            runs_n_cycles.append(self.run_n_cycles(run_idx))
-
-        # cumulative number of cycles
-        run_cum_cycles = np.cumsum(runs_n_cycles)
-
-        # add a zero to the beginning for the starting point of no
-        # frames
-        run_cum_cycles = np.hstack( ([0], run_cum_cycles) )
-
-        # go through the frames of the contig trace and convert them
-        new_trace = []
-        for traj_idx, contig_cycle_idx in contig_trace:
-
-            # get the index of the run that this cycle idx of the
-            # contig is in
-            frame_run_idx = np.searchsorted(run_cum_cycles, contig_cycle_idx, side='right') - 1
-
-            # use that to get the total number of frames up until the
-            # point of that and subtract that from the contig cycle
-            # idx to get the cycle index in the run
-            run_frame_idx = contig_cycle_idx - run_cum_cycles[frame_run_idx]
-
-            # the tuple for this frame for the whole file
-            trace_frame_idx = (frame_run_idx, traj_idx, run_frame_idx)
-
-            # add it to the trace
-            new_trace.append(trace_frame_idx)
-
-        return new_trace
 
 
     def records_grp(self, run_idx, run_record_key):
@@ -2475,67 +2358,6 @@ class WepyHDF5(object):
             records = self._run_records_continual(run_idxs, run_record_key)
 
         return records
-
-
-    # TODO remove
-    def cycle_tree(self):
-        # make a network which has nodes (run_idx, cycle_idx) and the
-        # main attibute is the resampling steps for that cycle
-        cycle_tree = nx.DiGraph()
-
-        # first go through each run without continuations
-        for run_idx in self.run_idxs:
-            n_cycles = self.run_n_cycles(run_idx)
-
-            # make all the nodes for this run
-            nodes = [(run_idx, step_idx) for step_idx in range(n_cycles)]
-            cycle_tree.add_nodes_from(nodes)
-
-            # the same for the edges
-            edge_node_idxs = list(zip(range(1, n_cycles), range(n_cycles - 1)))
-
-            edges = [(nodes[a], nodes[b]) for a, b in edge_node_idxs]
-            cycle_tree.add_edges_from(edges)
-
-        # after we have added all the nodes and edges for the run
-        # subgraphs we need to connect them together with the
-        # information in the contig tree.
-        for edge_source, edge_target in self.continuations:
-
-            # for the source node (the restart run) we use the run_idx
-            # from the edge source node and the index of the first
-            # cycle
-            source_node = (edge_source, 0)
-
-            # for the target node (the run being continued) we use the
-            # run_idx from the edge_target and the last cycle index in
-            # the run
-            target_node = (edge_target, self.run_n_cycles(edge_target)-1)
-
-            # make the edge
-            edge = (source_node, target_node)
-
-            # add this connector edge to the network
-            cycle_tree.add_edge(*edge)
-
-        return cycle_tree
-
-    def contig_tree_records(self, run_record_keys):
-        """Get records in the form of a tree for the whole contig tree. Each
-        collection of records for a run will be in the node of the
-        contig tree corresponding to the run.
-
-        """
-
-        contig_tree = self.contig_tree()
-
-        # just loop through each run and get the records for it then
-        # assign it to the node in the contig tree
-        for run_idx in self.run_idxs:
-            for run_record_key in run_record_keys:
-                contig_tree.nodes[run_idx][run_record_key] = self.run_records(run_idx, run_record_key)
-
-        return contig_tree
 
 
     def _run_record_namedtuple(self, run_record_key):
@@ -2871,10 +2693,28 @@ class WepyHDF5(object):
 
         return resampling_panel
 
+    def is_contig(self, run_idxs):
+        """This method checks that if a given list of run indices is a valid
+        contig or not.
+        """
+        run_idx_continuations = [np.array([run_idxs[idx+1], run_idxs[idx]])
+                            for idx in range(len(run_idxs)-1)]
+        #gets the contigs array
+        continuations = self.settings_grp['continuations'][:]
+
+        # checks if sub contigs are in contigs list or not.
+        for run_continuous in run_idx_continuations:
+            contig = False
+            for continuous in continuations:
+                if np.array_equal(run_continuous, continuous):
+                    contig = True
+            if not contig:
+                return False
+
+        return True
 
     def run_resampling_panel(self, run_idx):
         return self.contig_resampling_panel([run_idx])
-
 
     def contig_resampling_panel(self, run_idxs):
         # check the contig to make sure it is a valid contig
@@ -2886,32 +2726,6 @@ class WepyHDF5(object):
         contig_resampling_panel = self.resampling_panel(self.resampling_records(run_idxs))
 
         return contig_resampling_panel
-
-
-    # TODO remove
-    def cycle_tree_resampling_panel(self):
-        """Instead of a resampling panel this is the same thing except each
-        cycle is a node rather than a table in the panel.
-
-        """
-
-        # get the cycle tree
-        cycle_tree = self.cycle_tree()
-
-        # then get the resampling tables for each cycle and put them
-        # as attributes to the appropriate nodes
-        for run_idx in self.run_idxs:
-
-            run_resampling_panel = self.run_resampling_panel(run_idx)
-
-            # add each cycle of this panel to the network by adding
-            # them in as nodes with the resampling steps first
-            for step_idx, step in enumerate(run_resampling_panel):
-                node = (run_idx, step_idx)
-                cycle_tree.nodes[node]["resampling_steps"] = step
-
-        return cycle_tree
-
 
     def join(self, other_h5):
         """Given another WepyHDF5 file object does a left join on this

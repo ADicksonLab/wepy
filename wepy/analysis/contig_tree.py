@@ -1,4 +1,5 @@
 import itertools as it
+from copy import copy
 
 import networkx as nx
 import numpy as np
@@ -6,6 +7,20 @@ import numpy as np
 from wepy.analysis.parents import DISCONTINUITY_VALUE, \
                                   parent_panel, net_parent_table,\
                                   ancestors, sliding_window
+
+# optional dependencies
+try:
+    import pandas as pd
+except ModuleNotFoundError:
+    warn("pandas is not installed and that functionality will not work", RuntimeWarning)
+
+
+# the groups of run records
+RESAMPLING = 'resampling'
+RESAMPLER = 'resampler'
+WARPING = 'warping'
+PROGRESS = 'progress'
+BC = 'boundary_conditions'
 
 class ContigTree():
 
@@ -23,6 +38,9 @@ class ContigTree():
         self._graph = nx.DiGraph()
 
         self._wepy_h5 = wepy_h5
+
+        self._boundary_condition_class=boundary_condition_class
+        self._decision_class = decision_class
 
         # we can optionally specify which continuations to use when
         # creating the contig tree instead of defaulting to the whole file
@@ -59,15 +77,23 @@ class ContigTree():
 
         self._set_resampling_panels()
 
-        if decision_class is not None:
-            self._set_parents(decision_class)
+        if self._decision_class is not None:
+            self._set_parents(self._decision_class)
 
-            if boundary_condition_class is not None:
-                self._set_discontinuities(boundary_condition_class)
+            if self._boundary_condition_class is not None:
+                self._set_discontinuities(self._boundary_condition_class)
 
     @property
     def graph(self):
         return self._graph
+
+    @property
+    def decision_class(self):
+        return self._decision_class
+
+    @property
+    def boundary_condition_class(self):
+        return self._boundary_condition_class
 
     def _create_tree(self):
 
@@ -251,13 +277,13 @@ class ContigTree():
         """Get the contig cycle idx for a (run_idx, cycle_idx) pair."""
 
         # make the contig trace
-        contig_trace = self.get_branch(run_idx, cycle_idx)
+        contig_trace = self.get_branch_trace(run_idx, cycle_idx)
 
         # get the length and subtract one for the index
         return len(contig_trace) - 1
 
 
-    def get_branch(self, run_idx, cycle_idx, start_contig_idx=0):
+    def get_branch_trace(self, run_idx, cycle_idx, start_contig_idx=0):
         """Given an identifier of (run_idx, cycle_idx) from the contig tree
         and a starting contig index generate a contig trace of
         (run_idx, cycle_idx) indices for that contig. Which is a
@@ -520,7 +546,7 @@ class ContigTree():
 
         # initialize the list of active branches all going back to the
         # root
-        branch_contigs = [self.get_branch(*leaf) for leaf in leaves]
+        branch_contigs = [self.get_branch_trace(*leaf) for leaf in leaves]
 
         done = False
         while not done:
@@ -580,3 +606,246 @@ class ContigTree():
                 windows.append(run_trace_window)
 
         return windows
+
+    @classmethod
+    def _spanning_paths(cls, edges, root):
+
+        # nodes targetting this root
+        root_sources = []
+
+        # go through all the edges and find those with this
+        # node as their target
+        for edge_source, edge_target in edges:
+
+            # check if the target_node we are looking for matches
+            # the edge target node
+            if root == edge_target:
+
+                # if this root is a target of the source add it to the
+                # list of edges targetting this root
+                root_sources.append(edge_source)
+
+        # from the list of source nodes targetting this root we choose
+        # the lowest index one, so we sort them and iterate through
+        # finding the paths starting from it recursively
+        root_paths = []
+        root_sources.sort()
+        for new_root in root_sources:
+
+            # add these paths for this new root to the paths for the
+            # current root
+            root_paths.extend(cls._spanning_paths(edges, new_root))
+
+        # if there are no more sources to this root it is a leaf node and
+        # we terminate recursion, by not entering the loop above, however
+        # we manually generate an empty list for a path so that we return
+        # this "root" node as a leaf, for default.
+        if len(root_paths) < 1:
+            root_paths = [[]]
+
+        final_root_paths = []
+        for root_path in root_paths:
+            final_root_paths.append([root] + root_path)
+
+        return final_root_paths
+
+    def spanning_contig_traces(self):
+        """Returns a list of all possible spanning contigs given the
+        continuations present in this file. Contigs are a list of runs
+        in the order that makes a continuous set of data. Spanning
+        contigs are always as long as possible, thus all must start
+        from a root and end at a leaf node.
+
+        This algorithm always returns them in a canonical order (as
+        long as the runs are not rearranged after being added). This
+        means that the indices here are the indices of the contigs.
+
+        Contigs can in general are any such path drawn from what we
+        call the "contig tree" which is the tree (or forest of trees)
+        generated by the directed edges of the 'continuations'. They
+        needn't be spanning from root to leaf.
+
+        """
+
+        spanning_contig_traces = []
+        # roots should be sorted already, so we just iterate over them
+        for root in self.roots():
+
+            # get the spanning paths by passing the continuation edges
+            # and this root to this recursive static method
+            root_spanning_contigs = self._spanning_paths(self.graph.edges, root)
+
+            spanning_contig_traces.extend(root_spanning_contigs)
+
+        return spanning_contig_traces
+
+    @classmethod
+    def _contig_trace_to_contig_runs(cls, contig_trace):
+
+        contig_runs = []
+        for run_idx, cycle_idx in contig_trace:
+
+            if not run_idx in contig_runs:
+                contig_runs.append(run_idx)
+            else:
+                pass
+
+        return contig_runs
+
+    @classmethod
+    def _contig_runs_to_continuations(cls, contig_runs):
+
+        continuations = []
+        for i in range(len(contig_runs) - 1, 0, -1):
+            continuations.append([contig_runs[i], contig_runs[i-1]])
+
+        return continuations
+
+    @classmethod
+    def _continuations_to_contig_runs(cls, continuations):
+
+        if len(continuations) == 0:
+            return []
+
+        continuations = list(copy(continuations))
+        continuations.sort()
+
+        contig_runs = []
+        for next_run, continued_run in continuations:
+            contig_runs.append(continued_run)
+
+        contig_runs.append(continuations[-1][0])
+
+
+        # since this is only valid if the continuations don't form a
+        # tree check that we didn't put the same number in twice,
+        # which this would indicate, fail if true
+        assert len(set(contig_runs)) == len(contig_runs), \
+            "this is not a single contig"
+
+        return contig_runs
+
+    def make_contig(self, contig_trace):
+
+        # get the runs and continuations for just this contig
+
+        # get the contig as the sequence of run idxs
+        contig_runs = self._contig_trace_to_contig_runs(contig_trace)
+
+        # then convert to continuations
+        continuations = self._contig_runs_to_continuations(contig_runs)
+
+        return Contig(self.wepy_h5,
+                      runs=contig_runs,
+                      continuations=continuations,
+                      boundary_condition_class=self.boundary_condition_class,
+                      decision_class=self.decision_class)
+
+
+class Contig(ContigTree):
+
+    def __init__(self, wepy_h5,
+                 **kwargs):
+
+        # use the superclass initialization
+        super().__init__(wepy_h5, **kwargs)
+
+        # check that the result is a single contig
+        assert len(self.spanning_contig_traces()) == 1, \
+            "continuations given do not form a single contig"
+
+        # if so we add some useful attributes valid for only a
+        # standalone contig
+
+        # the contig_trace
+        self._contig_trace = self.spanning_contig_traces()[0]
+
+        # TODO this should not be part of the API in the future since
+        # we don't want to have the run_idxs alone be how contigs are
+        # defined (since we want contigs to be able to go to different
+        # runs from the middle of other runs), in any case that is how
+        # it is implemented now and there is no reason to change it
+        # now, so we keep it hidden
+
+        # the run idxs of the contig
+        if len(self.contig_trace) > 1:
+            self._contig_run_idxs = self._continuations_to_contig_runs(self.continuations)
+        # if there is only 1 run we set it like this
+        else:
+            self._contig_run_idxs = list(self.run_idxs)
+
+
+    @property
+    def contig_trace(self):
+        return self._contig_trace
+
+    @property
+    def n_cycles(self):
+        return len(self.contig_trace)
+
+
+    def contig_fields(self, fields):
+
+        return self.wepy_h5.get_contig_trace_fields(self.contig_trace, fields)
+
+    def records(self, record_key):
+        return self.wepy_h5.contig_records(self._contig_run_idxs, record_key)
+
+    def records_dataframe(self, record_key):
+        return self.wepy_h5.contig_records_dataframe(self._contig_run_idxs, record_key)
+
+    # resampling
+    def resampling_records(self):
+
+        return self.records(RESAMPLING)
+
+    def resampling_records_dataframe(self):
+
+        return pd.DataFrame(self.resampling_records())
+
+    # resampler records
+    def resampler_records(self):
+
+        return self.records(RESAMPLER)
+
+    def resampler_records_dataframe(self):
+
+        return pd.DataFrame(self.resampler_records())
+
+    # warping
+    def warping_records(self):
+
+        return self.records(WARPING)
+
+    def warping_records_dataframe(self):
+
+        return pd.DataFrame(self.warping_records())
+
+    # boundary conditions
+    def bc_records(self):
+
+        return self.records(BC)
+
+    def bc_records_dataframe(self):
+
+        return pd.DataFrame(self.bc_records())
+
+    # progress
+    def progress_records(self):
+
+        return self.records(PROGRESS)
+
+    def progress_records_dataframe(self):
+
+        return pd.DataFrame(self.progress_records())
+
+
+    # resampling panel
+    def resampling_panel(self):
+
+        return self.wepy_h5.contig_resampling_panel(self._contig_run_idxs)
+
+
+    def parent_table(self):
+
+        return self.trace_parent_table(self.contig_trace)
