@@ -1,0 +1,4 @@
+
+
+class LayoutError(Exception):
+    pass
