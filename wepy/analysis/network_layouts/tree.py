@@ -250,233 +250,23 @@ class ResamplingTreeLayout():
 
         return new_node_positions
 
-
-        #     # if there were no overlaps we can just place it where it
-        #     # initially was so do nothing
-        #     elif (not left_n_overlaps > 0) and (not right_n_overlaps > 0):
-        #         continue
-
-        #     # otherwise if there are only overlaps in one direction we
-        #     # more this node in the opposite direction
-        #     elif left_n_overlaps > 0 or right_n_overlaps > 0:
-
-        #         # if there are overlaps to the right we move to the left
-        #         if right_n_overlaps > 0:
-        #             direction = -1
-        #             n_previous_overlaps = right_n_overlaps
-
-        #         elif left_n_overlaps > 0:
-        #             direction = +1
-        #             n_previous_overlaps = left_n_overlaps
-
-
-        #         # we initialize the previous overlaps to the sides so we
-        #         # can detangle (make more room for the node) the graph if
-        #         # necessary
-        #         n_previous_overlaps = left_n_overlaps if direction < 0 else right_n_overlaps
-
-        #         # keep moving a node until it doesn't overlap with any other nodes
-        #         overlaps_present = True
-        #         while overlaps_present:
-
-        #             # check for overlaps
-        #             overlaps = self._overlaps(nodes_x, node_radii, node_idx)
-
-        #             # if there are no overlaps end this loop
-        #             if not any(overlaps):
-        #                 overlaps_present = False
-        #                 continue
-
-        #             # otherwise we make a move based on the direction and
-        #             # the so called fanning factor (which is just the
-        #             # magnitude of the move)
-        #             move = direction * self.fanning_factor
-
-        #             # change the position of the node
-        #             nodes_x[node_idx] = nodes_x[node_idx] + move
-
-        #             # get the overlaps with the proposed position
-        #             new_overlaps = self._overlaps(nodes_x, node_radii, node_idx)
-
-        #             # now we want to figure out if further movements of
-        #             # the node will result in "crossovers" and tangles in
-        #             # the tree.
-
-        #             # so we look at how many new overlaps there are in the
-        #             # direction we are moving
-
-        #             # if the direction is negative we get the left overlaps
-        #             if direction < 0:
-        #                 new_overlap_idxs = [i for i, overlap in enumerate(new_overlaps)
-        #                                     if overlap and (nodes_x[i] < nodes_x[node_idx])]
-        #             # the opposite
-        #             elif direction > 0:
-        #                 new_overlap_idxs = [i for i, overlap in enumerate(new_overlaps)
-        #                                     if overlap and (nodes_x[i] > nodes_x[node_idx])]
-
-        #             # then calculate the change in overlaps
-        #             n_new_overlaps = len(new_overlap_idxs)
-        #             diff = n_new_overlaps - n_previous_overlaps
-
-        #             # if this has increased then we need to move over
-        #             # other nodes to avoid tangling
-        #             if diff > 0:
-
-        #                 # get all the nodes in the direction we are moving this node
-
-        #                 # left
-        #                 if direction < 0:
-        #                     detangle_node_idxs = [i for i, position in enumerate(nodes_x)
-        #                                           if position < nodes_x[node_idx]]
-
-        #                 # right
-        #                 elif direction > 0:
-        #                     detangle_node_idxs = [i for i, position in enumerate(nodes_x)
-        #                                           if position > nodes_x[node_idx]]
-
-        #                 # move them the same amount as the target node so it has room
-        #                 nodes_x[detangle_node_idxs] = nodes_x[detangle_node_idxs] + move
-
-        #             # if there were no overlaps in the direction of the
-        #             # move then we don't need to do this "disentangling"
-
-        #             # just update the previous number of overlaps
-        #             n_previous_overlaps = n_new_overlaps
-
-        # return list(nodes_x)
-
-
     def _simple_next_gen(self, parents_x, children_parent_idxs, node_radii):
 
-        # to place the children such that the edges never overlap we first
-        # layout the nodes within their parent group, then we treat the
-        # parent groups as single larger nodes and lay them out together.
+        children_x = []
+        for parent_idx in children_parent_idxs:
+            children_x.append(parents_x[parent_idx])
 
-        # so make a dictionary of the "families" (i.e. parent : [children]
-        # mappings)
-        families = defaultdict(list)
-        for child_idx, parent_idx in enumerate(children_parent_idxs):
-            families[parent_idx].append(child_idx)
-
-        # for each family perform a layout algorithm that gets rid of
-        # overlaps for the children nodes
-        family_distributions = {}
-        # also figure out the overall family node radius
-        family_node_radii = {}
-        # and map a 'family_idx' (over the existing families in the next
-        # generation) to the parent_idx that identifies a family, the
-        # index of the parent_idxs are the family idxs
-        parent_family_idxs = []
-        for parent_idx, children_idxs in families.items():
-
-            # if there are no children skip this
-            if len(children_idxs) == 0:
-                pass
-
-            # otherwise layout the children
-            else:
-
-                # add this as a surviving family
-                parent_family_idxs.append(parent_idx)
-
-                # generate the starting x positions for the children,
-                # which is 0.0 because it will get re-embedded based on
-                # the families ultimate position
-                children_init_positions = [0.0 for _ in children_idxs]
-
-                # also the node radii of the children
-                children_node_radii = [node_radii[i] for i in children_idxs]
-
-                # then update the positions by removing the overlaps
-                children_x = self._simple_gen_distribution(children_init_positions,
-                                                           children_node_radii)
-
-                family_distributions[parent_idx] = children_x
-
-                # get the radii of this family node, which is the end to end
-                # distance of the nodes
-
-                # this is the position of each node in the extremes
-                # plus that nodes radius
-                family_node_length = self._node_row_length(children_x, children_node_radii)
-
-                # simply the difference of the edges divided by 2 gives the family radius
-                family_node_radius = family_node_length / 2
-
-                if family_node_radius <= 0.0 :
-                    import ipdb; ipdb.set_trace()
-
-                family_node_radii[parent_idx] = family_node_radius
-
-
-        n_families = len(parent_family_idxs)
-
-
-        # generate an array of node positions and radii in order for the
-        # family nodes
-        family_node_positions = [0.0 for _ in range(n_families)]
-        family_node_radii_arr = [0.0 for _ in range(n_families)]
-        for family_idx, parent_idx in enumerate(parent_family_idxs):
-
-            # center them around the parents position
-            family_node_positions[family_idx] = parents_x[parent_idx]
-
-            # just copy over the family node radius
-            node_radius = family_node_radii[parent_idx]
-            family_node_radii_arr[family_idx] = node_radius
-
-        # now we treat each family as a "node" with a new radius which is
-        # the end to end of all the child nodes
-        family_positions = self._simple_gen_distribution(family_node_positions,
-                                                         family_node_radii_arr)
-
-        # with the family node positions we can then embed the individual
-        # children nodes with absolute positions of the family nodes, and
-        # assign them to a valid child of that parent
-
-        # so we make a new array for the children positions
-        children_x = [None for _ in children_parent_idxs]
-        for family_idx, parent_idx in enumerate(parent_family_idxs):
-
-            # get the family position
-            family_position = family_positions[family_idx]
-
-            # get the starting children positions
-            children_positions = [pos for pos in family_distributions[parent_idx]]
-
-            # then add the overall family node position to them all
-            children_positions = [child_pos + family_position
-                                  for child_pos in children_positions]
-
-            # now we need to get the correct order of the family groups by
-            # assigning the positions to the correct child idxs. To get an
-            # available child idx we look them up in the families
-            # dictionary double checking we still have parity
-
-            # so make a temporary list we can pop things out of
-            family_children_idxs = copy(families[parent_idx])
-
-            # go through all the positions we have to allocate
-            for child_position in children_positions:
-                # pop a child idx to use for it, if this fails there is an
-                # error somewhere else
-                child_idx = family_children_idxs.pop()
-
-                # then set the new child position with this
-                children_x[child_idx] = child_position
-
+        children_x = self._simple_gen_distribution(children_x, node_radii)
 
         # check to make sure there are no overlaps
         for node_idx in range(len(children_x)):
             overlaps = self._overlaps(children_x, node_radii, node_idx)
             if any(overlaps):
-                #raise LayoutError("node {} has an overlap".format(node_idx))
-                #import ipdb; ipdb.set_trace()
-                #print(node_idx)
-                #print([i for i, overlap in enumerate(overlaps) if overlap is True])
                 pass
+                #raise LayoutError("node {} has an overlap".format(node_idx))
 
         return children_x
+
 
     def _initial_parent_distribution(self, node_radii):
 
