@@ -5,10 +5,124 @@ import networkx as nx
 
 DISCONTINUITY_VALUE = -1
 
+def resampling_panel(resampling_records, is_sorted=False):
+    """Converts a simple collection of resampling records into a list of
+    elements corresponding to cycles. It is like doing a pivot on
+    the step indices into an extra dimension. Hence it can be
+    thought of as a list of tables indexed by the cycle, hence the
+    name panel.
+
+    """
+
+    res_panel = []
+
+    # if the records are not sorted this must be done:
+    if not is_sorted:
+        resampling_records.sort()
+
+    # iterate through the resampling records
+    rec_it = iter(resampling_records)
+    cycle_idx = 0
+    cycle_recs = []
+    stop = False
+    while not stop:
+
+        # iterate through records until either there is none left or
+        # until you get to the next cycle
+        cycle_stop = False
+        while not cycle_stop:
+            try:
+                rec = next(rec_it)
+            except StopIteration:
+                # this is the last record of all the records
+                stop = True
+                # this is the last record for the last cycle as well
+                cycle_stop = True
+                # alias for the current cycle
+                curr_cycle_recs = cycle_recs
+            else:
+                # if the resampling record retrieved is from the next
+                # cycle we finish the last cycle
+                if rec.cycle_idx > cycle_idx:
+                    cycle_stop = True
+                    # save the current cycle as a special
+                    # list which we will iterate through
+                    # to reduce down to the bare
+                    # resampling record
+                    curr_cycle_recs = cycle_recs
+
+                    # start a new cycle_recs for the record
+                    # we just got
+                    cycle_recs = [rec]
+                    cycle_idx += 1
+
+            if not cycle_stop:
+                cycle_recs.append(rec)
+
+            else:
+
+                # we need to break up the records in the cycle into steps
+                cycle_table = []
+
+                # temporary container for the step we are working on
+                step_recs = []
+                step_idx = 0
+                step_stop = False
+                cycle_it = iter(curr_cycle_recs)
+                while not step_stop:
+                    try:
+                        cycle_rec = next(cycle_it)
+                    # stop the step if this is the last record for the cycle
+                    except StopIteration:
+                        step_stop = True
+                        # alias for the current step
+                        curr_step_recs = step_recs
+
+                    # or if the next stop index has been obtained
+                    else:
+
+                        if cycle_rec.step_idx > step_idx:
+                            step_stop = True
+                            # save the current step as a special
+                            # list which we will iterate through
+                            # to reduce down to the bare
+                            # resampling record
+                            curr_step_recs = step_recs
+
+                            # start a new step_recs for the record
+                            # we just got
+                            step_recs = [cycle_rec]
+                            step_idx += 1
+
+
+                    if not step_stop:
+                        step_recs.append(cycle_rec)
+                    else:
+                        # go through the walkers for this step since it is completed
+                        step_row = [None for _ in range(len(curr_step_recs))]
+                        for walker_rec in curr_step_recs:
+
+                            # collect data from the record
+                            walker_idx = walker_rec.walker_idx
+                            decision_id = walker_rec.decision_id
+                            instruction = walker_rec.target_idxs
+
+                            # set the resampling record for the walker in the step records
+                            step_row[walker_idx] = (decision_id, instruction)
+
+                        # add the records for this step to the cycle table
+                        cycle_table.append(step_row)
+
+        # add the table for this cycles records to the parent panel
+        res_panel.append(cycle_table)
+
+    return res_panel
+
+
 def parent_panel(decision_class, resampling_panel):
 
-    parent_panel = []
-    for cycle_idx, cycle in enumerate(resampling_panel):
+    parent_panel_in = []
+    for cycle in resampling_panel:
 
         # each stage in the resampling for that cycle
         # make a stage parent table
@@ -24,13 +138,13 @@ def parent_panel(decision_class, resampling_panel):
             parent_table.append(step_parents)
 
         # for the full parent panel
-        parent_panel.append(parent_table)
+        parent_panel_in.append(parent_table)
 
-    return parent_panel
+    return parent_panel_in
 
 def net_parent_table(parent_panel):
 
-    net_parent_table = []
+    net_parent_table_in = []
 
     # each cycle
     for cycle_idx, step_parent_table in enumerate(parent_panel):
@@ -54,9 +168,9 @@ def net_parent_table(parent_panel):
             step_net_parents.append(root_parent_idx)
 
         # for this step save the net parents
-        net_parent_table.append(step_net_parents)
+        net_parent_table_in.append(step_net_parents)
 
-    return net_parent_table
+    return net_parent_table_in
 
 def parent_table_discontinuities(boundary_condition_class, parent_table, warping_records):
     """Given a parent table and warping records returns a new parent table
@@ -68,7 +182,7 @@ def parent_table_discontinuities(boundary_condition_class, parent_table, warping
     # Find the number of walkers and cycles
     n_walker = np.shape(parent_table)[1]
 
-    for rec_idx, warp_record in enumerate(warping_records):
+    for warp_record in warping_records:
 
         cycle_idx = warp_record[0]
         parent_idx = warp_record[1]
@@ -175,12 +289,26 @@ class ParentForest():
 
     ROOT_CYCLE_IDX = -1
 
-    def __init__(self, contig):
+    def __init__(self, contig=None,
+                 parent_table=None):
+
+        if (contig is not None) and (parent_table is not None):
+            raise ValueError("Pass in either a contig or a parent table but not both")
+
+        if (contig is None) and (parent_table is None):
+            raise ValueError("Must provide either a contig or a parent table")
 
         self._contig = contig
 
-        # from that contig make a parent table
-        self._parent_table = self.contig.parent_table()
+        # if the contig was given, generate a parent table
+        if self.contig is not None:
+
+            # from that contig make a parent table
+            self._parent_table = self.contig.parent_table()
+
+        # otherwise use the one given
+        else:
+            self._parent_table = parent_table
 
         self._graph = nx.DiGraph()
 

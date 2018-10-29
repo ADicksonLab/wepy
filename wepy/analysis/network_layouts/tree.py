@@ -12,15 +12,14 @@ class ResamplingTreeLayout():
 
     def __init__(self,
                  node_radius=1.0,
-                 spacing=0.1,
-                 step_size=20.0,
-                 fanning_factor=1.5):
+                 row_spacing=0.1,
+                 step_spacing=5.0,
+                 central_axis=0.0):
 
-        self.step_size = step_size
         self.node_radius = node_radius
-        self.spacing = spacing
-        self.fanning_factor = fanning_factor
-
+        self.row_spacing = row_spacing
+        self.step_spacing = step_spacing
+        self.central_axis = central_axis
 
     def _overlaps(self, positions, node_radii, node_idx):
 
@@ -34,7 +33,7 @@ class ResamplingTreeLayout():
                 else:
                     # check if there is an overlap between nodes
                     diff = np.abs(positions[node_idx] - other_node_position)
-                    if diff < node_radii[node_idx] + node_radii[other_node_idx] + self.spacing:
+                    if diff < node_radii[node_idx] + node_radii[other_node_idx] + self.row_spacing:
                         overlaps.append(True)
                     else:
                         overlaps.append(False)
@@ -104,7 +103,7 @@ class ResamplingTreeLayout():
 
             # the spacing between is for 1 less than the total number
             # of the nodes in the group
-            sum_spacing = self.spacing * (len(group) - 1)
+            sum_spacing = self.row_spacing * (len(group) - 1)
 
             # the whole groups radius
             group_radius = (sum_diameters + sum_spacing) / 2
@@ -175,7 +174,7 @@ class ResamplingTreeLayout():
                 # overlapping nodes so we minimally need to move one
                 # node this far away to have no overlap, on top of
                 # that we add the spacing for the move distance to make
-                left_move = -1 * (self.spacing + (-left_min_ee_overlap_dist))
+                left_move = -1 * (self.row_spacing + (-left_min_ee_overlap_dist))
 
                 # then apply to those nodes
                 eff_positions[detangle_left_node_idxs] += left_move
@@ -196,7 +195,7 @@ class ResamplingTreeLayout():
 
                 right_min_ee_overlap_dist = min(ee_right_overlap_dists)
 
-                right_move = +1 * (self.spacing + (-right_min_ee_overlap_dist))
+                right_move = +1 * (self.row_spacing + (-right_min_ee_overlap_dist))
 
                 eff_positions[detangle_right_node_idxs] += right_move
 
@@ -292,7 +291,7 @@ class ResamplingTreeLayout():
 
             # set the position from the last edge plus the space and
             # the new nodes radius
-            position = last_edge + self.spacing + node_radius
+            position = last_edge + self.row_spacing + node_radius
 
             positions.append(position)
 
@@ -300,6 +299,23 @@ class ResamplingTreeLayout():
             last_edge = position + node_radius
 
         return positions
+
+    def _center_row(self, positions, radii, center):
+        """Centers the midpoint of a row of nodes around a number. """
+
+        # calculate the length of the row
+        row_length = self._node_row_length(positions, radii)
+
+        min_child_idx = np.argmin(positions)
+        min_edge = positions[min_child_idx] - radii[min_child_idx]
+
+        # row midpoint is the minimum edge plus the radius of the row
+        row_midpoint = min_edge + (row_length / 2)
+
+        # translate all the points so that the midpoint is at 0
+        centered_positions = positions - row_midpoint
+
+        return centered_positions
 
     def _layout_array(self, parent_table, radii_array):
 
@@ -312,7 +328,11 @@ class ResamplingTreeLayout():
 
         # initialize the first generation (cycle) node positions, this
         # is the root positions, we give it the radii of the first row in the array
-        first_gen_positions = self._initial_parent_distribution(radii_array[0])
+        first_gen_positions = np.array(self._initial_parent_distribution(radii_array[0]))
+
+        # then center them around the central axis
+        first_gen_positions = self._center_row(first_gen_positions, radii_array[0],
+                                               self.central_axis)
 
         # save them as full coordinates for visualization
         node_positions[0] = np.array([[x, 0.0, 0.0] for x in first_gen_positions])
@@ -320,7 +340,7 @@ class ResamplingTreeLayout():
         # we use the last gen positions to make the next gen
         last_gen_positions = first_gen_positions
 
-        # propagate and minimize the rest of the step nodes
+        # layout all the rest of the steps
         for step_idx in range(n_timesteps):
 
             # the generation index is the one used for the actual tree
@@ -334,15 +354,37 @@ class ResamplingTreeLayout():
                                                        parent_table[step_idx],
                                                        radii_array[generation_idx])
 
+            # center them around the central axis
+            curr_gen_positions = self._center_row(curr_gen_positions,
+                                                  radii_array[generation_idx],
+                                                   self.central_axis)
 
+
+            # figure out how big the increase in the Y direction
+            # should be. This is based on the largest radii of the
+            # last step and the largets radii of this step with the
+            # mandatory spacing in between
+
+            # get the y dimension of the last step
+            last_y = node_positions[generation_idx-1, 0, 1]
+
+            # get the largest radii of the last step
+            last_max_radius = max(radii_array[generation_idx-1])
+
+            # get the largest radii of this step
+            this_max_radius = max(radii_array[generation_idx])
+
+            # compute the step y dimension, which is from the last y
+            # value plus the max radii plus the spacing
+            step_y = last_y + last_max_radius + self.step_spacing + this_max_radius
+
+            # then generate the coordinates
             node_positions[generation_idx] = np.array(
-                [np.array([x, float(generation_idx * self.step_size), 0.0])
+                [np.array([x, step_y, 0.0])
                  for x in curr_gen_positions])
-
 
             # set the last gen positions
             last_gen_positions = curr_gen_positions
-
 
         return node_positions
 

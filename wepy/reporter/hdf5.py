@@ -16,7 +16,7 @@ class WepyHDF5Reporter(FileReporter):
 
     # this is the suggested extension for naming WepyHDF5 files used
     # by this reporter, e.g. results.wepy.h5
-    SUGGESTED_EXTENSIONS = ("wepy.h5",)
+    SUGGESTED_EXTENSIONS = ('wepy.h5',)
 
     def __init__(self,
                  save_fields=None,
