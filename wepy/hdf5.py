@@ -2419,7 +2419,7 @@ class WepyHDF5(object):
                 datum = column[record_idx]
                 record_d[record_field] = datum
 
-            record = Record(**record_d)
+            record = Record(*(record_d[key] for key in Record._fields))
 
             records.append(record)
 

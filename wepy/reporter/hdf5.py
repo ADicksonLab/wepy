@@ -263,24 +263,28 @@ class WepyHDF5Reporter(FileReporter):
         super().cleanup(**kwargs)
 
 
-    def report(self, **kwargs):
+    def report(self, new_walkers=None,
+               cycle_idx=None,
+               warp_data=None,
+               bc_data=None,
+               progress_data=None,
+               resampling_data=None,
+               resampler_data=None,
+               **kwargs):
 
-        # select the kwargs we need
-        kwargs = self._select_report_kwargs(**kwargs)
-
-        n_walkers = len(kwargs['new_walkers'])
+        n_walkers = len(new_walkers)
 
         # determine which fields to save. If there were none specified
         # save all of them
         if self.save_fields is None:
-            save_fields = list(kwargs['new_walkers'][0].state.dict().keys())
+            save_fields = list(new_walkers[0].state.dict().keys())
         else:
             save_fields = self.save_fields
 
         with self.wepy_h5:
 
             # add trajectory data for the walkers
-            for walker_idx, walker in enumerate(kwargs['new_walkers']):
+            for walker_idx, walker in enumerate(new_walkers):
 
                 walker = deepcopy(walker)
                 walker_data = walker.state.dict()
@@ -302,7 +306,7 @@ class WepyHDF5Reporter(FileReporter):
                     # if this is a sparse field we decide
                     # whether it is a valid cycle to save on
                     if field_path in self._sparse_fields:
-                        if kwargs['cycle_idx'] % self._sparse_fields[field_path] != 0:
+                        if cycle_idx % self._sparse_fields[field_path] != 0:
                             # this is not a valid cycle so we
                             # remove from the walker_data
                             walker_data.pop(field_path)
@@ -314,7 +318,7 @@ class WepyHDF5Reporter(FileReporter):
                     alt_rep_path = "alt_reps/{}".format(alt_rep_key)
                     # check to make sure this is a cycle this is to be
                     # saved to, if it is add it to the walker_data
-                    if kwargs['cycle_idx'] % self._sparse_fields[alt_rep_path] == 0:
+                    if cycle_idx % self._sparse_fields[alt_rep_path] == 0:
                         # if the idxs are None we want all of the atoms
                         if alt_rep_idxs is None:
                             alt_rep_data = walker_data['positions'][:]
@@ -353,19 +357,19 @@ class WepyHDF5Reporter(FileReporter):
                                                      data=walker_data)
 
                     # add as metadata the cycle idx where this walker started
-                    traj_grp.attrs['cycle_idx'] = kwargs['cycle_idx']
+                    traj_grp.attrs['cycle_idx'] = cycle_idx
 
 
             # report the boundary conditions records data, if boundary
             # conditions were initialized
             if self.warping_fields is not None:
-                self.report_warping(kwargs['cycle_idx'], kwargs['warp_data'])
-                self.report_bc(kwargs['cycle_idx'], kwargs['bc_data'])
-                self.report_progress(kwargs['cycle_idx'], kwargs['progress_data'])
+                self.report_warping(cycle_idx, warp_data)
+                self.report_bc(cycle_idx, bc_data)
+                self.report_progress(cycle_idx, progress_data)
 
             # report the resampling records data
-            self.report_resampling(kwargs['cycle_idx'], kwargs['resampling_data'])
-            self.report_resampler(kwargs['cycle_idx'], kwargs['resampler_data'])
+            self.report_resampling(cycle_idx, resampling_data)
+            self.report_resampler(cycle_idx, resampler_data)
 
         super().report(**kwargs)
 

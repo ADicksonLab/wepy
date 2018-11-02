@@ -23,19 +23,6 @@ class Reporter(object):
         assert not hasattr(super(), method_name), \
             "Superclass with method {} is masked".format(method_name)
 
-    def _select_report_kwargs(self, **kwargs):
-        """Given kwargs to this function selects the values REPORT_ITEM_KEYS and
-        returns only the ones that are used by this reporter.
-
-        """
-
-        # make sure all the necessary keys are in the kwargs
-        assert all([True if rep_key in kwargs else False
-                    for rep_key in kwargs])
-
-        # then select them out
-        return {k : v for k, v in kwargs.items() if k in self.REPORT_ITEM_KEYS}
-
     def cleanup(self, **kwargs):
         method_name = 'cleanup'
         assert not hasattr(super(), method_name), \
@@ -263,7 +250,7 @@ class ProgressiveFileReporter(FileReporter):
 
             # if the mode is 'x' or 'w-' we check to make sure the file
             # doesn't exist
-            if self.mode in ['x', 'w-']:
+            if mode in ['x', 'w-']:
                 file_path = self.file_paths[file_i]
                 if osp.exists(file_path):
                     raise FileExistsError("File exists: '{}'".format(file_path))

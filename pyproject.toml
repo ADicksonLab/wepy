@@ -24,8 +24,10 @@ dill = "^0.2.8"
 click = "^7.0"
 geomm = "^0.1.2"
 # supposedly optional
-mdtraj = "^1.9"
+# the PyPI project is out of date
+#mdtraj = "^1.9"
 pandas = "^0.23.4"
+matplotlib = 
 
 [tool.poetry.dev-dependencies]
 ipdb = "^0.11.0"

@@ -12,8 +12,8 @@ class ResamplingTreeLayout():
 
     def __init__(self,
                  node_radius=1.0,
-                 row_spacing=0.1,
-                 step_spacing=5.0,
+                 row_spacing=5.0,
+                 step_spacing=20.0,
                  central_axis=0.0):
 
         self.node_radius = node_radius

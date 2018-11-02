@@ -174,34 +174,42 @@ Defined Regions with the number of child regions per parent region:
                         'cycle_bc_time', 'cycle_resampling_time',)
 
 
-    def report(self, **kwargs):
-
-        # select the kwargs we need
-        kwargs = self._select_report_kwargs(**kwargs)
+    def report(self, cycle_idx=None,
+               n_segment_steps=None,
+               new_walkers=None,
+               warp_data=None,
+               progress_data=None,
+               resampling_data=None,
+               resampler_data=None,
+               worker_segment_times=None,
+               cycle_runner_time=None,
+               cycle_bc_time=None,
+               cycle_resampling_time=None,
+               **kwargs):
 
         # first recalculate the total sampling time, update the
         # number of cycles, and set the walker probabilities
-        self.update_weighted_ensemble_values(kwargs['cycle_idx'],
-                                             kwargs['n_segment_steps'],
-                                             kwargs['new_walkers'])
+        self.update_weighted_ensemble_values(cycle_idx,
+                                             n_segment_steps,
+                                             new_walkers)
 
         # if there were any warps we need to set new values for the
         # warp variables and add records
-        self.update_warp_values(kwargs['cycle_idx'], kwargs['warp_data'])
+        self.update_warp_values(cycle_idx, warp_data)
 
         # update progress towards the boundary conditions
-        self.update_progress_values(kwargs['cycle_idx'], kwargs['progress_data'])
+        self.update_progress_values(cycle_idx, progress_data)
 
         # now we update the WExplore values
-        self.update_wexplore_values(kwargs['cycle_idx'],
-                                    kwargs['resampling_data'],
-                                    kwargs['resampler_data'])
+        self.update_wexplore_values(cycle_idx,
+                                    resampling_data,
+                                    resampler_data)
 
         # update the performance of the workers for our simulation
-        self.update_performance_values(kwargs['cycle_idx'],
-                                       kwargs['n_segment_steps'], kwargs['worker_segment_times'],
-                                       kwargs['cycle_runner_time'], kwargs['cycle_bc_time'],
-                                       kwargs['cycle_resampling_time'])
+        self.update_performance_values(cycle_idx,
+                                       n_segment_steps, worker_segment_times,
+                                       cycle_runner_time, cycle_bc_time,
+                                       cycle_resampling_time)
 
         # write the dashboard
         self.write_dashboard()

@@ -1,54 +1,86 @@
+from collections import namedtuple
+
+import numpy as np
+import networkx as nx
+from matplotlib import cm
+
+from geomm.free_energy import free_energy
+
 from wepy.reporter.reporter import ProgressiveFileReporter
+from wepy.analysis.network_layouts.tree import ResamplingTreeLayout
+from wepy.analysis.network_layouts.layout_graph import LayoutGraph
 
 from wepy.analysis.parents import resampling_panel, \
                                   parent_panel, net_parent_table,\
-                                  parent_table_discontinuities
+                                  parent_table_discontinuities, ParentForest
 
 class ResTreeReporter(ProgressiveFileReporter):
 
     FILE_ORDER = ('gexf_restree_path',)
 
-    SUGGESTED_EXTENSIONS = ('restree.gexf')
+    SUGGESTED_EXTENSIONS = ('restree.gexf',)
 
-    def __init__(self, resampler=None,
-                 decision_class=None,
-                 boundary_condition_class=None,
-                 spacing=5.0,
-                 default_node_radius=3.0):
+    MAX_PROGRESS_NORM = 1.0
+
+    def __init__(self,
+                 resampler=None,
+                 boundary_condition=None,
+                 row_spacing=None,
+                 step_spacing=None,
+                 default_node_radius=None,
+                 progress_key=None,
+                 max_progress_value=None,
+                 colormap_name='plasma',
+                 **kwargs):
 
         assert resampler is not None, \
-            "Must provide a resampler, this is used to get the correct records "
+            "Must provide a resampler, this is used to get the correct records "\
             "from resampling data and is not saved in this object"
 
-        assert decision_class is not None, "must give the decision class"
-        assert boundary_condition_class is not None, "must give the boundary condition class"
+        assert boundary_condition is not None, "must give the boundary condition class"
 
+        super().__init__(**kwargs)
 
         # parameters for the layout
-        self.spacing = spacing
+        self.row_spacing = row_spacing
+        self.step_spacing = step_spacing
         self.default_node_radius = default_node_radius
+
+        # this is the key we will use to get values for the progress out
+        self.progress_key = progress_key
+        self.max_progress_value = max_progress_value
+        # get the actual colormap that will be used from matplotlib
+        self.colormap = cm.get_cmap(name=colormap_name)
+
+        # we need the decision class for getting parent child
+        # relationships
+        self._decision_class = resampler.decision
 
         # get the fields for the records of the resampling records, we
         # don't need to store the whole resampler
         self._resampling_record_field_names = resampler.resampling_record_field_names()
 
+        # we also will need to know the shape and dtype of them
+        self._resampling_field_names = resampler.resampling_field_names()
+        self._resampling_field_shapes = resampler.resampling_field_shapes()
+        self._resampling_field_dtypes = resampler.resampling_field_dtypes()
+
 
         # make a namedtuple record for these records
         self._ResamplingRecord = namedtuple('{}_Record'.format('Resampling'),
-                        ['cycle_idx'] + self._resampling_record_field_names[run_record_key])
+                        ['cycle_idx'] + list(self._resampling_record_field_names))
 
         # we do the same for the bounadry condition class, although we
         # also need the class itself
-        self._bc_class = boundary_condition_class
-        self._warping_record_field_names = self._bc_class.warping_record_field_names()
+        self._bc = boundary_condition
+        self._warping_record_field_names = self._bc.warping_record_field_names()
+        self._warping_field_shapes = self._bc.warping_field_shapes()
+        self._warping_field_dtypes = self._bc.warping_field_dtypes()
 
         self._WarpingRecord = namedtuple('{}_Record'.format('Warping'),
-                                    ['cycle_idx'] + self._warping_record_field_names[run_record_key])
+                                    ['cycle_idx'] + list(self._warping_record_field_names))
 
 
-
-        # we need the decision class for getting parent child relationships
-        self._decision_class = decision_class
 
         # initialize the parent table that will be generated as the
         # simulation progresses
@@ -57,15 +89,90 @@ class ResTreeReporter(ProgressiveFileReporter):
         # also keep track of the weights of the walkers
         self._walker_weights = []
 
+        # and the progress values for each walker
+        self._walkers_progress = []
+
     @property
     def parent_table(self):
         return self._parent_table
+
+    def _make_resampling_record(self, record_d, cycle_idx):
+
+        record = self._make_record(record_d, cycle_idx,
+                                   self._resampling_record_field_names,
+                                   self._resampling_field_names, self._resampling_field_shapes,
+                                   self._ResamplingRecord)
+
+        return record
+
+    def _make_warping_record(self, record_d, cycle_idx):
+
+        record = self._make_record(record_d, cycle_idx,
+                                   self._warping_record_field_names,
+                                   self._warping_field_names, self._warping_field_shapes,
+                                   self._WarpingRecord)
+
+        return record
+
+
+    @staticmethod
+    def _make_record(record_d, cycle_idx,
+                     record_field_names, field_names, field_shapes, rec_namedtuple):
+
+        # go through each field of the record
+        rec_d = {'cycle_idx' : cycle_idx}
+        for field_name, field_value in record_d.items():
+
+            field_idx = field_names.index(field_name)
+            field_shape = field_shapes[field_idx]
+
+            # if it is not part of the record we just keep going and
+            # don't bother
+            if field_name not in record_field_names:
+                continue
+
+            # otherwise we need to do some formatting
+            else:
+
+                # if it is variable length (shape is Ellipsis) or if
+                # it has more than one element cast all elements to
+                # tuples
+                if field_shape is Ellipsis:
+                    value = tuple(field_value)
+
+                # if it is not variable length make sure it is not more than a
+                # 1D feature vector
+                elif len(field_shape) > 2:
+                    raise TypeError(
+                        "cannot convert fields with feature vectors more than 1 dimension,"
+                        " was given {} for {}".format(
+                            field_value.shape[1:], field_name))
+
+                # if it is only a rank 1 feature vector and it has more than
+                # one element make a tuple out of it
+                elif field_shape[0] > 1:
+                    value = tuple(field_value)
+
+                # otherwise just get the single value instead of keeping it as
+                # a single valued feature vector
+                else:
+                    value = field_value[0]
+
+            rec_d[field_name] = value
+
+        # after you make the dictionary of this convert it to a
+        # namedtuple record
+        record = rec_namedtuple(*(rec_d[key] for key in rec_namedtuple._fields))
+
+        return record
+
 
     def report(self, cycle_idx=None,
                resampled_walkers=None,
                warp_data=None,
                progress_data=None,
-               resampling_data=None):
+               resampling_data=None,
+               **kwargs):
 
 
         # we basically want to generate a new parent table from the
@@ -75,36 +182,22 @@ class ResTreeReporter(ProgressiveFileReporter):
         # we first have to generate the resampling and warping records
         # though adding the cycle_idx
 
-        resampling_records = []
-        for datum in resampling_data:
-            # for each datum (a dictionary) we get only the fields we
-            # need for the records
-            record_d = {datum[field_name] : value
-                    for field_name, value in self._resampling_record_field_names}
+        resampling_records = [self._make_resampling_record(rec_d, cycle_idx)
+                              for rec_d in resampling_data]
 
-            # then make a namedtuple record
-            record = self._ResamplingRecord(cycle_idx=cycle_idx, **record_d)
+        warping_records = [self._make_warping_record(rec_d, cycle_idx)
+                              for rec_d in warp_data]
 
-            resampling_records.append(record)
-
-        warping_records = []
-        for datum in warping_data:
-            # for each datum (a dictionary) we get only the fields we
-            # need for the records
-            record_d = {datum[field_name] : value
-                    for field_name, value in self._warping_record_field_names}
-
-            # then make a namedtuple record
-            record = self._WarpingRecord(cycle_idx=cycle_idx, **record_d)
-
-            warping_records.append(record)
 
         # get the weights of the resampled walkers since we will want
         # to plot them
         walker_weights = [walker.weight for walker in resampled_walkers]
-
         # add these to the collected weights
         self._walker_weights.append(walker_weights)
+
+        # get the progress values for all of the walkers
+        walkers_progress = [progress for progress in progress_data[self.progress_key]]
+        self._walkers_progress.append(walkers_progress)
 
         # so we make a resampling panel from the records, then the
         # parent panel, and then the net parent table
@@ -114,7 +207,7 @@ class ResTreeReporter(ProgressiveFileReporter):
 
         # then we get the discontinuites due to warping through
         # boundary conditions
-        parent_table = parent_table_discontinuities(self._boundary_condition_class,
+        parent_table = parent_table_discontinuities(self._bc,
                                                     parent_table, warping_records)
 
 
@@ -125,37 +218,94 @@ class ResTreeReporter(ProgressiveFileReporter):
         # file view
         parent_forest = ParentForest(parent_table=self._parent_table)
 
-        # compute the size of the nodes to plot, which is the free_energy
-        free_energies = []
-        for cycle_weights in self._walker_weights:
-            free_energys.append(geomm.free_energy(np.array(cycle_weights)))
-
-        # put these into the parent forest graph as node attributes,
-        # so we can get them out as a lookup table by node id for
-        # assigning to nodes in the layout
-        parent_forest.set_attrs_by_array('free_energy', free_energies)
-
-        # get the free energies out as a dictionary, flattening it to
-        # a single value. Set the nodes with None for their FE to a
-        # small number.
-
         # The only ones that should be none are the roots which will
         # be 1.0 / N
         n_roots = len(self._parent_table[0])
         root_weight = 1.0 / n_roots
 
-        node_fes = {}
-        for node_id, fe_arr in layout_forest.get_node_attributes('free_energy').items():
+        # compute the size of the nodes to plot, which is the
+        # free_energy. To compute this we flatten the list of list of
+        # weights to a 1-d array then unravel it back out
 
-            if fe_arr is None:
-                node_fes[node_id] = root_weight
-            else:
-                node_fes[node_id] = fe_arr[0]
+        # put the root weights at the beginning of this array, and
+        # account for it in the flattening
+        flattened_weights = [root_weight for _ in self._walker_weights[0]]
+        cycles_n_walkers = [len(self._walker_weights[0])]
+        for cycle_weights in self._walker_weights:
+            cycles_n_walkers.append(len(cycle_weights))
+            flattened_weights.extend(cycle_weights)
 
+        # now compute the free energy
+        flattened_free_energies = free_energy(np.array(flattened_weights))
+
+        # and ravel them back into a list of lists
+        free_energies = []
+        last_index = 0
+        for cycle_n_walkers in cycles_n_walkers:
+            free_energies.append(flattened_free_energies[last_index:last_index + cycle_n_walkers])
+            last_index += cycle_n_walkers
+
+        # we want to set the colors based on the progress, first we
+        # scale all the progress values to a 1-100 scale
+        if self.max_progress_value is not None:
+            norm_ratio = self.MAX_PROGRESS_NORM / self.max_progress_value
+
+        # otherwise we use the maximum value from the full progress
+        # values dataset so far
+        else:
+            max_progress_value = max([max(row) for row in self._walkers_progress])
+            # then use that for the ratio
+            norm_ratio = self.MAX_PROGRESS_NORM / max_progress_value
+
+        # now that we have ratios for normalizing values we apply that
+        # and then use the lookup table for the color bar to get the
+        # RGB color values
+        colors = []
+        for progress_row in self._walkers_progress:
+            color_row = [self.colormap(progress * norm_ratio, bytes=True)
+                         for progress in progress_row]
+            colors.append(color_row)
+
+        # put these into the parent forest graph as node attributes,
+        # so we can get them out as a lookup table by node id for
+        # assigning to nodes in the layout. We skip the first row of
+        # free energies for the roots in this step
+        parent_forest.set_attrs_by_array('free_energy', free_energies[1:])
+        parent_forest.set_attrs_by_array('color', colors)
+
+        # get the free energies out as a dictionary, flattening it to
+        # a single value. Set the nodes with None for their FE to a
+        # small number.
 
         # now we make the graph which will contain the layout
         # information
         layout_forest = LayoutGraph(parent_forest.graph)
+
+
+        # get the free energy attributes out using the root weight for
+        # the nodes with no fe defined
+
+        # start it with the root weights
+        node_fes = {(-1, i) : free_energy for i, free_energy in enumerate(free_energies[0])}
+        for node_id, fe_arr in layout_forest.get_node_attributes('free_energy').items():
+
+            if fe_arr is None:
+                node_fes[node_id] = 0.0
+            else:
+                node_fes[node_id] = fe_arr
+
+
+        # the default progress for the root ones is 0 and so the color
+        # is also 0
+        node_colors = {}
+        for node_id, color_arr in layout_forest.get_node_attributes('color').items():
+
+            if color_arr is None:
+                # make a black color for these
+                node_colors[node_id] = tuple(int(255) for a in range(4))
+            else:
+                node_colors[node_id] = color_arr
+
 
         # we are going to output to the gexf format so we use the
         # pertinent methods
@@ -163,9 +313,15 @@ class ResTreeReporter(ProgressiveFileReporter):
         # we set the sizes
         layout_forest.set_node_gexf_sizes(node_fes)
 
+        # and set the colors based on the progresses
+
+        layout_forest.set_node_gexf_colors_rgba(node_colors)
+
+
         # now we get to the part where we make the layout (positioning
         # of nodes), so we parametrize a layout engine
-        tree_layout = ResamplingTreeLayout(spacing=self.spacing,
+        tree_layout = ResamplingTreeLayout(row_spacing=self.row_spacing,
+                                           step_spacing=self.step_spacing,
                                            node_radius=self.default_node_radius)
 
 

@@ -138,7 +138,7 @@ class Manager(object):
 
         # report results to the reporters
         for reporter in self.reporters:
-            reporter.report(report)
+            reporter.report(**report)
 
         # prepare resampled walkers for running new state changes
         walkers = resampled_walkers

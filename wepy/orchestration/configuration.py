@@ -222,7 +222,7 @@ class Configuration():
             modes = [self.mode for i in range(len(file_paths))]
 
             reporter = reporter_class(file_paths=file_paths, modes=modes,
-                                      **self.reporter_partial_kwargs[idx])
+                                  **self.reporter_partial_kwargs[idx])
 
             reporters.append(reporter)
 

@@ -220,17 +220,17 @@ class LayoutGraph():
     @classmethod
     def feature_vector_to_gexf_viz_color_RGB(cls, color_vec):
 
-        return {cls.GEXF_VIZ_COLOR_RED : float(color_vec[0]),
-                cls.GEXF_VIZ_COLOR_GREEN : float(color_vec[1]),
-                cls.GEXF_VIZ_COLOR_BLUE : float(color_vec[2])}
+        return {cls.GEXF_VIZ_COLOR_RED : int(color_vec[0]),
+                cls.GEXF_VIZ_COLOR_GREEN : int(color_vec[1]),
+                cls.GEXF_VIZ_COLOR_BLUE : int(color_vec[2])}
 
     @classmethod
     def feature_vector_to_gexf_viz_color_RGBA(cls, color_vec):
 
-        return {cls.GEXF_VIZ_COLOR_RED : float(color_vec[0]),
-                cls.GEXF_VIZ_COLOR_GREEN : float(color_vec[1]),
-                cls.GEXF_VIZ_COLOR_BLUE : float(color_vec[2]),
-                cls.GEXF_VIZ_COLOR_ALPHA : float(color_vec[3])}
+        return {cls.GEXF_VIZ_COLOR_RED : int(color_vec[0]),
+                cls.GEXF_VIZ_COLOR_GREEN : int(color_vec[1]),
+                cls.GEXF_VIZ_COLOR_BLUE : int(color_vec[2]),
+                cls.GEXF_VIZ_COLOR_ALPHA : int(color_vec[3])}
 
     def set_node_gexf_viz(self, viz_key, node_dict):
 
