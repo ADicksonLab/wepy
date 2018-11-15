@@ -71,7 +71,8 @@ def mdtraj_to_json_topology(mdj_top):
                 'index': int(residue.index),
                 'name': str(residue.name),
                 'atoms': [],
-                "resSeq": int(residue.resSeq)
+                "resSeq": int(residue.resSeq),
+                'segmentID' : residue.segment_id
             }
 
             for atom in residue.atoms:
@@ -128,6 +129,60 @@ def json_to_mdtraj_topology(json_string):
                 topology.add_atom(atom_dict['name'], element, residue)
 
     atoms = list(topology.atoms)
+    for index1, index2 in topology_dict['bonds']:
+        topology.add_bond(atoms[index1], atoms[index2])
+
+    return topology
+
+
+def _new_json_to_mdtraj_topology(json_string):
+    """ Copied in part from MDTraj.formats.hdf5 topology property."""
+
+    topology_dict = json.loads(json_string)
+
+    # start a new topology
+    topology = mdj.Topology()
+
+    # to not destroy the indexing in this file we will first go
+    # through the topology and get all the atom dictionaries (adding
+    # attributes for the residue indices), then loop through them and
+    # make residues and chains when needed.
+
+    atoms = {}
+    residues = {}
+
+    # the chains will just be collections of residues
+    chains = []
+
+    # loop through all the chains
+    for chain_dict in topology_dict['chains']:
+
+        # get the index and add the chain then save it
+        chain_idx = chain_dict['index']
+        chain = topology.add_chain()
+        chains[chain_idx] = chain
+
+        # then go through the residues here
+        for residue_dict in chain_dict['residues']:
+
+            residue_idx = residue_dict['index']
+
+            resSeq = residue_dict["resSeq"]
+            segment_id = residue_dict["segmentID"]
+
+
+            residue = topology.add_residue(residue_dict['name'],
+                                           chain,
+                                           resSeq=residue_dict['resSeq'],
+                                           segment_id=residue_dict['segmentID'])
+
+            for atom_dict in sorted(residue_dict['atoms'], key=operator.itemgetter('index')):
+                try:
+                    element = elem.get_by_symbol(atom_dict['element'])
+                except KeyError:
+                    element = elem.virtual
+                topology.add_atom(atom_dict['name'], element, residue)
+
     for index1, index2 in topology_dict['bonds']:
         topology.add_bond(atoms[index1], atoms[index2])
 

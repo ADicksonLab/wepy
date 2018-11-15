@@ -51,6 +51,8 @@ class WalkerReporter(ProgressiveFileReporter):
 
         super().init(**kwargs)
 
+        import ipdb; ipdb.set_trace()
+
 
         # load the json topology as an mdtraj one
         mdtraj_top = json_to_mdtraj_topology(self.json_main_rep_top)
