@@ -10,6 +10,7 @@ import numpy.linalg as la
 import mdtraj as mdj
 
 from wepy.boundary_conditions.boundary import BoundaryConditions
+from wepy.util.mdtraj import json_to_mdtraj_topology
 
 class UnbindingBC(BoundaryConditions):
 
@@ -78,10 +79,13 @@ class UnbindingBC(BoundaryConditions):
                                                  walker.state['box_vectors'][j])
                                  for i, j in [(0,1), (1,2), (2,0)]]])
 
+        # convert the json topology to an mdtraj one
+        mdj_top = json_to_mdtraj_topology(self.topology)
+
         # make a traj out of it so we can calculate distances through
         # the periodic boundary conditions
         walker_traj = mdj.Trajectory(walker.state['positions'],
-                                     topology=self.topology,
+                                     topology=mdj_top,
                                      unitcell_lengths=cell_lengths,
                                      unitcell_angles=cell_angles)
 
