@@ -1,7 +1,7 @@
 import numpy as np
 
 from wepy.reporter.reporter import ProgressiveFileReporter
-from wepy.util.util import box_vectors_to_lengths_angles
+from wepy.util.util import box_vectors_to_lengths_angles, json_top_subset
 from wepy.util.mdtraj import json_to_mdtraj_topology, mdtraj_to_json_topology
 
 import mdtraj as mdj
@@ -29,15 +29,8 @@ class WalkerReporter(ProgressiveFileReporter):
 
         self.main_rep_idxs = main_rep_idxs
 
-        # make an mdtraj top so we can make trajs easily
-        all_atoms_mdtraj_top = json_to_mdtraj_topology(json_topology)
-
-        # get a subset of this to use for the walker top
-        mdtraj_top = all_atoms_mdtraj_top.subset(self.main_rep_idxs)
-
-        # then convert it back to a JSON (since copying of subsetted
-        # mdtraj.Topology objects results in error)
-        self.json_main_rep_top = mdtraj_to_json_topology(mdtraj_top)
+        # take a subset of the topology using the main rep atom idxs
+        self.json_main_rep_top = json_top_subset(self.json_topology, self.main_rep_idxs)
 
         # get the main rep idxs only
         self.init_main_rep_positions = init_state['positions'][self.main_rep_idxs]
@@ -50,9 +43,6 @@ class WalkerReporter(ProgressiveFileReporter):
     def init(self, **kwargs):
 
         super().init(**kwargs)
-
-        import ipdb; ipdb.set_trace()
-
 
         # load the json topology as an mdtraj one
         mdtraj_top = json_to_mdtraj_topology(self.json_main_rep_top)

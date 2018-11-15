@@ -4,6 +4,7 @@ import mdtraj as mdj
 
 from wepy.reporter.reporter import ProgressiveFileReporter
 from wepy.util.mdtraj import json_to_mdtraj_topology, mdtraj_to_json_topology
+from wepy.util.util import json_to_mdtraj_topology, mdtraj_to_json_topology, json_top_subset
 
 class WExploreAtomImageReporter(ProgressiveFileReporter):
 
@@ -30,12 +31,7 @@ class WExploreAtomImageReporter(ProgressiveFileReporter):
         # init_state positions
         self.init_image_positions = init_state['positions'][self.image_atom_idxs]
 
-        # take a subset of that topology for the image
-        image_mdj_topology = json_to_mdtraj_topology(json_topology).subset(self.image_atom_idxs)
-
-        # then convert it back to a JSON (since copying of subsetted
-        # mdtraj.Topology objects results in error)
-        self.json_main_rep_top = mdtraj_to_json_topology(image_mdj_topology)
+        self.json_main_rep_top = json_top_subset(json_topology, self.image_atom_idxs)
 
         # the array for the positions of the trajectory images
         self.image_traj_positions = [self.init_image_positions]
