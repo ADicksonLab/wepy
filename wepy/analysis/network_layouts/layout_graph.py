@@ -272,12 +272,8 @@ class LayoutGraph():
 
     def set_node_gexf_sizes(self, node_sizes_dict):
 
-        # convert the node colors values to a valid dictionary and
-        # set the colors viz for all the nodes
         self.set_node_gexf_viz(self.GEXF_VIZ_SIZE, node_sizes_dict)
 
-    def set_node_gexf_shape(self, node_sizes_dict):
+    def set_node_gexf_shape(self, node_shape_dict):
 
-        # convert the node colors values to a valid dictionary and
-        # set the colors viz for all the nodes
-        self.set_node_gexf_viz(self.GEXF_VIZ_SHAPE, node_sizes_dict)
+        self.set_node_gexf_viz(self.GEXF_VIZ_SHAPE, node_shape_dict)

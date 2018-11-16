@@ -30,7 +30,7 @@ class WalkerReporter(ProgressiveFileReporter):
         self.main_rep_idxs = main_rep_idxs
 
         # take a subset of the topology using the main rep atom idxs
-        self.json_main_rep_top = json_top_subset(self.json_topology, self.main_rep_idxs)
+        self.json_main_rep_top = json_top_subset(json_topology, self.main_rep_idxs)
 
         # get the main rep idxs only
         self.init_main_rep_positions = init_state['positions'][self.main_rep_idxs]

@@ -12,7 +12,7 @@ from wepy.analysis.network_layouts.layout_graph import LayoutGraph
 
 from wepy.analysis.parents import resampling_panel, \
                                   parent_panel, net_parent_table,\
-                                  parent_table_discontinuities, ParentForest
+                                  ParentForest
 
 class ResTreeReporter(ProgressiveFileReporter):
 
@@ -21,6 +21,9 @@ class ResTreeReporter(ProgressiveFileReporter):
     SUGGESTED_EXTENSIONS = ('restree.gexf',)
 
     MAX_PROGRESS_NORM = 1.0
+
+    DISCONTINUOUS_NODE_SHAPE = 'square'
+    DEFAULT_NODE_SHAPE = 'disc'
 
     def __init__(self,
                  resampler=None,
@@ -74,6 +77,8 @@ class ResTreeReporter(ProgressiveFileReporter):
         # also need the class itself
         self._bc = boundary_condition
         self._warping_record_field_names = self._bc.warping_record_field_names()
+
+        self._warping_field_names = self._bc.warping_field_names()
         self._warping_field_shapes = self._bc.warping_field_shapes()
         self._warping_field_dtypes = self._bc.warping_field_dtypes()
 
@@ -85,6 +90,9 @@ class ResTreeReporter(ProgressiveFileReporter):
         # initialize the parent table that will be generated as the
         # simulation progresses
         self._parent_table = []
+
+        # the node ids of the warped nodes (ones with -1 parents)
+        self._discontinuous_nodes = []
 
         # also keep track of the weights of the walkers
         self._walker_weights = []
@@ -188,6 +196,13 @@ class ResTreeReporter(ProgressiveFileReporter):
         warping_records = [self._make_warping_record(rec_d, cycle_idx)
                               for rec_d in warp_data]
 
+        # tabulate the discontinuities
+        for warping_record in warping_records:
+            # if this record classifies as discontinuous
+            if self._bc.warping_discontinuity(warping_record):
+                # then we save it as one of the nodes that is discontinuous
+                disc_node_id = (warping_record.cycle_idx, warping_record.walker_idx)
+                self._discontinuous_nodes.append(disc_node_id)
 
         # get the weights of the resampled walkers since we will want
         # to plot them
@@ -199,23 +214,26 @@ class ResTreeReporter(ProgressiveFileReporter):
         walkers_progress = [progress for progress in progress_data[self.progress_key]]
         self._walkers_progress.append(walkers_progress)
 
-        # so we make a resampling panel from the records, then the
-        # parent panel, and then the net parent table
-        res_panel = resampling_panel(resampling_records, is_sorted=False)
+        # so we make a resampling panel from the records
+
+        # TODO: this uses the cycle_idx in the records and thus wehn
+        # you receive just one cycle it adds a empty records to the
+        # beginning of it and only the last entry is the one we are
+        # looking for so for now we just get it, and wrap back in a list
+        res_panel = [resampling_panel(resampling_records, is_sorted=False)[-1]]
+
+        # then the parent panel, and then the net parent table
         par_panel = parent_panel(self._decision_class, res_panel)
-        parent_table = net_parent_table(par_panel)
-
-        # then we get the discontinuites due to warping through
-        # boundary conditions
-        parent_table = parent_table_discontinuities(self._bc,
-                                                    parent_table, warping_records)
-
+        cycle_parent_table = net_parent_table(par_panel)
 
         # add these to the main parent table
-        self._parent_table.extend(parent_table)
+        self._parent_table.extend(cycle_parent_table)
 
         # now use this to create a new ParentForest without a WepyHDF5
-        # file view
+        # file view. We exclude the discontinuities on purpose because
+        # we want to keep the paren child relationships through the
+        # warps for visualization and will just change the shapes of
+        # the nodes to communicate the warping
         parent_forest = ParentForest(parent_table=self._parent_table)
 
         # The only ones that should be none are the roots which will
@@ -294,7 +312,6 @@ class ResTreeReporter(ProgressiveFileReporter):
             else:
                 node_fes[node_id] = fe_arr
 
-
         # the default progress for the root ones is 0 and so the color
         # is also 0
         node_colors = {}
@@ -306,6 +323,19 @@ class ResTreeReporter(ProgressiveFileReporter):
             else:
                 node_colors[node_id] = color_arr
 
+        # make a dictionary for the shapes of the nodes
+        node_shapes = {}
+        # set all the nodes to a default 'disc'
+        for node in layout_forest.viz_graph.nodes:
+            node_shapes[node] = self.DEFAULT_NODE_SHAPE
+        # then set all the discontinuous ones
+        for discontinuous_node in self._discontinuous_nodes:
+            node_shapes[discontinuous_node] = self.DISCONTINUOUS_NODE_SHAPE
+
+        # also set the color to black
+        for discontinuous_node in self._discontinuous_nodes:
+            node_colors[discontinuous_node] = tuple(int(0) for a in range(4))
+
 
         # we are going to output to the gexf format so we use the
         # pertinent methods
@@ -316,6 +346,10 @@ class ResTreeReporter(ProgressiveFileReporter):
         # and set the colors based on the progresses
 
         layout_forest.set_node_gexf_colors_rgba(node_colors)
+
+        # then set the shape of the nodes based on whether they were
+        # warped or not
+        layout_forest.set_node_gexf_shape(node_shapes)
 
 
         # now we get to the part where we make the layout (positioning

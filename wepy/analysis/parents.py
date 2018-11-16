@@ -22,7 +22,7 @@ def resampling_panel(resampling_records, is_sorted=False):
 
     # iterate through the resampling records
     rec_it = iter(resampling_records)
-    cycle_idx = 0
+    last_cycle_idx = None
     cycle_recs = []
     stop = False
     while not stop:
@@ -41,9 +41,17 @@ def resampling_panel(resampling_records, is_sorted=False):
                 # alias for the current cycle
                 curr_cycle_recs = cycle_recs
             else:
+
+                # the cycles in the records may not start at 0, but
+                # they are in order so we initialize the last
+                # cycle_idx so we know when in the records we have
+                # gotten to the next cycle of records
+                if last_cycle_idx is None:
+                    last_cycle_idx = rec.cycle_idx
+
                 # if the resampling record retrieved is from the next
                 # cycle we finish the last cycle
-                if rec.cycle_idx > cycle_idx:
+                if rec.cycle_idx > last_cycle_idx:
                     cycle_stop = True
                     # save the current cycle as a special
                     # list which we will iterate through
@@ -54,7 +62,7 @@ def resampling_panel(resampling_records, is_sorted=False):
                     # start a new cycle_recs for the record
                     # we just got
                     cycle_recs = [rec]
-                    cycle_idx += 1
+                    last_cycle_idx += 1
 
             if not cycle_stop:
                 cycle_recs.append(rec)
@@ -109,6 +117,7 @@ def resampling_panel(resampling_records, is_sorted=False):
 
                             # set the resampling record for the walker in the step records
                             step_row[walker_idx] = (decision_id, instruction)
+
 
                         # add the records for this step to the cycle table
                         cycle_table.append(step_row)
@@ -179,17 +188,17 @@ def parent_table_discontinuities(boundary_condition_class, parent_table, warping
     # Make a copy of the parent table
     new_parent_table = copy(parent_table)
 
-    # Find the number of walkers and cycles
-    n_walker = np.shape(parent_table)[1]
-
     for warp_record in warping_records:
 
         cycle_idx = warp_record[0]
         parent_idx = warp_record[1]
 
+        n_walkers = len(parent_table[cycle_idx])
+
+
         # Check to see if any walkers in the current step
         # originated from this warped walker
-        for walker_idx in range(n_walker):
+        for walker_idx in range(n_walkers):
 
             # if it's parent is the walker in this warping event
             # we also need to check to see if that warping event
@@ -288,6 +297,7 @@ class ParentForest():
     FREE_ENERGY = 'free_energy'
 
     ROOT_CYCLE_IDX = -1
+    DISCONTINUITY_VALUE = -1
 
     def __init__(self, contig=None,
                  parent_table=None):
@@ -335,14 +345,15 @@ class ParentForest():
 
             # then put them into this graph
             for i, edge in enumerate(edges):
-                self.graph.add_edge(*edge, **edges_attrs[i])
 
-        # TODO: delete?
-        # make an extra set (row) of nodes for the resampling and
-        # warping at the last step using a step idx as the one extra
-        # edges, edges_attrs = self._make_child_parent_edges(len(self.parent_table), )
+                if edge is not None:
 
-
+                    # if there is a discontinuity in the edge we only
+                    # add the node
+                    if self.DISCONTINUITY_VALUE == edge[1]:
+                        self.graph.add_node(edge[0])
+                    else:
+                        self.graph.add_edge(*edge, **edges_attrs[i])
 
     def _make_child_parent_edges(self, step_idx, parent_idxs):
 
@@ -350,21 +361,26 @@ class ParentForest():
         edges_attrs = []
         for curr_walker_idx, parent_idx in enumerate(parent_idxs):
 
-            # if it is a -1 indicating a discontinuity we add an
-            # attribute indicating this is a discontinuity
-            discontinuity = False
-            if parent_idx == -1:
-                discontinuity = True
-
-            parent_node = (step_idx - 1, parent_idx)
-            child_node = (step_idx, curr_walker_idx)
+            # if the parent is the discontinuity value we set the
+            # parent node in the edge as the discontinuity value
+            if parent_idx == self.DISCONTINUITY_VALUE:
+                parent_node = self.DISCONTINUITY_VALUE
+                child_node = (step_idx, curr_walker_idx)
+            else:
+                # otherwise we make the edge with the parent and child as
+                # normal
+                parent_node = (step_idx - 1, parent_idx)
+                child_node = (step_idx, curr_walker_idx)
 
             # make an edge between the parent of this walker and this walker
             edge = (parent_node, child_node)
 
-            edge_attrs = {'discontinuous' : discontinuity}
-
             edges.append(edge)
+
+            # nothing to do but I already wrote it this way and may be
+            # useful later
+            edge_attrs = {}
+
             edges_attrs.append(edge_attrs)
 
         return edges, edges_attrs
@@ -452,4 +468,7 @@ class ParentForest():
         """
         for step in self.steps():
             for node in step:
-                self.graph.nodes[node][key] = values[node[0]][node[1]]
+                try:
+                    self.graph.nodes[node][key] = values[node[0]][node[1]]
+                except IndexError:
+                    import ipdb; ipdb.set_trace()

@@ -21,6 +21,7 @@ from wepy.walker import Walker
 from wepy.runners.openmm import UNIT_NAMES, GET_STATE_KWARG_DEFAULTS
 from wepy.reporter.hdf5 import WepyHDF5Reporter
 from wepy.reporter.wexplore.dashboard import WExploreDashboardReporter
+from wepy.reporter.restree import ResTreeReporter
 from wepy.util.mdtraj import mdtraj_to_json_topology
 
 ## PARAMETERS
@@ -128,15 +129,16 @@ resampler = WExploreResampler(distance=distance,
 # the mdtraj here is needed for the distance function
 mdtraj_topology = mdj.Topology.from_openmm(test_sys.topology)
 
+## Reporters if we want them
+json_str_top = mdtraj_to_json_topology(mdtraj_topology)
+
 # initialize the unbinding boundary conditions
 ubc = UnbindingBC(cutoff_distance=CUTOFF_DISTANCE,
                   initial_state=init_state,
-                  topology=mdtraj_topology,
+                  topology=json_str_top,
                   ligand_idxs=np.array(test_sys.ligand_indices),
                   receptor_idxs=np.array(test_sys.receptor_indices))
 
-## Reporters if we want them
-json_str_top = mdtraj_to_json_topology(mdtraj_topology)
 # make a dictionary of units for adding to the HDF5
 units = dict(UNIT_NAMES)
 
@@ -151,8 +153,21 @@ dashboard_reporter_kwargs = {'step_time' : STEP_SIZE.value_in_unit(unit.second),
                              'max_region_sizes' : resampler.max_region_sizes,
                              'bc_cutoff_distance' : ubc.cutoff_distance}
 
-reporter_classes = [WepyHDF5Reporter, WExploreDashboardReporter]
-reporter_kwargs = [hdf5_reporter_kwargs, dashboard_reporter_kwargs]
+# Resampling Tree
+restree_reporter_kwargs = {'resampler' : resampler,
+                           'boundary_condition' : ubc,
+                           'node_radius' : 3.0,
+                           'row_spacing' : 5.0,
+                           'step_spacing' : 20.0,
+                           'progress_key' : 'min_distances',
+                           'max_progress_value' : ubc.cutoff_distance,
+                           'colormap_name' : 'plasma'}
+
+
+reporter_classes = [WepyHDF5Reporter, WExploreDashboardReporter,
+                    ResTreeReporter]
+reporter_kwargs = [hdf5_reporter_kwargs, dashboard_reporter_kwargs,
+                   restree_reporter_kwargs]
 
 
 from wepy.work_mapper.mapper import Mapper
@@ -166,7 +181,7 @@ sim_apparatus = WepySimApparatus(runner, resampler=resampler,
 # we also create a default configuration for the orchestrator that
 # will be used unless one is given at runtime for the creation of a
 # simulation manager
-configuration = Configuration(work_mapper=Mapper(),
+configuration = Configuration(n_workers=4,
                               reporter_classes=reporter_classes,
                               reporter_partial_kwargs=reporter_kwargs)
 
