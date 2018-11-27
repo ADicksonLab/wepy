@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='wepy',
-    version='0.1',
+    version='0.10.2',
     py_modules=['wepy'],
     packages=find_packages(),
     include_package_data=True,
@@ -13,5 +13,10 @@ setup(
         'networkx>=2',
         'pandas',
         'dill',
+        'click',
+        'mdtraj',
+        'scipy',
+        'geomm',
+        'matplotlib'
     ],
 )
