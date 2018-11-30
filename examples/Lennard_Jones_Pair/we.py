@@ -63,8 +63,6 @@ from wepy.work_mapper.mapper import Mapper
 from wepy.boundary_conditions.unbinding import UnbindingBC
 from wepy.reporter.hdf5 import WepyHDF5Reporter
 from wepy.reporter.wexplore.dashboard import WExploreDashboardReporter
-from wepy.reporter.setup import SetupReporter
-from wepy.reporter.restart import RestartReporter
 
 from scipy.spatial.distance import euclidean
 
@@ -194,17 +192,17 @@ resampler = WExploreResampler(distance=distance,
 
 # the mdtraj here is needed for the distance function
 mdtraj_topology = mdj.Topology.from_openmm(test_sys.topology)
+json_str_top = mdtraj_to_json_topology(mdtraj_topology)
 
 # initialize the unbinding boundary conditions
 ubc = UnbindingBC(cutoff_distance=CUTOFF_DISTANCE,
                   initial_state=init_state,
-                  topology=mdtraj_topology,
+                  topology=json_str_top,
                   ligand_idxs=np.array(test_sys.ligand_indices),
                   receptor_idxs=np.array(test_sys.receptor_indices))
 
 ## Reporters
 
-json_str_top = mdtraj_to_json_topology(mdtraj_topology)
 # make a dictionary of units for adding to the HDF5
 units = dict(UNIT_NAMES)
 
@@ -269,7 +267,7 @@ if __name__ == "__main__":
         print("Running Simulations")
         for run_idx in range(n_runs):
             print("Starting run: {}".format(run_idx))
-            sim_manager.run_simulation(n_cycles, steps, debug_prints=True)
+            sim_manager.run_simulation(n_cycles, steps)
             print("Finished run: {}".format(run_idx))
 
 

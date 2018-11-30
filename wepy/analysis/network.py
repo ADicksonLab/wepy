@@ -169,9 +169,18 @@ class MacroStateNetwork():
         # just reverse the dictionary and return
         return {node_idx : node_id for node_id, node_idx in self._node_idxs}
 
+
     @property
     def graph(self):
         return self._graph
+
+    @property
+    def num_states(self):
+        return len(self.graph)
+
+    @property
+    def node_ids(self):
+        return list(self.graph.nodes)
 
     @property
     def contig_tree(self):
@@ -200,19 +209,20 @@ class MacroStateNetwork():
             raise MacroStateNetworkError("transition probability matrix not set")
 
     def get_node_attributes(self, node_id):
-        pass
+        return self.graph.nodes[node_id]
 
     def get_node_attribute(self, node_id, attribute_key):
-        pass
+        return self.get_node_attributes(node_id)[attribute_key]
 
     def node_assignments(self, node_id):
-        return self.graph.nodes[node_id][self.ASSIGNMENTS]
+        return self.get_node_attribute(node_id, self.ASSIGNMENTS)
 
     def get_node_fields(self, node_id, fields):
         node_trace = self.node_assignments(node_id)
 
         # use the node_trace to get the weights from the HDF5
-        fields_d = self.wepy_h5.get_trace_fields(node_trace, fields)
+        with self.wepy_h5:
+            fields_d = self.wepy_h5.get_trace_fields(node_trace, fields)
 
         return fields_d
 
@@ -224,8 +234,6 @@ class MacroStateNetwork():
             nodes_d[node_id] = fields_d
 
         return nodes_d
-
-
 
     def set_nodes_field(self, key, values_dict):
         for node_id, value in values_dict.items():
@@ -256,7 +264,8 @@ class MacroStateNetwork():
             node_trace = self.node_assignments(node_id)
 
             # use the node_trace to get the weights from the HDF5
-            trace_weights = self.wepy_h5.get_trace_fields(node_trace, ['weights'])['weights']
+            with self.wepy_h5:
+                trace_weights = self.wepy_h5.get_trace_fields(node_trace, ['weights'])['weights']
 
             node_weights[node_id] = trace_weights
 
@@ -275,7 +284,8 @@ class MacroStateNetwork():
         self.set_nodes_field('Weight', self.macrostate_weights())
 
     def state_to_mdtraj(self, node_id, alt_rep=None):
-        return self.wepy_h5.trace_to_mdtraj(self.node_assignments(node_id), alt_rep=alt_rep)
+        with self.wepy_h5:
+            return self.wepy_h5.trace_to_mdtraj(self.node_assignments(node_id), alt_rep=alt_rep)
 
     def write_gexf(self, filepath):
 

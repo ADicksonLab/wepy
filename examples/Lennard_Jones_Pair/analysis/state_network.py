@@ -37,10 +37,15 @@ with wepy_h5:
     # groupings of microstates from the simulation data
     random_macrostates = MacroStateNetwork(contig_tree, "observables/{}".format(assg_key))
 
-    # we can do things like make a trajectory in mdtraj and output as a
-    # dcd for a state
-    state = 32
-    traj = random_macrostates.state_to_mdtraj(state)
-
+# we can do things like make a trajectory in mdtraj and output as a
+# dcd for a state
+state = 32
+traj = random_macrostates.state_to_mdtraj(state)
 traj.save_dcd("rand_state_{}.dcd".format(state))
+
+# we also can automatically compute the weights of the macrostates.
+random_macrostates.set_macrostate_weights()
+
+# this sets them as macrostate (node) attributes
+print(random_macrostates.get_node_attribute(state, 'Weight'))
 
