@@ -237,12 +237,11 @@ mapper = Mapper()
 if __name__ == "__main__":
 
     if sys.argv[1] == "-h" or sys.argv[1] == "--help":
-        print("arguments: n_runs, n_cycles, n_steps, n_walkers")
+        print("arguments: n_cycles, n_steps, n_walkers")
     else:
-        n_runs = int(sys.argv[1])
-        n_cycles = int(sys.argv[2])
-        n_steps = int(sys.argv[3])
-        n_walkers = int(sys.argv[4])
+        n_cycles = int(sys.argv[1])
+        n_steps = int(sys.argv[2])
+        n_walkers = int(sys.argv[3])
 
         print("Number of steps: {}".format(n_steps))
         print("Number of cycles: {}".format(n_cycles))
@@ -263,12 +262,10 @@ if __name__ == "__main__":
         # different each cycle
         steps = [n_steps for i in range(n_cycles)]
 
-        # actually run the simulations
-        print("Running Simulations")
-        for run_idx in range(n_runs):
-            print("Starting run: {}".format(run_idx))
-            sim_manager.run_simulation(n_cycles, steps)
-            print("Finished run: {}".format(run_idx))
+        # actually run the simulation
+        print("Starting run: {}".format(0))
+        sim_manager.run_simulation(n_cycles, steps)
+        print("Finished run: {}".format(0))
 
 
         print("Finished first file")

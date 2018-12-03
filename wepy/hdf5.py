@@ -867,6 +867,7 @@ class WepyHDF5(object):
         """Routines for creating a run includes updating and setting object
         global variables, increasing the counter for the number of runs."""
 
+
         # add the run idx as metadata in the run group
         self._h5['runs/{}'.format(run_idx)].attrs['run_idx'] = run_idx
 
@@ -954,7 +955,7 @@ class WepyHDF5(object):
         return new_run_idxs
 
 
-    def new_run(self, continue_run=None, **kwargs):
+    def new_run(self, init_walkers, continue_run=None, **kwargs):
 
         # check to see if the continue_run is actually in this file
         if continue_run is not None:
@@ -967,6 +968,33 @@ class WepyHDF5(object):
 
         # create a new group named the next integer in the counter
         run_grp = self._h5.create_group('runs/{}'.format(new_run_idx))
+
+
+        # set the initial walkers group
+        init_walkers_grp = run_grp.create_group('init_walkers')
+
+
+        # add the initial walkers to the group by essentially making
+        # new trajectories here that will only have one frame
+        for walker_idx, walker in enumerate(init_walkers):
+            walker_grp = init_walkers_grp.create_group(str(walker_idx))
+
+            # weights
+
+            # get the weight from the walker and make a feature array of it
+            weights = np.array([[walker.weight]])
+
+            # then create the dataset and set it
+            walker_grp.create_dataset(WEIGHTS, data=weights)
+
+            # state fields data
+            for field_key, field_value in walker.state.dict().items():
+
+                # values may be None, just ignore them
+                if field_value is not None:
+                    # just create the dataset by making it a feature array
+                    # (wrapping it in another list)
+                    walker_grp.create_dataset(field_key, data=np.array([field_value]))
 
         # initialize the walkers group
         traj_grp = run_grp.create_group('trajectories')

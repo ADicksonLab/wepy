@@ -192,6 +192,7 @@ class WepyHDF5Reporter(FileReporter):
 
 
     def init(self, continue_run=None,
+             init_walkers=None,
              **kwargs):
 
         # do the inherited stuff
@@ -215,7 +216,7 @@ class WepyHDF5Reporter(FileReporter):
             # initialize it as such
 
             # initialize a new run
-            run_grp = self.wepy_h5.new_run(continue_run=continue_run)
+            run_grp = self.wepy_h5.new_run(init_walkers, continue_run=continue_run)
             self.wepy_run_idx = run_grp.attrs['run_idx']
 
             # initialize the run record groups using their fields
