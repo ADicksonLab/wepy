@@ -2268,6 +2268,32 @@ class WepyHDF5(object):
                 mapped_arg = (arg for i in range(n_cycles))
                 mapped_args.append(mapped_arg)
 
+        # not sure that the mapping function actually supports this or
+        # should support this, so you should write your functions
+        # without kwargs
+
+        # mapped_kwargs = []
+        # for cycle_idx in range(n_cycles):
+
+        #     cycle_kwargs = {}
+
+        #     for key, value in kwargs.items():
+
+        #         # if it is a sequence or generator we get the value
+        #         # for the cycle we are constructing for now
+        #         if isinstance(value, list) and not isinstance(value, str):
+        #             assert len(value) == len(n_cycles), "Sequence has fewer"
+        #             cycle_kwargs[key] = value[cycle_idx]
+
+        #         # if it is not a sequence or generator we make a generator out
+        #         # of it to map as inputs
+        #         else:
+        #             cycle_kwargs[key] = value
+
+        #     # once we have all the kwargs for this cycle we add that
+        #     # dict to the list of them
+        #     mapped_kwargs.append(cycle_kwargs)
+
 
         results = map_func(func, self.iter_trajs_fields(fields, traj_sel=traj_sel, idxs=False),
                            *mapped_args)
