@@ -12,7 +12,8 @@ import networkx as nx
 
 from wepy.analysis.parents import resampling_panel
 from wepy.util.mdtraj import mdtraj_to_json_topology, json_to_mdtraj_topology
-from wepy.util.util import traj_box_vectors_to_lengths_angles, json_top_atom_count
+from wepy.util.util import traj_box_vectors_to_lengths_angles, json_top_atom_count, \
+                           json_top_subset
 
 # optional dependencies
 try:
@@ -643,6 +644,7 @@ class WepyHDF5(object):
 
         """
 
+        self.get_topology()
         full_mdj_top = json_to_mdtraj_topology(self.topology)
         if alt_rep is None:
             return full_mdj_top
@@ -667,10 +669,28 @@ class WepyHDF5(object):
 
         """
 
-        mdj_top = self.get_mdtraj_topology(alt_rep=alt_rep)
-        json_top = mdtraj_to_json_topology(mdj_top)
+        top = self.topology
 
-        return json_top
+        # if no alternative representation is given we just return the
+        # full topology
+        if alt_rep is None:
+            pass
+
+        # otherwise we either give the main representation topology
+        # subset
+        elif alt_rep == POSITIONS:
+            top = json_top_subset(top, self.main_rep_idxs)
+
+        # or choose one of the alternative representations
+        elif alt_rep in self.alt_rep_idxs:
+            top = json_top_subset(self.alt_rep_idxs[alt_rep])
+
+        # and raise an error if the given alternative representation
+        # is not given
+        else:
+            raise ValueError("alt_rep {} not found".format(alt_rep))
+
+        return top
 
     @property
     def sparse_fields(self):
