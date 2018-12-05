@@ -10,7 +10,7 @@ from geomm.rmsd import calc_rmsd
 
 from wepy.resampling.distances.distance import Distance
 
-class UnbindingDistance(Distance):
+class ReceptorDistance(Distance):
     def __init__(self, ligand_idxs, binding_site_idxs, ref_state):
 
         # the idxs of the ligand and binding site from the whole state
@@ -59,10 +59,26 @@ class UnbindingDistance(Distance):
 
         return sup_image
 
+
+class UnbindingDistance(ReceptorDistance):
     def image_distance(self, image_a, image_b):
 
-        # then we calculate the rmsd of only the ligands between the
+        # we calculate the rmsd of only the ligands between the
         # images
         lig_rmsd = calc_rmsd(image_a, image_b, idxs=self._image_lig_idxs)
 
         return lig_rmsd
+
+class RebindingDistance(ReceptorDistance):
+    def image_distance(self, image_a, image_b):
+
+        # we calculate the rmsd of only the ligands between each image
+        # and the reference
+        state_a_rmsd = calc_rmsd(self.ref_image, image_a, idxs=self._image_lig_idxs)
+        state_b_rmsd = calc_rmsd(self.ref_image, image_b, idxs=self._image_lig_idxs)
+
+        # then we get the absolute value of the reciprocals of these rmsd
+        # values
+        native_rmsd = abs(1./state_a_rmsd - 1./state_b_rmsd)
+        
+        return native_rmsd
