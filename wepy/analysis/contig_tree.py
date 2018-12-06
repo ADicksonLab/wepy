@@ -789,10 +789,10 @@ class Contig(ContigTree):
         return self.wepy_h5.get_contig_trace_fields(self.contig_trace, fields)
 
     def records(self, record_key):
-        return self.wepy_h5.contig_records(self._contig_run_idxs, record_key)
+        return self.wepy_h5.run_contig_records(self._contig_run_idxs, record_key)
 
     def records_dataframe(self, record_key):
-        return self.wepy_h5.contig_records_dataframe(self._contig_run_idxs, record_key)
+        return self.wepy_h5.run_contig_records_dataframe(self._contig_run_idxs, record_key)
 
     # resampling
     def resampling_records(self):
