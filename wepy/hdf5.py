@@ -974,25 +974,7 @@ class WepyHDF5(object):
 
         return new_run_idxs
 
-
-    def new_run(self, init_walkers, continue_run=None, **kwargs):
-
-        # check to see if the continue_run is actually in this file
-        if continue_run is not None:
-            if continue_run not in self.run_idxs:
-                raise ValueError("The continue_run idx given, {}, is not present in this file".format(
-                    continue_run))
-
-        # get the index for this run
-        new_run_idx = self.next_run_idx()
-
-        # create a new group named the next integer in the counter
-        run_grp = self._h5.create_group('runs/{}'.format(new_run_idx))
-
-
-        # set the initial walkers group
-        init_walkers_grp = run_grp.create_group('init_walkers')
-
+    def _add_init_walkers(self, init_walkers_grp, init_walkers):
 
         # add the initial walkers to the group by essentially making
         # new trajectories here that will only have one frame
@@ -1015,6 +997,29 @@ class WepyHDF5(object):
                     # just create the dataset by making it a feature array
                     # (wrapping it in another list)
                     walker_grp.create_dataset(field_key, data=np.array([field_value]))
+
+
+
+
+    def new_run(self, init_walkers, continue_run=None, **kwargs):
+
+        # check to see if the continue_run is actually in this file
+        if continue_run is not None:
+            if continue_run not in self.run_idxs:
+                raise ValueError("The continue_run idx given, {}, is not present in this file".format(
+                    continue_run))
+
+        # get the index for this run
+        new_run_idx = self.next_run_idx()
+
+        # create a new group named the next integer in the counter
+        run_grp = self._h5.create_group('runs/{}'.format(new_run_idx))
+
+
+        # set the initial walkers group
+        init_walkers_grp = run_grp.create_group('init_walkers')
+
+        self._add_init_walkers(init_walkers_grp, init_walkers)
 
         # initialize the walkers group
         traj_grp = run_grp.create_group('trajectories')

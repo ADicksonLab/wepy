@@ -202,10 +202,20 @@ class OpenMMState(WalkerState):
                 return self.box_vectors_values()
             elif key == 'box_volume':
                 return self.box_volume_value()
-            elif key == 'parameters':
-                return self.parameters_values()
-            elif key == 'parameter_derivatives':
-                return self.parameter_derivatives_values()
+
+            # handle the parameters differently since they are dictionaries of values
+            elif key.startswith('parameters'):
+                parameters_dict = self.parameters_values()
+                if parameters_dict is None:
+                    return None
+                else:
+                    return self._get_nested_attr_from_compound_key(key, parameters_dict)
+            elif key.startswith('parameter_derivatives'):
+                pd_dict = self.parameter_derivatives_values()
+                if pd_dict is None:
+                    return None
+                else:
+                    return self._get_nested_attr_from_compound_key(key, pd_dict)
 
     ## Array properties
 
@@ -436,9 +446,70 @@ class OpenMMState(WalkerState):
         else:
             return param_arrs
 
+    # for the dict attributes we need to transform the keys for making
+    # a proper state where all __getitem__ things are arrays
+    def _dict_attr_to_compound_key_dict(self, root_key, attr_dict):
+
+        key_template = "{}/{}"
+        cmpd_key_d = {}
+        for key, value in attr_dict.items():
+
+            new_key = key_template.format(root_key, key)
+            # if this is a proper feature
+            if type(value) == np.ndarray:
+                cmpd_key_d[new_key] = value
+            elif hasattr(value, '__getitem__'):
+                cmpd_key_d.update(self._dict_attr_to_compound_key_dict(new_key, value))
+            else:
+                raise TypeError("Unsupported attribute type")
+
+        return cmpd_key_d
+
+    def _get_nested_attr_from_compound_key(self, compound_key, compound_feat_dict):
+
+        key_components = compound_key.split('/')
+
+        # if there is only one component of the key then it is not
+        # really compound, we won't complain just return the
+        # "dictionary" if it is not actually a dict like
+        if not hasattr(compound_feat_dict, '__getitem__'):
+            raise TypeError("Must provide a dict-like with the compound key")
+
+        value = compound_feat_dict[key_components[0]]
+
+        # if the value itself is compound recursively fetch the value
+        if hasattr(value, '__getitem__') and len(key_components[1:]) > 0:
+
+            subgroup_key = '/'.join(key_components[1:])
+
+            return self._get_nested_attr_from_compound_key(subgroup_key, value)
+
+        elif hasattr(value, '__getitem__') and len(key_components[1:]) < 1:
+            raise ValueError("Key does not reference a leaf node of attribute")
+
+        # otherwise we have the right key so return the object
+        else:
+            return value
+
+    def parameters_features(self):
+        parameters = self.parameters_values()
+        if parameters is None:
+            return None
+        else:
+            return self._dict_attr_to_compound_key_dict('parameters', parameters)
+
+    def parameter_derivatives_features(self):
+        parameter_derivatives = self.parameter_derivatives_values()
+        if parameter_derivatives is None:
+            return None
+        else:
+            return self._dict_attr_to_compound_key_dict('parameter_derivatives',
+                                                        parameter_derivatives)
+
     def omm_state_dict(self):
         """return a dict of the values for the keys that are hardcoded in this class."""
-        return {'positions' : self.positions_values(),
+
+        feature_d = {'positions' : self.positions_values(),
                 'velocities' : self.velocities_values(),
                 'forces' : self.forces_values(),
                 'kinetic_energy' : self.kinetic_energy_value(),
@@ -446,9 +517,11 @@ class OpenMMState(WalkerState):
                 'time' : self.time_value(),
                 'box_vectors' : self.box_vectors_values(),
                 'box_volume' : self.box_volume_value(),
-                'parameters' : self.parameters_values(),
-                'parameter_derivatives' : self.parameter_derivatives_values()
                     }
+        feature_d.update(self.parameters_features())
+        feature_d.update(self.parameter_derivatives_features())
+
+        return feature_d
 
     def dict(self):
         """Return a dict of the values for all attributes of this state."""
