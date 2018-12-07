@@ -99,7 +99,7 @@ class ContigTree():
 
         # first go through each run without continuations
         for run_idx in self._run_idxs:
-            n_cycles = self.wepy_h5.run_n_cycles(run_idx)
+            n_cycles = self.wepy_h5.num_run_cycles(run_idx)
 
             # make all the nodes for this run
             nodes = [(run_idx, step_idx) for step_idx in range(n_cycles)]
@@ -124,7 +124,7 @@ class ContigTree():
             # for the target node (the run being continued) we use the
             # run_idx from the edge_target and the last cycle index in
             # the run
-            target_node = (edge_target, self.wepy_h5.run_n_cycles(edge_target)-1)
+            target_node = (edge_target, self.wepy_h5.num_run_cycles(edge_target)-1)
 
             # make the edge
             edge = (source_node, target_node)
@@ -255,7 +255,7 @@ class ContigTree():
         for run_idx in contig:
 
             # number of frames in this run
-            n_frames = self.wepy_h5.run_n_frames(run_idx)
+            n_frames = self.wepy_h5.num_run_cycles(run_idx)
 
             # get the contig trace elements for this run
             contig_trace_elements = contig_trace[cum_n_frames : n_frames + cum_n_frames]

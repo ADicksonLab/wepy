@@ -126,7 +126,7 @@ class MacroStateNetwork():
         self._assg_field_key = assg_field_key
 
         # blank assignments
-        assignments = [[[] for traj_idx in range(self._wepy_h5.n_run_trajs(run_idx))]
+        assignments = [[[] for traj_idx in range(self._wepy_h5.num_run_trajs(run_idx))]
                              for run_idx in self._wepy_h5.run_idxs]
 
         # the raw assignments

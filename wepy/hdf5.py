@@ -588,21 +588,9 @@ class WepyHDF5(object):
         return self._h5
 
     @property
-    def n_trajs(self):
-        return len(list(self.run_traj_idx_tuples()))
-
-    @property
     def settings_grp(self):
         settings_grp = self.h5[SETTINGS]
         return settings_grp
-
-    @property
-    def n_atoms(self):
-        return self.h5['{}/{}'.format(SETTINGS, N_ATOMS)][()]
-
-    @property
-    def n_dims(self):
-        return self.h5['{}/{}'.format(SETTINGS, N_DIMS_STR)][()]
 
     @property
     def topology(self):
@@ -742,43 +730,32 @@ class WepyHDF5(object):
     def runs(self):
         return self.h5[RUNS].values()
 
+
+    ### Counts and Indexing
+
     @property
-    def n_runs(self):
+    def num_runs(self):
         return len(self._h5[RUNS])
+
+    @property
+    def num_trajs(self):
+        return len(list(self.run_traj_idx_tuples()))
+
+    def num_run_trajs(self, run_idx):
+        return len(self._h5['{}/{}/{}'.format(RUNS, run_idx, TRAJECTORIES)])
+
+    def num_run_cycles(self, run_idx):
+        return self.num_traj_frames(run_idx, 0)
+
+    def num_traj_frames(self, run_idx, traj_idx):
+        return self.traj(run_idx, traj_idx)[POSITIONS].shape[0]
 
     @property
     def run_idxs(self):
         return list(range(len(self._h5[RUNS])))
 
-    def next_run_idx(self):
-        return self.n_runs
-
-    def run(self, run_idx):
-        return self._h5['{}/{}'.format(RUNS, int(run_idx))]
-
-    def traj(self, run_idx, traj_idx):
-        return self._h5['{}/{}/{}/{}'.format(RUNS, run_idx, TRAJECTORIES, traj_idx)]
-
-    def traj_n_frames(self, run_idx, traj_idx):
-        return self.traj(run_idx, traj_idx)[POSITIONS].shape[0]
-
-    def run_n_frames(self, run_idx):
-        return self.traj_n_frames(run_idx, 0)
-
-    def run_n_cycles(self, run_idx):
-        return self.run_n_frames(run_idx)
-
-    def run_trajs(self, run_idx):
-        return self._h5['{}/{}/{}'.format(RUNS, run_idx, TRAJECTORIES)]
-
-    def n_run_trajs(self, run_idx):
-        return len(self._h5['{}/{}/{}'.format(RUNS, run_idx, TRAJECTORIES)])
-
-    def next_run_traj_idx(self, run_idx):
-        return self.n_run_trajs(run_idx)
-
     def run_traj_idxs(self, run_idx):
-        return range(len(self._h5['{}/{}/{}'.format(RUNS, run_idx, TRAJECTORIES)]))
+        return list(range(len(self._h5['{}/{}/{}'.format(RUNS, run_idx, TRAJECTORIES)])))
 
     def run_traj_idx_tuples(self, runs=None):
         tups = []
@@ -791,6 +768,32 @@ class WepyHDF5(object):
                 tups.append((run_idx, traj_idx))
 
         return tups
+
+    def next_run_idx(self):
+        return self.num_runs
+
+    def next_run_traj_idx(self, run_idx):
+        return self.num_run_trajs(run_idx)
+
+    ### initialization and data generation
+
+    @property
+    def num_atoms(self):
+        return self.h5['{}/{}'.format(SETTINGS, N_ATOMS)][()]
+
+    @property
+    def num_dims(self):
+        return self.h5['{}/{}'.format(SETTINGS, N_DIMS_STR)][()]
+
+    def run(self, run_idx):
+        return self._h5['{}/{}'.format(RUNS, int(run_idx))]
+
+    def traj(self, run_idx, traj_idx):
+        return self._h5['{}/{}/{}/{}'.format(RUNS, run_idx, TRAJECTORIES, traj_idx)]
+
+    def run_trajs(self, run_idx):
+        return self._h5['{}/{}/{}'.format(RUNS, run_idx, TRAJECTORIES)]
+
 
     def _init_continuations(self):
         """This will either create a dataset in the settings for the
@@ -1295,12 +1298,12 @@ class WepyHDF5(object):
 
 
         # check to make sure the positions are the right shape
-        assert traj_data[POSITIONS].shape[1] == self.n_atoms, \
+        assert traj_data[POSITIONS].shape[1] == self.num_atoms, \
             "positions given have different number of atoms: {}, should be {}".format(
-                traj_data[POSITIONS].shape[1], self.n_atoms)
-        assert traj_data[POSITIONS].shape[2] == self.n_dims, \
+                traj_data[POSITIONS].shape[1], self.num_atoms)
+        assert traj_data[POSITIONS].shape[2] == self.num_dims, \
             "positions given have different number of dims: {}, should be {}".format(
-                traj_data[POSITIONS].shape[2], self.n_dims)
+                traj_data[POSITIONS].shape[2], self.num_dims)
 
         # add datasets to the traj group
 
@@ -1469,7 +1472,7 @@ class WepyHDF5(object):
         # number of frames to add
         n_new_frames = traj_data[POSITIONS].shape[0]
 
-        n_frames = self.traj_n_frames(run_idx, traj_idx)
+        n_frames = self.num_traj_frames(run_idx, traj_idx)
 
         # calculate the new sparse idxs for sparse fields that may be
         # being added
@@ -1772,7 +1775,7 @@ class WepyHDF5(object):
         # if the field is not sparse just return the cycle indices for
         # that run
         if field_path not in self.sparse_fields:
-            cycle_idxs = np.array(range(self.run_n_cycles(run_idx)))
+            cycle_idxs = np.array(range(self.num_run_cycles(run_idx)))
         else:
             cycle_idxs = self._h5[traj_path][field_path][SPARSE_IDXS][:]
 
@@ -1921,8 +1924,8 @@ class WepyHDF5(object):
 
 
         # (there must be the same number of trajectories in each run)
-        n_trajs_test = self.n_run_trajs(run_idxs[0])
-        assert all([True if n_trajs_test == self.n_run_trajs(run_idx) else False
+        n_trajs_test = self.num_run_trajs(run_idxs[0])
+        assert all([True if n_trajs_test == self.num_run_trajs(run_idx) else False
                     for run_idx in run_idxs])
 
         # then using this we go run by run and get all the
@@ -1971,23 +1974,23 @@ class WepyHDF5(object):
         """ Add a field to your trajectories runs"""
 
         # check that the data has the correct number of trajectories
-        assert len(data) == self.n_run_trajs(run_idx),\
+        assert len(data) == self.num_run_trajs(run_idx),\
             "The number of trajectories in data, {}, is different than the number"\
-            "of trajectories in the run, {}.".format(len(data), self.n_run_trajs(run_idx))
+            "of trajectories in the run, {}.".format(len(data), self.num_run_trajs(run_idx))
 
         # for each trajectory check that the data is compliant
         for traj_idx, traj_data in enumerate(data):
             # check that the number of frames is not larger than that for the run
-            if traj_data.shape[0] > self.run_n_frames(run_idx):
+            if traj_data.shape[0] > self.num_run_cycles(run_idx):
                 raise ValueError("The number of frames in data for traj {} , {},"
                                   "is larger than the number of frames"
                                   "for this run, {}.".format(
-                                          traj_idx, data.shape[1], self.run_n_frames(run_idx)))
+                                          traj_idx, data.shape[1], self.num_run_cycles(run_idx)))
 
 
             # if the number of frames given is the same or less than
             # the number of frames in the run
-            elif (traj_data.shape[0] <= self.run_n_frames(run_idx)):
+            elif (traj_data.shape[0] <= self.num_run_cycles(run_idx)):
 
                 # if sparse idxs were given we check to see there is
                 # the right number of them
@@ -1999,17 +2002,17 @@ class WepyHDF5(object):
                                           "was less than the total number of frames, {},"
                                           "but an incorrect number of sparse idxs were supplied, {}."\
                                          .format(traj_idx, traj_data.shape[0],
-                                            self.run_n_frames(run_idx), len(sparse_idxs[traj_idx])))
+                                            self.num_run_cycles(run_idx), len(sparse_idxs[traj_idx])))
 
 
                 # if there were strictly fewer frames given and the
                 # sparse idxs were not given we need to raise an error
-                elif (traj_data.shape[0] < self.run_n_frames(run_idx)):
+                elif (traj_data.shape[0] < self.num_run_cycles(run_idx)):
                     raise ValueError("The number of frames provided for traj {}, {},"
                                       "was less than the total number of frames, {},"
                                       "but sparse_idxs were not supplied.".format(
                                               traj_idx, traj_data.shape[0],
-                                              self.run_n_frames(run_idx)))
+                                              self.num_run_cycles(run_idx)))
 
         # add it to each traj
         for i, idx_tup in enumerate(self.run_traj_idx_tuples([run_idx])):
@@ -2145,13 +2148,13 @@ class WepyHDF5(object):
         for arg in args:
             # if it is a sequence or generator we keep just pass it to the mapper
             if isinstance(arg, Sequence) and not isinstance(arg, str):
-                assert len(arg) == self.n_runs, \
+                assert len(arg) == self.num_runs, \
                     "argument Sequence has fewer number of args then trajectories"
                 mapped_args.append(arg)
             # if it is not a sequence or generator we make a generator out
             # of it to map as inputs
             else:
-                mapped_arg = (arg for i in range(self.n_runs))
+                mapped_arg = (arg for i in range(self.num_runs))
                 mapped_args.append(mapped_arg)
 
 
@@ -2193,12 +2196,12 @@ class WepyHDF5(object):
         for arg in args:
             # if it is a sequence or generator we keep just pass it to the mapper
             if isinstance(arg, Sequence) and not isinstance(arg, str):
-                assert len(arg) == self.n_trajs, "Sequence has fewer"
+                assert len(arg) == self.num_trajs, "Sequence has fewer"
                 mapped_args.append(arg)
             # if it is not a sequence or generator we make a generator out
             # of it to map as inputs
             else:
-                mapped_arg = (arg for i in range(self.n_trajs))
+                mapped_arg = (arg for i in range(self.num_trajs))
                 mapped_args.append(mapped_arg)
 
         results = map_func(func, self.iter_trajs(traj_sel=traj_sel), *mapped_args)
@@ -2247,7 +2250,7 @@ class WepyHDF5(object):
         #first go through each run and get the number of cycles
         n_cycles = 0
         for run_idx in self.run_idxs:
-            n_cycles += self.run_n_cycles(run_idx)
+            n_cycles += self.num_run_cycles(run_idx)
 
         mapped_args = []
         for arg in args:
@@ -2531,7 +2534,7 @@ class WepyHDF5(object):
 
             # add the total number of cycle_idxs from this run to the
             # running total
-            prev_run_cycle_total += self.run_n_cycles(run_idx)
+            prev_run_cycle_total += self.num_run_cycles(run_idx)
 
         # then make the records from the fields
         records = self._make_records(run_record_key, cycle_idxs, fields)
@@ -2580,7 +2583,7 @@ class WepyHDF5(object):
 
             # add the total number of cycle_idxs from this run to the
             # running total
-            prev_run_cycle_total += self.run_n_cycles(run_idx)
+            prev_run_cycle_total += self.num_run_cycles(run_idx)
 
 
         # then make the records from the fields
