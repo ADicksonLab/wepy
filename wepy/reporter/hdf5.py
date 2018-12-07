@@ -5,7 +5,9 @@ import numpy as np
 
 from wepy.reporter.reporter import FileReporter
 from wepy.hdf5 import WepyHDF5
+from wepy.walker import Walker, WalkerState
 from wepy.util.util import json_top_atom_count
+
 class WepyHDF5Reporter(FileReporter):
 
     # this is the name of the dataset that the all atoms will be saved
@@ -210,13 +212,33 @@ class WepyHDF5Reporter(FileReporter):
                                 main_rep_idxs=self.main_rep_idxs,
                                 alt_reps=self.alt_reps_idxs)
 
+        # if we specify save fields only save these for the initial walkers
+        if self.save_fields is not None:
+
+            state_fields = list(init_walkers[0].state.dict().keys())
+
+            # make sure all the save_fields are present in the state
+            assert all([True if save_field in state_fields else False
+                        for save_field in self.save_fields]), \
+                            "Not all specified save_fields present in walker states"
+
+            filtered_init_walkers = []
+            for walker in init_walkers:
+                # make a new state by filtering the attributes of the old ones
+                new_state = WalkerState(**{k : v for k, v in walker.state.dict().items()
+                                           if k in self.save_fields})
+                filtered_init_walkers.append(Walker(new_state, walker.weight))
+        # otherwise save the full state
+        else:
+            filtered_init_walkers = init_walkers
+
         with self.wepy_h5:
 
             # if this is a continuation run of another run we want to
             # initialize it as such
 
             # initialize a new run
-            run_grp = self.wepy_h5.new_run(init_walkers, continue_run=continue_run)
+            run_grp = self.wepy_h5.new_run(filtered_init_walkers, continue_run=continue_run)
             self.wepy_run_idx = run_grp.attrs['run_idx']
 
             # initialize the run record groups using their fields

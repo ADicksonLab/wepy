@@ -93,7 +93,7 @@ FIELD_FEATURE_DTYPES_STR = 'field_feature_dtypes'
 UNITS = 'units'
 RECORD_FIELDS = 'record_fields'
 RUN_IDX = 'run_idx'
-TRAJ_IDXS = 'traj_idx'
+TRAJ_IDX = 'traj_idx'
 CONTINUATIONS = 'continuations'
 INIT_WALKERS = 'init_walkers'
 DECISION = 'decision'
@@ -602,7 +602,7 @@ class WepyHDF5(object):
 
     @property
     def n_dims(self):
-        return self.h5['{}/{}'.format(SETTINGS, N_DIMS)][()]
+        return self.h5['{}/{}'.format(SETTINGS, N_DIMS_STR)][()]
 
     @property
     def topology(self):

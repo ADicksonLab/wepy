@@ -518,8 +518,13 @@ class OpenMMState(WalkerState):
                 'box_vectors' : self.box_vectors_values(),
                 'box_volume' : self.box_volume_value(),
                     }
-        feature_d.update(self.parameters_features())
-        feature_d.update(self.parameter_derivatives_features())
+
+        params = self.parameters_features()
+        param_derivs = self.parameter_derivatives_features()
+        if params is not None:
+            feature_d.update(params)
+        if param_derivs is not None:
+            feature_d.update(param_derivs)
 
         return feature_d
 
