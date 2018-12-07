@@ -80,5 +80,5 @@ class RebindingDistance(ReceptorDistance):
         # then we get the absolute value of the reciprocals of these rmsd
         # values
         native_rmsd = abs(1./state_a_rmsd - 1./state_b_rmsd)
-        
+
         return native_rmsd

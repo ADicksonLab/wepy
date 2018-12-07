@@ -11,7 +11,7 @@ from numpy.random import choice
 import mdtraj as mdj
 
 from wepy.boundary_conditions.boundary import BoundaryConditions
-from wepy.resampling.distances.openmm import OpenMMRebindingDistance
+from wepy.resampling.distances.receptor import RebindingDistance
 
 class RebindingBC(BoundaryConditions):
 
@@ -45,11 +45,11 @@ class RebindingBC(BoundaryConditions):
         self.cutoff_distance = cutoff_distance
         self.topology = topology
 
-        self.native_distance = OpenMMRebindingDistance(topology=topology,
-                                                       ligand_idxs=ligand_idxs,
-                                                       binding_site_idxs=binding_site_idxs,
-                                                       alt_maps=alternative_maps,
-                                                       comp_xyz=comp_xyz)
+        self.native_distance = RebindingDistance(topology=topology,
+                                                 ligand_idxs=ligand_idxs,
+                                                 binding_site_idxs=binding_site_idxs,
+                                                 alt_maps=alternative_maps,
+                                                 comp_xyz=comp_xyz)
 
     def check_boundaries(self, nat_rmsd):
 
