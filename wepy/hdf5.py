@@ -128,9 +128,24 @@ CYCLE_IDXS = '_cycle_idxs'
 # walkers, boundary conditions, or resamplers.
 SPORADIC_RECORDS = (RESAMPLER, WARPING, RESAMPLING, BC)
 
+# utility for paths
+def _iter_field_paths(grp):
+    field_paths = []
+    for field_name in grp:
+        if isinstance(grp[field_name], h5py.Group):
+            for subfield in grp[field_name]:
+                field_paths.append(field_name + '/' + subfield)
+        else:
+            field_paths.append(field_name)
+    return field_paths
+
 class WepyHDF5(object):
 
     MODES = ('r', 'r+', 'w', 'w-', 'x', 'a')
+
+
+    #### dunder methods
+
     def __init__(self, filename, topology=None, mode='x',
                  units=None,
                  sparse_fields=None,
@@ -276,6 +291,9 @@ class WepyHDF5(object):
         # end of the constructor
         return None
 
+    # TODO is this right? shouldn't we actually delete the data then close
+    def __del__(self):
+        self.close()
 
     # context manager methods
 
@@ -289,10 +307,14 @@ class WepyHDF5(object):
         self.close()
 
 
-    # custom deepcopy to avoid copying the actual HDF5 object
+    # TODO custom deepcopy to avoid copying the actual HDF5 object
+
+    #### private methods (__method_name)
 
 
-    # constructors
+    #### hidden methods (_method_name)
+
+    ### constructors
     def _create_init(self):
         """Completely overwrite the data in the file. Reinitialize the values
         and set with the new ones if given."""
@@ -435,31 +457,6 @@ class WepyHDF5(object):
 
         pass
 
-    def _get_field_path_grp(self, run_idx, traj_idx, field_path):
-        """Given a field path for the trajectory returns the group the field's
-        dataset goes in and the key for the field name in that group.
-
-        The field path for a simple field is just the name of the
-        field and for a compound field it is the compound field group
-        name with the subfield separated by a '/' like
-        'observables/observable1' where 'observables' is the compound
-        field group and 'observable1' is the subfield name.
-
-        """
-
-        # check if it is compound
-        if '/' in field_path:
-            # split it
-            grp_name, field_name = field_path.split('/')
-            # get the hdf5 group
-            grp = self.h5['{}/{}/{}/{}/{}'.format(RUNS, run_idx, TRAJECTORIES, traj_idx, grp_name)]
-        # its simple so just return the root group and the original path
-        else:
-            grp = self.h5
-            field_name = field_path
-
-        return grp, field_name
-
     def _set_default_init_field_attributes(self, n_dims=None):
         """Sets the feature_shapes and feature_dtypes to be the default for
         this module. These will be used to initialize field datasets when no
@@ -498,6 +495,759 @@ class WepyHDF5(object):
         self._field_feature_shapes = field_feature_shapes
         self._field_feature_dtypes = field_feature_dtypes
 
+    def _get_field_path_grp(self, run_idx, traj_idx, field_path):
+        """Given a field path for the trajectory returns the group the field's
+        dataset goes in and the key for the field name in that group.
+
+        The field path for a simple field is just the name of the
+        field and for a compound field it is the compound field group
+        name with the subfield separated by a '/' like
+        'observables/observable1' where 'observables' is the compound
+        field group and 'observable1' is the subfield name.
+
+        """
+
+        # check if it is compound
+        if '/' in field_path:
+            # split it
+            grp_name, field_name = field_path.split('/')
+            # get the hdf5 group
+            grp = self.h5['{}/{}/{}/{}/{}'.format(RUNS, run_idx, TRAJECTORIES, traj_idx, grp_name)]
+        # its simple so just return the root group and the original path
+        else:
+            grp = self.h5
+            field_name = field_path
+
+        return grp, field_name
+
+    def _init_continuations(self):
+        """This will either create a dataset in the settings for the
+        continuations or if continuations already exist it will reinitialize
+        them and delete the data that exists there.
+
+        """
+
+        # if the continuations dset already exists we reinitialize the
+        # data
+        if CONTINUATIONS in self.settings_grp:
+            cont_dset = self.settings_grp[CONTINUATIONS]
+            cont_dset.resize( (0,2) )
+
+        # otherwise we just create the data
+        else:
+            cont_dset = self.settings_grp.create_dataset(CONTINUATIONS, shape=(0,2), dtype=np.int,
+                                    maxshape=(None, 2))
+
+        return cont_dset
+
+
+    def _add_run_init(self, run_idx, continue_run=None):
+        """Routines for creating a run includes updating and setting object
+        global variables, increasing the counter for the number of runs."""
+
+
+        # add the run idx as metadata in the run group
+        self._h5['{}/{}'.format(RUNS, run_idx)].attrs[RUN_IDX] = run_idx
+
+        # if this is continuing another run add the tuple (this_run,
+        # continues_run) to the continutations settings
+        if continue_run is not None:
+
+            self.add_continuation(run_idx, continue_run)
+
+    def _add_init_walkers(self, init_walkers_grp, init_walkers):
+
+        # add the initial walkers to the group by essentially making
+        # new trajectories here that will only have one frame
+        for walker_idx, walker in enumerate(init_walkers):
+            walker_grp = init_walkers_grp.create_group(str(walker_idx))
+
+            # weights
+
+            # get the weight from the walker and make a feature array of it
+            weights = np.array([[walker.weight]])
+
+            # then create the dataset and set it
+            walker_grp.create_dataset(WEIGHTS, data=weights)
+
+            # state fields data
+            for field_key, field_value in walker.state.dict().items():
+
+                # values may be None, just ignore them
+                if field_value is not None:
+                    # just create the dataset by making it a feature array
+                    # (wrapping it in another list)
+                    walker_grp.create_dataset(field_key, data=np.array([field_value]))
+
+
+    def _init_run_sporadic_record_grp(self, run_idx, run_record_key, fields):
+
+        # create the group
+        run_grp = self.run(run_idx)
+        record_grp = run_grp.create_group(run_record_key)
+
+        # initialize the cycles dataset that maps when the records
+        # were recorded
+        record_grp.create_dataset(CYCLE_IDXS, (0,), dtype=np.int,
+                                  maxshape=(None,))
+
+        # for each field simply create the dataset
+        for field_name, field_shape, field_dtype in fields:
+
+            # initialize this field
+            self._init_run_records_field(run_idx, run_record_key,
+                                         field_name, field_shape, field_dtype)
+
+        return record_grp
+
+
+    def _init_run_continual_record_grp(self, run_idx, run_record_key, fields):
+
+        # create the group
+        run_grp = self.run(run_idx)
+        record_grp = run_grp.create_group(run_record_key)
+
+        # for each field simply create the dataset
+        for field_name, field_shape, field_dtype in fields:
+
+            self._init_run_records_field(run_idx, run_record_key,
+                                         field_name, field_shape, field_dtype)
+
+        return record_grp
+
+    def _init_run_records_field(self, run_idx, run_record_key,
+                                field_name, field_shape, field_dtype):
+
+        record_grp = self.run(run_idx)[run_record_key]
+
+        # check if it is variable length
+        if field_shape is Ellipsis:
+            # make a special dtype that allows it to be
+            # variable length
+            vlen_dt = h5py.special_dtype(vlen=field_dtype)
+
+            # this is only allowed to be a single dimension
+            # since no real shape was given
+            dset = record_grp.create_dataset(field_name, (0,), dtype=vlen_dt,
+                                        maxshape=(None,))
+
+        # its not just make it normally
+        else:
+            # create the group
+            dset = record_grp.create_dataset(field_name, (0, *field_shape), dtype=field_dtype,
+                                      maxshape=(None, *field_shape))
+
+        return dset
+
+    def _is_sporadic_records(self, run_record_key):
+
+        # assume it is continual and check if it is in the sporadic groups
+        if run_record_key in SPORADIC_RECORDS:
+            return True
+        else:
+            return False
+
+    def _init_traj_field(self, run_idx, traj_idx, field_path, feature_shape, dtype):
+        """Initialize a data field in the trajectory to be empty but
+        resizeable."""
+
+        # check whether this is a sparse field and create it
+        # appropriately
+        if field_path in self.sparse_fields:
+            # it is a sparse field
+            self._init_sparse_traj_field(run_idx, traj_idx, field_path, feature_shape, dtype)
+        else:
+            # it is not a sparse field (AKA simple)
+            self._init_contiguous_traj_field(run_idx, traj_idx, field_path, feature_shape, dtype)
+
+    def _init_contiguous_traj_field(self, run_idx, traj_idx, field_path, shape, dtype):
+
+        traj_grp = self._h5['{}/{}/{}/{}'.format(RUNS, run_idx, TRAJECTORIES, traj_idx)]
+
+        # create the empty dataset in the correct group, setting
+        # maxshape so it can be resized for new feature vectors to be added
+        traj_grp.create_dataset(field_path, (0, *[0 for i in shape]), dtype=dtype,
+                           maxshape=(None, *shape))
+
+
+    def _init_sparse_traj_field(self, run_idx, traj_idx, field_path, shape, dtype):
+
+        traj_grp = self._h5['{}/{}/{}/{}'.format(RUNS, run_idx, TRAJECTORIES, traj_idx)]
+
+        # check to see that neither the shape and dtype are
+        # None which indicates it is a runtime defined value and
+        # should be ignored here
+        if (shape is None) or (dtype is None):
+            # do nothing
+            pass
+        else:
+
+            # only create the group if you are going to add the
+            # datasets so the extend function can know if it has been
+            # properly initialized easier
+            sparse_grp = traj_grp.create_group(field_path)
+
+            # create the dataset for the feature data
+            sparse_grp.create_dataset(DATA, (0, *[0 for i in shape]), dtype=dtype,
+                               maxshape=(None, *shape))
+
+            # create the dataset for the sparse indices
+            sparse_grp.create_dataset(SPARSE_IDXS, (0,), dtype=np.int, maxshape=(None,))
+
+
+    def _init_traj_fields(self, run_idx, traj_idx,
+                          field_paths, field_feature_shapes, field_feature_dtypes):
+        for i, field_path in enumerate(field_paths):
+            self._init_traj_field(run_idx, traj_idx,
+                                  field_path, field_feature_shapes[i], field_feature_dtypes[i])
+
+    def _add_traj_field_data(self, run_idx, traj_idx, field_path, field_data, sparse_idxs=None):
+
+        # get the traj group
+        traj_grp = self._h5['{}/{}/{}/{}'.format(RUNS, run_idx, TRAJECTORIES, traj_idx)]
+
+        # if it is a sparse dataset we need to add the data and add
+        # the idxs in a group
+        if sparse_idxs is None:
+            traj_grp.create_dataset(field_path, data=field_data,
+                                    maxshape=(None, *field_data.shape[1:]))
+        else:
+            sparse_grp = traj_grp.create_group(field_path)
+            # add the data to this group
+            sparse_grp.create_dataset(DATA, data=field_data,
+                                      maxshape=(None, *field_data.shape[1:]))
+            # add the sparse idxs
+            sparse_grp.create_dataset(SPARSE_IDXS, data=sparse_idxs,
+                                      maxshape=(None,))
+
+    def _extend_dataset(self, dset_path, new_data):
+        dset = self.h5[dset_path]
+        extend_dataset(dset, new_data)
+
+    def _extend_contiguous_traj_field(self, run_idx, traj_idx, field_path, field_data):
+
+        traj_grp = self.h5['{}/{}/{}/{}'.format(RUNS, run_idx, TRAJECTORIES, traj_idx)]
+        field = traj_grp[field_path]
+
+        # make sure this is a feature vector
+        assert len(field_data.shape) > 1, \
+            "field_data must be a feature vector with the same number of dimensions as the number"
+
+        # of datase new frames
+        n_new_frames = field_data.shape[0]
+
+        # check the field to make sure it is not empty
+        if all([i == 0 for i in field.shape]):
+
+            # check the feature shape against the maxshape which gives
+            # the feature dimensions for an empty dataset
+            assert field_data.shape[1:] == field.maxshape[1:], \
+                "field feature dimensions must be the same, i.e. all but the first dimension"
+
+            # if it is empty resize it to make an array the size of
+            # the new field_data with the maxshape for the feature
+            # dimensions
+            feature_dims = field.maxshape[1:]
+            field.resize( (n_new_frames, *feature_dims) )
+
+            # set the new data to this
+            field[0:, ...] = field_data
+
+        else:
+            # make sure the new data has the right dimensions against
+            # the shape it already has
+            assert field_data.shape[1:] == field.shape[1:], \
+                "field feature dimensions must be the same, i.e. all but the first dimension"
+
+
+            # append to the dataset on the first dimension, keeping the
+            # others the same, these must be feature vectors and therefore
+            # must exist
+            field.resize( (field.shape[0] + n_new_frames, *field.shape[1:]) )
+            # add the new data
+            field[-n_new_frames:, ...] = field_data
+
+    def _extend_sparse_traj_field(self, run_idx, traj_idx, field_path, values, sparse_idxs):
+
+        field = self.h5['{}/{}/{}/{}/{}'.format(RUNS, run_idx, TRAJECTORIES, traj_idx, field_path)]
+
+        field_data = field[DATA]
+        field_sparse_idxs = field[SPARSE_IDXS]
+
+        # number of new frames
+        n_new_frames = values.shape[0]
+
+        # if this sparse_field has been initialized empty we need to resize
+        if all([i == 0 for i in field_data.shape]):
+
+
+            # check the feature shape against the maxshape which gives
+            # the feature dimensions for an empty dataset
+            assert values.shape[1:] == field_data.maxshape[1:], \
+                "input value features have shape {}, expected {}".format(
+                    values.shape[1:], field_data.maxshape[1:])
+
+            # if it is empty resize it to make an array the size of
+            # the new values with the maxshape for the feature
+            # dimensions
+            feature_dims = field_data.maxshape[1:]
+            field_data.resize( (n_new_frames, *feature_dims) )
+
+            # set the new data to this
+            field_data[0:, ...] = values
+
+        else:
+
+            # make sure the new data has the right dimensions
+            assert values.shape[1:] == field_data.shape[1:], \
+                "field feature dimensions must be the same, i.e. all but the first dimension"
+
+            # append to the dataset on the first dimension, keeping the
+            # others the same, these must be feature vectors and therefore
+            # must exist
+            field_data.resize( (field_data.shape[0] + n_new_frames, *field_data.shape[1:]) )
+            # add the new data
+            field_data[-n_new_frames:, ...] = values
+
+        # add the sparse idxs in the same way
+        field_sparse_idxs.resize( (field_sparse_idxs.shape[0] + n_new_frames,
+                                   *field_sparse_idxs.shape[1:]) )
+        # add the new data
+        field_sparse_idxs[-n_new_frames:, ...] = sparse_idxs
+
+    def _add_sparse_field_flag(self, field_path):
+
+        sparse_fields_ds = self._h5['{}/{}'.format(SETTINGS, SPARSE_FIELDS)]
+
+        # make sure it isn't already in the sparse_fields
+        if field_path in sparse_fields_ds[:]:
+            warn("sparse field {} already a sparse field, ignoring".format(field_path))
+
+        sparse_fields_ds.resize( (sparse_fields_ds.shape[0] + 1,) )
+        sparse_fields_ds[sparse_fields_ds.shape[0] - 1] = field_path
+
+    def _add_field_feature_shape(self, field_path, field_feature_shape):
+        shapes_grp = self._h5['{}/{}'.format(SETTINGS, FIELD_FEATURE_SHAPES_STR)]
+        shapes_grp.create_dataset(field_path, data=np.array(field_feature_shape))
+
+    def _add_field_feature_dtype(self, field_path, field_feature_dtype):
+        feature_dtype_str = json.dumps(field_feature_dtype.descr)
+        dtypes_grp = self._h5['{}/{}'.format(SETTINGS, FIELD_FEATURE_DTYPES_STR)]
+        dtypes_grp.create_dataset(field_path, data=feature_dtype_str)
+
+
+    def _set_field_feature_shape(self, field_path, field_feature_shape):
+        # check if the field_feature_shape is already set
+        if field_path in self.field_feature_shapes:
+            # check that the shape was previously saved as "None" as we
+            # won't overwrite anything else
+            if self.field_feature_shapes[field_path] is None:
+                full_path = '{}/{}/{}'.format(SETTINGS, FIELD_FEATURE_SHAPES_STR, field_path)
+                # we have to delete the old data and set new data
+                del self.h5[full_path]
+                self.h5.create_dataset(full_path, data=field_feature_shape)
+            else:
+                raise AttributeError(
+                    "Cannot overwrite feature shape for {} with {} because it is {} not {}".format(
+                        field_path, field_feature_shape, self.field_feature_shapes[field_path],
+                        NONE_STR))
+        # it was not previously set so we must create then save it
+        else:
+            self._add_field_feature_shape(field_path, field_feature_shape)
+
+    def _set_field_feature_dtype(self, field_path, field_feature_dtype):
+        feature_dtype_str = json.dumps(field_feature_dtype.descr)
+        # check if the field_feature_dtype is already set
+        if field_path in self.field_feature_dtypes:
+            # check that the dtype was previously saved as "None" as we
+            # won't overwrite anything else
+            if self.field_feature_dtypes[field_path] is None:
+                full_path = '{}/{}/{}'.format(SETTINGS, FIELD_FEATURE_DTYPES_STR, field_path)
+                # we have to delete the old data and set new data
+                del self.h5[full_path]
+                self.h5.create_dataset(full_path, data=feature_dtype_str)
+            else:
+                raise AttributeError(
+                    "Cannot overwrite feature dtype for {} with {} because it is {} not ".format(
+                        field_path, field_feature_dtype, self.field_feature_dtypes[field_path],
+                        NONE_STR))
+        # it was not previously set so we must create then save it
+        else:
+            self._add_field_feature_dtype(field_path, field_feature_dtype)
+
+    def _extend_run_record_data_field(self, run_idx, run_record_key,
+                                          field_name, field_data):
+        """Adds data for a single field dataset in a run records group. This
+        is done without paying attention to whether it is sporadic or
+        continual and is supposed to be only the data write method.
+
+        """
+
+        records_grp = self.h5['{}/{}/{}'.format(RUNS, run_idx, run_record_key)]
+        field = records_grp[field_name]
+
+        # make sure this is a feature vector
+        assert len(field_data.shape) > 1, \
+            "field_data must be a feature vector with the same number of dimensions as the number"
+
+        # of datase new frames
+        n_new_frames = field_data.shape[0]
+
+        # check whether it is a variable length record, by getting the
+        # record dataset dtype and using the checker to see if it is
+        # the vlen special type in h5py
+        if h5py.check_dtype(vlen=field.dtype) is not None:
+
+            # if it is we have to treat it differently, since it
+            # cannot be multidimensional
+
+            # if the dataset has no data in it we need to reshape it
+            if all([i == 0 for i in field.shape]):
+                # initialize this array
+                # if it is empty resize it to make an array the size of
+                # the new field_data with the maxshape for the feature
+                # dimensions
+                field.resize( (n_new_frames,) )
+
+                # set the new data to this
+                for i, row in enumerate(field_data):
+                    field[i] = row
+
+            # otherwise just add the data
+            else:
+
+                # resize the array but it is only of rank because
+                # of variable length data
+                field.resize( (field.shape[0] + n_new_frames, ) )
+
+                # add each row to the newly made space
+                for i, row in enumerate(field_data):
+                    field[(field.shape[0] - 1) + i] = row
+
+        # if it is not variable length we don't have to treat it
+        # differently
+        else:
+
+            # if this is empty we need to reshape the dataset to accomodate data
+            if all([i == 0 for i in field.shape]):
+
+                # check the feature shape against the maxshape which gives
+                # the feature dimensions for an empty dataset
+                assert field_data.shape[1:] == field.maxshape[1:], \
+                    "field feature dimensions must be the same, i.e. all but the first dimension"
+
+                # if it is empty resize it to make an array the size of
+                # the new field_data with the maxshape for the feature
+                # dimensions
+                feature_dims = field.maxshape[1:]
+                field.resize( (n_new_frames, *feature_dims) )
+
+                # set the new data to this
+                field[0:, ...] = field_data
+
+            # otherwise just add the data
+            else:
+                # append to the dataset on the first dimension, keeping the
+                # others the same, these must be feature vectors and therefore
+                # must exist
+                field.resize( (field.shape[0] + n_new_frames, *field.shape[1:]) )
+                # add the new data
+                field[-n_new_frames:, ...] = field_data
+
+
+    def _run_record_namedtuple(self, run_record_key):
+
+        Record = namedtuple('{}_Record'.format(run_record_key),
+                            [CYCLE_IDX] + self.record_fields[run_record_key])
+
+        return Record
+
+    def _convert_record_field_to_table_column(self, run_idx, run_record_key, record_field):
+
+        # get the field dataset
+        rec_grp = self.records_grp(run_idx, run_record_key)
+        dset = rec_grp[record_field]
+
+        # if it is variable length or if it has more than one element
+        # cast all elements to tuples
+        if h5py.check_dtype(vlen=dset.dtype) is not None:
+            rec_dset = [tuple(value) for value in dset[:]]
+
+        # if it is not variable length make sure it is not more than a
+        # 1D feature vector
+        elif len(dset.shape) > 2:
+            raise TypeError(
+                "cannot convert fields with feature vectors more than 1 dimension,"
+                " was given {} for {}/{}".format(
+                    dset.shape[1:], run_record_key, record_field))
+
+        # if it is only a rank 1 feature vector and it has more than
+        # one element make a tuple out of it
+        elif dset.shape[1] > 1:
+            rec_dset = [tuple(value) for value in dset[:]]
+
+        # otherwise just get the single value instead of keeping it as
+        # a single valued feature vector
+        else:
+            rec_dset = [value[0] for value in dset[:]]
+
+        return rec_dset
+
+    def _convert_record_fields_to_table_columns(self, run_idx, run_record_key):
+        fields = {}
+        for record_field in self.record_fields[run_record_key]:
+            fields[record_field] = self._convert_record_field_to_table_column(
+                                           run_idx, run_record_key, record_field)
+
+        return fields
+
+    def _make_records(self, run_record_key, cycle_idxs, fields):
+        Record = self._run_record_namedtuple(run_record_key)
+
+        # for each record we make a tuple and yield it
+        records = []
+        for record_idx in range(len(cycle_idxs)):
+
+            # make a record for this cycle
+            record_d = {CYCLE_IDX : cycle_idxs[record_idx]}
+            for record_field, column in fields.items():
+                datum = column[record_idx]
+                record_d[record_field] = datum
+
+            record = Record(*(record_d[key] for key in Record._fields))
+
+            records.append(record)
+
+        return records
+
+    def _run_records_sporadic(self, run_idxs, run_record_key):
+
+        # we loop over the run_idxs in the contig and get the fields
+        # and cycle idxs for the whole contig
+        fields = None
+        cycle_idxs = np.array([], dtype=int)
+        # keep a cumulative total of the runs cycle idxs
+        prev_run_cycle_total = 0
+        for run_idx in run_idxs:
+
+            # get all the value columns from the datasets, and convert
+            # them to something amenable to a table
+            run_fields = self._convert_record_fields_to_table_columns(run_idx, run_record_key)
+
+            # we need to concatenate each field to the end of the
+            # field in the master dictionary, first we need to
+            # initialize it if it isn't already made
+            if fields is None:
+                # if it isn't initialized we just set it as this first
+                # run fields dictionary
+                fields = run_fields
+            else:
+                # if it is already initialized we need to go through
+                # each field and concatenate
+                for field_name, field_data in run_fields.items():
+                    # just add it to the list of fields that will be concatenated later
+                    fields[field_name].extend(field_data)
+
+            # get the cycle idxs for this run
+            rec_grp = self.records_grp(run_idx, run_record_key)
+            run_cycle_idxs = rec_grp[CYCLE_IDXS][:]
+
+            # add the total number of cycles that came before this run
+            # to each of the cycle idxs to get the cycle_idxs in terms
+            # of the full contig
+            run_contig_cycle_idxs = run_cycle_idxs + prev_run_cycle_total
+
+            # add these cycle indices to the records for the whole contig
+            cycle_idxs = np.hstack( (cycle_idxs, run_contig_cycle_idxs) )
+
+            # add the total number of cycle_idxs from this run to the
+            # running total
+            prev_run_cycle_total += self.num_run_cycles(run_idx)
+
+        # then make the records from the fields
+        records = self._make_records(run_record_key, cycle_idxs, fields)
+
+        return records
+
+    def _run_records_continual(self, run_idxs, run_record_key):
+
+        cycle_idxs = np.array([], dtype=int)
+        fields = None
+        prev_run_cycle_total = 0
+        for run_idx in run_idxs:
+            # get all the value columns from the datasets, and convert
+            # them to something amenable to a table
+            run_fields = self._convert_record_fields_to_table_columns(run_idx, run_record_key)
+
+            # we need to concatenate each field to the end of the
+            # field in the master dictionary, first we need to
+            # initialize it if it isn't already made
+            if fields is None:
+                # if it isn't initialized we just set it as this first
+                # run fields dictionary
+                fields = run_fields
+            else:
+                # if it is already initialized we need to go through
+                # each field and concatenate
+                for field_name, field_data in run_fields.items():
+                    # just add it to the list of fields that will be concatenated later
+                    fields[field_name].extend(field_data)
+
+            # get one of the fields (if any to iterate over)
+            record_fields = self.record_fields[run_record_key]
+            main_record_field = record_fields[0]
+
+            # make the cycle idxs from that
+            run_rec_grp = self.records_grp(run_idx, run_record_key)
+            run_cycle_idxs = list(range(run_rec_grp[main_record_field].shape[0]))
+
+            # add the total number of cycles that came before this run
+            # to each of the cycle idxs to get the cycle_idxs in terms
+            # of the full contig
+            run_contig_cycle_indices = run_cycle_idxs + prev_run_cycle_total
+
+            # add these cycle indices to the records for the whole contig
+            cycle_idxs = np.hstack( (cycle_idxs, run_contig_cycle_idxs) )
+
+            # add the total number of cycle_idxs from this run to the
+            # running total
+            prev_run_cycle_total += self.num_run_cycles(run_idx)
+
+
+        # then make the records from the fields
+        records = self._make_records(run_record_key, cycle_idxs, fields)
+
+        return records
+
+
+    def _get_contiguous_traj_field(self, run_idx, traj_idx, field_path, frames=None):
+
+        full_path = '{}/{}/{}/{}/{}'.format(RUNS, run_idx, TRAJECTORIES, traj_idx, field_path)
+
+        if frames is None:
+            field = self._h5[full_path][:]
+        else:
+            field = self._h5[full_path][list(frames)]
+
+        return field
+
+    def _get_sparse_traj_field(self, run_idx, traj_idx, field_path, frames=None, masked=True):
+
+        traj_path = '{}/{}/{}/{}'.format(RUNS, run_idx, TRAJECTORIES, traj_idx)
+        traj_grp = self.h5[traj_path]
+        field = traj_grp[field_path]
+
+        n_frames = traj_grp[POSITIONS].shape[0]
+
+        if frames is None:
+            data = field[DATA][:]
+
+            # if it is to be masked make the masked array
+            if masked:
+                sparse_idxs = field[SPARSE_IDXS][:]
+
+                filled_data = np.full( (n_frames, *data.shape[1:]), np.nan)
+                filled_data[sparse_idxs] = data
+
+                mask = np.full( (n_frames, *data.shape[1:]), True)
+                mask[sparse_idxs] = False
+
+                data = np.ma.masked_array(filled_data, mask=mask)
+
+        else:
+
+            # get the sparse idxs and the frames to slice from the
+            # data
+            sparse_idxs = field[SPARSE_IDXS][:]
+
+            # we get a boolean array of the rows of the data table
+            # that we are to slice from
+            sparse_frame_idxs = np.argwhere(np.isin(sparse_idxs, frames))
+
+            data = field[DATA][list(sparse_frame_idxs)]
+
+            # if it is to be masked make the masked array
+            if masked:
+                # the empty arrays the size of the number of requested frames
+                filled_data = np.full( (len(frames), *field[DATA].shape[1:]), np.nan)
+                mask = np.full( (len(frames), *field[DATA].shape[1:]), True )
+
+                # take the data which exists and is part of the frames
+                # selection, and put it into the filled data where it is
+                # supposed to be
+                filled_data[np.isin(frames, sparse_idxs)] = data
+
+                # unmask the present values
+                mask[np.isin(frames, sparse_idxs)] = False
+
+                data = np.ma.masked_array(filled_data, mask=mask)
+
+        return data
+
+
+    def _add_run_field(self, run_idx, field_path, data, sparse_idxs=None):
+        """ Add a field to your trajectories runs"""
+
+        # check that the data has the correct number of trajectories
+        assert len(data) == self.num_run_trajs(run_idx),\
+            "The number of trajectories in data, {}, is different than the number"\
+            "of trajectories in the run, {}.".format(len(data), self.num_run_trajs(run_idx))
+
+        # for each trajectory check that the data is compliant
+        for traj_idx, traj_data in enumerate(data):
+            # check that the number of frames is not larger than that for the run
+            if traj_data.shape[0] > self.num_run_cycles(run_idx):
+                raise ValueError("The number of frames in data for traj {} , {},"
+                                  "is larger than the number of frames"
+                                  "for this run, {}.".format(
+                                          traj_idx, data.shape[1], self.num_run_cycles(run_idx)))
+
+
+            # if the number of frames given is the same or less than
+            # the number of frames in the run
+            elif (traj_data.shape[0] <= self.num_run_cycles(run_idx)):
+
+                # if sparse idxs were given we check to see there is
+                # the right number of them
+                if sparse_idxs is not None:
+                    #  and that they match the number of frames given
+                    if data.shape[0] != len(sparse_idxs[traj_idx]):
+
+                        raise ValueError("The number of frames provided for traj {}, {},"
+                                          "was less than the total number of frames, {},"
+                                          "but an incorrect number of sparse idxs were supplied, {}."\
+                                         .format(traj_idx, traj_data.shape[0],
+                                            self.num_run_cycles(run_idx), len(sparse_idxs[traj_idx])))
+
+
+                # if there were strictly fewer frames given and the
+                # sparse idxs were not given we need to raise an error
+                elif (traj_data.shape[0] < self.num_run_cycles(run_idx)):
+                    raise ValueError("The number of frames provided for traj {}, {},"
+                                      "was less than the total number of frames, {},"
+                                      "but sparse_idxs were not supplied.".format(
+                                              traj_idx, traj_data.shape[0],
+                                              self.num_run_cycles(run_idx)))
+
+        # add it to each traj
+        for i, idx_tup in enumerate(self.run_traj_idx_tuples([run_idx])):
+            if sparse_idxs is None:
+                self._add_traj_field_data(*idx_tup, field_path, data[i])
+            else:
+                self._add_traj_field_data(*idx_tup, field_path, data[i],
+                                          sparse_idxs=sparse_idxs[i])
+
+    def _add_field(self, field_path, data, sparse_idxs=None):
+
+        for i, run_idx in enumerate(self.run_idxs):
+            if sparse_idxs is not None:
+                self._add_run_field(run_idx, field_path, data[i], sparse_idxs=sparse_idxs[i])
+            else:
+                self._add_run_field(run_idx, field_path, data[i])
+
+    #### Public Methods
+
+    ### File Utilities
 
     @property
     def filename(self):
@@ -515,66 +1265,6 @@ class WepyHDF5(object):
             self._h5.close()
             self.closed = True
 
-    # TODO is this right? shouldn't we actually delete the data then close
-    def __del__(self):
-        self.close()
-
-    def clone(self, path, mode='x'):
-        """Clones this WepyHDF5 file without any of the actual runs and run
-        data. This includes the topology, units, sparse_fields,
-        feature shapes and dtypes, alt_reps, and main representation
-        information.
-
-        This method will flush the buffers for this file.
-
-        Does not preserve metadata pertaining to inter-run
-        relationships like continuations.
-
-        """
-
-        assert mode in ['w', 'w-', 'x'], "must be opened in a file creation mode"
-
-        # we manually construct an HDF5 and copy the groups over
-        new_h5 = h5py.File(path, mode=mode)
-
-        new_h5.create_group(RUNS)
-
-        # flush the datasets buffers
-        self.h5.flush()
-        new_h5.flush()
-
-        # copy the existing datasets to the new one
-        h5py.h5o.copy(self._h5.id, TOPOLOGY.encode(), new_h5.id, TOPOLOGY.encode())
-        h5py.h5o.copy(self._h5.id, UNITS.encode(), new_h5.id, UNITS.encode())
-        h5py.h5o.copy(self._h5.id, SETTINGS.encode(), new_h5.id, SETTINGS.encode())
-
-        # for the settings we need to get rid of the data for interun
-        # relationships like the continuations, so we reinitialize the
-        # continuations
-        self._init_continuations()
-
-        # now make a WepyHDF5 object in "expert_mode" which means it
-        # is just empy and we construct it manually, "surgically" as I
-        # like to call it
-        new_wepy_h5 = WepyHDF5(path, expert_mode=True)
-
-        # perform the surgery:
-
-        # attach the h5py.File
-        new_wepy_h5._h5 = new_h5
-        # set the wepy mode to read-write since the creation flags
-        # were already used in construction of the h5py.File object
-        new_wepy_h5._wepy_mode = 'r+'
-        new_wepy_h5._h5py_mode = 'r+'
-
-        # close the h5py.File and set the attribute to closed
-        new_wepy_h5._h5.close()
-        new_wepy_h5.closed = True
-
-
-        # return the runless WepyHDF5 object
-        return new_wepy_h5
-
     @property
     def mode(self):
         return self._wepy_mode
@@ -587,80 +1277,111 @@ class WepyHDF5(object):
     def h5(self):
         return self._h5
 
+    ### h5py object access
+
+    def run(self, run_idx):
+        return self._h5['{}/{}'.format(RUNS, int(run_idx))]
+
+    def traj(self, run_idx, traj_idx):
+        return self._h5['{}/{}/{}/{}'.format(RUNS, run_idx, TRAJECTORIES, traj_idx)]
+
+    def run_trajs(self, run_idx):
+        return self._h5['{}/{}/{}'.format(RUNS, run_idx, TRAJECTORIES)]
+
+    @property
+    def runs(self):
+        return self.h5[RUNS].values()
+
     @property
     def settings_grp(self):
         settings_grp = self.h5[SETTINGS]
         return settings_grp
 
+    def decision_grp(self, run_idx):
+        return self.run(run_idx)[DECISION]
+
+    def records_grp(self, run_idx, run_record_key):
+        path = '{}/{}/{}'.format(RUNS, run_idx, run_record_key)
+        return self.h5[path]
+
+    def resampling_grp(self, run_idx):
+        return self.records_grp(run_idx, RESAMPLING)
+
+    def resampler_grp(self, run_idx):
+        return self.records_grp(run_idx, RESAMPLER)
+
+    def warping_grp(self, run_idx):
+        return self.records_grp(run_idx, WARPING)
+
+    def bc_grp(self, run_idx):
+        return self.records_grp(run_idx, BC)
+
+    def progress_grp(self, run_idx):
+        return self.records_grp(run_idx, PROGRESS)
+
+    def iter_runs(self, idxs=False, run_sel=None):
+        """Iterate through runs.
+
+        idxs : if True returns `(run_idx, run_group)`, False just `run_group`
+
+        run_sel : if True will iterate over a subset of runs. Possible
+        values are an iterable of indices of runs to iterate over.
+
+        """
+
+        if run_sel is None:
+            run_sel = self.run_idxs
+
+        for run_idx in self.run_idxs:
+            if run_idx in run_sel:
+                run = self.run(run_idx)
+                if idxs:
+                    yield run_idx, run
+                else:
+                    yield run
+
+    def iter_trajs(self, idxs=False, traj_sel=None):
+        """Generator for all of the trajectories in the dataset across all
+        runs. If idxs=True will return a tuple of (run_idx, traj_idx).
+
+        run_sel : if True will iterate over a subset of
+        trajectories. Possible values are an iterable of `(run_idx,
+        traj_idx)` tuples.
+
+        """
+
+
+        # set the selection of trajectories to iterate over
+        if traj_sel is None:
+            idx_tups = self.run_traj_idx_tuples()
+        else:
+            idx_tups = traj_sel
+
+        # get each traj for each idx_tup and yield them for the generator
+        for run_idx, traj_idx in idx_tups:
+            traj = self.traj(run_idx, traj_idx)
+            if idxs:
+                yield (run_idx, traj_idx), traj
+            else:
+                yield traj
+
+    def iter_run_trajs(self, run_idx, idxs=False):
+        run_sel = self.run_traj_idx_tuples([run_idx])
+        return self.iter_trajs(idxs=idxs, traj_sel=run_sel)
+
+
+    ### Settings
+
     @property
-    def topology(self):
-        """The topology for the full simulated system. May not be the main
-        representation in the POSITIONS field; for that use the
-        `topology` method.
+    def record_fields(self):
 
-        """
-        return self._h5[TOPOLOGY][()]
+        record_fields_grp = self.settings_grp[RECORD_FIELDS]
 
+        record_fields_dict = {}
+        for group_name, dset in record_fields_grp.items():
+            record_fields_dict[group_name] = list(dset)
 
-    def get_mdtraj_topology(self, alt_rep=POSITIONS):
-        """Get an MDTraj `Topology` object for a subset of the atoms in the
-        positions of a particular representation. By default gives the
-        topology for the main 'positions' field (when alt_rep
-        'positions'). To get the full topology the file was
-        initialized with set `alt_rep` to `None`. Topologies for
-        alternative representations (subfields of 'alt_reps') can be
-        obtained by passing in the key for that alt_rep. For example,
-        'all_atoms' for the field in alt_reps called 'all_atoms'.
-
-        """
-
-        self.get_topology()
-        full_mdj_top = json_to_mdtraj_topology(self.topology)
-        if alt_rep is None:
-            return full_mdj_top
-        elif alt_rep == POSITIONS:
-            # get the subset topology for the main rep idxs
-            return full_mdj_top.subset(self.main_rep_idxs)
-        elif alt_rep in self.alt_reps_idxs:
-            # get the subset for the alt rep
-            return full_mdj_top.subset(self.alt_reps_idxs[alt_rep])
-        else:
-            raise ValueError("alt_rep {} not found".format(alt_rep))
-
-    def get_topology(self, alt_rep=POSITIONS):
-        """Get a JSON topology for a subset of the atoms in the
-        positions of a particular representation. By default gives the
-        topology for the main 'positions' field (when alt_rep
-        'positions'). To get the full topology the file was
-        initialized with set `alt_rep` to `None`. Topologies for
-        alternative representations (subfields of 'alt_reps') can be
-        obtained by passing in the key for that alt_rep. For example,
-        'all_atoms' for the field in alt_reps called 'all_atoms'.
-
-        """
-
-        top = self.topology
-
-        # if no alternative representation is given we just return the
-        # full topology
-        if alt_rep is None:
-            pass
-
-        # otherwise we either give the main representation topology
-        # subset
-        elif alt_rep == POSITIONS:
-            top = json_top_subset(top, self.main_rep_idxs)
-
-        # or choose one of the alternative representations
-        elif alt_rep in self.alt_reps_idxs:
-            top = json_top_subset(self.alt_reps_idxs[alt_rep])
-
-        # and raise an error if the given alternative representation
-        # is not given
-        else:
-            raise ValueError("alt_rep {} not found".format(alt_rep))
-
-        return top
+        return record_fields_dict
 
     @property
     def sparse_fields(self):
@@ -723,15 +1444,105 @@ class WepyHDF5(object):
     def metadata(self):
         return dict(self._h5.attrs)
 
-    def add_metadata(self, key, value):
-        self._h5.attrs[key] = value
+    def decision_enum(self, run_idx):
+
+        enum_grp = self.decision_grp(run_idx)
+        enum = {}
+        for decision_name, dset in enum_grp.items():
+            enum[decision_name] = dset[()]
+
+        return enum
+
+    def decision_value_names(self, run_idx):
+        enum_grp = self.decision_grp(run_idx)
+        rev_enum = {}
+        for decision_name, dset in enum_grp.items():
+            value = dset[()]
+            rev_enum[value] = decision_name
+
+        return rev_enum
+
+    ### Topology
+
+    def get_topology(self, alt_rep=POSITIONS):
+        """Get a JSON topology for a subset of the atoms in the
+        positions of a particular representation. By default gives the
+        topology for the main 'positions' field (when alt_rep
+        'positions'). To get the full topology the file was
+        initialized with set `alt_rep` to `None`. Topologies for
+        alternative representations (subfields of 'alt_reps') can be
+        obtained by passing in the key for that alt_rep. For example,
+        'all_atoms' for the field in alt_reps called 'all_atoms'.
+
+        """
+
+        top = self.topology
+
+        # if no alternative representation is given we just return the
+        # full topology
+        if alt_rep is None:
+            pass
+
+        # otherwise we either give the main representation topology
+        # subset
+        elif alt_rep == POSITIONS:
+            top = json_top_subset(top, self.main_rep_idxs)
+
+        # or choose one of the alternative representations
+        elif alt_rep in self.alt_reps_idxs:
+            top = json_top_subset(self.alt_reps_idxs[alt_rep])
+
+        # and raise an error if the given alternative representation
+        # is not given
+        else:
+            raise ValueError("alt_rep {} not found".format(alt_rep))
+
+        return top
 
     @property
-    def runs(self):
-        return self.h5[RUNS].values()
+    def topology(self):
+        """The topology for the full simulated system. May not be the main
+        representation in the POSITIONS field; for that use the
+        `topology` method.
 
+        """
+        return self._h5[TOPOLOGY][()]
+
+
+    def get_mdtraj_topology(self, alt_rep=POSITIONS):
+        """Get an MDTraj `Topology` object for a subset of the atoms in the
+        positions of a particular representation. By default gives the
+        topology for the main 'positions' field (when alt_rep
+        'positions'). To get the full topology the file was
+        initialized with set `alt_rep` to `None`. Topologies for
+        alternative representations (subfields of 'alt_reps') can be
+        obtained by passing in the key for that alt_rep. For example,
+        'all_atoms' for the field in alt_reps called 'all_atoms'.
+
+        """
+
+        self.get_topology()
+        full_mdj_top = json_to_mdtraj_topology(self.topology)
+        if alt_rep is None:
+            return full_mdj_top
+        elif alt_rep == POSITIONS:
+            # get the subset topology for the main rep idxs
+            return full_mdj_top.subset(self.main_rep_idxs)
+        elif alt_rep in self.alt_reps_idxs:
+            # get the subset for the alt rep
+            return full_mdj_top.subset(self.alt_reps_idxs[alt_rep])
+        else:
+            raise ValueError("alt_rep {} not found".format(alt_rep))
 
     ### Counts and Indexing
+
+    @property
+    def num_atoms(self):
+        return self.h5['{}/{}'.format(SETTINGS, N_ATOMS)][()]
+
+    @property
+    def num_dims(self):
+        return self.h5['{}/{}'.format(SETTINGS, N_DIMS_STR)][()]
 
     @property
     def num_runs(self):
@@ -769,132 +1580,109 @@ class WepyHDF5(object):
 
         return tups
 
+    def get_traj_field_cycle_idxs(self, run_idx, traj_idx, field_path):
+        """ Returns the sparse indices for a field"""
+
+        traj_path = '{}/{}/{}/{}'.format(RUNS, run_idx, TRAJECTORIES, traj_idx)
+
+        # if the field doesn't exist return None
+        if not field_path in self._h5[traj_path]:
+            raise KeyError("key for field {} not found".format(field_path))
+            # return None
+
+        # if the field is not sparse just return the cycle indices for
+        # that run
+        if field_path not in self.sparse_fields:
+            cycle_idxs = np.array(range(self.num_run_cycles(run_idx)))
+        else:
+            cycle_idxs = self._h5[traj_path][field_path][SPARSE_IDXS][:]
+
+        return cycle_idxs
+
     def next_run_idx(self):
         return self.num_runs
 
     def next_run_traj_idx(self, run_idx):
         return self.num_run_trajs(run_idx)
 
-    ### initialization and data generation
+    ### Aggregation
 
-    @property
-    def num_atoms(self):
-        return self.h5['{}/{}'.format(SETTINGS, N_ATOMS)][()]
+    def is_run_contig(self, run_idxs):
+        """This method checks that if a given list of run indices is a valid
+        contig or not.
+        """
+        run_idx_continuations = [np.array([run_idxs[idx+1], run_idxs[idx]])
+                            for idx in range(len(run_idxs)-1)]
+        #gets the contigs array
+        continuations = self.settings_grp[CONTINUATIONS][:]
 
-    @property
-    def num_dims(self):
-        return self.h5['{}/{}'.format(SETTINGS, N_DIMS_STR)][()]
+        # checks if sub contigs are in contigs list or not.
+        for run_continuous in run_idx_continuations:
+            contig = False
+            for continuous in continuations:
+                if np.array_equal(run_continuous, continuous):
+                    contig = True
+            if not contig:
+                return False
 
-    def run(self, run_idx):
-        return self._h5['{}/{}'.format(RUNS, int(run_idx))]
+        return True
 
-    def traj(self, run_idx, traj_idx):
-        return self._h5['{}/{}/{}/{}'.format(RUNS, run_idx, TRAJECTORIES, traj_idx)]
+    def clone(self, path, mode='x'):
+        """Clones this WepyHDF5 file without any of the actual runs and run
+        data. This includes the topology, units, sparse_fields,
+        feature shapes and dtypes, alt_reps, and main representation
+        information.
 
-    def run_trajs(self, run_idx):
-        return self._h5['{}/{}/{}'.format(RUNS, run_idx, TRAJECTORIES)]
+        This method will flush the buffers for this file.
 
-
-    def _init_continuations(self):
-        """This will either create a dataset in the settings for the
-        continuations or if continuations already exist it will reinitialize
-        them and delete the data that exists there.
+        Does not preserve metadata pertaining to inter-run
+        relationships like continuations.
 
         """
 
-        # if the continuations dset already exists we reinitialize the
-        # data
-        if CONTINUATIONS in self.settings_grp:
-            cont_dset = self.settings_grp[CONTINUATIONS]
-            cont_dset.resize( (0,2) )
+        assert mode in ['w', 'w-', 'x'], "must be opened in a file creation mode"
 
-        # otherwise we just create the data
-        else:
-            cont_dset = self.settings_grp.create_dataset(CONTINUATIONS, shape=(0,2), dtype=np.int,
-                                    maxshape=(None, 2))
+        # we manually construct an HDF5 and copy the groups over
+        new_h5 = h5py.File(path, mode=mode)
 
-        return cont_dset
+        new_h5.create_group(RUNS)
 
+        # flush the datasets buffers
+        self.h5.flush()
+        new_h5.flush()
 
-    def init_record_fields(self, run_record_key, record_fields):
-        """Save which records are to be considered from a run record group's
-        datasets to be in the table like representation. This exists
-        to allow there to large and small datasets for records to be
-        stored together but allow for a more compact single table like
-        representation to be produced for serialization.
+        # copy the existing datasets to the new one
+        h5py.h5o.copy(self._h5.id, TOPOLOGY.encode(), new_h5.id, TOPOLOGY.encode())
+        h5py.h5o.copy(self._h5.id, UNITS.encode(), new_h5.id, UNITS.encode())
+        h5py.h5o.copy(self._h5.id, SETTINGS.encode(), new_h5.id, SETTINGS.encode())
 
-        """
+        # for the settings we need to get rid of the data for interun
+        # relationships like the continuations, so we reinitialize the
+        # continuations
+        self._init_continuations()
 
-        record_fields_grp = self.settings_grp[RECORD_FIELDS]
+        # now make a WepyHDF5 object in "expert_mode" which means it
+        # is just empy and we construct it manually, "surgically" as I
+        # like to call it
+        new_wepy_h5 = WepyHDF5(path, expert_mode=True)
 
-        # make a dataset for the sparse fields allowed.  this requires
-        # a 'special' datatype for variable length strings. This is
-        # supported by HDF5 but not numpy.
-        vlen_str_dt = h5py.special_dtype(vlen=str)
+        # perform the surgery:
 
-        # create the dataset with the strings of the fields which are records
-        record_group_fields_ds = record_fields_grp.create_dataset(run_record_key,
-                                                             (len(record_fields),),
-                                                                  dtype=vlen_str_dt,
-                                                                  maxshape=(None,))
+        # attach the h5py.File
+        new_wepy_h5._h5 = new_h5
+        # set the wepy mode to read-write since the creation flags
+        # were already used in construction of the h5py.File object
+        new_wepy_h5._wepy_mode = 'r+'
+        new_wepy_h5._h5py_mode = 'r+'
 
-        # set the flags
-        for i, record_field in enumerate(record_fields):
-            record_group_fields_ds[i] = record_field
-
-    def init_resampling_record_fields(self, resampler):
-        self.init_record_fields(RESAMPLING, resampler.resampling_record_field_names())
-
-    def init_resampler_record_fields(self, resampler):
-        self.init_record_fields(RESAMPLER, resampler.resampler_record_field_names())
-
-    def init_bc_record_fields(self, bc):
-        self.init_record_fields(BC, bc.bc_record_field_names())
-
-    def init_warping_record_fields(self, bc):
-        self.init_record_fields(WARPING, bc.warping_record_field_names())
-
-    def init_progress_record_fields(self, bc):
-        self.init_record_fields(PROGRESS, bc.progress_record_field_names())
-
-    @property
-    def record_fields(self):
-
-        record_fields_grp = self.settings_grp[RECORD_FIELDS]
-
-        record_fields_dict = {}
-        for group_name, dset in record_fields_grp.items():
-            record_fields_dict[group_name] = list(dset)
-
-        return record_fields_dict
-
-    def _add_run_init(self, run_idx, continue_run=None):
-        """Routines for creating a run includes updating and setting object
-        global variables, increasing the counter for the number of runs."""
+        # close the h5py.File and set the attribute to closed
+        new_wepy_h5._h5.close()
+        new_wepy_h5.closed = True
 
 
-        # add the run idx as metadata in the run group
-        self._h5['{}/{}'.format(RUNS, run_idx)].attrs[RUN_IDX] = run_idx
+        # return the runless WepyHDF5 object
+        return new_wepy_h5
 
-        # if this is continuing another run add the tuple (this_run,
-        # continues_run) to the continutations settings
-        if continue_run is not None:
-
-            self.add_continuation(run_idx, continue_run)
-
-
-    def add_continuation(self, continuation_run, base_run):
-        """Add a continuation between runs.
-
-        continuation_run :: the run index of the run that continues base_run
-
-        base_run :: the run that is being continued
-
-        """
-
-        continuations_dset = self.settings_grp[CONTINUATIONS]
-        continuations_dset.resize((continuations_dset.shape[0] + 1, continuations_dset.shape[1],))
-        continuations_dset[continuations_dset.shape[0] - 1] = np.array([continuation_run, base_run])
 
     def link_run(self, filepath, run_idx, continue_run=None, **kwargs):
         """Add a run from another file to this one as an HDF5 external
@@ -959,32 +1747,78 @@ class WepyHDF5(object):
 
         return new_run_idxs
 
-    def _add_init_walkers(self, init_walkers_grp, init_walkers):
+    def join(self, other_h5):
+        """Given another WepyHDF5 file object does a left join on this
+        file. Renumbering the runs starting from this file.
+        """
 
-        # add the initial walkers to the group by essentially making
-        # new trajectories here that will only have one frame
-        for walker_idx, walker in enumerate(init_walkers):
-            walker_grp = init_walkers_grp.create_group(str(walker_idx))
-
-            # weights
-
-            # get the weight from the walker and make a feature array of it
-            weights = np.array([[walker.weight]])
-
-            # then create the dataset and set it
-            walker_grp.create_dataset(WEIGHTS, data=weights)
-
-            # state fields data
-            for field_key, field_value in walker.state.dict().items():
-
-                # values may be None, just ignore them
-                if field_value is not None:
-                    # just create the dataset by making it a feature array
-                    # (wrapping it in another list)
-                    walker_grp.create_dataset(field_key, data=np.array([field_value]))
+        with other_h5 as h5:
+            for run_idx in h5.run_idxs:
+                # the other run group handle
+                other_run = h5.run(run_idx)
+                # copy this run to this file in the next run_idx group
+                self.h5.copy(other_run, '{}/{}'.format(RUNS, self.next_run_idx()))
 
 
+    ### initialization and data generation
 
+    def add_metadata(self, key, value):
+        self._h5.attrs[key] = value
+
+
+    def init_record_fields(self, run_record_key, record_fields):
+        """Save which records are to be considered from a run record group's
+        datasets to be in the table like representation. This exists
+        to allow there to large and small datasets for records to be
+        stored together but allow for a more compact single table like
+        representation to be produced for serialization.
+
+        """
+
+        record_fields_grp = self.settings_grp[RECORD_FIELDS]
+
+        # make a dataset for the sparse fields allowed.  this requires
+        # a 'special' datatype for variable length strings. This is
+        # supported by HDF5 but not numpy.
+        vlen_str_dt = h5py.special_dtype(vlen=str)
+
+        # create the dataset with the strings of the fields which are records
+        record_group_fields_ds = record_fields_grp.create_dataset(run_record_key,
+                                                             (len(record_fields),),
+                                                                  dtype=vlen_str_dt,
+                                                                  maxshape=(None,))
+
+        # set the flags
+        for i, record_field in enumerate(record_fields):
+            record_group_fields_ds[i] = record_field
+
+    def init_resampling_record_fields(self, resampler):
+        self.init_record_fields(RESAMPLING, resampler.resampling_record_field_names())
+
+    def init_resampler_record_fields(self, resampler):
+        self.init_record_fields(RESAMPLER, resampler.resampler_record_field_names())
+
+    def init_bc_record_fields(self, bc):
+        self.init_record_fields(BC, bc.bc_record_field_names())
+
+    def init_warping_record_fields(self, bc):
+        self.init_record_fields(WARPING, bc.warping_record_field_names())
+
+    def init_progress_record_fields(self, bc):
+        self.init_record_fields(PROGRESS, bc.progress_record_field_names())
+
+    def add_continuation(self, continuation_run, base_run):
+        """Add a continuation between runs.
+
+        continuation_run :: the run index of the run that continues base_run
+
+        base_run :: the run that is being continued
+
+        """
+
+        continuations_dset = self.settings_grp[CONTINUATIONS]
+        continuations_dset.resize((continuations_dset.shape[0] + 1, continuations_dset.shape[1],))
+        continuations_dset[continuations_dset.shape[0] - 1] = np.array([continuation_run, base_run])
 
     def new_run(self, init_walkers, continue_run=None, **kwargs):
 
@@ -1127,126 +1961,6 @@ class WepyHDF5(object):
             grp = self._init_run_continual_record_grp(run_idx, run_record_key,
                                                       fields)
 
-    def _init_run_sporadic_record_grp(self, run_idx, run_record_key, fields):
-
-        # create the group
-        run_grp = self.run(run_idx)
-        record_grp = run_grp.create_group(run_record_key)
-
-        # initialize the cycles dataset that maps when the records
-        # were recorded
-        record_grp.create_dataset(CYCLE_IDXS, (0,), dtype=np.int,
-                                  maxshape=(None,))
-
-        # for each field simply create the dataset
-        for field_name, field_shape, field_dtype in fields:
-
-            # initialize this field
-            self._init_run_records_field(run_idx, run_record_key,
-                                         field_name, field_shape, field_dtype)
-
-        return record_grp
-
-
-    def _init_run_continual_record_grp(self, run_idx, run_record_key, fields):
-
-        # create the group
-        run_grp = self.run(run_idx)
-        record_grp = run_grp.create_group(run_record_key)
-
-        # for each field simply create the dataset
-        for field_name, field_shape, field_dtype in fields:
-
-            self._init_run_records_field(run_idx, run_record_key,
-                                         field_name, field_shape, field_dtype)
-
-        return record_grp
-
-    def _init_run_records_field(self, run_idx, run_record_key,
-                                field_name, field_shape, field_dtype):
-
-        record_grp = self.run(run_idx)[run_record_key]
-
-        # check if it is variable length
-        if field_shape is Ellipsis:
-            # make a special dtype that allows it to be
-            # variable length
-            vlen_dt = h5py.special_dtype(vlen=field_dtype)
-
-            # this is only allowed to be a single dimension
-            # since no real shape was given
-            dset = record_grp.create_dataset(field_name, (0,), dtype=vlen_dt,
-                                        maxshape=(None,))
-
-        # its not just make it normally
-        else:
-            # create the group
-            dset = record_grp.create_dataset(field_name, (0, *field_shape), dtype=field_dtype,
-                                      maxshape=(None, *field_shape))
-
-        return dset
-
-    def _is_sporadic_records(self, run_record_key):
-
-        # assume it is continual and check if it is in the sporadic groups
-        if run_record_key in SPORADIC_RECORDS:
-            return True
-        else:
-            return False
-
-    def _init_traj_field(self, run_idx, traj_idx, field_path, feature_shape, dtype):
-        """Initialize a data field in the trajectory to be empty but
-        resizeable."""
-
-        # check whether this is a sparse field and create it
-        # appropriately
-        if field_path in self.sparse_fields:
-            # it is a sparse field
-            self._init_sparse_traj_field(run_idx, traj_idx, field_path, feature_shape, dtype)
-        else:
-            # it is not a sparse field (AKA simple)
-            self._init_contiguous_traj_field(run_idx, traj_idx, field_path, feature_shape, dtype)
-
-    def _init_contiguous_traj_field(self, run_idx, traj_idx, field_path, shape, dtype):
-
-        traj_grp = self._h5['{}/{}/{}/{}'.format(RUNS, run_idx, TRAJECTORIES, traj_idx)]
-
-        # create the empty dataset in the correct group, setting
-        # maxshape so it can be resized for new feature vectors to be added
-        traj_grp.create_dataset(field_path, (0, *[0 for i in shape]), dtype=dtype,
-                           maxshape=(None, *shape))
-
-
-    def _init_sparse_traj_field(self, run_idx, traj_idx, field_path, shape, dtype):
-
-        traj_grp = self._h5['{}/{}/{}/{}'.format(RUNS, run_idx, TRAJECTORIES, traj_idx)]
-
-        # check to see that neither the shape and dtype are
-        # None which indicates it is a runtime defined value and
-        # should be ignored here
-        if (shape is None) or (dtype is None):
-            # do nothing
-            pass
-        else:
-
-            # only create the group if you are going to add the
-            # datasets so the extend function can know if it has been
-            # properly initialized easier
-            sparse_grp = traj_grp.create_group(field_path)
-
-            # create the dataset for the feature data
-            sparse_grp.create_dataset(DATA, (0, *[0 for i in shape]), dtype=dtype,
-                               maxshape=(None, *shape))
-
-            # create the dataset for the sparse indices
-            sparse_grp.create_dataset(SPARSE_IDXS, (0,), dtype=np.int, maxshape=(None,))
-
-
-    def _init_traj_fields(self, run_idx, traj_idx,
-                          field_paths, field_feature_shapes, field_feature_dtypes):
-        for i, field_path in enumerate(field_paths):
-            self._init_traj_field(run_idx, traj_idx,
-                                  field_path, field_feature_shapes[i], field_feature_dtypes[i])
 
     def traj_n_frames(self, run_idx, traj_idx):
         return self.traj(run_idx, traj_idx)[POSITIONS].shape[0]
@@ -1347,120 +2061,6 @@ class WepyHDF5(object):
 
         return traj_grp
 
-    def _add_traj_field_data(self, run_idx, traj_idx, field_path, field_data, sparse_idxs=None):
-
-        # get the traj group
-        traj_grp = self._h5['{}/{}/{}/{}'.format(RUNS, run_idx, TRAJECTORIES, traj_idx)]
-
-        # if it is a sparse dataset we need to add the data and add
-        # the idxs in a group
-        if sparse_idxs is None:
-            traj_grp.create_dataset(field_path, data=field_data,
-                                    maxshape=(None, *field_data.shape[1:]))
-        else:
-            sparse_grp = traj_grp.create_group(field_path)
-            # add the data to this group
-            sparse_grp.create_dataset(DATA, data=field_data,
-                                      maxshape=(None, *field_data.shape[1:]))
-            # add the sparse idxs
-            sparse_grp.create_dataset(SPARSE_IDXS, data=sparse_idxs,
-                                      maxshape=(None,))
-
-    def _extend_dataset(self, dset_path, new_data):
-        dset = self.h5[dset_path]
-        extend_dataset(dset, new_data)
-
-    def _extend_contiguous_traj_field(self, run_idx, traj_idx, field_path, field_data):
-
-        traj_grp = self.h5['{}/{}/{}/{}'.format(RUNS, run_idx, TRAJECTORIES, traj_idx)]
-        field = traj_grp[field_path]
-
-        # make sure this is a feature vector
-        assert len(field_data.shape) > 1, \
-            "field_data must be a feature vector with the same number of dimensions as the number"
-
-        # of datase new frames
-        n_new_frames = field_data.shape[0]
-
-        # check the field to make sure it is not empty
-        if all([i == 0 for i in field.shape]):
-
-            # check the feature shape against the maxshape which gives
-            # the feature dimensions for an empty dataset
-            assert field_data.shape[1:] == field.maxshape[1:], \
-                "field feature dimensions must be the same, i.e. all but the first dimension"
-
-            # if it is empty resize it to make an array the size of
-            # the new field_data with the maxshape for the feature
-            # dimensions
-            feature_dims = field.maxshape[1:]
-            field.resize( (n_new_frames, *feature_dims) )
-
-            # set the new data to this
-            field[0:, ...] = field_data
-
-        else:
-            # make sure the new data has the right dimensions against
-            # the shape it already has
-            assert field_data.shape[1:] == field.shape[1:], \
-                "field feature dimensions must be the same, i.e. all but the first dimension"
-
-
-            # append to the dataset on the first dimension, keeping the
-            # others the same, these must be feature vectors and therefore
-            # must exist
-            field.resize( (field.shape[0] + n_new_frames, *field.shape[1:]) )
-            # add the new data
-            field[-n_new_frames:, ...] = field_data
-
-    def _extend_sparse_traj_field(self, run_idx, traj_idx, field_path, values, sparse_idxs):
-
-        field = self.h5['{}/{}/{}/{}/{}'.format(RUNS, run_idx, TRAJECTORIES, traj_idx, field_path)]
-
-        field_data = field[DATA]
-        field_sparse_idxs = field[SPARSE_IDXS]
-
-        # number of new frames
-        n_new_frames = values.shape[0]
-
-        # if this sparse_field has been initialized empty we need to resize
-        if all([i == 0 for i in field_data.shape]):
-
-
-            # check the feature shape against the maxshape which gives
-            # the feature dimensions for an empty dataset
-            assert values.shape[1:] == field_data.maxshape[1:], \
-                "input value features have shape {}, expected {}".format(
-                    values.shape[1:], field_data.maxshape[1:])
-
-            # if it is empty resize it to make an array the size of
-            # the new values with the maxshape for the feature
-            # dimensions
-            feature_dims = field_data.maxshape[1:]
-            field_data.resize( (n_new_frames, *feature_dims) )
-
-            # set the new data to this
-            field_data[0:, ...] = values
-
-        else:
-
-            # make sure the new data has the right dimensions
-            assert values.shape[1:] == field_data.shape[1:], \
-                "field feature dimensions must be the same, i.e. all but the first dimension"
-
-            # append to the dataset on the first dimension, keeping the
-            # others the same, these must be feature vectors and therefore
-            # must exist
-            field_data.resize( (field_data.shape[0] + n_new_frames, *field_data.shape[1:]) )
-            # add the new data
-            field_data[-n_new_frames:, ...] = values
-
-        # add the sparse idxs in the same way
-        field_sparse_idxs.resize( (field_sparse_idxs.shape[0] + n_new_frames,
-                                   *field_sparse_idxs.shape[1:]) )
-        # add the new data
-        field_sparse_idxs[-n_new_frames:, ...] = sparse_idxs
-
     def extend_traj(self, run_idx, traj_idx, data, weights=None):
 
         if self._wepy_mode == 'c-':
@@ -1553,88 +2153,6 @@ class WepyHDF5(object):
             else:
                 self._extend_contiguous_traj_field(run_idx, traj_idx, field_path, field_data)
 
-
-    def _add_sparse_field_flag(self, field_path):
-
-        sparse_fields_ds = self._h5['{}/{}'.format(SETTINGS, SPARSE_FIELDS)]
-
-        # make sure it isn't already in the sparse_fields
-        if field_path in sparse_fields_ds[:]:
-            warn("sparse field {} already a sparse field, ignoring".format(field_path))
-
-        sparse_fields_ds.resize( (sparse_fields_ds.shape[0] + 1,) )
-        sparse_fields_ds[sparse_fields_ds.shape[0] - 1] = field_path
-
-    def _add_field_feature_shape(self, field_path, field_feature_shape):
-        shapes_grp = self._h5['{}/{}'.format(SETTINGS, FIELD_FEATURE_SHAPES_STR)]
-        shapes_grp.create_dataset(field_path, data=np.array(field_feature_shape))
-
-    def _add_field_feature_dtype(self, field_path, field_feature_dtype):
-        feature_dtype_str = json.dumps(field_feature_dtype.descr)
-        dtypes_grp = self._h5['{}/{}'.format(SETTINGS, FIELD_FEATURE_DTYPES_STR)]
-        dtypes_grp.create_dataset(field_path, data=feature_dtype_str)
-
-
-    def _set_field_feature_shape(self, field_path, field_feature_shape):
-        # check if the field_feature_shape is already set
-        if field_path in self.field_feature_shapes:
-            # check that the shape was previously saved as "None" as we
-            # won't overwrite anything else
-            if self.field_feature_shapes[field_path] is None:
-                full_path = '{}/{}/{}'.format(SETTINGS, FIELD_FEATURE_SHAPES_STR, field_path)
-                # we have to delete the old data and set new data
-                del self.h5[full_path]
-                self.h5.create_dataset(full_path, data=field_feature_shape)
-            else:
-                raise AttributeError(
-                    "Cannot overwrite feature shape for {} with {} because it is {} not {}".format(
-                        field_path, field_feature_shape, self.field_feature_shapes[field_path],
-                        NONE_STR))
-        # it was not previously set so we must create then save it
-        else:
-            self._add_field_feature_shape(field_path, field_feature_shape)
-
-    def _set_field_feature_dtype(self, field_path, field_feature_dtype):
-        feature_dtype_str = json.dumps(field_feature_dtype.descr)
-        # check if the field_feature_dtype is already set
-        if field_path in self.field_feature_dtypes:
-            # check that the dtype was previously saved as "None" as we
-            # won't overwrite anything else
-            if self.field_feature_dtypes[field_path] is None:
-                full_path = '{}/{}/{}'.format(SETTINGS, FIELD_FEATURE_DTYPES_STR, field_path)
-                # we have to delete the old data and set new data
-                del self.h5[full_path]
-                self.h5.create_dataset(full_path, data=feature_dtype_str)
-            else:
-                raise AttributeError(
-                    "Cannot overwrite feature dtype for {} with {} because it is {} not ".format(
-                        field_path, field_feature_dtype, self.field_feature_dtypes[field_path],
-                        NONE_STR))
-        # it was not previously set so we must create then save it
-        else:
-            self._add_field_feature_dtype(field_path, field_feature_dtype)
-
-    def decision_grp(self, run_idx):
-        return self.run(run_idx)[DECISION]
-
-    def decision_enum(self, run_idx):
-
-        enum_grp = self.decision_grp(run_idx)
-        enum = {}
-        for decision_name, dset in enum_grp.items():
-            enum[decision_name] = dset[()]
-
-        return enum
-
-    def decision_value_names(self, run_idx):
-        enum_grp = self.decision_grp(run_idx)
-        rev_enum = {}
-        for decision_name, dset in enum_grp.items():
-            value = dset[()]
-            rev_enum[value] = decision_name
-
-        return rev_enum
-
     ## application level append methods for run records groups
 
     def extend_cycle_warping_records(self, run_idx, cycle_idx, warping_data):
@@ -1683,103 +2201,189 @@ class WepyHDF5(object):
                 self._extend_run_record_data_field(run_idx, run_record_key,
                                                    field_name, np.array([field_data]))
 
-    def _extend_run_record_data_field(self, run_idx, run_record_key,
-                                          field_name, field_data):
-        """Adds data for a single field dataset in a run records group. This
-        is done without paying attention to whether it is sporadic or
-        continual and is supposed to be only the data write method.
+    ### Analysis Routines
 
+    ## Record Getters
+
+    def run_records(self, run_idx, run_record_key):
+
+        # wrap this in a list since the underlying functions accept a
+        # list of records
+        run_idxs = [run_idx]
+
+        return self.run_contig_records(run_idxs, run_record_key)
+
+    def run_contig_records(self, run_idxs, run_record_key):
+
+        # if there are no fields return an empty list
+        record_fields = self.record_fields[run_record_key]
+        if len(record_fields) == 0:
+            return []
+
+        # get the iterator for the record idxs, if the group is
+        # sporadic then we just use the cycle idxs
+        if self._is_sporadic_records(run_record_key):
+            records = self._run_records_sporadic(run_idxs, run_record_key)
+        else:
+            records = self._run_records_continual(run_idxs, run_record_key)
+
+        return records
+
+    def run_records_dataframe(self, run_idx, run_record_key):
+        records = self.run_records(run_idx, run_record_key)
+        return pd.DataFrame(records)
+
+    def run_contig_records_dataframe(self, run_idxs, run_record_key):
+        records = self.run_contig_records(run_idxs, run_record_key)
+        return pd.DataFrame(records)
+
+    # application level specific methods for each main group
+
+    # resampling
+    def resampling_records(self, run_idxs):
+
+        return self.run_contig_records(run_idxs, RESAMPLING)
+
+    def resampling_records_dataframe(self, run_idxs):
+
+        return pd.DataFrame(self.resampling_records(run_idxs))
+
+    # resampler records
+    def resampler_records(self, run_idxs):
+
+        return self.run_contig_records(run_idxs, RESAMPLER)
+
+    def resampler_records_dataframe(self, run_idxs):
+
+        return pd.DataFrame(self.resampler_records(run_idxs))
+
+    # warping
+    def warping_records(self, run_idxs):
+
+        return self.run_contig_records(run_idxs, WARPING)
+
+    def warping_records_dataframe(self, run_idxs):
+
+        return pd.DataFrame(self.warping_records(run_idxs))
+
+    # boundary conditions
+    def bc_records(self, run_idxs):
+
+        return self.run_contig_records(run_idxs, BC)
+
+    def bc_records_dataframe(self, run_idxs):
+
+        return pd.DataFrame(self.bc_records(run_idxs))
+
+    # progress
+    def progress_records(self, run_idxs):
+
+        return self.run_contig_records(run_idxs, PROGRESS)
+
+    def progress_records_dataframe(self, run_idxs):
+
+        return pd.DataFrame(self.progress_records(run_idxs))
+
+
+    def run_resampling_panel(self, run_idx):
+        return self.run_contig_resampling_panel([run_idx])
+
+    def run_contig_resampling_panel(self, run_idxs):
+        # check the contig to make sure it is a valid contig
+        if not self.is_run_contig(run_idxs):
+            raise ValueError("The run_idxs provided are not a valid contig, {}.".format(
+                run_idxs))
+
+        # make the resampling panel from the resampling records for the contig
+        contig_resampling_panel = self.run_resampling_panel(self.resampling_records(run_idxs),
+                                                            is_sorted=False)
+
+        return contig_resampling_panel
+
+
+    # Trajectory Field Setters
+
+    def add_run_observable(self, run_idx, observable_name, data, sparse_idxs=None):
+        obs_path = '{}/{}'.format(OBSERVABLES, observable_name)
+
+        self._add_run_field(run_idx, obs_path, data, sparse_idxs=sparse_idxs)
+
+
+    def add_observable(self, observable_name, data, sparse_idxs=None):
+        obs_path = '{}/{}'.format(OBSERVABLES, observable_name)
+
+        self._add_field(obs_path, data, sparse_idxs=sparse_idxs)
+
+    def compute_observable(self, func, fields, *args,
+                           map_func=map,
+                           traj_sel=None,
+                           save_to_hdf5=None, idxs=False, return_results=True):
+        """Compute an observable on the trajectory data according to a
+        function. Optionally save that data in the observables data group for
+        the trajectory.
         """
 
-        records_grp = self.h5['{}/{}/{}'.format(RUNS, run_idx, run_record_key)]
-        field = records_grp[field_name]
+        if save_to_hdf5 is not None:
+            assert self.mode in ['w', 'w-', 'x', 'r+', 'c', 'c-'],\
+                "File must be in a write mode"
+            assert isinstance(save_to_hdf5, str),\
+                "`save_to_hdf5` should be the field name to save the data in the `observables`"\
+                " group in each trajectory"
+            field_name=save_to_hdf5
 
-        # make sure this is a feature vector
-        assert len(field_data.shape) > 1, \
-            "field_data must be a feature vector with the same number of dimensions as the number"
+        if return_results:
+            results = []
 
-        # of datase new frames
-        n_new_frames = field_data.shape[0]
+        for result in self.traj_fields_map(func, fields, *args,
+                                           map_func=map_func, traj_sel=traj_sel, idxs=True):
 
-        # check whether it is a variable length record, by getting the
-        # record dataset dtype and using the checker to see if it is
-        # the vlen special type in h5py
-        if h5py.check_dtype(vlen=field.dtype) is not None:
+            idx_tup, obs_features = result
+            run_idx, traj_idx = idx_tup
 
-            # if it is we have to treat it differently, since it
-            # cannot be multidimensional
+            # if we are saving this to the trajectories observables add it as a dataset
+            if save_to_hdf5:
 
-            # if the dataset has no data in it we need to reshape it
-            if all([i == 0 for i in field.shape]):
-                # initialize this array
-                # if it is empty resize it to make an array the size of
-                # the new field_data with the maxshape for the feature
-                # dimensions
-                field.resize( (n_new_frames,) )
+                logging.info("Saving run {} traj {} observables/{}".format(
+                    run_idx, traj_idx, field_name))
 
-                # set the new data to this
-                for i, row in enumerate(field_data):
-                    field[i] = row
+                # try to get the observables group or make it if it doesn't exist
+                try:
+                    obs_grp = self.traj(run_idx, traj_idx)[OBSERVABLES]
+                except KeyError:
 
-            # otherwise just add the data
-            else:
+                    logging.info("Group uninitialized. Initializing.")
 
-                # resize the array but it is only of rank because
-                # of variable length data
-                field.resize( (field.shape[0] + n_new_frames, ) )
+                    obs_grp = self.traj(run_idx, traj_idx).create_group(OBSERVABLES)
 
-                # add each row to the newly made space
-                for i, row in enumerate(field_data):
-                    field[(field.shape[0] - 1) + i] = row
+                # try to create the dataset
+                try:
+                    obs_grp.create_dataset(field_name, data=obs_features)
+                # if it fails we either overwrite or raise an error
+                except RuntimeError:
+                    # if we are in a permissive write mode we delete the
+                    # old dataset and add the new one, overwriting old data
+                    if self.mode in ['w', 'w-', 'x', 'r+']:
 
-        # if it is not variable length we don't have to treat it
-        # differently
-        else:
+                        logging.info("Dataset already present. Overwriting.")
 
-            # if this is empty we need to reshape the dataset to accomodate data
-            if all([i == 0 for i in field.shape]):
+                        del obs_grp[field_name]
+                        obs_grp.create_dataset(field_name, data=obs_features)
+                    # this will happen in 'c' and 'c-' modes
+                    else:
+                        raise RuntimeError(
+                            "Dataset already exists and file is in concatenate mode ('c' or 'c-')")
 
-                # check the feature shape against the maxshape which gives
-                # the feature dimensions for an empty dataset
-                assert field_data.shape[1:] == field.maxshape[1:], \
-                    "field feature dimensions must be the same, i.e. all but the first dimension"
+            # also return it if requested
+            if return_results:
+                if idxs:
+                    results.append(( idx_tup, obs_features))
+                else:
+                    results.append(obs_features)
 
-                # if it is empty resize it to make an array the size of
-                # the new field_data with the maxshape for the feature
-                # dimensions
-                feature_dims = field.maxshape[1:]
-                field.resize( (n_new_frames, *feature_dims) )
+        if return_results:
+            return results
 
-                # set the new data to this
-                field[0:, ...] = field_data
-
-            # otherwise just add the data
-            else:
-                # append to the dataset on the first dimension, keeping the
-                # others the same, these must be feature vectors and therefore
-                # must exist
-                field.resize( (field.shape[0] + n_new_frames, *field.shape[1:]) )
-                # add the new data
-                field[-n_new_frames:, ...] = field_data
-
-    def get_traj_field_cycle_idxs(self, run_idx, traj_idx, field_path):
-        """ Returns the sparse indices for a field"""
-
-        traj_path = '{}/{}/{}/{}'.format(RUNS, run_idx, TRAJECTORIES, traj_idx)
-
-        # if the field doesn't exist return None
-        if not field_path in self._h5[traj_path]:
-            raise KeyError("key for field {} not found".format(field_path))
-            # return None
-
-        # if the field is not sparse just return the cycle indices for
-        # that run
-        if field_path not in self.sparse_fields:
-            cycle_idxs = np.array(range(self.num_run_cycles(run_idx)))
-        else:
-            cycle_idxs = self._h5[traj_path][field_path][SPARSE_IDXS][:]
-
-        return cycle_idxs
+    ## Trajectory Getters
 
     def get_traj_field(self, run_idx, traj_idx, field_path, frames=None, masked=True):
         """Returns a numpy array for the given field.
@@ -1807,71 +2411,6 @@ class WepyHDF5(object):
             return self._get_contiguous_traj_field(run_idx, traj_idx, field_path,
                                                    frames=frames)
 
-    def _get_contiguous_traj_field(self, run_idx, traj_idx, field_path, frames=None):
-
-        full_path = '{}/{}/{}/{}/{}'.format(RUNS, run_idx, TRAJECTORIES, traj_idx, field_path)
-
-        if frames is None:
-            field = self._h5[full_path][:]
-        else:
-            field = self._h5[full_path][list(frames)]
-
-        return field
-
-    def _get_sparse_traj_field(self, run_idx, traj_idx, field_path, frames=None, masked=True):
-
-        traj_path = '{}/{}/{}/{}'.format(RUNS, run_idx, TRAJECTORIES, traj_idx)
-        traj_grp = self.h5[traj_path]
-        field = traj_grp[field_path]
-
-        n_frames = traj_grp[POSITIONS].shape[0]
-
-        if frames is None:
-            data = field[DATA][:]
-
-            # if it is to be masked make the masked array
-            if masked:
-                sparse_idxs = field[SPARSE_IDXS][:]
-
-                filled_data = np.full( (n_frames, *data.shape[1:]), np.nan)
-                filled_data[sparse_idxs] = data
-
-                mask = np.full( (n_frames, *data.shape[1:]), True)
-                mask[sparse_idxs] = False
-
-                data = np.ma.masked_array(filled_data, mask=mask)
-
-        else:
-
-            # get the sparse idxs and the frames to slice from the
-            # data
-            sparse_idxs = field[SPARSE_IDXS][:]
-
-            # we get a boolean array of the rows of the data table
-            # that we are to slice from
-            sparse_frame_idxs = np.argwhere(np.isin(sparse_idxs, frames))
-
-            data = field[DATA][list(sparse_frame_idxs)]
-
-            # if it is to be masked make the masked array
-            if masked:
-                # the empty arrays the size of the number of requested frames
-                filled_data = np.full( (len(frames), *field[DATA].shape[1:]), np.nan)
-                mask = np.full( (len(frames), *field[DATA].shape[1:]), True )
-
-                # take the data which exists and is part of the frames
-                # selection, and put it into the filled data where it is
-                # supposed to be
-                filled_data[np.isin(frames, sparse_idxs)] = data
-
-                # unmask the present values
-                mask[np.isin(frames, sparse_idxs)] = False
-
-                data = np.ma.masked_array(filled_data, mask=mask)
-
-        return data
-
-
     def get_trace_fields(self, frame_tups, fields):
         frame_fields = {field : [] for field in fields}
         for run_idx, traj_idx, cycle_idx in frame_tups:
@@ -1891,6 +2430,10 @@ class WepyHDF5(object):
         frame_fields = {field : [] for field in fields}
         for traj_idx, cycle_idx in frame_tups:
             for field in fields:
+
+
+
+
                 frame_field = self.get_traj_field(run_idx, traj_idx, field, frames=[cycle_idx])
                 # the first dimension doesn't matter here since we
                 # only get one frame at a time.
@@ -1969,116 +2512,6 @@ class WepyHDF5(object):
 
 
         return field_values
-
-    def _add_run_field(self, run_idx, field_path, data, sparse_idxs=None):
-        """ Add a field to your trajectories runs"""
-
-        # check that the data has the correct number of trajectories
-        assert len(data) == self.num_run_trajs(run_idx),\
-            "The number of trajectories in data, {}, is different than the number"\
-            "of trajectories in the run, {}.".format(len(data), self.num_run_trajs(run_idx))
-
-        # for each trajectory check that the data is compliant
-        for traj_idx, traj_data in enumerate(data):
-            # check that the number of frames is not larger than that for the run
-            if traj_data.shape[0] > self.num_run_cycles(run_idx):
-                raise ValueError("The number of frames in data for traj {} , {},"
-                                  "is larger than the number of frames"
-                                  "for this run, {}.".format(
-                                          traj_idx, data.shape[1], self.num_run_cycles(run_idx)))
-
-
-            # if the number of frames given is the same or less than
-            # the number of frames in the run
-            elif (traj_data.shape[0] <= self.num_run_cycles(run_idx)):
-
-                # if sparse idxs were given we check to see there is
-                # the right number of them
-                if sparse_idxs is not None:
-                    #  and that they match the number of frames given
-                    if data.shape[0] != len(sparse_idxs[traj_idx]):
-
-                        raise ValueError("The number of frames provided for traj {}, {},"
-                                          "was less than the total number of frames, {},"
-                                          "but an incorrect number of sparse idxs were supplied, {}."\
-                                         .format(traj_idx, traj_data.shape[0],
-                                            self.num_run_cycles(run_idx), len(sparse_idxs[traj_idx])))
-
-
-                # if there were strictly fewer frames given and the
-                # sparse idxs were not given we need to raise an error
-                elif (traj_data.shape[0] < self.num_run_cycles(run_idx)):
-                    raise ValueError("The number of frames provided for traj {}, {},"
-                                      "was less than the total number of frames, {},"
-                                      "but sparse_idxs were not supplied.".format(
-                                              traj_idx, traj_data.shape[0],
-                                              self.num_run_cycles(run_idx)))
-
-        # add it to each traj
-        for i, idx_tup in enumerate(self.run_traj_idx_tuples([run_idx])):
-            if sparse_idxs is None:
-                self._add_traj_field_data(*idx_tup, field_path, data[i])
-            else:
-                self._add_traj_field_data(*idx_tup, field_path, data[i],
-                                          sparse_idxs=sparse_idxs[i])
-
-    def _add_field(self, field_path, data, sparse_idxs=None):
-
-        for i, run_idx in enumerate(self.run_idxs):
-            if sparse_idxs is not None:
-                self._add_run_field(run_idx, field_path, data[i], sparse_idxs=sparse_idxs[i])
-            else:
-                self._add_run_field(run_idx, field_path, data[i])
-
-    def iter_runs(self, idxs=False, run_sel=None):
-        """Iterate through runs.
-
-        idxs : if True returns `(run_idx, run_group)`, False just `run_group`
-
-        run_sel : if True will iterate over a subset of runs. Possible
-        values are an iterable of indices of runs to iterate over.
-
-        """
-
-        if run_sel is None:
-            run_sel = self.run_idxs
-
-        for run_idx in self.run_idxs:
-            if run_idx in run_sel:
-                run = self.run(run_idx)
-                if idxs:
-                    yield run_idx, run
-                else:
-                    yield run
-
-    def iter_trajs(self, idxs=False, traj_sel=None):
-        """Generator for all of the trajectories in the dataset across all
-        runs. If idxs=True will return a tuple of (run_idx, traj_idx).
-
-        run_sel : if True will iterate over a subset of
-        trajectories. Possible values are an iterable of `(run_idx,
-        traj_idx)` tuples.
-
-        """
-
-
-        # set the selection of trajectories to iterate over
-        if traj_sel is None:
-            idx_tups = self.run_traj_idx_tuples()
-        else:
-            idx_tups = traj_sel
-
-        # get each traj for each idx_tup and yield them for the generator
-        for run_idx, traj_idx in idx_tups:
-            traj = self.traj(run_idx, traj_idx)
-            if idxs:
-                yield (run_idx, traj_idx), traj
-            else:
-                yield traj
-
-    def iter_run_trajs(self, run_idx, idxs=False):
-        run_sel = self.run_traj_idx_tuples([run_idx])
-        return self.iter_trajs(idxs=idxs, traj_sel=run_sel)
 
     def iter_trajs_fields(self, fields, idxs=False, traj_sel=None):
         """Generator for all of the specified non-compound fields
@@ -2264,33 +2697,6 @@ class WepyHDF5(object):
                 mapped_arg = (arg for i in range(n_cycles))
                 mapped_args.append(mapped_arg)
 
-        # not sure that the mapping function actually supports this or
-        # should support this, so you should write your functions
-        # without kwargs
-
-        # mapped_kwargs = []
-        # for cycle_idx in range(n_cycles):
-
-        #     cycle_kwargs = {}
-
-        #     for key, value in kwargs.items():
-
-        #         # if it is a sequence or generator we get the value
-        #         # for the cycle we are constructing for now
-        #         if isinstance(value, list) and not isinstance(value, str):
-        #             assert len(value) == len(n_cycles), "Sequence has fewer"
-        #             cycle_kwargs[key] = value[cycle_idx]
-
-        #         # if it is not a sequence or generator we make a generator out
-        #         # of it to map as inputs
-        #         else:
-        #             cycle_kwargs[key] = value
-
-        #     # once we have all the kwargs for this cycle we add that
-        #     # dict to the list of them
-        #     mapped_kwargs.append(cycle_kwargs)
-
-
         results = map_func(func, self.iter_trajs_fields(fields, traj_sel=traj_sel, idxs=False),
                            *mapped_args)
 
@@ -2300,398 +2706,6 @@ class WepyHDF5(object):
             return zip(traj_sel, results)
         else:
             return results
-
-    def add_run_observable(self, run_idx, observable_name, data, sparse_idxs=None):
-        obs_path = '{}/{}'.format(OBSERVABLES, observable_name)
-
-        self._add_run_field(run_idx, obs_path, data, sparse_idxs=sparse_idxs)
-
-
-    def add_observable(self, observable_name, data, sparse_idxs=None):
-        obs_path = '{}/{}'.format(OBSERVABLES, observable_name)
-
-        self._add_field(obs_path, data, sparse_idxs=sparse_idxs)
-
-    def compute_observable(self, func, fields, *args,
-                           map_func=map,
-                           traj_sel=None,
-                           save_to_hdf5=None, idxs=False, return_results=True):
-        """Compute an observable on the trajectory data according to a
-        function. Optionally save that data in the observables data group for
-        the trajectory.
-        """
-
-        if save_to_hdf5 is not None:
-            assert self.mode in ['w', 'w-', 'x', 'r+', 'c', 'c-'],\
-                "File must be in a write mode"
-            assert isinstance(save_to_hdf5, str),\
-                "`save_to_hdf5` should be the field name to save the data in the `observables`"\
-                " group in each trajectory"
-            field_name=save_to_hdf5
-
-        if return_results:
-            results = []
-
-        for result in self.traj_fields_map(func, fields, *args,
-                                           map_func=map_func, traj_sel=traj_sel, idxs=True):
-
-            idx_tup, obs_features = result
-            run_idx, traj_idx = idx_tup
-
-            # if we are saving this to the trajectories observables add it as a dataset
-            if save_to_hdf5:
-
-                logging.info("Saving run {} traj {} observables/{}".format(
-                    run_idx, traj_idx, field_name))
-
-                # try to get the observables group or make it if it doesn't exist
-                try:
-                    obs_grp = self.traj(run_idx, traj_idx)[OBSERVABLES]
-                except KeyError:
-
-                    logging.info("Group uninitialized. Initializing.")
-
-                    obs_grp = self.traj(run_idx, traj_idx).create_group(OBSERVABLES)
-
-                # try to create the dataset
-                try:
-                    obs_grp.create_dataset(field_name, data=obs_features)
-                # if it fails we either overwrite or raise an error
-                except RuntimeError:
-                    # if we are in a permissive write mode we delete the
-                    # old dataset and add the new one, overwriting old data
-                    if self.mode in ['w', 'w-', 'x', 'r+']:
-
-                        logging.info("Dataset already present. Overwriting.")
-
-                        del obs_grp[field_name]
-                        obs_grp.create_dataset(field_name, data=obs_features)
-                    # this will happen in 'c' and 'c-' modes
-                    else:
-                        raise RuntimeError(
-                            "Dataset already exists and file is in concatenate mode ('c' or 'c-')")
-
-            # also return it if requested
-            if return_results:
-                if idxs:
-                    results.append(( idx_tup, obs_features))
-                else:
-                    results.append(obs_features)
-
-        if return_results:
-            return results
-
-
-
-    def records_grp(self, run_idx, run_record_key):
-        path = '{}/{}/{}'.format(RUNS, run_idx, run_record_key)
-        return self.h5[path]
-
-    def resampling_grp(self, run_idx):
-        return self.records_grp(run_idx, RESAMPLING)
-
-    def resampler_grp(self, run_idx):
-        return self.records_grp(run_idx, RESAMPLER)
-
-    def warping_grp(self, run_idx):
-        return self.records_grp(run_idx, WARPING)
-
-    def bc_grp(self, run_idx):
-        return self.records_grp(run_idx, BC)
-
-    def progress_grp(self, run_idx):
-        return self.records_grp(run_idx, PROGRESS)
-
-    def run_records(self, run_idx, run_record_key):
-
-        # wrap this in a list since the underlying functions accept a
-        # list of records
-        run_idxs = [run_idx]
-
-        return self.run_contig_records(run_idxs, run_record_key)
-
-    def run_contig_records(self, run_idxs, run_record_key):
-
-        # if there are no fields return an empty list
-        record_fields = self.record_fields[run_record_key]
-        if len(record_fields) == 0:
-            return []
-
-        # get the iterator for the record idxs, if the group is
-        # sporadic then we just use the cycle idxs
-        if self._is_sporadic_records(run_record_key):
-            records = self._run_records_sporadic(run_idxs, run_record_key)
-        else:
-            records = self._run_records_continual(run_idxs, run_record_key)
-
-        return records
-
-
-    def _run_record_namedtuple(self, run_record_key):
-
-        Record = namedtuple('{}_Record'.format(run_record_key),
-                            [CYCLE_IDX] + self.record_fields[run_record_key])
-
-        return Record
-
-    def _convert_record_field_to_table_column(self, run_idx, run_record_key, record_field):
-
-        # get the field dataset
-        rec_grp = self.records_grp(run_idx, run_record_key)
-        dset = rec_grp[record_field]
-
-        # if it is variable length or if it has more than one element
-        # cast all elements to tuples
-        if h5py.check_dtype(vlen=dset.dtype) is not None:
-            rec_dset = [tuple(value) for value in dset[:]]
-
-        # if it is not variable length make sure it is not more than a
-        # 1D feature vector
-        elif len(dset.shape) > 2:
-            raise TypeError(
-                "cannot convert fields with feature vectors more than 1 dimension,"
-                " was given {} for {}/{}".format(
-                    dset.shape[1:], run_record_key, record_field))
-
-        # if it is only a rank 1 feature vector and it has more than
-        # one element make a tuple out of it
-        elif dset.shape[1] > 1:
-            rec_dset = [tuple(value) for value in dset[:]]
-
-        # otherwise just get the single value instead of keeping it as
-        # a single valued feature vector
-        else:
-            rec_dset = [value[0] for value in dset[:]]
-
-        return rec_dset
-
-    def _convert_record_fields_to_table_columns(self, run_idx, run_record_key):
-        fields = {}
-        for record_field in self.record_fields[run_record_key]:
-            fields[record_field] = self._convert_record_field_to_table_column(
-                                           run_idx, run_record_key, record_field)
-
-        return fields
-
-    def _make_records(self, run_record_key, cycle_idxs, fields):
-        Record = self._run_record_namedtuple(run_record_key)
-
-        # for each record we make a tuple and yield it
-        records = []
-        for record_idx in range(len(cycle_idxs)):
-
-            # make a record for this cycle
-            record_d = {CYCLE_IDX : cycle_idxs[record_idx]}
-            for record_field, column in fields.items():
-                datum = column[record_idx]
-                record_d[record_field] = datum
-
-            record = Record(*(record_d[key] for key in Record._fields))
-
-            records.append(record)
-
-        return records
-
-    def _run_records_sporadic(self, run_idxs, run_record_key):
-
-        # we loop over the run_idxs in the contig and get the fields
-        # and cycle idxs for the whole contig
-        fields = None
-        cycle_idxs = np.array([], dtype=int)
-        # keep a cumulative total of the runs cycle idxs
-        prev_run_cycle_total = 0
-        for run_idx in run_idxs:
-
-            # get all the value columns from the datasets, and convert
-            # them to something amenable to a table
-            run_fields = self._convert_record_fields_to_table_columns(run_idx, run_record_key)
-
-            # we need to concatenate each field to the end of the
-            # field in the master dictionary, first we need to
-            # initialize it if it isn't already made
-            if fields is None:
-                # if it isn't initialized we just set it as this first
-                # run fields dictionary
-                fields = run_fields
-            else:
-                # if it is already initialized we need to go through
-                # each field and concatenate
-                for field_name, field_data in run_fields.items():
-                    # just add it to the list of fields that will be concatenated later
-                    fields[field_name].extend(field_data)
-
-            # get the cycle idxs for this run
-            rec_grp = self.records_grp(run_idx, run_record_key)
-            run_cycle_idxs = rec_grp[CYCLE_IDXS][:]
-
-            # add the total number of cycles that came before this run
-            # to each of the cycle idxs to get the cycle_idxs in terms
-            # of the full contig
-            run_contig_cycle_idxs = run_cycle_idxs + prev_run_cycle_total
-
-            # add these cycle indices to the records for the whole contig
-            cycle_idxs = np.hstack( (cycle_idxs, run_contig_cycle_idxs) )
-
-            # add the total number of cycle_idxs from this run to the
-            # running total
-            prev_run_cycle_total += self.num_run_cycles(run_idx)
-
-        # then make the records from the fields
-        records = self._make_records(run_record_key, cycle_idxs, fields)
-
-        return records
-
-    def _run_records_continual(self, run_idxs, run_record_key):
-
-        cycle_idxs = np.array([], dtype=int)
-        fields = None
-        prev_run_cycle_total = 0
-        for run_idx in run_idxs:
-            # get all the value columns from the datasets, and convert
-            # them to something amenable to a table
-            run_fields = self._convert_record_fields_to_table_columns(run_idx, run_record_key)
-
-            # we need to concatenate each field to the end of the
-            # field in the master dictionary, first we need to
-            # initialize it if it isn't already made
-            if fields is None:
-                # if it isn't initialized we just set it as this first
-                # run fields dictionary
-                fields = run_fields
-            else:
-                # if it is already initialized we need to go through
-                # each field and concatenate
-                for field_name, field_data in run_fields.items():
-                    # just add it to the list of fields that will be concatenated later
-                    fields[field_name].extend(field_data)
-
-            # get one of the fields (if any to iterate over)
-            record_fields = self.record_fields[run_record_key]
-            main_record_field = record_fields[0]
-
-            # make the cycle idxs from that
-            run_rec_grp = self.records_grp(run_idx, run_record_key)
-            run_cycle_idxs = list(range(run_rec_grp[main_record_field].shape[0]))
-
-            # add the total number of cycles that came before this run
-            # to each of the cycle idxs to get the cycle_idxs in terms
-            # of the full contig
-            run_contig_cycle_indices = run_cycle_idxs + prev_run_cycle_total
-
-            # add these cycle indices to the records for the whole contig
-            cycle_idxs = np.hstack( (cycle_idxs, run_contig_cycle_idxs) )
-
-            # add the total number of cycle_idxs from this run to the
-            # running total
-            prev_run_cycle_total += self.num_run_cycles(run_idx)
-
-
-        # then make the records from the fields
-        records = self._make_records(run_record_key, cycle_idxs, fields)
-
-        return records
-
-    def run_records_dataframe(self, run_idx, run_record_key):
-        records = self.run_records(run_idx, run_record_key)
-        return pd.DataFrame(records)
-
-    def run_contig_records_dataframe(self, run_idxs, run_record_key):
-        records = self.run_contig_records(run_idxs, run_record_key)
-        return pd.DataFrame(records)
-
-    # application level specific methods for each main group
-
-    # resampling
-    def resampling_records(self, run_idxs):
-
-        return self.run_contig_records(run_idxs, RESAMPLING)
-
-    def resampling_records_dataframe(self, run_idxs):
-
-        return pd.DataFrame(self.resampling_records(run_idxs))
-
-    # resampler records
-    def resampler_records(self, run_idxs):
-
-        return self.run_contig_records(run_idxs, RESAMPLER)
-
-    def resampler_records_dataframe(self, run_idxs):
-
-        return pd.DataFrame(self.resampler_records(run_idxs))
-
-    # warping
-    def warping_records(self, run_idxs):
-
-        return self.run_contig_records(run_idxs, WARPING)
-
-    def warping_records_dataframe(self, run_idxs):
-
-        return pd.DataFrame(self.warping_records(run_idxs))
-
-    # boundary conditions
-    def bc_records(self, run_idxs):
-
-        return self.run_contig_records(run_idxs, BC)
-
-    def bc_records_dataframe(self, run_idxs):
-
-        return pd.DataFrame(self.bc_records(run_idxs))
-
-    # progress
-    def progress_records(self, run_idxs):
-
-        return self.run_contig_records(run_idxs, PROGRESS)
-
-    def progress_records_dataframe(self, run_idxs):
-
-        return pd.DataFrame(self.progress_records(run_idxs))
-
-    def is_run_contig(self, run_idxs):
-        """This method checks that if a given list of run indices is a valid
-        contig or not.
-        """
-        run_idx_continuations = [np.array([run_idxs[idx+1], run_idxs[idx]])
-                            for idx in range(len(run_idxs)-1)]
-        #gets the contigs array
-        continuations = self.settings_grp[CONTINUATIONS][:]
-
-        # checks if sub contigs are in contigs list or not.
-        for run_continuous in run_idx_continuations:
-            contig = False
-            for continuous in continuations:
-                if np.array_equal(run_continuous, continuous):
-                    contig = True
-            if not contig:
-                return False
-
-        return True
-
-    def run_resampling_panel(self, run_idx):
-        return self.run_contig_resampling_panel([run_idx])
-
-    def run_contig_resampling_panel(self, run_idxs):
-        # check the contig to make sure it is a valid contig
-        if not self.is_run_contig(run_idxs):
-            raise ValueError("The run_idxs provided are not a valid contig, {}.".format(
-                run_idxs))
-
-        # make the resampling panel from the resampling records for the contig
-        contig_resampling_panel = self.run_resampling_panel(self.resampling_records(run_idxs),
-                                                            is_sorted=False)
-
-        return contig_resampling_panel
-
-    def join(self, other_h5):
-        """Given another WepyHDF5 file object does a left join on this
-        file. Renumbering the runs starting from this file.
-        """
-
-        with other_h5 as h5:
-            for run_idx in h5.run_idxs:
-                # the other run group handle
-                other_run = h5.run(run_idx)
-                # copy this run to this file in the next run_idx group
-                self.h5.copy(other_run, '{}/{}'.format(RUNS, self.next_run_idx()))
 
     def to_mdtraj(self, run_idx, traj_idx, frames=None, alt_rep=None):
 
@@ -2792,13 +2806,3 @@ class WepyHDF5(object):
                        unitcell_lengths=unitcell_lengths, unitcell_angles=unitcell_angles)
 
         return traj
-
-def _iter_field_paths(grp):
-    field_paths = []
-    for field_name in grp:
-        if isinstance(grp[field_name], h5py.Group):
-            for subfield in grp[field_name]:
-                field_paths.append(field_name + '/' + subfield)
-        else:
-            field_paths.append(field_name)
-    return field_paths
