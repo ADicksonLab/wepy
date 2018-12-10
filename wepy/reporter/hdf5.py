@@ -9,6 +9,7 @@ from wepy.walker import Walker, WalkerState
 from wepy.util.util import json_top_atom_count
 
 class WepyHDF5Reporter(FileReporter):
+    """ """
 
     # this is the name of the dataset that the all atoms will be saved
     # under in the HDF5 alt_reps group
@@ -196,6 +197,21 @@ class WepyHDF5Reporter(FileReporter):
     def init(self, continue_run=None,
              init_walkers=None,
              **kwargs):
+        """
+
+        Parameters
+        ----------
+        continue_run :
+             (Default value = None)
+        init_walkers :
+             (Default value = None)
+        **kwargs :
+            
+
+        Returns
+        -------
+
+        """
 
         # do the inherited stuff
         super().init(**kwargs)
@@ -274,6 +290,17 @@ class WepyHDF5Reporter(FileReporter):
             self.set_mode(0, 'r+')
 
     def cleanup(self, **kwargs):
+        """
+
+        Parameters
+        ----------
+        **kwargs :
+            
+
+        Returns
+        -------
+
+        """
 
 
         # it should be already closed at this point but just in case
@@ -294,6 +321,31 @@ class WepyHDF5Reporter(FileReporter):
                resampling_data=None,
                resampler_data=None,
                **kwargs):
+        """
+
+        Parameters
+        ----------
+        new_walkers :
+             (Default value = None)
+        cycle_idx :
+             (Default value = None)
+        warp_data :
+             (Default value = None)
+        bc_data :
+             (Default value = None)
+        progress_data :
+             (Default value = None)
+        resampling_data :
+             (Default value = None)
+        resampler_data :
+             (Default value = None)
+        **kwargs :
+            
+
+        Returns
+        -------
+
+        """
 
         n_walkers = len(new_walkers)
 
@@ -399,16 +451,55 @@ class WepyHDF5Reporter(FileReporter):
 
     # sporadic
     def report_warping(self, cycle_idx, warping_data):
+        """
+
+        Parameters
+        ----------
+        cycle_idx :
+            
+        warping_data :
+            
+
+        Returns
+        -------
+
+        """
 
         if len(warping_data) > 0:
             self.wepy_h5.extend_cycle_warping_records(self.wepy_run_idx, cycle_idx, warping_data)
 
     def report_bc(self, cycle_idx, bc_data):
+        """
+
+        Parameters
+        ----------
+        cycle_idx :
+            
+        bc_data :
+            
+
+        Returns
+        -------
+
+        """
 
         if len(bc_data) > 0:
             self.wepy_h5.extend_cycle_bc_records(self.wepy_run_idx, cycle_idx, bc_data)
 
     def report_resampler(self, cycle_idx, resampler_data):
+        """
+
+        Parameters
+        ----------
+        cycle_idx :
+            
+        resampler_data :
+            
+
+        Returns
+        -------
+
+        """
 
         if len(resampler_data) > 0:
             self.wepy_h5.extend_cycle_resampler_records(self.wepy_run_idx, cycle_idx, resampler_data)
@@ -416,11 +507,37 @@ class WepyHDF5Reporter(FileReporter):
     # the resampling records are provided every cycle but they need to
     # be saved as sporadic because of the variable number of walkers
     def report_resampling(self, cycle_idx, resampling_data):
+        """
+
+        Parameters
+        ----------
+        cycle_idx :
+            
+        resampling_data :
+            
+
+        Returns
+        -------
+
+        """
 
         self.wepy_h5.extend_cycle_resampling_records(self.wepy_run_idx, cycle_idx, resampling_data)
 
     # continual
     def report_progress(self, cycle_idx, progress_data):
+        """
+
+        Parameters
+        ----------
+        cycle_idx :
+            
+        progress_data :
+            
+
+        Returns
+        -------
+
+        """
 
         self.wepy_h5.extend_cycle_progress_records(self.wepy_run_idx, cycle_idx, [progress_data])
 

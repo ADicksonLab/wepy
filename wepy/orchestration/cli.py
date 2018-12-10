@@ -17,9 +17,21 @@ ORCHESTRATOR_DEFAULT_FILENAME = \
 
 @click.group()
 def cli():
+    """ """
     pass
 
 def set_loglevel(loglevel):
+    """
+
+    Parameters
+    ----------
+    loglevel :
+        
+
+    Returns
+    -------
+
+    """
 
     # try to cast the loglevel as an integer. If that fails interpret
     # it as a string.
@@ -41,6 +53,23 @@ def settle_run_options(n_workers=None,
                        job_dir=None,
                        job_name=None,
                        narration=None):
+    """
+
+    Parameters
+    ----------
+    n_workers :
+         (Default value = None)
+    job_dir :
+         (Default value = None)
+    job_name :
+         (Default value = None)
+    narration :
+         (Default value = None)
+
+    Returns
+    -------
+
+    """
 
     # the default for the job name is the start hash if none is given
     if job_name == START_HASH:
@@ -74,6 +103,35 @@ def settle_run_options(n_workers=None,
 @click.command()
 def run(log, n_workers, checkpoint_freq, job_dir, job_name, narration,
         n_cycle_steps, run_time, start_hash, orchestrator):
+    """
+
+    Parameters
+    ----------
+    log :
+        
+    n_workers :
+        
+    checkpoint_freq :
+        
+    job_dir :
+        
+    job_name :
+        
+    narration :
+        
+    n_cycle_steps :
+        
+    run_time :
+        
+    start_hash :
+        
+    orchestrator :
+        
+
+    Returns
+    -------
+
+    """
 
     set_loglevel(log)
 
@@ -118,6 +176,37 @@ def run(log, n_workers, checkpoint_freq, job_dir, job_name, narration,
 @click.command()
 def recover(log, n_workers, checkpoint_freq, job_dir, job_name, narration,
             n_cycle_steps, run_time, checkpoint, start_hash, orchestrator):
+    """
+
+    Parameters
+    ----------
+    log :
+        
+    n_workers :
+        
+    checkpoint_freq :
+        
+    job_dir :
+        
+    job_name :
+        
+    narration :
+        
+    n_cycle_steps :
+        
+    run_time :
+        
+    checkpoint :
+        
+    start_hash :
+        
+    orchestrator :
+        
+
+    Returns
+    -------
+
+    """
 
     set_loglevel(log)
 
@@ -156,6 +245,19 @@ def recover(log, n_workers, checkpoint_freq, job_dir, job_name, narration,
 
 
 def combine_orch_wepy_hdf5s(new_orch, new_hdf5_path):
+    """
+
+    Parameters
+    ----------
+    new_orch :
+        
+    new_hdf5_path :
+        
+
+    Returns
+    -------
+
+    """
 
     # a key-value for the paths for each run
     hdf5_paths = {}
@@ -229,6 +331,21 @@ def combine_orch_wepy_hdf5s(new_orch, new_hdf5_path):
 @click.argument('orchestrators', nargs=-1, type=click.File(mode='rb'))
 def reconcile(hdf5,
               output, orchestrators):
+    """
+
+    Parameters
+    ----------
+    hdf5 :
+        
+    output :
+        
+    orchestrators :
+        
+
+    Returns
+    -------
+
+    """
 
     # reconcile them one by one as they are big and too expensive to
     # load all into memory at once
@@ -250,12 +367,34 @@ def reconcile(hdf5,
     output.write(new_orch.serialize())
 
 def hash_listing_formatter(hashes):
+    """
+
+    Parameters
+    ----------
+    hashes :
+        
+
+    Returns
+    -------
+
+    """
     hash_listing_str = '\n'.join(hashes)
     return hash_listing_str
 
 @click.argument('orchestrator', type=click.File(mode='rb'))
 @click.command()
 def ls_snapshots(orchestrator):
+    """
+
+    Parameters
+    ----------
+    orchestrator :
+        
+
+    Returns
+    -------
+
+    """
 
     orch = deserialize_orchestrator(orchestrator.read())
     message = hash_listing_formatter(orch.snapshot_hashes)
@@ -265,6 +404,17 @@ def ls_snapshots(orchestrator):
 @click.argument('orchestrator', type=click.File(mode='rb'))
 @click.command()
 def ls_runs(orchestrator):
+    """
+
+    Parameters
+    ----------
+    orchestrator :
+        
+
+    Returns
+    -------
+
+    """
 
     orch = deserialize_orchestrator(orchestrator.read())
 

@@ -4,6 +4,7 @@ import time
 import logging
 
 class Worker(Process):
+    """ """
 
     def __init__(self, worker_idx, task_queue, result_queue):
 
@@ -17,9 +18,21 @@ class Worker(Process):
         self.result_queue = result_queue
 
     def run_task(self, task):
+        """
+
+        Parameters
+        ----------
+        task :
+            
+
+        Returns
+        -------
+
+        """
         return task()
 
     def run(self):
+        """ """
 
         worker_process = mp.current_process()
         logging.info("Worker process started as name: {}; PID: {}".format(worker_process.name,
@@ -64,6 +77,7 @@ class Worker(Process):
 
 
 class Task(object):
+    """ """
 
     def __init__(self, func, *args):
         self.args = args

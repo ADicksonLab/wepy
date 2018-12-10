@@ -7,6 +7,7 @@ import numpy as np
 
 # ABC for the Decision class
 class Decision(object):
+    """ """
     ENUM = None
 
     FIELDS = ('decision_id')
@@ -22,6 +23,7 @@ class Decision(object):
 
     @classmethod
     def enum_dict_by_name(cls):
+        """ """
         if cls.ENUM is None:
             raise NotImplementedError
 
@@ -32,6 +34,7 @@ class Decision(object):
 
     @classmethod
     def enum_dict_by_value(cls):
+        """ """
         if cls.ENUM is None:
             raise NotImplementedError
 
@@ -42,30 +45,85 @@ class Decision(object):
 
     @classmethod
     def enum_by_value(cls, enum_value):
+        """
+
+        Parameters
+        ----------
+        enum_value :
+            
+
+        Returns
+        -------
+
+        """
         d = cls.enum_dict_by_value()
         return d[enum_value]
 
     @classmethod
     def enum_by_name(cls, enum_name):
+        """
+
+        Parameters
+        ----------
+        enum_name :
+            
+
+        Returns
+        -------
+
+        """
         d = cls.enum_dict_by_name()
         return d[enum_name]
 
 
     @classmethod
     def record(cls, enum_value):
+        """
+
+        Parameters
+        ----------
+        enum_value :
+            
+
+        Returns
+        -------
+
+        """
         # TODO check to make sure the enum value is valid
         return {'decision_id' : enum_value}
 
     @classmethod
     def action(cls, walkers, decisions):
         """Perform the instructions for a set of resampling records on
-        walkers."""
+        walkers.
+
+        Parameters
+        ----------
+        walkers :
+            
+        decisions :
+            
+
+        Returns
+        -------
+
+        """
         raise NotImplementedError
 
     @classmethod
     def parents(cls, step):
         """Given a row of resampling records (for a single resampling step)
-        returns the parents of the children of this step."""
+        returns the parents of the children of this step.
+
+        Parameters
+        ----------
+        step :
+            
+
+        Returns
+        -------
+
+        """
 
         # initialize a list for the parents of this stages walkers
         step_parents = [None for i in range(len(step))]
@@ -88,11 +146,13 @@ class Decision(object):
 
 
 class NothingDecisionEnum(Enum):
+    """ """
     NOTHING = 0
 
 # an example of a Decision class that has the enumeration, instruction
 # record namedtuple, and the instruction dtypes
 class NoDecision(Decision):
+    """ """
 
     ENUM = NothingDecisionEnum
 
@@ -112,6 +172,19 @@ class NoDecision(Decision):
 
     @classmethod
     def action(cls, walkers, decisions):
+        """
+
+        Parameters
+        ----------
+        walkers :
+            
+        decisions :
+            
+
+        Returns
+        -------
+
+        """
         # list for the modified walkers
         mod_walkers = [None for i in range(len(walkers))]
         # go through each decision and perform the decision

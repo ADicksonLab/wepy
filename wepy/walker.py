@@ -2,6 +2,19 @@ import random as rand
 import logging
 
 def split(walker, number=2):
+    """
+
+    Parameters
+    ----------
+    walker :
+        
+    number :
+         (Default value = 2)
+
+    Returns
+    -------
+
+    """
     # calculate the weight of all child walkers split uniformly
     split_prob = walker.weight / (number)
     # make the clones
@@ -12,6 +25,19 @@ def split(walker, number=2):
     return clones
 
 def keep_merge(walkers, keep_idx):
+    """
+
+    Parameters
+    ----------
+    walkers :
+        
+    keep_idx :
+        
+
+    Returns
+    -------
+
+    """
 
     weights = [walker.weight for walker in walkers]
     # but we add their weight to the new walker
@@ -23,7 +49,17 @@ def keep_merge(walkers, keep_idx):
 
 def merge(walkers):
     """Merge this walker with another keeping the state of one of them
-    and adding the weights. """
+    and adding the weights.
+
+    Parameters
+    ----------
+    walkers :
+        
+
+    Returns
+    -------
+
+    """
 
     weights = [walker.weight for walker in walkers]
     # choose a walker according to their weights to keep its state
@@ -42,6 +78,7 @@ def merge(walkers):
     return new_walker, keep_idx
 
 class Walker(object):
+    """ """
 
     def __init__(self, state, weight):
         self.state = state
@@ -50,11 +87,19 @@ class Walker(object):
     def clone(self, number=1):
         """Clone this walker by making a copy with the same state and split
         the probability uniformly between clones.
-
+        
         The number is the increase in the number of walkers.
-
+        
         e.g. number=1 will return 2 walkers with the same state as
         this object but with probability split 50/50 between them
+
+        Parameters
+        ----------
+        number :
+             (Default value = 1)
+
+        Returns
+        -------
 
         """
 
@@ -68,13 +113,36 @@ class Walker(object):
         return clones
 
     def squash(self, merge_target):
+        """
+
+        Parameters
+        ----------
+        merge_target :
+            
+
+        Returns
+        -------
+
+        """
         new_weight = self.weight + merge_target.weight
         return type(self)(merge_target.state, new_weight)
 
     def merge(self, other_walkers):
+        """
+
+        Parameters
+        ----------
+        other_walkers :
+            
+
+        Returns
+        -------
+
+        """
         return merge([self]+other_walkers)
 
 class WalkerState(object):
+    """ """
 
     def __init__(self, **kwargs):
         self._data = kwargs
@@ -83,4 +151,5 @@ class WalkerState(object):
         return self._data[key]
 
     def dict(self):
+        """ """
         return self._data

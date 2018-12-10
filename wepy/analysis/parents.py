@@ -12,6 +12,16 @@ def resampling_panel(resampling_records, is_sorted=False):
     thought of as a list of tables indexed by the cycle, hence the
     name panel.
 
+    Parameters
+    ----------
+    resampling_records :
+        
+    is_sorted :
+         (Default value = False)
+
+    Returns
+    -------
+
     """
 
     res_panel = []
@@ -129,6 +139,19 @@ def resampling_panel(resampling_records, is_sorted=False):
 
 
 def parent_panel(decision_class, resampling_panel):
+    """
+
+    Parameters
+    ----------
+    decision_class :
+        
+    resampling_panel :
+        
+
+    Returns
+    -------
+
+    """
 
     parent_panel_in = []
     for cycle in resampling_panel:
@@ -152,6 +175,17 @@ def parent_panel(decision_class, resampling_panel):
     return parent_panel_in
 
 def net_parent_table(parent_panel):
+    """
+
+    Parameters
+    ----------
+    parent_panel :
+        
+
+    Returns
+    -------
+
+    """
 
     net_parent_table_in = []
 
@@ -183,7 +217,21 @@ def net_parent_table(parent_panel):
 
 def parent_table_discontinuities(boundary_condition_class, parent_table, warping_records):
     """Given a parent table and warping records returns a new parent table
-    with the discontinuous warping events for parents set to -1"""
+    with the discontinuous warping events for parents set to -1
+
+    Parameters
+    ----------
+    boundary_condition_class :
+        
+    parent_table :
+        
+    warping_records :
+        
+
+    Returns
+    -------
+
+    """
 
     # Make a copy of the parent table
     new_parent_table = copy(parent_table)
@@ -218,23 +266,37 @@ def parent_table_discontinuities(boundary_condition_class, parent_table, warping
 def ancestors(parent_table, cycle_idx, walker_idx, ancestor_cycle=0):
     """Given a parent table, step_idx, and walker idx returns the
     ancestor at a given cycle of the walker.
-
+    
     Input:
-
+    
     parent: table (n_cycles x n_walkers numpy array): It describes
     how the walkers merged and cloned during the WExplore simulation .
-
+    
     cycle_idx:
-
+    
     walker_idx:
-
+    
     ancestor_cycle:
-
-
+    
+    
     Output:
-
+    
     ancestors: A list of 2x1 tuples indicating the
                    walker and cycle parents
+
+    Parameters
+    ----------
+    parent_table :
+        
+    cycle_idx :
+        
+    walker_idx :
+        
+    ancestor_cycle :
+         (Default value = 0)
+
+    Returns
+    -------
 
     """
 
@@ -262,6 +324,16 @@ def sliding_window(parent_table, window_length):
     """Returns traces (lists of frames across a run) on a sliding window
     on the branching structure of a run of a WepyHDF5 file. There is
     no particular order guaranteed.
+
+    Parameters
+    ----------
+    parent_table :
+        
+    window_length :
+        
+
+    Returns
+    -------
 
     """
 
@@ -292,6 +364,7 @@ def sliding_window(parent_table, window_length):
 
 
 class ParentForest():
+    """ """
 
     WEIGHT = 'weight'
     FREE_ENERGY = 'free_energy'
@@ -356,6 +429,19 @@ class ParentForest():
                         self.graph.add_edge(*edge, **edges_attrs[i])
 
     def _make_child_parent_edges(self, step_idx, parent_idxs):
+        """
+
+        Parameters
+        ----------
+        step_idx :
+            
+        parent_idxs :
+            
+
+        Returns
+        -------
+
+        """
 
         edges = []
         edges_attrs = []
@@ -387,22 +473,27 @@ class ParentForest():
 
     @property
     def contig(self):
+        """ """
         return self._contig
 
     @property
     def parent_table(self):
+        """ """
         return self._parent_table
 
     @property
     def graph(self):
+        """ """
         return self._graph
 
     @property
     def roots(self):
+        """ """
         return self._roots
 
     @property
     def trees(self):
+        """ """
         trees_by_size = [self.graph.subgraph(c) for c in nx.weakly_connected_components(self.graph)]
         trees = []
         for root in self.roots:
@@ -412,14 +503,26 @@ class ParentForest():
 
     @property
     def n_steps(self):
+        """ """
         return self._n_steps
 
     @property
     def n_walkers(self):
+        """ """
         return self._n_walkers
 
     def step(self, step_idx):
-        """ Get the nodes at the step (level of the tree)."""
+        """Get the nodes at the step (level of the tree).
+
+        Parameters
+        ----------
+        step_idx :
+            
+
+        Returns
+        -------
+
+        """
 
         step_nodes = []
         for node in self.graph.nodes:
@@ -430,6 +533,7 @@ class ParentForest():
         return step_nodes
 
     def steps(self):
+        """ """
         node_steps = []
         for step_idx in range(self.n_steps):
             node_steps.append(self.step(step_idx))
@@ -437,7 +541,17 @@ class ParentForest():
         return node_steps
 
     def walker(self, walker_idx):
-        """ Get the nodes for this walker."""
+        """Get the nodes for this walker.
+
+        Parameters
+        ----------
+        walker_idx :
+            
+
+        Returns
+        -------
+
+        """
 
         walker_nodes = []
         for node in self.graph.nodes:
@@ -448,6 +562,7 @@ class ParentForest():
         return walker_nodes
 
     def walkers(self):
+        """ """
         node_walkers = []
         for walker_idx in range(self.n_walkers):
             node_walkers.append(self.walker(walker_idx))
@@ -455,6 +570,19 @@ class ParentForest():
         return node_walkers
 
     def set_node_attributes(self, attribute_key, node_attribute_dict):
+        """
+
+        Parameters
+        ----------
+        attribute_key :
+            
+        node_attribute_dict :
+            
+
+        Returns
+        -------
+
+        """
 
         for node_id, value in node_attribute_dict.items():
             self.graph.nodes[node_id][attribute_key] = value
@@ -464,6 +592,16 @@ class ParentForest():
         """Set attributes on a stepwise basis, i.e. expects a array/list that
         is n_steps long and has the appropriate number of values for
         the number of walkers at each step
+
+        Parameters
+        ----------
+        key :
+            
+        values :
+            
+
+        Returns
+        -------
 
         """
         for step in self.steps():

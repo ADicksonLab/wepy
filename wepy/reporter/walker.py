@@ -7,6 +7,7 @@ from wepy.util.mdtraj import json_to_mdtraj_topology, mdtraj_to_json_topology
 import mdtraj as mdj
 
 class WalkerReporter(ProgressiveFileReporter):
+    """ """
 
 
     # the order the files are in
@@ -41,6 +42,17 @@ class WalkerReporter(ProgressiveFileReporter):
 
 
     def init(self, **kwargs):
+        """
+
+        Parameters
+        ----------
+        **kwargs :
+            
+
+        Returns
+        -------
+
+        """
 
         super().init(**kwargs)
 
@@ -59,6 +71,21 @@ class WalkerReporter(ProgressiveFileReporter):
 
     def report(self, cycle_idx=None, new_walkers=None,
                **kwargs):
+        """
+
+        Parameters
+        ----------
+        cycle_idx :
+             (Default value = None)
+        new_walkers :
+             (Default value = None)
+        **kwargs :
+            
+
+        Returns
+        -------
+
+        """
 
         # load the json topology as an mdtraj one
         mdtraj_top = json_to_mdtraj_topology(self.json_main_rep_top)

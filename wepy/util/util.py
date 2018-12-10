@@ -6,7 +6,17 @@ import numpy as np
 
 
 def traj_box_vectors_to_lengths_angles(traj_box_vectors):
-    """Convert box vectors for multiple 'frames' (a 'trajectory') to box lengths and angles."""
+    """Convert box vectors for multiple 'frames' (a 'trajectory') to box lengths and angles.
+
+    Parameters
+    ----------
+    traj_box_vectors :
+        
+
+    Returns
+    -------
+
+    """
 
     traj_unitcell_lengths = []
     for basis in traj_box_vectors:
@@ -29,7 +39,17 @@ def traj_box_vectors_to_lengths_angles(traj_box_vectors):
     return traj_unitcell_lengths, traj_unitcell_angles
 
 def box_vectors_to_lengths_angles(box_vectors):
-    """Convert box vectors for a single 'frame' to lengths and angles."""
+    """Convert box vectors for a single 'frame' to lengths and angles.
+
+    Parameters
+    ----------
+    box_vectors :
+        
+
+    Returns
+    -------
+
+    """
 
     # calculate the lengths of the vectors through taking the norm of
     # them
@@ -48,7 +68,17 @@ def box_vectors_to_lengths_angles(box_vectors):
 
 
 def json_top_atom_count(json_str):
-    """Count the number of atoms in a JSON topology used by wepy HDF5."""
+    """Count the number of atoms in a JSON topology used by wepy HDF5.
+
+    Parameters
+    ----------
+    json_str :
+        
+
+    Returns
+    -------
+
+    """
 
     top_d = json.loads(json_str)
     atom_count = 0
@@ -64,6 +94,16 @@ def json_top_subset(json_str, atom_idxs):
     another JSON topology which is a subset of the first, preserving
     the topology between remaining atoms. The atoms will be ordered in
     the order in which the indices are given.
+
+    Parameters
+    ----------
+    json_str :
+        
+    atom_idxs :
+        
+
+    Returns
+    -------
 
     """
 
@@ -249,13 +289,12 @@ def lengths_and_angles_to_box_vectors(a_length, b_length, c_length, alpha, beta,
 
     Examples
     --------
-    >>> import numpy as np
-    >>> result = lengths_and_angles_to_box_vectors(1, 1, 1, 90.0, 90.0, 90.0)
-
     Notes
     -----
     This code is adapted from gyroid, which is licensed under the BSD
     http://pythonhosted.org/gyroid/_modules/gyroid/unitcell.html
+    >>> import numpy as np
+    >>> result = lengths_and_angles_to_box_vectors(1, 1, 1, 90.0, 90.0, 90.0)
     """
     if np.all(alpha < 2*np.pi) and np.all(beta < 2*np.pi) and np.all(gamma < 2*np.pi):
         warnings.warn('All your angles were less than 2*pi. Did you accidentally give me radians?')

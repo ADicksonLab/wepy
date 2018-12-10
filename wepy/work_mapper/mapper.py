@@ -9,25 +9,73 @@ from wepy.work_mapper.worker import Worker, Task
 PY_MAP = map
 
 class ABCMapper(object):
+    """ """
 
     def __init__(self, **kwargs):
         pass
 
     def init(self, **kwargs):
+        """
+
+        Parameters
+        ----------
+        **kwargs :
+            
+
+        Returns
+        -------
+
+        """
         pass
 
     def cleanup(self, **kwargs):
+        """
+
+        Parameters
+        ----------
+        **kwargs :
+            
+
+        Returns
+        -------
+
+        """
         pass
 
     def map(self, **kwargs):
+        """
+
+        Parameters
+        ----------
+        **kwargs :
+            
+
+        Returns
+        -------
+
+        """
         pass
 
 class Mapper(object):
+    """ """
 
     def __init__(self, *args, **kwargs):
         self._worker_segment_times = {0 : []}
 
     def init(self, segment_func=None, **kwargs):
+        """
+
+        Parameters
+        ----------
+        segment_func :
+             (Default value = None)
+        **kwargs :
+            
+
+        Returns
+        -------
+
+        """
 
         if segment_func is None:
             ValueError("segment_func must be given")
@@ -36,10 +84,34 @@ class Mapper(object):
 
 
     def cleanup(self, **kwargs):
+        """
+
+        Parameters
+        ----------
+        **kwargs :
+            
+
+        Returns
+        -------
+
+        """
         # nothing to do
         pass
 
     def map(self, *args, **kwargs):
+        """
+
+        Parameters
+        ----------
+        *args :
+            
+        **kwargs :
+            
+
+        Returns
+        -------
+
+        """
 
         args = [list(arg) for arg in args]
 
@@ -60,9 +132,11 @@ class Mapper(object):
 
     @property
     def worker_segment_times(self):
+        """ """
         return self._worker_segment_times
 
 class WorkerMapper(Mapper):
+    """ """
 
     def __init__(self, num_workers=None, worker_type=None,
                  **kwargs):
@@ -78,21 +152,58 @@ class WorkerMapper(Mapper):
 
     @property
     def num_workers(self):
+        """ """
         return self._num_workers
 
     @num_workers.setter
     def num_workers(self, num_workers):
+        """
+
+        Parameters
+        ----------
+        num_workers :
+            
+
+        Returns
+        -------
+
+        """
         self._num_workers = num_workers
 
     @property
     def worker_type(self):
+        """ """
         return self._worker_type
 
     @worker_type.setter
     def worker_type(self, worker_type):
+        """
+
+        Parameters
+        ----------
+        worker_type :
+            
+
+        Returns
+        -------
+
+        """
         self._worker_type = worker_type
 
     def init(self, num_workers=None, **kwargs):
+        """
+
+        Parameters
+        ----------
+        num_workers :
+             (Default value = None)
+        **kwargs :
+            
+
+        Returns
+        -------
+
+        """
 
         super().init(**kwargs)
 
@@ -122,6 +233,7 @@ class WorkerMapper(Mapper):
                                                                               worker.pid))
 
     def cleanup(self):
+        """ """
 
         # send poison pills (Stop signals) to the queues to stop them in a nice way
         # and let them finish up
@@ -134,9 +246,33 @@ class WorkerMapper(Mapper):
         self._workers = None
 
     def make_task(self, *args, **kwargs):
+        """
+
+        Parameters
+        ----------
+        *args :
+            
+        **kwargs :
+            
+
+        Returns
+        -------
+
+        """
         return Task(self._func, *args, **kwargs)
 
     def map(self, *args):
+        """
+
+        Parameters
+        ----------
+        *args :
+            
+
+        Returns
+        -------
+
+        """
 
         map_process = mp.current_process()
         logging.info("Mapping from process {}; PID {}".format(map_process.name, map_process.pid))

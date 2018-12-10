@@ -68,6 +68,7 @@ RAND_SEED_RANGE_MAX = 1000000
 
 # the runner for the simulation which runs the actual dynamics
 class OpenMMRunner(Runner):
+    """ """
 
     def __init__(self, system, topology, integrator, platform=None):
 
@@ -83,11 +84,36 @@ class OpenMMRunner(Runner):
 
     def _openmm_swig_objects(self):
         """Just returns all of the foreign OpenMM module objects this class
-        uses that are actually SWIG wrappers."""
+        uses that are actually SWIG wrappers.
+
+        Parameters
+        ----------
+
+        Returns
+        -------
+
+        """
 
         return (self.system, self.integrator)
 
     def run_segment(self, walker, segment_length, getState_kwargs=None, **kwargs):
+        """
+
+        Parameters
+        ----------
+        walker :
+            
+        segment_length :
+            
+        getState_kwargs :
+             (Default value = None)
+        **kwargs :
+            
+
+        Returns
+        -------
+
+        """
 
         # set the kwargs that will be passed to getState
         tmp_getState_kwargs = getState_kwargs
@@ -140,6 +166,7 @@ class OpenMMRunner(Runner):
 
 
 class OpenMMState(WalkerState):
+    """ """
 
     KEYS = KEYS
 
@@ -173,6 +200,7 @@ class OpenMMState(WalkerState):
 
     @property
     def sim_state(self):
+        """ """
         return self._sim_state
 
     def __getitem__(self, key):
@@ -222,6 +250,7 @@ class OpenMMState(WalkerState):
     # Positions
     @property
     def positions(self):
+        """ """
         try:
             return self.sim_state.getPositions(asNumpy=True)
         except:
@@ -231,14 +260,17 @@ class OpenMMState(WalkerState):
 
     @property
     def positions_unit(self):
+        """ """
         return self.positions.unit
 
     def positions_values(self):
+        """ """
         return self.positions.value_in_unit(self.positions_unit)
 
     # Velocities
     @property
     def velocities(self):
+        """ """
         try:
             return self.sim_state.getVelocities(asNumpy=True)
         except:
@@ -248,9 +280,11 @@ class OpenMMState(WalkerState):
 
     @property
     def velocities_unit(self):
+        """ """
         return self.velocities.unit
 
     def velocities_values(self):
+        """ """
         velocities = self.velocities
         if velocities is None:
             return None
@@ -260,6 +294,7 @@ class OpenMMState(WalkerState):
     # Forces
     @property
     def forces(self):
+        """ """
         try:
             return self.sim_state.getForces(asNumpy=True)
         except:
@@ -269,9 +304,11 @@ class OpenMMState(WalkerState):
 
     @property
     def forces_unit(self):
+        """ """
         return self.forces.unit
 
     def forces_values(self):
+        """ """
         forces = self.forces
         if forces is None:
             return None
@@ -281,6 +318,7 @@ class OpenMMState(WalkerState):
     # Box Vectors
     @property
     def box_vectors(self):
+        """ """
         try:
             return self.sim_state.getPeriodicBoxVectors(asNumpy=True)
         except:
@@ -290,9 +328,11 @@ class OpenMMState(WalkerState):
 
     @property
     def box_vectors_unit(self):
+        """ """
         return self.box_vectors.unit
 
     def box_vectors_values(self):
+        """ """
         box_vectors = self.box_vectors
         if box_vectors is None:
             return None
@@ -305,6 +345,7 @@ class OpenMMState(WalkerState):
     # Kinetic Energy
     @property
     def kinetic_energy(self):
+        """ """
         try:
             return self.sim_state.getKineticEnergy()
         except:
@@ -314,9 +355,11 @@ class OpenMMState(WalkerState):
 
     @property
     def kinetic_energy_unit(self):
+        """ """
         return self.kinetic_energy.unit
 
     def kinetic_energy_value(self):
+        """ """
         kinetic_energy = self.kinetic_energy
         if kinetic_energy is None:
             return None
@@ -326,6 +369,7 @@ class OpenMMState(WalkerState):
     # Potential Energy
     @property
     def potential_energy(self):
+        """ """
         try:
             return self.sim_state.getPotentialEnergy()
         except:
@@ -335,9 +379,11 @@ class OpenMMState(WalkerState):
 
     @property
     def potential_energy_unit(self):
+        """ """
         return self.potential_energy.unit
 
     def potential_energy_value(self):
+        """ """
         potential_energy = self.potential_energy
         if potential_energy is None:
             return None
@@ -347,6 +393,7 @@ class OpenMMState(WalkerState):
     # Time
     @property
     def time(self):
+        """ """
         try:
             return self.sim_state.getTime()
         except:
@@ -356,9 +403,11 @@ class OpenMMState(WalkerState):
 
     @property
     def time_unit(self):
+        """ """
         return self.time.unit
 
     def time_value(self):
+        """ """
         time = self.time
         if time is None:
             return None
@@ -368,6 +417,7 @@ class OpenMMState(WalkerState):
     # Box Volume
     @property
     def box_volume(self):
+        """ """
         try:
             return self.sim_state.getPeriodicBoxVolume()
         except:
@@ -377,9 +427,11 @@ class OpenMMState(WalkerState):
 
     @property
     def box_volume_unit(self):
+        """ """
         return self.box_volume.unit
 
     def box_volume_value(self):
+        """ """
         box_volume = self.box_volume
         if box_volume is None:
             return None
@@ -392,6 +444,7 @@ class OpenMMState(WalkerState):
     # Parameters
     @property
     def parameters(self):
+        """ """
         try:
             return self.sim_state.getParameters()
         except:
@@ -401,10 +454,12 @@ class OpenMMState(WalkerState):
 
     @property
     def parameters_unit(self):
+        """ """
         param_units = {key : None for key, val in self.parameters.items()}
         return param_units
 
     def parameters_values(self):
+        """ """
         if self.parameters is None:
             return None
 
@@ -420,6 +475,7 @@ class OpenMMState(WalkerState):
     # Parameter Derivatives
     @property
     def parameter_derivatives(self):
+        """ """
         try:
             return self.sim_state.getEnergyParameterDerivatives()
         except:
@@ -429,10 +485,12 @@ class OpenMMState(WalkerState):
 
     @property
     def parameter_derivatives_unit(self):
+        """ """
         param_units = {key : None for key, val in self.parameter_derivatives.items()}
         return param_units
 
     def parameter_derivatives_values(self):
+        """ """
 
         if self.parameter_derivatives is None:
             return None
@@ -449,6 +507,19 @@ class OpenMMState(WalkerState):
     # for the dict attributes we need to transform the keys for making
     # a proper state where all __getitem__ things are arrays
     def _dict_attr_to_compound_key_dict(self, root_key, attr_dict):
+        """
+
+        Parameters
+        ----------
+        root_key :
+            
+        attr_dict :
+            
+
+        Returns
+        -------
+
+        """
 
         key_template = "{}/{}"
         cmpd_key_d = {}
@@ -466,6 +537,19 @@ class OpenMMState(WalkerState):
         return cmpd_key_d
 
     def _get_nested_attr_from_compound_key(self, compound_key, compound_feat_dict):
+        """
+
+        Parameters
+        ----------
+        compound_key :
+            
+        compound_feat_dict :
+            
+
+        Returns
+        -------
+
+        """
 
         key_components = compound_key.split('/')
 
@@ -492,6 +576,7 @@ class OpenMMState(WalkerState):
             return value
 
     def parameters_features(self):
+        """ """
         parameters = self.parameters_values()
         if parameters is None:
             return None
@@ -499,6 +584,7 @@ class OpenMMState(WalkerState):
             return self._dict_attr_to_compound_key_dict('parameters', parameters)
 
     def parameter_derivatives_features(self):
+        """ """
         parameter_derivatives = self.parameter_derivatives_values()
         if parameter_derivatives is None:
             return None
@@ -507,7 +593,7 @@ class OpenMMState(WalkerState):
                                                         parameter_derivatives)
 
     def omm_state_dict(self):
-        """return a dict of the values for the keys that are hardcoded in this class."""
+        """ """
 
         feature_d = {'positions' : self.positions_values(),
                 'velocities' : self.velocities_values(),
@@ -529,7 +615,7 @@ class OpenMMState(WalkerState):
         return feature_d
 
     def dict(self):
-        """Return a dict of the values for all attributes of this state."""
+        """ """
 
         d = {}
         for key, value in self._data.items():
@@ -539,7 +625,17 @@ class OpenMMState(WalkerState):
         return d
 
     def to_mdtraj(self, topology):
-        """ Returns an mdtraj.Trajectory object from this walker's state."""
+        """Returns an mdtraj.Trajectory object from this walker's state.
+
+        Parameters
+        ----------
+        topology :
+            
+
+        Returns
+        -------
+
+        """
 
         import mdtraj as mdj
         # resize the time to a 1D vector
@@ -550,6 +646,7 @@ class OpenMMState(WalkerState):
                               topology=topology)
 
 class OpenMMWalker(Walker):
+    """ """
 
     def __init__(self, state, weight):
 
@@ -559,8 +656,20 @@ class OpenMMWalker(Walker):
         super().__init__(state, weight)
 
 class OpenMMGPUWorker(Worker):
+    """ """
 
     def run_task(self, task):
+        """
+
+        Parameters
+        ----------
+        task :
+            
+
+        Returns
+        -------
+
+        """
         # run the task and pass in the DeviceIndex for OpenMM to
         # assign work to the correct GPU
         return task(DeviceIndex=str(self.worker_idx))

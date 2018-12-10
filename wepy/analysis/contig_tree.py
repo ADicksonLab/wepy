@@ -23,6 +23,7 @@ PROGRESS = 'progress'
 BC = 'boundary_conditions'
 
 class ContigTree():
+    """ """
 
     RESAMPLING_PANEL_KEY = 'resampling_steps'
     PARENTS_KEY = 'parent_idxs'
@@ -85,17 +86,21 @@ class ContigTree():
 
     @property
     def graph(self):
+        """ """
         return self._graph
 
     @property
     def decision_class(self):
+        """ """
         return self._decision_class
 
     @property
     def boundary_condition_class(self):
+        """ """
         return self._boundary_condition_class
 
     def _create_tree(self):
+        """ """
 
         # first go through each run without continuations
         for run_idx in self._run_idxs:
@@ -133,6 +138,7 @@ class ContigTree():
             self.graph.add_edge(*edge)
 
     def _set_resampling_panels(self):
+        """ """
 
         # then get the resampling tables for each cycle and put them
         # as attributes to the appropriate nodes
@@ -147,6 +153,17 @@ class ContigTree():
                 self.graph.nodes[node][self.RESAMPLING_PANEL_KEY] = step
 
     def _set_discontinuities(self, boundary_conditions_class):
+        """
+
+        Parameters
+        ----------
+        boundary_conditions_class :
+            
+
+        Returns
+        -------
+
+        """
 
         # initialize the attributes for discontinuities to 0s for no
         # discontinuities
@@ -192,7 +209,17 @@ class ContigTree():
 
     def _set_parents(self, decision_class):
         """Determines the net parents for each cycle and sets them in-place to
-        the cycle tree given."""
+        the cycle tree given.
+
+        Parameters
+        ----------
+        decision_class :
+            
+
+        Returns
+        -------
+
+        """
 
         # just go through each node individually in the tree
         for node in self.graph.nodes:
@@ -211,20 +238,33 @@ class ContigTree():
 
     @property
     def run_idxs(self):
+        """ """
         return self._run_idxs
 
     @property
     def continuations(self):
+        """ """
         return self._continuations
 
     @property
     def wepy_h5(self):
+        """ """
         return self._wepy_h5
 
     def contig_trace_to_run_trace(self, contig_trace, contig_walker_trace):
         """Given a trace of a contig with elements (run_idx, cycle_idx) and
         walker based trace of elements (traj_idx, cycle_idx) over that
         contig get the trace of elements (run_idx, traj_idx, cycle_idx)
+
+        Parameters
+        ----------
+        contig_trace :
+            
+        contig_walker_trace :
+            
+
+        Returns
+        -------
 
         """
 
@@ -244,6 +284,16 @@ class ContigTree():
         """Convert a trace of elements (traj_idx, cycle_idx) over the contig
         trace given over this contig tree and return a trace over the
         runs with elements (run_idx, traj_idx, cycle_idx).
+
+        Parameters
+        ----------
+        contig :
+            
+        contig_trace :
+            
+
+        Returns
+        -------
 
         """
 
@@ -274,7 +324,19 @@ class ContigTree():
 
     def contig_cycle_idx(self, run_idx, cycle_idx):
 
-        """Get the contig cycle idx for a (run_idx, cycle_idx) pair."""
+        """Get the contig cycle idx for a (run_idx, cycle_idx) pair.
+
+        Parameters
+        ----------
+        run_idx :
+            
+        cycle_idx :
+            
+
+        Returns
+        -------
+
+        """
 
         # make the contig trace
         contig_trace = self.get_branch_trace(run_idx, cycle_idx)
@@ -288,6 +350,18 @@ class ContigTree():
         and a starting contig index generate a contig trace of
         (run_idx, cycle_idx) indices for that contig. Which is a
         branch of the tree hence the name.
+
+        Parameters
+        ----------
+        run_idx :
+            
+        cycle_idx :
+            
+        start_contig_idx :
+             (Default value = 0)
+
+        Returns
+        -------
 
         """
 
@@ -328,6 +402,14 @@ class ContigTree():
     def trace_parent_table(self, contig_trace):
         """Given a contig trace returns a parent table for that contig.
 
+        Parameters
+        ----------
+        contig_trace :
+            
+
+        Returns
+        -------
+
         """
 
         parent_table = []
@@ -340,6 +422,19 @@ class ContigTree():
 
     @classmethod
     def _tree_leaves(cls, root, tree):
+        """
+
+        Parameters
+        ----------
+        root :
+            
+        tree :
+            
+
+        Returns
+        -------
+
+        """
 
         # traverse the tree away from the root node until a branch point
         # is found then iterate over the subtrees from there and
@@ -383,6 +478,17 @@ class ContigTree():
         return leaves
 
     def _subtree_leaves(self, root):
+        """
+
+        Parameters
+        ----------
+        root :
+            
+
+        Returns
+        -------
+
+        """
 
         # get the subtree given the root
         subtree = self.get_subtree(root)
@@ -407,7 +513,17 @@ class ContigTree():
         return leaves
 
     def _subtree_root(self, node):
-        """ Given a node find the root of the tree it is on"""
+        """Given a node find the root of the tree it is on
+
+        Parameters
+        ----------
+        node :
+            
+
+        Returns
+        -------
+
+        """
 
         curr_node = node
 
@@ -438,6 +554,7 @@ class ContigTree():
         return curr_node
 
     def roots(self):
+        """ """
 
         subtree_roots = []
         for subtree in self.subtrees():
@@ -449,6 +566,7 @@ class ContigTree():
         return subtree_roots
 
     def subtrees(self):
+        """ """
 
         subtree_nxs = []
         for component_nodes in nx.weakly_connected_components(self.graph):
@@ -461,6 +579,17 @@ class ContigTree():
         return subtree_nxs
 
     def get_subtree(self, node):
+        """
+
+        Parameters
+        ----------
+        node :
+            
+
+        Returns
+        -------
+
+        """
 
         # get all the subtrees
         subtrees = self.subtrees()
@@ -475,7 +604,19 @@ class ContigTree():
 
     def contig_sliding_windows(self, contig_trace, window_length):
         """Given a contig trace (run_idx, cycle_idx) get the sliding windows
-        over it (traj_idx, cycle_idx)."""
+        over it (traj_idx, cycle_idx).
+
+        Parameters
+        ----------
+        contig_trace :
+            
+        window_length :
+            
+
+        Returns
+        -------
+
+        """
 
         # make a parent table for the contig trace
         parent_table = self.trace_parent_table(contig_trace)
@@ -486,6 +627,17 @@ class ContigTree():
         return windows
 
     def sliding_contig_windows(self, window_length):
+        """
+
+        Parameters
+        ----------
+        window_length :
+            
+
+        Returns
+        -------
+
+        """
 
         assert window_length > 1, "window length must be greater than one"
 
@@ -502,6 +654,19 @@ class ContigTree():
         return contig_windows
 
     def _subtree_sliding_contig_windows(self, subtree_root, window_length):
+        """
+
+        Parameters
+        ----------
+        subtree_root :
+            
+        window_length :
+            
+
+        Returns
+        -------
+
+        """
 
         # to generate all the sliding windows over a connected cycle tree
         # it is useful to think of it as a braid, since within this tree
@@ -586,7 +751,17 @@ class ContigTree():
 
     def sliding_windows(self, window_length):
         """All the sliding windows (run_idx, traj_idx, cycle_idx) for all
-        contig windows in the contig tree"""
+        contig windows in the contig tree
+
+        Parameters
+        ----------
+        window_length :
+            
+
+        Returns
+        -------
+
+        """
 
         # get all of the contig traces for these trees
         contig_traces = self.sliding_contig_windows(window_length)
@@ -609,6 +784,19 @@ class ContigTree():
 
     @classmethod
     def _spanning_paths(cls, edges, root):
+        """
+
+        Parameters
+        ----------
+        edges :
+            
+        root :
+            
+
+        Returns
+        -------
+
+        """
 
         # nodes targetting this root
         root_sources = []
@@ -655,15 +843,21 @@ class ContigTree():
         in the order that makes a continuous set of data. Spanning
         contigs are always as long as possible, thus all must start
         from a root and end at a leaf node.
-
+        
         This algorithm always returns them in a canonical order (as
         long as the runs are not rearranged after being added). This
         means that the indices here are the indices of the contigs.
-
+        
         Contigs can in general are any such path drawn from what we
         call the "contig tree" which is the tree (or forest of trees)
         generated by the directed edges of the 'continuations'. They
         needn't be spanning from root to leaf.
+
+        Parameters
+        ----------
+
+        Returns
+        -------
 
         """
 
@@ -681,6 +875,17 @@ class ContigTree():
 
     @classmethod
     def _contig_trace_to_contig_runs(cls, contig_trace):
+        """
+
+        Parameters
+        ----------
+        contig_trace :
+            
+
+        Returns
+        -------
+
+        """
 
         contig_runs = []
         for run_idx, cycle_idx in contig_trace:
@@ -694,6 +899,17 @@ class ContigTree():
 
     @classmethod
     def _contig_runs_to_continuations(cls, contig_runs):
+        """
+
+        Parameters
+        ----------
+        contig_runs :
+            
+
+        Returns
+        -------
+
+        """
 
         continuations = []
         for i in range(len(contig_runs) - 1, 0, -1):
@@ -703,6 +919,17 @@ class ContigTree():
 
     @classmethod
     def _continuations_to_contig_runs(cls, continuations):
+        """
+
+        Parameters
+        ----------
+        continuations :
+            
+
+        Returns
+        -------
+
+        """
 
         if len(continuations) == 0:
             return []
@@ -726,6 +953,17 @@ class ContigTree():
         return contig_runs
 
     def make_contig(self, contig_trace):
+        """
+
+        Parameters
+        ----------
+        contig_trace :
+            
+
+        Returns
+        -------
+
+        """
 
         # get the runs and continuations for just this contig
 
@@ -743,6 +981,7 @@ class ContigTree():
 
 
 class Contig(ContigTree):
+    """ """
 
     def __init__(self, wepy_h5,
                  **kwargs):
@@ -777,75 +1016,122 @@ class Contig(ContigTree):
 
     @property
     def contig_trace(self):
+        """ """
         return self._contig_trace
 
     @property
     def n_cycles(self):
+        """ """
         return len(self.contig_trace)
 
 
     def contig_fields(self, fields):
+        """
+
+        Parameters
+        ----------
+        fields :
+            
+
+        Returns
+        -------
+
+        """
 
         return self.wepy_h5.get_contig_trace_fields(self.contig_trace, fields)
 
     def records(self, record_key):
+        """
+
+        Parameters
+        ----------
+        record_key :
+            
+
+        Returns
+        -------
+
+        """
         return self.wepy_h5.run_contig_records(self._contig_run_idxs, record_key)
 
     def records_dataframe(self, record_key):
+        """
+
+        Parameters
+        ----------
+        record_key :
+            
+
+        Returns
+        -------
+
+        """
         return self.wepy_h5.run_contig_records_dataframe(self._contig_run_idxs, record_key)
 
     # resampling
     def resampling_records(self):
+        """ """
 
         return self.records(RESAMPLING)
 
     def resampling_records_dataframe(self):
+        """ """
 
         return pd.DataFrame(self.resampling_records())
 
     # resampler records
     def resampler_records(self):
+        """ """
 
         return self.records(RESAMPLER)
 
     def resampler_records_dataframe(self):
+        """ """
 
         return pd.DataFrame(self.resampler_records())
 
     # warping
     def warping_records(self):
+        """ """
 
         return self.records(WARPING)
 
     def warping_records_dataframe(self):
+        """ """
 
         return pd.DataFrame(self.warping_records())
 
     # boundary conditions
     def bc_records(self):
+        """ """
 
         return self.records(BC)
 
     def bc_records_dataframe(self):
+        """ """
 
         return pd.DataFrame(self.bc_records())
 
     # progress
     def progress_records(self):
+        """ """
 
         return self.records(PROGRESS)
 
     def progress_records_dataframe(self):
+        """ """
 
         return pd.DataFrame(self.progress_records())
 
 
     # resampling panel
     def resampling_panel(self):
+        """ """
 
         return self.wepy_h5.contig_resampling_panel(self._contig_run_idxs)
 
 
     def parent_table(self):
+        """ """
 
         return self.trace_parent_table(self.contig_trace)

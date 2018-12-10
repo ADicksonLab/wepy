@@ -11,6 +11,7 @@ from wepy.walker import split, keep_merge
 # the possible types of decisions that can be made enumerated for
 # storage, these each correspond to specific instruction type
 class CloneMergeDecisionEnum(Enum):
+    """ """
     NOTHING = 1
     CLONE = 2
     SQUASH = 3
@@ -19,6 +20,7 @@ class CloneMergeDecisionEnum(Enum):
 
 
 class MultiCloneMergeDecision(Decision):
+    """ """
 
 
     ENUM = CloneMergeDecisionEnum
@@ -37,28 +39,46 @@ class MultiCloneMergeDecision(Decision):
 
     @classmethod
     def field_names(cls):
+        """ """
         return cls.FIELDS
 
     @classmethod
     def field_shapes(cls):
+        """ """
         return cls.SHAPES
 
     @classmethod
     def field_dtypes(cls):
+        """ """
         return cls.DTYPES
 
     @classmethod
     def fields(cls):
+        """ """
         return list(zip(cls.field_names(),
                    cls.field_shapes(),
                    cls.field_dtypes()))
 
     @classmethod
     def record_field_names(cls):
+        """ """
         return self.RECORD_FIELDS
 
     @classmethod
     def record(cls, enum_value, target_idxs):
+        """
+
+        Parameters
+        ----------
+        enum_value :
+            
+        target_idxs :
+            
+
+        Returns
+        -------
+
+        """
         record = super().record(enum_value)
         record['target_idxs'] = target_idxs
 
@@ -67,7 +87,19 @@ class MultiCloneMergeDecision(Decision):
     @classmethod
     def action(cls, walkers, decisions):
         """Performs cloning and merging according to a list of resampling
-        records for some walkers."""
+        records for some walkers.
+
+        Parameters
+        ----------
+        walkers :
+            
+        decisions :
+            
+
+        Returns
+        -------
+
+        """
 
         # list for the modified walkers
         mod_walkers = [None for i in range(len(walkers))]

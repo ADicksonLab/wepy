@@ -7,6 +7,7 @@ from wepy.work_mapper.mapper import Mapper, WorkerMapper
 from wepy.work_mapper.worker import Worker
 
 class Configuration():
+    """ """
 
     DEFAULT_WORKDIR = osp.realpath(osp.curdir)
     DEFAULT_CONFIG_NAME = "root"
@@ -114,53 +115,66 @@ class Configuration():
 
     @property
     def reporter_classes(self):
+        """ """
         return self._reporter_classes
 
     @property
     def reporter_partial_kwargs(self):
+        """ """
         return self._reporter_partial_kwargs
 
     @property
     def config_name(self):
+        """ """
         return self._config_name
 
     @property
     def work_dir(self):
+        """ """
         return self._work_dir
 
     @property
     def narration(self):
+        """ """
         return self._narration
 
     @property
     def mode(self):
+        """ """
         return self._mode
 
     @property
     def reporters(self):
+        """ """
         return self._reporters
 
     @property
     def work_mapper_class(self):
+        """ """
         return self._work_mapper_class
 
     @property
     def work_mapper_partial_kwargs(self):
+        """ """
         return self._work_mapper_partial_kwargs
 
     @property
     def n_workers(self):
+        """ """
         return self._n_workers
 
     @property
     def worker_type(self):
+        """ """
         return self._worker_type
 
     @property
     def work_mapper(self):
+        """ """
         return self._work_mapper
 
     def _gen_reporters(self):
+        """ """
 
         # check the extensions of all the reporters. If any of them
         # are the same raise a flag to add the reporter names to the
@@ -229,6 +243,7 @@ class Configuration():
         return reporters
 
     def _gen_work_mapper(self):
+        """ """
 
         work_mapper = self._work_mapper_class(n_workers=self._n_workers)
 
@@ -236,14 +251,27 @@ class Configuration():
 
     @property
     def reporters(self):
+        """ """
         return deepcopy(self._reporters)
 
     @property
     def work_mapper(self):
+        """ """
         return deepcopy(self._work_mapper)
 
 
     def reparametrize(self, **kwargs):
+        """
+
+        Parameters
+        ----------
+        **kwargs :
+            
+
+        Returns
+        -------
+
+        """
 
         # dictionary of the possible reparametrizations from the
         # current configuration

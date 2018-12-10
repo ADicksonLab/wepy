@@ -15,6 +15,7 @@ from wepy.analysis.parents import resampling_panel, \
                                   ParentForest
 
 class ResTreeReporter(ProgressiveFileReporter):
+    """ """
 
     FILE_ORDER = ('gexf_restree_path',)
 
@@ -102,9 +103,23 @@ class ResTreeReporter(ProgressiveFileReporter):
 
     @property
     def parent_table(self):
+        """ """
         return self._parent_table
 
     def _make_resampling_record(self, record_d, cycle_idx):
+        """
+
+        Parameters
+        ----------
+        record_d :
+            
+        cycle_idx :
+            
+
+        Returns
+        -------
+
+        """
 
         record = self._make_record(record_d, cycle_idx,
                                    self._resampling_record_field_names,
@@ -114,6 +129,19 @@ class ResTreeReporter(ProgressiveFileReporter):
         return record
 
     def _make_warping_record(self, record_d, cycle_idx):
+        """
+
+        Parameters
+        ----------
+        record_d :
+            
+        cycle_idx :
+            
+
+        Returns
+        -------
+
+        """
 
         record = self._make_record(record_d, cycle_idx,
                                    self._warping_record_field_names,
@@ -126,6 +154,27 @@ class ResTreeReporter(ProgressiveFileReporter):
     @staticmethod
     def _make_record(record_d, cycle_idx,
                      record_field_names, field_names, field_shapes, rec_namedtuple):
+        """
+
+        Parameters
+        ----------
+        record_d :
+            
+        cycle_idx :
+            
+        record_field_names :
+            
+        field_names :
+            
+        field_shapes :
+            
+        rec_namedtuple :
+            
+
+        Returns
+        -------
+
+        """
 
         # go through each field of the record
         rec_d = {'cycle_idx' : cycle_idx}
@@ -181,6 +230,27 @@ class ResTreeReporter(ProgressiveFileReporter):
                progress_data=None,
                resampling_data=None,
                **kwargs):
+        """
+
+        Parameters
+        ----------
+        cycle_idx :
+             (Default value = None)
+        resampled_walkers :
+             (Default value = None)
+        warp_data :
+             (Default value = None)
+        progress_data :
+             (Default value = None)
+        resampling_data :
+             (Default value = None)
+        **kwargs :
+            
+
+        Returns
+        -------
+
+        """
 
 
         # we basically want to generate a new parent table from the

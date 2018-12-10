@@ -11,6 +11,7 @@ from geomm.rmsd import calc_rmsd
 from wepy.resampling.distances.distance import Distance
 
 class ReceptorDistance(Distance):
+    """ """
     def __init__(self, ligand_idxs, binding_site_idxs, ref_state):
 
         # the idxs of the ligand and binding site from the whole state
@@ -34,6 +35,17 @@ class ReceptorDistance(Distance):
         self.ref_image = self._unaligned_image(ref_state)
 
     def _unaligned_image(self, state):
+        """
+
+        Parameters
+        ----------
+        state :
+            
+
+        Returns
+        -------
+
+        """
 
         # get the box lengths from the vectors
         box_lengths, box_angles = box_vectors_to_lengths_angles(state['box_vectors'])
@@ -50,6 +62,17 @@ class ReceptorDistance(Distance):
         return state_image
 
     def image(self, state):
+        """
+
+        Parameters
+        ----------
+        state :
+            
+
+        Returns
+        -------
+
+        """
 
         # get the unaligned image
         state_image = self._unaligned_image(state)
@@ -61,7 +84,21 @@ class ReceptorDistance(Distance):
 
 
 class UnbindingDistance(ReceptorDistance):
+    """ """
     def image_distance(self, image_a, image_b):
+        """
+
+        Parameters
+        ----------
+        image_a :
+            
+        image_b :
+            
+
+        Returns
+        -------
+
+        """
 
         # we calculate the rmsd of only the ligands between the
         # images
@@ -70,7 +107,21 @@ class UnbindingDistance(ReceptorDistance):
         return lig_rmsd
 
 class RebindingDistance(ReceptorDistance):
+    """ """
     def image_distance(self, image_a, image_b):
+        """
+
+        Parameters
+        ----------
+        image_a :
+            
+        image_b :
+            
+
+        Returns
+        -------
+
+        """
 
         # we calculate the rmsd of only the ligands between each image
         # and the reference

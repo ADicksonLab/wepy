@@ -7,9 +7,11 @@ from wepy.analysis.transitions import transition_counts, counts_d_to_matrix, \
                                       normalize_counts
 
 class MacroStateNetworkError(Exception):
+    """ """
     pass
 
 class MacroStateNetwork():
+    """ """
 
 
     ASSIGNMENTS = 'assignments'
@@ -121,6 +123,17 @@ class MacroStateNetwork():
         del self._assignments
 
     def _key_init(self, assg_field_key):
+        """
+
+        Parameters
+        ----------
+        assg_field_key :
+            
+
+        Returns
+        -------
+
+        """
 
         # the key for the assignment in the wepy dataset
         self._assg_field_key = assg_field_key
@@ -144,6 +157,17 @@ class MacroStateNetwork():
         self._assignments_init(assignments)
 
     def _assignments_init(self, assignments):
+        """
+
+        Parameters
+        ----------
+        assignments :
+            
+
+        Returns
+        -------
+
+        """
 
         # set the raw assignments to the temporary attribute
         self._assignments = assignments
@@ -157,45 +181,76 @@ class MacroStateNetwork():
                     self._node_assignments[assignment].append( (run_idx, traj_idx, frame_idx) )
 
     def node_id_to_idx(self, assg_key):
+        """
+
+        Parameters
+        ----------
+        assg_key :
+            
+
+        Returns
+        -------
+
+        """
         return self.node_id_to_idx_dict()[assg_key]
 
     def node_idx_to_id(self, node_idx):
+        """
+
+        Parameters
+        ----------
+        node_idx :
+            
+
+        Returns
+        -------
+
+        """
         return self.node_idx_to_id_dict()[node_idx]
 
     def node_id_to_idx_dict(self):
+        """ """
         return self._node_idxs
 
     def node_idx_to_id_dict(self):
+        """ """
         # just reverse the dictionary and return
         return {node_idx : node_id for node_id, node_idx in self._node_idxs}
 
 
     @property
     def graph(self):
+        """ """
         return self._graph
 
     @property
     def num_states(self):
+        """ """
         return len(self.graph)
 
     @property
     def node_ids(self):
+        """ """
         return list(self.graph.nodes)
 
     @property
     def contig_tree(self):
+        """ """
         return self._contig_tree
 
     @property
     def wepy_h5(self):
+        """ """
         return self._wepy_h5
 
     @property
     def assg_field_key(self):
+        """ """
         return self._assg_field_key
 
     @property
     def countsmat(self):
+        """ """
         try:
             return self._countsmat
         except AttributeError:
@@ -203,21 +258,70 @@ class MacroStateNetwork():
 
     @property
     def probmat(self):
+        """ """
         try:
             return self._probmat
         except AttributeError:
             raise MacroStateNetworkError("transition probability matrix not set")
 
     def get_node_attributes(self, node_id):
+        """
+
+        Parameters
+        ----------
+        node_id :
+            
+
+        Returns
+        -------
+
+        """
         return self.graph.nodes[node_id]
 
     def get_node_attribute(self, node_id, attribute_key):
+        """
+
+        Parameters
+        ----------
+        node_id :
+            
+        attribute_key :
+            
+
+        Returns
+        -------
+
+        """
         return self.get_node_attributes(node_id)[attribute_key]
 
     def node_assignments(self, node_id):
+        """
+
+        Parameters
+        ----------
+        node_id :
+            
+
+        Returns
+        -------
+
+        """
         return self.get_node_attribute(node_id, self.ASSIGNMENTS)
 
     def get_node_fields(self, node_id, fields):
+        """
+
+        Parameters
+        ----------
+        node_id :
+            
+        fields :
+            
+
+        Returns
+        -------
+
+        """
         node_trace = self.node_assignments(node_id)
 
         # use the node_trace to get the weights from the HDF5
@@ -227,6 +331,17 @@ class MacroStateNetwork():
         return fields_d
 
     def iter_nodes_fields(self, fields):
+        """
+
+        Parameters
+        ----------
+        fields :
+            
+
+        Returns
+        -------
+
+        """
 
         nodes_d = {}
         for node_id in self.graph.nodes:
@@ -236,13 +351,66 @@ class MacroStateNetwork():
         return nodes_d
 
     def set_nodes_field(self, key, values_dict):
+        """
+
+        Parameters
+        ----------
+        key :
+            
+        values_dict :
+            
+
+        Returns
+        -------
+
+        """
         for node_id, value in values_dict.items():
             self.graph.nodes[node_id][key] = value
 
     def node_map(self, func, *args, map_func, idxs=False, node_sel=None):
+        """
+
+        Parameters
+        ----------
+        func :
+            
+        *args :
+            
+        map_func :
+            
+        idxs :
+             (Default value = False)
+        node_sel :
+             (Default value = None)
+
+        Returns
+        -------
+
+        """
         pass
 
     def node_fields_map(self, func, fields, *args, map_func=map, idxs=False, node_sel=None):
+        """
+
+        Parameters
+        ----------
+        func :
+            
+        fields :
+            
+        *args :
+            
+        map_func :
+             (Default value = map)
+        idxs :
+             (Default value = False)
+        node_sel :
+             (Default value = None)
+
+        Returns
+        -------
+
+        """
         pass
 
     def compute_macrostate_attr(self, func, fields, *args,
@@ -251,12 +419,45 @@ class MacroStateNetwork():
                                 idxs=False,
                                 attr_name=None,
                                 return_results=True):
+        """
+
+        Parameters
+        ----------
+        func :
+            
+        fields :
+            
+        *args :
+            
+        map_func :
+             (Default value = map)
+        node_sel :
+             (Default value = None)
+        idxs :
+             (Default value = False)
+        attr_name :
+             (Default value = None)
+        return_results :
+             (Default value = True)
+
+        Returns
+        -------
+
+        """
         pass
 
 
     def microstate_weights(self):
         """Calculates and returns the sums of the weights of all the nodes as
-        a dictionary mapping node_id -> frame weights"""
+        a dictionary mapping node_id -> frame weights
+
+        Parameters
+        ----------
+
+        Returns
+        -------
+
+        """
 
         node_weights = {}
         for node_id in self.graph.nodes:
@@ -272,6 +473,7 @@ class MacroStateNetwork():
         return node_weights
 
     def macrostate_weights(self):
+        """ """
 
         macrostate_weights = {}
         microstate_weights = self.microstate_weights()
@@ -281,13 +483,38 @@ class MacroStateNetwork():
         return macrostate_weights
 
     def set_macrostate_weights(self):
+        """ """
         self.set_nodes_field('Weight', self.macrostate_weights())
 
     def state_to_mdtraj(self, node_id, alt_rep=None):
+        """
+
+        Parameters
+        ----------
+        node_id :
+            
+        alt_rep :
+             (Default value = None)
+
+        Returns
+        -------
+
+        """
         with self.wepy_h5:
             return self.wepy_h5.trace_to_mdtraj(self.node_assignments(node_id), alt_rep=alt_rep)
 
     def write_gexf(self, filepath):
+        """
+
+        Parameters
+        ----------
+        filepath :
+            
+
+        Returns
+        -------
+
+        """
 
         # to do this we need to get rid of the assignments in the
         # nodes though since this is not really supported or good to

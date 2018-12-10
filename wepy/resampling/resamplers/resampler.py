@@ -8,9 +8,11 @@ import numpy as np
 from wepy.resampling.decisions.decision import NoDecision
 
 class ResamplerError(Exception):
+    """ """
     pass
 
 class Resampler():
+    """ """
     # data for resampling performed (continual)
     RESAMPLING_FIELDS = ()
     RESAMPLING_SHAPES = ()
@@ -62,44 +64,66 @@ class Resampler():
         self.set_debug_mode(debug_mode)
 
     def resampling_field_names(self):
+        """ """
         return self.RESAMPLING_FIELDS
 
     def resampling_field_shapes(self):
+        """ """
         return self.RESAMPLING_SHAPES
 
     def resampling_field_dtypes(self):
+        """ """
         return self.RESAMPLING_DTYPES
 
     def resampling_fields(self):
+        """ """
         return list(zip(self.resampling_field_names(),
                    self.resampling_field_shapes(),
                    self.resampling_field_dtypes()))
 
     def resampling_record_field_names(self):
+        """ """
         return self.RESAMPLING_RECORD_FIELDS
 
     def resampler_field_names(self):
+        """ """
         return self.RESAMPLER_FIELDS
 
     def resampler_field_shapes(self):
+        """ """
         return self.RESAMPLER_SHAPES
 
     def resampler_field_dtypes(self):
+        """ """
         return self.RESAMPLER_DTYPES
 
     def resampler_fields(self):
+        """ """
         return list(zip(self.resampler_field_names(),
                    self.resampler_field_shapes(),
                    self.resampler_field_dtypes()))
 
     def resampler_record_field_names(self):
+        """ """
         return self.RESAMPLER_RECORD_FIELDS
 
     @property
     def is_debug_on(self):
+        """ """
         return self._debug_mode
 
     def set_debug_mode(self, mode):
+        """
+
+        Parameters
+        ----------
+        mode :
+            
+
+        Returns
+        -------
+
+        """
 
         if mode not in self.DEBUG_MODES:
             raise ValueError("debug mode, {}, not valid".format(mode))
@@ -114,12 +138,14 @@ class Resampler():
                 raise ModuleNotFoundError("You must have ipdb installed to use the debug feature")
 
     def debug_on(self):
+        """ """
         if self.is_debug_on:
             warn("Debug mode is already on")
 
         self.set_debug_mode(True)
 
     def debug_off(self):
+        """ """
         if not self.is_debug_on:
             warn("Debug mode is already off")
 
@@ -127,10 +153,12 @@ class Resampler():
 
     @property
     def max_num_walkers_setting(self):
+        """ """
         return self._max_num_walkers
 
     @property
     def min_num_walkers_setting(self):
+        """ """
         return self._min_num_walkers
 
     def max_num_walkers(self):
@@ -193,6 +221,17 @@ class Resampler():
 
 
     def _set_resampling_num_walkers(self, num_walkers):
+        """
+
+        Parameters
+        ----------
+        num_walkers :
+            
+
+        Returns
+        -------
+
+        """
 
         # there must be at least 1 walker in order to do resampling
         if num_walkers < 1:
@@ -215,24 +254,49 @@ class Resampler():
                 "The number of walkers given to resample is less than the maximum")
 
     def _unset_resampling_num_walkers(self):
+        """ """
 
         self._resampling_num_walkers = None
 
 
 
     def _resample_init(self, walkers):
-        """Common initialization stuff for resamplers. """
+        """Common initialization stuff for resamplers.
+
+        Parameters
+        ----------
+        walkers :
+            
+
+        Returns
+        -------
+
+        """
 
         # first set how many walkers there are in this resampling
         self._set_resampling_num_walkers(len(walkers))
 
     def _resample_cleanup(self):
+        """ """
 
         # unset the number of walkers for this resampling
         self._unset_resampling_num_walkers()
 
 
     def resample(self, walkers, debug_mode=False):
+        """
+
+        Parameters
+        ----------
+        walkers :
+            
+        debug_mode :
+             (Default value = False)
+
+        Returns
+        -------
+
+        """
 
         raise NotImplemented
 
@@ -240,6 +304,17 @@ class Resampler():
 
 
     def _init_walker_actions(self, n_walkers):
+        """
+
+        Parameters
+        ----------
+        n_walkers :
+            
+
+        Returns
+        -------
+
+        """
         # determine resampling actions
         walker_actions = [self.decision.record(enum_value=self.decision.ENUM.NOTHING.value,
                                                target_idxs=(i,))
@@ -249,6 +324,19 @@ class Resampler():
 
 
     def assign_clones(self, merge_groups, walker_clone_nums):
+        """
+
+        Parameters
+        ----------
+        merge_groups :
+            
+        walker_clone_nums :
+            
+
+        Returns
+        -------
+
+        """
 
         n_walkers = len(walker_clone_nums)
 
@@ -327,7 +415,15 @@ class Resampler():
 
 class ScoreDecideResampler(Resampler):
     """Superclass for resamplers that use the the Novelty->Decider
-    framework."""
+    framework.
+
+    Parameters
+    ----------
+
+    Returns
+    -------
+
+    """
 
     def __init__(self, scorer, decider):
         self.scorer = scorer
@@ -335,6 +431,17 @@ class ScoreDecideResampler(Resampler):
         self.decision = decider.DECISION
 
     def resample(self, walkers):
+        """
+
+        Parameters
+        ----------
+        walkers :
+            
+
+        Returns
+        -------
+
+        """
 
         # first set how many walkers there are in this resampling
         self._set_resample_num_walkers(len(walkers))
@@ -354,6 +461,7 @@ class ScoreDecideResampler(Resampler):
 
 
 class NoResampler(Resampler):
+    """ """
 
     DECISION = NoDecision
 
@@ -362,6 +470,19 @@ class NoResampler(Resampler):
 
 
     def resample(self, walkers, **kwargs):
+        """
+
+        Parameters
+        ----------
+        walkers :
+            
+        **kwargs :
+            
+
+        Returns
+        -------
+
+        """
 
         n_walkers = len(walkers)
 

@@ -14,6 +14,7 @@ from wepy.boundary_conditions.boundary import BoundaryConditions
 from wepy.resampling.distances.receptor import RebindingDistance
 
 class RebindingBC(BoundaryConditions):
+    """ """
 
     WARP_INSTRUCT_DTYPE = np.dtype([('target', int)])
 
@@ -52,6 +53,17 @@ class RebindingBC(BoundaryConditions):
                                                  comp_xyz=comp_xyz)
 
     def check_boundaries(self, nat_rmsd):
+        """
+
+        Parameters
+        ----------
+        nat_rmsd :
+            
+
+        Returns
+        -------
+
+        """
 
         # test to see if the ligand is re-bound
         rebound = False
@@ -63,6 +75,19 @@ class RebindingBC(BoundaryConditions):
         return rebound, boundary_data
 
     def warp(self, walker, cycle):
+        """
+
+        Parameters
+        ----------
+        walker :
+            
+        cycle :
+            
+
+        Returns
+        -------
+
+        """
 
         # choose a state randomly from the set of initial states
         warped_state = choice(self.initial_states, 1, p=self.initial_weights/np.sum(self.initial_weights))[0]
@@ -89,6 +114,19 @@ class RebindingBC(BoundaryConditions):
         return warped_walker, warp_record, warp_data
 
     def warp_walkers(self, walkers, cycle):
+        """
+
+        Parameters
+        ----------
+        walkers :
+            
+        cycle :
+            
+
+        Returns
+        -------
+
+        """
 
         new_walkers = []
         warped_walkers_records = []

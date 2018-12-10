@@ -54,7 +54,17 @@ import mdtraj.core.element as elem
 ##############################################################################
 
 def mdtraj_to_json_topology(mdj_top):
-    """ Copied in part from MDTraj.formats.hdf5.topology setter. """
+    """Copied in part from MDTraj.formats.hdf5.topology setter.
+
+    Parameters
+    ----------
+    mdj_top :
+        
+
+    Returns
+    -------
+
+    """
 
     topology_dict = {
         'chains': [],
@@ -101,7 +111,17 @@ def mdtraj_to_json_topology(mdj_top):
     return top_json_str
 
 def json_to_mdtraj_topology(json_string):
-    """ Copied in part from MDTraj.formats.hdf5 topology property."""
+    """Copied in part from MDTraj.formats.hdf5 topology property.
+
+    Parameters
+    ----------
+    json_string :
+        
+
+    Returns
+    -------
+
+    """
 
     topology_dict = json.loads(json_string)
 
@@ -136,7 +156,17 @@ def json_to_mdtraj_topology(json_string):
 
 
 def _new_json_to_mdtraj_topology(json_string):
-    """ Copied in part from MDTraj.formats.hdf5 topology property."""
+    """Copied in part from MDTraj.formats.hdf5 topology property.
+
+    Parameters
+    ----------
+    json_string :
+        
+
+    Returns
+    -------
+
+    """
 
     topology_dict = json.loads(json_string)
 

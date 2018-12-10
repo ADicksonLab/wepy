@@ -1,4 +1,5 @@
 
 
 class LayoutError(Exception):
+    """ """
     pass

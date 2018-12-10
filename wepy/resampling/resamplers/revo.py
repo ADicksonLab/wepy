@@ -9,6 +9,7 @@ from wepy.resampling.resamplers.resampler import Resampler
 from wepy.resampling.decisions.clone_merge import MultiCloneMergeDecision
 
 class REVOResampler(Resampler):
+    """ """
 
     DECISION = MultiCloneMergeDecision
 
@@ -73,6 +74,7 @@ class REVOResampler(Resampler):
     # we need this to on the fly find out what the datatype of the
     # image is
     def resampler_field_dtypes(self):
+        """ """
 
         # index of the image idx
         image_idx = self.resampler_field_names().index('images')
@@ -84,6 +86,21 @@ class REVOResampler(Resampler):
         return tuple(dtypes)
 
     def _calcspread(self, walkerwt, amp, distance_matrix):
+        """
+
+        Parameters
+        ----------
+        walkerwt :
+            
+        amp :
+            
+        distance_matrix :
+            
+
+        Returns
+        -------
+
+        """
 
         n_walkers = len(walkerwt)
         # the value to be optimized
@@ -131,6 +148,21 @@ class REVOResampler(Resampler):
         return spread, wsum
 
     def decide_clone_merge(self, walkerwt, amp, distance_matrix):
+        """
+
+        Parameters
+        ----------
+        walkerwt :
+            
+        amp :
+            
+        distance_matrix :
+            
+
+        Returns
+        -------
+
+        """
 
         n_walkers = len(walkerwt)
 
@@ -310,6 +342,17 @@ class REVOResampler(Resampler):
         return walker_actions, spreads[-1]
 
     def _all_to_all_distance(self, walkers):
+        """
+
+        Parameters
+        ----------
+        walkers :
+            
+
+        Returns
+        -------
+
+        """
         # initialize an all-to-all matrix, with 0.0 for self distances
         dist_mat = np.zeros((len(walkers), len(walkers)))
 
@@ -332,6 +375,17 @@ class REVOResampler(Resampler):
         return [walker_dists for walker_dists in dist_mat], images
 
     def resample(self, walkers):
+        """
+
+        Parameters
+        ----------
+        walkers :
+            
+
+        Returns
+        -------
+
+        """
 
         n_walkers = len(walkers)
         walkerwt = [walker.weight for walker in walkers]

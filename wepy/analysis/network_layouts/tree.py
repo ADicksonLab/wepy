@@ -9,6 +9,7 @@ import networkx as nx
 from wepy.analysis.network_layouts.layout import LayoutError
 
 class ResamplingTreeLayout():
+    """ """
 
     def __init__(self,
                  node_radius=1.0,
@@ -22,6 +23,21 @@ class ResamplingTreeLayout():
         self.central_axis = central_axis
 
     def _overlaps(self, positions, node_radii, node_idx):
+        """
+
+        Parameters
+        ----------
+        positions :
+            
+        node_radii :
+            
+        node_idx :
+            
+
+        Returns
+        -------
+
+        """
 
             # get the nodes that this one overlaps with
             overlaps = []
@@ -41,7 +57,19 @@ class ResamplingTreeLayout():
             return overlaps
 
     def _node_row_length(self, node_positions, node_radii):
-        """Get the edge to edge length of a row of nodes. """
+        """Get the edge to edge length of a row of nodes.
+
+        Parameters
+        ----------
+        node_positions :
+            
+        node_radii :
+            
+
+        Returns
+        -------
+
+        """
 
         max_child_idx = np.argmax(node_positions)
         max_edge = node_positions[max_child_idx] + node_radii[max_child_idx]
@@ -51,6 +79,19 @@ class ResamplingTreeLayout():
         return abs(max_edge - min_edge)
 
     def _simple_gen_distribution(self, nodes_x, node_radii):
+        """
+
+        Parameters
+        ----------
+        nodes_x :
+            
+        node_radii :
+            
+
+        Returns
+        -------
+
+        """
 
         # we want to update the positions given so we copy that array
         node_positions = np.array(copy(nodes_x))
@@ -250,6 +291,21 @@ class ResamplingTreeLayout():
         return new_node_positions
 
     def _simple_next_gen(self, parents_x, children_parent_idxs, node_radii):
+        """
+
+        Parameters
+        ----------
+        parents_x :
+            
+        children_parent_idxs :
+            
+        node_radii :
+            
+
+        Returns
+        -------
+
+        """
 
         children_x = []
         for parent_idx in children_parent_idxs:
@@ -268,6 +324,17 @@ class ResamplingTreeLayout():
 
 
     def _initial_parent_distribution(self, node_radii):
+        """
+
+        Parameters
+        ----------
+        node_radii :
+            
+
+        Returns
+        -------
+
+        """
 
         # start at the origin and add nodes at positions that
         # accomodate their diameter and that are spaced by spacing_factor
@@ -301,7 +368,21 @@ class ResamplingTreeLayout():
         return positions
 
     def _center_row(self, positions, radii, center):
-        """Centers the midpoint of a row of nodes around a number. """
+        """Centers the midpoint of a row of nodes around a number.
+
+        Parameters
+        ----------
+        positions :
+            
+        radii :
+            
+        center :
+            
+
+        Returns
+        -------
+
+        """
 
         # calculate the length of the row
         row_length = self._node_row_length(positions, radii)
@@ -318,6 +399,19 @@ class ResamplingTreeLayout():
         return centered_positions
 
     def _layout_array(self, parent_table, radii_array):
+        """
+
+        Parameters
+        ----------
+        parent_table :
+            
+        radii_array :
+            
+
+        Returns
+        -------
+
+        """
 
         n_timesteps = len(parent_table)
         n_walkers = len(parent_table[0])
@@ -392,11 +486,21 @@ class ResamplingTreeLayout():
     def layout(self, parent_forest, node_radii=None):
         """Given the input of a parent forest object, returns a dictionary
         mapping nodes to their xyz layout coordinates.
-
+        
         If the node radii are given (as a dictionary mapping node ID
         to the desired radius) these are used as the the node radii
         and the default node radius parameter of the layout object is
         ignored.
+
+        Parameters
+        ----------
+        parent_forest :
+            
+        node_radii :
+             (Default value = None)
+
+        Returns
+        -------
 
         """
 

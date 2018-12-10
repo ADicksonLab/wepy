@@ -6,6 +6,7 @@ import logging
 from wepy.work_mapper.mapper import Mapper
 
 class Manager(object):
+    """ """
 
 
     REPORT_ITEM_KEYS = ('cycle_idx', 'n_segment_steps',
@@ -43,7 +44,19 @@ class Manager(object):
 
 
     def run_segment(self, walkers, segment_length):
-        """Run a time segment for all walkers using the available workers. """
+        """Run a time segment for all walkers using the available workers.
+
+        Parameters
+        ----------
+        walkers :
+            
+        segment_length :
+            
+
+        Returns
+        -------
+
+        """
 
         num_walkers = len(walkers)
 
@@ -58,6 +71,21 @@ class Manager(object):
         return new_walkers
 
     def run_cycle(self, walkers, n_segment_steps, cycle_idx):
+        """
+
+        Parameters
+        ----------
+        walkers :
+            
+        n_segment_steps :
+            
+        cycle_idx :
+            
+
+        Returns
+        -------
+
+        """
 
         logging.info("Begin cycle {}".format(cycle_idx))
 
@@ -159,6 +187,19 @@ class Manager(object):
         return walkers, filters
 
     def init(self, num_workers=None, continue_run=None):
+        """
+
+        Parameters
+        ----------
+        num_workers :
+             (Default value = None)
+        continue_run :
+             (Default value = None)
+
+        Returns
+        -------
+
+        """
 
 
         logging.info("Starting simulation")
@@ -180,6 +221,7 @@ class Manager(object):
                           continue_run=continue_run)
 
     def cleanup(self):
+        """ """
 
         # cleanup the mapper
         self.work_mapper.cleanup()
@@ -199,11 +241,23 @@ class Manager(object):
         cycle is greater than the runtime the run will exit after
         cleaning up. Once a cycle is started it may also run over the
         wall time.
-
+        
         run_time :: float (in seconds)
-
+        
         segments_length :: int ; number of iterations performed for
                                  each walker segment for each cycle
+
+        Parameters
+        ----------
+        run_time :
+            
+        segments_length :
+            
+        num_workers :
+             (Default value = None)
+
+        Returns
+        -------
 
         """
         start_time = time.time()
@@ -228,6 +282,18 @@ class Manager(object):
         """Run a simulation for a given number of cycles with specified
         lengths of MD segments in between.
 
+        Parameters
+        ----------
+        n_cycles :
+            
+        segment_lengths :
+            
+        num_workers :
+             (Default value = None)
+
+        Returns
+        -------
+
         """
 
         self.init(num_workers=num_workers)
@@ -246,6 +312,20 @@ class Manager(object):
         reporters, which is the run that is intended to be
         continued. This simulation manager knows no details and is
         left up to the reporters to handle this appropriately.
+
+        Parameters
+        ----------
+        run_idx :
+            
+        n_cycles :
+            
+        segment_lengths :
+            
+        num_workers :
+             (Default value = None)
+
+        Returns
+        -------
 
         """
 
@@ -267,6 +347,20 @@ class Manager(object):
         reporters, which is the run that is intended to be
         continued. This simulation manager knows no details and is
         left up to the reporters to handle this appropriately.
+
+        Parameters
+        ----------
+        run_idx :
+            
+        run_time :
+            
+        segments_length :
+            
+        num_workers :
+             (Default value = None)
+
+        Returns
+        -------
 
         """
 

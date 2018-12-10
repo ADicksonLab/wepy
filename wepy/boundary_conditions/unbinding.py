@@ -13,6 +13,7 @@ from wepy.boundary_conditions.boundary import BoundaryConditions
 from wepy.util.mdtraj import json_to_mdtraj_topology
 
 class UnbindingBC(BoundaryConditions):
+    """ """
 
     # records of boundary condition changes (sporadic)
     BC_FIELDS = ('boundary_distance', )
@@ -63,12 +64,47 @@ class UnbindingBC(BoundaryConditions):
         self.receptor_idxs = receptor_idxs
 
     def _calc_angle(self, v1, v2):
+        """
+
+        Parameters
+        ----------
+        v1 :
+            
+        v2 :
+            
+
+        Returns
+        -------
+
+        """
         return np.degrees(np.arccos(np.dot(v1, v2)/(la.norm(v1) * la.norm(v2))))
 
     def _calc_length(self, v):
+        """
+
+        Parameters
+        ----------
+        v :
+            
+
+        Returns
+        -------
+
+        """
         return la.norm(v)
 
     def _calc_min_distance(self, walker):
+        """
+
+        Parameters
+        ----------
+        walker :
+            
+
+        Returns
+        -------
+
+        """
         # convert box_vectors to angles and lengths for mdtraj
         # calc box length
         cell_lengths = np.array([[self._calc_length(v) for v in walker.state['box_vectors']]])
@@ -97,6 +133,17 @@ class UnbindingBC(BoundaryConditions):
         return min_distance
 
     def progress(self, walker):
+        """
+
+        Parameters
+        ----------
+        walker :
+            
+
+        Returns
+        -------
+
+        """
 
         min_distance = self._calc_min_distance(walker)
 
@@ -110,6 +157,17 @@ class UnbindingBC(BoundaryConditions):
         return unbound, progress_data
 
     def warp(self, walker):
+        """
+
+        Parameters
+        ----------
+        walker :
+            
+
+        Returns
+        -------
+
+        """
 
         # we always start at the initial state
         warped_state = self.initial_state
@@ -128,6 +186,23 @@ class UnbindingBC(BoundaryConditions):
         return warped_walker, warp_data
 
     def update_bc(self, new_walkers, warp_data, progress_data, cycle):
+        """
+
+        Parameters
+        ----------
+        new_walkers :
+            
+        warp_data :
+            
+        progress_data :
+            
+        cycle :
+            
+
+        Returns
+        -------
+
+        """
 
         # TODO just for testing if this works. only report a record on
         # the first cycle which gives the distance at which walkers
@@ -138,6 +213,19 @@ class UnbindingBC(BoundaryConditions):
             return []
 
     def warp_walkers(self, walkers, cycle):
+        """
+
+        Parameters
+        ----------
+        walkers :
+            
+        cycle :
+            
+
+        Returns
+        -------
+
+        """
 
         new_walkers = []
 
@@ -194,7 +282,17 @@ class UnbindingBC(BoundaryConditions):
     @classmethod
     def warping_discontinuity(cls, warping_record):
         """Given a warping record returns either True for a discontiuity
-        occured or False if a discontinuity did not occur."""
+        occured or False if a discontinuity did not occur.
+
+        Parameters
+        ----------
+        warping_record :
+            
+
+        Returns
+        -------
+
+        """
 
         # the target_idxs are one of the discontinuous targets
         if warping_record[2] in cls.DISCONTINUITY_TARGET_IDXS:

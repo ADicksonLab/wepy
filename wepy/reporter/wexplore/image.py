@@ -7,6 +7,7 @@ from wepy.util.mdtraj import json_to_mdtraj_topology, mdtraj_to_json_topology
 from wepy.util.util import json_top_subset
 
 class WExploreAtomImageReporter(ProgressiveFileReporter):
+    """ """
 
     FILE_ORDER = ("init_state_path", "image_path")
     SUGGESTED_EXTENSIONS = ("image_top.pdb", "wexplore_images.dcd")
@@ -45,6 +46,17 @@ class WExploreAtomImageReporter(ProgressiveFileReporter):
 
 
     def init(self, **kwargs):
+        """
+
+        Parameters
+        ----------
+        **kwargs :
+            
+
+        Returns
+        -------
+
+        """
 
         super().init(**kwargs)
 
@@ -67,6 +79,21 @@ class WExploreAtomImageReporter(ProgressiveFileReporter):
 
     def report(self, cycle_idx=None, resampler_data=None,
                **kwargs):
+        """
+
+        Parameters
+        ----------
+        cycle_idx :
+             (Default value = None)
+        resampler_data :
+             (Default value = None)
+        **kwargs :
+            
+
+        Returns
+        -------
+
+        """
 
         # load the json topology as an mdtraj one
         image_mdj_topology = json_to_mdtraj_topology(self.json_main_rep_top)

@@ -9,6 +9,7 @@ import numpy as np
 import pandas as pd
 
 class WExploreDashboardReporter(DashboardReporter):
+    """ """
 
     SUGGESTED_EXTENSIONS = ("wexplore.dash.org",)
 
@@ -186,6 +187,39 @@ Defined Regions with the number of child regions per parent region:
                cycle_bc_time=None,
                cycle_resampling_time=None,
                **kwargs):
+        """
+
+        Parameters
+        ----------
+        cycle_idx :
+             (Default value = None)
+        n_segment_steps :
+             (Default value = None)
+        new_walkers :
+             (Default value = None)
+        warp_data :
+             (Default value = None)
+        progress_data :
+             (Default value = None)
+        resampling_data :
+             (Default value = None)
+        resampler_data :
+             (Default value = None)
+        worker_segment_times :
+             (Default value = None)
+        cycle_runner_time :
+             (Default value = None)
+        cycle_bc_time :
+             (Default value = None)
+        cycle_resampling_time :
+             (Default value = None)
+        **kwargs :
+            
+
+        Returns
+        -------
+
+        """
 
         # first recalculate the total sampling time, update the
         # number of cycles, and set the walker probabilities
@@ -215,6 +249,21 @@ Defined Regions with the number of child regions per parent region:
         self.write_dashboard()
 
     def update_weighted_ensemble_values(self, cycle_idx, n_steps, walkers):
+        """
+
+        Parameters
+        ----------
+        cycle_idx :
+            
+        n_steps :
+            
+        walkers :
+            
+
+        Returns
+        -------
+
+        """
 
         # the number of cycles
         self.last_cycle_idx = cycle_idx
@@ -237,6 +286,19 @@ Defined Regions with the number of child regions per parent region:
 
 
     def update_warp_values(self, cycle_idx, warp_data):
+        """
+
+        Parameters
+        ----------
+        cycle_idx :
+            
+        warp_data :
+            
+
+        Returns
+        -------
+
+        """
 
         self.cycle_n_exit_points = 0
         for warp_record in warp_data:
@@ -271,10 +333,38 @@ Defined Regions with the number of child regions per parent region:
 
 
     def update_progress_values(self, cycle_idx, progress_data):
+        """
+
+        Parameters
+        ----------
+        cycle_idx :
+            
+        progress_data :
+            
+
+        Returns
+        -------
+
+        """
 
         self.walker_distance_to_prot = tuple(progress_data['min_distances'])
 
     def update_wexplore_values(self, cycle_idx, resampling_data, resampler_data):
+        """
+
+        Parameters
+        ----------
+        cycle_idx :
+            
+        resampling_data :
+            
+        resampler_data :
+            
+
+        Returns
+        -------
+
+        """
 
         # the region assignments for walkers
         assignments = []
@@ -361,6 +451,27 @@ Defined Regions with the number of child regions per parent region:
 
     def update_performance_values(self, cycle_idx, n_steps, worker_segment_times,
                                   cycle_runner_time, cycle_bc_time, cycle_resampling_time):
+        """
+
+        Parameters
+        ----------
+        cycle_idx :
+            
+        n_steps :
+            
+        worker_segment_times :
+            
+        cycle_runner_time :
+            
+        cycle_bc_time :
+            
+        cycle_resampling_time :
+            
+
+        Returns
+        -------
+
+        """
 
 
         ## worker specific performance
@@ -411,6 +522,17 @@ Defined Regions with the number of child regions per parent region:
 
 
     def leaf_regions_to_all_regions(self, region_ids):
+        """
+
+        Parameters
+        ----------
+        region_ids :
+            
+
+        Returns
+        -------
+
+        """
         # make a set of all the regions starting with the root region
         regions = set([self.root_region])
         for region_id in region_ids:
@@ -423,6 +545,7 @@ Defined Regions with the number of child regions per parent region:
         return regions
 
     def dashboard_string(self):
+        """ """
 
         regions = self.leaf_regions_to_all_regions(self.region_ids)
         region_children = [self.children_per_region[region] for region in regions]

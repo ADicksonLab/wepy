@@ -16,6 +16,13 @@ class RandomWalkRunner(Runner):
     """RandomWalkRunner is an object for implementing the dynamic of
     RandomWalk system. To use it, you need to provide the number of dimensions
     and the probability of movement.
+
+    Parameters
+    ----------
+
+    Returns
+    -------
+
     """
     def __init__(self, dimension=2, probability=0.25):
         """Initialize RandomWalk object with the number of
@@ -35,9 +42,17 @@ class RandomWalkRunner(Runner):
         Takes the current position vector as input and based on the probability
         generates new position for each dimension and returns new posiotion
         vector.
-        :param positions: a numpy array of shape (1, dimension)
-        :returns: new posiotion
-        :rtype:a numpy array of shape (1, dimension)
+
+        Parameters
+        ----------
+        positions :
+            a numpy array of shape (1, dimension)
+
+        Returns
+        -------
+        a numpy array of shape (1, dimension)
+            new posiotion
+
         """
         # make the deep copy of current posiotion
         new_positions = positions.copy()
@@ -64,10 +79,18 @@ class RandomWalkRunner(Runner):
         """Run dynamics of RandomWalk system for the number of steps
         that is specified by segment_length.
 
-        :param walker: a RandomWalk object
-        :param segment_length: the number of steps
-        :returns: a RandomWalk object with new positions
-        :rtype:
+        Parameters
+        ----------
+        walker :
+            a RandomWalk object
+        segment_length :
+            the number of steps
+
+        Returns
+        -------
+        type
+            a RandomWalk object with new positions
+
         """
         # Gets the current posiotion of RandomWalk Walker
         positions = walker.state['positions']

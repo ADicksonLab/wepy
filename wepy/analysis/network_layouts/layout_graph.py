@@ -50,18 +50,29 @@ class LayoutGraph():
 
     @property
     def graph(self):
+        """ """
         return self._graph
 
     @property
     def viz_graph(self):
+        """ """
         return self._viz_graph
 
 
     def get_node_attributes(self, attribute_key):
         """Gets attributes from the data graph and returns as a dictionary
         which is compatible with the set_node_viz_attributes methods.
-
+        
         For instance could be used to get a 'weight' value and set as the color.
+
+        Parameters
+        ----------
+        attribute_key :
+            
+
+        Returns
+        -------
+
         """
 
         node_attr_dict = {}
@@ -81,29 +92,97 @@ class LayoutGraph():
 
     # for setting visualization values of the network in a format agnostic way
     def set_node_viz_attributes(self, attribute_key, node_attribute_dict):
+        """
+
+        Parameters
+        ----------
+        attribute_key :
+            
+        node_attribute_dict :
+            
+
+        Returns
+        -------
+
+        """
 
         for node_id, value in node_attribute_dict.items():
             self.viz_graph.nodes[node_id][attribute_key] = value
 
     def set_node_positions(self, node_positions_dict):
+        """
+
+        Parameters
+        ----------
+        node_positions_dict :
+            
+
+        Returns
+        -------
+
+        """
 
         self.set_node_viz_attributes(self.POSITION, node_positions_dict)
 
     def set_node_colors(self, node_colors_dict):
+        """
+
+        Parameters
+        ----------
+        node_colors_dict :
+            
+
+        Returns
+        -------
+
+        """
 
         self.set_node_viz_attributes(self.COLOR, node_colors_dict)
 
     def set_node_sizes(self, node_sizes_dict):
+        """
+
+        Parameters
+        ----------
+        node_sizes_dict :
+            
+
+        Returns
+        -------
+
+        """
 
         self.set_node_viz_attributes(self.SIZE, node_sizes_dict)
 
     def set_node_shapes(self, node_shapes_dict):
+        """
+
+        Parameters
+        ----------
+        node_shapes_dict :
+            
+
+        Returns
+        -------
+
+        """
 
         self.set_node_viz_attributes(self.SHAPE, node_shapes_dict)
 
 
     # getters
     def get_node_viz_attributes(self, attribute_key):
+        """
+
+        Parameters
+        ----------
+        attribute_key :
+            
+
+        Returns
+        -------
+
+        """
 
         node_attr_dict = {}
         for node_id in self.viz_graph.nodes:
@@ -112,18 +191,22 @@ class LayoutGraph():
         return node_attr_dict
 
     def get_node_positions(self):
+        """ """
 
         self.get_node_viz_attributes(self.POSITION)
 
     def get_node_colors(self):
+        """ """
 
         self.get_node_viz_attributes(self.COLOR)
 
     def get_node_sizes(self):
+        """ """
 
         self.get_node_viz_attributes(self.SIZE)
 
     def get_node_shapes(self):
+        """ """
 
         self.get_node_viz_attributes(self.SHAPE)
 
@@ -131,6 +214,17 @@ class LayoutGraph():
 
     @classmethod
     def RGBA_to_hex(cls, color_vec):
+        """
+
+        Parameters
+        ----------
+        color_vec :
+            
+
+        Returns
+        -------
+
+        """
 
         assert not any([True if (color <= 255 and color >=0) else False for color in color_vec]),\
             "invalid color values, must be between 0 and 255"
@@ -141,12 +235,34 @@ class LayoutGraph():
     # methods for setting graphviz visualization attributes
     @classmethod
     def feature_vector_to_graphviz_position(cls, coord_vec):
+        """
+
+        Parameters
+        ----------
+        coord_vec :
+            
+
+        Returns
+        -------
+
+        """
 
         return ','.join(['{}' for _ in coord_vec]).format(*[i for i in coord_vec])
 
 
     @classmethod
     def feature_vector_to_graphviz_color_RGB(cls, color_vec):
+        """
+
+        Parameters
+        ----------
+        color_vec :
+            
+
+        Returns
+        -------
+
+        """
 
         assert len(color_vec) == 3, "only 3 values for RGB allowed"
 
@@ -154,6 +270,17 @@ class LayoutGraph():
 
     @classmethod
     def feature_vector_to_graphviz_color_RGBA(cls, color_vec):
+        """
+
+        Parameters
+        ----------
+        color_vec :
+            
+
+        Returns
+        -------
+
+        """
 
         assert len(color_vec) == 4, "only 4 values for RGBA allowed"
 
@@ -163,12 +290,36 @@ class LayoutGraph():
     # methods for setting graphviz attributes for visualization
 
     def set_node_graphviz(self, viz_key, node_dict):
+        """
+
+        Parameters
+        ----------
+        viz_key :
+            
+        node_dict :
+            
+
+        Returns
+        -------
+
+        """
 
         for node_id, value in node_dict.items():
 
             self.viz_graph.nodes[node_id][viz_key] = value
 
     def set_node_graphviz_positions(self, node_positions_dict):
+        """
+
+        Parameters
+        ----------
+        node_positions_dict :
+            
+
+        Returns
+        -------
+
+        """
 
         # convert the node positions values to a valid dictionary and
         # set the positions viz for all the nodes
@@ -181,6 +332,17 @@ class LayoutGraph():
                                {node_id : 'true' for node_id in node_positions_dict.keys()})
 
     def set_node_graphviz_colors_rgb(self, node_colors_dict):
+        """
+
+        Parameters
+        ----------
+        node_colors_dict :
+            
+
+        Returns
+        -------
+
+        """
 
         # convert the node colors values to a valid dictionary and
         # set the colors viz for all the nodes
@@ -189,6 +351,17 @@ class LayoutGraph():
                                         for node_id, coord in node_colors_dict.items()})
 
     def set_node_graphviz_colors_rgba(self, node_colors_dict):
+        """
+
+        Parameters
+        ----------
+        node_colors_dict :
+            
+
+        Returns
+        -------
+
+        """
 
         # convert the node colors values to a valid dictionary and
         # set the colors viz for all the nodes
@@ -197,12 +370,34 @@ class LayoutGraph():
                                         for node_id, coord in node_colors_dict.items()})
 
     def set_node_graphviz_sizes(self, node_sizes_dict):
+        """
+
+        Parameters
+        ----------
+        node_sizes_dict :
+            
+
+        Returns
+        -------
+
+        """
 
         # convert the node colors values to a valid dictionary and
         # set the colors viz for all the nodes
         self.set_node_graphviz(self.GRAPHVIZ_SIZE, node_sizes_dict)
 
     def set_node_graphviz_shape(self, node_sizes_dict):
+        """
+
+        Parameters
+        ----------
+        node_sizes_dict :
+            
+
+        Returns
+        -------
+
+        """
 
         # convert the node colors values to a valid dictionary and
         # set the colors viz for all the nodes
@@ -212,6 +407,17 @@ class LayoutGraph():
     # methods for setting gexf visualization attributes
     @classmethod
     def feature_vector_to_gexf_viz_position(cls, coord_vec):
+        """
+
+        Parameters
+        ----------
+        coord_vec :
+            
+
+        Returns
+        -------
+
+        """
 
         return {cls.GEXF_VIZ_POSITION_X : float(coord_vec[0]),
                 cls.GEXF_VIZ_POSITION_Y : float(coord_vec[1]),
@@ -219,6 +425,17 @@ class LayoutGraph():
 
     @classmethod
     def feature_vector_to_gexf_viz_color_RGB(cls, color_vec):
+        """
+
+        Parameters
+        ----------
+        color_vec :
+            
+
+        Returns
+        -------
+
+        """
 
         return {cls.GEXF_VIZ_COLOR_RED : int(color_vec[0]),
                 cls.GEXF_VIZ_COLOR_GREEN : int(color_vec[1]),
@@ -226,6 +443,17 @@ class LayoutGraph():
 
     @classmethod
     def feature_vector_to_gexf_viz_color_RGBA(cls, color_vec):
+        """
+
+        Parameters
+        ----------
+        color_vec :
+            
+
+        Returns
+        -------
+
+        """
 
         return {cls.GEXF_VIZ_COLOR_RED : int(color_vec[0]),
                 cls.GEXF_VIZ_COLOR_GREEN : int(color_vec[1]),
@@ -233,12 +461,36 @@ class LayoutGraph():
                 cls.GEXF_VIZ_COLOR_ALPHA : int(color_vec[3])}
 
     def set_node_gexf_viz(self, viz_key, node_dict):
+        """
+
+        Parameters
+        ----------
+        viz_key :
+            
+        node_dict :
+            
+
+        Returns
+        -------
+
+        """
 
         for node_id, value in node_dict.items():
 
             self.viz_graph.node[node_id][self.GEXF_VIZ][viz_key] = value
 
     def set_node_gexf_positions(self, node_positions_dict):
+        """
+
+        Parameters
+        ----------
+        node_positions_dict :
+            
+
+        Returns
+        -------
+
+        """
 
         # convert the node positions values to a valid dictionary and
         # set the positions viz for all the nodes
@@ -247,6 +499,17 @@ class LayoutGraph():
                            for node_id, coord in node_positions_dict.items()})
 
     def set_node_gexf_colors_rgb(self, node_colors_dict):
+        """
+
+        Parameters
+        ----------
+        node_colors_dict :
+            
+
+        Returns
+        -------
+
+        """
 
         # convert the node colors values to a valid dictionary and
         # set the colors viz for all the nodes
@@ -255,6 +518,17 @@ class LayoutGraph():
                                 for node_id, coord in node_colors_dict.items()})
 
     def set_node_gexf_colors_rgba(self, node_colors_dict):
+        """
+
+        Parameters
+        ----------
+        node_colors_dict :
+            
+
+        Returns
+        -------
+
+        """
 
         # convert the node colors values to a valid dictionary and
         # set the colors viz for all the nodes
@@ -263,6 +537,17 @@ class LayoutGraph():
                                 for node_id, coord in node_colors_dict.items()})
 
     def set_node_gexf_alphas(self, node_alphas_dict):
+        """
+
+        Parameters
+        ----------
+        node_alphas_dict :
+            
+
+        Returns
+        -------
+
+        """
 
         # convert the node colors values to a valid dictionary and
         # set the colors viz for all the nodes
@@ -271,9 +556,31 @@ class LayoutGraph():
                                 for node_id, value in node_alphas_dict.items()})
 
     def set_node_gexf_sizes(self, node_sizes_dict):
+        """
+
+        Parameters
+        ----------
+        node_sizes_dict :
+            
+
+        Returns
+        -------
+
+        """
 
         self.set_node_gexf_viz(self.GEXF_VIZ_SIZE, node_sizes_dict)
 
     def set_node_gexf_shape(self, node_shape_dict):
+        """
+
+        Parameters
+        ----------
+        node_shape_dict :
+            
+
+        Returns
+        -------
+
+        """
 
         self.set_node_gexf_viz(self.GEXF_VIZ_SHAPE, node_shape_dict)

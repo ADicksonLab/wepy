@@ -5,13 +5,23 @@ import numpy as np
 
 def transition_counts(assignments, transitions):
     """Make a dictionary of transition counts.
-
+    
     assignments: a list of [N_run, [N_traj x N_cycle]] arrays of ints
     where N_runs is the number of runs, N_traj is the number of
     trajectories, and N_cycle is the number of cycles
-
+    
     transitions: list of traces (a trace is a list of tuples
     specifying the run, trajectory, and frame).
+
+    Parameters
+    ----------
+    assignments :
+        
+    transitions :
+        
+
+    Returns
+    -------
 
     """
 
@@ -32,6 +42,17 @@ def transition_counts(assignments, transitions):
     return countsmat_d
 
 def counts_d_to_matrix(counts_d):
+    """
+
+    Parameters
+    ----------
+    counts_d :
+        
+
+    Returns
+    -------
+
+    """
     # get the number of unique nodes in the counts_d
     max_assignment = max(it.chain(*counts_d.keys()))
     countsmat = np.zeros((max_assignment+1, max_assignment+1))
@@ -41,19 +62,40 @@ def counts_d_to_matrix(counts_d):
     return countsmat
 
 def normalize_counts(transition_counts_matrix):
+    """
+
+    Parameters
+    ----------
+    transition_counts_matrix :
+        
+
+    Returns
+    -------
+
+    """
 
     return np.divide(transition_counts_matrix, transition_counts_matrix.sum(axis=0))
 
 def transition_counts_matrix(assignments, transitions):
     """Make a transition count matrix for a single run.
-
-
+    
+    
     assignments: a list of N_run, [N_traj x N_cycle] arrays of ints
     where N_runs is the number of runs, N_traj is the number of
     trajectories, and N_cycle is the number of cycles
-
+    
     transitions: list of traces (a trace is a list of tuples
     specifying the run, trajectory, and frame).
+
+    Parameters
+    ----------
+    assignments :
+        
+    transitions :
+        
+
+    Returns
+    -------
 
     """
 
@@ -67,21 +109,30 @@ def transition_counts_matrix(assignments, transitions):
 
 def transition_probability_matrix(assignments, transitions):
 
-    """
-    This determines a transition matrix for a variable lag time.
-
+    """This determines a transition matrix for a variable lag time.
+    
     Inputs:
-
+    
     assignments : (numpy array [n_traj x n_timestep]):
     This is an array that indicates the cluster number for each traj at each timestep.
-
+    
     sliding_window(iterable) : list of transitions. Transitions are a
     tuple of the start and end frame for a transition. Start and end
     frames are given by (traj_idx, frame_idx).
-
+    
     Outputs: trans_prob_mat (numpy array [n_cluster x n_cluster]):
-
+    
     A transition probability matrix.
+
+    Parameters
+    ----------
+    assignments :
+        
+    transitions :
+        
+
+    Returns
+    -------
 
     """
 
@@ -96,6 +147,20 @@ def transition_probability_matrix(assignments, transitions):
 def run_transition_counts_matrix(wepy_hdf5, run_idx, assignment_key, transitions):
     """Make a transition counts matrix from a WepyHDF5 run for a
     particular assignment given a set of transitions.
+
+    Parameters
+    ----------
+    wepy_hdf5 :
+        
+    run_idx :
+        
+    assignment_key :
+        
+    transitions :
+        
+
+    Returns
+    -------
 
     """
 
@@ -131,6 +196,20 @@ def run_transition_counts_matrix(wepy_hdf5, run_idx, assignment_key, transitions
 def run_transition_probability_matrix(wepy_hdf5, run_idx, assignment_key, transitions):
     """Make a transition probability matrix from a WepyHDF5 run for a
     particular assignment given a set of transitions.
+
+    Parameters
+    ----------
+    wepy_hdf5 :
+        
+    run_idx :
+        
+    assignment_key :
+        
+    transitions :
+        
+
+    Returns
+    -------
 
     """
 

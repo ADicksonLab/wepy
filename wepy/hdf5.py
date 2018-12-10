@@ -130,6 +130,17 @@ SPORADIC_RECORDS = (RESAMPLER, WARPING, RESAMPLING, BC)
 
 # utility for paths
 def _iter_field_paths(grp):
+    """
+
+    Parameters
+    ----------
+    grp :
+        
+
+    Returns
+    -------
+
+    """
     field_paths = []
     for field_name in grp:
         if isinstance(grp[field_name], h5py.Group):
@@ -140,6 +151,7 @@ def _iter_field_paths(grp):
     return field_paths
 
 class WepyHDF5(object):
+    """ """
 
     MODES = ('r', 'r+', 'w', 'w-', 'x', 'a')
 
@@ -317,7 +329,15 @@ class WepyHDF5(object):
     ### constructors
     def _create_init(self):
         """Completely overwrite the data in the file. Reinitialize the values
-        and set with the new ones if given."""
+        and set with the new ones if given.
+
+        Parameters
+        ----------
+
+        Returns
+        -------
+
+        """
 
         assert self._topology is not None, \
             "Topology must be given for a creation constructor"
@@ -439,13 +459,21 @@ class WepyHDF5(object):
         self._init_continuations()
 
     def _read_write_init(self):
-        """Write over values if given but do not reinitialize any old ones. """
+        """Write over values if given but do not reinitialize any old ones."""
 
         self._read_init()
 
     def _add_init(self):
         """Create the dataset if it doesn't exist and put it in r+ mode,
-        otherwise, just open in r+ mode."""
+        otherwise, just open in r+ mode.
+
+        Parameters
+        ----------
+
+        Returns
+        -------
+
+        """
 
         if not any(self._exist_flags):
             self._create_init()
@@ -460,7 +488,17 @@ class WepyHDF5(object):
     def _set_default_init_field_attributes(self, n_dims=None):
         """Sets the feature_shapes and feature_dtypes to be the default for
         this module. These will be used to initialize field datasets when no
-        given during construction (i.e. for sparse values)"""
+        given during construction (i.e. for sparse values)
+
+        Parameters
+        ----------
+        n_dims :
+             (Default value = None)
+
+        Returns
+        -------
+
+        """
 
         # we use the module defaults for the datasets to initialize them
         field_feature_shapes = dict(FIELD_FEATURE_SHAPES)
@@ -498,12 +536,24 @@ class WepyHDF5(object):
     def _get_field_path_grp(self, run_idx, traj_idx, field_path):
         """Given a field path for the trajectory returns the group the field's
         dataset goes in and the key for the field name in that group.
-
+        
         The field path for a simple field is just the name of the
         field and for a compound field it is the compound field group
         name with the subfield separated by a '/' like
         'observables/observable1' where 'observables' is the compound
         field group and 'observable1' is the subfield name.
+
+        Parameters
+        ----------
+        run_idx :
+            
+        traj_idx :
+            
+        field_path :
+            
+
+        Returns
+        -------
 
         """
 
@@ -525,6 +575,12 @@ class WepyHDF5(object):
         continuations or if continuations already exist it will reinitialize
         them and delete the data that exists there.
 
+        Parameters
+        ----------
+
+        Returns
+        -------
+
         """
 
         # if the continuations dset already exists we reinitialize the
@@ -543,7 +599,19 @@ class WepyHDF5(object):
 
     def _add_run_init(self, run_idx, continue_run=None):
         """Routines for creating a run includes updating and setting object
-        global variables, increasing the counter for the number of runs."""
+        global variables, increasing the counter for the number of runs.
+
+        Parameters
+        ----------
+        run_idx :
+            
+        continue_run :
+             (Default value = None)
+
+        Returns
+        -------
+
+        """
 
 
         # add the run idx as metadata in the run group
@@ -556,6 +624,19 @@ class WepyHDF5(object):
             self.add_continuation(run_idx, continue_run)
 
     def _add_init_walkers(self, init_walkers_grp, init_walkers):
+        """
+
+        Parameters
+        ----------
+        init_walkers_grp :
+            
+        init_walkers :
+            
+
+        Returns
+        -------
+
+        """
 
         # add the initial walkers to the group by essentially making
         # new trajectories here that will only have one frame
@@ -581,6 +662,21 @@ class WepyHDF5(object):
 
 
     def _init_run_sporadic_record_grp(self, run_idx, run_record_key, fields):
+        """
+
+        Parameters
+        ----------
+        run_idx :
+            
+        run_record_key :
+            
+        fields :
+            
+
+        Returns
+        -------
+
+        """
 
         # create the group
         run_grp = self.run(run_idx)
@@ -602,6 +698,21 @@ class WepyHDF5(object):
 
 
     def _init_run_continual_record_grp(self, run_idx, run_record_key, fields):
+        """
+
+        Parameters
+        ----------
+        run_idx :
+            
+        run_record_key :
+            
+        fields :
+            
+
+        Returns
+        -------
+
+        """
 
         # create the group
         run_grp = self.run(run_idx)
@@ -617,6 +728,25 @@ class WepyHDF5(object):
 
     def _init_run_records_field(self, run_idx, run_record_key,
                                 field_name, field_shape, field_dtype):
+        """
+
+        Parameters
+        ----------
+        run_idx :
+            
+        run_record_key :
+            
+        field_name :
+            
+        field_shape :
+            
+        field_dtype :
+            
+
+        Returns
+        -------
+
+        """
 
         record_grp = self.run(run_idx)[run_record_key]
 
@@ -640,6 +770,17 @@ class WepyHDF5(object):
         return dset
 
     def _is_sporadic_records(self, run_record_key):
+        """
+
+        Parameters
+        ----------
+        run_record_key :
+            
+
+        Returns
+        -------
+
+        """
 
         # assume it is continual and check if it is in the sporadic groups
         if run_record_key in SPORADIC_RECORDS:
@@ -649,7 +790,25 @@ class WepyHDF5(object):
 
     def _init_traj_field(self, run_idx, traj_idx, field_path, feature_shape, dtype):
         """Initialize a data field in the trajectory to be empty but
-        resizeable."""
+        resizeable.
+
+        Parameters
+        ----------
+        run_idx :
+            
+        traj_idx :
+            
+        field_path :
+            
+        feature_shape :
+            
+        dtype :
+            
+
+        Returns
+        -------
+
+        """
 
         # check whether this is a sparse field and create it
         # appropriately
@@ -661,6 +820,25 @@ class WepyHDF5(object):
             self._init_contiguous_traj_field(run_idx, traj_idx, field_path, feature_shape, dtype)
 
     def _init_contiguous_traj_field(self, run_idx, traj_idx, field_path, shape, dtype):
+        """
+
+        Parameters
+        ----------
+        run_idx :
+            
+        traj_idx :
+            
+        field_path :
+            
+        shape :
+            
+        dtype :
+            
+
+        Returns
+        -------
+
+        """
 
         traj_grp = self._h5['{}/{}/{}/{}'.format(RUNS, run_idx, TRAJECTORIES, traj_idx)]
 
@@ -671,6 +849,25 @@ class WepyHDF5(object):
 
 
     def _init_sparse_traj_field(self, run_idx, traj_idx, field_path, shape, dtype):
+        """
+
+        Parameters
+        ----------
+        run_idx :
+            
+        traj_idx :
+            
+        field_path :
+            
+        shape :
+            
+        dtype :
+            
+
+        Returns
+        -------
+
+        """
 
         traj_grp = self._h5['{}/{}/{}/{}'.format(RUNS, run_idx, TRAJECTORIES, traj_idx)]
 
@@ -697,11 +894,49 @@ class WepyHDF5(object):
 
     def _init_traj_fields(self, run_idx, traj_idx,
                           field_paths, field_feature_shapes, field_feature_dtypes):
+        """
+
+        Parameters
+        ----------
+        run_idx :
+            
+        traj_idx :
+            
+        field_paths :
+            
+        field_feature_shapes :
+            
+        field_feature_dtypes :
+            
+
+        Returns
+        -------
+
+        """
         for i, field_path in enumerate(field_paths):
             self._init_traj_field(run_idx, traj_idx,
                                   field_path, field_feature_shapes[i], field_feature_dtypes[i])
 
     def _add_traj_field_data(self, run_idx, traj_idx, field_path, field_data, sparse_idxs=None):
+        """
+
+        Parameters
+        ----------
+        run_idx :
+            
+        traj_idx :
+            
+        field_path :
+            
+        field_data :
+            
+        sparse_idxs :
+             (Default value = None)
+
+        Returns
+        -------
+
+        """
 
         # get the traj group
         traj_grp = self._h5['{}/{}/{}/{}'.format(RUNS, run_idx, TRAJECTORIES, traj_idx)]
@@ -721,10 +956,40 @@ class WepyHDF5(object):
                                       maxshape=(None,))
 
     def _extend_dataset(self, dset_path, new_data):
+        """
+
+        Parameters
+        ----------
+        dset_path :
+            
+        new_data :
+            
+
+        Returns
+        -------
+
+        """
         dset = self.h5[dset_path]
         extend_dataset(dset, new_data)
 
     def _extend_contiguous_traj_field(self, run_idx, traj_idx, field_path, field_data):
+        """
+
+        Parameters
+        ----------
+        run_idx :
+            
+        traj_idx :
+            
+        field_path :
+            
+        field_data :
+            
+
+        Returns
+        -------
+
+        """
 
         traj_grp = self.h5['{}/{}/{}/{}'.format(RUNS, run_idx, TRAJECTORIES, traj_idx)]
         field = traj_grp[field_path]
@@ -768,6 +1033,25 @@ class WepyHDF5(object):
             field[-n_new_frames:, ...] = field_data
 
     def _extend_sparse_traj_field(self, run_idx, traj_idx, field_path, values, sparse_idxs):
+        """
+
+        Parameters
+        ----------
+        run_idx :
+            
+        traj_idx :
+            
+        field_path :
+            
+        values :
+            
+        sparse_idxs :
+            
+
+        Returns
+        -------
+
+        """
 
         field = self.h5['{}/{}/{}/{}/{}'.format(RUNS, run_idx, TRAJECTORIES, traj_idx, field_path)]
 
@@ -816,6 +1100,17 @@ class WepyHDF5(object):
         field_sparse_idxs[-n_new_frames:, ...] = sparse_idxs
 
     def _add_sparse_field_flag(self, field_path):
+        """
+
+        Parameters
+        ----------
+        field_path :
+            
+
+        Returns
+        -------
+
+        """
 
         sparse_fields_ds = self._h5['{}/{}'.format(SETTINGS, SPARSE_FIELDS)]
 
@@ -827,16 +1122,55 @@ class WepyHDF5(object):
         sparse_fields_ds[sparse_fields_ds.shape[0] - 1] = field_path
 
     def _add_field_feature_shape(self, field_path, field_feature_shape):
+        """
+
+        Parameters
+        ----------
+        field_path :
+            
+        field_feature_shape :
+            
+
+        Returns
+        -------
+
+        """
         shapes_grp = self._h5['{}/{}'.format(SETTINGS, FIELD_FEATURE_SHAPES_STR)]
         shapes_grp.create_dataset(field_path, data=np.array(field_feature_shape))
 
     def _add_field_feature_dtype(self, field_path, field_feature_dtype):
+        """
+
+        Parameters
+        ----------
+        field_path :
+            
+        field_feature_dtype :
+            
+
+        Returns
+        -------
+
+        """
         feature_dtype_str = json.dumps(field_feature_dtype.descr)
         dtypes_grp = self._h5['{}/{}'.format(SETTINGS, FIELD_FEATURE_DTYPES_STR)]
         dtypes_grp.create_dataset(field_path, data=feature_dtype_str)
 
 
     def _set_field_feature_shape(self, field_path, field_feature_shape):
+        """
+
+        Parameters
+        ----------
+        field_path :
+            
+        field_feature_shape :
+            
+
+        Returns
+        -------
+
+        """
         # check if the field_feature_shape is already set
         if field_path in self.field_feature_shapes:
             # check that the shape was previously saved as "None" as we
@@ -856,6 +1190,19 @@ class WepyHDF5(object):
             self._add_field_feature_shape(field_path, field_feature_shape)
 
     def _set_field_feature_dtype(self, field_path, field_feature_dtype):
+        """
+
+        Parameters
+        ----------
+        field_path :
+            
+        field_feature_dtype :
+            
+
+        Returns
+        -------
+
+        """
         feature_dtype_str = json.dumps(field_feature_dtype.descr)
         # check if the field_feature_dtype is already set
         if field_path in self.field_feature_dtypes:
@@ -880,6 +1227,20 @@ class WepyHDF5(object):
         """Adds data for a single field dataset in a run records group. This
         is done without paying attention to whether it is sporadic or
         continual and is supposed to be only the data write method.
+
+        Parameters
+        ----------
+        run_idx :
+            
+        run_record_key :
+            
+        field_name :
+            
+        field_data :
+            
+
+        Returns
+        -------
 
         """
 
@@ -956,6 +1317,17 @@ class WepyHDF5(object):
 
 
     def _run_record_namedtuple(self, run_record_key):
+        """
+
+        Parameters
+        ----------
+        run_record_key :
+            
+
+        Returns
+        -------
+
+        """
 
         Record = namedtuple('{}_Record'.format(run_record_key),
                             [CYCLE_IDX] + self.record_fields[run_record_key])
@@ -963,6 +1335,21 @@ class WepyHDF5(object):
         return Record
 
     def _convert_record_field_to_table_column(self, run_idx, run_record_key, record_field):
+        """
+
+        Parameters
+        ----------
+        run_idx :
+            
+        run_record_key :
+            
+        record_field :
+            
+
+        Returns
+        -------
+
+        """
 
         # get the field dataset
         rec_grp = self.records_grp(run_idx, run_record_key)
@@ -994,6 +1381,19 @@ class WepyHDF5(object):
         return rec_dset
 
     def _convert_record_fields_to_table_columns(self, run_idx, run_record_key):
+        """
+
+        Parameters
+        ----------
+        run_idx :
+            
+        run_record_key :
+            
+
+        Returns
+        -------
+
+        """
         fields = {}
         for record_field in self.record_fields[run_record_key]:
             fields[record_field] = self._convert_record_field_to_table_column(
@@ -1002,6 +1402,21 @@ class WepyHDF5(object):
         return fields
 
     def _make_records(self, run_record_key, cycle_idxs, fields):
+        """
+
+        Parameters
+        ----------
+        run_record_key :
+            
+        cycle_idxs :
+            
+        fields :
+            
+
+        Returns
+        -------
+
+        """
         Record = self._run_record_namedtuple(run_record_key)
 
         # for each record we make a tuple and yield it
@@ -1021,6 +1436,19 @@ class WepyHDF5(object):
         return records
 
     def _run_records_sporadic(self, run_idxs, run_record_key):
+        """
+
+        Parameters
+        ----------
+        run_idxs :
+            
+        run_record_key :
+            
+
+        Returns
+        -------
+
+        """
 
         # we loop over the run_idxs in the contig and get the fields
         # and cycle idxs for the whole contig
@@ -1070,6 +1498,19 @@ class WepyHDF5(object):
         return records
 
     def _run_records_continual(self, run_idxs, run_record_key):
+        """
+
+        Parameters
+        ----------
+        run_idxs :
+            
+        run_record_key :
+            
+
+        Returns
+        -------
+
+        """
 
         cycle_idxs = np.array([], dtype=int)
         fields = None
@@ -1121,6 +1562,23 @@ class WepyHDF5(object):
 
 
     def _get_contiguous_traj_field(self, run_idx, traj_idx, field_path, frames=None):
+        """
+
+        Parameters
+        ----------
+        run_idx :
+            
+        traj_idx :
+            
+        field_path :
+            
+        frames :
+             (Default value = None)
+
+        Returns
+        -------
+
+        """
 
         full_path = '{}/{}/{}/{}/{}'.format(RUNS, run_idx, TRAJECTORIES, traj_idx, field_path)
 
@@ -1132,6 +1590,25 @@ class WepyHDF5(object):
         return field
 
     def _get_sparse_traj_field(self, run_idx, traj_idx, field_path, frames=None, masked=True):
+        """
+
+        Parameters
+        ----------
+        run_idx :
+            
+        traj_idx :
+            
+        field_path :
+            
+        frames :
+             (Default value = None)
+        masked :
+             (Default value = True)
+
+        Returns
+        -------
+
+        """
 
         traj_path = '{}/{}/{}/{}'.format(RUNS, run_idx, TRAJECTORIES, traj_idx)
         traj_grp = self.h5[traj_path]
@@ -1186,7 +1663,23 @@ class WepyHDF5(object):
 
 
     def _add_run_field(self, run_idx, field_path, data, sparse_idxs=None):
-        """ Add a field to your trajectories runs"""
+        """Add a field to your trajectories runs
+
+        Parameters
+        ----------
+        run_idx :
+            
+        field_path :
+            
+        data :
+            
+        sparse_idxs :
+             (Default value = None)
+
+        Returns
+        -------
+
+        """
 
         # check that the data has the correct number of trajectories
         assert len(data) == self.num_run_trajs(run_idx),\
@@ -1238,6 +1731,21 @@ class WepyHDF5(object):
                                           sparse_idxs=sparse_idxs[i])
 
     def _add_field(self, field_path, data, sparse_idxs=None):
+        """
+
+        Parameters
+        ----------
+        field_path :
+            
+        data :
+            
+        sparse_idxs :
+             (Default value = None)
+
+        Returns
+        -------
+
+        """
 
         for i, run_idx in enumerate(self.run_idxs):
             if sparse_idxs is not None:
@@ -1251,9 +1759,11 @@ class WepyHDF5(object):
 
     @property
     def filename(self):
+        """ """
         return self._filename
 
     def open(self):
+        """ """
         if self.closed:
             self._h5 = h5py.File(self._filename, self._h5py_mode)
             self.closed = False
@@ -1261,71 +1771,201 @@ class WepyHDF5(object):
             raise IOError("This file is already open")
 
     def close(self):
+        """ """
         if not self.closed:
             self._h5.close()
             self.closed = True
 
     @property
     def mode(self):
+        """ """
         return self._wepy_mode
 
     @property
     def h5_mode(self):
+        """ """
         return self._h5.mode
 
     @property
     def h5(self):
+        """ """
         return self._h5
 
     ### h5py object access
 
     def run(self, run_idx):
+        """
+
+        Parameters
+        ----------
+        run_idx :
+            
+
+        Returns
+        -------
+
+        """
         return self._h5['{}/{}'.format(RUNS, int(run_idx))]
 
     def traj(self, run_idx, traj_idx):
+        """
+
+        Parameters
+        ----------
+        run_idx :
+            
+        traj_idx :
+            
+
+        Returns
+        -------
+
+        """
         return self._h5['{}/{}/{}/{}'.format(RUNS, run_idx, TRAJECTORIES, traj_idx)]
 
     def run_trajs(self, run_idx):
+        """
+
+        Parameters
+        ----------
+        run_idx :
+            
+
+        Returns
+        -------
+
+        """
         return self._h5['{}/{}/{}'.format(RUNS, run_idx, TRAJECTORIES)]
 
     @property
     def runs(self):
+        """ """
         return self.h5[RUNS].values()
 
     @property
     def settings_grp(self):
+        """ """
         settings_grp = self.h5[SETTINGS]
         return settings_grp
 
     def decision_grp(self, run_idx):
+        """
+
+        Parameters
+        ----------
+        run_idx :
+            
+
+        Returns
+        -------
+
+        """
         return self.run(run_idx)[DECISION]
 
     def records_grp(self, run_idx, run_record_key):
+        """
+
+        Parameters
+        ----------
+        run_idx :
+            
+        run_record_key :
+            
+
+        Returns
+        -------
+
+        """
         path = '{}/{}/{}'.format(RUNS, run_idx, run_record_key)
         return self.h5[path]
 
     def resampling_grp(self, run_idx):
+        """
+
+        Parameters
+        ----------
+        run_idx :
+            
+
+        Returns
+        -------
+
+        """
         return self.records_grp(run_idx, RESAMPLING)
 
     def resampler_grp(self, run_idx):
+        """
+
+        Parameters
+        ----------
+        run_idx :
+            
+
+        Returns
+        -------
+
+        """
         return self.records_grp(run_idx, RESAMPLER)
 
     def warping_grp(self, run_idx):
+        """
+
+        Parameters
+        ----------
+        run_idx :
+            
+
+        Returns
+        -------
+
+        """
         return self.records_grp(run_idx, WARPING)
 
     def bc_grp(self, run_idx):
+        """
+
+        Parameters
+        ----------
+        run_idx :
+            
+
+        Returns
+        -------
+
+        """
         return self.records_grp(run_idx, BC)
 
     def progress_grp(self, run_idx):
+        """
+
+        Parameters
+        ----------
+        run_idx :
+            
+
+        Returns
+        -------
+
+        """
         return self.records_grp(run_idx, PROGRESS)
 
     def iter_runs(self, idxs=False, run_sel=None):
         """Iterate through runs.
-
+        
         idxs : if True returns `(run_idx, run_group)`, False just `run_group`
-
+        
         run_sel : if True will iterate over a subset of runs. Possible
         values are an iterable of indices of runs to iterate over.
+
+        Parameters
+        ----------
+        idxs :
+             (Default value = False)
+        run_sel :
+             (Default value = None)
+
+        Returns
+        -------
 
         """
 
@@ -1343,10 +1983,20 @@ class WepyHDF5(object):
     def iter_trajs(self, idxs=False, traj_sel=None):
         """Generator for all of the trajectories in the dataset across all
         runs. If idxs=True will return a tuple of (run_idx, traj_idx).
-
+        
         run_sel : if True will iterate over a subset of
         trajectories. Possible values are an iterable of `(run_idx,
         traj_idx)` tuples.
+
+        Parameters
+        ----------
+        idxs :
+             (Default value = False)
+        traj_sel :
+             (Default value = None)
+
+        Returns
+        -------
 
         """
 
@@ -1366,6 +2016,19 @@ class WepyHDF5(object):
                 yield traj
 
     def iter_run_trajs(self, run_idx, idxs=False):
+        """
+
+        Parameters
+        ----------
+        run_idx :
+            
+        idxs :
+             (Default value = False)
+
+        Returns
+        -------
+
+        """
         run_sel = self.run_traj_idx_tuples([run_idx])
         return self.iter_trajs(idxs=idxs, traj_sel=run_sel)
 
@@ -1374,6 +2037,7 @@ class WepyHDF5(object):
 
     @property
     def record_fields(self):
+        """ """
 
         record_fields_grp = self.settings_grp[RECORD_FIELDS]
 
@@ -1385,10 +2049,12 @@ class WepyHDF5(object):
 
     @property
     def sparse_fields(self):
+        """ """
         return self.h5['{}/{}'.format(SETTINGS, SPARSE_FIELDS)][:]
 
     @property
     def main_rep_idxs(self):
+        """ """
         if '{}/{}'.format(SETTINGS, MAIN_REP_IDXS) in self.h5:
             return self.h5['{}/{}'.format(SETTINGS, MAIN_REP_IDXS)][:]
         else:
@@ -1396,11 +2062,13 @@ class WepyHDF5(object):
 
     @property
     def alt_reps_idxs(self):
+        """ """
         idxs_grp = self.h5['{}/{}'.format(SETTINGS, ALT_REPS_IDXS)]
         return {name : ds[:] for name, ds in idxs_grp.items()}
 
     @property
     def field_feature_shapes(self):
+        """ """
         shapes_grp = self.h5['{}/{}'.format(SETTINGS, FIELD_FEATURE_SHAPES_STR)]
 
         field_paths = _iter_field_paths(shapes_grp)
@@ -1417,6 +2085,7 @@ class WepyHDF5(object):
 
     @property
     def field_feature_dtypes(self):
+        """ """
 
         dtypes_grp = self.h5['{}/{}'.format(SETTINGS, FIELD_FEATURE_DTYPES_STR)]
 
@@ -1438,13 +2107,26 @@ class WepyHDF5(object):
 
     @property
     def continuations(self):
+        """ """
         return self.settings_grp[CONTINUATIONS][:]
 
     @property
     def metadata(self):
+        """ """
         return dict(self._h5.attrs)
 
     def decision_enum(self, run_idx):
+        """
+
+        Parameters
+        ----------
+        run_idx :
+            
+
+        Returns
+        -------
+
+        """
 
         enum_grp = self.decision_grp(run_idx)
         enum = {}
@@ -1454,6 +2136,17 @@ class WepyHDF5(object):
         return enum
 
     def decision_value_names(self, run_idx):
+        """
+
+        Parameters
+        ----------
+        run_idx :
+            
+
+        Returns
+        -------
+
+        """
         enum_grp = self.decision_grp(run_idx)
         rev_enum = {}
         for decision_name, dset in enum_grp.items():
@@ -1473,6 +2166,14 @@ class WepyHDF5(object):
         alternative representations (subfields of 'alt_reps') can be
         obtained by passing in the key for that alt_rep. For example,
         'all_atoms' for the field in alt_reps called 'all_atoms'.
+
+        Parameters
+        ----------
+        alt_rep :
+             (Default value = POSITIONS)
+
+        Returns
+        -------
 
         """
 
@@ -1505,6 +2206,12 @@ class WepyHDF5(object):
         representation in the POSITIONS field; for that use the
         `topology` method.
 
+        Parameters
+        ----------
+
+        Returns
+        -------
+
         """
         return self._h5[TOPOLOGY][()]
 
@@ -1518,6 +2225,14 @@ class WepyHDF5(object):
         alternative representations (subfields of 'alt_reps') can be
         obtained by passing in the key for that alt_rep. For example,
         'all_atoms' for the field in alt_reps called 'all_atoms'.
+
+        Parameters
+        ----------
+        alt_rep :
+             (Default value = POSITIONS)
+
+        Returns
+        -------
 
         """
 
@@ -1538,37 +2253,99 @@ class WepyHDF5(object):
 
     @property
     def num_atoms(self):
+        """ """
         return self.h5['{}/{}'.format(SETTINGS, N_ATOMS)][()]
 
     @property
     def num_dims(self):
+        """ """
         return self.h5['{}/{}'.format(SETTINGS, N_DIMS_STR)][()]
 
     @property
     def num_runs(self):
+        """ """
         return len(self._h5[RUNS])
 
     @property
     def num_trajs(self):
+        """ """
         return len(list(self.run_traj_idx_tuples()))
 
     def num_run_trajs(self, run_idx):
+        """
+
+        Parameters
+        ----------
+        run_idx :
+            
+
+        Returns
+        -------
+
+        """
         return len(self._h5['{}/{}/{}'.format(RUNS, run_idx, TRAJECTORIES)])
 
     def num_run_cycles(self, run_idx):
+        """
+
+        Parameters
+        ----------
+        run_idx :
+            
+
+        Returns
+        -------
+
+        """
         return self.num_traj_frames(run_idx, 0)
 
     def num_traj_frames(self, run_idx, traj_idx):
+        """
+
+        Parameters
+        ----------
+        run_idx :
+            
+        traj_idx :
+            
+
+        Returns
+        -------
+
+        """
         return self.traj(run_idx, traj_idx)[POSITIONS].shape[0]
 
     @property
     def run_idxs(self):
+        """ """
         return list(range(len(self._h5[RUNS])))
 
     def run_traj_idxs(self, run_idx):
+        """
+
+        Parameters
+        ----------
+        run_idx :
+            
+
+        Returns
+        -------
+
+        """
         return list(range(len(self._h5['{}/{}/{}'.format(RUNS, run_idx, TRAJECTORIES)])))
 
     def run_traj_idx_tuples(self, runs=None):
+        """
+
+        Parameters
+        ----------
+        runs :
+             (Default value = None)
+
+        Returns
+        -------
+
+        """
         tups = []
         if runs is None:
             run_idxs = self.run_idxs
@@ -1581,7 +2358,21 @@ class WepyHDF5(object):
         return tups
 
     def get_traj_field_cycle_idxs(self, run_idx, traj_idx, field_path):
-        """ Returns the sparse indices for a field"""
+        """Returns the sparse indices for a field
+
+        Parameters
+        ----------
+        run_idx :
+            
+        traj_idx :
+            
+        field_path :
+            
+
+        Returns
+        -------
+
+        """
 
         traj_path = '{}/{}/{}/{}'.format(RUNS, run_idx, TRAJECTORIES, traj_idx)
 
@@ -1600,9 +2391,21 @@ class WepyHDF5(object):
         return cycle_idxs
 
     def next_run_idx(self):
+        """ """
         return self.num_runs
 
     def next_run_traj_idx(self, run_idx):
+        """
+
+        Parameters
+        ----------
+        run_idx :
+            
+
+        Returns
+        -------
+
+        """
         return self.num_run_trajs(run_idx)
 
     ### Aggregation
@@ -1610,6 +2413,15 @@ class WepyHDF5(object):
     def is_run_contig(self, run_idxs):
         """This method checks that if a given list of run indices is a valid
         contig or not.
+
+        Parameters
+        ----------
+        run_idxs :
+            
+
+        Returns
+        -------
+
         """
         run_idx_continuations = [np.array([run_idxs[idx+1], run_idxs[idx]])
                             for idx in range(len(run_idxs)-1)]
@@ -1632,11 +2444,21 @@ class WepyHDF5(object):
         data. This includes the topology, units, sparse_fields,
         feature shapes and dtypes, alt_reps, and main representation
         information.
-
+        
         This method will flush the buffers for this file.
-
+        
         Does not preserve metadata pertaining to inter-run
         relationships like continuations.
+
+        Parameters
+        ----------
+        path :
+            
+        mode :
+             (Default value = 'x')
+
+        Returns
+        -------
 
         """
 
@@ -1686,7 +2508,23 @@ class WepyHDF5(object):
 
     def link_run(self, filepath, run_idx, continue_run=None, **kwargs):
         """Add a run from another file to this one as an HDF5 external
-        link. Intuitively this is like mounting a drive in a filesystem."""
+        link. Intuitively this is like mounting a drive in a filesystem.
+
+        Parameters
+        ----------
+        filepath :
+            
+        run_idx :
+            
+        continue_run :
+             (Default value = None)
+        **kwargs :
+            
+
+        Returns
+        -------
+
+        """
 
         # link to the external run
         ext_run_link = h5py.ExternalLink(filepath, '{}/{}'.format(RUNS, run_idx))
@@ -1715,8 +2553,16 @@ class WepyHDF5(object):
         """Link all runs from another WepyHDF5 file. This preserves
         continuations within that file. This will open the file if not
         already opened.
-
+        
         returns the indices of the new runs in this file.
+
+        Parameters
+        ----------
+        wepy_h5_path :
+            
+
+        Returns
+        -------
 
         """
 
@@ -1750,6 +2596,15 @@ class WepyHDF5(object):
     def join(self, other_h5):
         """Given another WepyHDF5 file object does a left join on this
         file. Renumbering the runs starting from this file.
+
+        Parameters
+        ----------
+        other_h5 :
+            
+
+        Returns
+        -------
+
         """
 
         with other_h5 as h5:
@@ -1763,6 +2618,19 @@ class WepyHDF5(object):
     ### initialization and data generation
 
     def add_metadata(self, key, value):
+        """
+
+        Parameters
+        ----------
+        key :
+            
+        value :
+            
+
+        Returns
+        -------
+
+        """
         self._h5.attrs[key] = value
 
 
@@ -1772,6 +2640,16 @@ class WepyHDF5(object):
         to allow there to large and small datasets for records to be
         stored together but allow for a more compact single table like
         representation to be produced for serialization.
+
+        Parameters
+        ----------
+        run_record_key :
+            
+        record_fields :
+            
+
+        Returns
+        -------
 
         """
 
@@ -1793,26 +2671,91 @@ class WepyHDF5(object):
             record_group_fields_ds[i] = record_field
 
     def init_resampling_record_fields(self, resampler):
+        """
+
+        Parameters
+        ----------
+        resampler :
+            
+
+        Returns
+        -------
+
+        """
         self.init_record_fields(RESAMPLING, resampler.resampling_record_field_names())
 
     def init_resampler_record_fields(self, resampler):
+        """
+
+        Parameters
+        ----------
+        resampler :
+            
+
+        Returns
+        -------
+
+        """
         self.init_record_fields(RESAMPLER, resampler.resampler_record_field_names())
 
     def init_bc_record_fields(self, bc):
+        """
+
+        Parameters
+        ----------
+        bc :
+            
+
+        Returns
+        -------
+
+        """
         self.init_record_fields(BC, bc.bc_record_field_names())
 
     def init_warping_record_fields(self, bc):
+        """
+
+        Parameters
+        ----------
+        bc :
+            
+
+        Returns
+        -------
+
+        """
         self.init_record_fields(WARPING, bc.warping_record_field_names())
 
     def init_progress_record_fields(self, bc):
+        """
+
+        Parameters
+        ----------
+        bc :
+            
+
+        Returns
+        -------
+
+        """
         self.init_record_fields(PROGRESS, bc.progress_record_field_names())
 
     def add_continuation(self, continuation_run, base_run):
         """Add a continuation between runs.
-
+        
         continuation_run :: the run index of the run that continues base_run
-
+        
         base_run :: the run that is being continued
+
+        Parameters
+        ----------
+        continuation_run :
+            
+        base_run :
+            
+
+        Returns
+        -------
 
         """
 
@@ -1821,6 +2764,21 @@ class WepyHDF5(object):
         continuations_dset[continuations_dset.shape[0] - 1] = np.array([continuation_run, base_run])
 
     def new_run(self, init_walkers, continue_run=None, **kwargs):
+        """
+
+        Parameters
+        ----------
+        init_walkers :
+            
+        continue_run :
+             (Default value = None)
+        **kwargs :
+            
+
+        Returns
+        -------
+
+        """
 
         # check to see if the continue_run is actually in this file
         if continue_run is not None:
@@ -1861,6 +2819,19 @@ class WepyHDF5(object):
     # application level methods for setting the fields for run record
     # groups given the objects themselves
     def init_run_resampling(self, run_idx, resampler):
+        """
+
+        Parameters
+        ----------
+        run_idx :
+            
+        resampler :
+            
+
+        Returns
+        -------
+
+        """
 
         # set the enumeration of the decisions
         self.init_run_resampling_decision(0, resampler)
@@ -1876,10 +2847,36 @@ class WepyHDF5(object):
         return grp
 
     def init_run_resampling_decision(self, run_idx, resampler):
+        """
+
+        Parameters
+        ----------
+        run_idx :
+            
+        resampler :
+            
+
+        Returns
+        -------
+
+        """
 
         self.init_run_fields_resampling_decision(run_idx, resampler.DECISION.enum_dict_by_name())
 
     def init_run_resampler(self, run_idx, resampler):
+        """
+
+        Parameters
+        ----------
+        run_idx :
+            
+        resampler :
+            
+
+        Returns
+        -------
+
+        """
 
         fields = resampler.resampler_fields()
 
@@ -1888,6 +2885,19 @@ class WepyHDF5(object):
         return grp
 
     def init_run_warping(self, run_idx, bc):
+        """
+
+        Parameters
+        ----------
+        run_idx :
+            
+        bc :
+            
+
+        Returns
+        -------
+
+        """
 
         fields = bc.warping_fields()
         grp = self.init_run_record_grp(run_idx, WARPING, fields)
@@ -1895,6 +2905,19 @@ class WepyHDF5(object):
         return grp
 
     def init_run_progress(self, run_idx, bc):
+        """
+
+        Parameters
+        ----------
+        run_idx :
+            
+        bc :
+            
+
+        Returns
+        -------
+
+        """
 
         fields = bc.progress_fields()
 
@@ -1903,6 +2926,19 @@ class WepyHDF5(object):
         return grp
 
     def init_run_bc(self, run_idx, bc):
+        """
+
+        Parameters
+        ----------
+        run_idx :
+            
+        bc :
+            
+
+        Returns
+        -------
+
+        """
 
         fields = bc.bc_fields()
 
@@ -1913,12 +2949,38 @@ class WepyHDF5(object):
     # application level methods for initializing the run records
     # groups with just the fields and without the objects
     def init_run_fields_resampling(self, run_idx, fields):
+        """
+
+        Parameters
+        ----------
+        run_idx :
+            
+        fields :
+            
+
+        Returns
+        -------
+
+        """
 
         grp = self.init_run_record_grp(run_idx, RESAMPLING, fields)
 
         return grp
 
     def init_run_fields_resampling_decision(self, run_idx, decision_enum_dict):
+        """
+
+        Parameters
+        ----------
+        run_idx :
+            
+        decision_enum_dict :
+            
+
+        Returns
+        -------
+
+        """
 
         decision_grp = self.run(run_idx).create_group(DECISION)
         for name, value in decision_enum_dict.items():
@@ -1926,24 +2988,76 @@ class WepyHDF5(object):
 
 
     def init_run_fields_resampler(self, run_idx, fields):
+        """
+
+        Parameters
+        ----------
+        run_idx :
+            
+        fields :
+            
+
+        Returns
+        -------
+
+        """
 
         grp = self.init_run_record_grp(run_idx, RESAMPLER, fields)
 
         return grp
 
     def init_run_fields_warping(self, run_idx, fields):
+        """
+
+        Parameters
+        ----------
+        run_idx :
+            
+        fields :
+            
+
+        Returns
+        -------
+
+        """
 
         grp = self.init_run_record_grp(run_idx, WARPING, fields)
 
         return grp
 
     def init_run_fields_progress(self, run_idx, fields):
+        """
+
+        Parameters
+        ----------
+        run_idx :
+            
+        fields :
+            
+
+        Returns
+        -------
+
+        """
 
         grp = self.init_run_record_grp(run_idx, PROGRESS, fields)
 
         return grp
 
     def init_run_fields_bc(self, run_idx, fields):
+        """
+
+        Parameters
+        ----------
+        run_idx :
+            
+        fields :
+            
+
+        Returns
+        -------
+
+        """
 
         grp = self.init_run_record_grp(run_idx, BC, fields)
 
@@ -1951,6 +3065,21 @@ class WepyHDF5(object):
 
 
     def init_run_record_grp(self, run_idx, run_record_key, fields):
+        """
+
+        Parameters
+        ----------
+        run_idx :
+            
+        run_record_key :
+            
+        fields :
+            
+
+        Returns
+        -------
+
+        """
 
         # initialize the record group based on whether it is sporadic
         # or continual
@@ -1963,9 +3092,41 @@ class WepyHDF5(object):
 
 
     def traj_n_frames(self, run_idx, traj_idx):
+        """
+
+        Parameters
+        ----------
+        run_idx :
+            
+        traj_idx :
+            
+
+        Returns
+        -------
+
+        """
         return self.traj(run_idx, traj_idx)[POSITIONS].shape[0]
 
     def add_traj(self, run_idx, data, weights=None, sparse_idxs=None, metadata=None):
+        """
+
+        Parameters
+        ----------
+        run_idx :
+            
+        data :
+            
+        weights :
+             (Default value = None)
+        sparse_idxs :
+             (Default value = None)
+        metadata :
+             (Default value = None)
+
+        Returns
+        -------
+
+        """
 
         # convenient alias
         traj_data = data
@@ -2062,6 +3223,23 @@ class WepyHDF5(object):
         return traj_grp
 
     def extend_traj(self, run_idx, traj_idx, data, weights=None):
+        """
+
+        Parameters
+        ----------
+        run_idx :
+            
+        traj_idx :
+            
+        data :
+            
+        weights :
+             (Default value = None)
+
+        Returns
+        -------
+
+        """
 
         if self._wepy_mode == 'c-':
             assert self._append_flags[dataset_key], "dataset is not available for appending to"
@@ -2156,24 +3334,113 @@ class WepyHDF5(object):
     ## application level append methods for run records groups
 
     def extend_cycle_warping_records(self, run_idx, cycle_idx, warping_data):
+        """
+
+        Parameters
+        ----------
+        run_idx :
+            
+        cycle_idx :
+            
+        warping_data :
+            
+
+        Returns
+        -------
+
+        """
         self.extend_cycle_run_group_records(run_idx, WARPING, cycle_idx, warping_data)
 
     def extend_cycle_bc_records(self, run_idx, cycle_idx, bc_data):
+        """
+
+        Parameters
+        ----------
+        run_idx :
+            
+        cycle_idx :
+            
+        bc_data :
+            
+
+        Returns
+        -------
+
+        """
         self.extend_cycle_run_group_records(run_idx, BC, cycle_idx, bc_data)
 
     def extend_cycle_progress_records(self, run_idx, cycle_idx, progress_data):
+        """
+
+        Parameters
+        ----------
+        run_idx :
+            
+        cycle_idx :
+            
+        progress_data :
+            
+
+        Returns
+        -------
+
+        """
         self.extend_cycle_run_group_records(run_idx, PROGRESS, cycle_idx, progress_data)
 
     def extend_cycle_resampling_records(self, run_idx, cycle_idx, resampling_data):
+        """
+
+        Parameters
+        ----------
+        run_idx :
+            
+        cycle_idx :
+            
+        resampling_data :
+            
+
+        Returns
+        -------
+
+        """
         self.extend_cycle_run_group_records(run_idx, RESAMPLING, cycle_idx, resampling_data)
 
     def extend_cycle_resampler_records(self, run_idx, cycle_idx, resampler_data):
+        """
+
+        Parameters
+        ----------
+        run_idx :
+            
+        cycle_idx :
+            
+        resampler_data :
+            
+
+        Returns
+        -------
+
+        """
         self.extend_cycle_run_group_records(run_idx, RESAMPLER, cycle_idx, resampler_data)
 
     def extend_cycle_run_group_records(self, run_idx, run_record_key, cycle_idx, fields_data):
         """Append data for a whole records group, that is every field
         dataset. This must have the cycle index for the data it is
         appending as this is done for sporadic and continual datasets.
+
+        Parameters
+        ----------
+        run_idx :
+            
+        run_record_key :
+            
+        cycle_idx :
+            
+        fields_data :
+            
+
+        Returns
+        -------
 
         """
 
@@ -2206,6 +3473,19 @@ class WepyHDF5(object):
     ## Record Getters
 
     def run_records(self, run_idx, run_record_key):
+        """
+
+        Parameters
+        ----------
+        run_idx :
+            
+        run_record_key :
+            
+
+        Returns
+        -------
+
+        """
 
         # wrap this in a list since the underlying functions accept a
         # list of records
@@ -2214,6 +3494,19 @@ class WepyHDF5(object):
         return self.run_contig_records(run_idxs, run_record_key)
 
     def run_contig_records(self, run_idxs, run_record_key):
+        """
+
+        Parameters
+        ----------
+        run_idxs :
+            
+        run_record_key :
+            
+
+        Returns
+        -------
+
+        """
 
         # if there are no fields return an empty list
         record_fields = self.record_fields[run_record_key]
@@ -2230,10 +3523,36 @@ class WepyHDF5(object):
         return records
 
     def run_records_dataframe(self, run_idx, run_record_key):
+        """
+
+        Parameters
+        ----------
+        run_idx :
+            
+        run_record_key :
+            
+
+        Returns
+        -------
+
+        """
         records = self.run_records(run_idx, run_record_key)
         return pd.DataFrame(records)
 
     def run_contig_records_dataframe(self, run_idxs, run_record_key):
+        """
+
+        Parameters
+        ----------
+        run_idxs :
+            
+        run_record_key :
+            
+
+        Returns
+        -------
+
+        """
         records = self.run_contig_records(run_idxs, run_record_key)
         return pd.DataFrame(records)
 
@@ -2241,54 +3560,186 @@ class WepyHDF5(object):
 
     # resampling
     def resampling_records(self, run_idxs):
+        """
+
+        Parameters
+        ----------
+        run_idxs :
+            
+
+        Returns
+        -------
+
+        """
 
         return self.run_contig_records(run_idxs, RESAMPLING)
 
     def resampling_records_dataframe(self, run_idxs):
+        """
+
+        Parameters
+        ----------
+        run_idxs :
+            
+
+        Returns
+        -------
+
+        """
 
         return pd.DataFrame(self.resampling_records(run_idxs))
 
     # resampler records
     def resampler_records(self, run_idxs):
+        """
+
+        Parameters
+        ----------
+        run_idxs :
+            
+
+        Returns
+        -------
+
+        """
 
         return self.run_contig_records(run_idxs, RESAMPLER)
 
     def resampler_records_dataframe(self, run_idxs):
+        """
+
+        Parameters
+        ----------
+        run_idxs :
+            
+
+        Returns
+        -------
+
+        """
 
         return pd.DataFrame(self.resampler_records(run_idxs))
 
     # warping
     def warping_records(self, run_idxs):
+        """
+
+        Parameters
+        ----------
+        run_idxs :
+            
+
+        Returns
+        -------
+
+        """
 
         return self.run_contig_records(run_idxs, WARPING)
 
     def warping_records_dataframe(self, run_idxs):
+        """
+
+        Parameters
+        ----------
+        run_idxs :
+            
+
+        Returns
+        -------
+
+        """
 
         return pd.DataFrame(self.warping_records(run_idxs))
 
     # boundary conditions
     def bc_records(self, run_idxs):
+        """
+
+        Parameters
+        ----------
+        run_idxs :
+            
+
+        Returns
+        -------
+
+        """
 
         return self.run_contig_records(run_idxs, BC)
 
     def bc_records_dataframe(self, run_idxs):
+        """
+
+        Parameters
+        ----------
+        run_idxs :
+            
+
+        Returns
+        -------
+
+        """
 
         return pd.DataFrame(self.bc_records(run_idxs))
 
     # progress
     def progress_records(self, run_idxs):
+        """
+
+        Parameters
+        ----------
+        run_idxs :
+            
+
+        Returns
+        -------
+
+        """
 
         return self.run_contig_records(run_idxs, PROGRESS)
 
     def progress_records_dataframe(self, run_idxs):
+        """
+
+        Parameters
+        ----------
+        run_idxs :
+            
+
+        Returns
+        -------
+
+        """
 
         return pd.DataFrame(self.progress_records(run_idxs))
 
 
     def run_resampling_panel(self, run_idx):
+        """
+
+        Parameters
+        ----------
+        run_idx :
+            
+
+        Returns
+        -------
+
+        """
         return self.run_contig_resampling_panel([run_idx])
 
     def run_contig_resampling_panel(self, run_idxs):
+        """
+
+        Parameters
+        ----------
+        run_idxs :
+            
+
+        Returns
+        -------
+
+        """
         # check the contig to make sure it is a valid contig
         if not self.is_run_contig(run_idxs):
             raise ValueError("The run_idxs provided are not a valid contig, {}.".format(
@@ -2304,12 +3755,44 @@ class WepyHDF5(object):
     # Trajectory Field Setters
 
     def add_run_observable(self, run_idx, observable_name, data, sparse_idxs=None):
+        """
+
+        Parameters
+        ----------
+        run_idx :
+            
+        observable_name :
+            
+        data :
+            
+        sparse_idxs :
+             (Default value = None)
+
+        Returns
+        -------
+
+        """
         obs_path = '{}/{}'.format(OBSERVABLES, observable_name)
 
         self._add_run_field(run_idx, obs_path, data, sparse_idxs=sparse_idxs)
 
 
     def add_observable(self, observable_name, data, sparse_idxs=None):
+        """
+
+        Parameters
+        ----------
+        observable_name :
+            
+        data :
+            
+        sparse_idxs :
+             (Default value = None)
+
+        Returns
+        -------
+
+        """
         obs_path = '{}/{}'.format(OBSERVABLES, observable_name)
 
         self._add_field(obs_path, data, sparse_idxs=sparse_idxs)
@@ -2321,6 +3804,29 @@ class WepyHDF5(object):
         """Compute an observable on the trajectory data according to a
         function. Optionally save that data in the observables data group for
         the trajectory.
+
+        Parameters
+        ----------
+        func :
+            
+        fields :
+            
+        *args :
+            
+        map_func :
+             (Default value = map)
+        traj_sel :
+             (Default value = None)
+        save_to_hdf5 :
+             (Default value = None)
+        idxs :
+             (Default value = False)
+        return_results :
+             (Default value = True)
+
+        Returns
+        -------
+
         """
 
         if save_to_hdf5 is not None:
@@ -2387,12 +3893,28 @@ class WepyHDF5(object):
 
     def get_traj_field(self, run_idx, traj_idx, field_path, frames=None, masked=True):
         """Returns a numpy array for the given field.
-
+        
         You can control how sparse fields are returned using the
         `masked` option. When True (default) a masked numpy array will
         be returned such that you can get which cycles it is from,
         when False an unmasked array of the data will be returned
         which has no cycle information.
+
+        Parameters
+        ----------
+        run_idx :
+            
+        traj_idx :
+            
+        field_path :
+            
+        frames :
+             (Default value = None)
+        masked :
+             (Default value = True)
+
+        Returns
+        -------
 
         """
 
@@ -2412,6 +3934,19 @@ class WepyHDF5(object):
                                                    frames=frames)
 
     def get_trace_fields(self, frame_tups, fields):
+        """
+
+        Parameters
+        ----------
+        frame_tups :
+            
+        fields :
+            
+
+        Returns
+        -------
+
+        """
         frame_fields = {field : [] for field in fields}
         for run_idx, traj_idx, cycle_idx in frame_tups:
             for field in fields:
@@ -2427,6 +3962,21 @@ class WepyHDF5(object):
         return frame_fields
 
     def get_run_trace_fields(self, run_idx, frame_tups, fields):
+        """
+
+        Parameters
+        ----------
+        run_idx :
+            
+        frame_tups :
+            
+        fields :
+            
+
+        Returns
+        -------
+
+        """
         frame_fields = {field : [] for field in fields}
         for traj_idx, cycle_idx in frame_tups:
             for field in fields:
@@ -2450,6 +4000,16 @@ class WepyHDF5(object):
         """Given a contig trace (run_idx, cycle_idx) returns a dictionary for
         each field where each value is an array of the values
         (N_cycles, N_trajs, *field_dims)
+
+        Parameters
+        ----------
+        contig_trace :
+            
+        fields :
+            
+
+        Returns
+        -------
 
         """
 
@@ -2519,6 +4079,18 @@ class WepyHDF5(object):
         runs. Fields is a list of valid relative paths to datasets in
         the trajectory groups.
 
+        Parameters
+        ----------
+        fields :
+            
+        idxs :
+             (Default value = False)
+        traj_sel :
+             (Default value = None)
+
+        Returns
+        -------
+
         """
 
         for idx_tup, traj in self.iter_trajs(idxs=True, traj_sel=traj_sel):
@@ -2551,27 +4123,43 @@ class WepyHDF5(object):
     def run_map(self, func, *args, map_func=map, idxs=False, run_sel=None):
         """Function for mapping work onto trajectories in the WepyHDF5 file
            object. The call to iter_runs is run with `idxs=False`.
-
+        
         func : the function that will be mapped to trajectory groups
-
+        
         map_func : the function that maps the function. This is where
                         parallelization occurs if desired.  Defaults to
                         the serial python map function.
-
+        
         traj_sel : a trajectory selection. This is a valid `traj_sel`
         argument for the `iter_trajs` function.
-
+        
         idxs : if True results contain [(run_idx, result),...], if False
         returns [result,...]
-
+        
         *args : additional arguments to the function. If this is an
                  iterable it will be assumed that it is the appropriate
                  length for the number of trajectories, WARNING: this will
                  not be checked and could result in a run time
                  error. Otherwise single values will be automatically
                  mapped to all trajectories.
-
+        
         **kwargs : same as *args, but will pass all kwargs to the func.
+
+        Parameters
+        ----------
+        func :
+            
+        *args :
+            
+        map_func :
+             (Default value = map)
+        idxs :
+             (Default value = False)
+        run_sel :
+             (Default value = None)
+
+        Returns
+        -------
 
         """
 
@@ -2604,22 +4192,38 @@ class WepyHDF5(object):
 
     def traj_map(self, func, *args, map_func=map, idxs=False, traj_sel=None):
         """Function for mapping work onto trajectories in the WepyHDF5 file object.
-
+        
         func : the function that will be mapped to trajectory groups
-
+        
         map_func : the function that maps the function. This is where
                         parallelization occurs if desired.  Defaults to
                         the serial python map function.
-
+        
         traj_sel : a trajectory selection. This is a valid `traj_sel`
         argument for the `iter_trajs` function.
-
+        
         *args : additional arguments to the function. If this is an
                  iterable it will be assumed that it is the appropriate
                  length for the number of trajectories, WARNING: this will
                  not be checked and could result in a run time
                  error. Otherwise single values will be automatically
                  mapped to all trajectories.
+
+        Parameters
+        ----------
+        func :
+            
+        *args :
+            
+        map_func :
+             (Default value = map)
+        idxs :
+             (Default value = False)
+        traj_sel :
+             (Default value = None)
+
+        Returns
+        -------
 
         """
 
@@ -2652,29 +4256,47 @@ class WepyHDF5(object):
         objects cannot be pickled for message passing. So we select
         the fields to serialize instead and pass the `numpy.ndarray`s
         to have the work mapped to them.
-
+        
         func : the function that will be mapped to trajectory groups
-
+        
         fields : list of fields that will be serialized into a dictionary
                  and passed to the map function. These must be valid
                  `h5py` path strings relative to the trajectory
                  group. These include the standard fields like
                  'positions' and 'weights', as well as compound paths
                  e.g. 'observables/sasa'.
-
+        
         map_func : the function that maps the function. This is where
                         parallelization occurs if desired.  Defaults to
                         the serial python map function.
-
+        
         traj_sel : a trajectory selection. This is a valid `traj_sel`
         argument for the `iter_trajs` function.
-
+        
         *args : additional arguments to the function. If this is an
                  iterable it will be assumed that it is the appropriate
                  length for the number of trajectories, WARNING: this will
                  not be checked and could result in a run time
                  error. Otherwise single values will be automatically
                  mapped to all trajectories.
+
+        Parameters
+        ----------
+        func :
+            
+        fields :
+            
+        *args :
+            
+        map_func :
+             (Default value = map)
+        idxs :
+             (Default value = False)
+        traj_sel :
+             (Default value = None)
+
+        Returns
+        -------
 
         """
 
@@ -2708,6 +4330,23 @@ class WepyHDF5(object):
             return results
 
     def to_mdtraj(self, run_idx, traj_idx, frames=None, alt_rep=None):
+        """
+
+        Parameters
+        ----------
+        run_idx :
+            
+        traj_idx :
+            
+        frames :
+             (Default value = None)
+        alt_rep :
+             (Default value = None)
+
+        Returns
+        -------
+
+        """
 
         traj_grp = self.traj(run_idx, traj_idx)
 
@@ -2760,6 +4399,19 @@ class WepyHDF5(object):
         return traj
 
     def trace_to_mdtraj(self, trace, alt_rep=None):
+        """
+
+        Parameters
+        ----------
+        trace :
+            
+        alt_rep :
+             (Default value = None)
+
+        Returns
+        -------
+
+        """
 
         # the default for alt_rep is the main rep
         if alt_rep is None:
@@ -2784,6 +4436,21 @@ class WepyHDF5(object):
         return traj
 
     def run_trace_to_mdtraj(self, run_idx, trace, alt_rep=None):
+        """
+
+        Parameters
+        ----------
+        run_idx :
+            
+        trace :
+            
+        alt_rep :
+             (Default value = None)
+
+        Returns
+        -------
+
+        """
 
         # the default for alt_rep is the main rep
         if alt_rep is None:

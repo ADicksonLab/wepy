@@ -18,9 +18,15 @@ from wepy.orchestration.configuration import Configuration
 class SimApparatus():
     """The simulation apparatus are the components needed for running a
     simulation without the initial conditions for starting the simulation.
-
+    
     A runner is strictly necessary but a resampler and boundary
     conditions are not.
+
+    Parameters
+    ----------
+
+    Returns
+    -------
 
     """
 
@@ -29,10 +35,12 @@ class SimApparatus():
 
     @property
     def filters(self):
+        """ """
         return self._filters
 
 
 class WepySimApparatus(SimApparatus):
+    """ """
 
     def __init__(self, runner, resampler=None, boundary_conditions=None):
 
@@ -46,6 +54,7 @@ class WepySimApparatus(SimApparatus):
         super().__init__(filters)
 
 class SimSnapshot():
+    """ """
 
     def __init__(self, walkers, apparatus):
 
@@ -54,17 +63,21 @@ class SimSnapshot():
 
     @property
     def walkers(self):
+        """ """
         return self._walkers
 
     @property
     def apparatus(self):
+        """ """
         return self._apparatus
 
 
 class OrchestratorError(Exception):
+    """ """
     pass
 
 class Orchestrator():
+    """ """
 
     # we freeze the pickle protocol for making hashes, because we care
     # more about stability than efficiency of newer versions
@@ -119,18 +132,43 @@ class Orchestrator():
             self._start_hash = self.gen_start_snapshot(default_init_walkers)
 
     def serialize(self):
+        """ """
 
         serial_str = dill.dumps(self, recurse=True)
         return serial_str
 
     @classmethod
     def deserialize(cls, serial_str):
+        """
+
+        Parameters
+        ----------
+        serial_str :
+            
+
+        Returns
+        -------
+
+        """
 
         orch = dill.loads(serial_str)
         return orch
 
     @classmethod
     def load(cls, filepath, mode='rb'):
+        """
+
+        Parameters
+        ----------
+        filepath :
+            
+        mode :
+             (Default value = 'rb')
+
+        Returns
+        -------
+
+        """
 
         with open(filepath, mode) as rf:
             orch = cls.deserialize(rf.read())
@@ -139,6 +177,19 @@ class Orchestrator():
 
 
     def dump(self, filepath, mode=None):
+        """
+
+        Parameters
+        ----------
+        filepath :
+            
+        mode :
+             (Default value = None)
+
+        Returns
+        -------
+
+        """
 
         if mode is None:
             mode = self.DEFAULT_ORCHESTRATION_MODE
@@ -148,6 +199,17 @@ class Orchestrator():
 
     @classmethod
     def encode(cls, obj):
+        """
+
+        Parameters
+        ----------
+        obj :
+            
+
+        Returns
+        -------
+
+        """
 
         # used for both snapshots and apparatuses even though they
         # themselves have different methods in the API
@@ -161,56 +223,128 @@ class Orchestrator():
 
     @classmethod
     def decode(cls, encoded_str):
+        """
+
+        Parameters
+        ----------
+        encoded_str :
+            
+
+        Returns
+        -------
+
+        """
 
         return dill.loads(decompress(b64decode(encoded_str)))
 
     @classmethod
     def hash(cls, serial_str):
+        """
+
+        Parameters
+        ----------
+        serial_str :
+            
+
+        Returns
+        -------
+
+        """
         return md5(serial_str).hexdigest()
 
     @classmethod
     def serialize_snapshot(cls, snapshot):
+        """
+
+        Parameters
+        ----------
+        snapshot :
+            
+
+        Returns
+        -------
+
+        """
         return cls.encode(snapshot)
 
     def hash_snapshot(self, snapshot):
+        """
+
+        Parameters
+        ----------
+        snapshot :
+            
+
+        Returns
+        -------
+
+        """
 
         serialized_snapshot = self.serialize_snapshot(snapshot)
         return self.hash(serialized_snapshot)
 
     def get_snapshot(self, snapshot_hash):
-        """Returns a copy of a snapshot."""
+        """Returns a copy of a snapshot.
+
+        Parameters
+        ----------
+        snapshot_hash :
+            
+
+        Returns
+        -------
+
+        """
 
         return deepcopy(self._snapshots[snapshot_hash])
 
     @property
     def snapshots(self):
+        """ """
         return deepcopy(list(self._snapshots.values()))
 
     @property
     def snapshot_hashes(self):
+        """ """
         return list(self._snapshots.keys())
 
     @property
     def default_snapshot_hash(self):
+        """ """
         return self._start_hash
 
     @property
     def default_snapshot(self):
+        """ """
         return self.get_snapshot(self.default_snapshot_hash)
 
     @property
     def default_init_walkers(self):
+        """ """
         return self.default_snapshot.walkers
 
     @property
     def default_apparatus(self):
+        """ """
         return self._apparatus
 
     @property
     def default_configuration(self):
+        """ """
         return self._configuration
 
     def snapshot_registered(self, snapshot):
+        """
+
+        Parameters
+        ----------
+        snapshot :
+            
+
+        Returns
+        -------
+
+        """
 
         snapshot_md5 = self.hash_snapshot(snapshot)
         if any([True if snapshot_md5 == h else False for h in self.snapshot_hashes]):
@@ -219,6 +353,17 @@ class Orchestrator():
             return False
 
     def snapshot_hash_registered(self, snapshot_hash):
+        """
+
+        Parameters
+        ----------
+        snapshot_hash :
+            
+
+        Returns
+        -------
+
+        """
 
         if any([True if snapshot_hash == h else False for h in self.snapshot_hashes]):
             return True
@@ -227,12 +372,39 @@ class Orchestrator():
 
     @property
     def runs(self):
+        """ """
         return list(deepcopy(self._runs))
 
     def run_configuration(self, start_hash, end_hash):
+        """
+
+        Parameters
+        ----------
+        start_hash :
+            
+        end_hash :
+            
+
+        Returns
+        -------
+
+        """
         return deepcopy(self._run_configurations[(start_hash, end_hash)])
 
     def _add_snapshot(self, snaphash, snapshot):
+        """
+
+        Parameters
+        ----------
+        snaphash :
+            
+        snapshot :
+            
+
+        Returns
+        -------
+
+        """
 
         # check that the hash is not already in the snapshots
         if any([True if snaphash == md5 else False for md5 in self.snapshot_hashes]):
@@ -245,6 +417,21 @@ class Orchestrator():
         return snaphash
 
     def _gen_checkpoint_orch(self, start_hash, checkpoint_snapshot, configuration):
+        """
+
+        Parameters
+        ----------
+        start_hash :
+            
+        checkpoint_snapshot :
+            
+        configuration :
+            
+
+        Returns
+        -------
+
+        """
         # make an orchestrator with the only run going from the start
         # hash snapshot to the checkpoint
         start_snapshot = self.get_snapshot(start_hash)
@@ -268,6 +455,25 @@ class Orchestrator():
     def _save_checkpoint(self, start_hash, checkpoint_snapshot, configuration,
                          checkpoint_dir,
                          mode='wb'):
+        """
+
+        Parameters
+        ----------
+        start_hash :
+            
+        checkpoint_snapshot :
+            
+        configuration :
+            
+        checkpoint_dir :
+            
+        mode :
+             (Default value = 'wb')
+
+        Returns
+        -------
+
+        """
 
         if 'b' not in mode:
             mode = mode + 'b'
@@ -304,16 +510,51 @@ class Orchestrator():
 
     @classmethod
     def load_snapshot(cls, file_handle):
+        """
+
+        Parameters
+        ----------
+        file_handle :
+            
+
+        Returns
+        -------
+
+        """
 
         return cls.decode(file_handle.read())
 
     @classmethod
     def dump_snapshot(cls, snapshot, file_handle):
+        """
+
+        Parameters
+        ----------
+        snapshot :
+            
+        file_handle :
+            
+
+        Returns
+        -------
+
+        """
 
         file_handle.write(cls.serialize_snapshot(snapshot))
 
 
     def add_snapshot(self, snapshot):
+        """
+
+        Parameters
+        ----------
+        snapshot :
+            
+
+        Returns
+        -------
+
+        """
 
         # copy the snapshot
         snapshot = deepcopy(snapshot)
@@ -324,6 +565,17 @@ class Orchestrator():
         return self._add_snapshot(snaphash, snapshot)
 
     def gen_start_snapshot(self, init_walkers):
+        """
+
+        Parameters
+        ----------
+        init_walkers :
+            
+
+        Returns
+        -------
+
+        """
 
         # make a SimSnapshot object using the initial walkers and
         start_snapshot = SimSnapshot(init_walkers, self.default_apparatus)
@@ -334,6 +586,19 @@ class Orchestrator():
         return sim_start_md5
 
     def gen_sim_manager(self, start_snapshot, configuration):
+        """
+
+        Parameters
+        ----------
+        start_snapshot :
+            
+        configuration :
+            
+
+        Returns
+        -------
+
+        """
 
         # copy the snapshot to use for the sim_manager
         start_snapshot = deepcopy(start_snapshot)
@@ -350,6 +615,21 @@ class Orchestrator():
         return sim_manager
 
     def register_run(self, start_hash, end_hash, configuration):
+        """
+
+        Parameters
+        ----------
+        start_hash :
+            
+        end_hash :
+            
+        configuration :
+            
+
+        Returns
+        -------
+
+        """
 
         # check that the hashes are for snapshots in the orchestrator
         # if one is not registered raise an error
@@ -374,7 +654,27 @@ class Orchestrator():
                         checkpoint_freq=None,
                         checkpoint_dir=None):
         """Start a new run that will go for a certain amount of time given a
-        new set of initial conditions. """
+        new set of initial conditions.
+
+        Parameters
+        ----------
+        init_walkers :
+            
+        run_time :
+            
+        n_steps :
+            
+        configuration :
+             (Default value = None)
+        checkpoint_freq :
+             (Default value = None)
+        checkpoint_dir :
+             (Default value = None)
+
+        Returns
+        -------
+
+        """
 
         # make the starting snapshot from the walkers
         start_hash = self.gen_start_snapshot(init_walkers)
@@ -393,7 +693,29 @@ class Orchestrator():
                              configuration=None,
                              mode=None):
         """For a finished run continue it but resetting all the state of the
-        resampler and boundary conditions"""
+        resampler and boundary conditions
+
+        Parameters
+        ----------
+        start_hash :
+            
+        run_time :
+            
+        n_steps :
+            
+        checkpoint_freq :
+             (Default value = None)
+        checkpoint_dir :
+             (Default value = None)
+        configuration :
+             (Default value = None)
+        mode :
+             (Default value = None)
+
+        Returns
+        -------
+
+        """
 
         # check that the directory for checkpoints exists, and create
         # it if it doesn't and isn't already created
@@ -481,6 +803,39 @@ class Orchestrator():
                                          # extra kwargs will be passed to the
                                          # configuration.reparametrize method
                                          **kwargs):
+        """
+
+        Parameters
+        ----------
+        snapshot_hash :
+            
+        run_time :
+            
+        n_steps :
+            
+        checkpoint_freq :
+             (Default value = None)
+        checkpoint_dir :
+             (Default value = None)
+        orchestrator_path :
+             (Default value = None)
+        configuration :
+             (Default value = None)
+        # these can reparametrize the paths# for both the orchestrator produced# files as well as the configurationwork_dir :
+             (Default value = None)
+        config_name :
+             (Default value = None)
+        narration :
+             (Default value = None)
+        mode :
+             (Default value = None)
+        # extra kwargs will be passed to the# configuration.reparametrize method**kwargs :
+            
+
+        Returns
+        -------
+
+        """
 
 
         # for writing the orchestration files we set the default mode
@@ -588,6 +943,23 @@ class Orchestrator():
 
     def orchestrate_run_by_time(self, init_walkers, run_time, n_steps,
                                 **kwargs):
+        """
+
+        Parameters
+        ----------
+        init_walkers :
+            
+        run_time :
+            
+        n_steps :
+            
+        **kwargs :
+            
+
+        Returns
+        -------
+
+        """
 
 
         # make the starting snapshot from the walkers and the
@@ -601,7 +973,21 @@ class Orchestrator():
 
 
     def run_continues(self, start_hash, end_hash):
-        """Return the run_id that this run continues."""
+        """
+
+        Parameters
+        ----------
+        start_hash :
+            
+        end_hash :
+            
+
+        Returns
+        -------
+        type
+            
+
+        """
 
         # loop through the runs in this orchestrator until we find one
         # where the start_hash matches the end hash
@@ -626,30 +1012,115 @@ class Orchestrator():
 
 
 def serialize_orchestrator(orchestrator):
+    """
+
+    Parameters
+    ----------
+    orchestrator :
+        
+
+    Returns
+    -------
+
+    """
 
     return orchestrator.serialize()
 
 def deserialize_orchestrator(serial_str):
+    """
+
+    Parameters
+    ----------
+    serial_str :
+        
+
+    Returns
+    -------
+
+    """
 
     return Orchestrator.deserialize(serial_str)
 
 def dump_orchestrator(orchestrator, filepath, mode='wb'):
+    """
+
+    Parameters
+    ----------
+    orchestrator :
+        
+    filepath :
+        
+    mode :
+         (Default value = 'wb')
+
+    Returns
+    -------
+
+    """
 
     orchestrator.dump(filepath, mode=mode)
 
 def load_orchestrator(filepath, mode='rb'):
+    """
+
+    Parameters
+    ----------
+    filepath :
+        
+    mode :
+         (Default value = 'rb')
+
+    Returns
+    -------
+
+    """
 
     return Orchestrator.load(filepath, mode=mode)
 
 def encode(obj):
+    """
+
+    Parameters
+    ----------
+    obj :
+        
+
+    Returns
+    -------
+
+    """
 
     return Orchestrator.encode(obj)
 
 def decode(encoded_str):
+    """
+
+    Parameters
+    ----------
+    encoded_str :
+        
+
+    Returns
+    -------
+
+    """
 
     return Orchestrator.decode(encoded_str)
 
 def reconcile_orchestrators(template_orchestrator, *orchestrators):
+    """
+
+    Parameters
+    ----------
+    template_orchestrator :
+        
+    *orchestrators :
+        
+
+    Returns
+    -------
+
+    """
 
     # make a new orchestrator
     new_orch = Orchestrator(template_orchestrator.default_apparatus,
@@ -675,6 +1146,25 @@ def reconcile_orchestrators(template_orchestrator, *orchestrators):
 def recover_run_by_time(start_orch, checkpoint_orch,
                         run_time, n_steps,
                         **kwargs):
+    """
+
+    Parameters
+    ----------
+    start_orch :
+        
+    checkpoint_orch :
+        
+    run_time :
+        
+    n_steps :
+        
+    **kwargs :
+        
+
+    Returns
+    -------
+
+    """
 
     # reconcile the checkpoint orchestrator with the master the
     # original orchestrator, we put the original orch first so that it

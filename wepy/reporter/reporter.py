@@ -4,32 +4,68 @@ import pickle
 import logging
 
 class ReporterError(Exception):
+    """ """
     pass
 
 class Reporter(object):
+    """ """
 
 
     def __init__(self, **kwargs):
         pass
 
     def init(self, **kwargs):
+        """
+
+        Parameters
+        ----------
+        **kwargs :
+            
+
+        Returns
+        -------
+
+        """
         method_name = 'init'
         assert not hasattr(super(), method_name), \
             "Superclass with method {} is masked".format(method_name)
 
     def report(self, **kwargs):
+        """
+
+        Parameters
+        ----------
+        **kwargs :
+            
+
+        Returns
+        -------
+
+        """
 
         method_name = 'report'
         assert not hasattr(super(), method_name), \
             "Superclass with method {} is masked".format(method_name)
 
     def cleanup(self, **kwargs):
+        """
+
+        Parameters
+        ----------
+        **kwargs :
+            
+
+        Returns
+        -------
+
+        """
         method_name = 'cleanup'
         assert not hasattr(super(), method_name), \
             "Superclass with method {} is masked".format(method_name)
 
 
 class FileReporter(Reporter):
+    """ """
 
     MODES = ('x', 'w', 'w-', 'r', 'r+',)
 
@@ -154,6 +190,17 @@ class FileReporter(Reporter):
         super().__init__(**kwargs)
 
     def _bypass_dispatch(self, **kwargs):
+        """
+
+        Parameters
+        ----------
+        **kwargs :
+            
+
+        Returns
+        -------
+
+        """
 
         # check if we are bypassing the parametrization for
         # compatibility
@@ -174,6 +221,17 @@ class FileReporter(Reporter):
 
 
     def _validate_mode(self, mode):
+        """
+
+        Parameters
+        ----------
+        mode :
+            
+
+        Returns
+        -------
+
+        """
         if mode in self.MODES:
             return True
         else:
@@ -181,6 +239,7 @@ class FileReporter(Reporter):
 
     @property
     def mode(self):
+        """ """
         if len(self._file_paths) > 1:
             raise ReporterError("there are multiple files and modes defined")
 
@@ -188,6 +247,7 @@ class FileReporter(Reporter):
 
     @property
     def file_path(self):
+        """ """
         if len(self._file_paths) > 1:
             raise ReporterError("there are multiple files and modes defined")
 
@@ -195,26 +255,76 @@ class FileReporter(Reporter):
 
     @property
     def file_paths(self):
+        """ """
         return self._file_paths
 
     @file_paths.setter
     def file_paths(self, file_paths):
+        """
+
+        Parameters
+        ----------
+        file_paths :
+            
+
+        Returns
+        -------
+
+        """
         for i, file_path in enumerate(file_paths):
             self.set_path(i, file_path)
 
     def set_path(self, file_idx, path):
+        """
+
+        Parameters
+        ----------
+        file_idx :
+            
+        path :
+            
+
+        Returns
+        -------
+
+        """
         self._paths[file_idx] = path
 
     @property
     def modes(self):
+        """ """
         return self._modes
 
     @modes.setter
     def modes(self, modes):
+        """
+
+        Parameters
+        ----------
+        modes :
+            
+
+        Returns
+        -------
+
+        """
         for i, mode in enumerate(modes):
             self.set_mode(i, mode)
 
     def set_mode(self, file_idx, mode):
+        """
+
+        Parameters
+        ----------
+        file_idx :
+            
+        mode :
+            
+
+        Returns
+        -------
+
+        """
 
         if self._validate_mode(mode):
             self._modes[file_idx] = mode
@@ -223,6 +333,19 @@ class FileReporter(Reporter):
 
 
     def reparametrize(self, file_paths, modes):
+        """
+
+        Parameters
+        ----------
+        file_paths :
+            
+        modes :
+            
+
+        Returns
+        -------
+
+        """
 
         self.file_paths = file_paths
         self.modes = modes
@@ -232,9 +355,26 @@ class ProgressiveFileReporter(FileReporter):
     same file over and over again. The base FileReporter really only
     supports creation of file one time.
 
+    Parameters
+    ----------
+
+    Returns
+    -------
+
     """
 
     def init(self, **kwargs):
+        """
+
+        Parameters
+        ----------
+        **kwargs :
+            
+
+        Returns
+        -------
+
+        """
 
         super().init(**kwargs)
 
