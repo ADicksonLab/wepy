@@ -10,3 +10,5 @@ wepy.egg-info
 *.dcd
 *#*#
 *.orch
+docs/_build
+docs/source/*.rst
