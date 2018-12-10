@@ -1,0 +1,238 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>wepy.resampling.distances package &#8212; wepy v0.10 documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="wepy-resampling-distances-package">
+<h1>wepy.resampling.distances package<a class="headerlink" href="#wepy-resampling-distances-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-wepy.resampling.distances.distance">
+<span id="wepy-resampling-distances-distance-module"></span><h2>wepy.resampling.distances.distance module<a class="headerlink" href="#module-wepy.resampling.distances.distance" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="wepy.resampling.distances.distance.Distance">
+<em class="property">class </em><code class="descclassname">wepy.resampling.distances.distance.</code><code class="descname">Distance</code><a class="reference internal" href="../_modules/wepy/resampling/distances/distance.html#Distance"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.resampling.distances.distance.Distance" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dl class="method">
+<dt id="wepy.resampling.distances.distance.Distance.distance">
+<code class="descname">distance</code><span class="sig-paren">(</span><em>state_a</em>, <em>state_b</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/resampling/distances/distance.html#Distance.distance"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.resampling.distances.distance.Distance.distance" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the distance between two states.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.resampling.distances.distance.Distance.image">
+<code class="descname">image</code><span class="sig-paren">(</span><em>state</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/resampling/distances/distance.html#Distance.image"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.resampling.distances.distance.Distance.image" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the reduced representation of a state that is the only
+necessary portion needed for calculating the distance between two
+states.</p>
+<p>This is useful for storing “images” of the states that are
+much smaller than the potentially very large states.</p>
+<p>This is the abstract implementation which just returns the
+whole state, as a default for all subclasses. Overriding this
+will customize this functionality without having to also
+override the distance method.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.resampling.distances.distance.Distance.image_distance">
+<code class="descname">image_distance</code><span class="sig-paren">(</span><em>image_a</em>, <em>image_b</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/resampling/distances/distance.html#Distance.image_distance"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.resampling.distances.distance.Distance.image_distance" title="Permalink to this definition">¶</a></dt>
+<dd><p>The image_distance is the distance function computed between the
+exact images necessary for the resultant distance value.</p>
+<p>The <cite>distance</cite> function is just a wrapper around this function
+which first gets the images from valid states.</p>
+<p>This needs to be implemented in subclasses of Distance.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-wepy.resampling.distances.randomwalk">
+<span id="wepy-resampling-distances-randomwalk-module"></span><h2>wepy.resampling.distances.randomwalk module<a class="headerlink" href="#module-wepy.resampling.distances.randomwalk" title="Permalink to this headline">¶</a></h2>
+<p>This module here is part of RandomWalk object that implements computing
+distance between pairs of positions of RandomWalk walkers.</p>
+<dl class="class">
+<dt id="wepy.resampling.distances.randomwalk.RandomWalkDistance">
+<em class="property">class </em><code class="descclassname">wepy.resampling.distances.randomwalk.</code><code class="descname">RandomWalkDistance</code><a class="reference internal" href="../_modules/wepy/resampling/distances/randomwalk.html#RandomWalkDistance"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.resampling.distances.randomwalk.RandomWalkDistance" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#wepy.resampling.distances.distance.Distance" title="wepy.resampling.distances.distance.Distance"><code class="xref py py-class docutils literal notranslate"><span class="pre">wepy.resampling.distances.distance.Distance</span></code></a></p>
+<p>Computes the distance between pairs of positions and returns a distance matrix
+where the element (d_ij) is the average of the difference between posiotion of
+walker i and j.</p>
+<dl class="method">
+<dt id="wepy.resampling.distances.randomwalk.RandomWalkDistance.image">
+<code class="descname">image</code><span class="sig-paren">(</span><em>state</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/resampling/distances/randomwalk.html#RandomWalkDistance.image"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.resampling.distances.randomwalk.RandomWalkDistance.image" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the reduced representation of a state that is the only
+necessary portion needed for calculating the distance between two
+states.</p>
+<p>This is useful for storing “images” of the states that are
+much smaller than the potentially very large states.</p>
+<p>This is the abstract implementation which just returns the
+whole state, as a default for all subclasses. Overriding this
+will customize this functionality without having to also
+override the distance method.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.resampling.distances.randomwalk.RandomWalkDistance.image_distance">
+<code class="descname">image_distance</code><span class="sig-paren">(</span><em>image_a</em>, <em>image_b</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/resampling/distances/randomwalk.html#RandomWalkDistance.image_distance"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.resampling.distances.randomwalk.RandomWalkDistance.image_distance" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the distance between posiotion of two states.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>position_a</strong> – posiotion of first state</li>
+<li><strong>position_b</strong> – posiotion of second state</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">a distance value</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)">float</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-wepy.resampling.distances.receptor">
+<span id="wepy-resampling-distances-receptor-module"></span><h2>wepy.resampling.distances.receptor module<a class="headerlink" href="#module-wepy.resampling.distances.receptor" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="wepy.resampling.distances.receptor.UnbindingDistance">
+<em class="property">class </em><code class="descclassname">wepy.resampling.distances.receptor.</code><code class="descname">UnbindingDistance</code><span class="sig-paren">(</span><em>ligand_idxs</em>, <em>binding_site_idxs</em>, <em>ref_state</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/resampling/distances/receptor.html#UnbindingDistance"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.resampling.distances.receptor.UnbindingDistance" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#wepy.resampling.distances.distance.Distance" title="wepy.resampling.distances.distance.Distance"><code class="xref py py-class docutils literal notranslate"><span class="pre">wepy.resampling.distances.distance.Distance</span></code></a></p>
+<dl class="method">
+<dt id="wepy.resampling.distances.receptor.UnbindingDistance.image">
+<code class="descname">image</code><span class="sig-paren">(</span><em>state</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/resampling/distances/receptor.html#UnbindingDistance.image"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.resampling.distances.receptor.UnbindingDistance.image" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the reduced representation of a state that is the only
+necessary portion needed for calculating the distance between two
+states.</p>
+<p>This is useful for storing “images” of the states that are
+much smaller than the potentially very large states.</p>
+<p>This is the abstract implementation which just returns the
+whole state, as a default for all subclasses. Overriding this
+will customize this functionality without having to also
+override the distance method.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.resampling.distances.receptor.UnbindingDistance.image_distance">
+<code class="descname">image_distance</code><span class="sig-paren">(</span><em>image_a</em>, <em>image_b</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/resampling/distances/receptor.html#UnbindingDistance.image_distance"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.resampling.distances.receptor.UnbindingDistance.image_distance" title="Permalink to this definition">¶</a></dt>
+<dd><p>The image_distance is the distance function computed between the
+exact images necessary for the resultant distance value.</p>
+<p>The <cite>distance</cite> function is just a wrapper around this function
+which first gets the images from valid states.</p>
+<p>This needs to be implemented in subclasses of Distance.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-wepy.resampling.distances">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-wepy.resampling.distances" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">wepy</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../source/explanation.html">Explanation of Wepy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="index.html">Module Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/index.html">Tutorials</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, Samuel D. Lotz.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.8.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../_sources/api/wepy.resampling.distances.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
