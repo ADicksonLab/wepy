@@ -10,3 +10,4 @@ wepy.egg-info
 *.dcd
 *#*#
 *.orch
+sphinx/_build
