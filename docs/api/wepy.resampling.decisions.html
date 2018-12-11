@@ -1,0 +1,337 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>wepy.resampling.decisions package &#8212; wepy v0.10 documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="wepy-resampling-decisions-package">
+<h1>wepy.resampling.decisions package<a class="headerlink" href="#wepy-resampling-decisions-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-wepy.resampling.decisions.clone_merge">
+<span id="wepy-resampling-decisions-clone-merge-module"></span><h2>wepy.resampling.decisions.clone_merge module<a class="headerlink" href="#module-wepy.resampling.decisions.clone_merge" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="wepy.resampling.decisions.clone_merge.CloneMergeDecisionEnum">
+<em class="property">class </em><code class="descclassname">wepy.resampling.decisions.clone_merge.</code><code class="descname">CloneMergeDecisionEnum</code><a class="reference internal" href="../_modules/wepy/resampling/decisions/clone_merge.html#CloneMergeDecisionEnum"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.resampling.decisions.clone_merge.CloneMergeDecisionEnum" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/enum.html#enum.Enum" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">enum.Enum</span></code></a></p>
+<p>An enumeration.</p>
+<dl class="attribute">
+<dt id="wepy.resampling.decisions.clone_merge.CloneMergeDecisionEnum.CLONE">
+<code class="descname">CLONE</code><em class="property"> = 2</em><a class="headerlink" href="#wepy.resampling.decisions.clone_merge.CloneMergeDecisionEnum.CLONE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.resampling.decisions.clone_merge.CloneMergeDecisionEnum.KEEP_MERGE">
+<code class="descname">KEEP_MERGE</code><em class="property"> = 4</em><a class="headerlink" href="#wepy.resampling.decisions.clone_merge.CloneMergeDecisionEnum.KEEP_MERGE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.resampling.decisions.clone_merge.CloneMergeDecisionEnum.NOTHING">
+<code class="descname">NOTHING</code><em class="property"> = 1</em><a class="headerlink" href="#wepy.resampling.decisions.clone_merge.CloneMergeDecisionEnum.NOTHING" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.resampling.decisions.clone_merge.CloneMergeDecisionEnum.SQUASH">
+<code class="descname">SQUASH</code><em class="property"> = 3</em><a class="headerlink" href="#wepy.resampling.decisions.clone_merge.CloneMergeDecisionEnum.SQUASH" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="wepy.resampling.decisions.clone_merge.MultiCloneMergeDecision">
+<em class="property">class </em><code class="descclassname">wepy.resampling.decisions.clone_merge.</code><code class="descname">MultiCloneMergeDecision</code><a class="reference internal" href="../_modules/wepy/resampling/decisions/clone_merge.html#MultiCloneMergeDecision"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.resampling.decisions.clone_merge.MultiCloneMergeDecision" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#wepy.resampling.decisions.decision.Decision" title="wepy.resampling.decisions.decision.Decision"><code class="xref py py-class docutils literal notranslate"><span class="pre">wepy.resampling.decisions.decision.Decision</span></code></a></p>
+<dl class="attribute">
+<dt id="wepy.resampling.decisions.clone_merge.MultiCloneMergeDecision.ANCESTOR_DECISION_IDS">
+<code class="descname">ANCESTOR_DECISION_IDS</code><em class="property"> = (1, 4, 2)</em><a class="headerlink" href="#wepy.resampling.decisions.clone_merge.MultiCloneMergeDecision.ANCESTOR_DECISION_IDS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.resampling.decisions.clone_merge.MultiCloneMergeDecision.DTYPES">
+<code class="descname">DTYPES</code><em class="property"> = (&lt;class 'int'&gt;, &lt;class 'int'&gt;)</em><a class="headerlink" href="#wepy.resampling.decisions.clone_merge.MultiCloneMergeDecision.DTYPES" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.resampling.decisions.clone_merge.MultiCloneMergeDecision.ENUM">
+<code class="descname">ENUM</code><a class="headerlink" href="#wepy.resampling.decisions.clone_merge.MultiCloneMergeDecision.ENUM" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="#wepy.resampling.decisions.clone_merge.CloneMergeDecisionEnum" title="wepy.resampling.decisions.clone_merge.CloneMergeDecisionEnum"><code class="xref py py-class docutils literal notranslate"><span class="pre">CloneMergeDecisionEnum</span></code></a></p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.resampling.decisions.clone_merge.MultiCloneMergeDecision.FIELDS">
+<code class="descname">FIELDS</code><em class="property"> = ('decision_id', 'target_idxs')</em><a class="headerlink" href="#wepy.resampling.decisions.clone_merge.MultiCloneMergeDecision.FIELDS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.resampling.decisions.clone_merge.MultiCloneMergeDecision.RECORD_FIELDS">
+<code class="descname">RECORD_FIELDS</code><em class="property"> = ('decision_id', 'target_idxs')</em><a class="headerlink" href="#wepy.resampling.decisions.clone_merge.MultiCloneMergeDecision.RECORD_FIELDS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.resampling.decisions.clone_merge.MultiCloneMergeDecision.SHAPES">
+<code class="descname">SHAPES</code><em class="property"> = ((1,), Ellipsis)</em><a class="headerlink" href="#wepy.resampling.decisions.clone_merge.MultiCloneMergeDecision.SHAPES" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="classmethod">
+<dt id="wepy.resampling.decisions.clone_merge.MultiCloneMergeDecision.action">
+<em class="property">classmethod </em><code class="descname">action</code><span class="sig-paren">(</span><em>walkers</em>, <em>decisions</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/resampling/decisions/clone_merge.html#MultiCloneMergeDecision.action"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.resampling.decisions.clone_merge.MultiCloneMergeDecision.action" title="Permalink to this definition">¶</a></dt>
+<dd><p>Performs cloning and merging according to a list of resampling
+records for some walkers.</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="wepy.resampling.decisions.clone_merge.MultiCloneMergeDecision.field_dtypes">
+<em class="property">classmethod </em><code class="descname">field_dtypes</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/resampling/decisions/clone_merge.html#MultiCloneMergeDecision.field_dtypes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.resampling.decisions.clone_merge.MultiCloneMergeDecision.field_dtypes" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="classmethod">
+<dt id="wepy.resampling.decisions.clone_merge.MultiCloneMergeDecision.field_names">
+<em class="property">classmethod </em><code class="descname">field_names</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/resampling/decisions/clone_merge.html#MultiCloneMergeDecision.field_names"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.resampling.decisions.clone_merge.MultiCloneMergeDecision.field_names" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="classmethod">
+<dt id="wepy.resampling.decisions.clone_merge.MultiCloneMergeDecision.field_shapes">
+<em class="property">classmethod </em><code class="descname">field_shapes</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/resampling/decisions/clone_merge.html#MultiCloneMergeDecision.field_shapes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.resampling.decisions.clone_merge.MultiCloneMergeDecision.field_shapes" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="classmethod">
+<dt id="wepy.resampling.decisions.clone_merge.MultiCloneMergeDecision.fields">
+<em class="property">classmethod </em><code class="descname">fields</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/resampling/decisions/clone_merge.html#MultiCloneMergeDecision.fields"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.resampling.decisions.clone_merge.MultiCloneMergeDecision.fields" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="classmethod">
+<dt id="wepy.resampling.decisions.clone_merge.MultiCloneMergeDecision.record">
+<em class="property">classmethod </em><code class="descname">record</code><span class="sig-paren">(</span><em>enum_value</em>, <em>target_idxs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/resampling/decisions/clone_merge.html#MultiCloneMergeDecision.record"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.resampling.decisions.clone_merge.MultiCloneMergeDecision.record" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="classmethod">
+<dt id="wepy.resampling.decisions.clone_merge.MultiCloneMergeDecision.record_field_names">
+<em class="property">classmethod </em><code class="descname">record_field_names</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/resampling/decisions/clone_merge.html#MultiCloneMergeDecision.record_field_names"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.resampling.decisions.clone_merge.MultiCloneMergeDecision.record_field_names" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-wepy.resampling.decisions.decision">
+<span id="wepy-resampling-decisions-decision-module"></span><h2>wepy.resampling.decisions.decision module<a class="headerlink" href="#module-wepy.resampling.decisions.decision" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="wepy.resampling.decisions.decision.Decision">
+<em class="property">class </em><code class="descclassname">wepy.resampling.decisions.decision.</code><code class="descname">Decision</code><a class="reference internal" href="../_modules/wepy/resampling/decisions/decision.html#Decision"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.resampling.decisions.decision.Decision" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dl class="attribute">
+<dt id="wepy.resampling.decisions.decision.Decision.DTYPES">
+<code class="descname">DTYPES</code><em class="property"> = (&lt;class 'int'&gt;,)</em><a class="headerlink" href="#wepy.resampling.decisions.decision.Decision.DTYPES" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.resampling.decisions.decision.Decision.ENUM">
+<code class="descname">ENUM</code><em class="property"> = None</em><a class="headerlink" href="#wepy.resampling.decisions.decision.Decision.ENUM" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.resampling.decisions.decision.Decision.FIELDS">
+<code class="descname">FIELDS</code><em class="property"> = 'decision_id'</em><a class="headerlink" href="#wepy.resampling.decisions.decision.Decision.FIELDS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.resampling.decisions.decision.Decision.SHAPES">
+<code class="descname">SHAPES</code><em class="property"> = ((1,),)</em><a class="headerlink" href="#wepy.resampling.decisions.decision.Decision.SHAPES" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="classmethod">
+<dt id="wepy.resampling.decisions.decision.Decision.action">
+<em class="property">classmethod </em><code class="descname">action</code><span class="sig-paren">(</span><em>walkers</em>, <em>decisions</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/resampling/decisions/decision.html#Decision.action"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.resampling.decisions.decision.Decision.action" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform the instructions for a set of resampling records on
+walkers.</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="wepy.resampling.decisions.decision.Decision.enum_by_name">
+<em class="property">classmethod </em><code class="descname">enum_by_name</code><span class="sig-paren">(</span><em>enum_name</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/resampling/decisions/decision.html#Decision.enum_by_name"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.resampling.decisions.decision.Decision.enum_by_name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="classmethod">
+<dt id="wepy.resampling.decisions.decision.Decision.enum_by_value">
+<em class="property">classmethod </em><code class="descname">enum_by_value</code><span class="sig-paren">(</span><em>enum_value</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/resampling/decisions/decision.html#Decision.enum_by_value"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.resampling.decisions.decision.Decision.enum_by_value" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="classmethod">
+<dt id="wepy.resampling.decisions.decision.Decision.enum_dict_by_name">
+<em class="property">classmethod </em><code class="descname">enum_dict_by_name</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/resampling/decisions/decision.html#Decision.enum_dict_by_name"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.resampling.decisions.decision.Decision.enum_dict_by_name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="classmethod">
+<dt id="wepy.resampling.decisions.decision.Decision.enum_dict_by_value">
+<em class="property">classmethod </em><code class="descname">enum_dict_by_value</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/resampling/decisions/decision.html#Decision.enum_dict_by_value"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.resampling.decisions.decision.Decision.enum_dict_by_value" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="classmethod">
+<dt id="wepy.resampling.decisions.decision.Decision.parents">
+<em class="property">classmethod </em><code class="descname">parents</code><span class="sig-paren">(</span><em>step</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/resampling/decisions/decision.html#Decision.parents"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.resampling.decisions.decision.Decision.parents" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a row of resampling records (for a single resampling step)
+returns the parents of the children of this step.</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="wepy.resampling.decisions.decision.Decision.record">
+<em class="property">classmethod </em><code class="descname">record</code><span class="sig-paren">(</span><em>enum_value</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/resampling/decisions/decision.html#Decision.record"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.resampling.decisions.decision.Decision.record" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="wepy.resampling.decisions.decision.NoDecision">
+<em class="property">class </em><code class="descclassname">wepy.resampling.decisions.decision.</code><code class="descname">NoDecision</code><a class="reference internal" href="../_modules/wepy/resampling/decisions/decision.html#NoDecision"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.resampling.decisions.decision.NoDecision" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#wepy.resampling.decisions.decision.Decision" title="wepy.resampling.decisions.decision.Decision"><code class="xref py py-class docutils literal notranslate"><span class="pre">wepy.resampling.decisions.decision.Decision</span></code></a></p>
+<dl class="attribute">
+<dt id="wepy.resampling.decisions.decision.NoDecision.ANCESTOR_DECISION_IDS">
+<code class="descname">ANCESTOR_DECISION_IDS</code><em class="property"> = (0,)</em><a class="headerlink" href="#wepy.resampling.decisions.decision.NoDecision.ANCESTOR_DECISION_IDS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.resampling.decisions.decision.NoDecision.ENUM">
+<code class="descname">ENUM</code><a class="headerlink" href="#wepy.resampling.decisions.decision.NoDecision.ENUM" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="#wepy.resampling.decisions.decision.NothingDecisionEnum" title="wepy.resampling.decisions.decision.NothingDecisionEnum"><code class="xref py py-class docutils literal notranslate"><span class="pre">NothingDecisionEnum</span></code></a></p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.resampling.decisions.decision.NoDecision.INSTRUCTION_FIELDS">
+<code class="descname">INSTRUCTION_FIELDS</code><em class="property"> = ((&lt;NothingDecisionEnum.NOTHING: 0&gt;, ('pos',)),)</em><a class="headerlink" href="#wepy.resampling.decisions.decision.NoDecision.INSTRUCTION_FIELDS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.resampling.decisions.decision.NoDecision.INSTRUCTION_FIELD_DTYPES">
+<code class="descname">INSTRUCTION_FIELD_DTYPES</code><em class="property"> = ((&lt;NothingDecisionEnum.NOTHING: 0&gt;, (&lt;class 'int'&gt;,)),)</em><a class="headerlink" href="#wepy.resampling.decisions.decision.NoDecision.INSTRUCTION_FIELD_DTYPES" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.resampling.decisions.decision.NoDecision.INSTRUCTION_NAMES">
+<code class="descname">INSTRUCTION_NAMES</code><em class="property"> = ((&lt;NothingDecisionEnum.NOTHING: 0&gt;, 'NothingInstructionRecord'),)</em><a class="headerlink" href="#wepy.resampling.decisions.decision.NoDecision.INSTRUCTION_NAMES" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="classmethod">
+<dt id="wepy.resampling.decisions.decision.NoDecision.action">
+<em class="property">classmethod </em><code class="descname">action</code><span class="sig-paren">(</span><em>walkers</em>, <em>decisions</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/resampling/decisions/decision.html#NoDecision.action"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.resampling.decisions.decision.NoDecision.action" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform the instructions for a set of resampling records on
+walkers.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="wepy.resampling.decisions.decision.NothingDecisionEnum">
+<em class="property">class </em><code class="descclassname">wepy.resampling.decisions.decision.</code><code class="descname">NothingDecisionEnum</code><a class="reference internal" href="../_modules/wepy/resampling/decisions/decision.html#NothingDecisionEnum"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.resampling.decisions.decision.NothingDecisionEnum" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/enum.html#enum.Enum" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">enum.Enum</span></code></a></p>
+<p>An enumeration.</p>
+<dl class="attribute">
+<dt id="wepy.resampling.decisions.decision.NothingDecisionEnum.NOTHING">
+<code class="descname">NOTHING</code><em class="property"> = 0</em><a class="headerlink" href="#wepy.resampling.decisions.decision.NothingDecisionEnum.NOTHING" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-wepy.resampling.decisions">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-wepy.resampling.decisions" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">wepy</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../source/explanation.html">Explanation of Wepy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="index.html">Module Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/index.html">Tutorials</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, Samuel D. Lotz.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.8.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../_sources/api/wepy.resampling.decisions.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

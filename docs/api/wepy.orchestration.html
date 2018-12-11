@@ -1,0 +1,539 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>wepy.orchestration package &#8212; wepy v0.10 documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="wepy-orchestration-package">
+<h1>wepy.orchestration package<a class="headerlink" href="#wepy-orchestration-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-wepy.orchestration.cli">
+<span id="wepy-orchestration-cli-module"></span><h2>wepy.orchestration.cli module<a class="headerlink" href="#module-wepy.orchestration.cli" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="wepy.orchestration.cli.combine_orch_wepy_hdf5s">
+<code class="descclassname">wepy.orchestration.cli.</code><code class="descname">combine_orch_wepy_hdf5s</code><span class="sig-paren">(</span><em>new_orch</em>, <em>new_hdf5_path</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/orchestration/cli.html#combine_orch_wepy_hdf5s"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.orchestration.cli.combine_orch_wepy_hdf5s" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="wepy.orchestration.cli.hash_listing_formatter">
+<code class="descclassname">wepy.orchestration.cli.</code><code class="descname">hash_listing_formatter</code><span class="sig-paren">(</span><em>hashes</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/orchestration/cli.html#hash_listing_formatter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.orchestration.cli.hash_listing_formatter" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="wepy.orchestration.cli.set_loglevel">
+<code class="descclassname">wepy.orchestration.cli.</code><code class="descname">set_loglevel</code><span class="sig-paren">(</span><em>loglevel</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/orchestration/cli.html#set_loglevel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.orchestration.cli.set_loglevel" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="wepy.orchestration.cli.settle_run_options">
+<code class="descclassname">wepy.orchestration.cli.</code><code class="descname">settle_run_options</code><span class="sig-paren">(</span><em>n_workers=None</em>, <em>job_dir=None</em>, <em>job_name=None</em>, <em>narration=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/orchestration/cli.html#settle_run_options"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.orchestration.cli.settle_run_options" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-wepy.orchestration.configuration">
+<span id="wepy-orchestration-configuration-module"></span><h2>wepy.orchestration.configuration module<a class="headerlink" href="#module-wepy.orchestration.configuration" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="wepy.orchestration.configuration.Configuration">
+<em class="property">class </em><code class="descclassname">wepy.orchestration.configuration.</code><code class="descname">Configuration</code><span class="sig-paren">(</span><em>config_name=None</em>, <em>work_dir=None</em>, <em>mode=None</em>, <em>narration=None</em>, <em>reporter_classes=None</em>, <em>reporter_partial_kwargs=None</em>, <em>n_workers=None</em>, <em>worker_type=None</em>, <em>work_mapper_class=None</em>, <em>work_mapper_partial_kwargs=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/orchestration/configuration.html#Configuration"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.orchestration.configuration.Configuration" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dl class="attribute">
+<dt id="wepy.orchestration.configuration.Configuration.DEFAULT_CONFIG_NAME">
+<code class="descname">DEFAULT_CONFIG_NAME</code><em class="property"> = 'root'</em><a class="headerlink" href="#wepy.orchestration.configuration.Configuration.DEFAULT_CONFIG_NAME" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.orchestration.configuration.Configuration.DEFAULT_MODE">
+<code class="descname">DEFAULT_MODE</code><em class="property"> = 'x'</em><a class="headerlink" href="#wepy.orchestration.configuration.Configuration.DEFAULT_MODE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.orchestration.configuration.Configuration.DEFAULT_NARRATION">
+<code class="descname">DEFAULT_NARRATION</code><em class="property"> = ''</em><a class="headerlink" href="#wepy.orchestration.configuration.Configuration.DEFAULT_NARRATION" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.orchestration.configuration.Configuration.DEFAULT_REPORTER_CLASS">
+<code class="descname">DEFAULT_REPORTER_CLASS</code><em class="property"> = ''</em><a class="headerlink" href="#wepy.orchestration.configuration.Configuration.DEFAULT_REPORTER_CLASS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.orchestration.configuration.Configuration.DEFAULT_WORKDIR">
+<code class="descname">DEFAULT_WORKDIR</code><em class="property"> = '/home/salotz/tree/lab/alt/wepy/sphinx'</em><a class="headerlink" href="#wepy.orchestration.configuration.Configuration.DEFAULT_WORKDIR" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.orchestration.configuration.Configuration.REPORTER_CLASS_SEG_TEMPLATE">
+<code class="descname">REPORTER_CLASS_SEG_TEMPLATE</code><em class="property"> = '.{}'</em><a class="headerlink" href="#wepy.orchestration.configuration.Configuration.REPORTER_CLASS_SEG_TEMPLATE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.orchestration.configuration.Configuration.config_name">
+<code class="descname">config_name</code><a class="headerlink" href="#wepy.orchestration.configuration.Configuration.config_name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.orchestration.configuration.Configuration.mode">
+<code class="descname">mode</code><a class="headerlink" href="#wepy.orchestration.configuration.Configuration.mode" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.orchestration.configuration.Configuration.n_workers">
+<code class="descname">n_workers</code><a class="headerlink" href="#wepy.orchestration.configuration.Configuration.n_workers" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.orchestration.configuration.Configuration.narration">
+<code class="descname">narration</code><a class="headerlink" href="#wepy.orchestration.configuration.Configuration.narration" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wepy.orchestration.configuration.Configuration.reparametrize">
+<code class="descname">reparametrize</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/orchestration/configuration.html#Configuration.reparametrize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.orchestration.configuration.Configuration.reparametrize" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.orchestration.configuration.Configuration.reporter_classes">
+<code class="descname">reporter_classes</code><a class="headerlink" href="#wepy.orchestration.configuration.Configuration.reporter_classes" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.orchestration.configuration.Configuration.reporter_partial_kwargs">
+<code class="descname">reporter_partial_kwargs</code><a class="headerlink" href="#wepy.orchestration.configuration.Configuration.reporter_partial_kwargs" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.orchestration.configuration.Configuration.reporters">
+<code class="descname">reporters</code><a class="headerlink" href="#wepy.orchestration.configuration.Configuration.reporters" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.orchestration.configuration.Configuration.work_dir">
+<code class="descname">work_dir</code><a class="headerlink" href="#wepy.orchestration.configuration.Configuration.work_dir" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.orchestration.configuration.Configuration.work_mapper">
+<code class="descname">work_mapper</code><a class="headerlink" href="#wepy.orchestration.configuration.Configuration.work_mapper" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.orchestration.configuration.Configuration.work_mapper_class">
+<code class="descname">work_mapper_class</code><a class="headerlink" href="#wepy.orchestration.configuration.Configuration.work_mapper_class" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.orchestration.configuration.Configuration.work_mapper_partial_kwargs">
+<code class="descname">work_mapper_partial_kwargs</code><a class="headerlink" href="#wepy.orchestration.configuration.Configuration.work_mapper_partial_kwargs" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.orchestration.configuration.Configuration.worker_type">
+<code class="descname">worker_type</code><a class="headerlink" href="#wepy.orchestration.configuration.Configuration.worker_type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-wepy.orchestration.orchestrator">
+<span id="wepy-orchestration-orchestrator-module"></span><h2>wepy.orchestration.orchestrator module<a class="headerlink" href="#module-wepy.orchestration.orchestrator" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="wepy.orchestration.orchestrator.Orchestrator">
+<em class="property">class </em><code class="descclassname">wepy.orchestration.orchestrator.</code><code class="descname">Orchestrator</code><span class="sig-paren">(</span><em>sim_apparatus</em>, <em>default_init_walkers=None</em>, <em>default_configuration=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/orchestration/orchestrator.html#Orchestrator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.orchestration.orchestrator.Orchestrator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dl class="attribute">
+<dt id="wepy.orchestration.orchestrator.Orchestrator.DEFAULT_CHECKPOINT_FILENAME">
+<code class="descname">DEFAULT_CHECKPOINT_FILENAME</code><em class="property"> = 'checkpoint.chk'</em><a class="headerlink" href="#wepy.orchestration.orchestrator.Orchestrator.DEFAULT_CHECKPOINT_FILENAME" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.orchestration.orchestrator.Orchestrator.DEFAULT_CONFIG_NAME">
+<code class="descname">DEFAULT_CONFIG_NAME</code><em class="property"> = 'root'</em><a class="headerlink" href="#wepy.orchestration.orchestrator.Orchestrator.DEFAULT_CONFIG_NAME" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.orchestration.orchestrator.Orchestrator.DEFAULT_MODE">
+<code class="descname">DEFAULT_MODE</code><em class="property"> = 'x'</em><a class="headerlink" href="#wepy.orchestration.orchestrator.Orchestrator.DEFAULT_MODE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.orchestration.orchestrator.Orchestrator.DEFAULT_NARRATION">
+<code class="descname">DEFAULT_NARRATION</code><em class="property"> = ''</em><a class="headerlink" href="#wepy.orchestration.orchestrator.Orchestrator.DEFAULT_NARRATION" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.orchestration.orchestrator.Orchestrator.DEFAULT_ORCHESTRATION_MODE">
+<code class="descname">DEFAULT_ORCHESTRATION_MODE</code><em class="property"> = 'xb'</em><a class="headerlink" href="#wepy.orchestration.orchestrator.Orchestrator.DEFAULT_ORCHESTRATION_MODE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.orchestration.orchestrator.Orchestrator.DEFAULT_WORKDIR">
+<code class="descname">DEFAULT_WORKDIR</code><em class="property"> = '/home/salotz/tree/lab/alt/wepy/sphinx'</em><a class="headerlink" href="#wepy.orchestration.orchestrator.Orchestrator.DEFAULT_WORKDIR" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.orchestration.orchestrator.Orchestrator.HASH_PICKLE_PROTOCOL">
+<code class="descname">HASH_PICKLE_PROTOCOL</code><em class="property"> = 2</em><a class="headerlink" href="#wepy.orchestration.orchestrator.Orchestrator.HASH_PICKLE_PROTOCOL" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.orchestration.orchestrator.Orchestrator.ORCH_FILENAME_TEMPLATE">
+<code class="descname">ORCH_FILENAME_TEMPLATE</code><em class="property"> = '{config}{narration}.orch'</em><a class="headerlink" href="#wepy.orchestration.orchestrator.Orchestrator.ORCH_FILENAME_TEMPLATE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wepy.orchestration.orchestrator.Orchestrator.add_snapshot">
+<code class="descname">add_snapshot</code><span class="sig-paren">(</span><em>snapshot</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/orchestration/orchestrator.html#Orchestrator.add_snapshot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.orchestration.orchestrator.Orchestrator.add_snapshot" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="classmethod">
+<dt id="wepy.orchestration.orchestrator.Orchestrator.decode">
+<em class="property">classmethod </em><code class="descname">decode</code><span class="sig-paren">(</span><em>encoded_str</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/orchestration/orchestrator.html#Orchestrator.decode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.orchestration.orchestrator.Orchestrator.decode" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.orchestration.orchestrator.Orchestrator.default_apparatus">
+<code class="descname">default_apparatus</code><a class="headerlink" href="#wepy.orchestration.orchestrator.Orchestrator.default_apparatus" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.orchestration.orchestrator.Orchestrator.default_configuration">
+<code class="descname">default_configuration</code><a class="headerlink" href="#wepy.orchestration.orchestrator.Orchestrator.default_configuration" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.orchestration.orchestrator.Orchestrator.default_init_walkers">
+<code class="descname">default_init_walkers</code><a class="headerlink" href="#wepy.orchestration.orchestrator.Orchestrator.default_init_walkers" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.orchestration.orchestrator.Orchestrator.default_snapshot">
+<code class="descname">default_snapshot</code><a class="headerlink" href="#wepy.orchestration.orchestrator.Orchestrator.default_snapshot" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.orchestration.orchestrator.Orchestrator.default_snapshot_hash">
+<code class="descname">default_snapshot_hash</code><a class="headerlink" href="#wepy.orchestration.orchestrator.Orchestrator.default_snapshot_hash" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="classmethod">
+<dt id="wepy.orchestration.orchestrator.Orchestrator.deserialize">
+<em class="property">classmethod </em><code class="descname">deserialize</code><span class="sig-paren">(</span><em>serial_str</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/orchestration/orchestrator.html#Orchestrator.deserialize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.orchestration.orchestrator.Orchestrator.deserialize" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wepy.orchestration.orchestrator.Orchestrator.dump">
+<code class="descname">dump</code><span class="sig-paren">(</span><em>filepath</em>, <em>mode=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/orchestration/orchestrator.html#Orchestrator.dump"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.orchestration.orchestrator.Orchestrator.dump" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="classmethod">
+<dt id="wepy.orchestration.orchestrator.Orchestrator.dump_snapshot">
+<em class="property">classmethod </em><code class="descname">dump_snapshot</code><span class="sig-paren">(</span><em>snapshot</em>, <em>file_handle</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/orchestration/orchestrator.html#Orchestrator.dump_snapshot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.orchestration.orchestrator.Orchestrator.dump_snapshot" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="classmethod">
+<dt id="wepy.orchestration.orchestrator.Orchestrator.encode">
+<em class="property">classmethod </em><code class="descname">encode</code><span class="sig-paren">(</span><em>obj</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/orchestration/orchestrator.html#Orchestrator.encode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.orchestration.orchestrator.Orchestrator.encode" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wepy.orchestration.orchestrator.Orchestrator.gen_sim_manager">
+<code class="descname">gen_sim_manager</code><span class="sig-paren">(</span><em>start_snapshot</em>, <em>configuration</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/orchestration/orchestrator.html#Orchestrator.gen_sim_manager"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.orchestration.orchestrator.Orchestrator.gen_sim_manager" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wepy.orchestration.orchestrator.Orchestrator.gen_start_snapshot">
+<code class="descname">gen_start_snapshot</code><span class="sig-paren">(</span><em>init_walkers</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/orchestration/orchestrator.html#Orchestrator.gen_start_snapshot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.orchestration.orchestrator.Orchestrator.gen_start_snapshot" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wepy.orchestration.orchestrator.Orchestrator.get_snapshot">
+<code class="descname">get_snapshot</code><span class="sig-paren">(</span><em>snapshot_hash</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/orchestration/orchestrator.html#Orchestrator.get_snapshot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.orchestration.orchestrator.Orchestrator.get_snapshot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a copy of a snapshot.</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="wepy.orchestration.orchestrator.Orchestrator.hash">
+<em class="property">classmethod </em><code class="descname">hash</code><span class="sig-paren">(</span><em>serial_str</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/orchestration/orchestrator.html#Orchestrator.hash"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.orchestration.orchestrator.Orchestrator.hash" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wepy.orchestration.orchestrator.Orchestrator.hash_snapshot">
+<code class="descname">hash_snapshot</code><span class="sig-paren">(</span><em>snapshot</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/orchestration/orchestrator.html#Orchestrator.hash_snapshot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.orchestration.orchestrator.Orchestrator.hash_snapshot" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="classmethod">
+<dt id="wepy.orchestration.orchestrator.Orchestrator.load">
+<em class="property">classmethod </em><code class="descname">load</code><span class="sig-paren">(</span><em>filepath</em>, <em>mode='rb'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/orchestration/orchestrator.html#Orchestrator.load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.orchestration.orchestrator.Orchestrator.load" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="classmethod">
+<dt id="wepy.orchestration.orchestrator.Orchestrator.load_snapshot">
+<em class="property">classmethod </em><code class="descname">load_snapshot</code><span class="sig-paren">(</span><em>file_handle</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/orchestration/orchestrator.html#Orchestrator.load_snapshot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.orchestration.orchestrator.Orchestrator.load_snapshot" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wepy.orchestration.orchestrator.Orchestrator.new_run_by_time">
+<code class="descname">new_run_by_time</code><span class="sig-paren">(</span><em>init_walkers</em>, <em>run_time</em>, <em>n_steps</em>, <em>configuration=None</em>, <em>checkpoint_freq=None</em>, <em>checkpoint_dir=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/orchestration/orchestrator.html#Orchestrator.new_run_by_time"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.orchestration.orchestrator.Orchestrator.new_run_by_time" title="Permalink to this definition">¶</a></dt>
+<dd><p>Start a new run that will go for a certain amount of time given a
+new set of initial conditions.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.orchestration.orchestrator.Orchestrator.orchestrate_run_by_time">
+<code class="descname">orchestrate_run_by_time</code><span class="sig-paren">(</span><em>init_walkers</em>, <em>run_time</em>, <em>n_steps</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/orchestration/orchestrator.html#Orchestrator.orchestrate_run_by_time"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.orchestration.orchestrator.Orchestrator.orchestrate_run_by_time" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wepy.orchestration.orchestrator.Orchestrator.orchestrate_snapshot_run_by_time">
+<code class="descname">orchestrate_snapshot_run_by_time</code><span class="sig-paren">(</span><em>snapshot_hash</em>, <em>run_time</em>, <em>n_steps</em>, <em>checkpoint_freq=None</em>, <em>checkpoint_dir=None</em>, <em>orchestrator_path=None</em>, <em>configuration=None</em>, <em>work_dir=None</em>, <em>config_name=None</em>, <em>narration=None</em>, <em>mode=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/orchestration/orchestrator.html#Orchestrator.orchestrate_snapshot_run_by_time"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.orchestration.orchestrator.Orchestrator.orchestrate_snapshot_run_by_time" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wepy.orchestration.orchestrator.Orchestrator.register_run">
+<code class="descname">register_run</code><span class="sig-paren">(</span><em>start_hash</em>, <em>end_hash</em>, <em>configuration</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/orchestration/orchestrator.html#Orchestrator.register_run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.orchestration.orchestrator.Orchestrator.register_run" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wepy.orchestration.orchestrator.Orchestrator.run_configuration">
+<code class="descname">run_configuration</code><span class="sig-paren">(</span><em>start_hash</em>, <em>end_hash</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/orchestration/orchestrator.html#Orchestrator.run_configuration"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.orchestration.orchestrator.Orchestrator.run_configuration" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wepy.orchestration.orchestrator.Orchestrator.run_continues">
+<code class="descname">run_continues</code><span class="sig-paren">(</span><em>start_hash</em>, <em>end_hash</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/orchestration/orchestrator.html#Orchestrator.run_continues"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.orchestration.orchestrator.Orchestrator.run_continues" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the run_id that this run continues.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.orchestration.orchestrator.Orchestrator.run_snapshot_by_time">
+<code class="descname">run_snapshot_by_time</code><span class="sig-paren">(</span><em>start_hash</em>, <em>run_time</em>, <em>n_steps</em>, <em>checkpoint_freq=None</em>, <em>checkpoint_dir=None</em>, <em>configuration=None</em>, <em>mode=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/orchestration/orchestrator.html#Orchestrator.run_snapshot_by_time"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.orchestration.orchestrator.Orchestrator.run_snapshot_by_time" title="Permalink to this definition">¶</a></dt>
+<dd><p>For a finished run continue it but resetting all the state of the
+resampler and boundary conditions</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.orchestration.orchestrator.Orchestrator.runs">
+<code class="descname">runs</code><a class="headerlink" href="#wepy.orchestration.orchestrator.Orchestrator.runs" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wepy.orchestration.orchestrator.Orchestrator.serialize">
+<code class="descname">serialize</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/orchestration/orchestrator.html#Orchestrator.serialize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.orchestration.orchestrator.Orchestrator.serialize" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="classmethod">
+<dt id="wepy.orchestration.orchestrator.Orchestrator.serialize_snapshot">
+<em class="property">classmethod </em><code class="descname">serialize_snapshot</code><span class="sig-paren">(</span><em>snapshot</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/orchestration/orchestrator.html#Orchestrator.serialize_snapshot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.orchestration.orchestrator.Orchestrator.serialize_snapshot" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wepy.orchestration.orchestrator.Orchestrator.snapshot_hash_registered">
+<code class="descname">snapshot_hash_registered</code><span class="sig-paren">(</span><em>snapshot_hash</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/orchestration/orchestrator.html#Orchestrator.snapshot_hash_registered"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.orchestration.orchestrator.Orchestrator.snapshot_hash_registered" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.orchestration.orchestrator.Orchestrator.snapshot_hashes">
+<code class="descname">snapshot_hashes</code><a class="headerlink" href="#wepy.orchestration.orchestrator.Orchestrator.snapshot_hashes" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wepy.orchestration.orchestrator.Orchestrator.snapshot_registered">
+<code class="descname">snapshot_registered</code><span class="sig-paren">(</span><em>snapshot</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/orchestration/orchestrator.html#Orchestrator.snapshot_registered"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.orchestration.orchestrator.Orchestrator.snapshot_registered" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.orchestration.orchestrator.Orchestrator.snapshots">
+<code class="descname">snapshots</code><a class="headerlink" href="#wepy.orchestration.orchestrator.Orchestrator.snapshots" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="exception">
+<dt id="wepy.orchestration.orchestrator.OrchestratorError">
+<em class="property">exception </em><code class="descclassname">wepy.orchestration.orchestrator.</code><code class="descname">OrchestratorError</code><a class="reference internal" href="../_modules/wepy/orchestration/orchestrator.html#OrchestratorError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.orchestration.orchestrator.OrchestratorError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#Exception" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></a></p>
+</dd></dl>
+
+<dl class="class">
+<dt id="wepy.orchestration.orchestrator.SimApparatus">
+<em class="property">class </em><code class="descclassname">wepy.orchestration.orchestrator.</code><code class="descname">SimApparatus</code><span class="sig-paren">(</span><em>filters</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/orchestration/orchestrator.html#SimApparatus"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.orchestration.orchestrator.SimApparatus" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>The simulation apparatus are the components needed for running a
+simulation without the initial conditions for starting the simulation.</p>
+<p>A runner is strictly necessary but a resampler and boundary
+conditions are not.</p>
+<dl class="attribute">
+<dt id="wepy.orchestration.orchestrator.SimApparatus.filters">
+<code class="descname">filters</code><a class="headerlink" href="#wepy.orchestration.orchestrator.SimApparatus.filters" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="wepy.orchestration.orchestrator.SimSnapshot">
+<em class="property">class </em><code class="descclassname">wepy.orchestration.orchestrator.</code><code class="descname">SimSnapshot</code><span class="sig-paren">(</span><em>walkers</em>, <em>apparatus</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/orchestration/orchestrator.html#SimSnapshot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.orchestration.orchestrator.SimSnapshot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dl class="attribute">
+<dt id="wepy.orchestration.orchestrator.SimSnapshot.apparatus">
+<code class="descname">apparatus</code><a class="headerlink" href="#wepy.orchestration.orchestrator.SimSnapshot.apparatus" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.orchestration.orchestrator.SimSnapshot.walkers">
+<code class="descname">walkers</code><a class="headerlink" href="#wepy.orchestration.orchestrator.SimSnapshot.walkers" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="wepy.orchestration.orchestrator.WepySimApparatus">
+<em class="property">class </em><code class="descclassname">wepy.orchestration.orchestrator.</code><code class="descname">WepySimApparatus</code><span class="sig-paren">(</span><em>runner</em>, <em>resampler=None</em>, <em>boundary_conditions=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/orchestration/orchestrator.html#WepySimApparatus"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.orchestration.orchestrator.WepySimApparatus" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#wepy.orchestration.orchestrator.SimApparatus" title="wepy.orchestration.orchestrator.SimApparatus"><code class="xref py py-class docutils literal notranslate"><span class="pre">wepy.orchestration.orchestrator.SimApparatus</span></code></a></p>
+</dd></dl>
+
+<dl class="function">
+<dt id="wepy.orchestration.orchestrator.decode">
+<code class="descclassname">wepy.orchestration.orchestrator.</code><code class="descname">decode</code><span class="sig-paren">(</span><em>encoded_str</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/orchestration/orchestrator.html#decode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.orchestration.orchestrator.decode" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="wepy.orchestration.orchestrator.deserialize_orchestrator">
+<code class="descclassname">wepy.orchestration.orchestrator.</code><code class="descname">deserialize_orchestrator</code><span class="sig-paren">(</span><em>serial_str</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/orchestration/orchestrator.html#deserialize_orchestrator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.orchestration.orchestrator.deserialize_orchestrator" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="wepy.orchestration.orchestrator.dump_orchestrator">
+<code class="descclassname">wepy.orchestration.orchestrator.</code><code class="descname">dump_orchestrator</code><span class="sig-paren">(</span><em>orchestrator</em>, <em>filepath</em>, <em>mode='wb'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/orchestration/orchestrator.html#dump_orchestrator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.orchestration.orchestrator.dump_orchestrator" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="wepy.orchestration.orchestrator.encode">
+<code class="descclassname">wepy.orchestration.orchestrator.</code><code class="descname">encode</code><span class="sig-paren">(</span><em>obj</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/orchestration/orchestrator.html#encode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.orchestration.orchestrator.encode" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="wepy.orchestration.orchestrator.load_orchestrator">
+<code class="descclassname">wepy.orchestration.orchestrator.</code><code class="descname">load_orchestrator</code><span class="sig-paren">(</span><em>filepath</em>, <em>mode='rb'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/orchestration/orchestrator.html#load_orchestrator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.orchestration.orchestrator.load_orchestrator" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="wepy.orchestration.orchestrator.reconcile_orchestrators">
+<code class="descclassname">wepy.orchestration.orchestrator.</code><code class="descname">reconcile_orchestrators</code><span class="sig-paren">(</span><em>template_orchestrator</em>, <em>*orchestrators</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/orchestration/orchestrator.html#reconcile_orchestrators"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.orchestration.orchestrator.reconcile_orchestrators" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="wepy.orchestration.orchestrator.recover_run_by_time">
+<code class="descclassname">wepy.orchestration.orchestrator.</code><code class="descname">recover_run_by_time</code><span class="sig-paren">(</span><em>start_orch</em>, <em>checkpoint_orch</em>, <em>run_time</em>, <em>n_steps</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/orchestration/orchestrator.html#recover_run_by_time"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.orchestration.orchestrator.recover_run_by_time" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="wepy.orchestration.orchestrator.serialize_orchestrator">
+<code class="descclassname">wepy.orchestration.orchestrator.</code><code class="descname">serialize_orchestrator</code><span class="sig-paren">(</span><em>orchestrator</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/orchestration/orchestrator.html#serialize_orchestrator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.orchestration.orchestrator.serialize_orchestrator" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-wepy.orchestration">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-wepy.orchestration" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">wepy</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../source/explanation.html">Explanation of Wepy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="index.html">Module Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/index.html">Tutorials</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, Samuel D. Lotz.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.8.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../_sources/api/wepy.orchestration.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
