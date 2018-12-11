@@ -1,3 +1,27 @@
+"""Classes providing a contig and branching contigs abstractions over
+the underlying WepyHDF5 simulation data store.
+
+Routines
+--------
+
+ContigTree
+Contig
+
+See Also
+--------
+
+Notes
+-----
+
+References
+----------
+
+Examples
+--------
+
+"""
+
+
 import itertools as it
 from copy import copy
 
@@ -23,7 +47,82 @@ PROGRESS = 'progress'
 BC = 'boundary_conditions'
 
 class ContigTree():
-    """ """
+    """Wraps a WepyHDF5 object and gives access to logical trajectories.
+
+    If `continuations` is given it specifies the (continuing_run_idx,
+    continued_run_idx) continuations the contig tree will use. This
+    overrides anything in the WepyHDF5 file. Only use this if you know
+    what you are doing. If `continuations` is `Ellipsis` the
+    continuations from the `WepyHDF5` will be used.
+
+    If `runs` is not `Ellipsis` only these runs will be included in
+    the `ContigTree` and the continuations relvant to this subset will
+    be used.
+
+    If a valid `decision_class` is given walker lineages will be
+    generated. This class is largely useless without this.
+
+    The `boundary_condition_class` is only used in the presence of a
+    `decision_class`. A valid `boundary_condition_class` will detect
+    the discontinuities in walker trajectories and will automatically
+    apply them to divide up logical trajectories. Otherwise, if
+    discontinuous boundary condition warping events in data are
+    present logical trajectories will have discontinuities in them.
+
+
+    Parameters
+    ----------
+    wepy_h5 : closed WepyHDF5 object
+
+    continuations : Ellipsis (use continuations in wepy_h5) or
+                    list of continuation pairs
+         (Default value = Ellipsis)
+
+    runs : Ellipsis (use all runs in wepy_h5) or
+           list of run indices to use
+         (Default value = Ellipsis)
+
+    boundary_condition_class : class implementing BoundaryCondition
+                               interface
+         (Default value = None)
+
+
+    decision_class : class implementing Decision interface
+         (Default value = None)
+
+
+    Raises
+    ------
+
+    Warns
+    -----
+
+    Warnings
+    --------
+
+    Only set `continuations` if you know what you are doing.
+
+    A `decision_class` must be given to be able to detect cloning and
+    merging and get parental lineages.
+
+    Make sure to give the `boundary_condition_class` if there was
+    discontinuous warping events in the simulation or else you will
+    get erroneous contiguous trajectories.
+
+    See Also
+    --------
+
+    Notes
+    -----
+
+    References
+    ----------
+
+    Examples
+    --------
+
+    """
+
 
     RESAMPLING_PANEL_KEY = 'resampling_steps'
     PARENTS_KEY = 'parent_idxs'
@@ -86,17 +185,15 @@ class ContigTree():
 
     @property
     def graph(self):
-        """ """
+        """Returns the underlying networkx.DiGraph object. """
         return self._graph
 
     @property
     def decision_class(self):
-        """ """
         return self._decision_class
 
     @property
     def boundary_condition_class(self):
-        """ """
         return self._boundary_condition_class
 
     def _create_tree(self):
@@ -158,10 +255,6 @@ class ContigTree():
         Parameters
         ----------
         boundary_conditions_class :
-            
-
-        Returns
-        -------
 
         """
 
@@ -214,10 +307,6 @@ class ContigTree():
         Parameters
         ----------
         decision_class :
-            
-
-        Returns
-        -------
 
         """
 
@@ -238,7 +327,7 @@ class ContigTree():
 
     @property
     def run_idxs(self):
-        """ """
+        """Indices of runs in WepyHDF5 used in this contig tree. """
         return self._run_idxs
 
     @property
@@ -252,19 +341,18 @@ class ContigTree():
         return self._wepy_h5
 
     def contig_trace_to_run_trace(self, contig_trace, contig_walker_trace):
-        """Given a trace of a contig with elements (run_idx, cycle_idx) and
-        walker based trace of elements (traj_idx, cycle_idx) over that
-        contig get the trace of elements (run_idx, traj_idx, cycle_idx)
+        """Combine a contig trace and a walker trace.
 
         Parameters
         ----------
-        contig_trace :
-            
-        contig_walker_trace :
-            
+        contig_trace : list of tuples of the form (run_idx, cycle_idx)
+
+        contig_walker_trace : list of tuples of the form (traj_idx, cycle_idx)
 
         Returns
         -------
+
+        run_trace : list of tuples of the form (run_idx, traj_idx, cylce_idx)
 
         """
 
@@ -281,19 +369,19 @@ class ContigTree():
 
 
     def contig_to_run_trace(self, contig, contig_trace):
-        """Convert a trace of elements (traj_idx, cycle_idx) over the contig
-        trace given over this contig tree and return a trace over the
-        runs with elements (run_idx, traj_idx, cycle_idx).
+        """Convert a run listing and a trace through contigs to a full trace indexing
+        individual frames.
 
         Parameters
         ----------
-        contig :
-            
-        contig_trace :
-            
+        contig : list of run indices
+
+        contig_trace : list of tuples of the form (traj_idx, cycle_idx)
 
         Returns
         -------
+
+        run_trace : list of tuples of the form (run_idx, traj_idx, cylce_idx)
 
         """
 
@@ -324,17 +412,18 @@ class ContigTree():
 
     def contig_cycle_idx(self, run_idx, cycle_idx):
 
-        """Get the contig cycle idx for a (run_idx, cycle_idx) pair.
+        """ Convert an in-run cycle index to an in-contig cyle_idx.
 
         Parameters
         ----------
-        run_idx :
-            
-        cycle_idx :
-            
+        run_idx : index of a run in the contig tree
+
+        cycle_idx : index of a cycle index within a run
 
         Returns
         -------
+
+        contig_cycle_idx : the cycle idx in the contig
 
         """
 
@@ -346,22 +435,26 @@ class ContigTree():
 
 
     def get_branch_trace(self, run_idx, cycle_idx, start_contig_idx=0):
-        """Given an identifier of (run_idx, cycle_idx) from the contig tree
-        and a starting contig index generate a contig trace of
-        (run_idx, cycle_idx) indices for that contig. Which is a
-        branch of the tree hence the name.
+        """Get a trace for a branch of the contig tree from an end point back
+        to a set point (defaults to root of contig tree).
 
         Parameters
         ----------
-        run_idx :
-            
-        cycle_idx :
-            
-        start_contig_idx :
+        run_idx : list
+            list of tuples of the form (run_idx, cycle_idx)
+
+        cycle_idx : int
+            in-contig cycle index
+
+        start_contig_idx : int, optional
+            The in-contig cycle index where the "root" of the branch will start
              (Default value = 0)
 
         Returns
         -------
+
+        contig_trace
+            list of tuples of the form (run_idx, cycle_idx)
 
         """
 
@@ -404,11 +497,12 @@ class ContigTree():
 
         Parameters
         ----------
-        contig_trace :
-            
+        contig_trace : list
 
         Returns
         -------
+
+        parent_table
 
         """
 
