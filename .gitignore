@@ -11,6 +11,4 @@ wepy.egg-info
 *#*#
 *.orch
 docs/_build
-docs/source/*.rst
 sphinx/_build
-sphinx/source/*.rst
