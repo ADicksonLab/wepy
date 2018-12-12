@@ -71,7 +71,6 @@ def settle_run_options(n_workers=None,
          with open(configuration, 'rb') as rf:
              config = dill.load(rf)
 
-
     # we need to reparametrize the configuration here since the
     # orchestrator API will ignore reparametrization values if a
     # concrete Configuration is given.
@@ -79,7 +78,8 @@ def settle_run_options(n_workers=None,
         config = config.reparametrize(work_dir=job_dir,
                                       config_name=job_name,
                                       narration=narration,
-                                      n_workers=n_workers)
+                                      n_workers=n_workers,
+        )
 
     return n_workers, job_dir, job_name, narration, config
 

@@ -509,7 +509,7 @@ class Orchestrator():
         parametrizations_requested = (True if work_dir is not None else False,
                                       True if config_name is not None else False,
                                       True if narration is not None else False,
-                                      True if mode is not None else False)
+                                      True if mode is not None else False,)
 
         # check if there are any available targets for reparametrization
         reparametrization_targets = (True if configuration is None else False,

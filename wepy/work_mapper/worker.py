@@ -7,13 +7,10 @@ class Worker(Process):
 
     NAME_TEMPLATE = "Worker-{}"
 
-    def __init__(self, worker_idx, task_queue, result_queue, name=None):
+    def __init__(self, worker_idx, task_queue, result_queue):
 
         # call the Process constructor
-        if name is None:
-            Process.__init__(self)
-        else:
-            Process.__init__(self, name=name)
+        Process.__init__(self, name=self.NAME_TEMPLATE.format(worker_idx))
 
         self.worker_idx = worker_idx
 

@@ -249,6 +249,7 @@ class Configuration():
         # current configuration
         params = {# related to the work mapper
                   'n_workers' : self.n_workers,
+                  'worker_type' : self.worker_type,
                   'work_mapper_class' : self.work_mapper_class,
                   'work_mapper_partial_kwargs' : self.work_mapper_partial_kwargs,
                   # those related to the reporters
