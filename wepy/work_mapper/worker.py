@@ -5,10 +5,15 @@ import logging
 
 class Worker(Process):
 
-    def __init__(self, worker_idx, task_queue, result_queue):
+    NAME_TEMPLATE = "Worker-{}"
+
+    def __init__(self, worker_idx, task_queue, result_queue, name=None):
 
         # call the Process constructor
-        Process.__init__(self)
+        if name is None:
+            Process.__init__(self)
+        else:
+            Process.__init__(self, name=name)
 
         self.worker_idx = worker_idx
 

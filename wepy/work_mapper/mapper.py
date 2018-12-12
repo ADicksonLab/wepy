@@ -111,8 +111,13 @@ class WorkerMapper(Mapper):
         self._result_queue = Queue()
 
         # Start workers, giving them all the queues
-        self._workers = [self.worker_type(i, self._task_queue, self._result_queue)
-                         for i in range(num_workers)]
+        self._workers = []
+        for i in range(num_workers):
+
+            worker_process_name = self.worker_type.NAME_TEMPLATE.format(i)
+            worker = self.worker_type(i, self._task_queue, self._result_queue,
+                                      name=worker_process_name)
+            self._workers.append(worker)
 
         # start the worker processes
         for worker in self._workers:

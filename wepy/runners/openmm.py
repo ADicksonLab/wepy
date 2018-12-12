@@ -509,6 +509,8 @@ class OpenMMWalker(Walker):
 
 class OpenMMGPUWorker(Worker):
 
+    NAME_TEMPLATE = "OpenMMGPUWorker-{}"
+
     def run_task(self, task):
         # run the task and pass in the DeviceIndex for OpenMM to
         # assign work to the correct GPU
