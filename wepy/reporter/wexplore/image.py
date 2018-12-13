@@ -1,3 +1,5 @@
+import logging
+
 import numpy as np
 
 import mdtraj as mdj
@@ -73,6 +75,7 @@ class WExploreAtomImageReporter(ProgressiveFileReporter):
 
             # save this as a PDB for a topology to view in VMD etc. to go
             # along with the trajectory we will make
+            logging.info("Writing initial image to {}".format(self.init_state_path))
             init_image_traj.save_pdb(self.init_state_path)
 
             self._top_pdb_written = True

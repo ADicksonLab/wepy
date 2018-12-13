@@ -1,6 +1,8 @@
 import os.path as osp
 import logging
 
+import dill
+
 import click
 
 from wepy.orchestration.orchestrator import deserialize_orchestrator, \
@@ -52,7 +54,8 @@ CURDIR = '<curdir>'
 def settle_run_options(n_workers=None,
                        job_dir=None,
                        job_name=None,
-                       narration=None):
+                       narration=None,
+                       configuration=None):
     """
 
     Parameters
@@ -75,8 +78,9 @@ def settle_run_options(n_workers=None,
     if job_name == START_HASH:
         job_name = start_hash
 
-    # if the job_name is given and the default value for th job_dir is
-    # given we set the job-dir as the job_name
+    # if the job_name is given and the default value for the job_dir
+    # is given (i.e. not specified by the user) we set the job-dir as
+    # the job_name
     if job_name is not None and job_dir == CURDIR:
             job_dir = job_name
 
@@ -88,7 +92,25 @@ def settle_run_options(n_workers=None,
     # normalize the job_dir
     job_dir = osp.realpath(job_dir)
 
-    return n_workers, job_dir, job_name, narration
+    # if a path for a configuration was given we want to use it so we
+    # unpickle it and return it, otherwise return None and use the
+    # default one in the orchestrator
+    config = None
+    if configuration is not None:
+         with open(configuration, 'rb') as rf:
+             config = dill.load(rf)
+
+    # we need to reparametrize the configuration here since the
+    # orchestrator API will ignore reparametrization values if a
+    # concrete Configuration is given.
+    if config is not None:
+        config = config.reparametrize(work_dir=job_dir,
+                                      config_name=job_name,
+                                      narration=narration,
+                                      n_workers=n_workers,
+        )
+
+    return n_workers, job_dir, job_name, narration, config
 
 @click.option('--log', default="WARNING")
 @click.option('--n-workers', type=click.INT)
@@ -96,12 +118,13 @@ def settle_run_options(n_workers=None,
 @click.option('--job-dir', default=CURDIR, type=click.Path(writable=True))
 @click.option('--job-name', default=START_HASH)
 @click.option('--narration', default="")
+@click.option('--configuration', type=click.Path(exists=True), default=None)
 @click.argument('n_cycle_steps', type=click.INT)
 @click.argument('run_time', type=click.FLOAT)
 @click.argument('start_hash')
 @click.argument('orchestrator', type=click.File(mode='rb'))
 @click.command()
-def run(log, n_workers, checkpoint_freq, job_dir, job_name, narration,
+def run(log, n_workers, checkpoint_freq, job_dir, job_name, narration, configuration,
         n_cycle_steps, run_time, start_hash, orchestrator):
     """
 
@@ -136,10 +159,11 @@ def run(log, n_workers, checkpoint_freq, job_dir, job_name, narration,
     set_loglevel(log)
 
     # settle what the defaults etc. are for the different options as they are interdependent
-    n_workers, job_dir, job_name, narration = settle_run_options(n_workers=n_workers,
+    n_workers, job_dir, job_name, narration, config = settle_run_options(n_workers=n_workers,
                                                                  job_dir=job_dir,
                                                                  job_name=job_name,
-                                                                 narration=narration)
+                                                                 narration=narration,
+                                                                 configuration=configuration)
 
     orch = deserialize_orchestrator(orchestrator.read())
 
@@ -151,6 +175,7 @@ def run(log, n_workers, checkpoint_freq, job_dir, job_name, narration,
                                                                  work_dir=job_dir,
                                                                  config_name=job_name,
                                                                  narration=narration,
+                                                                 configuration=config,
                                                                  n_workers=n_workers)
 
     # write the run tuple out to the log
@@ -168,13 +193,14 @@ def run(log, n_workers, checkpoint_freq, job_dir, job_name, narration,
 @click.option('--job-dir', default=CURDIR, type=click.Path(writable=True))
 @click.option('--job-name', default=START_HASH)
 @click.option('--narration', default="recovery")
+@click.option('--configuration', type=click.Path(exists=True), default=None)
 @click.argument('n_cycle_steps', type=click.INT)
 @click.argument('run_time', type=click.FLOAT)
 @click.argument('checkpoint', type=click.File(mode='rb'))
 @click.argument('start_hash')
 @click.argument('orchestrator', type=click.File(mode='rb'))
 @click.command()
-def recover(log, n_workers, checkpoint_freq, job_dir, job_name, narration,
+def recover(log, n_workers, checkpoint_freq, job_dir, job_name, narration, configuration,
             n_cycle_steps, run_time, checkpoint, start_hash, orchestrator):
     """
 
@@ -210,10 +236,11 @@ def recover(log, n_workers, checkpoint_freq, job_dir, job_name, narration,
 
     set_loglevel(log)
 
-    n_workers, job_dir, job_name, narration = settle_run_options(n_workers=n_workers,
+    n_workers, job_dir, job_name, narration, config = settle_run_options(n_workers=n_workers,
                                                                  job_dir=job_dir,
                                                                  job_name=job_name,
-                                                                 narration=narration)
+                                                                 narration=narration,
+                                                                 configuration=configuration)
 
     orch = deserialize_orchestrator(orchestrator.read())
 
@@ -230,7 +257,9 @@ def recover(log, n_workers, checkpoint_freq, job_dir, job_name, narration,
                                             checkpoint_freq=checkpoint_freq,
                                             work_dir=job_dir,
                                             config_name=job_name,
-                                            narration=narration)
+                                            narration=narration,
+                                            configuration=config,
+                                            n_workers=n_workers)
 
     start_hash, end_hash = run_tup
 

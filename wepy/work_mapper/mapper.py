@@ -3,6 +3,7 @@ from multiprocessing import Queue, JoinableQueue
 import queue
 import time
 import logging
+from warnings import warn
 
 from wepy.work_mapper.worker import Worker, Task
 
@@ -147,6 +148,8 @@ class WorkerMapper(Mapper):
         # choose the type of the worker
         if worker_type is None:
             self._worker_type = Worker
+            warn("worker_type not given using the default base class")
+            logging.warn("worker_type not given using the default base class")
         else:
             self._worker_type = worker_type
 
@@ -222,8 +225,10 @@ class WorkerMapper(Mapper):
         self._result_queue = Queue()
 
         # Start workers, giving them all the queues
-        self._workers = [self.worker_type(i, self._task_queue, self._result_queue)
-                         for i in range(num_workers)]
+        self._workers = []
+        for i in range(num_workers):
+            worker = self.worker_type(i, self._task_queue, self._result_queue)
+            self._workers.append(worker)
 
         # start the worker processes
         for worker in self._workers:

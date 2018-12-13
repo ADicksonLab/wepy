@@ -1,3 +1,5 @@
+import logging
+
 import numpy as np
 
 from wepy.reporter.reporter import ProgressiveFileReporter
@@ -67,6 +69,7 @@ class WalkerReporter(ProgressiveFileReporter):
                                    topology=mdtraj_top)
 
         # write out the init traj as a pdb
+        logging.info("Writing initial state to {}".format(self.init_state_path))
         init_traj.save_pdb(self.init_state_path)
 
     def report(self, cycle_idx=None, new_walkers=None,

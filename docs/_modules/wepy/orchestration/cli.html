@@ -1,0 +1,392 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>wepy.orchestration.cli &#8212; wepy v0.10 documentation</title>
+    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for wepy.orchestration.cli</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">os.path</span> <span class="k">as</span> <span class="nn">osp</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+
+<span class="kn">import</span> <span class="nn">click</span>
+
+<span class="kn">from</span> <span class="nn">wepy.orchestration.orchestrator</span> <span class="k">import</span> <span class="n">deserialize_orchestrator</span><span class="p">,</span> \
+                                            <span class="n">reconcile_orchestrators</span><span class="p">,</span> \
+                                            <span class="n">Orchestrator</span><span class="p">,</span> \
+                                            <span class="n">recover_run_by_time</span>
+
+<span class="kn">from</span> <span class="nn">wepy.reporter.hdf5</span> <span class="k">import</span> <span class="n">WepyHDF5Reporter</span>
+<span class="kn">from</span> <span class="nn">wepy.hdf5</span> <span class="k">import</span> <span class="n">WepyHDF5</span>
+
+<span class="n">ORCHESTRATOR_DEFAULT_FILENAME</span> <span class="o">=</span> \
+            <span class="n">Orchestrator</span><span class="o">.</span><span class="n">ORCH_FILENAME_TEMPLATE</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="n">Orchestrator</span><span class="o">.</span><span class="n">DEFAULT_CONFIG_NAME</span><span class="p">,</span>
+                                                       <span class="n">narration</span><span class="o">=</span><span class="n">Orchestrator</span><span class="o">.</span><span class="n">DEFAULT_NARRATION</span><span class="p">)</span>
+
+<span class="nd">@click</span><span class="o">.</span><span class="n">group</span><span class="p">()</span>
+<span class="k">def</span> <span class="nf">cli</span><span class="p">():</span>
+    <span class="k">pass</span>
+
+<div class="viewcode-block" id="set_loglevel"><a class="viewcode-back" href="../../../api/wepy.orchestration.html#wepy.orchestration.cli.set_loglevel">[docs]</a><span class="k">def</span> <span class="nf">set_loglevel</span><span class="p">(</span><span class="n">loglevel</span><span class="p">):</span>
+
+    <span class="c1"># try to cast the loglevel as an integer. If that fails interpret</span>
+    <span class="c1"># it as a string.</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">loglevel_num</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">loglevel</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+        <span class="n">loglevel_num</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">logging</span><span class="p">,</span> <span class="n">loglevel</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+    <span class="c1"># if no such log level exists in logging the string was invalid</span>
+    <span class="k">if</span> <span class="n">loglevel_num</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;invalid log level given&quot;</span><span class="p">)</span>
+
+    <span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="n">loglevel_num</span><span class="p">)</span></div>
+
+<span class="n">START_HASH</span> <span class="o">=</span> <span class="s1">&#39;&lt;start_hash&gt;&#39;</span>
+<span class="n">CURDIR</span> <span class="o">=</span> <span class="s1">&#39;&lt;curdir&gt;&#39;</span>
+
+<div class="viewcode-block" id="settle_run_options"><a class="viewcode-back" href="../../../api/wepy.orchestration.html#wepy.orchestration.cli.settle_run_options">[docs]</a><span class="k">def</span> <span class="nf">settle_run_options</span><span class="p">(</span><span class="n">n_workers</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                       <span class="n">job_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                       <span class="n">job_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                       <span class="n">narration</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+    <span class="c1"># the default for the job name is the start hash if none is given</span>
+    <span class="k">if</span> <span class="n">job_name</span> <span class="o">==</span> <span class="n">START_HASH</span><span class="p">:</span>
+        <span class="n">job_name</span> <span class="o">=</span> <span class="n">start_hash</span>
+
+    <span class="c1"># if the job_name is given and the default value for th job_dir is</span>
+    <span class="c1"># given we set the job-dir as the job_name</span>
+    <span class="k">if</span> <span class="n">job_name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">job_dir</span> <span class="o">==</span> <span class="n">CURDIR</span><span class="p">:</span>
+            <span class="n">job_dir</span> <span class="o">=</span> <span class="n">job_name</span>
+
+    <span class="c1"># if the special value for curdir is given we get the systems</span>
+    <span class="c1"># current directory, this is the default.</span>
+    <span class="k">if</span> <span class="n">job_dir</span> <span class="o">==</span> <span class="n">CURDIR</span><span class="p">:</span>
+        <span class="n">job_dir</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">curdir</span>
+
+    <span class="c1"># normalize the job_dir</span>
+    <span class="n">job_dir</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">realpath</span><span class="p">(</span><span class="n">job_dir</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">n_workers</span><span class="p">,</span> <span class="n">job_dir</span><span class="p">,</span> <span class="n">job_name</span><span class="p">,</span> <span class="n">narration</span></div>
+
+<span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span><span class="s1">&#39;--log&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;WARNING&quot;</span><span class="p">)</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span><span class="s1">&#39;--n-workers&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="n">click</span><span class="o">.</span><span class="n">INT</span><span class="p">)</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span><span class="s1">&#39;--checkpoint-freq&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="n">click</span><span class="o">.</span><span class="n">INT</span><span class="p">)</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span><span class="s1">&#39;--job-dir&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">CURDIR</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="n">click</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">writable</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span><span class="s1">&#39;--job-name&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">START_HASH</span><span class="p">)</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span><span class="s1">&#39;--narration&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">argument</span><span class="p">(</span><span class="s1">&#39;n_cycle_steps&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="n">click</span><span class="o">.</span><span class="n">INT</span><span class="p">)</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">argument</span><span class="p">(</span><span class="s1">&#39;run_time&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="n">click</span><span class="o">.</span><span class="n">FLOAT</span><span class="p">)</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">argument</span><span class="p">(</span><span class="s1">&#39;start_hash&#39;</span><span class="p">)</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">argument</span><span class="p">(</span><span class="s1">&#39;orchestrator&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="n">click</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s1">&#39;rb&#39;</span><span class="p">))</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">command</span><span class="p">()</span>
+<span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="n">log</span><span class="p">,</span> <span class="n">n_workers</span><span class="p">,</span> <span class="n">checkpoint_freq</span><span class="p">,</span> <span class="n">job_dir</span><span class="p">,</span> <span class="n">job_name</span><span class="p">,</span> <span class="n">narration</span><span class="p">,</span>
+        <span class="n">n_cycle_steps</span><span class="p">,</span> <span class="n">run_time</span><span class="p">,</span> <span class="n">start_hash</span><span class="p">,</span> <span class="n">orchestrator</span><span class="p">):</span>
+
+    <span class="n">set_loglevel</span><span class="p">(</span><span class="n">log</span><span class="p">)</span>
+
+    <span class="c1"># settle what the defaults etc. are for the different options as they are interdependent</span>
+    <span class="n">n_workers</span><span class="p">,</span> <span class="n">job_dir</span><span class="p">,</span> <span class="n">job_name</span><span class="p">,</span> <span class="n">narration</span> <span class="o">=</span> <span class="n">settle_run_options</span><span class="p">(</span><span class="n">n_workers</span><span class="o">=</span><span class="n">n_workers</span><span class="p">,</span>
+                                                                 <span class="n">job_dir</span><span class="o">=</span><span class="n">job_dir</span><span class="p">,</span>
+                                                                 <span class="n">job_name</span><span class="o">=</span><span class="n">job_name</span><span class="p">,</span>
+                                                                 <span class="n">narration</span><span class="o">=</span><span class="n">narration</span><span class="p">)</span>
+
+    <span class="n">orch</span> <span class="o">=</span> <span class="n">deserialize_orchestrator</span><span class="p">(</span><span class="n">orchestrator</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
+
+    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Orchestrator loaded&quot;</span><span class="p">)</span>
+
+    <span class="n">start_hash</span><span class="p">,</span> <span class="n">end_hash</span> <span class="o">=</span> <span class="n">orch</span><span class="o">.</span><span class="n">orchestrate_snapshot_run_by_time</span><span class="p">(</span><span class="n">start_hash</span><span class="p">,</span>
+                                                                 <span class="n">run_time</span><span class="p">,</span> <span class="n">n_cycle_steps</span><span class="p">,</span>
+                                                                 <span class="n">checkpoint_freq</span><span class="o">=</span><span class="n">checkpoint_freq</span><span class="p">,</span>
+                                                                 <span class="n">work_dir</span><span class="o">=</span><span class="n">job_dir</span><span class="p">,</span>
+                                                                 <span class="n">config_name</span><span class="o">=</span><span class="n">job_name</span><span class="p">,</span>
+                                                                 <span class="n">narration</span><span class="o">=</span><span class="n">narration</span><span class="p">,</span>
+                                                                 <span class="n">n_workers</span><span class="o">=</span><span class="n">n_workers</span><span class="p">)</span>
+
+    <span class="c1"># write the run tuple out to the log</span>
+    <span class="n">run_line_str</span> <span class="o">=</span> <span class="s2">&quot;Run start and end hashes: </span><span class="si">{}</span><span class="s2">, </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">start_hash</span><span class="p">,</span> <span class="n">end_hash</span><span class="p">)</span>
+
+    <span class="c1"># log it</span>
+    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">run_line_str</span><span class="p">)</span>
+
+    <span class="c1"># also put it to the terminal</span>
+    <span class="n">click</span><span class="o">.</span><span class="n">echo</span><span class="p">(</span><span class="n">run_line_str</span><span class="p">)</span>
+
+<span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span><span class="s1">&#39;--log&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;WARNING&quot;</span><span class="p">)</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span><span class="s1">&#39;--n-workers&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="n">click</span><span class="o">.</span><span class="n">INT</span><span class="p">)</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span><span class="s1">&#39;--checkpoint-freq&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="n">click</span><span class="o">.</span><span class="n">INT</span><span class="p">)</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span><span class="s1">&#39;--job-dir&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">CURDIR</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="n">click</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">writable</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span><span class="s1">&#39;--job-name&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">START_HASH</span><span class="p">)</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span><span class="s1">&#39;--narration&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;recovery&quot;</span><span class="p">)</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">argument</span><span class="p">(</span><span class="s1">&#39;n_cycle_steps&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="n">click</span><span class="o">.</span><span class="n">INT</span><span class="p">)</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">argument</span><span class="p">(</span><span class="s1">&#39;run_time&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="n">click</span><span class="o">.</span><span class="n">FLOAT</span><span class="p">)</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">argument</span><span class="p">(</span><span class="s1">&#39;checkpoint&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="n">click</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s1">&#39;rb&#39;</span><span class="p">))</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">argument</span><span class="p">(</span><span class="s1">&#39;start_hash&#39;</span><span class="p">)</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">argument</span><span class="p">(</span><span class="s1">&#39;orchestrator&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="n">click</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s1">&#39;rb&#39;</span><span class="p">))</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">command</span><span class="p">()</span>
+<span class="k">def</span> <span class="nf">recover</span><span class="p">(</span><span class="n">log</span><span class="p">,</span> <span class="n">n_workers</span><span class="p">,</span> <span class="n">checkpoint_freq</span><span class="p">,</span> <span class="n">job_dir</span><span class="p">,</span> <span class="n">job_name</span><span class="p">,</span> <span class="n">narration</span><span class="p">,</span>
+            <span class="n">n_cycle_steps</span><span class="p">,</span> <span class="n">run_time</span><span class="p">,</span> <span class="n">checkpoint</span><span class="p">,</span> <span class="n">start_hash</span><span class="p">,</span> <span class="n">orchestrator</span><span class="p">):</span>
+
+    <span class="n">set_loglevel</span><span class="p">(</span><span class="n">log</span><span class="p">)</span>
+
+    <span class="n">n_workers</span><span class="p">,</span> <span class="n">job_dir</span><span class="p">,</span> <span class="n">job_name</span><span class="p">,</span> <span class="n">narration</span> <span class="o">=</span> <span class="n">settle_run_options</span><span class="p">(</span><span class="n">n_workers</span><span class="o">=</span><span class="n">n_workers</span><span class="p">,</span>
+                                                                 <span class="n">job_dir</span><span class="o">=</span><span class="n">job_dir</span><span class="p">,</span>
+                                                                 <span class="n">job_name</span><span class="o">=</span><span class="n">job_name</span><span class="p">,</span>
+                                                                 <span class="n">narration</span><span class="o">=</span><span class="n">narration</span><span class="p">)</span>
+
+    <span class="n">orch</span> <span class="o">=</span> <span class="n">deserialize_orchestrator</span><span class="p">(</span><span class="n">orchestrator</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
+
+    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Orchestrator loaded&quot;</span><span class="p">)</span>
+
+    <span class="n">checkpoint_orch</span> <span class="o">=</span> <span class="n">deserialize_orchestrator</span><span class="p">(</span><span class="n">checkpoint</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
+
+    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Checkpoint loadeded&quot;</span><span class="p">)</span>
+
+    <span class="c1"># run the continuation from the new orchestrator with the update</span>
+    <span class="c1"># from the checkpoint</span>
+    <span class="n">new_orch</span><span class="p">,</span> <span class="n">run_tup</span> <span class="o">=</span> <span class="n">recover_run_by_time</span><span class="p">(</span><span class="n">orch</span><span class="p">,</span> <span class="n">checkpoint_orch</span><span class="p">,</span>
+                                            <span class="n">run_time</span><span class="p">,</span> <span class="n">n_cycle_steps</span><span class="p">,</span>
+                                            <span class="n">checkpoint_freq</span><span class="o">=</span><span class="n">checkpoint_freq</span><span class="p">,</span>
+                                            <span class="n">work_dir</span><span class="o">=</span><span class="n">job_dir</span><span class="p">,</span>
+                                            <span class="n">config_name</span><span class="o">=</span><span class="n">job_name</span><span class="p">,</span>
+                                            <span class="n">narration</span><span class="o">=</span><span class="n">narration</span><span class="p">)</span>
+
+    <span class="n">start_hash</span><span class="p">,</span> <span class="n">end_hash</span> <span class="o">=</span> <span class="n">run_tup</span>
+
+    <span class="c1"># write the run tuple out to the log</span>
+    <span class="n">run_line_str</span> <span class="o">=</span> <span class="s2">&quot;Run start and end hashes: </span><span class="si">{}</span><span class="s2">, </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">start_hash</span><span class="p">,</span> <span class="n">end_hash</span><span class="p">)</span>
+
+    <span class="c1"># log it</span>
+    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">run_line_str</span><span class="p">)</span>
+
+    <span class="c1"># also put it to the terminal</span>
+    <span class="n">click</span><span class="o">.</span><span class="n">echo</span><span class="p">(</span><span class="n">run_line_str</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="combine_orch_wepy_hdf5s"><a class="viewcode-back" href="../../../api/wepy.orchestration.html#wepy.orchestration.cli.combine_orch_wepy_hdf5s">[docs]</a><span class="k">def</span> <span class="nf">combine_orch_wepy_hdf5s</span><span class="p">(</span><span class="n">new_orch</span><span class="p">,</span> <span class="n">new_hdf5_path</span><span class="p">):</span>
+
+    <span class="c1"># a key-value for the paths for each run</span>
+    <span class="n">hdf5_paths</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="c1"># go through each run in the new orchestrator</span>
+    <span class="k">for</span> <span class="n">run_id</span> <span class="ow">in</span> <span class="n">new_orch</span><span class="o">.</span><span class="n">runs</span><span class="p">:</span>
+
+        <span class="c1"># get the configuration used for this run</span>
+        <span class="n">run_config</span> <span class="o">=</span> <span class="n">new_orch</span><span class="o">.</span><span class="n">run_configuration</span><span class="p">(</span><span class="o">*</span><span class="n">run_id</span><span class="p">)</span>
+
+        <span class="c1"># from that configuration find the WepyHDF5Reporters</span>
+        <span class="k">for</span> <span class="n">reporter</span> <span class="ow">in</span> <span class="n">run_config</span><span class="o">.</span><span class="n">reporters</span><span class="p">:</span>
+
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">reporter</span><span class="p">,</span> <span class="n">WepyHDF5Reporter</span><span class="p">):</span>
+
+                <span class="c1"># and save the path for that run</span>
+                <span class="n">hdf5_paths</span><span class="p">[</span><span class="n">run_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">reporter</span><span class="o">.</span><span class="n">file_path</span>
+
+    <span class="c1"># now that we have the paths (or lack of paths) for all</span>
+    <span class="c1"># the runs we need to start linking them all</span>
+    <span class="c1"># together.</span>
+
+    <span class="c1"># first we need a master linker HDF5 to do this with</span>
+
+    <span class="c1"># so load a template WepyHDF5</span>
+    <span class="n">template_wepy_h5_path</span> <span class="o">=</span> <span class="n">hdf5_paths</span><span class="p">[</span><span class="n">new_orch</span><span class="o">.</span><span class="n">runs</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+    <span class="n">template_wepy_h5</span> <span class="o">=</span> <span class="n">WepyHDF5</span><span class="p">(</span><span class="n">template_wepy_h5_path</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">)</span>
+
+    <span class="c1"># clone it</span>
+    <span class="k">with</span> <span class="n">template_wepy_h5</span><span class="p">:</span>
+        <span class="n">master_wepy_h5</span> <span class="o">=</span> <span class="n">template_wepy_h5</span><span class="o">.</span><span class="n">clone</span><span class="p">(</span><span class="n">new_hdf5_path</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;x&#39;</span><span class="p">)</span>
+
+    <span class="k">with</span> <span class="n">master_wepy_h5</span><span class="p">:</span>
+        <span class="c1"># then link all the files to it</span>
+        <span class="n">run_mapping</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">run_id</span><span class="p">,</span> <span class="n">wepy_h5_path</span> <span class="ow">in</span> <span class="n">hdf5_paths</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+
+            <span class="c1"># we just link the whole file then sort out the</span>
+            <span class="c1"># continuations later since we aren&#39;t necessarily doing</span>
+            <span class="c1"># this in a logical order</span>
+            <span class="n">new_run_idxs</span> <span class="o">=</span> <span class="n">master_wepy_h5</span><span class="o">.</span><span class="n">link_file_runs</span><span class="p">(</span><span class="n">wepy_h5_path</span><span class="p">)</span>
+
+            <span class="c1"># map the hash id to the new run idx created. There should</span>
+            <span class="c1"># only be one if we are following the orchestration</span>
+            <span class="c1"># workflow.</span>
+            <span class="n">run_mapping</span><span class="p">[</span><span class="n">run_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_run_idxs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="c1"># now that they are all linked we need to set the</span>
+        <span class="c1"># continuations correctly, so for each run we find the run it</span>
+        <span class="c1"># continues in the orchestrator</span>
+        <span class="k">for</span> <span class="n">run_id</span><span class="p">,</span> <span class="n">run_idx</span> <span class="ow">in</span> <span class="n">run_mapping</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+
+            <span class="c1"># find the run_id that this one continues</span>
+            <span class="n">continued_run_id</span> <span class="o">=</span> <span class="n">new_orch</span><span class="o">.</span><span class="n">run_continues</span><span class="p">(</span><span class="o">*</span><span class="n">run_id</span><span class="p">)</span>
+
+            <span class="c1"># if a None is returned then there was no continuation</span>
+            <span class="k">if</span> <span class="n">continued_run_id</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="c1"># so we go to the next run_id and don&#39;t log any</span>
+                <span class="c1"># continuation</span>
+                <span class="k">continue</span>
+
+            <span class="c1"># get the run_idx in the HDF5 that corresponds to this run</span>
+            <span class="n">continued_run_idx</span> <span class="o">=</span> <span class="n">run_mapping</span><span class="p">[</span><span class="n">continued_run_id</span><span class="p">]</span>
+
+            <span class="c1"># add the continuation</span>
+            <span class="n">master_wepy_h5</span><span class="o">.</span><span class="n">add_continuation</span><span class="p">(</span><span class="n">run_idx</span><span class="p">,</span> <span class="n">continued_run_idx</span><span class="p">)</span></div>
+
+<span class="nd">@click</span><span class="o">.</span><span class="n">command</span><span class="p">()</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span><span class="s1">&#39;--hdf5&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="n">click</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">exists</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">argument</span><span class="p">(</span><span class="s1">&#39;output&#39;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="n">click</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s1">&#39;wb&#39;</span><span class="p">))</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">argument</span><span class="p">(</span><span class="s1">&#39;orchestrators&#39;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="n">click</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s1">&#39;rb&#39;</span><span class="p">))</span>
+<span class="k">def</span> <span class="nf">reconcile</span><span class="p">(</span><span class="n">hdf5</span><span class="p">,</span>
+              <span class="n">output</span><span class="p">,</span> <span class="n">orchestrators</span><span class="p">):</span>
+
+    <span class="c1"># reconcile them one by one as they are big and too expensive to</span>
+    <span class="c1"># load all into memory at once</span>
+    <span class="n">new_orch</span> <span class="o">=</span> <span class="n">deserialize_orchestrator</span><span class="p">(</span><span class="n">orchestrators</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
+    <span class="k">for</span> <span class="n">orchestrator</span> <span class="ow">in</span> <span class="n">orchestrators</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
+        <span class="n">orch</span> <span class="o">=</span> <span class="n">deserialize_orchestrator</span><span class="p">(</span><span class="n">orchestrator</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
+
+        <span class="c1"># reconcile the two orchestrators</span>
+        <span class="n">new_orch</span> <span class="o">=</span> <span class="n">reconcile_orchestrators</span><span class="p">(</span><span class="n">new_orch</span><span class="p">,</span> <span class="n">orch</span><span class="p">)</span>
+
+    <span class="c1"># if a path for an HDF5 file is given</span>
+    <span class="k">if</span> <span class="n">hdf5</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">hdf5_path</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">realpath</span><span class="p">(</span><span class="n">hdf5</span><span class="p">)</span>
+        <span class="c1"># combine the HDF5 files from those orchestrators</span>
+        <span class="n">combine_orch_wepy_hdf5s</span><span class="p">(</span><span class="n">new_orch</span><span class="p">,</span> <span class="n">hdf5_path</span><span class="p">)</span>
+
+
+    <span class="c1"># then make and output the orchestrator</span>
+    <span class="n">output</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">new_orch</span><span class="o">.</span><span class="n">serialize</span><span class="p">())</span>
+
+<div class="viewcode-block" id="hash_listing_formatter"><a class="viewcode-back" href="../../../api/wepy.orchestration.html#wepy.orchestration.cli.hash_listing_formatter">[docs]</a><span class="k">def</span> <span class="nf">hash_listing_formatter</span><span class="p">(</span><span class="n">hashes</span><span class="p">):</span>
+    <span class="n">hash_listing_str</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">hashes</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">hash_listing_str</span></div>
+
+<span class="nd">@click</span><span class="o">.</span><span class="n">argument</span><span class="p">(</span><span class="s1">&#39;orchestrator&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="n">click</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s1">&#39;rb&#39;</span><span class="p">))</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">command</span><span class="p">()</span>
+<span class="k">def</span> <span class="nf">ls_snapshots</span><span class="p">(</span><span class="n">orchestrator</span><span class="p">):</span>
+
+    <span class="n">orch</span> <span class="o">=</span> <span class="n">deserialize_orchestrator</span><span class="p">(</span><span class="n">orchestrator</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
+    <span class="n">message</span> <span class="o">=</span> <span class="n">hash_listing_formatter</span><span class="p">(</span><span class="n">orch</span><span class="o">.</span><span class="n">snapshot_hashes</span><span class="p">)</span>
+
+    <span class="n">click</span><span class="o">.</span><span class="n">echo</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+
+<span class="nd">@click</span><span class="o">.</span><span class="n">argument</span><span class="p">(</span><span class="s1">&#39;orchestrator&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="n">click</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s1">&#39;rb&#39;</span><span class="p">))</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">command</span><span class="p">()</span>
+<span class="k">def</span> <span class="nf">ls_runs</span><span class="p">(</span><span class="n">orchestrator</span><span class="p">):</span>
+
+    <span class="n">orch</span> <span class="o">=</span> <span class="n">deserialize_orchestrator</span><span class="p">(</span><span class="n">orchestrator</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
+
+    <span class="n">runs</span> <span class="o">=</span> <span class="n">orch</span><span class="o">.</span><span class="n">runs</span>
+
+    <span class="n">hash_listing_str</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">, </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">)</span> <span class="k">for</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span> <span class="ow">in</span> <span class="n">runs</span><span class="p">])</span>
+
+    <span class="n">click</span><span class="o">.</span><span class="n">echo</span><span class="p">(</span><span class="n">hash_listing_str</span><span class="p">)</span>
+
+<span class="c1"># command groupings</span>
+<span class="n">cli</span><span class="o">.</span><span class="n">add_command</span><span class="p">(</span><span class="n">run</span><span class="p">)</span>
+<span class="n">cli</span><span class="o">.</span><span class="n">add_command</span><span class="p">(</span><span class="n">recover</span><span class="p">)</span>
+<span class="n">cli</span><span class="o">.</span><span class="n">add_command</span><span class="p">(</span><span class="n">reconcile</span><span class="p">)</span>
+<span class="n">cli</span><span class="o">.</span><span class="n">add_command</span><span class="p">(</span><span class="n">ls_snapshots</span><span class="p">)</span>
+<span class="n">cli</span><span class="o">.</span><span class="n">add_command</span><span class="p">(</span><span class="n">ls_runs</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+
+    <span class="n">cli</span><span class="p">()</span>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">wepy</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/explanation.html">Explanation of Wepy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/glossary.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/index.html">Module Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/index.html">Tutorials</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, Samuel D. Lotz.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.8.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

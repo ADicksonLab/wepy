@@ -6,10 +6,12 @@ import logging
 class Worker(Process):
     """ """
 
+    NAME_TEMPLATE = "Worker-{}"
+
     def __init__(self, worker_idx, task_queue, result_queue):
 
         # call the Process constructor
-        Process.__init__(self)
+        Process.__init__(self, name=self.NAME_TEMPLATE.format(worker_idx))
 
         self.worker_idx = worker_idx
 

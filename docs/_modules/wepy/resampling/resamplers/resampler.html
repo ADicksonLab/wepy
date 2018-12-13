@@ -1,0 +1,486 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>wepy.resampling.resamplers.resampler &#8212; wepy v0.10 documentation</title>
+    <link rel="stylesheet" href="../../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for wepy.resampling.resamplers.resampler</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">itertools</span> <span class="k">as</span> <span class="nn">it</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">defaultdict</span>
+<span class="kn">from</span> <span class="nn">warnings</span> <span class="k">import</span> <span class="n">warn</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">wepy.resampling.decisions.decision</span> <span class="k">import</span> <span class="n">NoDecision</span>
+
+<div class="viewcode-block" id="ResamplerError"><a class="viewcode-back" href="../../../../api/wepy.resampling.resamplers.html#wepy.resampling.resamplers.resampler.ResamplerError">[docs]</a><span class="k">class</span> <span class="nc">ResamplerError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="Resampler"><a class="viewcode-back" href="../../../../api/wepy.resampling.resamplers.html#wepy.resampling.resamplers.resampler.Resampler">[docs]</a><span class="k">class</span> <span class="nc">Resampler</span><span class="p">():</span>
+    <span class="c1"># data for resampling performed (continual)</span>
+    <span class="n">RESAMPLING_FIELDS</span> <span class="o">=</span> <span class="p">()</span>
+    <span class="n">RESAMPLING_SHAPES</span> <span class="o">=</span> <span class="p">()</span>
+    <span class="n">RESAMPLING_DTYPES</span> <span class="o">=</span> <span class="p">()</span>
+
+    <span class="n">RESAMPLING_RECORD_FIELDS</span> <span class="o">=</span> <span class="p">()</span>
+
+    <span class="c1"># changes to the state of the resampler (sporadic)</span>
+    <span class="n">RESAMPLER_FIELDS</span> <span class="o">=</span> <span class="p">()</span>
+    <span class="n">RESAMPLER_SHAPES</span> <span class="o">=</span> <span class="p">()</span>
+    <span class="n">RESAMPLER_DTYPES</span> <span class="o">=</span> <span class="p">()</span>
+
+    <span class="n">RESAMPLER_RECORD_FIELDS</span> <span class="o">=</span> <span class="p">()</span>
+
+
+    <span class="c1"># valid debug modes</span>
+    <span class="n">DEBUG_MODES</span> <span class="o">=</span> <span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">,)</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">min_num_walkers</span><span class="o">=</span><span class="bp">Ellipsis</span><span class="p">,</span>
+                 <span class="n">max_num_walkers</span><span class="o">=</span><span class="bp">Ellipsis</span><span class="p">,</span>
+                 <span class="n">debug_mode</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+
+        <span class="c1"># the min and max number of walkers that can be generated in</span>
+        <span class="c1"># resampling.</span>
+
+        <span class="c1"># Ellipsis means to keep bound it by the number of</span>
+        <span class="c1"># walkers given to the resample method (e.g. if</span>
+        <span class="c1"># max_num_walkers == Ellipsis and min_num_walkers == 5 and</span>
+        <span class="c1"># resample is given 10 then the max will be set to 10 for that</span>
+        <span class="c1"># resampling and the min will always be 5. If both are</span>
+        <span class="c1"># Ellipsis then the number of walkers is kept the same)</span>
+
+        <span class="c1"># None means that there is no bound, e.g. max_num_walkers ==</span>
+        <span class="c1"># None then there is no maximum number of walkers, however a</span>
+        <span class="c1"># min_num_walkers of None in practice is 1 since there must</span>
+        <span class="c1"># always be at least 1 walker</span>
+
+        <span class="k">if</span> <span class="n">min_num_walkers</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="bp">Ellipsis</span><span class="p">,</span> <span class="kc">None</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">min_num_walkers</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">ResamplerError</span><span class="p">(</span><span class="s2">&quot;The minimum number of walkers should be at least 1&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_min_num_walkers</span> <span class="o">=</span> <span class="n">min_num_walkers</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_max_num_walkers</span> <span class="o">=</span> <span class="n">max_num_walkers</span>
+
+        <span class="c1"># initialize debug mode</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_debug_mode</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="c1"># set them to the args given</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_debug_mode</span><span class="p">(</span><span class="n">debug_mode</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Resampler.resampling_field_names"><a class="viewcode-back" href="../../../../api/wepy.resampling.resamplers.html#wepy.resampling.resamplers.resampler.Resampler.resampling_field_names">[docs]</a>    <span class="k">def</span> <span class="nf">resampling_field_names</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">RESAMPLING_FIELDS</span></div>
+
+<div class="viewcode-block" id="Resampler.resampling_field_shapes"><a class="viewcode-back" href="../../../../api/wepy.resampling.resamplers.html#wepy.resampling.resamplers.resampler.Resampler.resampling_field_shapes">[docs]</a>    <span class="k">def</span> <span class="nf">resampling_field_shapes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">RESAMPLING_SHAPES</span></div>
+
+<div class="viewcode-block" id="Resampler.resampling_field_dtypes"><a class="viewcode-back" href="../../../../api/wepy.resampling.resamplers.html#wepy.resampling.resamplers.resampler.Resampler.resampling_field_dtypes">[docs]</a>    <span class="k">def</span> <span class="nf">resampling_field_dtypes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">RESAMPLING_DTYPES</span></div>
+
+<div class="viewcode-block" id="Resampler.resampling_fields"><a class="viewcode-back" href="../../../../api/wepy.resampling.resamplers.html#wepy.resampling.resamplers.resampler.Resampler.resampling_fields">[docs]</a>    <span class="k">def</span> <span class="nf">resampling_fields</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">resampling_field_names</span><span class="p">(),</span>
+                   <span class="bp">self</span><span class="o">.</span><span class="n">resampling_field_shapes</span><span class="p">(),</span>
+                   <span class="bp">self</span><span class="o">.</span><span class="n">resampling_field_dtypes</span><span class="p">()))</span></div>
+
+<div class="viewcode-block" id="Resampler.resampling_record_field_names"><a class="viewcode-back" href="../../../../api/wepy.resampling.resamplers.html#wepy.resampling.resamplers.resampler.Resampler.resampling_record_field_names">[docs]</a>    <span class="k">def</span> <span class="nf">resampling_record_field_names</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">RESAMPLING_RECORD_FIELDS</span></div>
+
+<div class="viewcode-block" id="Resampler.resampler_field_names"><a class="viewcode-back" href="../../../../api/wepy.resampling.resamplers.html#wepy.resampling.resamplers.resampler.Resampler.resampler_field_names">[docs]</a>    <span class="k">def</span> <span class="nf">resampler_field_names</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">RESAMPLER_FIELDS</span></div>
+
+<div class="viewcode-block" id="Resampler.resampler_field_shapes"><a class="viewcode-back" href="../../../../api/wepy.resampling.resamplers.html#wepy.resampling.resamplers.resampler.Resampler.resampler_field_shapes">[docs]</a>    <span class="k">def</span> <span class="nf">resampler_field_shapes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">RESAMPLER_SHAPES</span></div>
+
+<div class="viewcode-block" id="Resampler.resampler_field_dtypes"><a class="viewcode-back" href="../../../../api/wepy.resampling.resamplers.html#wepy.resampling.resamplers.resampler.Resampler.resampler_field_dtypes">[docs]</a>    <span class="k">def</span> <span class="nf">resampler_field_dtypes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">RESAMPLER_DTYPES</span></div>
+
+<div class="viewcode-block" id="Resampler.resampler_fields"><a class="viewcode-back" href="../../../../api/wepy.resampling.resamplers.html#wepy.resampling.resamplers.resampler.Resampler.resampler_fields">[docs]</a>    <span class="k">def</span> <span class="nf">resampler_fields</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">resampler_field_names</span><span class="p">(),</span>
+                   <span class="bp">self</span><span class="o">.</span><span class="n">resampler_field_shapes</span><span class="p">(),</span>
+                   <span class="bp">self</span><span class="o">.</span><span class="n">resampler_field_dtypes</span><span class="p">()))</span></div>
+
+<div class="viewcode-block" id="Resampler.resampler_record_field_names"><a class="viewcode-back" href="../../../../api/wepy.resampling.resamplers.html#wepy.resampling.resamplers.resampler.Resampler.resampler_record_field_names">[docs]</a>    <span class="k">def</span> <span class="nf">resampler_record_field_names</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">RESAMPLER_RECORD_FIELDS</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">is_debug_on</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_debug_mode</span>
+
+<div class="viewcode-block" id="Resampler.set_debug_mode"><a class="viewcode-back" href="../../../../api/wepy.resampling.resamplers.html#wepy.resampling.resamplers.resampler.Resampler.set_debug_mode">[docs]</a>    <span class="k">def</span> <span class="nf">set_debug_mode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mode</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="n">mode</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">DEBUG_MODES</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;debug mode, </span><span class="si">{}</span><span class="s2">, not valid&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">mode</span><span class="p">))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_debug_mode</span> <span class="o">=</span> <span class="n">mode</span>
+
+        <span class="c1"># if you want to use debug mode you have to have ipdb installed</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_debug_on</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="kn">import</span> <span class="nn">ipdb</span>
+            <span class="k">except</span> <span class="n">ModuleNotFoundError</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">ModuleNotFoundError</span><span class="p">(</span><span class="s2">&quot;You must have ipdb installed to use the debug feature&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Resampler.debug_on"><a class="viewcode-back" href="../../../../api/wepy.resampling.resamplers.html#wepy.resampling.resamplers.resampler.Resampler.debug_on">[docs]</a>    <span class="k">def</span> <span class="nf">debug_on</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_debug_on</span><span class="p">:</span>
+            <span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Debug mode is already on&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_debug_mode</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Resampler.debug_off"><a class="viewcode-back" href="../../../../api/wepy.resampling.resamplers.html#wepy.resampling.resamplers.resampler.Resampler.debug_off">[docs]</a>    <span class="k">def</span> <span class="nf">debug_off</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_debug_on</span><span class="p">:</span>
+            <span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Debug mode is already off&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_debug_mode</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">max_num_walkers_setting</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_max_num_walkers</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">min_num_walkers_setting</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_min_num_walkers</span>
+
+<div class="viewcode-block" id="Resampler.max_num_walkers"><a class="viewcode-back" href="../../../../api/wepy.resampling.resamplers.html#wepy.resampling.resamplers.resampler.Resampler.max_num_walkers">[docs]</a>    <span class="k">def</span> <span class="nf">max_num_walkers</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;&quot; Get the max number of walkers allowed currently&quot;&quot;&quot;</span>
+
+        <span class="c1"># first check to make sure that a resampling is occuring and</span>
+        <span class="c1"># we have a number of walkers to even reference</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_resampling_num_walkers</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">ResamplerError</span><span class="p">(</span>
+            <span class="s2">&quot;A resampling is currently not taking place so the&quot;</span>\
+            <span class="s2">&quot; current number of walkers is not known.&quot;</span><span class="p">)</span>
+
+        <span class="c1"># we are in a resampling so there is a current value for the</span>
+        <span class="c1"># max number of walkers</span>
+        <span class="k">else</span><span class="p">:</span>
+
+            <span class="c1"># if the max is None then there is no max number of</span>
+            <span class="c1"># walkers so we just return None</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_num_walkers_setting</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">None</span>
+
+            <span class="c1"># if the max is Ellipsis then we just return what the</span>
+            <span class="c1"># current number of walkers is</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_num_walkers_setting</span> <span class="ow">is</span> <span class="bp">Ellipsis</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_resampling_num_walkers</span>
+
+            <span class="c1"># if it is not those then it is a hard number and we just</span>
+            <span class="c1"># return it</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_num_walkers_setting</span></div>
+
+<div class="viewcode-block" id="Resampler.min_num_walkers"><a class="viewcode-back" href="../../../../api/wepy.resampling.resamplers.html#wepy.resampling.resamplers.resampler.Resampler.min_num_walkers">[docs]</a>    <span class="k">def</span> <span class="nf">min_num_walkers</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;&quot; Get the min number of walkers allowed currently&quot;&quot;&quot;</span>
+
+        <span class="c1"># first check to make sure that a resampling is occuring and</span>
+        <span class="c1"># we have a number of walkers to even reference</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_resampling_num_walkers</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">ResamplerError</span><span class="p">(</span>
+            <span class="s2">&quot;A resampling is currently not taking place so the&quot;</span>\
+            <span class="s2">&quot; current number of walkers is not known.&quot;</span><span class="p">)</span>
+
+        <span class="c1"># we are in a resampling so there is a current value for the</span>
+        <span class="c1"># min number of walkers</span>
+        <span class="k">else</span><span class="p">:</span>
+
+            <span class="c1"># if the min is None then there is no min number of</span>
+            <span class="c1"># walkers so we just return None</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_num_walkers_setting</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">None</span>
+
+            <span class="c1"># if the min is Ellipsis then we just return what the</span>
+            <span class="c1"># current number of walkers is</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_num_walkers_setting</span> <span class="ow">is</span> <span class="bp">Ellipsis</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_resampling_num_walkers</span>
+
+            <span class="c1"># if it is not those then it is a hard number and we just</span>
+            <span class="c1"># return it</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_num_walkers_setting</span></div>
+
+
+    <span class="k">def</span> <span class="nf">_set_resampling_num_walkers</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num_walkers</span><span class="p">):</span>
+
+        <span class="c1"># there must be at least 1 walker in order to do resampling</span>
+        <span class="k">if</span> <span class="n">num_walkers</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">ResamplerError</span><span class="p">(</span><span class="s2">&quot;No walkers were given to resample&quot;</span><span class="p">)</span>
+
+        <span class="c1"># if the min number of walkers is not dynamic check to see if</span>
+        <span class="c1"># this number violates the hard boundary</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_min_num_walkers</span> <span class="ow">in</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="bp">Ellipsis</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_resampling_num_walkers</span> <span class="o">=</span> <span class="n">num_walkers</span>
+        <span class="k">elif</span> <span class="n">num_walkers</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">_min_num_walkers</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">ResamplerError</span><span class="p">(</span>
+                <span class="s2">&quot;The number of walkers given to resample is less than the minimum&quot;</span><span class="p">)</span>
+
+        <span class="c1"># if the max number of walkers is not dynamic check to see if</span>
+        <span class="c1"># this number violates the hard boundary</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_max_num_walkers</span> <span class="ow">in</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="bp">Ellipsis</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_resampling_num_walkers</span> <span class="o">=</span> <span class="n">num_walkers</span>
+        <span class="k">elif</span> <span class="n">num_walkers</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">_max_num_walkers</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">ResamplerError</span><span class="p">(</span>
+                <span class="s2">&quot;The number of walkers given to resample is less than the maximum&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_unset_resampling_num_walkers</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_resampling_num_walkers</span> <span class="o">=</span> <span class="kc">None</span>
+
+
+
+    <span class="k">def</span> <span class="nf">_resample_init</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">walkers</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Common initialization stuff for resamplers. &quot;&quot;&quot;</span>
+
+        <span class="c1"># first set how many walkers there are in this resampling</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set_resampling_num_walkers</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">walkers</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">_resample_cleanup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="c1"># unset the number of walkers for this resampling</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_unset_resampling_num_walkers</span><span class="p">()</span>
+
+
+<div class="viewcode-block" id="Resampler.resample"><a class="viewcode-back" href="../../../../api/wepy.resampling.resamplers.html#wepy.resampling.resamplers.resampler.Resampler.resample">[docs]</a>    <span class="k">def</span> <span class="nf">resample</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">walkers</span><span class="p">,</span> <span class="n">debug_mode</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+
+        <span class="k">raise</span> <span class="bp">NotImplemented</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_resample_init</span><span class="p">(</span><span class="n">walkers</span><span class="p">,</span> <span class="n">debug_mode</span><span class="o">=</span><span class="n">debug_mode</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span> <span class="nf">_init_walker_actions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n_walkers</span><span class="p">):</span>
+        <span class="c1"># determine resampling actions</span>
+        <span class="n">walker_actions</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">decision</span><span class="o">.</span><span class="n">record</span><span class="p">(</span><span class="n">enum_value</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">decision</span><span class="o">.</span><span class="n">ENUM</span><span class="o">.</span><span class="n">NOTHING</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
+                                               <span class="n">target_idxs</span><span class="o">=</span><span class="p">(</span><span class="n">i</span><span class="p">,))</span>
+                    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_walkers</span><span class="p">)]</span>
+
+        <span class="k">return</span> <span class="n">walker_actions</span>
+
+
+<div class="viewcode-block" id="Resampler.assign_clones"><a class="viewcode-back" href="../../../../api/wepy.resampling.resamplers.html#wepy.resampling.resamplers.resampler.Resampler.assign_clones">[docs]</a>    <span class="k">def</span> <span class="nf">assign_clones</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">merge_groups</span><span class="p">,</span> <span class="n">walker_clone_nums</span><span class="p">):</span>
+
+        <span class="n">n_walkers</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">walker_clone_nums</span><span class="p">)</span>
+
+        <span class="n">walker_actions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_init_walker_actions</span><span class="p">(</span><span class="n">n_walkers</span><span class="p">)</span>
+
+        <span class="c1"># keep track of which slots will be free due to squashing</span>
+        <span class="n">free_slots</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="c1"># go through the merge groups and write the records for them,</span>
+        <span class="c1"># the index of a merge group determines the KEEP_MERGE walker</span>
+        <span class="c1"># and the indices in the merge group are the walkers that will</span>
+        <span class="c1"># be squashed</span>
+        <span class="k">for</span> <span class="n">walker_idx</span><span class="p">,</span> <span class="n">merge_group</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">merge_groups</span><span class="p">):</span>
+
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">merge_group</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="c1"># add the squashed walker idxs to the list of open</span>
+                <span class="c1"># slots</span>
+                <span class="n">free_slots</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">merge_group</span><span class="p">)</span>
+
+                <span class="c1"># for each squashed walker write a record and save it</span>
+                <span class="c1"># in the walker actions</span>
+                <span class="k">for</span> <span class="n">squash_idx</span> <span class="ow">in</span> <span class="n">merge_group</span><span class="p">:</span>
+                    <span class="n">walker_actions</span><span class="p">[</span><span class="n">squash_idx</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">decision</span><span class="o">.</span><span class="n">record</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">decision</span><span class="o">.</span><span class="n">ENUM</span><span class="o">.</span><span class="n">SQUASH</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
+                                                                      <span class="p">(</span><span class="n">walker_idx</span><span class="p">,))</span>
+
+                <span class="c1"># make the record for the keep merge walker</span>
+                <span class="n">walker_actions</span><span class="p">[</span><span class="n">walker_idx</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">decision</span><span class="o">.</span><span class="n">record</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">decision</span><span class="o">.</span><span class="n">ENUM</span><span class="o">.</span><span class="n">KEEP_MERGE</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
+                                                         <span class="p">(</span><span class="n">walker_idx</span><span class="p">,))</span>
+
+        <span class="c1"># for each walker, if it is to be cloned assign open slots for it</span>
+        <span class="k">for</span> <span class="n">walker_idx</span><span class="p">,</span> <span class="n">num_clones</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">walker_clone_nums</span><span class="p">):</span>
+
+            <span class="k">if</span> <span class="n">num_clones</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">merge_groups</span><span class="p">[</span><span class="n">walker_idx</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">ResamplerError</span><span class="p">(</span><span class="s2">&quot;Error! cloning and merging occuring with the same walker&quot;</span><span class="p">)</span>
+
+            <span class="c1"># if this walker is to be cloned do so and consume the free</span>
+            <span class="c1"># slot</span>
+            <span class="k">if</span> <span class="n">num_clones</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+
+                <span class="c1"># we first check to see if there are any free &quot;slots&quot;</span>
+                <span class="c1"># for cloned walkers to go. If there are not we can</span>
+                <span class="c1"># make room. The number of extra slots needed should</span>
+                <span class="c1"># be default 0</span>
+
+
+                <span class="c1"># we choose the targets for this cloning, we start</span>
+                <span class="c1"># with the walker initiating the cloning</span>
+                <span class="n">clone_targets</span> <span class="o">=</span> <span class="p">[</span><span class="n">walker_idx</span><span class="p">]</span>
+
+                <span class="c1"># if there are any free slots, then we use those first</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">free_slots</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">clone_targets</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="n">free_slots</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span> <span class="k">for</span> <span class="n">clone</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_clones</span><span class="p">)])</span>
+
+                <span class="c1"># if there are more slots needed then we will have to</span>
+                <span class="c1"># create them</span>
+                <span class="n">num_slots_needed</span> <span class="o">=</span> <span class="n">num_clones</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">clone_targets</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">num_slots_needed</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+
+                    <span class="c1"># initialize the lists of open slots</span>
+                    <span class="n">new_slots</span> <span class="o">=</span> <span class="p">[]</span>
+
+                    <span class="c1"># and make a list of the new slots</span>
+                    <span class="n">new_slots</span> <span class="o">=</span> <span class="p">[</span><span class="n">n_walkers</span> <span class="o">+</span> <span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_slots_needed</span><span class="p">)]</span>
+
+                    <span class="c1"># then increase the number of walkers to match</span>
+                    <span class="n">n_walkers</span> <span class="o">+=</span> <span class="n">num_slots_needed</span>
+
+                    <span class="c1"># then add these to the clone targets</span>
+                    <span class="n">clone_targets</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">new_slots</span><span class="p">)</span>
+
+                <span class="c1"># make a record for this clone</span>
+                <span class="n">walker_actions</span><span class="p">[</span><span class="n">walker_idx</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">decision</span><span class="o">.</span><span class="n">record</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">decision</span><span class="o">.</span><span class="n">ENUM</span><span class="o">.</span><span class="n">CLONE</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
+                                                         <span class="nb">tuple</span><span class="p">(</span><span class="n">clone_targets</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">walker_actions</span></div></div>
+
+<div class="viewcode-block" id="ScoreDecideResampler"><a class="viewcode-back" href="../../../../api/wepy.resampling.resamplers.html#wepy.resampling.resamplers.resampler.ScoreDecideResampler">[docs]</a><span class="k">class</span> <span class="nc">ScoreDecideResampler</span><span class="p">(</span><span class="n">Resampler</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Superclass for resamplers that use the the Novelty-&gt;Decider</span>
+<span class="sd">    framework.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">scorer</span><span class="p">,</span> <span class="n">decider</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scorer</span> <span class="o">=</span> <span class="n">scorer</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">decider</span> <span class="o">=</span> <span class="n">decider</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">decision</span> <span class="o">=</span> <span class="n">decider</span><span class="o">.</span><span class="n">DECISION</span>
+
+<div class="viewcode-block" id="ScoreDecideResampler.resample"><a class="viewcode-back" href="../../../../api/wepy.resampling.resamplers.html#wepy.resampling.resamplers.resampler.ScoreDecideResampler.resample">[docs]</a>    <span class="k">def</span> <span class="nf">resample</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">walkers</span><span class="p">):</span>
+
+        <span class="c1"># first set how many walkers there are in this resampling</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set_resample_num_walkers</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">walkers</span><span class="p">))</span>
+
+        <span class="n">aux_data</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="n">scores</span><span class="p">,</span> <span class="n">scorer_aux</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">scorer</span><span class="o">.</span><span class="n">scores</span><span class="p">(</span><span class="n">walkers</span><span class="p">)</span>
+        <span class="n">decisions</span><span class="p">,</span> <span class="n">decider_aux</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">decider</span><span class="o">.</span><span class="n">decide</span><span class="p">(</span><span class="n">scores</span><span class="p">)</span>
+        <span class="n">resampled_walkers</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">decider</span><span class="o">.</span><span class="n">decision</span><span class="o">.</span><span class="n">action</span><span class="p">(</span><span class="n">walkers</span><span class="p">,</span> <span class="n">decisions</span><span class="p">)</span>
+
+        <span class="n">aux_data</span><span class="o">.</span><span class="n">update</span><span class="p">([</span><span class="n">scorer_aux</span><span class="p">,</span> <span class="n">decider_aux</span><span class="p">])</span>
+
+        <span class="c1"># unset the number of walkers for this resampling</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_unset_resampling_num_walkers</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="n">resampled_walkers</span><span class="p">,</span> <span class="n">resampling_records</span><span class="p">,</span> <span class="n">resampler_records</span></div></div>
+
+
+<div class="viewcode-block" id="NoResampler"><a class="viewcode-back" href="../../../../api/wepy.resampling.resamplers.html#wepy.resampling.resamplers.resampler.NoResampler">[docs]</a><span class="k">class</span> <span class="nc">NoResampler</span><span class="p">(</span><span class="n">Resampler</span><span class="p">):</span>
+
+    <span class="n">DECISION</span> <span class="o">=</span> <span class="n">NoDecision</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">decision</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">DECISION</span>
+
+
+<div class="viewcode-block" id="NoResampler.resample"><a class="viewcode-back" href="../../../../api/wepy.resampling.resamplers.html#wepy.resampling.resamplers.resampler.NoResampler.resample">[docs]</a>    <span class="k">def</span> <span class="nf">resample</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">walkers</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+        <span class="n">n_walkers</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">walkers</span><span class="p">)</span>
+
+        <span class="c1"># the walker actions are all nothings with the same walker</span>
+        <span class="c1"># index which is the default initialization</span>
+        <span class="n">walker_actions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_init_walker_actions</span><span class="p">(</span><span class="n">n_walkers</span><span class="p">)</span>
+
+        <span class="c1"># we only have one step so our resampling_records are just the</span>
+        <span class="c1"># single list of walker actions</span>
+        <span class="n">resampling_data</span> <span class="o">=</span> <span class="p">[</span><span class="n">walker_actions</span><span class="p">]</span>
+
+        <span class="c1"># there is no change in state in the resampler so there are no</span>
+        <span class="c1"># resampler records</span>
+        <span class="n">resampler_data</span> <span class="o">=</span> <span class="p">[{}]</span>
+
+        <span class="k">return</span> <span class="n">walkers</span><span class="p">,</span> <span class="n">resampling_data</span><span class="p">,</span> <span class="n">resampler_data</span></div></div>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../../index.html">wepy</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../source/explanation.html">Explanation of Wepy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../source/glossary.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../api/index.html">Module Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/index.html">Tutorials</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, Samuel D. Lotz.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.8.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

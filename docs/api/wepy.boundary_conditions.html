@@ -1,0 +1,397 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>wepy.boundary_conditions package &#8212; wepy v0.10 documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="wepy-boundary-conditions-package">
+<h1>wepy.boundary_conditions package<a class="headerlink" href="#wepy-boundary-conditions-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-wepy.boundary_conditions.boundary">
+<span id="wepy-boundary-conditions-boundary-module"></span><h2>wepy.boundary_conditions.boundary module<a class="headerlink" href="#module-wepy.boundary_conditions.boundary" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="wepy.boundary_conditions.boundary.BoundaryConditions">
+<em class="property">class </em><code class="descclassname">wepy.boundary_conditions.boundary.</code><code class="descname">BoundaryConditions</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/boundary_conditions/boundary.html#BoundaryConditions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.boundary_conditions.boundary.BoundaryConditions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dl class="attribute">
+<dt id="wepy.boundary_conditions.boundary.BoundaryConditions.BC_DTYPES">
+<code class="descname">BC_DTYPES</code><em class="property"> = ()</em><a class="headerlink" href="#wepy.boundary_conditions.boundary.BoundaryConditions.BC_DTYPES" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.boundary_conditions.boundary.BoundaryConditions.BC_FIELDS">
+<code class="descname">BC_FIELDS</code><em class="property"> = ()</em><a class="headerlink" href="#wepy.boundary_conditions.boundary.BoundaryConditions.BC_FIELDS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.boundary_conditions.boundary.BoundaryConditions.BC_RECORD_FIELDS">
+<code class="descname">BC_RECORD_FIELDS</code><em class="property"> = ()</em><a class="headerlink" href="#wepy.boundary_conditions.boundary.BoundaryConditions.BC_RECORD_FIELDS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.boundary_conditions.boundary.BoundaryConditions.BC_SHAPES">
+<code class="descname">BC_SHAPES</code><em class="property"> = ()</em><a class="headerlink" href="#wepy.boundary_conditions.boundary.BoundaryConditions.BC_SHAPES" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.boundary_conditions.boundary.BoundaryConditions.PROGRESS_DTYPES">
+<code class="descname">PROGRESS_DTYPES</code><em class="property"> = ()</em><a class="headerlink" href="#wepy.boundary_conditions.boundary.BoundaryConditions.PROGRESS_DTYPES" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.boundary_conditions.boundary.BoundaryConditions.PROGRESS_FIELDS">
+<code class="descname">PROGRESS_FIELDS</code><em class="property"> = ()</em><a class="headerlink" href="#wepy.boundary_conditions.boundary.BoundaryConditions.PROGRESS_FIELDS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.boundary_conditions.boundary.BoundaryConditions.PROGRESS_RECORD_FIELDS">
+<code class="descname">PROGRESS_RECORD_FIELDS</code><em class="property"> = ()</em><a class="headerlink" href="#wepy.boundary_conditions.boundary.BoundaryConditions.PROGRESS_RECORD_FIELDS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.boundary_conditions.boundary.BoundaryConditions.PROGRESS_SHAPES">
+<code class="descname">PROGRESS_SHAPES</code><em class="property"> = ()</em><a class="headerlink" href="#wepy.boundary_conditions.boundary.BoundaryConditions.PROGRESS_SHAPES" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.boundary_conditions.boundary.BoundaryConditions.WARPING_DTYPES">
+<code class="descname">WARPING_DTYPES</code><em class="property"> = ()</em><a class="headerlink" href="#wepy.boundary_conditions.boundary.BoundaryConditions.WARPING_DTYPES" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.boundary_conditions.boundary.BoundaryConditions.WARPING_FIELDS">
+<code class="descname">WARPING_FIELDS</code><em class="property"> = ()</em><a class="headerlink" href="#wepy.boundary_conditions.boundary.BoundaryConditions.WARPING_FIELDS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.boundary_conditions.boundary.BoundaryConditions.WARPING_RECORD_FIELDS">
+<code class="descname">WARPING_RECORD_FIELDS</code><em class="property"> = ()</em><a class="headerlink" href="#wepy.boundary_conditions.boundary.BoundaryConditions.WARPING_RECORD_FIELDS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.boundary_conditions.boundary.BoundaryConditions.WARPING_SHAPES">
+<code class="descname">WARPING_SHAPES</code><em class="property"> = ()</em><a class="headerlink" href="#wepy.boundary_conditions.boundary.BoundaryConditions.WARPING_SHAPES" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wepy.boundary_conditions.boundary.BoundaryConditions.bc_field_dtypes">
+<code class="descname">bc_field_dtypes</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/boundary_conditions/boundary.html#BoundaryConditions.bc_field_dtypes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.boundary_conditions.boundary.BoundaryConditions.bc_field_dtypes" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wepy.boundary_conditions.boundary.BoundaryConditions.bc_field_names">
+<code class="descname">bc_field_names</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/boundary_conditions/boundary.html#BoundaryConditions.bc_field_names"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.boundary_conditions.boundary.BoundaryConditions.bc_field_names" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wepy.boundary_conditions.boundary.BoundaryConditions.bc_field_shapes">
+<code class="descname">bc_field_shapes</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/boundary_conditions/boundary.html#BoundaryConditions.bc_field_shapes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.boundary_conditions.boundary.BoundaryConditions.bc_field_shapes" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wepy.boundary_conditions.boundary.BoundaryConditions.bc_fields">
+<code class="descname">bc_fields</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/boundary_conditions/boundary.html#BoundaryConditions.bc_fields"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.boundary_conditions.boundary.BoundaryConditions.bc_fields" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wepy.boundary_conditions.boundary.BoundaryConditions.bc_record_field_names">
+<code class="descname">bc_record_field_names</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/boundary_conditions/boundary.html#BoundaryConditions.bc_record_field_names"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.boundary_conditions.boundary.BoundaryConditions.bc_record_field_names" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wepy.boundary_conditions.boundary.BoundaryConditions.progress">
+<code class="descname">progress</code><span class="sig-paren">(</span><em>walker</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/boundary_conditions/boundary.html#BoundaryConditions.progress"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.boundary_conditions.boundary.BoundaryConditions.progress" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks if a walker is in a boundary and returns which boundary it is in</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.boundary_conditions.boundary.BoundaryConditions.progress_field_dtypes">
+<code class="descname">progress_field_dtypes</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/boundary_conditions/boundary.html#BoundaryConditions.progress_field_dtypes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.boundary_conditions.boundary.BoundaryConditions.progress_field_dtypes" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wepy.boundary_conditions.boundary.BoundaryConditions.progress_field_names">
+<code class="descname">progress_field_names</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/boundary_conditions/boundary.html#BoundaryConditions.progress_field_names"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.boundary_conditions.boundary.BoundaryConditions.progress_field_names" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wepy.boundary_conditions.boundary.BoundaryConditions.progress_field_shapes">
+<code class="descname">progress_field_shapes</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/boundary_conditions/boundary.html#BoundaryConditions.progress_field_shapes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.boundary_conditions.boundary.BoundaryConditions.progress_field_shapes" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wepy.boundary_conditions.boundary.BoundaryConditions.progress_fields">
+<code class="descname">progress_fields</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/boundary_conditions/boundary.html#BoundaryConditions.progress_fields"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.boundary_conditions.boundary.BoundaryConditions.progress_fields" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wepy.boundary_conditions.boundary.BoundaryConditions.progress_record_field_names">
+<code class="descname">progress_record_field_names</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/boundary_conditions/boundary.html#BoundaryConditions.progress_record_field_names"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.boundary_conditions.boundary.BoundaryConditions.progress_record_field_names" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wepy.boundary_conditions.boundary.BoundaryConditions.warp_walkers">
+<code class="descname">warp_walkers</code><span class="sig-paren">(</span><em>walkers</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/boundary_conditions/boundary.html#BoundaryConditions.warp_walkers"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.boundary_conditions.boundary.BoundaryConditions.warp_walkers" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks walkers for membership in boundaries and processes them
+according to the rules of the boundary.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.boundary_conditions.boundary.BoundaryConditions.warping_field_dtypes">
+<code class="descname">warping_field_dtypes</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/boundary_conditions/boundary.html#BoundaryConditions.warping_field_dtypes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.boundary_conditions.boundary.BoundaryConditions.warping_field_dtypes" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wepy.boundary_conditions.boundary.BoundaryConditions.warping_field_names">
+<code class="descname">warping_field_names</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/boundary_conditions/boundary.html#BoundaryConditions.warping_field_names"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.boundary_conditions.boundary.BoundaryConditions.warping_field_names" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wepy.boundary_conditions.boundary.BoundaryConditions.warping_field_shapes">
+<code class="descname">warping_field_shapes</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/boundary_conditions/boundary.html#BoundaryConditions.warping_field_shapes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.boundary_conditions.boundary.BoundaryConditions.warping_field_shapes" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wepy.boundary_conditions.boundary.BoundaryConditions.warping_fields">
+<code class="descname">warping_fields</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/boundary_conditions/boundary.html#BoundaryConditions.warping_fields"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.boundary_conditions.boundary.BoundaryConditions.warping_fields" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wepy.boundary_conditions.boundary.BoundaryConditions.warping_record_field_names">
+<code class="descname">warping_record_field_names</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/boundary_conditions/boundary.html#BoundaryConditions.warping_record_field_names"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.boundary_conditions.boundary.BoundaryConditions.warping_record_field_names" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="wepy.boundary_conditions.boundary.NoBC">
+<em class="property">class </em><code class="descclassname">wepy.boundary_conditions.boundary.</code><code class="descname">NoBC</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/boundary_conditions/boundary.html#NoBC"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.boundary_conditions.boundary.NoBC" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#wepy.boundary_conditions.boundary.BoundaryConditions" title="wepy.boundary_conditions.boundary.BoundaryConditions"><code class="xref py py-class docutils literal notranslate"><span class="pre">wepy.boundary_conditions.boundary.BoundaryConditions</span></code></a></p>
+<dl class="method">
+<dt id="wepy.boundary_conditions.boundary.NoBC.check_boundaries">
+<code class="descname">check_boundaries</code><span class="sig-paren">(</span><em>walker</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/boundary_conditions/boundary.html#NoBC.check_boundaries"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.boundary_conditions.boundary.NoBC.check_boundaries" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wepy.boundary_conditions.boundary.NoBC.warp_walkers">
+<code class="descname">warp_walkers</code><span class="sig-paren">(</span><em>walkers</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/boundary_conditions/boundary.html#NoBC.warp_walkers"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.boundary_conditions.boundary.NoBC.warp_walkers" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks walkers for membership in boundaries and processes them
+according to the rules of the boundary.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="wepy-boundary-conditions-rebinding-module">
+<h2>wepy.boundary_conditions.rebinding module<a class="headerlink" href="#wepy-boundary-conditions-rebinding-module" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-wepy.boundary_conditions.unbinding">
+<span id="wepy-boundary-conditions-unbinding-module"></span><h2>wepy.boundary_conditions.unbinding module<a class="headerlink" href="#module-wepy.boundary_conditions.unbinding" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="wepy.boundary_conditions.unbinding.UnbindingBC">
+<em class="property">class </em><code class="descclassname">wepy.boundary_conditions.unbinding.</code><code class="descname">UnbindingBC</code><span class="sig-paren">(</span><em>initial_state=None</em>, <em>cutoff_distance=1.0</em>, <em>topology=None</em>, <em>ligand_idxs=None</em>, <em>receptor_idxs=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/boundary_conditions/unbinding.html#UnbindingBC"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.boundary_conditions.unbinding.UnbindingBC" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#wepy.boundary_conditions.boundary.BoundaryConditions" title="wepy.boundary_conditions.boundary.BoundaryConditions"><code class="xref py py-class docutils literal notranslate"><span class="pre">wepy.boundary_conditions.boundary.BoundaryConditions</span></code></a></p>
+<dl class="attribute">
+<dt id="wepy.boundary_conditions.unbinding.UnbindingBC.BC_DTYPES">
+<code class="descname">BC_DTYPES</code><em class="property"> = (&lt;class 'float'&gt;,)</em><a class="headerlink" href="#wepy.boundary_conditions.unbinding.UnbindingBC.BC_DTYPES" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.boundary_conditions.unbinding.UnbindingBC.BC_FIELDS">
+<code class="descname">BC_FIELDS</code><em class="property"> = ('boundary_distance',)</em><a class="headerlink" href="#wepy.boundary_conditions.unbinding.UnbindingBC.BC_FIELDS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.boundary_conditions.unbinding.UnbindingBC.BC_RECORD_FIELDS">
+<code class="descname">BC_RECORD_FIELDS</code><em class="property"> = ('boundary_distance',)</em><a class="headerlink" href="#wepy.boundary_conditions.unbinding.UnbindingBC.BC_RECORD_FIELDS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.boundary_conditions.unbinding.UnbindingBC.BC_SHAPES">
+<code class="descname">BC_SHAPES</code><em class="property"> = ((1,),)</em><a class="headerlink" href="#wepy.boundary_conditions.unbinding.UnbindingBC.BC_SHAPES" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.boundary_conditions.unbinding.UnbindingBC.DISCONTINUITY_TARGET_IDXS">
+<code class="descname">DISCONTINUITY_TARGET_IDXS</code><em class="property"> = (0,)</em><a class="headerlink" href="#wepy.boundary_conditions.unbinding.UnbindingBC.DISCONTINUITY_TARGET_IDXS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.boundary_conditions.unbinding.UnbindingBC.PROGRESS_DTYPES">
+<code class="descname">PROGRESS_DTYPES</code><em class="property"> = (&lt;class 'float'&gt;,)</em><a class="headerlink" href="#wepy.boundary_conditions.unbinding.UnbindingBC.PROGRESS_DTYPES" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.boundary_conditions.unbinding.UnbindingBC.PROGRESS_FIELDS">
+<code class="descname">PROGRESS_FIELDS</code><em class="property"> = ('min_distances',)</em><a class="headerlink" href="#wepy.boundary_conditions.unbinding.UnbindingBC.PROGRESS_FIELDS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.boundary_conditions.unbinding.UnbindingBC.PROGRESS_RECORD_FIELDS">
+<code class="descname">PROGRESS_RECORD_FIELDS</code><em class="property"> = ('min_distances',)</em><a class="headerlink" href="#wepy.boundary_conditions.unbinding.UnbindingBC.PROGRESS_RECORD_FIELDS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.boundary_conditions.unbinding.UnbindingBC.PROGRESS_SHAPES">
+<code class="descname">PROGRESS_SHAPES</code><em class="property"> = (Ellipsis,)</em><a class="headerlink" href="#wepy.boundary_conditions.unbinding.UnbindingBC.PROGRESS_SHAPES" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.boundary_conditions.unbinding.UnbindingBC.WARPING_DTYPES">
+<code class="descname">WARPING_DTYPES</code><em class="property"> = (&lt;class 'int'&gt;, &lt;class 'int'&gt;, &lt;class 'float'&gt;)</em><a class="headerlink" href="#wepy.boundary_conditions.unbinding.UnbindingBC.WARPING_DTYPES" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.boundary_conditions.unbinding.UnbindingBC.WARPING_FIELDS">
+<code class="descname">WARPING_FIELDS</code><em class="property"> = ('walker_idx', 'target_idx', 'weight')</em><a class="headerlink" href="#wepy.boundary_conditions.unbinding.UnbindingBC.WARPING_FIELDS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.boundary_conditions.unbinding.UnbindingBC.WARPING_RECORD_FIELDS">
+<code class="descname">WARPING_RECORD_FIELDS</code><em class="property"> = ('walker_idx', 'target_idx', 'weight')</em><a class="headerlink" href="#wepy.boundary_conditions.unbinding.UnbindingBC.WARPING_RECORD_FIELDS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.boundary_conditions.unbinding.UnbindingBC.WARPING_SHAPES">
+<code class="descname">WARPING_SHAPES</code><em class="property"> = ((1,), (1,), (1,))</em><a class="headerlink" href="#wepy.boundary_conditions.unbinding.UnbindingBC.WARPING_SHAPES" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wepy.boundary_conditions.unbinding.UnbindingBC.progress">
+<code class="descname">progress</code><span class="sig-paren">(</span><em>walker</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/boundary_conditions/unbinding.html#UnbindingBC.progress"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.boundary_conditions.unbinding.UnbindingBC.progress" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks if a walker is in a boundary and returns which boundary it is in</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.boundary_conditions.unbinding.UnbindingBC.update_bc">
+<code class="descname">update_bc</code><span class="sig-paren">(</span><em>new_walkers</em>, <em>warp_data</em>, <em>progress_data</em>, <em>cycle</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/boundary_conditions/unbinding.html#UnbindingBC.update_bc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.boundary_conditions.unbinding.UnbindingBC.update_bc" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wepy.boundary_conditions.unbinding.UnbindingBC.warp">
+<code class="descname">warp</code><span class="sig-paren">(</span><em>walker</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/boundary_conditions/unbinding.html#UnbindingBC.warp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.boundary_conditions.unbinding.UnbindingBC.warp" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wepy.boundary_conditions.unbinding.UnbindingBC.warp_walkers">
+<code class="descname">warp_walkers</code><span class="sig-paren">(</span><em>walkers</em>, <em>cycle</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/boundary_conditions/unbinding.html#UnbindingBC.warp_walkers"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.boundary_conditions.unbinding.UnbindingBC.warp_walkers" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks walkers for membership in boundaries and processes them
+according to the rules of the boundary.</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="wepy.boundary_conditions.unbinding.UnbindingBC.warping_discontinuity">
+<em class="property">classmethod </em><code class="descname">warping_discontinuity</code><span class="sig-paren">(</span><em>warping_record</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/boundary_conditions/unbinding.html#UnbindingBC.warping_discontinuity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.boundary_conditions.unbinding.UnbindingBC.warping_discontinuity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a warping record returns either True for a discontiuity
+occured or False if a discontinuity did not occur.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-wepy.boundary_conditions">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-wepy.boundary_conditions" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">wepy</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../source/explanation.html">Explanation of Wepy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../source/glossary.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="index.html">Module Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/index.html">Tutorials</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, Samuel D. Lotz.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.8.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../_sources/api/wepy.boundary_conditions.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

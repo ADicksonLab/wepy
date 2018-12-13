@@ -2,6 +2,7 @@ from copy import copy
 import random as rand
 from warnings import warn
 import logging
+import time
 
 import numpy as np
 
@@ -115,12 +116,16 @@ class OpenMMRunner(Runner):
 
         """
 
+        run_segment_start = time.time()
+
         # set the kwargs that will be passed to getState
         tmp_getState_kwargs = getState_kwargs
         getState_kwargs = dict(GET_STATE_KWARG_DEFAULTS)
         if tmp_getState_kwargs is not None:
             getState_kwargs.update(tmp_getState_kwargs)
 
+
+        gen_sim_start = time.time()
 
         # make a copy of the integrator for this particular segment
         new_integrator = copy(self.integrator)
@@ -150,17 +155,39 @@ class OpenMMRunner(Runner):
         # set the state to the context from the walker
         simulation.context.setState(walker.state.sim_state)
 
+        gen_sim_end = time.time()
+        gen_sim_time = gen_sim_end - gen_sim_start
+        logging.info("Time to generate the system: {}".format(gen_sim_time))
+
+
+        steps_start = time.time()
+
         # Run the simulation segment for the number of time steps
         simulation.step(segment_length)
 
+        steps_end = time.time()
+        steps_time = steps_end - steps_start
+        logging.info("Time to run {} sim steps: {}".format(segment_length, steps_time))
+
+
+        get_state_start = time.time()
+
         # save the state of the system with all possible values
         new_sim_state = simulation.context.getState(**getState_kwargs)
+
+        get_state_end = time.time()
+        get_state_time = get_state_end - get_state_start
+        logging.info("Getting context state time: {}".format(get_state_time))
 
         # make an OpenMMState wrapper with this
         new_state = OpenMMState(new_sim_state)
 
         # create a new walker for this
         new_walker = OpenMMWalker(new_state, walker.weight)
+
+        run_segment_end = time.time()
+        run_segment_time = run_segment_end - run_segment_start
+        logging.info("Total internal run_segment time: {}".format(run_segment_time))
 
         return new_walker
 
@@ -657,6 +684,8 @@ class OpenMMWalker(Walker):
 
 class OpenMMGPUWorker(Worker):
     """ """
+
+    NAME_TEMPLATE = "OpenMMGPUWorker-{}"
 
     def run_task(self, task):
         """

@@ -1,0 +1,731 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>wepy.analysis package &#8212; wepy v0.10 documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="wepy-analysis-package">
+<h1>wepy.analysis package<a class="headerlink" href="#wepy-analysis-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="wepy.analysis.network_layouts.html">wepy.analysis.network_layouts package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="wepy.analysis.network_layouts.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="wepy.analysis.network_layouts.html#module-wepy.analysis.network_layouts.layout">wepy.analysis.network_layouts.layout module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="wepy.analysis.network_layouts.html#module-wepy.analysis.network_layouts.layout_graph">wepy.analysis.network_layouts.layout_graph module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="wepy.analysis.network_layouts.html#module-wepy.analysis.network_layouts.tree">wepy.analysis.network_layouts.tree module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="wepy.analysis.network_layouts.html#module-wepy.analysis.network_layouts">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-wepy.analysis.contig_tree">
+<span id="wepy-analysis-contig-tree-module"></span><h2>wepy.analysis.contig_tree module<a class="headerlink" href="#module-wepy.analysis.contig_tree" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="wepy.analysis.contig_tree.Contig">
+<em class="property">class </em><code class="descclassname">wepy.analysis.contig_tree.</code><code class="descname">Contig</code><span class="sig-paren">(</span><em>wepy_h5</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/contig_tree.html#Contig"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.contig_tree.Contig" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#wepy.analysis.contig_tree.ContigTree" title="wepy.analysis.contig_tree.ContigTree"><code class="xref py py-class docutils literal notranslate"><span class="pre">wepy.analysis.contig_tree.ContigTree</span></code></a></p>
+<dl class="method">
+<dt id="wepy.analysis.contig_tree.Contig.bc_records">
+<code class="descname">bc_records</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/contig_tree.html#Contig.bc_records"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.contig_tree.Contig.bc_records" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.contig_tree.Contig.bc_records_dataframe">
+<code class="descname">bc_records_dataframe</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/contig_tree.html#Contig.bc_records_dataframe"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.contig_tree.Contig.bc_records_dataframe" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.contig_tree.Contig.contig_fields">
+<code class="descname">contig_fields</code><span class="sig-paren">(</span><em>fields</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/contig_tree.html#Contig.contig_fields"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.contig_tree.Contig.contig_fields" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.analysis.contig_tree.Contig.contig_trace">
+<code class="descname">contig_trace</code><a class="headerlink" href="#wepy.analysis.contig_tree.Contig.contig_trace" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.analysis.contig_tree.Contig.n_cycles">
+<code class="descname">n_cycles</code><a class="headerlink" href="#wepy.analysis.contig_tree.Contig.n_cycles" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.contig_tree.Contig.parent_table">
+<code class="descname">parent_table</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/contig_tree.html#Contig.parent_table"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.contig_tree.Contig.parent_table" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.contig_tree.Contig.progress_records">
+<code class="descname">progress_records</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/contig_tree.html#Contig.progress_records"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.contig_tree.Contig.progress_records" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.contig_tree.Contig.progress_records_dataframe">
+<code class="descname">progress_records_dataframe</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/contig_tree.html#Contig.progress_records_dataframe"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.contig_tree.Contig.progress_records_dataframe" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.contig_tree.Contig.records">
+<code class="descname">records</code><span class="sig-paren">(</span><em>record_key</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/contig_tree.html#Contig.records"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.contig_tree.Contig.records" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.contig_tree.Contig.records_dataframe">
+<code class="descname">records_dataframe</code><span class="sig-paren">(</span><em>record_key</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/contig_tree.html#Contig.records_dataframe"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.contig_tree.Contig.records_dataframe" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.contig_tree.Contig.resampler_records">
+<code class="descname">resampler_records</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/contig_tree.html#Contig.resampler_records"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.contig_tree.Contig.resampler_records" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.contig_tree.Contig.resampler_records_dataframe">
+<code class="descname">resampler_records_dataframe</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/contig_tree.html#Contig.resampler_records_dataframe"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.contig_tree.Contig.resampler_records_dataframe" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.contig_tree.Contig.resampling_panel">
+<code class="descname">resampling_panel</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/contig_tree.html#Contig.resampling_panel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.contig_tree.Contig.resampling_panel" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.contig_tree.Contig.resampling_records">
+<code class="descname">resampling_records</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/contig_tree.html#Contig.resampling_records"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.contig_tree.Contig.resampling_records" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.contig_tree.Contig.resampling_records_dataframe">
+<code class="descname">resampling_records_dataframe</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/contig_tree.html#Contig.resampling_records_dataframe"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.contig_tree.Contig.resampling_records_dataframe" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.contig_tree.Contig.warping_records">
+<code class="descname">warping_records</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/contig_tree.html#Contig.warping_records"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.contig_tree.Contig.warping_records" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.contig_tree.Contig.warping_records_dataframe">
+<code class="descname">warping_records_dataframe</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/contig_tree.html#Contig.warping_records_dataframe"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.contig_tree.Contig.warping_records_dataframe" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="wepy.analysis.contig_tree.ContigTree">
+<em class="property">class </em><code class="descclassname">wepy.analysis.contig_tree.</code><code class="descname">ContigTree</code><span class="sig-paren">(</span><em>wepy_h5</em>, <em>continuations=Ellipsis</em>, <em>runs=Ellipsis</em>, <em>boundary_condition_class=None</em>, <em>decision_class=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/contig_tree.html#ContigTree"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.contig_tree.ContigTree" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dl class="attribute">
+<dt id="wepy.analysis.contig_tree.ContigTree.DISCONTINUITY_KEY">
+<code class="descname">DISCONTINUITY_KEY</code><em class="property"> = 'discontinuities'</em><a class="headerlink" href="#wepy.analysis.contig_tree.ContigTree.DISCONTINUITY_KEY" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.analysis.contig_tree.ContigTree.PARENTS_KEY">
+<code class="descname">PARENTS_KEY</code><em class="property"> = 'parent_idxs'</em><a class="headerlink" href="#wepy.analysis.contig_tree.ContigTree.PARENTS_KEY" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.analysis.contig_tree.ContigTree.RESAMPLING_PANEL_KEY">
+<code class="descname">RESAMPLING_PANEL_KEY</code><em class="property"> = 'resampling_steps'</em><a class="headerlink" href="#wepy.analysis.contig_tree.ContigTree.RESAMPLING_PANEL_KEY" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.analysis.contig_tree.ContigTree.boundary_condition_class">
+<code class="descname">boundary_condition_class</code><a class="headerlink" href="#wepy.analysis.contig_tree.ContigTree.boundary_condition_class" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.contig_tree.ContigTree.contig_cycle_idx">
+<code class="descname">contig_cycle_idx</code><span class="sig-paren">(</span><em>run_idx</em>, <em>cycle_idx</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/contig_tree.html#ContigTree.contig_cycle_idx"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.contig_tree.ContigTree.contig_cycle_idx" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the contig cycle idx for a (run_idx, cycle_idx) pair.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.contig_tree.ContigTree.contig_sliding_windows">
+<code class="descname">contig_sliding_windows</code><span class="sig-paren">(</span><em>contig_trace</em>, <em>window_length</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/contig_tree.html#ContigTree.contig_sliding_windows"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.contig_tree.ContigTree.contig_sliding_windows" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a contig trace (run_idx, cycle_idx) get the sliding windows
+over it (traj_idx, cycle_idx).</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.contig_tree.ContigTree.contig_to_run_trace">
+<code class="descname">contig_to_run_trace</code><span class="sig-paren">(</span><em>contig</em>, <em>contig_trace</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/contig_tree.html#ContigTree.contig_to_run_trace"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.contig_tree.ContigTree.contig_to_run_trace" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert a trace of elements (traj_idx, cycle_idx) over the contig
+trace given over this contig tree and return a trace over the
+runs with elements (run_idx, traj_idx, cycle_idx).</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.contig_tree.ContigTree.contig_trace_to_run_trace">
+<code class="descname">contig_trace_to_run_trace</code><span class="sig-paren">(</span><em>contig_trace</em>, <em>contig_walker_trace</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/contig_tree.html#ContigTree.contig_trace_to_run_trace"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.contig_tree.ContigTree.contig_trace_to_run_trace" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a trace of a contig with elements (run_idx, cycle_idx) and
+walker based trace of elements (traj_idx, cycle_idx) over that
+contig get the trace of elements (run_idx, traj_idx, cycle_idx)</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.analysis.contig_tree.ContigTree.continuations">
+<code class="descname">continuations</code><a class="headerlink" href="#wepy.analysis.contig_tree.ContigTree.continuations" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.analysis.contig_tree.ContigTree.decision_class">
+<code class="descname">decision_class</code><a class="headerlink" href="#wepy.analysis.contig_tree.ContigTree.decision_class" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.contig_tree.ContigTree.get_branch_trace">
+<code class="descname">get_branch_trace</code><span class="sig-paren">(</span><em>run_idx</em>, <em>cycle_idx</em>, <em>start_contig_idx=0</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/contig_tree.html#ContigTree.get_branch_trace"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.contig_tree.ContigTree.get_branch_trace" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given an identifier of (run_idx, cycle_idx) from the contig tree
+and a starting contig index generate a contig trace of
+(run_idx, cycle_idx) indices for that contig. Which is a
+branch of the tree hence the name.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.contig_tree.ContigTree.get_subtree">
+<code class="descname">get_subtree</code><span class="sig-paren">(</span><em>node</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/contig_tree.html#ContigTree.get_subtree"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.contig_tree.ContigTree.get_subtree" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.analysis.contig_tree.ContigTree.graph">
+<code class="descname">graph</code><a class="headerlink" href="#wepy.analysis.contig_tree.ContigTree.graph" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.contig_tree.ContigTree.leaves">
+<code class="descname">leaves</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/contig_tree.html#ContigTree.leaves"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.contig_tree.ContigTree.leaves" title="Permalink to this definition">¶</a></dt>
+<dd><p>All of the leaves of the contig forest</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.contig_tree.ContigTree.make_contig">
+<code class="descname">make_contig</code><span class="sig-paren">(</span><em>contig_trace</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/contig_tree.html#ContigTree.make_contig"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.contig_tree.ContigTree.make_contig" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.contig_tree.ContigTree.roots">
+<code class="descname">roots</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/contig_tree.html#ContigTree.roots"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.contig_tree.ContigTree.roots" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.analysis.contig_tree.ContigTree.run_idxs">
+<code class="descname">run_idxs</code><a class="headerlink" href="#wepy.analysis.contig_tree.ContigTree.run_idxs" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.contig_tree.ContigTree.sliding_contig_windows">
+<code class="descname">sliding_contig_windows</code><span class="sig-paren">(</span><em>window_length</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/contig_tree.html#ContigTree.sliding_contig_windows"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.contig_tree.ContigTree.sliding_contig_windows" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.contig_tree.ContigTree.sliding_windows">
+<code class="descname">sliding_windows</code><span class="sig-paren">(</span><em>window_length</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/contig_tree.html#ContigTree.sliding_windows"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.contig_tree.ContigTree.sliding_windows" title="Permalink to this definition">¶</a></dt>
+<dd><p>All the sliding windows (run_idx, traj_idx, cycle_idx) for all
+contig windows in the contig tree</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.contig_tree.ContigTree.spanning_contig_traces">
+<code class="descname">spanning_contig_traces</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/contig_tree.html#ContigTree.spanning_contig_traces"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.contig_tree.ContigTree.spanning_contig_traces" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a list of all possible spanning contigs given the
+continuations present in this file. Contigs are a list of runs
+in the order that makes a continuous set of data. Spanning
+contigs are always as long as possible, thus all must start
+from a root and end at a leaf node.</p>
+<p>This algorithm always returns them in a canonical order (as
+long as the runs are not rearranged after being added). This
+means that the indices here are the indices of the contigs.</p>
+<p>Contigs can in general are any such path drawn from what we
+call the “contig tree” which is the tree (or forest of trees)
+generated by the directed edges of the ‘continuations’. They
+needn’t be spanning from root to leaf.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.contig_tree.ContigTree.subtrees">
+<code class="descname">subtrees</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/contig_tree.html#ContigTree.subtrees"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.contig_tree.ContigTree.subtrees" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.contig_tree.ContigTree.trace_parent_table">
+<code class="descname">trace_parent_table</code><span class="sig-paren">(</span><em>contig_trace</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/contig_tree.html#ContigTree.trace_parent_table"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.contig_tree.ContigTree.trace_parent_table" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a contig trace returns a parent table for that contig.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.analysis.contig_tree.ContigTree.wepy_h5">
+<code class="descname">wepy_h5</code><a class="headerlink" href="#wepy.analysis.contig_tree.ContigTree.wepy_h5" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-wepy.analysis.network">
+<span id="wepy-analysis-network-module"></span><h2>wepy.analysis.network module<a class="headerlink" href="#module-wepy.analysis.network" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="wepy.analysis.network.MacroStateNetwork">
+<em class="property">class </em><code class="descclassname">wepy.analysis.network.</code><code class="descname">MacroStateNetwork</code><span class="sig-paren">(</span><em>contig_tree</em>, <em>assg_field_key=None</em>, <em>assignments=None</em>, <em>transition_lag_time=2</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/network.html#MacroStateNetwork"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.network.MacroStateNetwork" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dl class="attribute">
+<dt id="wepy.analysis.network.MacroStateNetwork.ASSIGNMENTS">
+<code class="descname">ASSIGNMENTS</code><em class="property"> = 'assignments'</em><a class="headerlink" href="#wepy.analysis.network.MacroStateNetwork.ASSIGNMENTS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.analysis.network.MacroStateNetwork.assg_field_key">
+<code class="descname">assg_field_key</code><a class="headerlink" href="#wepy.analysis.network.MacroStateNetwork.assg_field_key" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.network.MacroStateNetwork.compute_macrostate_attr">
+<code class="descname">compute_macrostate_attr</code><span class="sig-paren">(</span><em>func</em>, <em>fields</em>, <em>*args</em>, <em>map_func=&lt;class 'map'&gt;</em>, <em>node_sel=None</em>, <em>idxs=False</em>, <em>attr_name=None</em>, <em>return_results=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/network.html#MacroStateNetwork.compute_macrostate_attr"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.network.MacroStateNetwork.compute_macrostate_attr" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.analysis.network.MacroStateNetwork.contig_tree">
+<code class="descname">contig_tree</code><a class="headerlink" href="#wepy.analysis.network.MacroStateNetwork.contig_tree" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.analysis.network.MacroStateNetwork.countsmat">
+<code class="descname">countsmat</code><a class="headerlink" href="#wepy.analysis.network.MacroStateNetwork.countsmat" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.network.MacroStateNetwork.get_node_attribute">
+<code class="descname">get_node_attribute</code><span class="sig-paren">(</span><em>node_id</em>, <em>attribute_key</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/network.html#MacroStateNetwork.get_node_attribute"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.network.MacroStateNetwork.get_node_attribute" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.network.MacroStateNetwork.get_node_attributes">
+<code class="descname">get_node_attributes</code><span class="sig-paren">(</span><em>node_id</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/network.html#MacroStateNetwork.get_node_attributes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.network.MacroStateNetwork.get_node_attributes" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.network.MacroStateNetwork.get_node_fields">
+<code class="descname">get_node_fields</code><span class="sig-paren">(</span><em>node_id</em>, <em>fields</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/network.html#MacroStateNetwork.get_node_fields"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.network.MacroStateNetwork.get_node_fields" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.analysis.network.MacroStateNetwork.graph">
+<code class="descname">graph</code><a class="headerlink" href="#wepy.analysis.network.MacroStateNetwork.graph" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.network.MacroStateNetwork.iter_nodes_fields">
+<code class="descname">iter_nodes_fields</code><span class="sig-paren">(</span><em>fields</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/network.html#MacroStateNetwork.iter_nodes_fields"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.network.MacroStateNetwork.iter_nodes_fields" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.network.MacroStateNetwork.macrostate_weights">
+<code class="descname">macrostate_weights</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/network.html#MacroStateNetwork.macrostate_weights"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.network.MacroStateNetwork.macrostate_weights" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.network.MacroStateNetwork.microstate_weights">
+<code class="descname">microstate_weights</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/network.html#MacroStateNetwork.microstate_weights"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.network.MacroStateNetwork.microstate_weights" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates and returns the sums of the weights of all the nodes as
+a dictionary mapping node_id -&gt; frame weights</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.network.MacroStateNetwork.node_assignments">
+<code class="descname">node_assignments</code><span class="sig-paren">(</span><em>node_id</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/network.html#MacroStateNetwork.node_assignments"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.network.MacroStateNetwork.node_assignments" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.network.MacroStateNetwork.node_fields_map">
+<code class="descname">node_fields_map</code><span class="sig-paren">(</span><em>func</em>, <em>fields</em>, <em>*args</em>, <em>map_func=&lt;class 'map'&gt;</em>, <em>idxs=False</em>, <em>node_sel=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/network.html#MacroStateNetwork.node_fields_map"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.network.MacroStateNetwork.node_fields_map" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.network.MacroStateNetwork.node_id_to_idx">
+<code class="descname">node_id_to_idx</code><span class="sig-paren">(</span><em>assg_key</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/network.html#MacroStateNetwork.node_id_to_idx"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.network.MacroStateNetwork.node_id_to_idx" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.network.MacroStateNetwork.node_id_to_idx_dict">
+<code class="descname">node_id_to_idx_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/network.html#MacroStateNetwork.node_id_to_idx_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.network.MacroStateNetwork.node_id_to_idx_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.network.MacroStateNetwork.node_idx_to_id">
+<code class="descname">node_idx_to_id</code><span class="sig-paren">(</span><em>node_idx</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/network.html#MacroStateNetwork.node_idx_to_id"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.network.MacroStateNetwork.node_idx_to_id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.network.MacroStateNetwork.node_idx_to_id_dict">
+<code class="descname">node_idx_to_id_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/network.html#MacroStateNetwork.node_idx_to_id_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.network.MacroStateNetwork.node_idx_to_id_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.network.MacroStateNetwork.node_map">
+<code class="descname">node_map</code><span class="sig-paren">(</span><em>func</em>, <em>*args</em>, <em>map_func</em>, <em>idxs=False</em>, <em>node_sel=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/network.html#MacroStateNetwork.node_map"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.network.MacroStateNetwork.node_map" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.analysis.network.MacroStateNetwork.probmat">
+<code class="descname">probmat</code><a class="headerlink" href="#wepy.analysis.network.MacroStateNetwork.probmat" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.network.MacroStateNetwork.set_macrostate_weights">
+<code class="descname">set_macrostate_weights</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/network.html#MacroStateNetwork.set_macrostate_weights"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.network.MacroStateNetwork.set_macrostate_weights" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.network.MacroStateNetwork.set_nodes_field">
+<code class="descname">set_nodes_field</code><span class="sig-paren">(</span><em>key</em>, <em>values_dict</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/network.html#MacroStateNetwork.set_nodes_field"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.network.MacroStateNetwork.set_nodes_field" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.network.MacroStateNetwork.state_to_mdtraj">
+<code class="descname">state_to_mdtraj</code><span class="sig-paren">(</span><em>node_id</em>, <em>alt_rep=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/network.html#MacroStateNetwork.state_to_mdtraj"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.network.MacroStateNetwork.state_to_mdtraj" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.analysis.network.MacroStateNetwork.wepy_h5">
+<code class="descname">wepy_h5</code><a class="headerlink" href="#wepy.analysis.network.MacroStateNetwork.wepy_h5" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.network.MacroStateNetwork.write_gexf">
+<code class="descname">write_gexf</code><span class="sig-paren">(</span><em>filepath</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/network.html#MacroStateNetwork.write_gexf"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.network.MacroStateNetwork.write_gexf" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="exception">
+<dt id="wepy.analysis.network.MacroStateNetworkError">
+<em class="property">exception </em><code class="descclassname">wepy.analysis.network.</code><code class="descname">MacroStateNetworkError</code><a class="reference internal" href="../_modules/wepy/analysis/network.html#MacroStateNetworkError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.network.MacroStateNetworkError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#Exception" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></a></p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-wepy.analysis.parents">
+<span id="wepy-analysis-parents-module"></span><h2>wepy.analysis.parents module<a class="headerlink" href="#module-wepy.analysis.parents" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="wepy.analysis.parents.ParentForest">
+<em class="property">class </em><code class="descclassname">wepy.analysis.parents.</code><code class="descname">ParentForest</code><span class="sig-paren">(</span><em>contig=None</em>, <em>parent_table=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/parents.html#ParentForest"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.parents.ParentForest" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dl class="attribute">
+<dt id="wepy.analysis.parents.ParentForest.DISCONTINUITY_VALUE">
+<code class="descname">DISCONTINUITY_VALUE</code><em class="property"> = -1</em><a class="headerlink" href="#wepy.analysis.parents.ParentForest.DISCONTINUITY_VALUE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.analysis.parents.ParentForest.FREE_ENERGY">
+<code class="descname">FREE_ENERGY</code><em class="property"> = 'free_energy'</em><a class="headerlink" href="#wepy.analysis.parents.ParentForest.FREE_ENERGY" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.analysis.parents.ParentForest.ROOT_CYCLE_IDX">
+<code class="descname">ROOT_CYCLE_IDX</code><em class="property"> = -1</em><a class="headerlink" href="#wepy.analysis.parents.ParentForest.ROOT_CYCLE_IDX" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.analysis.parents.ParentForest.WEIGHT">
+<code class="descname">WEIGHT</code><em class="property"> = 'weight'</em><a class="headerlink" href="#wepy.analysis.parents.ParentForest.WEIGHT" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.analysis.parents.ParentForest.contig">
+<code class="descname">contig</code><a class="headerlink" href="#wepy.analysis.parents.ParentForest.contig" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.analysis.parents.ParentForest.graph">
+<code class="descname">graph</code><a class="headerlink" href="#wepy.analysis.parents.ParentForest.graph" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.analysis.parents.ParentForest.n_steps">
+<code class="descname">n_steps</code><a class="headerlink" href="#wepy.analysis.parents.ParentForest.n_steps" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.analysis.parents.ParentForest.n_walkers">
+<code class="descname">n_walkers</code><a class="headerlink" href="#wepy.analysis.parents.ParentForest.n_walkers" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.analysis.parents.ParentForest.parent_table">
+<code class="descname">parent_table</code><a class="headerlink" href="#wepy.analysis.parents.ParentForest.parent_table" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.analysis.parents.ParentForest.roots">
+<code class="descname">roots</code><a class="headerlink" href="#wepy.analysis.parents.ParentForest.roots" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.parents.ParentForest.set_attrs_by_array">
+<code class="descname">set_attrs_by_array</code><span class="sig-paren">(</span><em>key</em>, <em>values</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/parents.html#ParentForest.set_attrs_by_array"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.parents.ParentForest.set_attrs_by_array" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set attributes on a stepwise basis, i.e. expects a array/list that
+is n_steps long and has the appropriate number of values for
+the number of walkers at each step</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.parents.ParentForest.set_node_attributes">
+<code class="descname">set_node_attributes</code><span class="sig-paren">(</span><em>attribute_key</em>, <em>node_attribute_dict</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/parents.html#ParentForest.set_node_attributes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.parents.ParentForest.set_node_attributes" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.parents.ParentForest.step">
+<code class="descname">step</code><span class="sig-paren">(</span><em>step_idx</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/parents.html#ParentForest.step"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.parents.ParentForest.step" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the nodes at the step (level of the tree).</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.parents.ParentForest.steps">
+<code class="descname">steps</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/parents.html#ParentForest.steps"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.parents.ParentForest.steps" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.analysis.parents.ParentForest.trees">
+<code class="descname">trees</code><a class="headerlink" href="#wepy.analysis.parents.ParentForest.trees" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.parents.ParentForest.walker">
+<code class="descname">walker</code><span class="sig-paren">(</span><em>walker_idx</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/parents.html#ParentForest.walker"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.parents.ParentForest.walker" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the nodes for this walker.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.parents.ParentForest.walkers">
+<code class="descname">walkers</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/parents.html#ParentForest.walkers"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.parents.ParentForest.walkers" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="wepy.analysis.parents.ancestors">
+<code class="descclassname">wepy.analysis.parents.</code><code class="descname">ancestors</code><span class="sig-paren">(</span><em>parent_table</em>, <em>cycle_idx</em>, <em>walker_idx</em>, <em>ancestor_cycle=0</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/parents.html#ancestors"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.parents.ancestors" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a parent table, step_idx, and walker idx returns the
+ancestor at a given cycle of the walker.</p>
+<p>Input:</p>
+<p>parent: table (n_cycles x n_walkers numpy array): It describes
+how the walkers merged and cloned during the WExplore simulation .</p>
+<p>cycle_idx:</p>
+<p>walker_idx:</p>
+<p>ancestor_cycle:</p>
+<p>Output:</p>
+<dl class="docutils">
+<dt>ancestors: A list of 2x1 tuples indicating the</dt>
+<dd>walker and cycle parents</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="wepy.analysis.parents.net_parent_table">
+<code class="descclassname">wepy.analysis.parents.</code><code class="descname">net_parent_table</code><span class="sig-paren">(</span><em>parent_panel</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/parents.html#net_parent_table"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.parents.net_parent_table" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="wepy.analysis.parents.parent_panel">
+<code class="descclassname">wepy.analysis.parents.</code><code class="descname">parent_panel</code><span class="sig-paren">(</span><em>decision_class</em>, <em>resampling_panel</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/parents.html#parent_panel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.parents.parent_panel" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="wepy.analysis.parents.parent_table_discontinuities">
+<code class="descclassname">wepy.analysis.parents.</code><code class="descname">parent_table_discontinuities</code><span class="sig-paren">(</span><em>boundary_condition_class</em>, <em>parent_table</em>, <em>warping_records</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/parents.html#parent_table_discontinuities"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.parents.parent_table_discontinuities" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a parent table and warping records returns a new parent table
+with the discontinuous warping events for parents set to -1</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="wepy.analysis.parents.resampling_panel">
+<code class="descclassname">wepy.analysis.parents.</code><code class="descname">resampling_panel</code><span class="sig-paren">(</span><em>resampling_records</em>, <em>is_sorted=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/parents.html#resampling_panel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.parents.resampling_panel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts a simple collection of resampling records into a list of
+elements corresponding to cycles. It is like doing a pivot on
+the step indices into an extra dimension. Hence it can be
+thought of as a list of tables indexed by the cycle, hence the
+name panel.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="wepy.analysis.parents.sliding_window">
+<code class="descclassname">wepy.analysis.parents.</code><code class="descname">sliding_window</code><span class="sig-paren">(</span><em>parent_table</em>, <em>window_length</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/parents.html#sliding_window"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.parents.sliding_window" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns traces (lists of frames across a run) on a sliding window
+on the branching structure of a run of a WepyHDF5 file. There is
+no particular order guaranteed.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-wepy.analysis.transitions">
+<span id="wepy-analysis-transitions-module"></span><h2>wepy.analysis.transitions module<a class="headerlink" href="#module-wepy.analysis.transitions" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="wepy.analysis.transitions.counts_d_to_matrix">
+<code class="descclassname">wepy.analysis.transitions.</code><code class="descname">counts_d_to_matrix</code><span class="sig-paren">(</span><em>counts_d</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/transitions.html#counts_d_to_matrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.transitions.counts_d_to_matrix" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="wepy.analysis.transitions.normalize_counts">
+<code class="descclassname">wepy.analysis.transitions.</code><code class="descname">normalize_counts</code><span class="sig-paren">(</span><em>transition_counts_matrix</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/transitions.html#normalize_counts"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.transitions.normalize_counts" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="wepy.analysis.transitions.run_transition_counts_matrix">
+<code class="descclassname">wepy.analysis.transitions.</code><code class="descname">run_transition_counts_matrix</code><span class="sig-paren">(</span><em>wepy_hdf5</em>, <em>run_idx</em>, <em>assignment_key</em>, <em>transitions</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/transitions.html#run_transition_counts_matrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.transitions.run_transition_counts_matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Make a transition counts matrix from a WepyHDF5 run for a
+particular assignment given a set of transitions.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="wepy.analysis.transitions.run_transition_probability_matrix">
+<code class="descclassname">wepy.analysis.transitions.</code><code class="descname">run_transition_probability_matrix</code><span class="sig-paren">(</span><em>wepy_hdf5</em>, <em>run_idx</em>, <em>assignment_key</em>, <em>transitions</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/transitions.html#run_transition_probability_matrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.transitions.run_transition_probability_matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Make a transition probability matrix from a WepyHDF5 run for a
+particular assignment given a set of transitions.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="wepy.analysis.transitions.transition_counts">
+<code class="descclassname">wepy.analysis.transitions.</code><code class="descname">transition_counts</code><span class="sig-paren">(</span><em>assignments</em>, <em>transitions</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/transitions.html#transition_counts"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.transitions.transition_counts" title="Permalink to this definition">¶</a></dt>
+<dd><p>Make a dictionary of transition counts.</p>
+<p>assignments: a list of [N_run, [N_traj x N_cycle]] arrays of ints
+where N_runs is the number of runs, N_traj is the number of
+trajectories, and N_cycle is the number of cycles</p>
+<p>transitions: list of traces (a trace is a list of tuples
+specifying the run, trajectory, and frame).</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="wepy.analysis.transitions.transition_counts_matrix">
+<code class="descclassname">wepy.analysis.transitions.</code><code class="descname">transition_counts_matrix</code><span class="sig-paren">(</span><em>assignments</em>, <em>transitions</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/transitions.html#transition_counts_matrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.transitions.transition_counts_matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Make a transition count matrix for a single run.</p>
+<p>assignments: a list of N_run, [N_traj x N_cycle] arrays of ints
+where N_runs is the number of runs, N_traj is the number of
+trajectories, and N_cycle is the number of cycles</p>
+<p>transitions: list of traces (a trace is a list of tuples
+specifying the run, trajectory, and frame).</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="wepy.analysis.transitions.transition_probability_matrix">
+<code class="descclassname">wepy.analysis.transitions.</code><code class="descname">transition_probability_matrix</code><span class="sig-paren">(</span><em>assignments</em>, <em>transitions</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/transitions.html#transition_probability_matrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.transitions.transition_probability_matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>This determines a transition matrix for a variable lag time.</p>
+<p>Inputs:</p>
+<p>assignments : (numpy array [n_traj x n_timestep]):
+This is an array that indicates the cluster number for each traj at each timestep.</p>
+<p>sliding_window(iterable) : list of transitions. Transitions are a
+tuple of the start and end frame for a transition. Start and end
+frames are given by (traj_idx, frame_idx).</p>
+<p>Outputs: trans_prob_mat (numpy array [n_cluster x n_cluster]):</p>
+<p>A transition probability matrix.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-wepy.analysis">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-wepy.analysis" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">wepy</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../source/explanation.html">Explanation of Wepy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../source/glossary.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="index.html">Module Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/index.html">Tutorials</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, Samuel D. Lotz.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.8.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../_sources/api/wepy.analysis.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
