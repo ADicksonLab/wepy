@@ -1,0 +1,56 @@
+* Introduction
+
+~wepy~ is a framework for running and analyzing weighted ensemble (WE) simulations.
+
+#+MYTODO
+For a background to weighted ensemble see: 
+
+To install ~wepy~ simple use pip:
+
+#+BEGIN_SRC bash
+pip install wepy
+#+END_SRC
+
+If you want to use the built-in OpenMM capabilities that will need to
+be installed as well and is not done automatically. We highly
+recommend installing using ~conda~:
+
+#+BEGIN_SRC bash
+conda install -c omnia openmm
+#+END_SRC
+
+#+MYTODO
+See the full installation instructions:
+
+#+MYTODO
+You can jump straight to the example scripts in: 
+
+#+MYTODO
+Or you take a look at the worked tutorials in the jupyter notebooks:
+
+
+#+MYTODO
+
+If you need a more in depth explanation of the abstractions used in
+~wepy~ see the Explanation.
+
+#+MYTODO
+
+A good place to start after understanding the abstractions and before
+digging into the API reference or source code is the manual which
+gives some prose describing the important parts of the modules.
+
+This is where you first look when you want to start implementing a
+module yourself.
+
+
+#+MYTODO
+
+For an overview of the architecture of the project see Architecture.
+
+#+MYTODO
+
+The API reference is here and is somewhat dependent on the Glossary to
+explain some of the "types" used in different sections.
+
+
