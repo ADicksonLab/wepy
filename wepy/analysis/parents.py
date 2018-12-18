@@ -1,26 +1,110 @@
+"""Routines for converting resampling data to parental lineages.
+
+The core mechanism of weighted ensemble (WE) is to resample cohorts of
+parallel simulations. Principally this means 'cloning' and 'merging'
+different walkers which gives rise to branching 'family' tree
+structures.
+
+The routines in this module are concerned with utilizing raw
+resampling records data from a resampler and extracting these lineages
+in useful easy to query structures.
+
+Cloning and merging is performed on a cohort of walkers at every
+cycle. A walker has both a state and weight. The state is related to
+the dynamical state such as the positions, velocities, etc. that
+describe the state of a simulation. The weight corresponds to the
+probability normalized with the other walkers of the cohort.
+
+An n-clone constitutes copying a state n times to n walkers with w/n
+weights where w is the weight of the cloned walker. The cloned walker
+is said to be the parent of the new child walkers.
+
+An k-merge constitutes combining k walkers into a single walker with a
+weight that is the sum of all k walkers. The state of this walker is
+chosen by sampling from the discrete distribution of the k
+walkers. The walker that has it's state chosen to persist is referred
+to as the 'kept' walker and the other walkers are said to be
+'squashed', as they are compressed into a single walker, preserving
+their weight but not their state. Squashed walkers are leaves of the
+tree and leave no children. The kept walker and walkers for which no
+cloning or merging was performed will have a single child.
+
+Routines
+--------
+
+resampling_panel : Compiles an unordered collection of resampling records
+    into a structured array of records.
+
+parent_panel : Using a parental relationship reduce the records in a
+    resampling panel to a structured array of parent indices.
+
+net_parent_table : Reduce the full parent panel (with multiple steps
+    per cycle) to the net results of resampling per cycle.
+
+parent_table_discontinuties : Using an interpretation of warping
+    records assigns a special value in a parent table for
+    discontinuous warping events.
+
+ancestors : Generate the lineage trace of a given walker back through
+    history. This is used to get logically contiguous trajectories from
+    walker slot trajectories (not necessarily contiguous in storage).
+
+sliding_window : Generate non-redundant sliding window traces over the
+    parent forest (tree) imposed over a parent table.
+
+ParentForest : Class that imposes the forest (tree) structure over the
+    parent table. Valid for a single contig in the contig tree (forest).
+
+See Also
+--------
+
+Notes
+-----
+
+References
+----------
+
+Examples
+--------
+
+"""
+
+
 from copy import copy
 
 import numpy as np
 import networkx as nx
 
 DISCONTINUITY_VALUE = -1
+"""Special value used to determine if a parent-child relationship has
+discontinuous dynamical continuity. Functions in this module uses this
+to set this value.
+
+"""
 
 def resampling_panel(resampling_records, is_sorted=False):
-    """Converts a simple collection of resampling records into a list of
-    elements corresponding to cycles. It is like doing a pivot on
-    the step indices into an extra dimension. Hence it can be
-    thought of as a list of tables indexed by the cycle, hence the
-    name panel.
+    """Converts an unordered collection of resampling records into a
+       structured array (lists) corresponding to cycles and resampling steps
+       within cycles.
+
+    It is like doing a pivot on the step indices into an extra
+    dimension. Hence it can be thought of as a list of tables indexed
+    by the cycle, hence the name panel.
 
     Parameters
     ----------
-    resampling_records :
-        
-    is_sorted :
+    resampling_records : list of nametuple records
+        A list of resampling records.
+    is_sorted : bool
+        If this is True it will be assumed that the resampling_records
+        are presorted, otherwise they will be sorted.
          (Default value = False)
 
     Returns
     -------
+    resampling_panel : list of list of list of namedtuple records
+        The panel (list of tables) of resampling records in order
+        (cycle, step, walker)
 
     """
 
@@ -139,17 +223,22 @@ def resampling_panel(resampling_records, is_sorted=False):
 
 
 def parent_panel(decision_class, resampling_panel):
-    """
+    """Using the parental interpretation of resampling records given by
+    the decision_class, convert resampling records in a resampling
+    panel to parent indices.
 
     Parameters
     ----------
-    decision_class :
-        
-    resampling_panel :
-        
+    decision_class : class implementing Decision interface
+        The class that interprets resampling records for parental relationships.
+    resampling_panel : list of list of list of namedtuple records
+        Panel of resampling records.
 
     Returns
     -------
+    parent_panel : list of list of list of int
+        A structured list of the same for as the resampling panel,
+        with parent indices swapped for resampling records.
 
     """
 
@@ -175,15 +264,23 @@ def parent_panel(decision_class, resampling_panel):
     return parent_panel_in
 
 def net_parent_table(parent_panel):
-    """
+    """Reduces a full parent panel to get parent indices on a cycle basis.
+
+    The full parent panel has parent indices for every step in each
+    cycle. This computes the net parent relationships for each cycle,
+    thus reducing the list of tables (panel) to a single table. A
+    table need not have the same length rows, i.e. a ragged array,
+    since there can be different numbers of walkers each cycle.
 
     Parameters
     ----------
-    parent_panel :
-        
+    parent_panel : list of list of list of int
+        The full panel of parent relationships.
 
     Returns
     -------
+    parent_table : list of list of int
+        Net parent relationships for each cycle.
 
     """
 
@@ -217,19 +314,24 @@ def net_parent_table(parent_panel):
 
 def parent_table_discontinuities(boundary_condition_class, parent_table, warping_records):
     """Given a parent table and warping records returns a new parent table
-    with the discontinuous warping events for parents set to -1
+    with the discontinuous warping events for parents set to a special
+    value (-1).
 
     Parameters
     ----------
-    boundary_condition_class :
-        
-    parent_table :
-        
-    warping_records :
-        
+    boundary_condition_class : class implementing BoundaryCondition interface
+        The boundary condition class that interprets warping
+        records for if they are discontinuous or not.
+    parent_table : list of list of int
+
+    warping_records : list of namedtuple records
+        The unordered collection of warping events from the simulation.
 
     Returns
     -------
+    parent_table : list of list of int
+        Same shape as input parent_table but with discontinuous
+        relationships inserted as -1.
 
     """
 
@@ -264,39 +366,25 @@ def parent_table_discontinuities(boundary_condition_class, parent_table, warping
     return new_parent_table
 
 def ancestors(parent_table, cycle_idx, walker_idx, ancestor_cycle=0):
-    """Given a parent table, step_idx, and walker idx returns the
-    ancestor at a given cycle of the walker.
-    
-    Input:
-    
-    parent: table (n_cycles x n_walkers numpy array): It describes
-    how the walkers merged and cloned during the WExplore simulation .
-    
-    cycle_idx:
-    
-    walker_idx:
-    
-    ancestor_cycle:
-    
-    
-    Output:
-    
-    ancestors: A list of 2x1 tuples indicating the
-                   walker and cycle parents
+    """Returns the lineage of ancestors as walker indices leading up to
+    the given walker.
 
     Parameters
     ----------
-    parent_table :
-        
-    cycle_idx :
-        
-    walker_idx :
-        
-    ancestor_cycle :
+    parent_table : list of list of int
+    cycle_idx : int
+        Cycle of walker to query.
+    walker_idx : int
+        Walker index in to query along with cycle_idx.
+    ancestor_cycle : int
+        Index of cycle in history to go back to. Must be less than cycle_idx.
          (Default value = 0)
 
     Returns
     -------
+    ancestor_trace : list of tuples of ints (traj_idx, cycle_idx)
+        Contig walker trace of the ancestors leading up to the queried walker.
+        The contig is sequence of cycles in the parent table.
 
     """
 
@@ -321,20 +409,23 @@ def ancestors(parent_table, cycle_idx, walker_idx, ancestor_cycle=0):
     return lineage
 
 def sliding_window(parent_table, window_length):
-    """Returns traces (lists of frames across a run) on a sliding window
-    on the branching structure of a run of a WepyHDF5 file. There is
-    no particular order guaranteed.
+    """Return contig walker traces of sliding windows of given length over
+    the parent forest imposed over the contig given by the parent table.
+
+    Windows are given in no particular order and are nonredundant for
+    trees.
 
     Parameters
     ----------
-    parent_table :
-        
-    window_length :
-        
+    parent_table : list of list of int
+        Parent table defining parent relationships and contig.
+    window_length : int
+        Length of window to use. Must be greater than 1.
 
     Returns
     -------
-
+    windows : list of list of tuples of ints (traj_idx, cycle_idx)
+        List of contig walker traces.
     """
 
     # assert parent_table.dtype == np.int, \
@@ -364,16 +455,81 @@ def sliding_window(parent_table, window_length):
 
 
 class ParentForest():
-    """ """
+    """A tree abstraction to a contig representing the family trees of walkers.
+
+    Uses a directed graph (networkx.DiGraph) to represent parent-child
+    relationships; i.e. for edge (A, B) node A is a parent of node B.
+
+    Warnings
+    --------
+
+    See Also
+    --------
+
+    Notes
+    -----
+
+    References
+    ----------
+
+    Examples
+    --------
+
+    """
+
 
     WEIGHT = 'weight'
+    """Key for weight node attribute."""
     FREE_ENERGY = 'free_energy'
+    """Key for free energy node attribute."""
 
     ROOT_CYCLE_IDX = -1
+    """Special value for the root nodes cycle indices which the initial
+     conditions of the simulation
+
+    """
     DISCONTINUITY_VALUE = -1
+    """Special value used to determine if a parent-child relationship has
+    discontinuous dynamical continuity. This class tests for this
+    value in the parent table.
+    """
 
     def __init__(self, contig=None,
                  parent_table=None):
+        """Constructs a parent forest from either a Contig object or parent table.
+
+        Either a contig or parent_table must be given but not both.
+
+        The underlying data structure used is a parent table. However,
+        if a contig is given a reference to it will be kept.
+
+        Arguments
+        ---------
+        contig : Conting object, optional conditional on parent_table
+        parent_table : list of list of int, optional conditional on contig
+
+        Raises
+        ------
+        ValueError
+            If neither parent_table nor contig is given, or if both are given.
+
+        Warnings
+        --------
+
+        See Also
+        --------
+
+        Notes
+        -----
+
+        References
+        ----------
+
+        Examples
+        --------
+
+        """
+
 
         if (contig is not None) and (parent_table is not None):
             raise ValueError("Pass in either a contig or a parent table but not both")
@@ -395,16 +551,10 @@ class ParentForest():
 
         self._graph = nx.DiGraph()
 
-        self._n_steps = len(self.parent_table)
-
-        # TODO this should be somehow removed so that we can
-        # generalize to a variable number of walkers
-        self._n_walkers = len(self.parent_table[0])
-
         # make the roots of each tree in the parent graph, because
         # this is outside the indexing of the steps we use a special
         # index
-        self._roots = [(self.ROOT_CYCLE_IDX, i) for i in range(self.n_walkers)]
+        self._roots = [(self.ROOT_CYCLE_IDX, i) for i in range(len(self.parent_table[0]))]
 
         # set these as nodes
         self.graph.add_nodes_from(self.roots)
@@ -429,17 +579,21 @@ class ParentForest():
                         self.graph.add_edge(*edge, **edges_attrs[i])
 
     def _make_child_parent_edges(self, step_idx, parent_idxs):
-        """
+        """Generate edge_ids and edge attributes for an array of parent indices.
 
         Parameters
         ----------
-        step_idx :
-            
-        parent_idxs :
-            
+        step_idx : int
+            Index of step, just sets the value to put into the node_ids
+        parent_idxs : list of int
+            For element i in this list, the value j is the index of
+            the child in slot i in step_idx+1. Thus j must be
+            between 0 and len(parent_idxs)-1.
 
         Returns
         -------
+        edges : list of 2-tuple of node_id
+        edge_attributes : list of dict
 
         """
 
@@ -473,27 +627,30 @@ class ParentForest():
 
     @property
     def contig(self):
-        """ """
-        return self._contig
+        """Underlying contig if given during construction."""
+        if self._contig is None:
+            raise AttributeError("No contig set.")
+        else:
+            return self._contig
 
     @property
     def parent_table(self):
-        """ """
+        """Underlying parent table data structure."""
         return self._parent_table
 
     @property
     def graph(self):
-        """ """
+        """Underlying networkx.DiGraph object."""
         return self._graph
 
     @property
     def roots(self):
-        """ """
+        """Returns the roots of all the trees in this forest."""
         return self._roots
 
     @property
     def trees(self):
-        """ """
+        """Returns a list of the subtrees from each root in this forest. In no particular order"""
         trees_by_size = [self.graph.subgraph(c) for c in nx.weakly_connected_components(self.graph)]
         trees = []
         for root in self.roots:
@@ -503,25 +660,19 @@ class ParentForest():
 
     @property
     def n_steps(self):
-        """ """
+        """Number of steps of resampling in the parent forest."""
         return self._n_steps
-
-    @property
-    def n_walkers(self):
-        """ """
-        return self._n_walkers
 
     def step(self, step_idx):
         """Get the nodes at the step (level of the tree).
 
         Parameters
         ----------
-        step_idx :
-            
+        step_idx : int
 
         Returns
         -------
-
+        nodes : list of node_id
         """
 
         step_nodes = []
@@ -533,7 +684,12 @@ class ParentForest():
         return step_nodes
 
     def steps(self):
-        """ """
+        """Returns the nodes ordered by the step and walker indices.
+
+        Returns
+        -------
+        node_steps : list of list of node_id
+        """
         node_steps = []
         for step_idx in range(self.n_steps):
             node_steps.append(self.step(step_idx))
@@ -541,15 +697,15 @@ class ParentForest():
         return node_steps
 
     def walker(self, walker_idx):
-        """Get the nodes for this walker.
+        """Get the nodes for this walker for the whole tree.
 
         Parameters
         ----------
-        walker_idx :
-            
+        walker_idx : int
 
         Returns
         -------
+        nodes : list of node_id
 
         """
 
@@ -561,52 +717,47 @@ class ParentForest():
         walker_nodes.sort()
         return walker_nodes
 
-    def walkers(self):
-        """ """
-        node_walkers = []
-        for walker_idx in range(self.n_walkers):
-            node_walkers.append(self.walker(walker_idx))
+    # TODO DEPRECATE: we shouldn't assume constant number of walkers
+    # def walkers(self):
+    #     """ """
+    #     node_walkers = []
+    #     for walker_idx in range(self.n_walkers):
+    #         node_walkers.append(self.walker(walker_idx))
 
-        return node_walkers
+    #     return node_walkers
 
     def set_node_attributes(self, attribute_key, node_attribute_dict):
-        """
+        """Set attributes for all nodes for a single key.
 
         Parameters
         ----------
-        attribute_key :
-            
-        node_attribute_dict :
-            
-
-        Returns
-        -------
+        attribute_key : str
+            Key to set for a node attribute.
+        node_attribute_dict : dict of node_id: value
+            Dictionary mapping nodes to the values that will be set
+            for the attribute_key.
 
         """
 
         for node_id, value in node_attribute_dict.items():
             self.graph.nodes[node_id][attribute_key] = value
 
-    def set_attrs_by_array(self, key, values):
+    def set_attrs_by_array(self, attribute_key, values):
+        """Set node attributes on a stepwise basis using structural indices.
 
-        """Set attributes on a stepwise basis, i.e. expects a array/list that
-        is n_steps long and has the appropriate number of values for
-        the number of walkers at each step
+        Expects a array/list that is n_steps long and has the
+        appropriate number of values for the number of walkers at each
+        step.
 
         Parameters
         ----------
-        key :
-            
-        values :
-            
-
-        Returns
-        -------
-
+        attribute_key : str
+            Key to set for a node attribute.
+        values : array_like of dim (n_steps, n_walkers) or list of
+                 list of values.
+            Either an array_like if there is a constant number of
+            walkers or a list of lists of the values.
         """
         for step in self.steps():
             for node in step:
-                try:
-                    self.graph.nodes[node][key] = values[node[0]][node[1]]
-                except IndexError:
-                    import ipdb; ipdb.set_trace()
+                self.graph.nodes[node][attribute_key] = values[node[0]][node[1]]
