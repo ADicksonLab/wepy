@@ -1,3 +1,25 @@
+"""Class for generating layouts for resampling trees.
+
+Routines
+--------
+
+ResamplingTreeLayout.layout
+
+See Also
+--------
+
+Notes
+-----
+
+References
+----------
+
+Examples
+--------
+
+
+"""
+
 from warnings import warn
 from collections import defaultdict
 from copy import copy
@@ -9,13 +31,82 @@ import networkx as nx
 from wepy.analysis.network_layouts.layout import LayoutError
 
 class ResamplingTreeLayout():
-    """ """
+    """Class that wraps the parameters for generating resampling tree layouts.
+
+    Use the 'layout' method to generate inputs to a LayoutGraph for rendering.
+
+    Attributes
+    ----------
+
+    node_radius : float
+        Default node radius to use.
+    row_spacing : float
+        Spacing between nodes in a single row in layout.
+    step_spacing : float
+        Spacing between the rows of nodes in each step of the layout.
+    central_axis : float
+        X coordinate value to center each row around in the tree layout.
+
+    Warnings
+    --------
+
+    See Also
+    --------
+
+    Notes
+    -----
+
+    References
+    ----------
+
+    Examples
+    --------
+
+    """
 
     def __init__(self,
                  node_radius=1.0,
                  row_spacing=5.0,
                  step_spacing=20.0,
                  central_axis=0.0):
+        """Constructing the object is just a setting of the parameters and
+        collection of methods for generating layout positions.
+
+        Arguments
+        ---------
+        node_radius : float, optional
+            Default node radius to use.
+             (Default value = 1.0)
+
+        row_spacing : float
+            Spacing between nodes in a single row in layout.
+             (Default value = 5.0)
+
+        step_spacing : float
+            Spacing between the rows of nodes in each step of the layout.
+             (Default value = 20.0)
+
+        central_axis : float
+            X coordinate value to center each row around in the tree layout.
+             (Default value = 0.0)
+
+        Warnings
+        --------
+
+        See Also
+        --------
+
+        Notes
+        -----
+
+        References
+        ----------
+
+        Examples
+        --------
+
+        """
+
 
         self.node_radius = node_radius
         self.row_spacing = row_spacing
@@ -28,11 +119,11 @@ class ResamplingTreeLayout():
         Parameters
         ----------
         positions :
-            
+
         node_radii :
-            
+
         node_idx :
-            
+
 
         Returns
         -------
@@ -84,9 +175,9 @@ class ResamplingTreeLayout():
         Parameters
         ----------
         nodes_x :
-            
+
         node_radii :
-            
+
 
         Returns
         -------
@@ -296,11 +387,11 @@ class ResamplingTreeLayout():
         Parameters
         ----------
         parents_x :
-            
+
         children_parent_idxs :
-            
+
         node_radii :
-            
+
 
         Returns
         -------
@@ -329,7 +420,6 @@ class ResamplingTreeLayout():
         Parameters
         ----------
         node_radii :
-            
 
         Returns
         -------
@@ -373,11 +463,11 @@ class ResamplingTreeLayout():
         Parameters
         ----------
         positions :
-            
+
         radii :
-            
-        center :
-            
+
+        center : float
+
 
         Returns
         -------
@@ -399,14 +489,14 @@ class ResamplingTreeLayout():
         return centered_positions
 
     def _layout_array(self, parent_table, radii_array):
-        """
+        """Generates the structured array of positions for nodes in the parent
+        forest tree layout given the corresponding radii.
 
         Parameters
         ----------
         parent_table :
-            
+
         radii_array :
-            
 
         Returns
         -------
@@ -484,23 +574,40 @@ class ResamplingTreeLayout():
 
 
     def layout(self, parent_forest, node_radii=None):
-        """Given the input of a parent forest object, returns a dictionary
+        """Given a parent forest object, returns a dictionary
         mapping nodes to their xyz layout coordinates.
-        
+
         If the node radii are given (as a dictionary mapping node ID
         to the desired radius) these are used as the the node radii
         and the default node radius parameter of the layout object is
         ignored.
 
+        Radii are needed to calculate the proper positions so there is
+        no overlaps between nodes.
+
         Parameters
         ----------
-        parent_forest :
-            
-        node_radii :
+        parent_forest : ParentForest object
+
+        node_radii : dict of node_id: float
+            A dictionary mapping the nodes to node radii.
              (Default value = None)
+
 
         Returns
         -------
+        node_coords : dict of node_id: array_like of float of dim (3,)
+            x, y, z coordinates for all nodes. Z will be 0 for all.
+
+        Raises
+        ------
+        ValueError
+            If an invalid node_id is given.
+
+        Warns
+        -----
+        If some but not all nodes were given assigned radii. Uses
+        default value for unspecified nodes.
 
         """
 

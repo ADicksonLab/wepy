@@ -1,27 +1,88 @@
+"""Collection of routines for counting transitions and calculating
+transition probability matrices.
+
+There are two basic data structures used in this module for edge
+transitions: dictionary based and matrix based.
+
+The dictionary based approach is used to interface with graph
+representations, like in the
+~wepy.analysis.network.MacroStateNetwork~.
+
+Arrays are used as an interface to numerical libraries which use this
+to calculate other properties such as steady-state probabilities.
+
+Wepy is primarily meant to support expedient data structuring and will
+not support the latter numerical calculations and is left up to
+external libraries and domain specific code.
+
+Routines
+--------
+
+transition_counts : Given a structured array of assignments of
+    microstate to macrostate labels and a listing of all kinetic
+    transitions over the microstates returns the counts of transitions
+    between each macrostate as a dictionary mapping macrostate
+    transition edges to the total counts each microstate transition.
+
+counts_d_to_matrix : Converts a dictionary mapping macrostate
+    transition edges to a asymmetric transition matrix.
+
+normalize_counts : Normalizes outgoing transition counts from each
+    macrostate to 1 for a transition counts matrix.
+
+transition_counts_matrix : Given a structured array of assignments of
+    microstate to macrostate labels and a listing of all kinetic
+    transitions over the microstates returns the counts of transitions
+    between each macrostate as an assymetric transition counts matrix.
+
+transition_probability_matrix : Given a structured array of assignments of
+    microstate to macrostate labels and a listing of all kinetic
+    transitions over the microstates returns the probability of transitions
+    between each macrostate as an assymetric transition probability matrix.
+
+run_transition_counts_matrix : Generates an asymmetric transition
+    counts matrix directly from a single WepyHDF5 run.
+
+run_transition_probability_matrix : Generates an asymmetric transition
+    probability matrix directly from a single WepyHDF5 run.
+
+See Also
+--------
+
+Notes
+-----
+
+References
+----------
+
+Examples
+--------
+
+"""
+
 import itertools as it
 from collections import defaultdict
 
 import numpy as np
 
 def transition_counts(assignments, transitions):
-    """Make a dictionary of transition counts.
-    
-    assignments: a list of [N_run, [N_traj x N_cycle]] arrays of ints
-    where N_runs is the number of runs, N_traj is the number of
-    trajectories, and N_cycle is the number of cycles
-    
-    transitions: list of traces (a trace is a list of tuples
-    specifying the run, trajectory, and frame).
+    """Make a dictionary of the count of microstate transitions between macrostates.
 
     Parameters
     ----------
-    assignments :
-        
-    transitions :
-        
+    assignments: mixed array_like of dim (n_run, n_traj, n_cycle) type int
+        Assignment of microstates to macrostate labels, where N_runs
+        is the number of runs, N_traj is the number of trajectories,
+        and N_cycle is the number of cycles.
+    transitions: list of list of tuples of ints (run_idx, traj_idx, cycle_idx)
+        List of run traces corresponding to transitions. Only the
+        first and last trace elements are used.
 
     Returns
     -------
+    transition_counts : dict of (int, int): int
+        Dictionary mapping transitions between macrostate labels to
+        the count of microstate transitions between them.
 
     """
 
@@ -42,15 +103,19 @@ def transition_counts(assignments, transitions):
     return countsmat_d
 
 def counts_d_to_matrix(counts_d):
-    """
+    """Convert a dictionary of counts for macrostate transitions to an
+    assymetric transitions counts matrix.
 
     Parameters
     ----------
-    counts_d :
-        
+    counts_d : dict of (int, int): int
+        Dictionary mapping transitions between macrostate labels to
+        the count of microstate transitions between them.
 
     Returns
     -------
+    counts_matrix : numpy.ndarray of int
+        Assymetric counts matrix of dim (n_macrostates, n_macrostates).
 
     """
     # get the number of unique nodes in the counts_d
@@ -62,41 +127,39 @@ def counts_d_to_matrix(counts_d):
     return countsmat
 
 def normalize_counts(transition_counts_matrix):
-    """
+    """Normalize the macrostate outgoing transition counts to 1.0 for each macrostate.
 
     Parameters
     ----------
-    transition_counts_matrix :
-        
+    transition_counts_matrix : numpy.ndarray of int
+        Assymetric counts matrix of dim (n_macrostates, n_macrostates).
 
     Returns
     -------
+    transition_probability_matrix : numpy.ndarray of float
+        Assymetric transition probability matrix of dim (n_macrostates, n_macrostates).
 
     """
 
     return np.divide(transition_counts_matrix, transition_counts_matrix.sum(axis=0))
 
 def transition_counts_matrix(assignments, transitions):
-    """Make a transition count matrix for a single run.
-    
-    
-    assignments: a list of N_run, [N_traj x N_cycle] arrays of ints
-    where N_runs is the number of runs, N_traj is the number of
-    trajectories, and N_cycle is the number of cycles
-    
-    transitions: list of traces (a trace is a list of tuples
-    specifying the run, trajectory, and frame).
+    """Make an asymmetric array of the count of microstate transitions between macrostates.
 
     Parameters
     ----------
-    assignments :
-        
-    transitions :
-        
+    assignments: mixed array_like of dim (n_run, n_traj, n_cycle) type int
+        Assignment of microstates to macrostate labels, where N_runs
+        is the number of runs, N_traj is the number of trajectories,
+        and N_cycle is the number of cycles.
+    transitions: list of list of tuples of ints (run_idx, traj_idx, cycle_idx)
+        List of run traces corresponding to transitions. Only the
+        first and last trace elements are used.
 
     Returns
     -------
-
+    transition_counts_matrix : numpy.ndarray of int
+        Assymetric counts matrix of dim (n_macrostates, n_macrostates).
     """
 
     # count them and return as a dictionary
@@ -108,32 +171,22 @@ def transition_counts_matrix(assignments, transitions):
     return countsmat
 
 def transition_probability_matrix(assignments, transitions):
-
-    """This determines a transition matrix for a variable lag time.
-    
-    Inputs:
-    
-    assignments : (numpy array [n_traj x n_timestep]):
-    This is an array that indicates the cluster number for each traj at each timestep.
-    
-    sliding_window(iterable) : list of transitions. Transitions are a
-    tuple of the start and end frame for a transition. Start and end
-    frames are given by (traj_idx, frame_idx).
-    
-    Outputs: trans_prob_mat (numpy array [n_cluster x n_cluster]):
-    
-    A transition probability matrix.
+    """Make an asymmetric array of macrostates transition probabilities from microstate assignments.
 
     Parameters
     ----------
-    assignments :
-        
-    transitions :
-        
+    assignments: mixed array_like of dim (n_run, n_traj, n_cycle) type int
+        Assignment of microstates to macrostate labels, where N_runs
+        is the number of runs, N_traj is the number of trajectories,
+        and N_cycle is the number of cycles.
+    transitions: list of list of tuples of ints (run_idx, traj_idx, cycle_idx)
+        List of run traces corresponding to transitions. Only the
+        first and last trace elements are used.
 
     Returns
     -------
-
+    transition_probability_matrix : numpy.ndarray of float
+        Assymetric transition probability matrix of dim (n_macrostates, n_macrostates).
     """
 
     # get the counts
@@ -145,22 +198,24 @@ def transition_probability_matrix(assignments, transitions):
     return trans_prob_mat
 
 def run_transition_counts_matrix(wepy_hdf5, run_idx, assignment_key, transitions):
-    """Make a transition counts matrix from a WepyHDF5 run for a
-    particular assignment given a set of transitions.
+    """Generates an asymmetric transition counts matrix directly from a single WepyHDF5 run.
 
     Parameters
     ----------
-    wepy_hdf5 :
-        
-    run_idx :
-        
-    assignment_key :
-        
-    transitions :
-        
+    wepy_hdf5 : WepyHDF5 object
+
+    run_idx : int
+
+    assignment_key : str
+        Field from trajectory data to use as macrostate label.
+    transitions : list of list of tuples of ints (run_idx, traj_idx, cycle_idx)
+        List of run traces corresponding to transitions. Only the
+        first and last trace elements are used.
 
     Returns
     -------
+    transition_counts_matrix : numpy.ndarray of int
+        Assymetric counts matrix of dim (n_macrostates, n_macrostates).
 
     """
 
@@ -194,22 +249,24 @@ def run_transition_counts_matrix(wepy_hdf5, run_idx, assignment_key, transitions
     return counts_matrix
 
 def run_transition_probability_matrix(wepy_hdf5, run_idx, assignment_key, transitions):
-    """Make a transition probability matrix from a WepyHDF5 run for a
-    particular assignment given a set of transitions.
+    """Generates an asymmetric transition counts matrix directly from a single WepyHDF5 run.
 
     Parameters
     ----------
-    wepy_hdf5 :
-        
-    run_idx :
-        
-    assignment_key :
-        
-    transitions :
-        
+    wepy_hdf5 : WepyHDF5 object
+
+    run_idx : int
+
+    assignment_key : str
+        Field from trajectory data to use as macrostate label.
+    transitions : list of list of tuples of ints (run_idx, traj_idx, cycle_idx)
+        List of run traces corresponding to transitions. Only the
+        first and last trace elements are used.
 
     Returns
     -------
+    transition_probability_matrix : numpy.ndarray of float
+        Assymetric transition probability matrix of dim (n_macrostates, n_macrostates).
 
     """
 
