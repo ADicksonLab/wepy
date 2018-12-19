@@ -54,19 +54,6 @@ sliding_window : Generate non-redundant sliding window traces over the
 
 ParentForest : Class that imposes the forest (tree) structure over the
     parent table. Valid for a single contig in the contig tree (forest).
-
-See Also
---------
-
-Notes
------
-
-References
-----------
-
-Examples
---------
-
 """
 
 
@@ -459,21 +446,6 @@ class ParentForest():
 
     Uses a directed graph (networkx.DiGraph) to represent parent-child
     relationships; i.e. for edge (A, B) node A is a parent of node B.
-
-    Warnings
-    --------
-
-    See Also
-    --------
-
-    Notes
-    -----
-
-    References
-    ----------
-
-    Examples
-    --------
 
     """
 

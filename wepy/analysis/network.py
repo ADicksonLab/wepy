@@ -1,23 +1,5 @@
 """Module that allows for imposing a kinetically connected network
 structure of weighted ensemble simulation data.
-
-Routines
---------
-
-MacroStateNetwork
-
-See Also
---------
-
-Notes
------
-
-References
-----------
-
-Examples
---------
-
 """
 
 from collections import defaultdict
@@ -47,32 +29,6 @@ class MacroStateNetwork():
     the network. These edges are determined automatically and a lag
     time can also be specified, which is useful in the creation of
     Markov State Models.
-
-
-    Attributes
-    ----------
-
-    Raises
-    ------
-
-    Warns
-    -----
-
-    Warnings
-    --------
-
-    See Also
-    --------
-
-    Notes
-    -----
-
-    References
-    ----------
-
-    Examples
-    --------
-
     """
 
     ASSIGNMENTS = 'assignments'
@@ -105,22 +61,6 @@ class MacroStateNetwork():
         assignments : list of array_like of dim (num_traj, num_cycles),
                       conditionally optional on 'assg_field_key'
             List of assignments for all frames in each run.
-
-        Warnings
-        --------
-
-        See Also
-        --------
-
-        Notes
-        -----
-
-        References
-        ----------
-
-        Examples
-        --------
-
         """
 
         self._graph = nx.DiGraph()
@@ -497,85 +437,6 @@ class MacroStateNetwork():
         for node_id, value in values_dict.items():
             self.graph.nodes[node_id][key] = value
 
-    # def node_map(self, func, *args, map_func, idxs=False, node_sel=None):
-    #     """Map a function over the nodes.
-
-    #     Parameters
-    #     ----------
-    #     func :
-            
-    #     *args :
-            
-    #     map_func :
-            
-    #     idxs :
-    #          (Default value = False)
-    #     node_sel :
-    #          (Default value = None)
-
-    #     Returns
-    #     -------
-
-    #     """
-    #     pass
-
-    # def node_fields_map(self, func, fields, *args, map_func=map, idxs=False, node_sel=None):
-    #     """
-
-    #     Parameters
-    #     ----------
-    #     func :
-            
-    #     fields :
-            
-    #     *args :
-            
-    #     map_func :
-    #          (Default value = map)
-    #     idxs :
-    #          (Default value = False)
-    #     node_sel :
-    #          (Default value = None)
-
-    #     Returns
-    #     -------
-
-    #     """
-    #     pass
-
-    # def compute_macrostate_attr(self, func, fields, *args,
-    #                             map_func=map,
-    #                             node_sel=None,
-    #                             idxs=False,
-    #                             attr_name=None,
-    #                             return_results=True):
-    #     """
-
-    #     Parameters
-    #     ----------
-    #     func :
-            
-    #     fields :
-            
-    #     *args :
-            
-    #     map_func :
-    #          (Default value = map)
-    #     node_sel :
-    #          (Default value = None)
-    #     idxs :
-    #          (Default value = False)
-    #     attr_name :
-    #          (Default value = None)
-    #     return_results :
-    #          (Default value = True)
-
-    #     Returns
-    #     -------
-
-    #     """
-    #     pass
-
 
     def microstate_weights(self):
         """Returns the weights of each microstate on the basis of macrostates.
@@ -659,3 +520,84 @@ class MacroStateNetwork():
             del gexf_graph.nodes[node][self.ASSIGNMENTS]
 
         nx.write_gexf(gexf_graph, filepath)
+
+    # TODO: need to implement these
+    # def node_map(self, func, *args, map_func, idxs=False, node_sel=None):
+    #     """Map a function over the nodes.
+
+    #     Parameters
+    #     ----------
+    #     func :
+            
+    #     *args :
+            
+    #     map_func :
+            
+    #     idxs :
+    #          (Default value = False)
+    #     node_sel :
+    #          (Default value = None)
+
+    #     Returns
+    #     -------
+
+    #     """
+    #     pass
+
+    # def node_fields_map(self, func, fields, *args, map_func=map, idxs=False, node_sel=None):
+    #     """
+
+    #     Parameters
+    #     ----------
+    #     func :
+            
+    #     fields :
+            
+    #     *args :
+            
+    #     map_func :
+    #          (Default value = map)
+    #     idxs :
+    #          (Default value = False)
+    #     node_sel :
+    #          (Default value = None)
+
+    #     Returns
+    #     -------
+
+    #     """
+    #     pass
+
+    # def compute_macrostate_attr(self, func, fields, *args,
+    #                             map_func=map,
+    #                             node_sel=None,
+    #                             idxs=False,
+    #                             attr_name=None,
+    #                             return_results=True):
+    #     """
+
+    #     Parameters
+    #     ----------
+    #     func :
+            
+    #     fields :
+            
+    #     *args :
+            
+    #     map_func :
+    #          (Default value = map)
+    #     node_sel :
+    #          (Default value = None)
+    #     idxs :
+    #          (Default value = False)
+    #     attr_name :
+    #          (Default value = None)
+    #     return_results :
+    #          (Default value = True)
+
+    #     Returns
+    #     -------
+
+    #     """
+    #     pass
+

@@ -46,22 +46,6 @@ class ResamplingTreeLayout():
         Spacing between the rows of nodes in each step of the layout.
     central_axis : float
         X coordinate value to center each row around in the tree layout.
-
-    Warnings
-    --------
-
-    See Also
-    --------
-
-    Notes
-    -----
-
-    References
-    ----------
-
-    Examples
-    --------
-
     """
 
     def __init__(self,
@@ -89,22 +73,6 @@ class ResamplingTreeLayout():
         central_axis : float
             X coordinate value to center each row around in the tree layout.
              (Default value = 0.0)
-
-        Warnings
-        --------
-
-        See Also
-        --------
-
-        Notes
-        -----
-
-        References
-        ----------
-
-        Examples
-        --------
-
         """
 
 
@@ -130,22 +98,22 @@ class ResamplingTreeLayout():
 
         """
 
-            # get the nodes that this one overlaps with
-            overlaps = []
-            for other_node_idx, other_node_position in enumerate(positions):
+        # get the nodes that this one overlaps with
+        overlaps = []
+        for other_node_idx, other_node_position in enumerate(positions):
 
-                # you can't overlap yourself
-                if node_idx == other_node_idx:
-                    overlaps.append(False)
+            # you can't overlap yourself
+            if node_idx == other_node_idx:
+                overlaps.append(False)
+            else:
+                # check if there is an overlap between nodes
+                diff = np.abs(positions[node_idx] - other_node_position)
+                if diff < node_radii[node_idx] + node_radii[other_node_idx] + self.row_spacing:
+                    overlaps.append(True)
                 else:
-                    # check if there is an overlap between nodes
-                    diff = np.abs(positions[node_idx] - other_node_position)
-                    if diff < node_radii[node_idx] + node_radii[other_node_idx] + self.row_spacing:
-                        overlaps.append(True)
-                    else:
-                        overlaps.append(False)
+                    overlaps.append(False)
 
-            return overlaps
+        return overlaps
 
     def _node_row_length(self, node_positions, node_radii):
         """Get the edge to edge length of a row of nodes.
@@ -153,9 +121,8 @@ class ResamplingTreeLayout():
         Parameters
         ----------
         node_positions :
-            
+
         node_radii :
-            
 
         Returns
         -------

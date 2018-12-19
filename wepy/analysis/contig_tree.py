@@ -6,19 +6,6 @@ Routines
 
 ContigTree
 Contig
-
-See Also
---------
-
-Notes
------
-
-References
-----------
-
-Examples
---------
-
 """
 
 
@@ -123,12 +110,6 @@ class ContigTree():
              (Default value = None)
 
 
-        Raises
-        ------
-
-        Warns
-        -----
-
         Warnings
         --------
 
@@ -140,19 +121,6 @@ class ContigTree():
         Make sure to give the `boundary_condition_class` if there was
         discontinuous warping events in the simulation or else you will
         get erroneous contiguous trajectories.
-
-        See Also
-        --------
-
-        Notes
-        -----
-
-        References
-        ----------
-
-        Examples
-        --------
-
         """
 
         self._graph = nx.DiGraph()

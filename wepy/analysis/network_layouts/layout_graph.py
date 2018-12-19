@@ -8,18 +8,6 @@ Routines
 
 LayoutGraph
 
-See Also
---------
-
-Notes
------
-
-References
-----------
-
-Examples
---------
-
 """
 
 class LayoutGraph():
@@ -28,21 +16,6 @@ class LayoutGraph():
     For the graph it wraps it will create a mirror graph which only
     has visualization specific node and edge attributes. This avoids
     namespace clashes between graphs.
-
-    Warnings
-    --------
-
-    See Also
-    --------
-
-    Notes
-    -----
-
-    References
-    ----------
-
-    Examples
-    --------
 
     """
 

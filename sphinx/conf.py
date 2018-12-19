@@ -13,9 +13,19 @@
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
 # import os
-# import sys
 # sys.path.insert(0, os.path.abspath('.'))
 
+import sys
+sys.path = [
+    '/home/salotz/anaconda3/envs/wepy-dev/bin',
+    '/home/salotz/tree/lab/alt/wepy',
+    '/home/salotz/tree/lab/alt/geomm',
+    '/home/salotz/anaconda3/envs/wepy-dev/lib/python36.zip',
+    '/home/salotz/anaconda3/envs/wepy-dev/lib/python3.6',
+    '/home/salotz/anaconda3/envs/wepy-dev/lib/python3.6/lib-dynload',
+    '/home/salotz/anaconda3/envs/wepy-dev/lib/python3.6/site-packages',
+    ] + \
+    sys.path
 
 # -- Project information -----------------------------------------------------
 

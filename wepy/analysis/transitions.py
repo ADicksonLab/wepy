@@ -45,19 +45,6 @@ run_transition_counts_matrix : Generates an asymmetric transition
 
 run_transition_probability_matrix : Generates an asymmetric transition
     probability matrix directly from a single WepyHDF5 run.
-
-See Also
---------
-
-Notes
------
-
-References
-----------
-
-Examples
---------
-
 """
 
 import itertools as it
