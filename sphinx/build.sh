@@ -1,5 +1,6 @@
-mkdir -p ../docs
-rm -rf ../docs/
+# for building to the docs for github pages
+# mkdir -p ../docs
+# rm -rf ../docs/
 
 # run pandoc on all the handwritted documentation files to produce rst
 # from org files
@@ -23,7 +24,7 @@ rm source/*.rst.rst* &> /dev/null
 
 
 # also build locally in sphinx for easier testing
+make clean
+# generate the api rst files for autodoc
 sphinx-apidoc -f --separate --module-first -o api ../wepy
-sphinx-build -b html -E -a -j 6 . ./_build
-
-
+sphinx-build -b html -E -a -j 6 . ./_build/html/

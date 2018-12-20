@@ -12,20 +12,9 @@
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
-# import os
-# sys.path.insert(0, os.path.abspath('.'))
-
+import os
 import sys
-sys.path = [
-    '/home/salotz/anaconda3/envs/wepy-dev/bin',
-    '/home/salotz/tree/lab/alt/wepy',
-    '/home/salotz/tree/lab/alt/geomm',
-    '/home/salotz/anaconda3/envs/wepy-dev/lib/python36.zip',
-    '/home/salotz/anaconda3/envs/wepy-dev/lib/python3.6',
-    '/home/salotz/anaconda3/envs/wepy-dev/lib/python3.6/lib-dynload',
-    '/home/salotz/anaconda3/envs/wepy-dev/lib/python3.6/site-packages',
-    ] + \
-    sys.path
+sys.path.insert(0, os.path.abspath('..'))
 
 # -- Project information -----------------------------------------------------
 
@@ -94,7 +83,32 @@ pygments_style = None
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = 'alabaster'
+# html_theme = "alabaster"
+
+# Extra themes custom configs
+
+# read the docs
+#html_theme = 'sphinx_rtd_theme'
+
+# bootstrap
+# import sphinx_bootstrap_theme
+# html_theme = 'bootstrap'
+# html_theme_path = sphinx_bootstrap_theme.get_html_theme_path()
+
+# guzzle
+import guzzle_sphinx_theme
+
+html_theme_path = guzzle_sphinx_theme.html_theme_path()
+html_theme = 'guzzle_sphinx_theme'
+
+# Register the theme as an extension to generate a sitemap.xml
+extensions.append("guzzle_sphinx_theme")
+
+# Guzzle theme options (see theme.conf for more information)
+html_theme_options = {
+    # Set the name of the project to appear in the sidebar
+    "project_nav_name": "Wepy",
+}
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
