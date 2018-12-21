@@ -26,5 +26,5 @@ rm source/*.rst.rst* &> /dev/null
 # also build locally in sphinx for easier testing
 make clean
 # generate the api rst files for autodoc
-sphinx-apidoc -f --separate --module-first -o api ../wepy
+sphinx-apidoc -f --separate --module-first --maxdepth 1 -o api ../wepy
 sphinx-build -b html -E -a -j 6 . ./_build/html/

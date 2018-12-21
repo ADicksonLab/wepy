@@ -12,7 +12,7 @@ Wepy: A Weighted Ensemble  (WE) simulation framework
    source/introduction
    source/explanation
    source/glossary
-   api/index
+   source/api
    tutorials/index
 
 
