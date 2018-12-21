@@ -15,54 +15,34 @@ TODO
 Analysis
 --------
 
-.. toctree::
-   :maxdepth: 1
-   :glob:
-
-   Macro-State Network <../api/wepy.analysis.network>
-   Network Transition Probabilities <../api/wepy.analysis.transitions>
-   Contigs and Contig Tree/Forest <../api/wepy.analysis.contig_tree>
+* :any:`Macro-State Network <../api/wepy.analysis.network>`
+* :any:`Network Transition Probabilities <../api/wepy.analysis.transitions>`
+* :any:`Contigs and Contig Tree/Forest <../api/wepy.analysis.contig_tree>`
 
 
 Data Storage
 ------------
 
-.. toctree::
-   :maxdepth: 1
-   :glob:
-
-   WepyHDF5 <../api/wepy.hdf5>
+* :any:`WepyHDF5 <../api/wepy.hdf5>`
       
 Orchestration
 -------------
-
-.. toctree::
-   :maxdepth: 1
-   :glob:
       
-   Orchestrator <../api/wepy.orchestration.orchestrator>
-   Configuration <../api/wepy.orchestration.configuration>
+* :any:`Orchestrator <../api/wepy.orchestration.orchestrator>`
+* :any:`Configuration <../api/wepy.orchestration.configuration>`
 
 Wepy Core
 ---------
 
-.. toctree::
-   :maxdepth: 1
-   :glob:
-
-   Simulation Manager <../api/wepy.sim_manager>
-   Walker <../api/wepy.walker>
+* :any:`Simulation Manager <../api/wepy.sim_manager>`
+* :any:`Walker <../api/wepy.walker>`
 
    
 Utilities
 ---------
 
-.. toctree::
-   :maxdepth: 1
-   :glob:
-
-   Miscellaneous <../api/wepy.util.util>
-   MDTraj Interface <../api/wepy.util.mdtraj>
+* :any:`Miscellaneous <../api/wepy.util.util>`
+* :any:`MDTraj Interface <../api/wepy.util.mdtraj>`
 
 
 Application Components
@@ -87,52 +67,32 @@ WExplore and Image Based Resamplers:
 Resamplers
 ^^^^^^^^^^
 
-.. toctree::
-   :maxdepth: 1
-   :glob:
-
-   WExplore <../api/wepy.resampling.resamplers.wexplore>
-   REVO <../api/wepy.resampling.resamplers.revo>
-   Abstract Base Classes <../api/wepy.resampling.resamplers.resampler>
+* :any:`WExplore <../api/wepy.resampling.resamplers.wexplore>`
+* :any:`REVO <../api/wepy.resampling.resamplers.revo>`
+* :any:`Abstract Base Classes <../api/wepy.resampling.resamplers.resampler>`
 
 Distance Metrics
 ^^^^^^^^^^^^^^^^
 
-.. toctree::
-   :maxdepth: 1
-   :glob:
-
-   Ligand Unbinding and Rebinding <../api/wepy.resampling.distances.receptor>
+* :any:`Ligand Unbinding and Rebinding <../api/wepy.resampling.distances.receptor>`
 
 
 Runners
 ^^^^^^^
 
-.. toctree::
-   :maxdepth: 1
-   :glob:
-
-   OpenMM <../api/wepy.runners.openmm>
-   Abstract Base Class <../api/wepy.runners.runner>
+* :any:`OpenMM <../api/wepy.runners.openmm>`
+* :any:`Abstract Base Class <../api/wepy.runners.runner>`
 
 Work Mapper
 ^^^^^^^^^^^
-
-.. toctree::
-   :maxdepth: 1
-   :glob:
    
-   Single Process and Worker Processes <../api/wepy.work_mapper.mapper>
+* :any:`Single Process and Worker Processes <../api/wepy.work_mapper.mapper>`
 
 
 Boundary Conditions
 ^^^^^^^^^^^^^^^^^^^
 
-.. toctree::
-   :maxdepth: 1
-   :glob:
-
-   Ligand Unbinding <../api/wepy.boundary_conditions.unbinding>
-   Ligand Rebinding <../api/wepy.boundary_conditions.rebinding>
-   Abstract Base Classes <../api/wepy.boundary_conditions.boundary>
+* :any:`Ligand Unbinding <../api/wepy.boundary_conditions.unbinding>`
+* :any:`Ligand Rebinding <../api/wepy.boundary_conditions.rebinding>`
+* :any:`Abstract Base Classes <../api/wepy.boundary_conditions.boundary>`
    

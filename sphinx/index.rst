@@ -10,6 +10,7 @@ Wepy: A Weighted Ensemble  (WE) simulation framework
    :maxdepth: 1
 
    source/introduction
+   source/installation
    source/explanation
    source/glossary
    source/api
