@@ -1,3 +1,9 @@
+"""Abstract base class and null boundary condition class for
+conveniently making compliant boundary condition classes for use in
+wepy.
+
+"""
+
 import sys
 import logging
 
@@ -6,17 +12,44 @@ import numpy as np
 from wepy.walker import Walker
 
 class BoundaryConditions(object):
-    """ """
+    """Abstract base class for conveniently making compliant boundary condition classes.
+
+    Includes empty record group definitions and useful getters for those.
+
+    """
+
 
     # records of boundary condition changes (sporadic)
     BC_FIELDS = ()
+    """String names of fields produced in 'bc' records."""
+
     BC_SHAPES = ()
+    """Numpy-style shapes of all fields produced in 'bc' records.
+
+    Each entry should either be:
+
+    A. A tuple of ints that specify the shape of the field element
+       array.
+
+    B. Ellipsis, indicating that the field is variable length and
+       limited to being a rank one array (e.g. (3,) or (1,)).
+
+    C. None, indicating that the first instance of this field will not
+       be known until runtime. Any field that is returned by a record
+       producing method will automatically interpreted as None if not
+       specified here.
+
+    """
+
     BC_DTYPES = ()
+    """Numpy-style """
 
     BC_RECORD_FIELDS = ()
 
     # warping (sporadic)
     WARPING_FIELDS = ()
+    """String names of fields produced in 'warping' records."""
+
     WARPING_SHAPES = ()
     WARPING_DTYPES = ()
 
@@ -24,6 +57,8 @@ class BoundaryConditions(object):
 
     # progress towards the boundary conditions (continual)
     PROGRESS_FIELDS = ()
+    """String names of fields produced in 'progress' records."""
+
     PROGRESS_SHAPES = ()
     PROGRESS_DTYPES = ()
 

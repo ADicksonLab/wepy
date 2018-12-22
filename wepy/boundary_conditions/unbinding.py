@@ -1,3 +1,4 @@
+
 import sys
 import itertools as it
 from collections import defaultdict
@@ -13,7 +14,6 @@ from wepy.boundary_conditions.boundary import BoundaryConditions
 from wepy.util.mdtraj import json_to_mdtraj_topology
 
 class UnbindingBC(BoundaryConditions):
-    """ """
 
     # records of boundary condition changes (sporadic)
     BC_FIELDS = ('boundary_distance', )
