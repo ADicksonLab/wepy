@@ -42,19 +42,19 @@ analysis as well.
 
 
 *** Resampling Records
-The 'resampling' records are probably the most important records for
+The ='resampling'= records are probably the most important records for
 ~wepy~ because they are what records the cloning and merging of
 walkers.
 
-Without the 'resampling' your ~wepy~ simulation would have been wasted
+Without the ='resampling'= your ~wepy~ simulation would have been wasted
 since you no longer will know the history of any given frame. You will
 just have a bag full of unconnected pictures.
 
-Records for 'resampling' happen for each "assignment" event of a
+Records for ='resampling'= happen for each "assignment" event of a
 walker during resampling, this minimally should contain two fields:
-'decision_id' and 'target_idxs'.
+='decision_id'= and ='target_idxs'=.
 
-The 'decision_id' is an integer corresponding to an enumeration of the
+The ='decision_id'= is an integer corresponding to an enumeration of the
 possible decisions that can be made as to the fate of the walker
 during resampling. While technically these decisions are also modular
 it is likely that 99.9% of all users will use the ~CloneMergeDecision~.
@@ -65,17 +65,17 @@ topic, and the next few paragraphs can be safely skipped.
 
 The enumerated decisions in this are:
 
-| NOTHING    | 1 |
-| CLONE      | 2 |
-| SQUASH     | 3 |
-| KEEP_MERGE | 4 |
+| =NOTHING=    | 1 |
+| =CLONE=      | 2 |
+| =SQUASH=     | 3 |
+| =KEEP_MERGE= | 4 |
 
 
-The 'NOTHING' decision means don't clone or merge this walker.
+The =NOTHING= decision means don't clone or merge this walker.
 
-'CLONE' means clone this walker.
+=CLONE= means clone this walker.
 
-'SQUASH' and 'KEEP_MERGE' are related in that both involve merging.
+=SQUASH= and =KEEP_MERGE= are related in that both involve merging.
 
 A single merge includes a set of walkers that will be merged together,
 there must be at least 2 such walkers in this "merge group".
@@ -87,10 +87,10 @@ the sum of all those walkers.
 The state of the final walker will be drawn from the set of walkers in
 the merge group based on the behavior of the resampler (usually a
 choice weighted by their weights), but will always be identical to one
-of the walkers. The walker with the chosen state is the 'KEEP_MERGE'
-walker. The rest are the 'SQUASH' walkers.
+of the walkers. The walker with the chosen state is the =KEEP_MERGE=
+walker. The rest are the =SQUASH= walkers.
 
-The second field, 'target_idxs', actually determines which walkers
+The second field, ='target_idxs'=, actually determines which walkers
 will be merged with what other walkers, and is a tuple of integers
 indicating the location, or slot.
 
@@ -123,25 +123,25 @@ WARNING: Currently the ~WepyHDF5~ storage backend and reporter do not
 support dynamic numbers of simulations. While technically the
 none of the other code has any problem with this.
 
-The 'target_idxs' value for 'NOTHING' and 'KEEP_MERGE' is a 1-tuple of
+The ='target_idxs'= value for =NOTHING= and =KEEP_MERGE= is a 1-tuple of
 the integer index of slot where the resultant walker will be placed.
 
-The 'target_idxs' for 'CLONE' is an n-tuple of integer indices of
+The ='target_idxs'= for =CLONE= is an n-tuple of integer indices of
 slots where n is the number of children of the clone and n must be at
-least 2 (or it would've been a 'NOTHING').
+least 2 (or it would've been a =NOTHING=).
 
-The 'target_idxs' of 'SQUASH' is also a 1-tuple like 'NOTHING' except
-since a 'SQUASH' has no child it indicates the 'KEEP_MERGE' walker
+The ='target_idxs'= of =SQUASH= is also a 1-tuple like =NOTHING= except
+since a =SQUASH= has no child it indicates the =KEEP_MERGE= walker
 that it's weight is added to. Note that this slot index is the slot
-index that the 'KEEP_MERGE' record itself specifies and not the slot
-the 'KEEP_MREGE' walker previously occupied (as that index is of no
+index that the =KEEP_MERGE= record itself specifies and not the slot
+the =KEEP_MERGE= walker previously occupied (as that index is of no
 consequence to the current collection of walkers).
 
-Thus a 'KEEP_MERGE' walker defines a single merge group, and the
-members of that merge group are given by which 'SQUASH' targets.
+Thus a =KEEP_MERGE= walker defines a single merge group, and the
+members of that merge group are given by which =SQUASH= targets.
 
 
-Critically, the 'step_idx' and 'walker_idx' (slot index of walker in
+Critically, the ='step_idx'= and ='walker_idx'= (slot index of walker in
 last cycle) fields should also be supplied so that the lineage
 histories can be generated.
 
@@ -162,7 +162,7 @@ conditions, but among the three BC these are the principal object.
 Warping records determine the action that was taken on a walker after
 it met the criteria for a boundary condition event.
 
-Minimally it should specify the 'walker_idx' that was acted on, and if
+Minimally it should specify the ='walker_idx'= that was acted on, and if
 any warping event can be discontinuous the 'weight' of it so this can
 be accounted for in analysis.
 
@@ -174,7 +174,7 @@ For simple boundary conditions where there is only one result an
 additional field is not even necesary.
 
 The colored trajectories examples provides a possible example. In this
-case you could have a field called 'color' which is the new "color" of
+case you could have a field called ='color'= which is the new "color" of
 the walker which indicates the last boundary it crossed and could be a
 string or an integer enumeration.
 
@@ -270,7 +270,7 @@ A. A tuple of ints that specify the shape of the field element
    array.
 
 B. Ellipsis, indicating that the field is variable length and
-   limited to being a rank one array (e.g. (3,) or (1,)).
+   limited to being a rank one array (e.g. =(3,)= or =(1,)=).
 
 C. None, indicating that the first instance of this field will not
    be known until runtime. Any field that is returned by a record
@@ -312,7 +312,7 @@ arrays don't fit well into tables!
 
 So you can define a subset of fields to be used as a nice "table"
 report that could be serialized to CSV. For instance in WExplore's
-resampler record group we leave out the multidimensional 'image'
+resampler record group we leave out the multidimensional ='image'=
 field:
 
 #+BEGIN_SRC python
