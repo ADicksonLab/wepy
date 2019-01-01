@@ -1,5 +1,6 @@
 import os.path as osp
 import logging
+import subprocess
 
 import dill
 
@@ -453,12 +454,47 @@ def ls_runs(orchestrator):
 
     click.echo(hash_listing_str)
 
+@click.option('--expand-external', is_flag=True)
+@click.argument('source', type=click.Path(exists=True))
+@click.argument('target', type=click.Path())
+@click.command()
+def copy_h5(expand_external, source, target):
+
+
+    # arg clusters to pass to subprocess for the files
+    input_f_args = ['-i', source]
+    output_f_args = ['-o', target]
+
+    # each invocation calls a different group since we can't call the
+    # toplevel '/' directly
+    settings_args = ['-s', '/_settings', '-d', '/_settings']
+    topology_args = ['-s', '/topology', '-d', '/topology']
+    runs_args = ['-s', '/runs', '-d', '/runs']
+
+    flags_args = []
+    # if the expand external flag is given we make args for that
+    if expand_external:
+        flags_args = ['f', 'ext']
+
+    common_args = input_f_args + output_f_args + flags_args
+
+    settings_output = subprocess.check_output(['h5copy'] + common_args + settings_args)
+    print(settings_output)
+
+    topology_output = subprocess.check_output(['h5copy'] + common_args + topology_args)
+    print(topology_output)
+
+    runs_output = subprocess.check_output(['h5copy'] + common_args + runs_args)
+    print(runs_output)
+
 # command groupings
 cli.add_command(run)
 cli.add_command(recover)
 cli.add_command(reconcile)
 cli.add_command(ls_snapshots)
 cli.add_command(ls_runs)
+cli.add_command(copy_h5)
+
 
 if __name__ == "__main__":
 
