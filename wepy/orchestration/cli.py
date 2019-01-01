@@ -472,7 +472,7 @@ def copy_h5(no_expand_external, source, target):
     runs_args = ['-s', '/runs', '-d', '/runs']
 
     # by default expand the external links
-    flags_args = ['f', 'ext']
+    flags_args = ['-f', 'ext']
 
     # if the not expand external flag is given get rid of those args
     if no_expand_external:
