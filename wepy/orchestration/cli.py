@@ -454,10 +454,10 @@ def ls_runs(orchestrator):
 
     click.echo(hash_listing_str)
 
+@click.command()
 @click.option('--no-expand-external', is_flag=True)
 @click.argument('source', type=click.Path(exists=True))
 @click.argument('target', type=click.Path(exists=False))
-@click.command()
 def copy_h5(no_expand_external, source, target):
 
 
