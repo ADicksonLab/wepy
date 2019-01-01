@@ -454,11 +454,11 @@ def ls_runs(orchestrator):
 
     click.echo(hash_listing_str)
 
-@click.option('--expand-external', is_flag=True)
+@click.option('--no-expand-external', is_flag=True)
 @click.argument('source', type=click.Path(exists=True))
-@click.argument('target', type=click.Path())
+@click.argument('target', type=click.Path(exists=False))
 @click.command()
-def copy_h5(expand_external, source, target):
+def copy_h5(no_expand_external, source, target):
 
 
     # arg clusters to pass to subprocess for the files
@@ -471,10 +471,12 @@ def copy_h5(expand_external, source, target):
     topology_args = ['-s', '/topology', '-d', '/topology']
     runs_args = ['-s', '/runs', '-d', '/runs']
 
-    flags_args = []
-    # if the expand external flag is given we make args for that
-    if expand_external:
-        flags_args = ['f', 'ext']
+    # by default expand the external links
+    flags_args = ['f', 'ext']
+
+    # if the not expand external flag is given get rid of those args
+    if no_expand_external:
+        flags_args = []
 
     common_args = input_f_args + output_f_args + flags_args
 
