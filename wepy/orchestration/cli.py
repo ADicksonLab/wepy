@@ -481,13 +481,10 @@ def copy_h5(no_expand_external, source, target):
     common_args = input_f_args + output_f_args + flags_args
 
     settings_output = subprocess.check_output(['h5copy'] + common_args + settings_args)
-    print(settings_output)
 
     topology_output = subprocess.check_output(['h5copy'] + common_args + topology_args)
-    print(topology_output)
 
     runs_output = subprocess.check_output(['h5copy'] + common_args + runs_args)
-    print(runs_output)
 
 # command groupings
 cli.add_command(run)
