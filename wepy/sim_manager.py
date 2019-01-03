@@ -76,7 +76,7 @@ class Manager(object):
         # errors from it so we can cleanup if an error is caught
 
         try:
-            self._run_cycle(walkers, n_segment_steps, cycle_idx)
+            return self._run_cycle(walkers, n_segment_steps, cycle_idx)
         except Exception as err:
 
             # if we catch any error we want to make sure that run the
