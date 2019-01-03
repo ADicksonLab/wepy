@@ -512,7 +512,7 @@ class ParentForest():
         self._contig = contig
 
         # if the contig was given, generate a parent table
-        if self.contig is not None:
+        if self._contig is not None:
 
             # from that contig make a parent table
             self._parent_table = self.contig.parent_table()
