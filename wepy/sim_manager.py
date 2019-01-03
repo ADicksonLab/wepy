@@ -71,6 +71,25 @@ class Manager(object):
         return new_walkers
 
     def run_cycle(self, walkers, n_segment_steps, cycle_idx):
+
+        # this one is called to just easily be able to catch all the
+        # errors from it so we can cleanup if an error is caught
+
+        try:
+            self._run_cycle(walkers, n_segment_steps, cycle_idx)
+        except Exception as err:
+
+            # if we catch any error we want to make sure that run the
+            # cleanup for everything. By policy this should make sure
+            # all running processes are killed (i.e. does not actually
+            # kill processes and the modules should implement this
+            # themselves in their cleanup method)
+            self.cleanup()
+
+            # then reraise the error
+            raise err
+
+    def _run_cycle(self, walkers, n_segment_steps, cycle_idx):
         """
 
         Parameters
