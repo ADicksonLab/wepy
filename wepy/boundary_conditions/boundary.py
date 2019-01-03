@@ -21,10 +21,27 @@ class BoundaryConditions(object):
 
     # records of boundary condition changes (sporadic)
     BC_FIELDS = ()
-    """String names of fields produced in 'bc' records."""
+    """String names of fields produced in this record group.
+
+    Boundary condition (BC) records are typically used to report on
+    changes to the state of the BC object.
+
+    Notes
+    -----
+
+    These fields are not critical to the proper functioning of the
+    rest of the wepy framework and can be modified freely.
+
+    However, reporters specific to this boundary condition probably
+    will make use of these records.
+
+    """
 
     BC_SHAPES = ()
-    """Numpy-style shapes of all fields produced in 'bc' records.
+    """Numpy-style shapes of all fields produced in records.
+
+    There should be the same number of elements as there are in the
+    corresponding 'FIELDS' class constant.
 
     Each entry should either be:
 
@@ -39,30 +56,197 @@ class BoundaryConditions(object):
        producing method will automatically interpreted as None if not
        specified here.
 
+    Note that the shapes must be tuple and not simple integers for rank-1
+    arrays.
+
+    Option B will result in the special h5py datatype 'vlen' and
+    should not be used for large datasets for efficiency reasons.
+
     """
 
     BC_DTYPES = ()
-    """Numpy-style """
+    """Specifies the numpy dtypes to be used for records.
+
+    There should be the same number of elements as there are in the
+    corresponding 'FIELDS' class constant.
+
+    Each entry should either be:
+
+    A. A `numpy.dtype` object.
+
+    D. None, indicating that the first instance of this field will not
+       be known until runtime. Any field that is returned by a record
+       producing method will automatically interpreted as None if not
+       specified here.
+
+    """
 
     BC_RECORD_FIELDS = ()
+    """Optional, names of fields to be selected for truncated
+    representation of the record group.
+
+    These entries should be strings that are previously contained in
+    the 'FIELDS' class constant.
+
+    While strictly no constraints on to which fields can be added here
+    you should only choose those fields whose features could fit into
+    a plaintext csv or similar format.
+
+    """
 
     # warping (sporadic)
     WARPING_FIELDS = ()
-    """String names of fields produced in 'warping' records."""
+    """String names of fields produced in this record group.
+
+    Warping records are typically used to report whenever a walker
+    satisfied the boundary conditions and was warped and had its
+    state changed.
+
+    Warnings
+    --------
+
+    Be careful when modifying these fields as they may be integrated
+    with other wepy framework features. Namely recognition of
+    discontinuous warping events for making contiguous trajectories
+    from cloning and merging lineages.
+
+    The behavior of whether or not a warping event is discontinuous is
+    given by a `BoundaryCondition` class's `warping_discontinuity`
+    which likely depends on the existence of particular fields.
+
+    """
 
     WARPING_SHAPES = ()
+    """Numpy-style shapes of all fields produced in records.
+
+    There should be the same number of elements as there are in the
+    corresponding 'FIELDS' class constant.
+
+    Each entry should either be:
+
+    A. A tuple of ints that specify the shape of the field element
+       array.
+
+    B. Ellipsis, indicating that the field is variable length and
+       limited to being a rank one array (e.g. (3,) or (1,)).
+
+    C. None, indicating that the first instance of this field will not
+       be known until runtime. Any field that is returned by a record
+       producing method will automatically interpreted as None if not
+       specified here.
+
+    Note that the shapes must be tuple and not simple integers for rank-1
+    arrays.
+
+    Option B will result in the special h5py datatype 'vlen' and
+    should not be used for large datasets for efficiency reasons.
+
+    """
+
     WARPING_DTYPES = ()
+    """Specifies the numpy dtypes to be used for records.
+
+    There should be the same number of elements as there are in the
+    corresponding 'FIELDS' class constant.
+
+    Each entry should either be:
+
+    A. A `numpy.dtype` object.
+
+    D. None, indicating that the first instance of this field will not
+       be known until runtime. Any field that is returned by a record
+       producing method will automatically interpreted as None if not
+       specified here.
+
+    """
 
     WARPING_RECORD_FIELDS = ()
+    """Optional, names of fields to be selected for truncated
+    representation of the record group.
+
+    These entries should be strings that are previously contained in
+    the 'FIELDS' class constant.
+
+    While strictly no constraints on to which fields can be added here
+    you should only choose those fields whose features could fit into
+    a plaintext csv or similar format.
+
+    """
 
     # progress towards the boundary conditions (continual)
     PROGRESS_FIELDS = ()
-    """String names of fields produced in 'progress' records."""
+    """String names of fields produced in this record group.
+
+    Progress records are typically used to report on measures of
+    walkers at each cycle.
+
+    Notes
+    -----
+
+    These fields are not critical to the proper functioning of the
+    rest of the wepy framework and can be modified freely.
+
+    However, reporters specific to this boundary condition probably
+    will make use of these records.
+
+    """
 
     PROGRESS_SHAPES = ()
+    """Numpy-style shapes of all fields produced in records.
+
+    There should be the same number of elements as there are in the
+    corresponding 'FIELDS' class constant.
+
+    Each entry should either be:
+
+    A. A tuple of ints that specify the shape of the field element
+       array.
+
+    B. Ellipsis, indicating that the field is variable length and
+       limited to being a rank one array (e.g. (3,) or (1,)).
+
+    C. None, indicating that the first instance of this field will not
+       be known until runtime. Any field that is returned by a record
+       producing method will automatically interpreted as None if not
+       specified here.
+
+    Note that the shapes must be tuple and not simple integers for rank-1
+    arrays.
+
+    Option B will result in the special h5py datatype 'vlen' and
+    should not be used for large datasets for efficiency reasons.
+
+    """
+
     PROGRESS_DTYPES = ()
+    """Specifies the numpy dtypes to be used for records.
+
+    There should be the same number of elements as there are in the
+    corresponding 'FIELDS' class constant.
+
+    Each entry should either be:
+
+    A. A `numpy.dtype` object.
+
+    D. None, indicating that the first instance of this field will not
+       be known until runtime. Any field that is returned by a record
+       producing method will automatically interpreted as None if not
+       specified here.
+
+    """
 
     PROGRESS_RECORD_FIELDS = ()
+    """Optional, names of fields to be selected for truncated
+    representation of the record group.
+
+    These entries should be strings that are previously contained in
+    the 'FIELDS' class constant.
+
+    While strictly no constraints on to which fields can be added here
+    you should only choose those fields whose features could fit into
+    a plaintext csv or similar format.
+
+    """
 
     def __init__(self, **kwargs):
 

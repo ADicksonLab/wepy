@@ -40,8 +40,7 @@ is really only used internally within the ~WepyHDF5~ class to
 distinguish how it stores them, but this distinction is useful in data
 analysis as well.
 
-
-*** Resampling Records
+**** Resampling Records
 The ='resampling'= records are probably the most important records for
 ~wepy~ because they are what records the cloning and merging of
 walkers.
@@ -152,7 +151,7 @@ For example in the WExplore resampler the region the walker was
 assigned to is also given.
 
 
-*** Warping Records
+**** Warping Records
 
 The next most important record is the warping records.
 
@@ -178,7 +177,7 @@ case you could have a field called ='color'= which is the new "color" of
 the walker which indicates the last boundary it crossed and could be a
 string or an integer enumeration.
 
-*** Boundary Condition Records
+**** Boundary Condition Records
 
 This and all the other record groups are really optional.
 
@@ -188,7 +187,7 @@ the state of the boundary condition object.
 For example if the cutoff value for a ligand unbinding boundary
 condition changes during a simulation.
 
-*** Resampler Records
+**** Resampler Records
 
 These records report on events changing of the state of the resampler.
 
@@ -203,7 +202,7 @@ walkers.
 
 Its up to the writer of the resampler to decide.
 
-*** Progress Records
+**** Progress Records
 
 Progress records are provided mainly as a convenience to get on-line
 data analysis of walkers during a simulation.
@@ -232,7 +231,7 @@ Perhaps such analysis could be implemented as analysis submodules in
 the ~WepyHDF5Reporter~ to keep a single stream of data, if you think
 that way go ahead and make a pull request.
 
-** Specifying Record Group Fields
+*** Specifying Record Group Fields
 
 Each record group should have three class constants defined for it.
 
@@ -300,7 +299,7 @@ Each non-None dtype should be a numpy dtype object. This is necessary
 for serializing the datatype to the HDF5 (using the
 ~numpy.dtype.descr~ attribute).
 
-** Record Fields
+*** Record Fields
 
 One additional class constant can be defined to make analysis in the
 future easier.
