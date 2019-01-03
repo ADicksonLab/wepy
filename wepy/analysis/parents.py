@@ -633,7 +633,8 @@ class ParentForest():
     @property
     def n_steps(self):
         """Number of steps of resampling in the parent forest."""
-        return self._n_steps
+
+        return len(self.parent_table
 
     def step(self, step_idx):
         """Get the nodes at the step (level of the tree).
