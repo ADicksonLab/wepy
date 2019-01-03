@@ -249,73 +249,98 @@ class BoundaryConditions(object):
     """
 
     def __init__(self, **kwargs):
+        """Null constructor accepts and ignores any key word arguments. """
 
         pass
 
     def bc_field_names(self):
-        """ """
+        """Access the class level FIELDS constant for this record group."""
         return self.BC_FIELDS
 
     def bc_field_shapes(self):
-        """ """
+        """Access the class level SHAPES constant for this record group."""
         return self.BC_SHAPES
 
     def bc_field_dtypes(self):
-        """ """
+        """Access the class level DTYPES constant for this record group."""
         return self.BC_DTYPES
 
     def bc_fields(self):
-        """ """
+        """Returns a list of zipped field specs.
+
+        Returns
+        -------
+
+        record_specs : list of tuple
+            A list of the specs for each field, a spec is a tuple of
+            type (field_name, shape_spec, dtype_spec)
+        """
         return list(zip(self.bc_field_names(),
                    self.bc_field_shapes(),
                    self.bc_field_dtypes()))
 
     def bc_record_field_names(self):
-        """ """
+        """Access the class level RECORD_FIELDS constant for this record group."""
         return self.BC_RECORD_FIELDS
 
     def warping_field_names(self):
-        """ """
+        """Access the class level FIELDS constant for this record group."""
         return self.WARPING_FIELDS
 
     def warping_field_shapes(self):
-        """ """
+        """Access the class level SHAPES constant for this record group."""
         return self.WARPING_SHAPES
 
     def warping_field_dtypes(self):
-        """ """
+        """Access the class level DTYPES constant for this record group."""
         return self.WARPING_DTYPES
 
     def warping_fields(self):
-        """ """
+        """Returns a list of zipped field specs.
+
+        Returns
+        -------
+
+        record_specs : list of tuple
+            A list of the specs for each field, a spec is a tuple of
+            type (field_name, shape_spec, dtype_spec)
+        """
         return list(zip(self.warping_field_names(),
                    self.warping_field_shapes(),
                    self.warping_field_dtypes()))
 
     def warping_record_field_names(self):
-        """ """
+        """Access the class level RECORD_FIELDS constant for this record group."""
         return self.WARPING_RECORD_FIELDS
 
     def progress_field_names(self):
-        """ """
+        """Access the class level FIELDS constant for this record group."""
         return self.PROGRESS_FIELDS
 
     def progress_field_shapes(self):
-        """ """
+        """Access the class level SHAPES constant for this record group."""
         return self.PROGRESS_SHAPES
 
     def progress_field_dtypes(self):
-        """ """
+        """Access the class level DTYPES constant for this record group."""
         return self.PROGRESS_DTYPES
 
     def progress_fields(self):
-        """ """
+        """Returns a list of zipped field specs.
+
+        Returns
+        -------
+
+        record_specs : list of tuple
+            A list of the specs for each field, a spec is a tuple of
+            type (field_name, shape_spec, dtype_spec)
+        """
         return list(zip(self.progress_field_names(),
                    self.progress_field_shapes(),
                    self.progress_field_dtypes()))
 
     def progress_record_field_names(self):
-        """ """
+        """Access the class level RECORD_FIELDS constant for this record group."""
         return self.PROGRESS_RECORD_FIELDS
 
     def progress(self, walker):

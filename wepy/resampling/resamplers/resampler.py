@@ -208,47 +208,63 @@ class Resampler():
         self.set_debug_mode(debug_mode)
 
     def resampling_field_names(self):
-        """ """
+        """Access the class level FIELDS constant for this record group."""
         return self.RESAMPLING_FIELDS
 
     def resampling_field_shapes(self):
-        """ """
+        """Access the class level SHAPES constant for this record group."""
         return self.RESAMPLING_SHAPES
 
     def resampling_field_dtypes(self):
-        """ """
+        """Access the class level DTYPES constant for this record group."""
         return self.RESAMPLING_DTYPES
 
     def resampling_fields(self):
-        """ """
+        """Returns a list of zipped field specs.
+
+        Returns
+        -------
+
+        record_specs : list of tuple
+            A list of the specs for each field, a spec is a tuple of
+            type (field_name, shape_spec, dtype_spec)
+        """
         return list(zip(self.resampling_field_names(),
                    self.resampling_field_shapes(),
                    self.resampling_field_dtypes()))
 
     def resampling_record_field_names(self):
-        """ """
+        """Access the class level RECORD_FIELDS constant for this record group."""
         return self.RESAMPLING_RECORD_FIELDS
 
     def resampler_field_names(self):
-        """ """
+        """Access the class level FIELDS constant for this record group."""
         return self.RESAMPLER_FIELDS
 
     def resampler_field_shapes(self):
-        """ """
+        """Access the class level SHAPES constant for this record group."""
         return self.RESAMPLER_SHAPES
 
     def resampler_field_dtypes(self):
-        """ """
+        """Access the class level DTYPES constant for this record group."""
         return self.RESAMPLER_DTYPES
 
     def resampler_fields(self):
-        """ """
+        """Returns a list of zipped field specs.
+
+        Returns
+        -------
+
+        record_specs : list of tuple
+            A list of the specs for each field, a spec is a tuple of
+            type (field_name, shape_spec, dtype_spec)
+        """
         return list(zip(self.resampler_field_names(),
                    self.resampler_field_shapes(),
                    self.resampler_field_dtypes()))
 
     def resampler_record_field_names(self):
-        """ """
+        """Access the class level RECORD_FIELDS constant for this record group."""
         return self.RESAMPLER_RECORD_FIELDS
 
     @property
