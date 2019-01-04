@@ -1,12 +1,83 @@
+"""Module for the main simulation management class.
+
+All component class interfaces are set by how the manager interacts
+with them.
+
+Managers should implement a three phase protocol for running
+simulations:
+
+- init
+- run_simulation
+- cleanup
+
+The separate `init` method is different than the constructor
+`__init__` method and instead calls the special `init` method on all
+wepy components (runner, resampler, boundary conditions, and
+reporters) at runtime.
+
+This allows for a things that need to be done at runtime before a
+simulation begins, e.g. opening files, that you don't want done at
+construction time.
+
+This is useful for orchestration because the complete simulation
+'image' can be made before runtime (and pickled or otherwise
+persisted) without producing external effects.
+
+This is used primarily for reporters, which perform I/O, and work
+mappers which may spawn processes.
+
+The `cleanup` method should be called either when the simulation ends
+normally as well as when the simulation ends abnormally.
+
+This allows file handles to be closed and processes to be killed at
+the end of a simulation and upon failure.
+
+
+The base methods for running simulations is `run_cycle` which runs
+a cycle of weighted ensemble given the state of all the components.
+
+The simulation manager should provide multiple ways of running
+simulations depending on if the number of cycles is known up front or
+to be determined adaptively (e.g. according to some time limit).
+
+"""
+
 import sys
 import time
 from copy import deepcopy
 import logging
 
-from wepy.work_mapper.mapper import Mapper
-
 class Manager(object):
-    """ """
+    """The class that coordinates wepy simulations.
+
+    The Manager class is the lynchpin of wepy simulations and is where
+    all the different components are composed.
+
+    Strictly speaking the Manager defines the interfaces each
+    component must provide to function.
+
+    Developers can call `run_cycle` directly but the following
+    convenience functions are provided to run many cycles in
+    succession as a single 'run' with consecutive cycle idxs:
+
+    - run_simulation_by_time
+    - run_simulation
+
+    The corresponding 'continue' run methods will simply pass a run
+    index to reporters indicating that the run continues another.
+
+    For these run methods the `init` method is called followed by
+    iterative calls to `run_cycle` and finally with a call to
+    `cleanup`.
+
+    The order of application of wepy components are:
+
+    - runner
+    - boundary_conditions
+    - resampler
+    - reporters
+
+    """
 
 
     REPORT_ITEM_KEYS = ('cycle_idx', 'n_segment_steps',
@@ -15,14 +86,58 @@ class Manager(object):
                         'resampling_data', 'resampler_data',
                         'worker_segment_times', 'cycle_runner_time',
                         'cycle_bc_time', 'cycle_resampling_time',)
+    """Keys of values that will be passed to reporters.
+
+    This indicates the values that the reporters will have access to.
+    """
 
     def __init__(self, init_walkers,
                  runner = None,
+                 work_mapper = None,
                  resampler = None,
                  boundary_conditions = None,
-                 reporters = None,
-                 work_mapper = None
-    ):
+                 reporters = None):
+        """Constructor for Manager.
+
+        Arguments
+        ---------
+
+        init_walkers : list of walkers
+            The list of the initial walkers that will be run.
+
+        runner : object implementing the Runner interface
+            The runner to be used for propagating sampling segments of walkers.
+
+        work_mapper : object implementing the WorkMapper interface
+            The object that will be used to perform a set of runner
+            segments in a cycle.
+
+        resampler : object implementing the Resampler interface
+            The resampler to be used in the simulation
+
+        boundary_conditions : object implementing BoundaryCondition interface, optional
+            The boundary conditions to apply to walkers
+
+        reporters : list of objects implenting the Reporter interface, optional
+            Reporters to be used. You should provide these if you want to keep data.
+
+        Warnings
+        --------
+
+        While reporters are strictly optional, you probably want to
+        provide some because the simulation manager provides no
+        utilities for saving data from the simulations except for the
+        walkers at the end of a cycle or simulation.
+
+        See Also
+        --------
+        wepy.reporter.hdf5 : The standard reporter for molecular simulations in wepy.
+
+        wepy.orchestration.orchestrator.Orchestrator : for running simulations with
+            checkpointing, restarting, reporter localization, and configuration hotswapping
+            with command line interface.
+
+        """
 
         self.init_walkers = init_walkers
         self.n_init_walkers = len(init_walkers)
@@ -46,15 +161,22 @@ class Manager(object):
     def run_segment(self, walkers, segment_length):
         """Run a time segment for all walkers using the available workers.
 
+        Maps the work for running each segment for each walker using
+        the work mapper.
+
+        Walkers will have the same weights but different states.
+
         Parameters
         ----------
-        walkers :
-            
-        segment_length :
-            
+        walkers : list of walkers
+        segment_length : int
+            Number of steps to run in each segment.
 
         Returns
         -------
+
+        new_walkers : list of walkers
+           The walkers after the segment of sampling simulation.
 
         """
 
@@ -71,6 +193,55 @@ class Manager(object):
         return new_walkers
 
     def run_cycle(self, walkers, n_segment_steps, cycle_idx):
+        """Run a full cycle of weighted ensemble simulation using each
+        component.
+
+        The order of application of wepy components are:
+
+        - runner
+        - boundary_conditions
+        - resampler
+        - reporters
+
+        The `init` method should have been called before this or
+        components may fail.
+
+        This method is not idempotent and will alter the state of wepy
+        components.
+
+        The cycle is not kept as a state variable of the simulation
+        manager and so myst be provided here. This motivation for this
+        is that a cycle index is really a property of a run and runs
+        can be composed in many ways and is then handled by
+        higher-level methods calling run_cycle.
+
+        Parameters
+        ----------
+        walkers : list of walkers
+
+        n_segment_steps : int
+            Number of steps to run in each segment.
+
+        cycle_idx : int
+            The index of this cycle.
+
+        Returns
+        -------
+
+        new_walkers : list of walkers
+            The resulting walkers of the cycle
+
+        sim_components : list
+            The runner, resampler, and boundary conditions
+            objects at the end of the cycle.
+
+        See Also
+        --------
+        run_simulation : To run a simulation by the number of cycles
+        run_simulation_by_time
+
+        """
+
 
         # this one is called to just easily be able to catch all the
         # errors from it so we can cleanup if an error is caught
@@ -90,21 +261,7 @@ class Manager(object):
             raise err
 
     def _run_cycle(self, walkers, n_segment_steps, cycle_idx):
-        """
-
-        Parameters
-        ----------
-        walkers :
-            
-        n_segment_steps :
-            
-        cycle_idx :
-            
-
-        Returns
-        -------
-
-        """
+        """See run_cycle."""
 
         logging.info("Begin cycle {}".format(cycle_idx))
 
@@ -206,17 +363,43 @@ class Manager(object):
         return walkers, filters
 
     def init(self, num_workers=None, continue_run=None):
-        """
+        """Initialize wepy configuration components for use at runtime.
+
+        This `init` method is different than the constructor
+        `__init__` method and instead calls the special `init` method
+        on all wepy components (runner, resampler, boundary
+        conditions, and reporters) at runtime.
+
+        This allows for a things that need to be done at runtime before a
+        simulation begins, e.g. opening files, that you don't want done at
+        construction time.
+
+        It calls the `init` methods on:
+
+        - work_mapper
+        - reporters
+
+        Passes the segment_func of the runner and the number of
+        workers to the work_mapper.
+
+        Passes the following things to each reporter `init` method:
+
+        - init_walkers
+        - runner
+        - resampler
+        - boundary_conditions
+        - work_mapper
+        - reporters
+        - continue_run
 
         Parameters
         ----------
-        num_workers :
+        num_workers : int
+            The number of workers to use in the work mapper.
              (Default value = None)
-        continue_run :
+        continue_run : int
+            Index of a run this one is continuing.
              (Default value = None)
-
-        Returns
-        -------
 
         """
 
@@ -240,7 +423,27 @@ class Manager(object):
                           continue_run=continue_run)
 
     def cleanup(self):
-        """ """
+        """Perform cleanup actions for wepy configuration components.
+
+        Allow components to perform actions before ending the main
+        simulation manager process.
+
+        Calls the `cleanup` method on:
+
+        - work_mapper
+        - reporters
+
+        Passes nothing to the work mapper.
+
+        Passes the following to each reporter:
+
+        - runner
+        - work_mapper
+        - resampler
+        - boundary_conditions
+        - reporters
+
+        """
 
         # cleanup the mapper
         self.work_mapper.cleanup()
@@ -255,28 +458,44 @@ class Manager(object):
 
 
     def run_simulation_by_time(self, run_time, segments_length, num_workers=None):
-        """Run a simulation for a certain amount of time. This starts timing
-        as soon as this is called. If the time before running a new
-        cycle is greater than the runtime the run will exit after
-        cleaning up. Once a cycle is started it may also run over the
-        wall time.
-        
-        run_time :: float (in seconds)
-        
-        segments_length :: int ; number of iterations performed for
-                                 each walker segment for each cycle
+        """Run a simulation for a certain amount of time.
+
+        This starts timing as soon as this is called. If the time
+        before running a new cycle is greater than the runtime the run
+        will exit after cleaning up. Once a cycle is started it may
+        also run over the wall time.
+
+        All this does is provide a run idx to the reporters, which is
+        the run that is intended to be continued. This simulation
+        manager knows no details and is left up to the reporters to
+        handle this appropriately.
 
         Parameters
         ----------
-        run_time :
-            
-        segments_length :
-            
-        num_workers :
+        run_time : float
+            The time to run in seconds.
+
+        segments_length : int
+            The number of steps for each runner segment.
+
+        num_workers : int
+            The number of workers to use for the work mapper.
              (Default value = None)
 
         Returns
         -------
+        new_walkers : list of walkers
+            The resulting walkers of the cycle
+
+        sim_components : list
+            Deep copies of the runner, resampler, and boundary
+            conditions objects at the end of the cycle.
+
+        See Also
+        --------
+        wepy.orchestration.orchestrator.Orchestrator : for running simulations with
+            checkpointing, restarting, reporter localization, and configuration hotswapping
+            with command line interface.
 
         """
         start_time = time.time()
@@ -298,20 +517,34 @@ class Manager(object):
         return walkers, deepcopy(filters)
 
     def run_simulation(self, n_cycles, segment_lengths, num_workers=None):
-        """Run a simulation for a given number of cycles with specified
-        lengths of MD segments in between.
+        """Run a simulation for an explicit number of cycles.
 
         Parameters
         ----------
-        n_cycles :
-            
-        segment_lengths :
-            
-        num_workers :
+        n_cycles : int
+            Number of cycles to perform.
+
+        segment_lengths : int
+            The number of steps for each runner segment.
+
+        num_workers : int
+            The number of workers to use for the work mapper.
              (Default value = None)
 
         Returns
         -------
+        new_walkers : list of walkers
+            The resulting walkers of the cycle
+
+        sim_components : list
+            Deep copies of the runner, resampler, and boundary
+            conditions objects at the end of the cycle.
+
+        See Also
+        --------
+        wepy.orchestration.orchestrator.Orchestrator : for running simulations with
+            checkpointing, restarting, reporter localization, and configuration hotswapping
+            with command line interface.
 
         """
 
@@ -334,17 +567,33 @@ class Manager(object):
 
         Parameters
         ----------
-        run_idx :
-            
-        n_cycles :
-            
-        segment_lengths :
-            
-        num_workers :
+        run_idx : int
+            Index of the run you are continuing.
+
+        n_cycles : int
+            Number of cycles to perform.
+
+        segment_lengths : int
+            The number of steps for each runner segment.
+
+        num_workers : int
+            The number of workers to use for the work mapper.
              (Default value = None)
 
         Returns
         -------
+        new_walkers : list of walkers
+            The resulting walkers of the cycle
+
+        sim_components : list
+            Deep copies of the runner, resampler, and boundary
+            conditions objects at the end of the cycle.
+
+        See Also
+        --------
+        wepy.orchestration.orchestrator.Orchestrator : for running simulations with
+            checkpointing, restarting, reporter localization, and configuration hotswapping
+            with command line interface.
 
         """
 
@@ -362,24 +611,30 @@ class Manager(object):
 
 
     def continue_run_simulation_by_time(self, run_idx, run_time, segments_length, num_workers=None):
-        """Continue a simulation. All this does is provide a run idx to the
-        reporters, which is the run that is intended to be
-        continued. This simulation manager knows no details and is
-        left up to the reporters to handle this appropriately.
+        """Continue a simulation with a separate run by time.
+
+        This starts timing as soon as this is called. If the time
+        before running a new cycle is greater than the runtime the run
+        will exit after cleaning up. Once a cycle is started it may
+        also run over the wall time.
+
+        All this does is provide a run idx to the reporters, which is
+        the run that is intended to be continued. This simulation
+        manager knows no details and is left up to the reporters to
+        handle this appropriately.
 
         Parameters
         ----------
-        run_idx :
-            
-        run_time :
-            
-        segments_length :
-            
-        num_workers :
-             (Default value = None)
+        run_idx : int
+            Deep copies of the runner, resampler, and boundary
+            conditions objects at the end of the cycle.
 
-        Returns
-        -------
+
+        See Also
+        --------
+        wepy.orchestration.orchestrator.Orchestrator : for running simulations with
+            checkpointing, restarting, reporter localization, and configuration hotswapping
+            with command line interface.
 
         """
 

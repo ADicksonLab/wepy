@@ -1,3 +1,4 @@
+"""Boundary conditions for ligand unbinding simulations."""
 
 import sys
 import itertools as it
@@ -14,67 +15,228 @@ from wepy.boundary_conditions.boundary import BoundaryConditions
 from wepy.util.mdtraj import json_to_mdtraj_topology
 
 class UnbindingBC(BoundaryConditions):
+    """Boundary condition for ligand unbinding.
+
+    Walkers will be warped (discontinuously) if all atoms in the
+    ligand are at least a certain distance away from the atoms in the
+    receptor (i.e. the min-min of ligand-receptor distances > cutoff).
+
+    Warping will replace the walker state with the initial state given
+    as a parameter to this class.
+
+    Also reports on the progress of that min-min for each walker.
+
+    """
 
     # records of boundary condition changes (sporadic)
     BC_FIELDS = ('boundary_distance', )
+    """Records for the state of this record group.
+
+    Only occurs at the start of the simulation and just reports on the
+    min-min cutoff distance.
+
+    See Also
+    --------
+    boundary_conditions.boundary.BC_FIELDS : For explanation of format.
+    """
+
     BC_SHAPES = ((1,), )
+    """Shapes of record group features.
+
+    See Also
+    --------
+    boundary_conditions.boundary.BC_SHAPES : For explanation of format.
+
+    """
+
     BC_DTYPES = (np.float, )
+    """Datatypes of record group features.
+
+    See Also
+    --------
+    boundary_conditions.boundary.BC_DTYPES : For explanation of format.
+
+    """
 
     BC_RECORD_FIELDS = ('boundary_distance', )
+    """Fields included in truncated record group.
+
+    See Also
+    --------
+    boundary_conditions.boundary.BC_RECORD_FIELDS : For explanation of format.
+
+    """
 
     # warping (sporadic)
     WARPING_FIELDS = ('walker_idx', 'target_idx', 'weight')
+    """Records for the state of this record group.
+
+    The 'walker_idx' is the index of the walker that was warped and
+    'weight' is the weight of that walker.
+
+    The 'target_idx' specifies the target of the warping, which is
+    always 0 since all warped walkers have their state replaced with
+    the initial state.
+
+    See Also
+    --------
+    boundary_conditions.boundary.WARPING_FIELDS : For explanation of format.
+
+    """
+
     WARPING_SHAPES = ((1,), (1,), (1,))
+    """Shapes of record group features.
+
+    See Also
+    --------
+    boundary_conditions.boundary.WARPING_SHAPES : For explanation of format.
+
+    """
+
     WARPING_DTYPES = (np.int, np.int, np.float)
+    """Datatypes of record group features.
+
+    See Also
+    --------
+    boundary_conditions.boundary.WARPING_DTYPES : For explanation of format.
+
+    """
 
     WARPING_RECORD_FIELDS = ('walker_idx', 'target_idx', 'weight')
+    """Fields included in truncated record group.
+
+    See Also
+    --------
+    boundary_conditions.boundary.WARPING_RECORD_FIELDS : For explanation of format.
+
+    """
 
     # progress towards the boundary conditions (continual)
     PROGRESS_FIELDS = ('min_distances',)
+    """Records for the state of this record group.
+
+    The 'min_distances' field reports on the min-min ligand-receptor
+    distance for each walker.
+
+    See Also
+    --------
+    boundary_conditions.boundary.PROGRESS_FIELDS : For explanation of format.
+
+    """
+
     PROGRESS_SHAPES = (Ellipsis,)
+    """Shapes of record group features.
+
+    See Also
+    --------
+    boundary_conditions.boundary.PROGRESS_SHAPES : For explanation of format.
+
+    """
+
     PROGRESS_DTYPES = (np.float,)
+    """Datatypes of record group features.
+
+    See Also
+    --------
+    boundary_conditions.boundary.PROGRESS_DTYPES : For explanation of format.
+
+    """
 
     PROGRESS_RECORD_FIELDS = ('min_distances', )
+    """Fields included in truncated record group.
+
+    See Also
+    --------
+    boundary_conditions.boundary.PROGRESS_RECORD_FIELDS : For explanation of format.
+
+    """
 
 
     # for boundary conditions that warp things around certain targets
     # mayb not introduce discontiuities, these target idxs do
     DISCONTINUITY_TARGET_IDXS = (0,)
+    """Specifies which 'target_idxs' values are considered discontinuous targets."""
 
     def __init__(self, initial_state=None,
                  cutoff_distance=1.0,
                  topology=None,
                  ligand_idxs=None,
                  receptor_idxs=None):
+        """Constructor for UnbindingBC class.
 
-        super().__init__()
+        All the key-word arguments are necessary.
+
+        The 'initial_state' should be the initial state of your
+        simulation for proper non-equilibrium simulations.
+
+        Arguments
+        ---------
+        initial_state : object implementing State interface
+            The state walkers will take on after unbinding.
+
+        cutoff_distance : float
+            The distance that specifies the boundary condition. When
+            the min-min ligand-receptor distance is less than this it
+            will be warped.
+
+        topology : str
+            A JSON string of topology.
+
+        ligand_idxs : list of int
+           Indices of the atoms in the topology that correspond to the ligands.
+
+        receptor_idxs : list of int
+           Indices of the atoms in the topology that correspond to the
+           receptor for the ligand.
+
+        Raises
+        ------
+        AssertionError
+            If any of the following are not provided: initial_state, topology,
+            ligand_idxs, receptor_idxs
+
+        AssertionError
+            If the cutoff distance is not a float.
+
+        Warnings
+        --------
+        The 'initial_state' should be the initial state of your
+        simulation for proper non-equilibrium simulations.
+
+        Notes
+        -----
+
+        The topology argument is necessary due to an implementation
+        detail that uses mdtraj and may not be required in the future.
+
+        """
+
+        # since the super class can handle multiple initial states we
+        # wrap the single initial state to a list.
+        super().__init__(initial_states=[initial_state],
+                         ligand_idxs=ligand_idxs,
+                         receptor_idxs=receptor_idxs)
 
         # test input
-        assert initial_state is not None, "Must give an initial state"
         assert topology is not None, "Must give a reference topology"
-        assert ligand_idxs is not None
-        assert receptor_idxs is not None
         assert type(cutoff_distance) is float
 
-        self.initial_state = initial_state
-        self.cutoff_distance = cutoff_distance
-        self.topology = topology
-
-        self.ligand_idxs = ligand_idxs
-        self.receptor_idxs = receptor_idxs
+        self._cutoff_distance = cutoff_distance
+        self._topology = topology
 
     def _calc_angle(self, v1, v2):
-        """
+        """Calculates the angle between two vectors.
 
         Parameters
         ----------
-        v1 :
-            
-        v2 :
-            
+        v1 : arraylike of rank 1
+        v2 : arraylike of rank 1
 
         Returns
         -------
+
+        angle : float
+            In degrees.
 
         """
         return np.degrees(np.arccos(np.dot(v1, v2)/(la.norm(v1) * la.norm(v2))))
@@ -84,25 +246,25 @@ class UnbindingBC(BoundaryConditions):
 
         Parameters
         ----------
-        v :
-            
+        v : arraylike of rank 1
 
         Returns
         -------
+        length : float
 
         """
         return la.norm(v)
 
     def _calc_min_distance(self, walker):
-        """
+        """Min-min distance for a walker.
 
         Parameters
         ----------
-        walker :
-            
+        walker
 
         Returns
         -------
+        min_distance : float
 
         """
         # convert box_vectors to angles and lengths for mdtraj
@@ -132,16 +294,22 @@ class UnbindingBC(BoundaryConditions):
                                                                self.receptor_idxs)))
         return min_distance
 
-    def progress(self, walker):
-        """
+    def _progress(self, walker):
+        """Calculate whether a walker has unbound and also provide a
+        dictionary for a single walker in the progress records.
 
         Parameters
         ----------
-        walker :
-            
+        walker
 
         Returns
         -------
+        unbound : bool
+           Whether the walker is unbound (warped) or not
+
+        progress_data : dict of str : value
+           Dictionary of the progress record group fields
+           for this walker alone.
 
         """
 
@@ -156,16 +324,21 @@ class UnbindingBC(BoundaryConditions):
 
         return unbound, progress_data
 
-    def warp(self, walker):
-        """
+    def _warp(self, walker):
+        """Perform the warping on a walker. Replaces its state
+        with the initial_state.
 
         Parameters
         ----------
-        walker :
-            
+        walker
 
         Returns
         -------
+        warped_walker
+           Walker with initial_state state
+
+        warp_data : dict
+           Dictionary-style record for this warping event.
 
         """
 
@@ -185,26 +358,25 @@ class UnbindingBC(BoundaryConditions):
 
         return warped_walker, warp_data
 
-    def update_bc(self, new_walkers, warp_data, progress_data, cycle):
+    def _update_bc(self, new_walkers, warp_data, progress_data, cycle):
         """
 
         Parameters
         ----------
-        new_walkers :
-            
-        warp_data :
-            
-        progress_data :
-            
-        cycle :
-            
+        new_walkers : list of walkers
+            The walkers after warping.
+        warp_data : list of dict
+        progress_data : dict
+        cycle : int
 
         Returns
         -------
+        bc_data : list of dict
+            The dictionary-style records for BC update events
 
         """
 
-        # TODO just for testing if this works. only report a record on
+        # Only report a record on
         # the first cycle which gives the distance at which walkers
         # are warped
         if cycle == 0:
@@ -213,19 +385,7 @@ class UnbindingBC(BoundaryConditions):
             return []
 
     def warp_walkers(self, walkers, cycle):
-        """
-
-        Parameters
-        ----------
-        walkers :
-            
-        cycle :
-            
-
-        Returns
-        -------
-
-        """
+        # documented in superclass
 
         new_walkers = []
 
@@ -239,7 +399,7 @@ class UnbindingBC(BoundaryConditions):
         for walker_idx, walker in enumerate(walkers):
             # check if it is unbound, also gives the minimum distance
             # between guest and host
-            unbound, walker_progress_data = self.progress(walker)
+            unbound, walker_progress_data = self._progress(walker)
 
             # add that to the progress data record
             for key, value in walker_progress_data.items():
@@ -248,7 +408,7 @@ class UnbindingBC(BoundaryConditions):
             # if the walker is unbound we need to warp it
             if unbound:
                 # warp the walker
-                warped_walker, walker_warp_data = self.warp(walker)
+                warped_walker, walker_warp_data = self._warp(walker)
 
                 # add the walker idx to the walker warp record
                 walker_warp_data['walker_idx'] = np.array([walker_idx])
@@ -275,24 +435,13 @@ class UnbindingBC(BoundaryConditions):
         # if the boundary conditions need to be updated given the
         # cycle and state from warping perform that now and return any
         # record data for that
-        bc_data = self.update_bc(new_walkers, warp_data, progress_data, cycle)
+        bc_data = self._update_bc(new_walkers, warp_data, progress_data, cycle)
 
         return new_walkers, warp_data, bc_data, progress_data
 
     @classmethod
     def warping_discontinuity(cls, warping_record):
-        """Given a warping record returns either True for a discontiuity
-        occured or False if a discontinuity did not occur.
-
-        Parameters
-        ----------
-        warping_record :
-            
-
-        Returns
-        -------
-
-        """
+        # documented in superclass
 
         # the target_idxs are one of the discontinuous targets
         if warping_record[2] in cls.DISCONTINUITY_TARGET_IDXS:

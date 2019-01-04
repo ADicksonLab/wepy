@@ -15,17 +15,161 @@ class Resampler():
     """ """
     # data for resampling performed (continual)
     RESAMPLING_FIELDS = ()
+    """String names of fields produced in this record group.
+
+    Resampling records are typically used to report on the details of
+    how walkers are resampled for a given resampling step.
+
+    Warning
+    -------
+
+    This is a critical function of many other components of the wepy
+    framework and probably shouldn't be altered by most developers.
+
+    Thi is where the information about cloning and merging of walkers
+    is given. Seeing as this is a most of the value proposition of
+    wepy as a tool getting rid of it will render most of the framework
+    useless.
+
+    But sticking to the 'loosely coupled, tightly integrated' mantra
+    you are free to modify these fields. This would be useful for
+    implementing resampling strategies that do not follow basic
+    cloning and merging. Just beware, that most of the lineage based
+    analysis will be broken without implementing a new Decision class.
+
+    """
+
     RESAMPLING_SHAPES = ()
+    """Numpy-style shapes of all fields produced in records.
+
+    There should be the same number of elements as there are in the
+    corresponding 'FIELDS' class constant.
+
+    Each entry should either be:
+
+    A. A tuple of ints that specify the shape of the field element
+       array.
+
+    B. Ellipsis, indicating that the field is variable length and
+       limited to being a rank one array (e.g. (3,) or (1,)).
+
+    C. None, indicating that the first instance of this field will not
+       be known until runtime. Any field that is returned by a record
+       producing method will automatically interpreted as None if not
+       specified here.
+
+    Note that the shapes must be tuple and not simple integers for rank-1
+    arrays.
+
+    Option B will result in the special h5py datatype 'vlen' and
+    should not be used for large datasets for efficiency reasons.
+
+    """
+
     RESAMPLING_DTYPES = ()
+    """Specifies the numpy dtypes to be used for records.
+
+    There should be the same number of elements as there are in the
+    corresponding 'FIELDS' class constant.
+
+    Each entry should either be:
+
+    A. A `numpy.dtype` object.
+
+    D. None, indicating that the first instance of this field will not
+       be known until runtime. Any field that is returned by a record
+       producing method will automatically interpreted as None if not
+       specified here.
+
+    """
 
     RESAMPLING_RECORD_FIELDS = ()
+    """Optional, names of fields to be selected for truncated
+    representation of the record group.
+
+    These entries should be strings that are previously contained in
+    the 'FIELDS' class constant.
+
+    While strictly no constraints on to which fields can be added here
+    you should only choose those fields whose features could fit into
+    a plaintext csv or similar format.
+
+    """
 
     # changes to the state of the resampler (sporadic)
     RESAMPLER_FIELDS = ()
+    """String names of fields produced in this record group.
+
+    Resampler records are typically used to report on changes in the
+    state of the resampler.
+
+    Notes
+    -----
+
+    These fields are not critical to the proper functioning of the
+    rest of the wepy framework and can be modified freely.
+
+    However, reporters specific to this resampler probably will make
+    use of these records.
+
+    """
+
     RESAMPLER_SHAPES = ()
+    """Numpy-style shapes of all fields produced in records.
+
+    There should be the same number of elements as there are in the
+    corresponding 'FIELDS' class constant.
+
+    Each entry should either be:
+
+    A. A tuple of ints that specify the shape of the field element
+       array.
+
+    B. Ellipsis, indicating that the field is variable length and
+       limited to being a rank one array (e.g. (3,) or (1,)).
+
+    C. None, indicating that the first instance of this field will not
+       be known until runtime. Any field that is returned by a record
+       producing method will automatically interpreted as None if not
+       specified here.
+
+    Note that the shapes must be tuple and not simple integers for rank-1
+    arrays.
+
+    Option B will result in the special h5py datatype 'vlen' and
+    should not be used for large datasets for efficiency reasons.
+
+    """
+
     RESAMPLER_DTYPES = ()
+    """Specifies the numpy dtypes to be used for records.
+
+    There should be the same number of elements as there are in the
+    corresponding 'FIELDS' class constant.
+
+    Each entry should either be:
+
+    A. A `numpy.dtype` object.
+
+    D. None, indicating that the first instance of this field will not
+       be known until runtime. Any field that is returned by a record
+       producing method will automatically interpreted as None if not
+       specified here.
+
+    """
 
     RESAMPLER_RECORD_FIELDS = ()
+    """Optional, names of fields to be selected for truncated
+    representation of the record group.
+
+    These entries should be strings that are previously contained in
+    the 'FIELDS' class constant.
+
+    While strictly no constraints on to which fields can be added here
+    you should only choose those fields whose features could fit into
+    a plaintext csv or similar format.
+
+    """
 
 
     # valid debug modes
@@ -64,47 +208,63 @@ class Resampler():
         self.set_debug_mode(debug_mode)
 
     def resampling_field_names(self):
-        """ """
+        """Access the class level FIELDS constant for this record group."""
         return self.RESAMPLING_FIELDS
 
     def resampling_field_shapes(self):
-        """ """
+        """Access the class level SHAPES constant for this record group."""
         return self.RESAMPLING_SHAPES
 
     def resampling_field_dtypes(self):
-        """ """
+        """Access the class level DTYPES constant for this record group."""
         return self.RESAMPLING_DTYPES
 
     def resampling_fields(self):
-        """ """
+        """Returns a list of zipped field specs.
+
+        Returns
+        -------
+
+        record_specs : list of tuple
+            A list of the specs for each field, a spec is a tuple of
+            type (field_name, shape_spec, dtype_spec)
+        """
         return list(zip(self.resampling_field_names(),
                    self.resampling_field_shapes(),
                    self.resampling_field_dtypes()))
 
     def resampling_record_field_names(self):
-        """ """
+        """Access the class level RECORD_FIELDS constant for this record group."""
         return self.RESAMPLING_RECORD_FIELDS
 
     def resampler_field_names(self):
-        """ """
+        """Access the class level FIELDS constant for this record group."""
         return self.RESAMPLER_FIELDS
 
     def resampler_field_shapes(self):
-        """ """
+        """Access the class level SHAPES constant for this record group."""
         return self.RESAMPLER_SHAPES
 
     def resampler_field_dtypes(self):
-        """ """
+        """Access the class level DTYPES constant for this record group."""
         return self.RESAMPLER_DTYPES
 
     def resampler_fields(self):
-        """ """
+        """Returns a list of zipped field specs.
+
+        Returns
+        -------
+
+        record_specs : list of tuple
+            A list of the specs for each field, a spec is a tuple of
+            type (field_name, shape_spec, dtype_spec)
+        """
         return list(zip(self.resampler_field_names(),
                    self.resampler_field_shapes(),
                    self.resampler_field_dtypes()))
 
     def resampler_record_field_names(self):
-        """ """
+        """Access the class level RECORD_FIELDS constant for this record group."""
         return self.RESAMPLER_RECORD_FIELDS
 
     @property
@@ -412,53 +572,6 @@ class Resampler():
                                                          tuple(clone_targets))
 
         return walker_actions
-
-class ScoreDecideResampler(Resampler):
-    """Superclass for resamplers that use the the Novelty->Decider
-    framework.
-
-    Parameters
-    ----------
-
-    Returns
-    -------
-
-    """
-
-    def __init__(self, scorer, decider):
-        self.scorer = scorer
-        self.decider = decider
-        self.decision = decider.DECISION
-
-    def resample(self, walkers):
-        """
-
-        Parameters
-        ----------
-        walkers :
-            
-
-        Returns
-        -------
-
-        """
-
-        # first set how many walkers there are in this resampling
-        self._set_resample_num_walkers(len(walkers))
-
-        aux_data = {}
-
-        scores, scorer_aux = self.scorer.scores(walkers)
-        decisions, decider_aux = self.decider.decide(scores)
-        resampled_walkers = self.decider.decision.action(walkers, decisions)
-
-        aux_data.update([scorer_aux, decider_aux])
-
-        # unset the number of walkers for this resampling
-        self._unset_resampling_num_walkers()
-
-        return resampled_walkers, resampling_records, resampler_records
-
 
 class NoResampler(Resampler):
     """ """
