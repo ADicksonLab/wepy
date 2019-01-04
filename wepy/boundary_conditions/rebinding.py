@@ -16,43 +16,92 @@ from wepy.resampling.distances.receptor import RebindingDistance
 class RebindingBC(BoundaryConditions):
     """ """
 
-    WARP_INSTRUCT_DTYPE = np.dtype([('target', int)])
+    # records of boundary condition changes (sporadic)
+    BC_FIELDS = ('boundary_distance', )
+    BC_SHAPES = ((1,), )
+    BC_DTYPES = (np.float, )
 
-    WARP_AUX_DTYPES = {'cycle' : np.int, 'passage_time' :  np.float, 'warped_walker_weight' : np.float}
-    WARP_AUX_SHAPES = {'cycle' : (1,), 'passage_time' : (1,), 'warped_walker_weight' : (1,)}
+    BC_RECORD_FIELDS = ('boundary_distance', )
+
+    # warping (sporadic)
+    WARPING_FIELDS = ('walker_idx', 'target_idx', 'weight')
+    WARPING_SHAPES = ((1,), (1,), (1,))
+    WARPING_DTYPES = (np.int, np.int, np.float)
+
+    WARPING_RECORD_FIELDS = ('walker_idx', 'target_idx', 'weight')
+
+    # progress towards the boundary conditions (continual)
+    PROGRESS_FIELDS = ('min_distances',)
+    PROGRESS_SHAPES = (Ellipsis,)
+    PROGRESS_DTYPES = (np.float,)
+
+    PROGRESS_RECORD_FIELDS = ('min_distances', )
 
     def __init__(self, initial_states=None,
+                 native_state=None,
                  initial_weights=None,
                  cutoff_distance=0.2,
-                 topology=None,
                  ligand_idxs=None,
-                 binding_site_idxs=None,
-                 comp_xyz=None,
-                 alternative_maps=None):
+                 binding_site_idxs=None):
 
-        # test input
+        # make sure necessary inputs are given
         assert initial_states is not None, "Must give a set of initial states"
-        assert topology is not None, "Must give a reference topology"
-        assert comp_xyz is not None, "Must give coordinates for bound state"
-        assert ligand_idxs is not None
-        assert binding_site_idxs is not None
+        assert native_state is not None, "Must give a native state"
+        assert ligand_idxs is not None, "Must give ligand indices"
+        assert binding_site_idxs is not None, "Must give binding site indices"
+
         assert type(cutoff_distance) is float
 
-        self.initial_states = initial_states
+        # save attributes
+        self._initial_states = initial_states
+        self._native_state = native_state
+        self._cutoff_distance = cutoff_distance
+        self._ligand_idxs = ligand_idxs
+        self._bs_idxs = binding_site_idxs
+
+        # the distance metric to use to calculate for each
+        # walker. This is dependent on the native state
+        self._distance_metric = RebindingDistance(ligand_idxs,
+                                                  binding_site_idxs,
+                                                  native_state)
+
+        # we want to choose initial states conditional on their
+        # initial probability if specified. If not specified assume
+        # assume uniform probabilities.
         if initial_weights is None:
-            self.initial_weights = np.array([1] * len(initial_states))
+            self.initial_weights = [1/len(initial_states) for _ in initial_states]
         else:
-            self.initial_weights = initial_weights
-        self.cutoff_distance = cutoff_distance
-        self.topology = topology
+            self._initial_weights = initial_weights
 
-        self.native_distance = RebindingDistance(topology=topology,
-                                                 ligand_idxs=ligand_idxs,
-                                                 binding_site_idxs=binding_site_idxs,
-                                                 alt_maps=alternative_maps,
-                                                 comp_xyz=comp_xyz)
+    @property
+    def initial_states(self):
+        return self._initial_states
 
-    def check_boundaries(self, nat_rmsd):
+    @property
+    def native_state(self):
+        return self._native_state
+
+    @property
+    def cutoff_distance(self):
+        return self._cutoff_distance
+
+    @property
+    def ligand_idxs(self):
+        return self._ligand_idxs
+
+    @property
+    def binding_site_idxs(self):
+        return self._bs_idxs
+
+    @property
+    def distance_metric(self):
+        return self._distance_metric
+
+    @property
+    def initial_weights(self):
+        return self._initial_weights
+
+    def _check_boundaries(self, nat_rmsd):
         """
 
         Parameters
@@ -74,7 +123,7 @@ class RebindingBC(BoundaryConditions):
 
         return rebound, boundary_data
 
-    def warp(self, walker, cycle):
+    def _warp(self, walker, cycle):
         """
 
         Parameters
@@ -90,7 +139,8 @@ class RebindingBC(BoundaryConditions):
         """
 
         # choose a state randomly from the set of initial states
-        warped_state = choice(self.initial_states, 1, p=self.initial_weights/np.sum(self.initial_weights))[0]
+        warped_state = choice(self.initial_states, 1,
+                              p=self.initial_weights/np.sum(self.initial_weights))[0]
 
         # set the initial state into a new walker object with the same weight
         warped_walker = type(walker)(state=warped_state, weight=walker.weight)
@@ -114,19 +164,7 @@ class RebindingBC(BoundaryConditions):
         return warped_walker, warp_record, warp_data
 
     def warp_walkers(self, walkers, cycle):
-        """
-
-        Parameters
-        ----------
-        walkers :
-            
-        cycle :
-            
-
-        Returns
-        -------
-
-        """
+        # docstring in superclass
 
         new_walkers = []
         warped_walkers_records = []
@@ -137,11 +175,12 @@ class RebindingBC(BoundaryConditions):
         # warp data is collected each time a warp occurs
         cycle_warp_data = defaultdict(list)
 
-        native_rmsds = self.native_distance.get_rmsd_native(walkers)
+        native_rmsds = [self._distance_metric.distance(walker) for walker in walkers]
+
         for walker_idx, walker in enumerate(walkers):
             # check if it is unbound, also gives the minimum distance
             # between guest and host
-            rebound, boundary_data = self.check_boundaries(native_rmsds[walker_idx])
+            rebound, boundary_data = self._check_boundaries(native_rmsds[walker_idx])
 
             # add boundary data for this walker
             for key, value in boundary_data.items():
@@ -150,7 +189,7 @@ class RebindingBC(BoundaryConditions):
             # if the walker is unbound we need to warp it
             if rebound:
                 # warp the walker
-                warped_walker, warp_record, warp_data = self.warp(walker,cycle)
+                warped_walker, warp_record, warp_data = self._warp(walker,cycle)
 
                 # save warped_walker in the list of new walkers to return
                 new_walkers.append(warped_walker)
