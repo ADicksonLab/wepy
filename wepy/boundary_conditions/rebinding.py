@@ -50,13 +50,12 @@ class RebindingBC(ReceptorBC):
 
         super().__init__(initial_states=initial_states,
                          initial_weights=initial_weights,
+                         ligand_idxs=ligand_idxs,
+                         receptor_idxs=binding_site_idxs
                          )
 
-        # make sure necessary inputs are given
+        # test inputs
         assert native_state is not None, "Must give a native state"
-        assert ligand_idxs is not None, "Must give ligand indices"
-        assert binding_site_idxs is not None, "Must give binding site indices"
-
         assert type(cutoff_distance) is float
 
         # save attributes
@@ -74,11 +73,6 @@ class RebindingBC(ReceptorBC):
     @property
     def binding_site_idxs(self):
         return self._receptor_idxs
-
-    @property
-    def distance_metric(self):
-        return self._distance_metric
-
 
     def _check_boundaries(self, walker):
         """
@@ -115,113 +109,3 @@ class RebindingBC(ReceptorBC):
         boundary_data = {'native_rmsd' : native_rmsd}
 
         return rebound, progress_data
-
-    def _warp(self, walker, cycle):
-        """Perform the warping on a walker. Replaces its state
-        with the initial_state.
-
-        Parameters
-        ----------
-        walker
-
-        Returns
-        -------
-        warped_walker
-           Walker with initial_state state
-
-        warp_data : dict
-           Dictionary-style record for this warping event.
-
-        """
-
-        # choose a state randomly from the set of initial states
-        warped_state = choice(self.initial_states, 1,
-                              p=self.initial_weights/np.sum(self.initial_weights))[0]
-
-        # set the initial state into a new walker object with the same weight
-        warped_walker = type(walker)(state=warped_state, weight=walker.weight)
-
-        # thus there is only one record
-        warp_record = (0,)
-
-        # collect the passage time
-
-        # time is returned as an array because it is a feature of the
-        # walker, and domain specific. I.e. domain specific values are
-        # of type `array` while weights will always be floats in all
-        # applications.
-        time = walker.time_value()
-        warp_data = {'cycle' : np.array([cycle]), 'passage_time' : time,
-                     'warped_walker_weight' : np.array([walker.weight])}
-
-        # make the warp data mapping
-
-
-        return warped_walker, warp_record, warp_data
-
-    def warp_walkers(self, walkers, cycle):
-        # docstring in superclass
-
-        new_walkers = []
-        warped_walkers_records = []
-        cycle_bc_records = []
-
-        # boundary data is collected for each walker every cycle
-        cycle_boundary_data = defaultdict(list)
-        # warp data is collected each time a warp occurs
-        cycle_warp_data = defaultdict(list)
-
-
-
-        for walker_idx, walker in enumerate(walkers):
-            # check if it is unbound, also gives the minimum distance
-            # between guest and host
-            rebound, boundary_data = self._check_boundaries(native_rmsds[walker_idx])
-
-            # add boundary data for this walker
-            for key, value in boundary_data.items():
-                cycle_boundary_data[key].append(value)
-
-            # if the walker is unbound we need to warp it
-            if rebound:
-                # warp the walker
-                warped_walker, warp_record, warp_data = self._warp(walker,cycle)
-
-                # save warped_walker in the list of new walkers to return
-                new_walkers.append(warped_walker)
-
-                # save the record of the walker
-                warped_walkers_records.append( (walker_idx, warp_record) )
-
-                # save warp data
-                for key, value in warp_data.items():
-                    cycle_warp_data[key].append(value)
-
-                logging.info('REBINDING observed at {}'.format(
-                    warp_data['passage_time']))
-                logging.info('Warped Walker Weight = {}'.format(
-                    warp_data['warped_walker_weight']))
-
-            # no warping so just return the original walker
-            else:
-                new_walkers.append(walker)
-
-        # convert aux datas to np.arrays
-        for key, value in cycle_warp_data.items():
-            cycle_warp_data[key] = np.array(value)
-        for key, value in cycle_boundary_data.items():
-            cycle_boundary_data[key] = np.array(value)
-
-        return new_walkers, warped_walkers_records, cycle_warp_data, \
-                 cycle_bc_records, cycle_boundary_data
-
-
-    @classmethod
-    def warping_discontinuity(cls, warping_record):
-        # documented in superclass
-
-        # the target_idxs are one of the discontinuous targets
-        if warping_record[2] in cls.DISCONTINUITY_TARGET_IDXS:
-            return True
-        else:
-            return False

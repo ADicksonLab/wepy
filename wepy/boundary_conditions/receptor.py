@@ -31,6 +31,16 @@ class ReceptorBC(BoundaryConditions):
 
     PROGRESS_RECORD_FIELDS = ()
 
+
+    DISCONTINUITY_TARGET_IDXS = (Ellipsis)
+    """Specifies which 'target_idxs' values are considered discontinuous targets.
+
+    Values are either integer indices, Ellipsis (indicating all
+    possible values are discontinuous), or None indicating no possible
+    value is discontinuous.
+
+    """
+
     def __init__(self, initial_states=None,
                  initial_weights=None,
                  ligand_idxs=None,
@@ -76,7 +86,22 @@ class ReceptorBC(BoundaryConditions):
 
     def _warp(self, walker):
 
-        raise NotImplementedError
+
+        # choose a state randomly from the set of initial states
+        target_idx = choice(range(len(self.initial_states)), 1,
+                                  p=self.initial_weights/np.sum(self.initial_weights))[0]
+
+        warped_state = self.initial_states[target_idx]
+
+        # set the initial state into a new walker object with the same weight
+        warped_walker = type(walker)(state=warped_state, weight=walker.weight)
+
+        # the data for the warp
+        warp_data = {'target_idx' : np.array([target_idx]),
+                     'weight' : np.array([walker.weight])}
+
+        return warped_walker, warp_data
+
 
     def _update_bc(self, new_walkers, warp_data, progress_data, cycle):
 
@@ -138,3 +163,24 @@ class ReceptorBC(BoundaryConditions):
         bc_data = self._update_bc(new_walkers, warp_data, progress_data, cycle)
 
         return new_walkers, warp_data, bc_data, progress_data
+
+    @classmethod
+    def warping_discontinuity(cls, warping_record):
+        """ """
+
+        # if it is Ellipsis then all possible values are discontinuous
+        if cls.DISCONTINUITY_TARGET_IDXS is Ellipsis:
+            return True
+
+        # if it is None then all possible values are discontinuous
+        elif cls.DISCONTINUITY_TARGET_IDXS is None:
+            return False
+
+        # otherwise it will have a tuple of indices for the
+        # target_idxs that are discontinuous targets
+        elif warping_record[2] in cls.DISCONTINUITY_TARGET_IDXS:
+            return True
+
+        # otherwise it wasn't a discontinuous target
+        else:
+            return False
