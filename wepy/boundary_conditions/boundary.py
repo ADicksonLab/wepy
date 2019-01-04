@@ -343,70 +343,124 @@ class BoundaryConditions(object):
         """Access the class level RECORD_FIELDS constant for this record group."""
         return self.PROGRESS_RECORD_FIELDS
 
-    def progress(self, walker):
-        """Checks if a walker is in a boundary and returns which boundary it is in
+    def warp_walkers(self, walkers, cycle):
+        """Apply boundary condition logic to walkers.
+
+        If walkers satisfy the boundary conditions then they will be
+        'warped' and have a corresponding state change take
+        place. Each event recorded is returned as a single
+        dictionary-style record in 'warp_data' list. These records
+        correspond to the 'WARPING' record group.
+
+        Additional data calculated on walkers may be returned in the
+        single 'progress_data' dictionary-style record, which
+        corresponds to the 'PROGRESS' record group.
+
+        Any changes to the internal state of the boundary condition
+        object (e.g. modification of parameters) should be recorded in
+        at least one dictionary-style record in the 'bc_data'
+        list. This corresponds to the 'BC' record group.
 
         Parameters
         ----------
-        walker :
-            
+        walkers : list of walkers
+            A list of objects implementing the Walker interface
+
+        cycle : int
+            The index of the cycle this is for. Used to generate proper records.
 
         Returns
         -------
+        new_walkers : list of walkers
+            A list of objects implementing the Walker interface, that have had
+            boundary condition logic applied.
+
+        warp_data : list of dict of str : value
+            A list of dictionary style records for each warping event that occured.
+
+        bc_data : list of dict of str : value
+            A list of dictionary style records for each boundary condition state change
+            event record that occured.
+
+        progress_data : dict of str : list of value
+           Dictionary style progress records. The values should be lists
+           corresponding to each walker.
 
         """
+
         raise NotImplementedError
 
-    def warp_walkers(self, walkers):
-        """Checks walkers for membership in boundaries and processes them
-        according to the rules of the boundary.
+    @classmethod
+    def warping_discontinuity(cls, warping_record):
+        """Given a warping record returns either True for a discontiuity
+        occured or False if a discontinuity did not occur.
 
         Parameters
         ----------
-        walkers :
-            
+        warping_record : tuple
+            A tuple record of type 'WARPING'
 
         Returns
         -------
+        is_discontinuous : bool
+            True if discontinuous warping record False if continuous.
 
         """
+
         raise NotImplementedError
 
 
 
 class NoBC(BoundaryConditions):
-    """ """
+    """Boundary conditions class that does nothing.
 
-    def check_boundaries(self, walker):
-        """
+    You may use this class as a stub in order to have an boundary
+    condition class. However, this is not necessary since boundary
+    conditions are optional in the sim_manager anyhow.
+    """
 
-        Parameters
-        ----------
-        walker :
-            
+    def warp_walkers(self, walkers, cycle):
+        """Apply boundary condition logic to walkers, of which there is none.
 
-        Returns
-        -------
-
-        """
-        return False, {}
-
-    def warp_walkers(self, walkers):
-        """
+        Simply returns all walkers provided with empty records data
+        since there is nothing to do.
 
         Parameters
         ----------
-        walkers :
-            
+        walkers : list of walkers
+            A list of objects implementing the Walker interface
+
+        cycle : int
+            The index of the cycle this is for. Used to generate proper records.
 
         Returns
         -------
+        new_walkers : list of walkers
+            A list of objects implementing the Walker interface, that have had
+            boundary condition logic applied.
+
+        warp_data : list of dict of str : value
+            A list of dictionary style records for each warping event that occured.
+
+        bc_data : list of dict of str : value
+            A list of dictionary style records for each boundary condition state change
+            event record that occured.
+
+        progress_data : dict of str : list of value
+           Dictionary style progress records. The values should be lists
+           corresponding to each walker.
 
         """
-        # in order the walkers after applying warps:
-        # warping, bc, progress
-        warp_data = {}
-        bc_data = {}
+
+        warp_data = []
+        bc_data = []
         progress_data = {}
 
         return walkers, warp_data, bc_data, progress_data
+
+    @classmethod
+    def warping_discontinuity(cls, warping_record):
+        # documented in superclass
+
+        # always return false
+        return False
