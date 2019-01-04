@@ -5,6 +5,7 @@ with them.
 
 Managers should implement a three phase protocol for running
 simulations:
+
 - init
 - run_simulation
 - cleanup
@@ -353,6 +354,7 @@ class Manager(object):
         construction time.
 
         It calls the `init` methods on:
+
         - work_mapper
         - reporters
 
@@ -360,6 +362,7 @@ class Manager(object):
         workers to the work_mapper.
 
         Passes the following things to each reporter `init` method:
+
         - init_walkers
         - runner
         - resampler
@@ -405,12 +408,14 @@ class Manager(object):
         simulation manager process.
 
         Calls the `cleanup` method on:
+
         - work_mapper
         - reporters
 
         Passes nothing to the work mapper.
 
         Passes the following to each reporter:
+
         - runner
         - work_mapper
         - resampler
@@ -600,24 +605,6 @@ class Manager(object):
         Parameters
         ----------
         run_idx : int
-            Index of the run you are continuing.
-
-        run_time : float
-            The time to run in seconds.
-
-        segments_length : int
-            The number of steps for each runner segment.
-
-        num_workers : int
-            The number of workers to use for the work mapper.
-             (Default value = None)
-
-        Returns
-        -------
-        new_walkers : list of walkers
-            The resulting walkers of the cycle
-
-        sim_components : list
             Deep copies of the runner, resampler, and boundary
             conditions objects at the end of the cycle.
 
