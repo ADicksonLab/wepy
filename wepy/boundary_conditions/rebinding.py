@@ -52,7 +52,7 @@ class RebindingBC(BoundaryConditions):
                                                  alt_maps=alternative_maps,
                                                  comp_xyz=comp_xyz)
 
-    def check_boundaries(self, nat_rmsd):
+    def _check_boundaries(self, nat_rmsd):
         """
 
         Parameters
@@ -74,23 +74,27 @@ class RebindingBC(BoundaryConditions):
 
         return rebound, boundary_data
 
-    def warp(self, walker, cycle):
-        """
+    def _warp(self, walker, cycle):
+        """Perform the warping on a walker. Replaces its state
+        with the initial_state.
 
         Parameters
         ----------
-        walker :
-            
-        cycle :
-            
+        walker
 
         Returns
         -------
+        warped_walker
+           Walker with initial_state state
+
+        warp_data : dict
+           Dictionary-style record for this warping event.
 
         """
 
         # choose a state randomly from the set of initial states
-        warped_state = choice(self.initial_states, 1, p=self.initial_weights/np.sum(self.initial_weights))[0]
+        warped_state = choice(self.initial_states, 1,
+                              p=self.initial_weights/np.sum(self.initial_weights))[0]
 
         # set the initial state into a new walker object with the same weight
         warped_walker = type(walker)(state=warped_state, weight=walker.weight)
@@ -114,19 +118,7 @@ class RebindingBC(BoundaryConditions):
         return warped_walker, warp_record, warp_data
 
     def warp_walkers(self, walkers, cycle):
-        """
-
-        Parameters
-        ----------
-        walkers :
-            
-        cycle :
-            
-
-        Returns
-        -------
-
-        """
+        # documented in superclass
 
         new_walkers = []
         warped_walkers_records = []
@@ -141,7 +133,7 @@ class RebindingBC(BoundaryConditions):
         for walker_idx, walker in enumerate(walkers):
             # check if it is unbound, also gives the minimum distance
             # between guest and host
-            rebound, boundary_data = self.check_boundaries(native_rmsds[walker_idx])
+            rebound, boundary_data = self._check_boundaries(native_rmsds[walker_idx])
 
             # add boundary data for this walker
             for key, value in boundary_data.items():
@@ -150,7 +142,7 @@ class RebindingBC(BoundaryConditions):
             # if the walker is unbound we need to warp it
             if rebound:
                 # warp the walker
-                warped_walker, warp_record, warp_data = self.warp(walker,cycle)
+                warped_walker, warp_record, warp_data = self._warp(walker,cycle)
 
                 # save warped_walker in the list of new walkers to return
                 new_walkers.append(warped_walker)
@@ -179,3 +171,14 @@ class RebindingBC(BoundaryConditions):
 
         return new_walkers, warped_walkers_records, cycle_warp_data, \
                  cycle_bc_records, cycle_boundary_data
+
+
+    @classmethod
+    def warping_discontinuity(cls, warping_record):
+        # documented in superclass
+
+        # the target_idxs are one of the discontinuous targets
+        if warping_record[2] in cls.DISCONTINUITY_TARGET_IDXS:
+            return True
+        else:
+            return False
