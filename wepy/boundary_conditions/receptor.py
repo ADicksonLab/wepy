@@ -405,8 +405,7 @@ class RebindingBC(ReceptorBC):
 
     # Records of boundary condition changes (sporadic)
     BC_FIELDS = ReceptorBC.BC_FIELDS + ('native_rmsd_cutoff', )
-    """Records for the state of this record group.
-
+    """
     The 'native_rmsd_cutoff' is the cutoff used to determine when
     walkers have re-bound to the receptor, which is defined as the
     RMSD of the ligand to the native ligand bound state, when the
@@ -573,8 +572,7 @@ class UnbindingBC(BoundaryConditions):
 
     # records of boundary condition changes (sporadic)
     BC_FIELDS = ReceptorBC.BC_FIELDS + ('boundary_distance', )
-    """Records for the state of this record group.
-
+    """
     Only occurs at the start of the simulation and just reports on the
     min-min cutoff distance.
     """
@@ -592,14 +590,9 @@ class UnbindingBC(BoundaryConditions):
 
     # progress record group
     PROGRESS_FIELDS = ReceptorBC.PROGRESS_FIELDS + ('min_distances',)
-    """Records for the state of this record group.
-
+    """
     The 'min_distances' field reports on the min-min ligand-receptor
     distance for each walker.
-
-    See Also
-    --------
-    boundary_conditions.boundary.PROGRESS_FIELDS : For explanation of format.
 
     """
 

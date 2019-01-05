@@ -92,7 +92,6 @@ Work Mapper
 Boundary Conditions
 ^^^^^^^^^^^^^^^^^^^
 
-* :any:`Ligand Unbinding <../api/wepy.boundary_conditions.unbinding>`
-* :any:`Ligand Rebinding <../api/wepy.boundary_conditions.rebinding>`
+* :any:`Receptor-Ligand (Un)Binding <../api/wepy.boundary_conditions.receptor>`
 * :any:`Abstract Base Classes <../api/wepy.boundary_conditions.boundary>`
    
