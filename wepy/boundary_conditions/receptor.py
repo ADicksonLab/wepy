@@ -19,6 +19,27 @@ from wepy.util.util import box_vectors_to_lengths_angles
 from wepy.boundary_conditions.boundary import BoundaryConditions
 
 class ReceptorBC(BoundaryConditions):
+    """Abstract base class for ligand-receptor based boundary conditions.
+
+    Provides shared utilities for warping walkers to any number of
+    optionally weighted initial structures through a shared
+    `warp_walkers` method.
+
+    Non-abstract implementations of this class need only implement the
+    `_progress` method which should return a boolean signalling a
+    warping event and the dictionary-style warping record of the
+    progress for only a single walker. These records will be collated
+    into a single progress record across all walkers.
+
+    Additionally, the `_update_bc` method can be overriden to return
+    'BC' group records. That method should accept the arguments shown
+    in this ABC and return a list of dictionary-style 'BC' records.
+
+    Warping of walkers with multiple initial states will be done
+    according to a choice of initial states weighted on their weights,
+    if given.
+
+    """
 
     # records of boundary condition changes (sporadic)
     BC_FIELDS = ()
@@ -29,7 +50,18 @@ class ReceptorBC(BoundaryConditions):
 
     # warping (sporadic)
     WARPING_FIELDS = ('walker_idx', 'target_idx', 'weight')
+    """Records for the state of this record group.
+
+    The 'walker_idx' is the index of the walker that was warped and
+    'weight' is the weight of that walker.
+
+    The 'target_idx' specifies the target of the warping, which is
+    always 0 since all warped walkers have their state replaced with
+    the initial state.
+    """
+
     WARPING_SHAPES = ((1,), (1,), (1,))
+
     WARPING_DTYPES = (np.int, np.int, np.float)
 
     WARPING_RECORD_FIELDS = ('walker_idx', 'target_idx', 'weight')
@@ -40,7 +72,6 @@ class ReceptorBC(BoundaryConditions):
     PROGRESS_DTYPES = ()
 
     PROGRESS_RECORD_FIELDS = ()
-
 
     DISCONTINUITY_TARGET_IDXS = (Ellipsis)
     """Specifies which 'target_idxs' values are considered discontinuous targets.
@@ -55,6 +86,39 @@ class ReceptorBC(BoundaryConditions):
                  initial_weights=None,
                  ligand_idxs=None,
                  receptor_idxs=None):
+        """Base constructor for ReceptorBC.
+
+        This should be called immediately in the subclass `__init__`
+        method.
+
+        If the initial weights for each initial state are not given
+        uniform weights are assigned to them.
+
+        Arguments
+        ---------
+        initial_states : list of objects implementing the State interface
+            The list of possible states that warped walkers will assume.
+
+        initial_weights : list of float, optional
+            List of normalized probabilities of the initial_states
+            provided. If not given, uniform probabilities will be
+            used.
+
+        ligand_idxs : arraylike of int
+            The indices of the atom positions in the state considered
+            the ligand.
+
+        receptor_idxs : arraylike of int
+            The indices of the atom positions in the state considered
+            the receptor.
+
+        Raises
+        ------
+        AssertionError
+            If any of the following kwargs are not given:
+            initial_states, ligand_idxs, receptor_idxs.
+
+        """
 
         # make sure necessary inputs are given
         assert initial_states is not None, "Must give a set of initial states"
@@ -75,26 +139,73 @@ class ReceptorBC(BoundaryConditions):
 
     @property
     def initial_states(self):
+        """The possible initial states warped walkers may assume."""
         return self._initial_states
 
     @property
     def initial_weights(self):
+        """The probabilities of each initial state being chosen during a warping."""
         return self._initial_weights
 
     @property
     def ligand_idxs(self):
+        """The indices of the atom positions in the state considered the ligand."""
         return self._ligand_idxs
 
     @property
     def receptor_idxs(self):
+        """The indices of the atom positions in the state considered the receptor."""
+
         return self._receptor_idxs
 
 
     def _progress(self, walker):
+        """The method that must be implemented in non-abstract subclasses.
+
+        Should decide if a walker should be warped or not and what its
+        progress is regardless.
+
+        Parameters
+        ----------
+        walker : object implementing the Walker interface
+
+        Returns
+        -------
+        to_warp : bool
+           Whether the walker should be warped or not.
+
+        progress_data : dict of str : value
+           Dictionary of the progress record group fields
+           for this walker alone.
+
+        """
 
         raise NotImplementedError
 
     def _warp(self, walker):
+        """Perform the warping of a walker.
+
+        Chooses an initial state to replace the walker's state with
+        according to it's given weight.
+
+        Returns a walker of the same type and weight.
+
+        Parameters
+        ----------
+        walker : object implementing the Walker interface
+
+        Returns
+        -------
+        warped_walker : object implementing the Walker interface
+            The walker with the state after the warping. Weight should
+            be the same.
+
+        warping_data : dict of str : value
+           The dictionary-style 'WARPING' record for this
+           event. Excluding the walker index which is done in the main
+           `warp_walkers` method.
+
+        """
 
 
         # choose a state randomly from the set of initial states
@@ -114,12 +225,62 @@ class ReceptorBC(BoundaryConditions):
 
 
     def _update_bc(self, new_walkers, warp_data, progress_data, cycle):
+        """Perform an update to the boundary conditions.
+
+        No updates to the bc are ever done in this null
+        implementation.
+
+        Parameters
+        ----------
+        new_walkers : list of walkers
+            The walkers after warping.
+
+        warp_data : list of dict
+
+        progress_data : dict
+
+        cycle : int
+
+        Returns
+        -------
+        bc_data : list of dict
+            The dictionary-style records for BC update events
+
+        """
 
         # do nothing by default
         return []
 
 
     def warp_walkers(self, walkers, cycle):
+        """Test the progress of all the walkers, warp if required, and update
+        the boundary conditions.
+
+        Arguments
+        ---------
+
+        walkers : list of objects implementing the Walker interface
+
+        cycle : int
+            The index of the cycle.
+
+        Returns
+        -------
+
+        new_walkers : list of objects implementing the Walker interface
+            The new set of walkers that may have been warped.
+
+        warp_data : list of dict of str : value
+            The dictionary-style records for WARPING update events
+
+
+        bc_data : list of dict of str : value
+            The dictionary-style records for BC update events
+
+        progress_data : dict of str : arraylike
+            The dictionary-style records for PROGRESS update events
+
+        """
 
         new_walkers = []
 
@@ -176,7 +337,22 @@ class ReceptorBC(BoundaryConditions):
 
     @classmethod
     def warping_discontinuity(cls, warping_record):
-        """ """
+        """Tests whether a warping record generated by this class is
+        discontinuous or not.
+
+        Parameters
+        ----------
+
+        warping_record : tuple
+            The WARPING type record.
+
+        Returns
+        -------
+
+        is_discontinuous : bool
+            True if a discontinuous warp False if continuous.
+
+        """
 
         # if it is Ellipsis then all possible values are discontinuous
         if cls.DISCONTINUITY_TARGET_IDXS is Ellipsis:
@@ -197,10 +373,47 @@ class ReceptorBC(BoundaryConditions):
 
 
 class RebindingBC(ReceptorBC):
-    """ """
+    """Boundary condition for doing re-binding simulations of ligands to a
+    receptor.
 
-    # records of boundary condition changes (sporadic)
+    Implements the ReceptorBC superclass.
+
+    This boundary condition will warp walkers to a number of initial
+    states whenever a walker becomes very close to the native (bound)
+    state.
+
+    Thus the choice of the 'initial_states' argument should be walkers
+    which are completely unbound (the choice of which are weighted by
+    'initial_weight') and the choice of 'native_state' should be of a
+    ligand bound to the receptor, e.g. X-ray crystallography or docked
+    structure.
+
+    The cutoff for the boundary is an RMSD of the walker to the native
+    state which is calculated by first aligning and superimposing the
+    entire structure according the atom indices specified in
+    'binding_site_idxs', and as the name suggests should correspond to
+    some approximation of the binding site of the ligand that occurs
+    in the native state. Then the raw RMSD of the native and walker
+    ligands is calculated. If this RMSD is less than the 'cutoff_rmsd'
+    argument the walker is warped.
+
+    PROGRESS is reported for each walker from this rmsd.
+
+    The BC records are never updated.
+
+    """
+
+    # Records of boundary condition changes (sporadic)
     BC_FIELDS = ReceptorBC.BC_FIELDS + ('native_rmsd_cutoff', )
+    """Records for the state of this record group.
+
+    The 'native_rmsd_cutoff' is the cutoff used to determine when
+    walkers have re-bound to the receptor, which is defined as the
+    RMSD of the ligand to the native ligand bound state, when the
+    binding sites are aligned and superimposed.
+
+    """
+
     BC_SHAPES = ReceptorBC.BC_SHAPES + ((1,), )
     BC_DTYPES = ReceptorBC.BC_DTYPES + (np.float, )
 
@@ -219,13 +432,57 @@ class RebindingBC(ReceptorBC):
     PROGRESS_DTYPES = ReceptorBC.PROGRESS_DTYPES + (np.float,)
 
     PROGRESS_RECORD_FIELDS = ReceptorBC.PROGRESS_RECORD_FIELDS + ('native_rmsd', )
+    """Records for the state of this record group.
 
-    def __init__(self, initial_states=None,
-                 native_state=None,
-                 initial_weights=None,
+    The 'native_rmsd' is the is the RMSD of the ligand to the native
+    ligand bound state, when the binding sites are aligned and
+    superimposed.
+
+    """
+
+    def __init__(self, native_state=None,
                  cutoff_rmsd=0.2,
+                 initial_states=None,
+                 initial_weights=None,
                  ligand_idxs=None,
                  binding_site_idxs=None):
+        """Constructor for RebindingBC.
+
+        Arguments
+        ---------
+
+        native_state : object implementing the State interface
+            The reference bound state.
+
+        cutoff_rmsd : float, optional
+            The cutoff RMSD for considering a walker bound.
+             (Default value = 0.2)
+
+        initial_states : list of objects implementing the State interface
+            The list of possible states that warped walkers will assume.
+
+        initial_weights : list of float, optional
+            List of normalized probabilities of the initial_states
+            provided. If not given, uniform probabilities will be
+            used.
+             (Default value = None)
+
+        ligand_idxs : arraylike of int
+            The indices of the atom positions in the state considered
+            the ligand.
+
+        binding_site_idxs : arraylike of int
+            The indices of the atom positions in the state considered
+            the binding site.
+
+        Raises
+        ------
+        AssertionError
+            If any of the following kwargs are not given:
+            native_state, initial_states, ligand_idxs, receptor_idxs.
+
+
+        """
 
         super().__init__(initial_states=initial_states,
                          initial_weights=initial_weights,
@@ -235,7 +492,7 @@ class RebindingBC(ReceptorBC):
 
         # test inputs
         assert native_state is not None, "Must give a native state"
-        assert type(cutoff_distance) is float
+        assert type(cutoff_rmsd) is float
 
         # save attributes
         self._native_state = native_state
@@ -243,31 +500,41 @@ class RebindingBC(ReceptorBC):
 
     @property
     def native_state(self):
+        """The reference bound state to which walkers are compared."""
         return self._native_state
 
     @property
     def cutoff_rmsd(self):
+        """The cutoff RMSD for considering a walker bound."""
         return self._cutoff_rmsd
 
     @property
     def binding_site_idxs(self):
+        """The indices of the atom positions in the state considered the binding site."""
+
         return self._receptor_idxs
 
-    def _check_boundaries(self, walker):
-        """
+    def _progress(self, walker):
+        """Calculate if the walker has bound and provide progress record.
 
         Parameters
         ----------
-        walker
+        walker : object implementing the Walker interface
 
         Returns
         -------
+        is_bound : bool
+           Whether the walker is unbound (warped) or not
+
+        progress_data : dict of str : value
+           Dictionary of the progress record group fields
+           for this walker alone.
 
         """
 
         # first recenter the ligand and the receptor in the walker
         box_lengths, box_angles = box_vectors_to_lengths_angles(walker.state['box_vectors'])
-        rece_walker_pos = recenter_pair(walker.state['positions'], box_lengthsm
+        rece_walker_pos = recenter_pair(walker.state['positions'], box_lengths,
                                         self.binding_site_idxs, self.ligand_idxs)
 
         # superimpose the walker state positions over the native state
@@ -285,7 +552,7 @@ class RebindingBC(ReceptorBC):
         if native_rmsd <= self.cutoff_rmsd:
             rebound = True
 
-        boundary_data = {'native_rmsd' : native_rmsd}
+        progress_data = {'native_rmsd' : native_rmsd}
 
         return rebound, progress_data
 
@@ -310,84 +577,20 @@ class UnbindingBC(BoundaryConditions):
 
     Only occurs at the start of the simulation and just reports on the
     min-min cutoff distance.
-
-    See Also
-    --------
-    boundary_conditions.boundary.BC_FIELDS : For explanation of format.
     """
 
     BC_SHAPES = ReceptorBC.BC_SHAPES + ((1,), )
-    """Shapes of record group features.
-
-    See Also
-    --------
-    boundary_conditions.boundary.BC_SHAPES : For explanation of format.
-
-    """
-
     BC_DTYPES = ReceptorBC.BC_DTYPES + (np.float, )
-    """Datatypes of record group features.
-
-    See Also
-    --------
-    boundary_conditions.boundary.BC_DTYPES : For explanation of format.
-
-    """
-
     BC_RECORD_FIELDS = ReceptorBC.BC_RECORD_FIELDS + ('boundary_distance', )
-    """Fields included in truncated record group.
-
-    See Also
-    --------
-    boundary_conditions.boundary.BC_RECORD_FIELDS : For explanation of format.
-
-    """
 
     # warping (sporadic)
     WARPING_FIELDS = ReceptorBC.WARPING_FIELDS + ()
-    """Records for the state of this record group.
-
-    The 'walker_idx' is the index of the walker that was warped and
-    'weight' is the weight of that walker.
-
-    The 'target_idx' specifies the target of the warping, which is
-    always 0 since all warped walkers have their state replaced with
-    the initial state.
-
-    See Also
-    --------
-    boundary_conditions.boundary.WARPING_FIELDS : For explanation of format.
-
-    """
-
     WARPING_SHAPES = ReceptorBC.WARPING_SHAPES + ()
-    """Shapes of record group features.
-
-    See Also
-    --------
-    boundary_conditions.boundary.WARPING_SHAPES : For explanation of format.
-
-    """
-
     WARPING_DTYPES = ReceptorBC.WARPING_DTYPES + ()
-    """Datatypes of record group features.
-
-    See Also
-    --------
-    boundary_conditions.boundary.WARPING_DTYPES : For explanation of format.
-
-    """
 
     WARPING_RECORD_FIELDS = ReceptorBC.WARPING_RECORD_FIELDS + ()
-    """Fields included in truncated record group.
 
-    See Also
-    --------
-    boundary_conditions.boundary.WARPING_RECORD_FIELDS : For explanation of format.
-
-    """
-
-    # progress towards the boundary conditions (continual)
+    # progress record group
     PROGRESS_FIELDS = ReceptorBC.PROGRESS_FIELDS + ('min_distances',)
     """Records for the state of this record group.
 
@@ -401,31 +604,8 @@ class UnbindingBC(BoundaryConditions):
     """
 
     PROGRESS_SHAPES = ReceptorBC.PROGRESS_SHAPES + (Ellipsis,)
-    """Shapes of record group features.
-
-    See Also
-    --------
-    boundary_conditions.boundary.PROGRESS_SHAPES : For explanation of format.
-
-    """
-
     PROGRESS_DTYPES = ReceptorBC.PROGRESS_DTYPES + (np.float,)
-    """Datatypes of record group features.
-
-    See Also
-    --------
-    boundary_conditions.boundary.PROGRESS_DTYPES : For explanation of format.
-
-    """
-
     PROGRESS_RECORD_FIELDS = ReceptorBC.PROGRESS_RECORD_FIELDS + ('min_distances', )
-    """Fields included in truncated record group.
-
-    See Also
-    --------
-    boundary_conditions.boundary.PROGRESS_RECORD_FIELDS : For explanation of format.
-
-    """
 
     def __init__(self, initial_state=None,
                  cutoff_distance=1.0,
@@ -499,7 +679,7 @@ class UnbindingBC(BoundaryConditions):
 
         Parameters
         ----------
-        walker
+        walker : object implementing the Walker interface
 
         Returns
         -------
@@ -532,11 +712,11 @@ class UnbindingBC(BoundaryConditions):
 
         Parameters
         ----------
-        walker
+        walker : object implementing the Walker interface
 
         Returns
         -------
-        unbound : bool
+        is_unbound : bool
            Whether the walker is unbound (warped) or not
 
         progress_data : dict of str : value
@@ -557,14 +737,20 @@ class UnbindingBC(BoundaryConditions):
         return unbound, progress_data
 
     def _update_bc(self, new_walkers, warp_data, progress_data, cycle):
-        """
+        """Perform an update to the boundary conditions.
+
+        This is only used on the first cycle to keep a record of the
+        cutoff parameter.
 
         Parameters
         ----------
         new_walkers : list of walkers
             The walkers after warping.
+
         warp_data : list of dict
+
         progress_data : dict
+
         cycle : int
 
         Returns
