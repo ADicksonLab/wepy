@@ -1,3 +1,5 @@
+"""Miscellaneous functions needed by wepy."""
+
 import json
 import warnings
 
@@ -10,11 +12,16 @@ def traj_box_vectors_to_lengths_angles(traj_box_vectors):
 
     Parameters
     ----------
-    traj_box_vectors :
-        
+    traj_box_vectors : arraylike of float of shape (n_frames, n_dims, n_dims)
+        Box vector matrices (x, y, z) for a trajectory of frames.
 
     Returns
     -------
+    traj_box_lengths : arraylike of float of shape (n_frames, n_dims)
+        The lengths of the box for each frame
+
+    traj_box_angles : arraylike of float of shape (n_frames, n_dims)
+        The angles of the box vectors to normal for each frame in degrees.
 
     """
 
@@ -43,11 +50,16 @@ def box_vectors_to_lengths_angles(box_vectors):
 
     Parameters
     ----------
-    box_vectors :
-        
+    box_vectors : arraylike of float of shape (n_dims, n_dims)
+        Box vector matrices (x, y, z) for a single frame.
 
     Returns
     -------
+    box_lengths : arraylike of float of shape (n_dims,)
+        The lengths of the box
+
+    box_angles : arraylike of float of shape (n_dims,)
+        The angles of the box vectors to normal in degrees.
 
     """
 
@@ -68,15 +80,18 @@ def box_vectors_to_lengths_angles(box_vectors):
 
 
 def json_top_atom_count(json_str):
-    """Count the number of atoms in a JSON topology used by wepy HDF5.
+    """Count the number of atoms in the JSON topology used by wepy HDF5.
 
     Parameters
     ----------
-    json_str :
-        
+    json_str : str
+        A string of valid JSON in the format of JSON used in WepyHDF5
+        and mdtraj HDF5 format.
 
     Returns
     -------
+    n_atoms : int
+        Number of atoms in the topology.
 
     """
 
@@ -97,13 +112,17 @@ def json_top_subset(json_str, atom_idxs):
 
     Parameters
     ----------
-    json_str :
-        
-    atom_idxs :
-        
+    json_str : str
+        A string of valid JSON in the format of JSON used in WepyHDF5
+        and mdtraj HDF5 format.
+
+    atom_idxs : list of int
+        The atoms for which you want to make a subset of.
 
     Returns
     -------
+    subset_json_str : str
+        JSON string of the subset of atoms. Ordering preserved.
 
     """
 
