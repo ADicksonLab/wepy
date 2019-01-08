@@ -1,14 +1,39 @@
+"""Classes for workers and tasks for use with WorkerMapper."""
+
 from multiprocessing import Process
 import multiprocessing as mp
 import time
 import logging
 
 class Worker(Process):
-    """ """
+    """Worker process.
+
+    This is a subclass of process with an overriden `__init__`
+    constructor that will automatically generate the Process.
+
+    When this class is constructed a new process will be formed.
+
+    """
 
     NAME_TEMPLATE = "Worker-{}"
+    """A string formatting template to identify worker processes in
+    logs. The field will be filled with the worker index."""
 
     def __init__(self, worker_idx, task_queue, result_queue):
+        """Constructor for the Worker class.
+
+        Parameters
+        ----------
+        worker_idx : int
+            The index of the worker. Should be unique.
+
+        task_queue : multiprocessing.JoinableQueue
+            The shared task queue the worker will watch for new tasks to complete.
+
+        result_queue : multiprocessing.Queue
+            The shared queue that completed task results will be placed on.
+
+        """
 
         # call the Process constructor
         Process.__init__(self, name=self.NAME_TEMPLATE.format(worker_idx))
@@ -20,21 +45,24 @@ class Worker(Process):
         self.result_queue = result_queue
 
     def run_task(self, task):
-        """
+        """Runs the given task and returns the results.
 
         Parameters
         ----------
-        task :
-            
+        task : Task object
+            The partially evaluated task; function plus arguments
 
         Returns
         -------
+        task_result
+            Results of running the task.
 
         """
+
         return task()
 
     def run(self):
-        """ """
+        """Overriding method for Process. Starts this process."""
 
         worker_process = mp.current_process()
         logging.info("Worker process started as name: {}; PID: {}".format(worker_process.name,
@@ -79,13 +107,26 @@ class Worker(Process):
 
 
 class Task(object):
-    """ """
+    """Class that composes a function and arguments."""
 
     def __init__(self, func, *args):
+        """Constructor for Task.
+
+        Parameters
+        ----------
+        func : callable
+            Function to be called on the arguments.
+
+        *args
+            The arguments to pass to func
+
+        """
         self.args = args
         self.func = func
 
     def __call__(self, **kwargs):
+        """Makes the Task itself callable."""
+
         # run the function passing in the args for running it and any
         # worker information in the kwargs
         return self.func(*self.args, **kwargs)

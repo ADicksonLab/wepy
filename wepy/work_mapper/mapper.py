@@ -1,3 +1,9 @@
+"""Reference implementations, abstract base classes, and a production
+ready worker style mapper for mapping runner dynamics to walkers for
+wepy simulation cycles.
+
+"""
+
 import multiprocessing as mp
 from multiprocessing import Queue, JoinableQueue
 import queue
@@ -10,71 +16,45 @@ from wepy.work_mapper.worker import Worker, Task
 PY_MAP = map
 
 class ABCMapper(object):
-    """ """
+    """Abstract base class for a Mapper. Useful only for showing the
+    interface stubs."""
 
     def __init__(self, **kwargs):
-        pass
+        raise NotImplementedError
 
     def init(self, **kwargs):
-        """
-
-        Parameters
-        ----------
-        **kwargs :
-            
-
-        Returns
-        -------
-
-        """
-        pass
+        raise NotImplementedError
 
     def cleanup(self, **kwargs):
-        """
-
-        Parameters
-        ----------
-        **kwargs :
-            
-
-        Returns
-        -------
-
-        """
-        pass
+        raise NotImplementedError
 
     def map(self, **kwargs):
-        """
+        raise NotImplementedError
+
+
+class Mapper(object):
+    """Basic non-parallel reference implementation of a mapper."""
+
+    def __init__(self, segment_func=None, *args, **kwargs):
+        """Constructor for the Mapper class. No arguments are required.
 
         Parameters
         ----------
-        **kwargs :
-            
-
-        Returns
-        -------
+        segment_func : callable, optional
+            Set a default segment_func. Typically set at runtime.
 
         """
-        pass
 
-class Mapper(object):
-    """ """
-
-    def __init__(self, *args, **kwargs):
+        self._segment_func = segment_func
         self._worker_segment_times = {0 : []}
 
     def init(self, segment_func=None, **kwargs):
-        """
+        """Runtime initialization and setting of function to map over walkers.
 
         Parameters
         ----------
-        segment_func :
+        segment_func : callable implementing the Runner.run_segment interface
              (Default value = None)
-        **kwargs :
-            
-
-        Returns
-        -------
 
         """
 
@@ -83,34 +63,43 @@ class Mapper(object):
 
         self._func = segment_func
 
+    @property
+    def segment_func(self):
+        return self._func
 
     def cleanup(self, **kwargs):
+        """Runtime post-simulation tasks.
+
+        This is run either at the end of a successful simulation or
+        upon an error in the main process of the simulation manager
+        call to `run_cycle`.
+
+        The Mapper class performs no actions here and all arguments
+        are ignored.
+
         """
 
-        Parameters
-        ----------
-        **kwargs :
-            
-
-        Returns
-        -------
-
-        """
         # nothing to do
         pass
 
-    def map(self, *args, **kwargs):
-        """
+    def map(self, *args):
+        """Map the 'segment_func' to args.
 
         Parameters
         ----------
-        *args :
-            
-        **kwargs :
-            
+        *args : list of list
+            Each element is the argument to one call of 'segment_func'.
 
         Returns
         -------
+        results : list
+            The results of each call to 'segment_func' in the same order as input.
+
+        Examples
+        --------
+
+        >>> Mapper(segment_func=sum).map([(0,1,2), (3,4,5)])
+        [3, 12]
 
         """
 
@@ -133,14 +122,41 @@ class Mapper(object):
 
     @property
     def worker_segment_times(self):
-        """ """
+        """The run timings for each segment for each walker.
+
+        Returns
+        -------
+        worker_seg_times : dict of int : list of float
+            Dictionary mapping worker indices to a list of times in
+            seconds for each segment run.
+
+        """
         return self._worker_segment_times
 
 class WorkerMapper(Mapper):
-    """ """
+    """Work mapper implementation using multiple worker processes and task
+    queue.
 
-    def __init__(self, num_workers=None, worker_type=None,
-                 **kwargs):
+    Uses the python multiprocessing module to spawn multiple worker
+    processes which watch a task queue of walker segments.
+    """
+
+    def __init__(self, num_workers=None, worker_type=None, **kwargs):
+        """Constructor for WorkerMapper.
+
+        kwargs are ignored.
+
+        Parameters
+        ----------
+        num_workers : int
+            The number of worker processes to spawn.
+
+        worker_type : callable, optional
+            Callable that generates an object implementing the Worker
+            interface, typically a type from a Worker class.
+           (Default = Worker)
+
+        """
 
         self._num_workers = num_workers
         self._worker_segment_times = {i : [] for i in range(self.num_workers)}
@@ -155,56 +171,57 @@ class WorkerMapper(Mapper):
 
     @property
     def num_workers(self):
-        """ """
+        """The number of worker processes."""
         return self._num_workers
 
-    @num_workers.setter
-    def num_workers(self, num_workers):
-        """
+    # TODO remove after testing
+    # @num_workers.setter
+    # def num_workers(self, num_workers):
+    #     """Setter for the number of workers
 
-        Parameters
-        ----------
-        num_workers :
-            
+    #     Parameters
+    #     ----------
+    #     num_workers : int
 
-        Returns
-        -------
-
-        """
-        self._num_workers = num_workers
+    #     """
+    #     self._num_workers = num_workers
 
     @property
     def worker_type(self):
-        """ """
+        """The callable that generates a worker object.
+
+        Typically this is just the type from the class definition of
+        the Worker where the constructor is called.
+
+        """
         return self._worker_type
 
-    @worker_type.setter
-    def worker_type(self, worker_type):
-        """
+    # TODO remove after testing
+    # @worker_type.setter
+    # def worker_type(self, worker_type):
+    #     """
 
-        Parameters
-        ----------
-        worker_type :
-            
+    #     Parameters
+    #     ----------
+    #     worker_type :
 
-        Returns
-        -------
+    #     Returns
+    #     -------
 
-        """
-        self._worker_type = worker_type
+    #     """
+    #     self._worker_type = worker_type
 
     def init(self, num_workers=None, **kwargs):
-        """
+        """Runtime initialization and setting of function to map over walkers.
 
         Parameters
         ----------
-        num_workers :
+        num_workers : int
+            The number of worker processes to spawn
              (Default value = None)
-        **kwargs :
-            
 
-        Returns
-        -------
+        segment_func : callable implementing the Runner.run_segment interface
+             (Default value = None)
 
         """
 
@@ -237,8 +254,17 @@ class WorkerMapper(Mapper):
             logging.info("Worker process started as name: {}; PID: {}".format(worker.name,
                                                                               worker.pid))
 
-    def cleanup(self):
-        """ """
+    def cleanup(self, **kwargs):
+        """Runtime post-simulation tasks.
+
+        This is run either at the end of a successful simulation or
+        upon an error in the main process of the simulation manager
+        call to `run_cycle`.
+
+        The Mapper class performs no actions here and all arguments
+        are ignored.
+
+        """
 
         # send poison pills (Stop signals) to the queues to stop them in a nice way
         # and let them finish up
@@ -250,34 +276,24 @@ class WorkerMapper(Mapper):
         self._result_queue = None
         self._workers = None
 
-    def make_task(self, *args, **kwargs):
-        """
+    def _make_task(self, *args, **kwargs):
+        """Generate a task from 'segment_func' attribute.
 
-        Parameters
-        ----------
-        *args :
-            
-        **kwargs :
-            
+        Similar to partial evaluation (or currying).
+
+        Args will be eventually used as the arguments to the call of
+        'segment_func' by the worker processes when they receive the
+        task from the queue.
 
         Returns
         -------
+        task : Task object
 
         """
         return Task(self._func, *args, **kwargs)
 
     def map(self, *args):
-        """
-
-        Parameters
-        ----------
-        *args :
-            
-
-        Returns
-        -------
-
-        """
+        # docstring in superclass
 
         map_process = mp.current_process()
         logging.info("Mapping from process {}; PID {}".format(map_process.name, map_process.pid))
@@ -291,7 +307,7 @@ class WorkerMapper(Mapper):
 
             # a task will be the actual task and its task idx so we can
             # sort them later
-            self._task_queue.put((task_idx, self.make_task(*task_arg)))
+            self._task_queue.put((task_idx, self._make_task(*task_arg)))
 
 
         logging.info("Waiting for tasks to be run")
