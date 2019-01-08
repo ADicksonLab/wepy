@@ -407,45 +407,180 @@ try:
 except ModuleNotFoundError:
     warn("pandas is not installed and that functionality will not work", RuntimeWarning)
 
+## Header and settings keywords
 
-## Constants for the main trajectories data group
-# Constants
-N_DIMS = 3
+TOPOLOGY = 'topology'
+"""Default header apparatus dataset. The molecular topology dataset."""
 
-# key for runs
+SETTINGS = '_settings'
+"""Name of the settings group in the header group."""
+
 RUNS = 'runs'
+"""The group name for runs."""
 
-# key for the field of trajectories, may also be referred to 'slots'
-# informally
+
+## metadata fields
+RUN_IDX = 'run_idx'
+"""Metadata field for run groups for the run index."""
+
+TRAJ_IDX = 'traj_idx'
+"""Metadata field for trajectory groups for the trajectory index in that run."""
+
+## Misc. Names
+
+CYCLE_IDX = 'cycle_idx'
+"""String for setting the names of cycle indices in records and
+miscellaneous situations."""
+
+
+## Settings field names
+SPARSE_FIELDS = 'sparse_fields'
+"""Settings field name for sparse field trajectory field flags."""
+
+N_ATOMS = 'n_atoms'
+"""Settings field name group for the number of atoms in the default positions field."""
+
+N_DIMS_STR = 'n_dims'
+"""Settings field name for positions field spatial dimensions."""
+
+MAIN_REP_IDXS = 'main_rep_idxs'
+"""Settings field name for the indices of the full apparatus topology in
+the default positions trajectory field."""
+
+ALT_REPS_IDXS = 'alt_reps_idxs'
+"""Settings field name for the different 'alt_reps'. The indices of
+the atoms from the full apparatus topology for each."""
+
+FIELD_FEATURE_SHAPES_STR = 'field_feature_shapes'
+"""Settings field name for the trajectory field shapes."""
+
+FIELD_FEATURE_DTYPES_STR = 'field_feature_dtypes'
+"""Settings field name for the trajectory field data types."""
+
+UNITS = 'units'
+"""Settings field name for the units of the trajectory fields."""
+
+RECORD_FIELDS = 'record_fields'
+"""Settings field name for the record fields that are to be included
+in the truncated listing of record group fields."""
+
+CONTINUATIONS = 'continuations'
+"""Settings field name for the continuations relationships between runs."""
+
+
+## Run Fields Names
 TRAJECTORIES = 'trajectories'
+"""Run field name for the trajectories group."""
 
-# strings for trajectory fields
-POSITIONS = 'positions'
-BOX_VECTORS = 'box_vectors'
-VELOCITIES = 'velocities'
-FORCES = 'forces'
-TIME = 'time'
-KINETIC_ENERGY = 'kinetic_energy'
-POTENTIAL_ENERGY = 'potential_energy'
-BOX_VOLUME = 'box_volume'
-OBSERVABLES = 'observables'
-PARAMETERS = 'parameters'
-PARAMETER_DERIVATIVES = 'parameter_derivatives'
+INIT_WALKERS = 'init_walkers'
+"""Run field name for the initial walkers group."""
+
+DECISION = 'decision'
+"""Run field name for the decision enumeration group."""
+
+## Record Groups Names
+RESAMPLING = 'resampling'
+"""Record group run field name for the resampling records """
+
+RESAMPLER = 'resampler'
+"""Record group run field name for the resampler records """
+
+WARPING = 'warping'
+"""Record group run field name for the warping records """
+
+PROGRESS = 'progress'
+"""Record group run field name for the progress records """
+
+BC = 'boundary_conditions'
+"""Record group run field name for the boundary conditions records """
+
+## Record groups constants
+
+# special datatypes strings
+NONE_STR = 'None'
+"""String signifying a field of unspecified shape. Used for
+serializing the None python object."""
+
+CYCLE_IDXS = '_cycle_idxs'
+"""Group name for the cycle indices of sporadic records."""
+
+# records can be sporadic or continual. Continual records are
+# generated every cycle and are saved every cycle and are for all
+# walkers.  Sporadic records are generated conditional on specific
+# events taking place and thus may or may not be produced each
+# cycle. There also is not a single record for each (cycle, step) like
+# there would be for continual ones because they can occur for single
+# walkers, boundary conditions, or resamplers.
+SPORADIC_RECORDS = (RESAMPLER, WARPING, RESAMPLING, BC)
+"""Enumeration of the record groups that are sporadic."""
+
+## Trajectories Group
+
+# Default Trajectory Constants
+
+N_DIMS = 3
+"""Number of dimensions for the default positions."""
+
+
+# Required Trajectory Fields
 
 WEIGHTS = 'weights'
+"""The field name for the frame weights."""
 
-# parameters for the weight field
+# default fields for trajectories
+
+POSITIONS = 'positions'
+"""The field name for the default positions."""
+
+BOX_VECTORS = 'box_vectors'
+"""The field name for the default box vectors."""
+
+VELOCITIES = 'velocities'
+"""The field name for the default velocities."""
+
+FORCES = 'forces'
+"""The field name for the default forces."""
+
+TIME = 'time'
+"""The field name for the default time."""
+
+KINETIC_ENERGY = 'kinetic_energy'
+"""The field name for the default kinetic energy."""
+
+POTENTIAL_ENERGY = 'potential_energy'
+"""The field name for the default potential energy."""
+
+BOX_VOLUME = 'box_volume'
+"""The field name for the default box volume."""
+
+PARAMETERS = 'parameters'
+"""The field name for the default parameters."""
+
+PARAMETER_DERIVATIVES = 'parameter_derivatives'
+"""The field name for the default parameter derivatives."""
+
+ALT_REPS = 'alt_reps'
+"""The field name for the default compound field observables."""
+
+OBSERVABLES = 'observables'
+"""The field name for the default compound field observables."""
+
+## Trajectory Field Constants
+
 WEIGHT_SHAPE = (1,)
+"""Weights feature vector shape."""
+
 WEIGHT_DTYPE = np.float
+"""Weights feature vector data type."""
 
-
-# defaults for the shapes for those fields they can be given to.
+# Default Trajectory Field Constants
 FIELD_FEATURE_SHAPES = ((TIME, (1,)),
                         (BOX_VECTORS, (3,3)),
                         (BOX_VOLUME, (1,)),
                         (KINETIC_ENERGY, (1,)),
                         (POTENTIAL_ENERGY, (1,)),
                         )
+"""Default shapes for the default fields."""
 
 FIELD_FEATURE_DTYPES = ((POSITIONS, np.float),
                         (VELOCITIES, np.float),
@@ -456,70 +591,50 @@ FIELD_FEATURE_DTYPES = ((POSITIONS, np.float),
                         (KINETIC_ENERGY, np.float),
                         (POTENTIAL_ENERGY, np.float),
                         )
-
-
-# KEYWORDS
-DATA = 'data'
-SPARSE_IDXS = '_sparse_idxs'
-ALT_REPS = 'alt_reps'
-SETTINGS = '_settings'
-TOPOLOGY = 'topology'
-SPARSE_FIELDS = 'sparse_fields'
-N_DIMS_STR = 'n_dims'
-N_ATOMS = 'n_atoms'
-MAIN_REP_IDXS = 'main_rep_idxs'
-ALT_REPS_IDXS = 'alt_reps_idxs'
-FIELD_FEATURE_SHAPES_STR = 'field_feature_shapes'
-FIELD_FEATURE_DTYPES_STR = 'field_feature_dtypes'
-UNITS = 'units'
-RECORD_FIELDS = 'record_fields'
-RUN_IDX = 'run_idx'
-TRAJ_IDX = 'traj_idx'
-CONTINUATIONS = 'continuations'
-INIT_WALKERS = 'init_walkers'
-DECISION = 'decision'
-CYCLE_IDX = 'cycle_idx'
-
-# special datatypes strings
-NONE_STR = 'None'
+"""Default data types for the default fields."""
 
 # Positions (and thus velocities and forces) are determined by the
 # N_DIMS (which can be customized) and more importantly the number of
 # particles which is always different. All the others are always wacky
 # and different.
 POSITIONS_LIKE_FIELDS = (VELOCITIES, FORCES)
+"""Default trajectory fields which are the same shape as the main positions field."""
 
-## Run data records
+## Trajectory field features keys
 
-# the groups of run records
-RESAMPLING = 'resampling'
-RESAMPLER = 'resampler'
-WARPING = 'warping'
-PROGRESS = 'progress'
-BC = 'boundary_conditions'
+# sparse trajectory fields
+DATA = 'data'
+"""Name of the dataset in sparse trajectory fields."""
 
-CYCLE_IDXS = '_cycle_idxs'
-
-# records can be sporadic or continual. Continual records are
-# generated every cycle and are saved every cycle and are for all
-# walkers.  Sporadic records are generated conditional on specific
-# events taking place and thus may or may not be produced each
-# cycle. There also is not a single record for each (cycle, step) like
-# there would be for continual ones because they can occur for single
-# walkers, boundary conditions, or resamplers.
-SPORADIC_RECORDS = (RESAMPLER, WARPING, RESAMPLING, BC)
+SPARSE_IDXS = '_sparse_idxs'
+"""Name of the dataset that indexes sparse trajectory fields."""
 
 # utility for paths
 def _iter_field_paths(grp):
-    """
+    """Return all subgroup field name paths from a group.
+
+    Useful for compound fields. For example if you have the group
+    observables with multiple subfields:
+
+    - observables
+      - rmsd
+      - sasa
+
+    Passing the h5py group 'observables' will return the full field
+    names for each subfield:
+
+    - 'observables/rmsd'
+    - 'observables/sasa'
 
     Parameters
     ----------
-    grp :
-        
+    grp : h5py.Group
+        The group to enumerate subfield names for.
 
     Returns
     -------
+    subfield_names : list of str
+        The full names for the subfields of the group.
 
     """
     field_paths = []
@@ -532,9 +647,17 @@ def _iter_field_paths(grp):
     return field_paths
 
 class WepyHDF5(object):
-    """ """
+    """Wrapper for h5py interface to an HDF5 file object for creation and
+    access of WepyHDF5 data.
+
+    This is the primary implementation of the API for creating,
+    accessing, and modifying data in an HDF5 file that conforms to the
+    WepyHDF5 specification.
+
+    """
 
     MODES = ('r', 'r+', 'w', 'w-', 'x', 'a')
+    """The recognized modes for opening the WepyHDF5 file."""
 
 
     #### dunder methods
@@ -547,9 +670,12 @@ class WepyHDF5(object):
                  alt_reps=None, main_rep_idxs=None,
                  expert_mode=False
     ):
-        """Initialize a new Wepy HDF5 file. This is a file that organizes
-        wepy.TrajHDF5 dataset subsets by simulations by runs and
-        includes resampling records for recovering walker histories.
+        """Constructor for the WepyHDF5 class.
+
+        Initialize a new Wepy HDF5 file. This will create an h5py.File
+        object.
+
+        The File will be closed after construction by default.
 
         mode:
         r        Readonly, file must exist
@@ -557,6 +683,67 @@ class WepyHDF5(object):
         w        Create file, truncate if exists
         x or w-  Create file, fail if exists
         a        Read/write if exists, create otherwise
+
+        Parameters
+        ----------
+        filename : str
+            File path
+
+        mode : str
+            Mode specification for opening the HDF5 file.
+
+        topology : str
+            JSON string representing topology of system being simulated.
+
+        units : dict of str : str, optional
+            Mapping of trajectory field names to string specs
+            for units.
+           (Default = {})
+
+        sparse_fields : list of str, optional
+            List of trajectory fields that should be initialized as sparse.
+           (Default = [])
+
+        feature_shapes : dict of str : shape_spec, optional
+            Mapping of trajectory fields to their shape spec for initialization.
+           (Default = {})
+
+        feature_dtypes : dict of str : dtype_spec, optional
+            Mapping of trajectory fields to their shape spec for initialization.
+           (Default = {})
+
+        n_dims : int, optional
+            Set the number of spatial dimensions for the default
+            positions trajectory field.
+           (Default = 3)
+
+        alt_reps : dict of str : list of int, optional
+            Specifies that there will be 'alt_reps' of positions each
+            named by the keys of this mapping and containing the
+            indices in each value list.
+           (Default = {})
+
+        main_rep_idxs : list of int, optional
+            The indices of atom positions to save as the main 'positions'
+            trajectory field. Defaults to all atoms.
+           (Default = None)
+
+        expert_mode : bool
+            If True no initialization is performed other than the
+            setting of the filename. Useful mainly for debugging.
+
+        Raises
+        ------
+
+        AssertionError
+            If the mode is not one of the supported mode specs.
+        or
+            If a topology is not given for a creation mode.
+
+        Warns
+        -----
+
+        If initialization data was given but the file was opened in a read mode.
 
         """
 
@@ -702,22 +889,14 @@ class WepyHDF5(object):
 
     # TODO custom deepcopy to avoid copying the actual HDF5 object
 
-    #### private methods (__method_name)
-
-
     #### hidden methods (_method_name)
 
     ### constructors
     def _create_init(self):
-        """Completely overwrite the data in the file. Reinitialize the values
+        """Creation mode constructor.
+
+        Completely overwrite the data in the file. Reinitialize the values
         and set with the new ones if given.
-
-        Parameters
-        ----------
-
-        Returns
-        -------
-
         """
 
         assert self._topology is not None, \
@@ -840,19 +1019,15 @@ class WepyHDF5(object):
         self._init_continuations()
 
     def _read_write_init(self):
-        """Write over values if given but do not reinitialize any old ones."""
+        """Read-write mode constructor."""
 
         self._read_init()
 
     def _add_init(self):
-        """Create the dataset if it doesn't exist and put it in r+ mode,
+        """The addition mode constructor.
+
+        Create the dataset if it doesn't exist and put it in r+ mode,
         otherwise, just open in r+ mode.
-
-        Parameters
-        ----------
-
-        Returns
-        -------
 
         """
 
@@ -862,7 +1037,7 @@ class WepyHDF5(object):
             self._read_write_init()
 
     def _read_init(self):
-        """Read only initialization currently has nothing to do."""
+        """Read mode constructor."""
 
         pass
 
@@ -873,11 +1048,8 @@ class WepyHDF5(object):
 
         Parameters
         ----------
-        n_dims :
+        n_dims : int
              (Default value = None)
-
-        Returns
-        -------
 
         """
 
@@ -917,7 +1089,7 @@ class WepyHDF5(object):
     def _get_field_path_grp(self, run_idx, traj_idx, field_path):
         """Given a field path for the trajectory returns the group the field's
         dataset goes in and the key for the field name in that group.
-        
+
         The field path for a simple field is just the name of the
         field and for a compound field it is the compound field group
         name with the subfield separated by a '/' like
@@ -926,15 +1098,15 @@ class WepyHDF5(object):
 
         Parameters
         ----------
-        run_idx :
-            
-        traj_idx :
-            
-        field_path :
-            
+        run_idx : int
+        traj_idx : int
+        field_path : str
 
         Returns
         -------
+        group : h5py.Group
+
+        field_name : str
 
         """
 
@@ -956,11 +1128,9 @@ class WepyHDF5(object):
         continuations or if continuations already exist it will reinitialize
         them and delete the data that exists there.
 
-        Parameters
-        ----------
-
         Returns
         -------
+        continuation_dset : h5py.Dataset
 
         """
 
@@ -984,13 +1154,11 @@ class WepyHDF5(object):
 
         Parameters
         ----------
-        run_idx :
-            
-        continue_run :
-             (Default value = None)
+        run_idx : int
 
-        Returns
-        -------
+        continue_run : int
+            Index of the run to continue.
+             (Default value = None)
 
         """
 
@@ -1005,17 +1173,14 @@ class WepyHDF5(object):
             self.add_continuation(run_idx, continue_run)
 
     def _add_init_walkers(self, init_walkers_grp, init_walkers):
-        """
+        """Adds the run field group for the initial walkers.
 
         Parameters
         ----------
-        init_walkers_grp :
-            
-        init_walkers :
-            
-
-        Returns
-        -------
+        init_walkers_grp : h5py.Group
+            The group to add the walker data to.
+        init_walkers : list of objects implementing the Walker interface
+            The walkers to save in the group
 
         """
 
@@ -1043,19 +1208,21 @@ class WepyHDF5(object):
 
 
     def _init_run_sporadic_record_grp(self, run_idx, run_record_key, fields):
-        """
+        """Initialize a sporadic record group for a run.
 
         Parameters
         ----------
-        run_idx :
-            
-        run_record_key :
-            
-        fields :
-            
+        run_idx : int
+
+        run_record_key : str
+            The record group name.
+        fields : list of field specs
+            Each field spec is a 3-tuple of
+            (field_name : str, field_shape : shape_spec, field_dtype : dtype_spec)
 
         Returns
         -------
+        record_group : h5py.Group
 
         """
 
@@ -1079,19 +1246,21 @@ class WepyHDF5(object):
 
 
     def _init_run_continual_record_grp(self, run_idx, run_record_key, fields):
-        """
+        """Initialize a continual record group for a run.
 
         Parameters
         ----------
-        run_idx :
-            
-        run_record_key :
-            
-        fields :
-            
+        run_idx : int
+
+        run_record_key : str
+            The record group name.
+        fields : list of field specs
+            Each field spec is a 3-tuple of
+            (field_name : str, field_shape : shape_spec, field_dtype : dtype_spec)
 
         Returns
         -------
+        record_group : h5py.Group
 
         """
 
@@ -1109,23 +1278,24 @@ class WepyHDF5(object):
 
     def _init_run_records_field(self, run_idx, run_record_key,
                                 field_name, field_shape, field_dtype):
-        """
+        """Initialize a single field for a run record group.
 
         Parameters
         ----------
-        run_idx :
-            
-        run_record_key :
-            
-        field_name :
-            
-        field_shape :
-            
-        field_dtype :
-            
+        run_idx : int
+
+        run_record_key : str
+            The name of the record group.
+        field_name : str
+            The name of the field in the record group.
+        field_shape : tuple of int
+            The shape of the dataset for the field.
+        field_dtype : dtype_spec
+            An h5py recognized data type.
 
         Returns
         -------
+        dataset : h5py.Dataset
 
         """
 
@@ -1151,15 +1321,17 @@ class WepyHDF5(object):
         return dset
 
     def _is_sporadic_records(self, run_record_key):
-        """
+        """Tests whether a record group is sporadic or not.
 
         Parameters
         ----------
-        run_record_key :
-            
+        run_record_key : str
+            Record group name.
 
         Returns
         -------
+        is_sporadic : bool
+            True if the record group is sporadic False if not.
 
         """
 
@@ -1170,24 +1342,21 @@ class WepyHDF5(object):
             return False
 
     def _init_traj_field(self, run_idx, traj_idx, field_path, feature_shape, dtype):
-        """Initialize a data field in the trajectory to be empty but
+        """Initialize a trajectory field.
+
+        Initialize a data field in the trajectory to be empty but
         resizeable.
 
         Parameters
         ----------
-        run_idx :
-            
-        traj_idx :
-            
-        field_path :
-            
-        feature_shape :
-            
-        dtype :
-            
-
-        Returns
-        -------
+        run_idx : int
+        traj_idx : int
+        field_path : str
+            Field name specification.
+        feature_shape : shape_spec
+            Specification of shape of a feature vector of the field.
+        dtype : dtype_spec
+            Specification of the feature vector datatype.
 
         """
 
@@ -1201,23 +1370,18 @@ class WepyHDF5(object):
             self._init_contiguous_traj_field(run_idx, traj_idx, field_path, feature_shape, dtype)
 
     def _init_contiguous_traj_field(self, run_idx, traj_idx, field_path, shape, dtype):
-        """
+        """Initialize a contiguous (non-sparse) trajectory field.
 
         Parameters
         ----------
-        run_idx :
-            
-        traj_idx :
-            
-        field_path :
-            
-        shape :
-            
-        dtype :
-            
-
-        Returns
-        -------
+        run_idx : int
+        traj_idx : int
+        field_path : str
+            Field name specification.
+        feature_shape : tuple of int
+            Shape of the feature vector of the field.
+        dtype : dtype_spec
+            H5py recognized datatype
 
         """
 
@@ -1234,19 +1398,14 @@ class WepyHDF5(object):
 
         Parameters
         ----------
-        run_idx :
-            
-        traj_idx :
-            
-        field_path :
-            
-        shape :
-            
-        dtype :
-            
-
-        Returns
-        -------
+        run_idx : int
+        traj_idx : int
+        field_path : str
+            Field name specification.
+        feature_shape : shape_spec
+            Specification for the shape of the feature.
+        dtype : dtype_spec
+            Specification for the dtype of the feature.
 
         """
 
@@ -1275,23 +1434,16 @@ class WepyHDF5(object):
 
     def _init_traj_fields(self, run_idx, traj_idx,
                           field_paths, field_feature_shapes, field_feature_dtypes):
-        """
+        """Initialize a number of fields for a trajectory.
 
         Parameters
         ----------
-        run_idx :
-            
-        traj_idx :
-            
-        field_paths :
-            
-        field_feature_shapes :
-            
-        field_feature_dtypes :
-            
-
-        Returns
-        -------
+        run_idx : int
+        traj_idx : int
+        field_paths : list of str
+            List of field names.
+        field_feature_shapes : list of shape_specs
+        field_feature_dtypes : list of dtype_specs
 
         """
         for i, field_path in enumerate(field_paths):
@@ -1299,23 +1451,22 @@ class WepyHDF5(object):
                                   field_path, field_feature_shapes[i], field_feature_dtypes[i])
 
     def _add_traj_field_data(self, run_idx, traj_idx, field_path, field_data, sparse_idxs=None):
-        """
+        """Add a trajectory field to a trajectory.
+
+        If the sparse indices are given the field will be created as a
+        sparse field otherwise a normal one.
 
         Parameters
         ----------
-        run_idx :
-            
-        traj_idx :
-            
-        field_path :
-            
-        field_data :
-            
-        sparse_idxs :
+        run_idx : int
+        traj_idx : int
+        field_path : str
+            Field name.
+        field_data : numpy.array
+            The data array to set for the field.
+        sparse_idxs : arraylike of int of shape (1,)
+            List of cycle indices that the data corresponds to.
              (Default value = None)
-
-        Returns
-        -------
 
         """
 
@@ -1336,39 +1487,18 @@ class WepyHDF5(object):
             sparse_grp.create_dataset(SPARSE_IDXS, data=sparse_idxs,
                                       maxshape=(None,))
 
-    def _extend_dataset(self, dset_path, new_data):
-        """
-
-        Parameters
-        ----------
-        dset_path :
-            
-        new_data :
-            
-
-        Returns
-        -------
-
-        """
-        dset = self.h5[dset_path]
-        extend_dataset(dset, new_data)
-
     def _extend_contiguous_traj_field(self, run_idx, traj_idx, field_path, field_data):
-        """
+        """Add multiple new frames worth of data to the end of an existing
+        contiguous (non-sparse)trajectory field.
 
         Parameters
         ----------
-        run_idx :
-            
-        traj_idx :
-            
-        field_path :
-            
-        field_data :
-            
-
-        Returns
-        -------
+        run_idx : int
+        traj_idx : int
+        field_path : str
+            Field name
+        field_data : numpy.array
+            The frames of data to add.
 
         """
 
@@ -1414,23 +1544,19 @@ class WepyHDF5(object):
             field[-n_new_frames:, ...] = field_data
 
     def _extend_sparse_traj_field(self, run_idx, traj_idx, field_path, values, sparse_idxs):
-        """
+        """Add multiple new frames worth of data to the end of an existing
+        contiguous (non-sparse)trajectory field.
 
         Parameters
         ----------
-        run_idx :
-            
-        traj_idx :
-            
-        field_path :
-            
-        values :
-            
-        sparse_idxs :
-            
-
-        Returns
-        -------
+        run_idx : int
+        traj_idx : int
+        field_path : str
+            Field name
+        values : numpy.array
+            The frames of data to add.
+        sparse_idxs : list of int
+            The cycle indices the values correspond to.
 
         """
 
