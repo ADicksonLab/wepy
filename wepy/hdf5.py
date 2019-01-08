@@ -1,3 +1,384 @@
+"""Primary wepy simulation database driver and access API using the HDF5 format.
+
+The HDF5 Format Specification
+=============================
+
+As part of the wepy framework this module provides a fully-featured
+API for creating and accessing data generated in weighted ensemble
+simulations run with wepy.
+
+The need for a special purpose format is many-fold but primarily it is
+the nonlinear branching structure of walker trajectories coupled with
+weights.
+
+That is for standard simulations data is organized as independent
+linear trajectories of frames each related linearly to the one before
+it and after it.
+
+In weighted ensemble due to the resampling (i.e. cloning and merging)
+of walkers, a single frame may have multiple 'child' frames.
+
+This is the primary motivation for this format.
+
+However, in practice it solves several other issues and itself is a
+more general and flexible format than for just weighted ensemble
+simulations.
+
+Concretely the WepyHDF5 format is simply an informally described
+schema that is commensurable with the HDF5 constructs of hierarchical
+groups (similar to unix filesystem directories) arranged as a tree
+with datasets as the leaves.
+
+The hierarchy is fairly deep and so we will progress downwards from
+the top and describe each broad section in turn breaking it down when
+necessary.
+
+Header
+------
+
+The items right under the root of the tree are:
+
+- runs
+- topology
+- _settings
+
+The first item 'runs' is itself a group that contains all of the
+primary data from simulations. In WepyHDF5 the run is the unit
+dataset. All data internal to a run is self contained. That is for
+multiple dependent trajectories (e.g. from cloning and merging) all
+exist within a single run.
+
+This excludes metadata-like things that may be needed for interpreting
+this data, such as the molecular topology that imposes structure over
+a frame of atom positions. This information is placed in the
+'topology' item.
+
+The topology field has no specified internal structure at this
+time. However, with the current implementation of the WepyHDF5Reporter
+(which is the principal implementation of generating a WepyHDF5
+object/file from simulations) this is simply a string dataset. This
+string dataset should be a JSON compliant string. The format of which
+is specified elsewhere and was borrowed from the mdtraj library.
+
+Warning! this format and specification for the topology is subject to
+change in the future and will likely be kept unspecified indefinitely.
+
+For most intents and purposes (which we assume to be for molecular or
+molecular-like simulations) the 'topology' item (and perhaps any other
+item at the top level other than those proceeded by and underscore,
+such as in the '_settings' item) is merely useful metadata that
+applies to ALL runs and is not dynamical.
+
+In the language of the orchestration module all data in 'runs' uses
+the same 'apparatus' which is the function that takes in the initial
+conditions for walkers and produces new walkers. The apparatus may
+differ in the specific values of parameters but not in kind. This is
+to facilitate runs that are continuations of other runs. For these
+kinds of simulations the state of the resampler, boundary conditions,
+etc. will not be as they were initially but are the same in kind or
+type.
+
+All of the necessary type information of data in runs is kept in the
+'_settings' group. This is used to serialize information about the
+data types, shapes, run to run continuations etc. This allows for the
+initialization of an empty (no runs) WepyHDF5 database at one time and
+filling of data at another time. Otherwise types of datasets would
+have to be inferred from the data itself, which may not exist yet.
+
+As a convention items which are preceeded by an underscore (following
+the python convention) are to be considered hidden and mechanical to
+the proper functioning of various WepyHDF5 API features, such as
+sparse trajectory fields.
+
+The '_settings' is specified as a simple key-value structure, however
+values may be arbitrarily complex.
+
+Runs
+----
+
+The meat of the format is contained within the runs group:
+
+- runs
+  - 0
+  - 1
+  - 2
+  ...
+
+Under the runs group are a series of groups for each run. Runs are
+named according to the order in which they were added to the database.
+
+Within a run (say '0' from above) we have a number of items:
+
+- 0
+  - init_walkers
+  - trajectories
+  - decision
+  - resampling
+  - resampler
+  - warping
+  - progress
+  - boundary_conditions
+
+Trajectories
+^^^^^^^^^^^^
+
+The 'trajectories' group is where the data for the frames of the
+walker trajectories is stored.
+
+Even though the tree-like trajectories of weighted ensemble data may
+be well suited to having a tree-like storage topology we have opted to
+use something more familiar to the field, and have used a collection
+of linear "trajectories".
+
+This way of breaking up the trajectory data coupled with proper
+records of resampling (see below) allows for the imposition of a tree
+structure without committing to that as the data storage topology.
+
+This allows the WepyHDF5 format to be easily used as a container
+format for collections of linear trajectories. While this is not
+supported in any real capacity it is one small step to convergence. We
+feel that a format that contains multiple trajectories is important
+for situations like weighted ensemble where trajectories are
+interdependent. The transition to a storage format like HDF5 however
+opens up many possibilities for new features for trajectories that
+have not occurred despite several attempts to forge new formats based
+on HDF5 (TODO: get references right; see work in mdtraj and MDHDF5).
+
+Perhaps these formats have not caught on because the existing formats
+(e.g. XTC, DCD) for simple linear trajectories are good enough and
+there is little motivation to migrate.
+
+However, by making the WepyHDF5 format (and related sub-formats to be
+described e.g. record groups and the trajectory format) both cover a
+new use case which can't be achieved with old formats and old ones
+with ease.
+
+Once users see the power of using a format like HDF5 from using wepy
+they may continue to use it for simpler simulations.
+
+
+In any case the 'trajectories' in the group for weighted ensemble
+simulations should be thought of only as containers and not literally
+as trajectories. That is frame 4 does not necessarily follow from
+frame 3. So one may think of them more as "lanes" or "slots" for
+trajectory data that needs to be stitched together with the
+appropriate resampling records.
+
+The routines and methods for generating contiguous trajectories from
+the data in WepyHDF5 are given through the 'analysis' module, which
+generates "traces" through the dataset.
+
+With this in mind we will describe the sub-format of a trajectory now.
+
+The 'trajectories' group is similar to the 'runs' group in that it has
+sub-groups whose names are numbers. These numbers however are not the
+order in which they are created but an index of that trajectory which
+are typically laid out all at once.
+
+For a wepy simulation with a constant number of walkers you will only
+ever need as many trajectories/slots as there are walkers. So if you
+have 8 walkers then you will have trajectories 0 through 7. Concretely:
+
+- runs
+  - 0
+    - trajectories
+      - 0
+      - 1
+      - 2
+      - 3
+      - 4
+      - 5
+      - 6
+      - 7
+
+If we look at trajectory 0 we might see the following groups within:
+
+- positions
+- box_vectors
+- velocities
+- weights
+
+Which is what you would expect for a constant pressure molecular
+dynamics simulation where you have the positions of the atoms, the box
+size, and velocities of the atoms.
+
+The particulars for what "fields" a trajectory in general has are not
+important but this important use-case is directly supported in the
+WepyHDF5 format.
+
+In any such simulation, however, the 'weights' field will appear since
+this is the weight of the walker of this frame and is a value
+important to weighted ensemble and not the underlying dynamics.
+
+The naive approach to these fields is that each is a dataset of
+dimension (n_frames, *feature_vector_shape) where the first dimension
+is the cycle_idx and the rest of the dimensions are determined by the
+atomic feature vector for each field for a single frame.
+
+For example, the positions for a molecular simulation with 100 atoms
+with x, y, and z coordinates that ran for 1000 cycles would be a
+dataset of the shape (1000, 100, 3). Similarly the box vectors would
+be (1000, 3, 3) and the weights would be (1000, 1).
+
+This uniformity vastly simplifies accessing and adding new variables
+and requires that individual state values in walkers always be arrays
+with shapes, even when they are single values (e.g. energy). The
+exception being the weight which is handled separately.
+
+However, this situation is actually more complex to allow for special
+features.
+
+First of all is the presence of compound fields which allow nesting of
+multiple groups.
+
+The above "trajectory fields" would have identifiers such as the
+literal strings 'positions' and 'box_vectors', while a compound field
+would have an identifier 'observables/rmsd' or 'alt_reps/binding_site'.
+
+Use of trajectory field names using the '/' path separator will
+automatically make a field a group and the last element of the field
+name the dataset. So for the observables example we might have:
+
+- 0
+  - observables
+    - rmsd
+    - sasa
+
+Where the rmsd would be accessed as a trajectory field of trajectory 0
+as 'observables/rmsd' and the solvent accessible surface area as
+'observables/sasa'.
+
+This example introduces how the WepyHDF5 format is not only useful for
+storing data produced by simulation but also in the analysis of that
+data and computation of by-frame quantities.
+
+The 'observables' compound group key prefix is special and will be
+used in the 'compute_observables' method.
+
+The other special compound group key prefix is 'alt_reps' which is
+used for particle simulations to store "alternate representation" of
+the positions. This is useful in cooperation with the next feature of
+wepy trajectory fields to allow for more economical storage of data.
+
+The next feature (and complication of the format) is the allowance for
+sparse fields. As the fields were introduced we said that they should
+have as many feature vectors as there are frames for the
+simulation. In the example however, you will notice that storing both
+the full atomic positions and velocities for a long simulation
+requires a heavy storage burden.
+
+So perhaps you only want to store the velocities (or forces) every 100
+frames so that you can be able to restart a simulation form midway
+through the simulation. This is achieved through sparse fields.
+
+A sparse field is no longer a dataset but a group with two items:
+
+- _sparse_idxs
+- data
+
+The '_sparse_idxs' are simply a dataset of integers that assign each
+element of the 'data' dataset to a frame index. Using the above
+example we run a simulation for 1000 frames with 100 atoms and we save
+the velocities every 100 frames we would have a 'velocities/data'
+dataset of shape (100, 100, 3) which is 10 times less data than if it
+were saved every frame.
+
+While this complicates the storage format use of the proper API
+methods should be transparent whether you are returning a sparse field
+or not.
+
+As alluded to above the use of sparse fields can be used for more than
+just accessory fields. In many simulations, such as those with full
+atomistic simulations of proteins in solvent we often don't care about
+the dynamics of most of the atoms in the simulation and so would like
+to not have to save them.
+
+The 'alt_reps' compound field is meant to solve this. For example, the
+WepyHDF5Reporter supports a special option to save only a subset of
+the atoms in the main 'positions' field but also to save the full
+atomic system as an alternate representation, which is the field name
+'alt_reps/all_atoms'. So that you can still save the full system every
+once in a while but be economical in what positions you save every
+single frame.
+
+Note that there really isn't a way to achieve this with other
+formats. You either make a completely new trajectory with only the
+atoms of interest and now you are duplicating those in two places, or
+you duplicate and then filter your full systems trajectory file and
+rely on some sort of index to always live with it in the filesystem,
+which is a very precarious scenario. The situation is particularly
+hopeless for weighted ensemble trajectories.
+
+Init Walkers
+^^^^^^^^^^^^
+
+The data stored in the 'trajectories' section is the data that is
+returned after running dynamics in a cycle. Since we view the WepyHDF5
+as a completely self-contained format for simulations it seems
+negligent to rely on outside sources (such as the filesystem) for the
+initial structures that seeded the simulations. These states (and
+weights) can be stored in this group.
+
+The format of this group is identical to the one for trajectories
+except that there is only one frame for each slot and so the shape of
+the datasets for each field is just the shape of the feature vector.
+
+Record Groups
+^^^^^^^^^^^^^
+
+TODO: add reference to reference groups
+
+The last five items are what are called 'record groups' and all follow
+the same format.
+
+Each record group contains itself a number of datasets, where the
+names of the datasets correspond to the 'field names' from the record
+group specification. So each record groups is simply a key-value store
+where the values must be datasets.
+
+For instance the fields in the 'resampling' (which is particularly
+important as it encodes the branching structure) record group for a
+WExplore resampler simulation are:
+
+- step_idx
+- walker_idx
+- decision_id
+- target_idxs
+- region_assignment
+
+Where the 'step_idx' is an integer specifying which step of resampling
+within the cycle the resampling action took place (the cycle index is
+metadata for the group). The 'walker_idx' is the index of the walker
+that this action was assigned to. The 'decision_id' is an integer that
+is related to an enumeration of decision types that encodes which
+discrete action is to be taken for this resampling event (the
+enumeration is in the 'decision' item of the run groups). The
+'target_idxs' is a variable length 1-D array of integers which assigns
+the results of the action to specific target 'slots' (which was
+discussed for the 'trajectories' run group). And the
+'region_assignment' is specific to WExplore which reports on which
+region the walker was in at that time, and is a variable length 1-D
+array of integers.
+
+Additionally, record groups are broken into two types:
+
+- continual
+- sporadic
+
+Continual records occur once per cycle and so there is no extra
+indexing necessary.
+
+Sporadic records can happen multiple or zero times per cycle and so
+require a special index for them which is contained in the extra
+dataset '_cycle_idxs'.
+
+It is worth noting that the underlying methods for each record group
+are general. So while these are the official wepy record groups that
+are supported if there is a use-case that demands a new record group
+it is a fairly straightforward task from a developers perspective.
+
+"""
+
 import os.path as osp
 from collections import Sequence, namedtuple, defaultdict
 import itertools as it
