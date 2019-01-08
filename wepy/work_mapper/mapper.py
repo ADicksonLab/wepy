@@ -65,6 +65,7 @@ class Mapper(object):
 
     @property
     def segment_func(self):
+        """The function that will be called for new data in the `map` method."""
         return self._func
 
     def cleanup(self, **kwargs):
