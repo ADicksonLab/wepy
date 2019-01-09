@@ -3679,40 +3679,44 @@ class WepyHDF5(object):
                                                       fields)
 
 
-    def traj_n_frames(self, run_idx, traj_idx):
-        """
+    # TODO: should've been removed already just double checking things are good without it
+    # def traj_n_frames(self, run_idx, traj_idx):
+    #     """
 
-        Parameters
-        ----------
-        run_idx :
+    #     Parameters
+    #     ----------
+    #     run_idx :
             
-        traj_idx :
+    #     traj_idx :
             
 
-        Returns
-        -------
+    #     Returns
+    #     -------
 
-        """
-        return self.traj(run_idx, traj_idx)[POSITIONS].shape[0]
+    #     """
+    #     return self.traj(run_idx, traj_idx)[POSITIONS].shape[0]
 
     def add_traj(self, run_idx, data, weights=None, sparse_idxs=None, metadata=None):
-        """
+        """Add a full trajectory to a run.
 
         Parameters
         ----------
-        run_idx :
-            
-        data :
-            
-        weights :
+        run_idx : int
+        data : dict of str : arraylike
+            Mapping of trajectory fields to the data for them to add.
+        weights : 1-D arraylike of float
+            The weights of each frame. If None defaults all frames to 1.0.
              (Default value = None)
-        sparse_idxs :
+        sparse_idxs : list of int
+            Cycle indices the data corresponds to.
              (Default value = None)
-        metadata :
+        metadata : dict of str : value
+            Metadata for the trajectory.
              (Default value = None)
 
         Returns
         -------
+        traj_grp : h5py.Group
 
         """
 
@@ -3811,21 +3815,18 @@ class WepyHDF5(object):
         return traj_grp
 
     def extend_traj(self, run_idx, traj_idx, data, weights=None):
-        """
+        """Extend a trajectory with data for all fields.
 
         Parameters
         ----------
-        run_idx :
-            
-        traj_idx :
-            
-        data :
-            
-        weights :
+        run_idx : int
+        traj_idx : int
+        data : dict of str : arraylike
+            The data to add for each field of the trajectory. Must all
+            have the same first dimension.
+        weights : arraylike
+            Weights for the frames of the trajectory. If None defaults all frames to 1.0.
              (Default value = None)
-
-        Returns
-        -------
 
         """
 
@@ -3922,113 +3923,97 @@ class WepyHDF5(object):
     ## application level append methods for run records groups
 
     def extend_cycle_warping_records(self, run_idx, cycle_idx, warping_data):
-        """
+        """Add records for each field for this record group.
 
         Parameters
         ----------
-        run_idx :
-            
-        cycle_idx :
-            
-        warping_data :
-            
-
-        Returns
-        -------
+        run_idx : int
+        cycle_idx : int
+            The cycle index these records correspond to.
+        warping_data : dict of str : arraylike
+            Mapping of the record group fields to a collection of
+            values for each field.
 
         """
         self.extend_cycle_run_group_records(run_idx, WARPING, cycle_idx, warping_data)
 
     def extend_cycle_bc_records(self, run_idx, cycle_idx, bc_data):
-        """
+        """Add records for each field for this record group.
 
         Parameters
         ----------
-        run_idx :
-            
-        cycle_idx :
-            
-        bc_data :
-            
-
-        Returns
-        -------
+        run_idx : int
+        cycle_idx : int
+            The cycle index these records correspond to.
+        bc_data : dict of str : arraylike
+            Mapping of the record group fields to a collection of
+            values for each field.
 
         """
+
         self.extend_cycle_run_group_records(run_idx, BC, cycle_idx, bc_data)
 
     def extend_cycle_progress_records(self, run_idx, cycle_idx, progress_data):
-        """
+        """Add records for each field for this record group.
 
         Parameters
         ----------
-        run_idx :
-            
-        cycle_idx :
-            
-        progress_data :
-            
-
-        Returns
-        -------
+        run_idx : int
+        cycle_idx : int
+            The cycle index these records correspond to.
+        progress_data : dict of str : arraylike
+            Mapping of the record group fields to a collection of
+            values for each field.
 
         """
         self.extend_cycle_run_group_records(run_idx, PROGRESS, cycle_idx, progress_data)
 
     def extend_cycle_resampling_records(self, run_idx, cycle_idx, resampling_data):
-        """
+        """Add records for each field for this record group.
 
         Parameters
         ----------
-        run_idx :
-            
-        cycle_idx :
-            
-        resampling_data :
-            
-
-        Returns
-        -------
+        run_idx : int
+        cycle_idx : int
+            The cycle index these records correspond to.
+        resampling_data : dict of str : arraylike
+            Mapping of the record group fields to a collection of
+            values for each field.
 
         """
+
         self.extend_cycle_run_group_records(run_idx, RESAMPLING, cycle_idx, resampling_data)
 
     def extend_cycle_resampler_records(self, run_idx, cycle_idx, resampler_data):
-        """
+        """Add records for each field for this record group.
 
         Parameters
         ----------
-        run_idx :
-            
-        cycle_idx :
-            
-        resampler_data :
-            
-
-        Returns
-        -------
+        run_idx : int
+        cycle_idx : int
+            The cycle index these records correspond to.
+        resampler_data : dict of str : arraylike
+            Mapping of the record group fields to a collection of
+            values for each field.
 
         """
         self.extend_cycle_run_group_records(run_idx, RESAMPLER, cycle_idx, resampler_data)
 
     def extend_cycle_run_group_records(self, run_idx, run_record_key, cycle_idx, fields_data):
-        """Append data for a whole records group, that is every field
-        dataset. This must have the cycle index for the data it is
-        appending as this is done for sporadic and continual datasets.
+        """Extend data for a whole records group.
+
+        This must have the cycle index for the data it is appending as
+        this is done for sporadic and continual datasets.
 
         Parameters
         ----------
-        run_idx :
-            
-        run_record_key :
-            
-        cycle_idx :
-            
-        fields_data :
-            
-
-        Returns
-        -------
+        run_idx : int
+        run_record_key : str
+            Name of the record group.
+        cycle_idx : int
+            The cycle index these records correspond to.
+        fields_data : dict of str : arraylike
+            Mapping of the field name to the values for the records being added.
 
         """
 
@@ -4061,17 +4046,18 @@ class WepyHDF5(object):
     ## Record Getters
 
     def run_records(self, run_idx, run_record_key):
-        """
+        """Get the records for a record group for a single run.
 
         Parameters
         ----------
-        run_idx :
-            
-        run_record_key :
-            
+        run_idx : int
+        run_record_key : str
+            The name of the record group.
 
         Returns
         -------
+        records : list of namedtuple objects
+            The list of records for the run's record group.
 
         """
 
@@ -4082,17 +4068,26 @@ class WepyHDF5(object):
         return self.run_contig_records(run_idxs, run_record_key)
 
     def run_contig_records(self, run_idxs, run_record_key):
-        """
+        """Get the records for a record group for the contig that is formed by
+        the run indices.
+
+        This alters the cycle indices for the records so that they
+        appear to have come from a single run. That is they are the
+        cycle indices of the contig.
 
         Parameters
         ----------
-        run_idxs :
-            
-        run_record_key :
-            
+        run_idxs : list of int
+            The run indices that form a contig. (i.e. element 1
+            continues element 0)
+
+        run_record_key : str
+            Name of the record group.
 
         Returns
         -------
+        records : list of namedtuple objects
+            The list of records for the contig's record group.
 
         """
 
@@ -4111,34 +4106,37 @@ class WepyHDF5(object):
         return records
 
     def run_records_dataframe(self, run_idx, run_record_key):
-        """
+        """Get the records for a record group for a single run in the form of
+        a pandas DataFrame.
 
         Parameters
         ----------
-        run_idx :
-            
-        run_record_key :
-            
+        run_idx : int
+        run_record_key : str
+            Name of record group.
 
         Returns
         -------
-
+        record_df : pandas.DataFrame
         """
         records = self.run_records(run_idx, run_record_key)
         return pd.DataFrame(records)
 
     def run_contig_records_dataframe(self, run_idxs, run_record_key):
-        """
+        """Get the records for a record group for a contig of runs in the form
+	of a pandas DataFrame.
 
         Parameters
         ----------
-        run_idxs :
-            
-        run_record_key :
-            
+        run_idxs : list of int
+            The run indices that form a contig. (i.e. element 1
+            continues element 0)
+        run_record_key : str
+            The name of the record group.
 
         Returns
         -------
+        records_df : pandas.DataFrame
 
         """
         records = self.run_contig_records(run_idxs, run_record_key)
@@ -4148,30 +4146,41 @@ class WepyHDF5(object):
 
     # resampling
     def resampling_records(self, run_idxs):
-        """
+        """Get the records this record group for the contig that is formed by
+        the run indices.
+
+        This alters the cycle indices for the records so that they
+        appear to have come from a single run. That is they are the
+        cycle indices of the contig.
 
         Parameters
         ----------
-        run_idxs :
-            
+        run_idxs : list of int
+            The run indices that form a contig. (i.e. element 1
+            continues element 0)
 
         Returns
         -------
+        records : list of namedtuple objects
+            The list of records for the contig's record group.
 
         """
 
         return self.run_contig_records(run_idxs, RESAMPLING)
 
     def resampling_records_dataframe(self, run_idxs):
-        """
+        """Get the records for this record group for a contig of runs in the
+	form of a pandas DataFrame.
 
         Parameters
         ----------
-        run_idxs :
-            
+        run_idxs : list of int
+            The run indices that form a contig. (i.e. element 1
+            continues element 0)
 
         Returns
         -------
+        records_df : pandas.DataFrame
 
         """
 
@@ -4179,30 +4188,41 @@ class WepyHDF5(object):
 
     # resampler records
     def resampler_records(self, run_idxs):
-        """
+        """Get the records this record group for the contig that is formed by
+        the run indices.
+
+        This alters the cycle indices for the records so that they
+        appear to have come from a single run. That is they are the
+        cycle indices of the contig.
 
         Parameters
         ----------
-        run_idxs :
-            
+        run_idxs : list of int
+            The run indices that form a contig. (i.e. element 1
+            continues element 0)
 
         Returns
         -------
+        records : list of namedtuple objects
+            The list of records for the contig's record group.
 
         """
 
         return self.run_contig_records(run_idxs, RESAMPLER)
 
     def resampler_records_dataframe(self, run_idxs):
-        """
+        """Get the records for this record group for a contig of runs in the
+	form of a pandas DataFrame.
 
         Parameters
         ----------
-        run_idxs :
-            
+        run_idxs : list of int
+            The run indices that form a contig. (i.e. element 1
+            continues element 0)
 
         Returns
         -------
+        records_df : pandas.DataFrame
 
         """
 
@@ -4210,30 +4230,41 @@ class WepyHDF5(object):
 
     # warping
     def warping_records(self, run_idxs):
-        """
+        """Get the records this record group for the contig that is formed by
+        the run indices.
+
+        This alters the cycle indices for the records so that they
+        appear to have come from a single run. That is they are the
+        cycle indices of the contig.
 
         Parameters
         ----------
-        run_idxs :
-            
+        run_idxs : list of int
+            The run indices that form a contig. (i.e. element 1
+            continues element 0)
 
         Returns
         -------
+        records : list of namedtuple objects
+            The list of records for the contig's record group.
 
         """
 
         return self.run_contig_records(run_idxs, WARPING)
 
     def warping_records_dataframe(self, run_idxs):
-        """
+        """Get the records for this record group for a contig of runs in the
+	form of a pandas DataFrame.
 
         Parameters
         ----------
-        run_idxs :
-            
+        run_idxs : list of int
+            The run indices that form a contig. (i.e. element 1
+            continues element 0)
 
         Returns
         -------
+        records_df : pandas.DataFrame
 
         """
 
@@ -4241,30 +4272,41 @@ class WepyHDF5(object):
 
     # boundary conditions
     def bc_records(self, run_idxs):
-        """
+        """Get the records this record group for the contig that is formed by
+        the run indices.
+
+        This alters the cycle indices for the records so that they
+        appear to have come from a single run. That is they are the
+        cycle indices of the contig.
 
         Parameters
         ----------
-        run_idxs :
-            
+        run_idxs : list of int
+            The run indices that form a contig. (i.e. element 1
+            continues element 0)
 
         Returns
         -------
+        records : list of namedtuple objects
+            The list of records for the contig's record group.
 
         """
 
         return self.run_contig_records(run_idxs, BC)
 
     def bc_records_dataframe(self, run_idxs):
-        """
+        """Get the records for this record group for a contig of runs in the
+	form of a pandas DataFrame.
 
         Parameters
         ----------
-        run_idxs :
-            
+        run_idxs : list of int
+            The run indices that form a contig. (i.e. element 1
+            continues element 0)
 
         Returns
         -------
+        records_df : pandas.DataFrame
 
         """
 
@@ -4272,30 +4314,41 @@ class WepyHDF5(object):
 
     # progress
     def progress_records(self, run_idxs):
-        """
+        """Get the records this record group for the contig that is formed by
+        the run indices.
+
+        This alters the cycle indices for the records so that they
+        appear to have come from a single run. That is they are the
+        cycle indices of the contig.
 
         Parameters
         ----------
-        run_idxs :
-            
+        run_idxs : list of int
+            The run indices that form a contig. (i.e. element 1
+            continues element 0)
 
         Returns
         -------
+        records : list of namedtuple objects
+            The list of records for the contig's record group.
 
         """
 
         return self.run_contig_records(run_idxs, PROGRESS)
 
     def progress_records_dataframe(self, run_idxs):
-        """
+        """Get the records for this record group for a contig of runs in the
+	form of a pandas DataFrame.
 
         Parameters
         ----------
-        run_idxs :
-            
+        run_idxs : list of int
+            The run indices that form a contig. (i.e. element 1
+            continues element 0)
 
         Returns
         -------
+        records_df : pandas.DataFrame
 
         """
 
@@ -4303,29 +4356,36 @@ class WepyHDF5(object):
 
 
     def run_resampling_panel(self, run_idx):
-        """
+        """Generate a resampling panel from the resampling records of a run.
 
         Parameters
         ----------
-        run_idx :
-            
+        run_idx : int
 
         Returns
         -------
+        resampling_panel : list of list of list of namedtuple records
+            The panel (list of tables) of resampling records in order
+            (cycle, step, walker)
 
         """
         return self.run_contig_resampling_panel([run_idx])
 
     def run_contig_resampling_panel(self, run_idxs):
-        """
+        """Generate a resampling panel from the resampling records of a
+        contig, which is a series of runs.
 
         Parameters
         ----------
-        run_idxs :
-            
+        run_idxs : list of int
+            The run indices that form a contig. (i.e. element 1
+            continues element 0)
 
         Returns
         -------
+        resampling_panel : list of list of list of namedtuple records
+            The panel (list of tables) of resampling records in order
+            (cycle, step, walker)
 
         """
         # check the contig to make sure it is a valid contig
@@ -4343,21 +4403,20 @@ class WepyHDF5(object):
     # Trajectory Field Setters
 
     def add_run_observable(self, run_idx, observable_name, data, sparse_idxs=None):
-        """
+        """Add a trajectory sub-field in the compound field "observables" for
+        a single run.
 
         Parameters
         ----------
-        run_idx :
-            
-        observable_name :
-            
-        data :
-            
-        sparse_idxs :
+        run_idx : int
+        observable_name : str
+            What to name the observable subfield.
+        data : arraylike of shape (n_trajs, *feature_vector_shape)
+            The data for all of the trajectories that will be set to
+            this observable field.
+        sparse_idxs : list of int, optional
+            If not None, specifies the cycle indices this data corresponds to.
              (Default value = None)
-
-        Returns
-        -------
 
         """
         obs_path = '{}/{}'.format(OBSERVABLES, observable_name)
@@ -4366,19 +4425,23 @@ class WepyHDF5(object):
 
 
     def add_observable(self, observable_name, data, sparse_idxs=None):
-        """
+        """Add a trajectory sub-field in the compound field "observables" for
+        an entire file.
 
         Parameters
         ----------
-        observable_name :
-            
-        data :
-            
-        sparse_idxs :
-             (Default value = None)
+        observable_name : str
+            What to name the observable subfield.
 
-        Returns
-        -------
+        data : list of arraylike
+            The data for each run are the elements of this
+            argument. Each element is an arraylike of shape
+            (n_trajs, *feature_vector_shape) for this run.
+
+        sparse_idxs : list of list of int, optional
+            If not None, specifies the cycle indices this data
+            corresponds to. First by run, then by trajectory.
+             (Default value = None)
 
         """
         obs_path = '{}/{}'.format(OBSERVABLES, observable_name)
@@ -4395,25 +4458,58 @@ class WepyHDF5(object):
 
         Parameters
         ----------
-        func :
-            
-        fields :
-            
-        *args :
-            
-        map_func :
+        func : callable
+            The function to apply to the trajectory fields (by
+            cycle). Must accept a dictionary mapping string trajectory
+            field names to a feature vector for that cycle and return
+            an arraylike. May accept other positional arguments as well.
+
+        fields : list of str
+            A list of trajectory field names to pass to the mapped function.
+
+        args : None or list of tuple or tuple
+            If not None either a list of additional positional
+            arguments to pass to the mapped function for each cycle
+            (which must be either the same length as the number of
+            cycles) or only a single tuple of arguments which will be
+            used for every cycle.
+
+        map_func : callable
+            The mapping function. The implementation of how to map the
+            computation function over the data. Default is the python
+            builtin `map` function. Can be a parallel implementation
+            for example.
              (Default value = map)
-        traj_sel :
+
+        traj_sel : list of tuple, optional
+            If not None, a list of trajectory identifier tuple
+            (run_idx, traj_idx) to restrict the computation to.
              (Default value = None)
-        save_to_hdf5 :
+
+        save_to_hdf5 : None or string, optional
+            If not None, a string that specifies the name of the
+            observables sub-field that the computed values will be saved to.
              (Default value = None)
-        idxs :
+
+        idxs : bool
+            If True will return the trajectory identifier tuple
+            (run_idx, traj_idx) along with other return values.
              (Default value = False)
-        return_results :
+
+        return_results : bool
+            If True will return the results of the mapping. If not
+            using the 'save_to_hdf5' option, be sure to use this or
+            results will be lost.
              (Default value = True)
 
         Returns
         -------
+
+        traj_id_tuples : list of tuple of int, if 'idxs' option is True
+            A list of the tuple identifiers for each trajectory result.
+
+        results : list of arraylike, if 'return_results' option is True
+            A list of arraylike feature vectors for each trajectory.
 
         """
 
@@ -4480,8 +4576,8 @@ class WepyHDF5(object):
     ## Trajectory Getters
 
     def get_traj_field(self, run_idx, traj_idx, field_path, frames=None, masked=True):
-        """Returns a numpy array for the given field.
-        
+        """Returns a numpy array for the given trajectory field.
+
         You can control how sparse fields are returned using the
         `masked` option. When True (default) a masked numpy array will
         be returned such that you can get which cycles it is from,
@@ -4490,19 +4586,25 @@ class WepyHDF5(object):
 
         Parameters
         ----------
-        run_idx :
-            
-        traj_idx :
-            
-        field_path :
-            
-        frames :
+        run_idx : int
+        traj_idx : int
+        field_path : str
+            Name of the trajectory field to get
+
+        frames : None or list of int
+            If not None, a list of the frame indices of the trajectory
+            to return values for.
              (Default value = None)
-        masked :
+
+        masked : bool
+            If true will return sparse field values as masked arrays,
+            otherwise just returns the compacted data.
              (Default value = True)
 
         Returns
         -------
+        field_data : arraylike
+            The data for the trajectory field.
 
         """
 
@@ -4522,17 +4624,22 @@ class WepyHDF5(object):
                                                    frames=frames)
 
     def get_trace_fields(self, frame_tups, fields):
-        """
+        """Get trajectory field data for the frames specified by the trace.
 
         Parameters
         ----------
-        frame_tups :
-            
-        fields :
-            
+        frame_tups : list of tuple of int
+            The trace values. Each tuple is of the form
+            (run_idx, traj_idx, frame_idx).
+
+        fields : list of str
+            The names of the fields to get for each frame.
 
         Returns
         -------
+        trace_fields : dict of str : arraylike
+            Mapping of the field names to the array of feature vectors
+            for the trace.
 
         """
         frame_fields = {field : [] for field in fields}
@@ -4550,19 +4657,25 @@ class WepyHDF5(object):
         return frame_fields
 
     def get_run_trace_fields(self, run_idx, frame_tups, fields):
-        """
+        """Get trajectory field data for the frames specified by the trace
+        within a single run.
 
         Parameters
         ----------
-        run_idx :
-            
-        frame_tups :
-            
-        fields :
-            
+        run_idx : int
+
+        frame_tups : list of tuple of int
+            The trace values. Each tuple is of the form
+            (traj_idx, frame_idx).
+
+        fields : list of str
+            The names of the fields to get for each frame.
 
         Returns
         -------
+        trace_fields : dict of str : arraylike
+            Mapping of the field names to the array of feature vectors
+            for the trace.
 
         """
         frame_fields = {field : [] for field in fields}
@@ -4585,19 +4698,24 @@ class WepyHDF5(object):
 
 
     def get_contig_trace_fields(self, contig_trace, fields):
-        """Given a contig trace (run_idx, cycle_idx) returns a dictionary for
-        each field where each value is an array of the values
-        (N_cycles, N_trajs, *field_dims)
+        """Get field data for all trajectories of a contig for the frames
+        specified by the contig trace.
 
         Parameters
         ----------
-        contig_trace :
-            
-        fields :
-            
+        contig_trace : list of tuple of int
+            The trace values. Each tuple is of the form
+            (run_idx, frame_idx).
+
+        fields : list of str
+            The names of the fields to get for each cycle.
 
         Returns
         -------
+        contig_fields : dict of str : arraylike
+                             of shape (n_cycles, n_trajs, *field_feature_shape)
+            Mapping of the field names to the array of feature vectors
+            for contig trace.
 
         """
 
@@ -4662,22 +4780,32 @@ class WepyHDF5(object):
         return field_values
 
     def iter_trajs_fields(self, fields, idxs=False, traj_sel=None):
-        """Generator for all of the specified non-compound fields
-        h5py.Datasets for all trajectories in the dataset across all
-        runs. Fields is a list of valid relative paths to datasets in
-        the trajectory groups.
+        """Generator for iterating over fields trajectories in a file.
 
         Parameters
         ----------
-        fields :
-            
-        idxs :
+        fields : list of str
+            Names of the trajectory fields you want to yield.
+
+        idxs : bool
+            If True will also return the tuple identifier of the
+            trajectory the field data is from.
              (Default value = False)
-        traj_sel :
+
+        traj_sel : list of tuple of int
+            If not None, a list of trajectory identifiers to restrict
+            iteration over.
              (Default value = None)
 
-        Returns
-        -------
+        Yields
+        ------
+        traj_identifier : tuple of int if 'idxs' option is True
+            Tuple identifying the trajectory the data belongs to
+            (run_idx, traj_idx).
+
+        fields_data : dict of str : arraylike
+            Mapping of the field name to the array of feature vectors
+            of that field for this trajectory.
 
         """
 
@@ -4708,143 +4836,141 @@ class WepyHDF5(object):
             else:
                 yield dsets
 
-    def run_map(self, func, *args, map_func=map, idxs=False, run_sel=None):
-        """Function for mapping work onto trajectories in the WepyHDF5 file
-           object. The call to iter_runs is run with `idxs=False`.
-        
-        func : the function that will be mapped to trajectory groups
-        
-        map_func : the function that maps the function. This is where
-                        parallelization occurs if desired.  Defaults to
-                        the serial python map function.
-        
-        traj_sel : a trajectory selection. This is a valid `traj_sel`
-        argument for the `iter_trajs` function.
-        
-        idxs : if True results contain [(run_idx, result),...], if False
-        returns [result,...]
-        
-        *args : additional arguments to the function. If this is an
-                 iterable it will be assumed that it is the appropriate
-                 length for the number of trajectories, WARNING: this will
-                 not be checked and could result in a run time
-                 error. Otherwise single values will be automatically
-                 mapped to all trajectories.
-        
-        **kwargs : same as *args, but will pass all kwargs to the func.
+    # TODO: deprecate these are really kind of unnecessary
 
-        Parameters
-        ----------
-        func :
+    # def run_map(self, func, *args, map_func=map, idxs=False, run_sel=None):
+    #     """Function for mapping work onto trajectories in the WepyHDF5 file
+    #        object. The call to iter_runs is run with `idxs=False`.
+        
+    #     func : the function that will be mapped to trajectory groups
+        
+    #     map_func : the function that maps the function. This is where
+    #                     parallelization occurs if desired.  Defaults to
+    #                     the serial python map function.
+        
+    #     traj_sel : a trajectory selection. This is a valid `traj_sel`
+    #     argument for the `iter_trajs` function.
+        
+    #     idxs : if True results contain [(run_idx, result),...], if False
+    #     returns [result,...]
+        
+    #     *args : additional arguments to the function. If this is an
+    #              iterable it will be assumed that it is the appropriate
+    #              length for the number of trajectories, WARNING: this will
+    #              not be checked and could result in a run time
+    #              error. Otherwise single values will be automatically
+    #              mapped to all trajectories.
+        
+    #     **kwargs : same as *args, but will pass all kwargs to the func.
+
+    #     Parameters
+    #     ----------
+    #     func : callable
+    #         Function that will be mapped to each run group.
+    #     *args :
             
-        *args :
+    #     map_func :
+    #          (Default value = map)
+    #     idxs :
+    #          (Default value = False)
+    #     run_sel :
+    #          (Default value = None)
+
+    #     Returns
+    #     -------
+
+    #     """
+
+    #     # check the args and kwargs to see if they need expanded for
+    #     # mapping inputs
+    #     mapped_args = []
+    #     for arg in args:
+    #         # if it is a sequence or generator we keep just pass it to the mapper
+    #         if isinstance(arg, Sequence) and not isinstance(arg, str):
+    #             assert len(arg) == self.num_runs, \
+    #                 "argument Sequence has fewer number of args then trajectories"
+    #             mapped_args.append(arg)
+    #         # if it is not a sequence or generator we make a generator out
+    #         # of it to map as inputs
+    #         else:
+    #             mapped_arg = (arg for i in range(self.num_runs))
+    #             mapped_args.append(mapped_arg)
+
+
+    #     results = map_func(func, self.iter_runs(idxs=False, run_sel=run_sel),
+    #                        *mapped_args)
+
+    #     if idxs:
+    #         if run_sel is None:
+    #             run_sel = self.run_idxs
+    #         return zip(run_sel, results)
+    #     else:
+    #         return results
+
+
+    # def traj_map(self, func, *args, map_func=map, idxs=False, traj_sel=None):
+    #     """Function for mapping work onto trajectories in the WepyHDF5 file object.
+        
+    #     func : the function that will be mapped to trajectory groups
+        
+    #     map_func : the function that maps the function. This is where
+    #                     parallelization occurs if desired.  Defaults to
+    #                     the serial python map function.
+        
+    #     traj_sel : a trajectory selection. This is a valid `traj_sel`
+    #     argument for the `iter_trajs` function.
+        
+    #     *args : additional arguments to the function. If this is an
+    #              iterable it will be assumed that it is the appropriate
+    #              length for the number of trajectories, WARNING: this will
+    #              not be checked and could result in a run time
+    #              error. Otherwise single values will be automatically
+    #              mapped to all trajectories.
+
+    #     Parameters
+    #     ----------
+    #     func :
             
-        map_func :
-             (Default value = map)
-        idxs :
-             (Default value = False)
-        run_sel :
-             (Default value = None)
-
-        Returns
-        -------
-
-        """
-
-        # check the args and kwargs to see if they need expanded for
-        # mapping inputs
-        mapped_args = []
-        for arg in args:
-            # if it is a sequence or generator we keep just pass it to the mapper
-            if isinstance(arg, Sequence) and not isinstance(arg, str):
-                assert len(arg) == self.num_runs, \
-                    "argument Sequence has fewer number of args then trajectories"
-                mapped_args.append(arg)
-            # if it is not a sequence or generator we make a generator out
-            # of it to map as inputs
-            else:
-                mapped_arg = (arg for i in range(self.num_runs))
-                mapped_args.append(mapped_arg)
-
-
-        results = map_func(func, self.iter_runs(idxs=False, run_sel=run_sel),
-                           *mapped_args)
-
-        if idxs:
-            if run_sel is None:
-                run_sel = self.run_idxs
-            return zip(run_sel, results)
-        else:
-            return results
-
-
-    def traj_map(self, func, *args, map_func=map, idxs=False, traj_sel=None):
-        """Function for mapping work onto trajectories in the WepyHDF5 file object.
-        
-        func : the function that will be mapped to trajectory groups
-        
-        map_func : the function that maps the function. This is where
-                        parallelization occurs if desired.  Defaults to
-                        the serial python map function.
-        
-        traj_sel : a trajectory selection. This is a valid `traj_sel`
-        argument for the `iter_trajs` function.
-        
-        *args : additional arguments to the function. If this is an
-                 iterable it will be assumed that it is the appropriate
-                 length for the number of trajectories, WARNING: this will
-                 not be checked and could result in a run time
-                 error. Otherwise single values will be automatically
-                 mapped to all trajectories.
-
-        Parameters
-        ----------
-        func :
+    #     *args :
             
-        *args :
-            
-        map_func :
-             (Default value = map)
-        idxs :
-             (Default value = False)
-        traj_sel :
-             (Default value = None)
+    #     map_func :
+    #          (Default value = map)
+    #     idxs :
+    #          (Default value = False)
+    #     traj_sel :
+    #          (Default value = None)
 
-        Returns
-        -------
+    #     Returns
+    #     -------
 
-        """
+    #     """
 
-        # check the args and kwargs to see if they need expanded for
-        # mapping inputs
-        mapped_args = []
-        for arg in args:
-            # if it is a sequence or generator we keep just pass it to the mapper
-            if isinstance(arg, Sequence) and not isinstance(arg, str):
-                assert len(arg) == self.num_trajs, "Sequence has fewer"
-                mapped_args.append(arg)
-            # if it is not a sequence or generator we make a generator out
-            # of it to map as inputs
-            else:
-                mapped_arg = (arg for i in range(self.num_trajs))
-                mapped_args.append(mapped_arg)
+    #     # check the args and kwargs to see if they need expanded for
+    #     # mapping inputs
+    #     mapped_args = []
+    #     for arg in args:
+    #         # if it is a sequence or generator we keep just pass it to the mapper
+    #         if isinstance(arg, Sequence) and not isinstance(arg, str):
+    #             assert len(arg) == self.num_trajs, "Sequence has fewer"
+    #             mapped_args.append(arg)
+    #         # if it is not a sequence or generator we make a generator out
+    #         # of it to map as inputs
+    #         else:
+    #             mapped_arg = (arg for i in range(self.num_trajs))
+    #             mapped_args.append(mapped_arg)
 
-        results = map_func(func, self.iter_trajs(traj_sel=traj_sel), *mapped_args)
+    #     results = map_func(func, self.iter_trajs(traj_sel=traj_sel), *mapped_args)
 
-        if idxs:
-            if traj_sel is None:
-                traj_sel = self.run_traj_idx_tuples()
-            return zip(traj_sel, results)
-        else:
-            return results
+    #     if idxs:
+    #         if traj_sel is None:
+    #             traj_sel = self.run_traj_idx_tuples()
+    #         return zip(traj_sel, results)
+    #     else:
+    #         return results
 
     def traj_fields_map(self, func, fields, *args, map_func=map, idxs=False, traj_sel=None):
-        """Function for mapping work onto field of trajectories in the
-        WepyHDF5 file object. Similar to traj_map, except `h5py.Group`
-        objects cannot be pickled for message passing. So we select
-        the fields to serialize instead and pass the `numpy.ndarray`s
-        to have the work mapped to them.
-        
+        """Function for mapping work onto field of trajectories.
+
         func : the function that will be mapped to trajectory groups
         
         fields : list of fields that will be serialized into a dictionary
@@ -4870,21 +4996,46 @@ class WepyHDF5(object):
 
         Parameters
         ----------
-        func :
-            
-        fields :
-            
-        *args :
-            
-        map_func :
+        func : callable
+            The function to apply to the trajectory fields (by
+            cycle). Must accept a dictionary mapping string trajectory
+            field names to a feature vector for that cycle and return
+            an arraylike. May accept other positional arguments as well.
+
+        fields : list of str
+            A list of trajectory field names to pass to the mapped function.
+
+        args : None or list of tuple or tuple
+            If not None either a list of additional positional
+            arguments to pass to the mapped function for each cycle
+            (which must be either the same length as the number of
+            cycles) or only a single tuple of arguments which will be
+            used for every cycle.
+
+        map_func : callable
+            The mapping function. The implementation of how to map the
+            computation function over the data. Default is the python
+            builtin `map` function. Can be a parallel implementation
+            for example.
              (Default value = map)
-        idxs :
-             (Default value = False)
-        traj_sel :
+
+        traj_sel : list of tuple, optional
+            If not None, a list of trajectory identifier tuple
+            (run_idx, traj_idx) to restrict the computation to.
              (Default value = None)
+
+        idxs : bool
+            If True will return the trajectory identifier tuple
+            (run_idx, traj_idx) along with other return values.
+             (Default value = False)
 
         Returns
         -------
+        traj_id_tuples : list of tuple of int, if 'idxs' option is True
+            A list of the tuple identifiers for each trajectory result.
+
+        results : list of arraylike
+            A list of arraylike feature vectors for each trajectory.
 
         """
 
@@ -4918,21 +5069,36 @@ class WepyHDF5(object):
             return results
 
     def to_mdtraj(self, run_idx, traj_idx, frames=None, alt_rep=None):
-        """
+        """Convert a trajectory to an mdtraj Trajectory object.
+
+        Works if the right trajectory fields are defined. Minimally
+        this is a representation, including the 'positions' field or
+        an 'alt_rep' subfield.
+
+        Will also set the unitcell lengths and angle if the
+        'box_vectors' field is present.
+
+        Will also set the time for the frames if the 'time' field is
+        present, although this is likely not useful since walker
+        segments have the time reset.
 
         Parameters
         ----------
-        run_idx :
-            
-        traj_idx :
-            
-        frames :
+        run_idx : int
+        traj_idx : int
+
+        frames : None or list of int
+            If not None, a list of the frames to include.
              (Default value = None)
-        alt_rep :
+
+        alt_rep : str
+            If not None, an 'alt_reps' subfield name to use for
+            positions instead of the 'positions' field.
              (Default value = None)
 
         Returns
         -------
+        traj : mdtraj.Trajectory
 
         """
 
