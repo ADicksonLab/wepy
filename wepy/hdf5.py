@@ -1607,15 +1607,12 @@ class WepyHDF5(object):
         field_sparse_idxs[-n_new_frames:, ...] = sparse_idxs
 
     def _add_sparse_field_flag(self, field_path):
-        """
+        """Register a trajectory field as sparse in the header settings.
 
         Parameters
         ----------
-        field_path :
-            
-
-        Returns
-        -------
+        field_path : str
+            Name of the trajectory field you want to flag as sparse
 
         """
 
@@ -1629,34 +1626,28 @@ class WepyHDF5(object):
         sparse_fields_ds[sparse_fields_ds.shape[0] - 1] = field_path
 
     def _add_field_feature_shape(self, field_path, field_feature_shape):
-        """
+        """Add the shape to the header settings for a trajectory field.
 
         Parameters
         ----------
-        field_path :
-            
-        field_feature_shape :
-            
-
-        Returns
-        -------
+        field_path : str
+            The name of the trajectory field you want to set for.
+        field_feature_shape : shape_spec
+            The shape spec to serialize as a dataset.
 
         """
         shapes_grp = self._h5['{}/{}'.format(SETTINGS, FIELD_FEATURE_SHAPES_STR)]
         shapes_grp.create_dataset(field_path, data=np.array(field_feature_shape))
 
     def _add_field_feature_dtype(self, field_path, field_feature_dtype):
-        """
+        """Add the data type to the header settings for a trajectory field.
 
         Parameters
         ----------
-        field_path :
-            
-        field_feature_dtype :
-            
-
-        Returns
-        -------
+        field_path : str
+            The name of the trajectory field you want to set for.
+        field_feature_dtype : dtype_spec
+            The dtype spec to serialize as a dataset.
 
         """
         feature_dtype_str = json.dumps(field_feature_dtype.descr)
@@ -1665,17 +1656,14 @@ class WepyHDF5(object):
 
 
     def _set_field_feature_shape(self, field_path, field_feature_shape):
-        """
+        """Add the trajectory field shape to header settings or set the value.
 
         Parameters
         ----------
-        field_path :
-            
-        field_feature_shape :
-            
-
-        Returns
-        -------
+        field_path : str
+            The name of the trajectory field you want to set for.
+        field_feature_shape : shape_spec
+            The shape spec to serialize as a dataset.
 
         """
         # check if the field_feature_shape is already set
@@ -1697,17 +1685,14 @@ class WepyHDF5(object):
             self._add_field_feature_shape(field_path, field_feature_shape)
 
     def _set_field_feature_dtype(self, field_path, field_feature_dtype):
-        """
+        """Add the trajectory field dtype to header settings or set the value.
 
         Parameters
         ----------
-        field_path :
-            
-        field_feature_dtype :
-            
-
-        Returns
-        -------
+        field_path : str
+            The name of the trajectory field you want to set for.
+        field_feature_dtype : dtype_spec
+            The dtype spec to serialize as a dataset.
 
         """
         feature_dtype_str = json.dumps(field_feature_dtype.descr)
@@ -1731,23 +1716,21 @@ class WepyHDF5(object):
 
     def _extend_run_record_data_field(self, run_idx, run_record_key,
                                           field_name, field_data):
-        """Adds data for a single field dataset in a run records group. This
+        """Primitive record append method.
+
+        Adds data for a single field dataset in a run records group. This
         is done without paying attention to whether it is sporadic or
         continual and is supposed to be only the data write method.
 
         Parameters
         ----------
-        run_idx :
-            
-        run_record_key :
-            
-        field_name :
-            
-        field_data :
-            
-
-        Returns
-        -------
+        run_idx : int
+        run_record_key : str
+            Name of the record group.
+        field_name : str
+            Name of the field in the record group to add to.
+        field_data : arraylike
+            The data to add to the field.
 
         """
 
@@ -1824,15 +1807,20 @@ class WepyHDF5(object):
 
 
     def _run_record_namedtuple(self, run_record_key):
-        """
+        """Generate a namedtuple record type for a record group.
+
+        The class name will be formatted like '{}_Record' where the {}
+        will be replaced with the name of the record group.
 
         Parameters
         ----------
-        run_record_key :
-            
+        run_record_key : str
+            Name of the record group
 
         Returns
         -------
+        RecordType : namedtuple
+            The record type to generate records for this record group.
 
         """
 
@@ -1842,19 +1830,35 @@ class WepyHDF5(object):
         return Record
 
     def _convert_record_field_to_table_column(self, run_idx, run_record_key, record_field):
-        """
+        """Converts a dataset of feature vectors to more palatable values for
+        use in external datasets.
+
+        For single value feature vectors it unwraps them into single
+        values.
+
+        For 1-D feature vectors it casts them as tuples.
+
+        Anything of higher rank will raise an error.
 
         Parameters
         ----------
-        run_idx :
-            
-        run_record_key :
-            
-        record_field :
-            
+        run_idx : int
+        run_record_key : str
+            Name of the record group
+        record_field : str
+            Name of the field of the record group
 
         Returns
         -------
+
+        record_dset : list
+            Table-ified values
+
+        Raises
+        ------
+
+        TypeError
+            If the field feature vector shape rank is greater than 1.
 
         """
 
@@ -1888,17 +1892,24 @@ class WepyHDF5(object):
         return rec_dset
 
     def _convert_record_fields_to_table_columns(self, run_idx, run_record_key):
-        """
+        """Convert record group data to truncated namedtuple records.
+
+        This uses the specified record fields from the header settings
+        to choose which record group fields to apply this to.
+
+        Does no checking to make sure the fields are
+        "table-ifiable". If a field is not it will raise a TypeError.
 
         Parameters
         ----------
-        run_idx :
-            
-        run_record_key :
-            
+        run_idx : int
+        run_record_key : str
+            The name of the record group
 
         Returns
         -------
+        table_fields : dict of str : list
+            Mapping of the record group field to the table-ified values.
 
         """
         fields = {}
@@ -1909,19 +1920,20 @@ class WepyHDF5(object):
         return fields
 
     def _make_records(self, run_record_key, cycle_idxs, fields):
-        """
+        """Generate a list of proper (nametuple) records for a record group.
 
         Parameters
         ----------
-        run_record_key :
-            
-        cycle_idxs :
-            
-        fields :
-            
+        run_record_key : str
+            Name of the record group
+        cycle_idxs : list of int
+            The cycle indices you want to get records for.
+        fields : list of str
+            The fields to make record entries for.
 
         Returns
         -------
+        records : list of namedtuple objects
 
         """
         Record = self._run_record_namedtuple(run_record_key)
@@ -1943,17 +1955,30 @@ class WepyHDF5(object):
         return records
 
     def _run_records_sporadic(self, run_idxs, run_record_key):
-        """
+        """Generate records for a sporadic record group for a multi-run
+        contig.
+
+        If multiple run indices are given assumes that these are a
+        contig (e.g. the second run index is a continuation of the
+        first and so on). This method is considered low-level and does
+        no checking to make sure this is true.
+
+        The cycle indices of records from "continuation" runs will be
+        modified so as the records will be indexed as if they are a
+        single run.
+
+        Uses the record fields settings to decide which fields to use.
 
         Parameters
         ----------
-        run_idxs :
-            
-        run_record_key :
-            
+        run_idxs : list of int
+            The indices of the runs in the order they are in the contig
+        run_record_key : str
+            Name of the record group
 
         Returns
         -------
+        records : list of namedtuple objects
 
         """
 
@@ -2005,17 +2030,30 @@ class WepyHDF5(object):
         return records
 
     def _run_records_continual(self, run_idxs, run_record_key):
-        """
+        """Generate records for a continual record group for a multi-run
+        contig.
+
+        If multiple run indices are given assumes that these are a
+        contig (e.g. the second run index is a continuation of the
+        first and so on). This method is considered low-level and does
+        no checking to make sure this is true.
+
+        The cycle indices of records from "continuation" runs will be
+        modified so as the records will be indexed as if they are a
+        single run.
+
+        Uses the record fields settings to decide which fields to use.
 
         Parameters
         ----------
-        run_idxs :
-            
-        run_record_key :
-            
+        run_idxs : list of int
+            The indices of the runs in the order they are in the contig
+        run_record_key : str
+            Name of the record group
 
         Returns
         -------
+        records : list of namedtuple objects
 
         """
 
@@ -2069,21 +2107,22 @@ class WepyHDF5(object):
 
 
     def _get_contiguous_traj_field(self, run_idx, traj_idx, field_path, frames=None):
-        """
+        """Access actual data for a trajectory field.
 
         Parameters
         ----------
-        run_idx :
-            
-        traj_idx :
-            
-        field_path :
-            
-        frames :
+        run_idx : int
+        traj_idx : int
+        field_path : str
+            Trajectory field name to access
+        frames : list of int, optional
+            The indices of the frames to return if you don't want all of them.
              (Default value = None)
 
         Returns
         -------
+        field_data : arraylike
+            The data requested for the field.
 
         """
 
@@ -2097,23 +2136,26 @@ class WepyHDF5(object):
         return field
 
     def _get_sparse_traj_field(self, run_idx, traj_idx, field_path, frames=None, masked=True):
-        """
+        """Access actual data for a trajectory field.
 
         Parameters
         ----------
-        run_idx :
-            
-        traj_idx :
-            
-        field_path :
-            
-        frames :
+        run_idx : int
+        traj_idx : int
+        field_path : str
+            Trajectory field name to access
+        frames : list of int, optional
+            The indices of the frames to return if you don't want all of them.
              (Default value = None)
-        masked :
+        masked : bool
+            If True returns the array data as numpy masked array, and
+            only the available values if False.
              (Default value = True)
 
         Returns
         -------
+        field_data : arraylike
+            The data requested for the field.
 
         """
 
@@ -2170,21 +2212,21 @@ class WepyHDF5(object):
 
 
     def _add_run_field(self, run_idx, field_path, data, sparse_idxs=None):
-        """Add a field to your trajectories runs
+        """Add a trajectory field to all trajectories in a run.
+
+        By enforcing adding it to all trajectories at one time we
+        promote in-run consistency.
 
         Parameters
         ----------
-        run_idx :
-            
-        field_path :
-            
-        data :
-            
-        sparse_idxs :
+        run_idx : int
+        field_path : str
+            Name to set the trajectory field as. Can be compound.
+        data : arraylike of shape (n_trajectories, n_cycles, *feature_vector_shape)
+            The data for all trajectories to be added.
+        sparse_idxs : list of int
+            If the data you are adding is sparse specify which cycles to apply them to.
              (Default value = None)
-
-        Returns
-        -------
 
         """
 
@@ -2238,19 +2280,20 @@ class WepyHDF5(object):
                                           sparse_idxs=sparse_idxs[i])
 
     def _add_field(self, field_path, data, sparse_idxs=None):
-        """
+        """Add a trajectory field to all runs in a file.
 
         Parameters
         ----------
-        field_path :
-            
-        data :
-            
-        sparse_idxs :
+        field_path : str
+            Name of trajectory field
+        data : list of arraylike
+            Each element of this list corresponds to a single run. The
+            elements of which are arraylikes of shape (n_trajectories,
+            n_cycles, *feature_vector_shape) for each run.
+        sparse_idxs : list of list of int
+            The list of cycle indices to set for the sparse fields. If
+            None, no trajectories are set as sparse.
              (Default value = None)
-
-        Returns
-        -------
 
         """
 
