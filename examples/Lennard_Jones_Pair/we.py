@@ -60,7 +60,7 @@ from wepy.walker import Walker
 from wepy.runners.openmm import OpenMMRunner, OpenMMState
 from wepy.runners.openmm import UNIT_NAMES, GET_STATE_KWARG_DEFAULTS
 from wepy.work_mapper.mapper import Mapper
-from wepy.boundary_conditions.unbinding import UnbindingBC
+from wepy.boundary_conditions.receptor import UnbindingBC
 from wepy.reporter.hdf5 import WepyHDF5Reporter
 from wepy.reporter.wexplore.dashboard import WExploreDashboardReporter
 

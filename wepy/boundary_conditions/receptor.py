@@ -5,6 +5,7 @@ including unbinding and rebinding.
 
 from collections import defaultdict
 import logging
+import itertools as it
 
 import numpy as np
 
@@ -15,6 +16,7 @@ from geomm.rmsd import calc_rmsd
 import mdtraj as mdj
 
 from wepy.util.util import box_vectors_to_lengths_angles
+from wepy.util.mdtraj import json_to_mdtraj_topology
 
 from wepy.boundary_conditions.boundary import BoundaryConditions
 
@@ -133,7 +135,7 @@ class ReceptorBC(BoundaryConditions):
         # initial probability if specified. If not specified assume
         # assume uniform probabilities.
         if initial_weights is None:
-            self.initial_weights = [1/len(initial_states) for _ in initial_states]
+            self._initial_weights = [1/len(initial_states) for _ in initial_states]
         else:
             self._initial_weights = initial_weights
 
@@ -209,7 +211,7 @@ class ReceptorBC(BoundaryConditions):
 
 
         # choose a state randomly from the set of initial states
-        target_idx = np.choice(range(len(self.initial_states)), 1,
+        target_idx = np.random.choice(range(len(self.initial_states)), 1,
                                   p=self.initial_weights/np.sum(self.initial_weights))[0]
 
         warped_state = self.initial_states[target_idx]
@@ -556,7 +558,7 @@ class RebindingBC(ReceptorBC):
         return rebound, progress_data
 
 
-class UnbindingBC(BoundaryConditions):
+class UnbindingBC(ReceptorBC):
     """Boundary condition for ligand unbinding.
 
     Walkers will be warped (discontinuously) if all atoms in the
@@ -666,6 +668,16 @@ class UnbindingBC(BoundaryConditions):
 
         self._cutoff_distance = cutoff_distance
         self._topology = topology
+
+    @property
+    def cutoff_distance(self):
+        """The distance a ligand must be to be unbound."""
+        return self._cutoff_distance
+
+    @property
+    def topology(self):
+        """JSON string topology of the system."""
+        return self._topology
 
     def _calc_min_distance(self, walker):
         """Min-min distance for a walker.

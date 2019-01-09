@@ -2309,11 +2309,11 @@ class WepyHDF5(object):
 
     @property
     def filename(self):
-        """ """
+        """The path to the underlying HDF5 file."""
         return self._filename
 
     def open(self):
-        """ """
+        """Open the underlying HDF5 file for access."""
         if self.closed:
             self._h5 = h5py.File(self._filename, self._h5py_mode)
             self.closed = False
@@ -2321,68 +2321,67 @@ class WepyHDF5(object):
             raise IOError("This file is already open")
 
     def close(self):
-        """ """
+        """Close the underlying HDF5 file. """
         if not self.closed:
             self._h5.close()
             self.closed = True
 
     @property
     def mode(self):
-        """ """
+        """The WepyHDF5 mode this object was created with."""
         return self._wepy_mode
 
     @property
     def h5_mode(self):
-        """ """
+        """The h5py.File mode the HDF5 file currently has."""
         return self._h5.mode
 
     @property
     def h5(self):
-        """ """
+        """The underlying h5py.File object."""
         return self._h5
 
     ### h5py object access
 
     def run(self, run_idx):
-        """
+        """Get the h5py.Group for a run.
 
         Parameters
         ----------
-        run_idx :
-            
+        run_idx : int
 
         Returns
         -------
+        run_group : h5py.Group
 
         """
         return self._h5['{}/{}'.format(RUNS, int(run_idx))]
 
     def traj(self, run_idx, traj_idx):
-        """
+        """Get an h5py.Group trajectory group.
 
         Parameters
         ----------
-        run_idx :
-            
-        traj_idx :
-            
+        run_idx : int
+        traj_idx : int
 
         Returns
         -------
+        traj_group : h5py.Group
 
         """
         return self._h5['{}/{}/{}/{}'.format(RUNS, run_idx, TRAJECTORIES, traj_idx)]
 
     def run_trajs(self, run_idx):
-        """
+        """Get the trajectories group for a run.
 
         Parameters
         ----------
-        run_idx :
-            
+        run_idx : int
 
         Returns
         -------
+        trajectories_grp : h5py.Group
 
         """
         return self._h5['{}/{}/{}'.format(RUNS, run_idx, TRAJECTORIES)]
@@ -2394,128 +2393,128 @@ class WepyHDF5(object):
 
     @property
     def settings_grp(self):
-        """ """
+        """The header settings group."""
         settings_grp = self.h5[SETTINGS]
         return settings_grp
 
     def decision_grp(self, run_idx):
-        """
+        """Get the decision enumeration group for a run.
 
         Parameters
         ----------
-        run_idx :
-            
+        run_idx : int
 
         Returns
         -------
+        decision_grp : h5py.Group
 
         """
         return self.run(run_idx)[DECISION]
 
     def records_grp(self, run_idx, run_record_key):
-        """
+        """Get a record group h5py.Group for a run.
 
         Parameters
         ----------
-        run_idx :
-            
-        run_record_key :
-            
+        run_idx : int
+        run_record_key : str
+            Name of the record group
 
         Returns
         -------
+        run_record_group : h5py.Group
 
         """
         path = '{}/{}/{}'.format(RUNS, run_idx, run_record_key)
         return self.h5[path]
 
     def resampling_grp(self, run_idx):
-        """
+        """Get this record group for a run.
 
         Parameters
         ----------
-        run_idx :
-            
+        run_idx : int
 
         Returns
         -------
+        run_record_group : h5py.Group
 
         """
         return self.records_grp(run_idx, RESAMPLING)
 
     def resampler_grp(self, run_idx):
-        """
+        """Get this record group for a run.
 
         Parameters
         ----------
-        run_idx :
-            
+        run_idx : int
 
         Returns
         -------
+        run_record_group : h5py.Group
 
         """
         return self.records_grp(run_idx, RESAMPLER)
 
     def warping_grp(self, run_idx):
-        """
+        """Get this record group for a run.
 
         Parameters
         ----------
-        run_idx :
-            
+        run_idx : int
 
         Returns
         -------
+        run_record_group : h5py.Group
 
         """
         return self.records_grp(run_idx, WARPING)
 
     def bc_grp(self, run_idx):
-        """
+        """Get this record group for a run.
 
         Parameters
         ----------
-        run_idx :
-            
+        run_idx : int
 
         Returns
         -------
+        run_record_group : h5py.Group
 
         """
         return self.records_grp(run_idx, BC)
 
     def progress_grp(self, run_idx):
-        """
+        """Get this record group for a run.
 
         Parameters
         ----------
-        run_idx :
-            
+        run_idx : int
 
         Returns
         -------
+        run_record_group : h5py.Group
 
         """
         return self.records_grp(run_idx, PROGRESS)
 
     def iter_runs(self, idxs=False, run_sel=None):
-        """Iterate through runs.
-        
-        idxs : if True returns `(run_idx, run_group)`, False just `run_group`
-        
-        run_sel : if True will iterate over a subset of runs. Possible
-        values are an iterable of indices of runs to iterate over.
+        """Generator for iterating through the runs of a file.
 
         Parameters
         ----------
-        idxs :
+        idxs : bool
+            If True yields the run index in addition to the group.
              (Default value = False)
-        run_sel :
+        run_sel : list of int, optional
+            If not None should be a list of the runs you want to iterate over.
              (Default value = None)
 
-        Returns
-        -------
+        Yields
+        ------
+        run_idx : int, if idxs is True
+
+        run_group : h5py.Group
 
         """
 
@@ -2531,23 +2530,25 @@ class WepyHDF5(object):
                     yield run
 
     def iter_trajs(self, idxs=False, traj_sel=None):
-        """Generator for all of the trajectories in the dataset across all
-        runs. If idxs=True will return a tuple of (run_idx, traj_idx).
-        
-        run_sel : if True will iterate over a subset of
-        trajectories. Possible values are an iterable of `(run_idx,
-        traj_idx)` tuples.
+        """Generator for iterating over trajectories in a file.
 
         Parameters
         ----------
-        idxs :
+        idxs : bool
+            If True returns a tuple of the run index and trajectory
+            index in addition to the trajectory group.
              (Default value = False)
-        traj_sel :
+        traj_sel : list of int, optional
+            If not None is a list of tuples of (run_idx, traj_idx)
+            selecting which trajectories to iterate over.
              (Default value = None)
 
-        Returns
-        -------
+        Yields
+        ------
+        traj_id : tuple of int, if idxs is True
+            A tuple of (run_idx, traj_idx) for the group
 
+        trajectory : h5py.Group
         """
 
 
@@ -2566,17 +2567,19 @@ class WepyHDF5(object):
                 yield traj
 
     def iter_run_trajs(self, run_idx, idxs=False):
-        """
+        """Iterate over the trajectories of a run.
 
         Parameters
         ----------
-        run_idx :
-            
-        idxs :
+        run_idx : int
+        idxs : bool
+            If True returns a tuple of the run index and trajectory
+            index in addition to the trajectory group.
              (Default value = False)
 
         Returns
         -------
+        iter_trajs_generator : generator for the iter_trajs method
 
         """
         run_sel = self.run_traj_idx_tuples([run_idx])
