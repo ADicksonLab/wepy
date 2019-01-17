@@ -61,6 +61,7 @@ UNIT_NAMES = (('positions_unit', unit.nanometer.get_name()),
          ('kinetic_energy_unit', (unit.kilojoule / unit.mole).get_name()),
          ('potential_energy_unit', (unit.kilojoule / unit.mole).get_name()),
         )
+"""Mapping of unit identifier strings to the serialized string spec of the unit."""
 
 # a random seed will be chosen from 1 to RAND_SEED_RANGE_MAX when the
 # Langevin integrator is created. 0 is the default and special value

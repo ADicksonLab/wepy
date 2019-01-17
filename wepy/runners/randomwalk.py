@@ -11,11 +11,10 @@ from simtk import unit
 from wepy.runners.runner import Runner
 from wepy.walker import Walker, WalkerState
 
-#TODO: docstring
 UNIT_NAMES = (('positions_unit', unit.nanometer.get_name()),
          ('time_unit', unit.picosecond.get_name()),
         )
-""" """
+"""Mapping of unit identifier strings to the serialized string spec of the unit."""
 
 class RandomWalkRunner(Runner):
     """RandomWalkRunner is an object for implementing the dynamic of
