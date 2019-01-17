@@ -99,10 +99,11 @@ Runs
 The meat of the format is contained within the runs group:
 
 - runs
+
   - 0
   - 1
   - 2
-  ...
+  - ...
 
 Under the runs group are a series of groups for each run. Runs are
 named according to the order in which they were added to the database.
@@ -110,6 +111,7 @@ named according to the order in which they were added to the database.
 Within a run (say '0' from above) we have a number of items:
 
 - 0
+
   - init_walkers
   - trajectories
   - decision
@@ -180,8 +182,11 @@ ever need as many trajectories/slots as there are walkers. So if you
 have 8 walkers then you will have trajectories 0 through 7. Concretely:
 
 - runs
+
   - 0
+
     - trajectories
+
       - 0
       - 1
       - 2
@@ -240,7 +245,9 @@ automatically make a field a group and the last element of the field
 name the dataset. So for the observables example we might have:
 
 - 0
+
   - observables
+
     - rmsd
     - sasa
 
