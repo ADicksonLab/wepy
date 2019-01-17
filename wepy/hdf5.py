@@ -2851,7 +2851,7 @@ class WepyHDF5(object):
 
     @property
     def num_trajs(self):
-        """The toatl number of trajectories in the entire file."""
+        """The total number of trajectories in the entire file."""
         return len(list(self.run_traj_idx_tuples()))
 
     def num_run_trajs(self, run_idx):
@@ -4836,138 +4836,6 @@ class WepyHDF5(object):
             else:
                 yield dsets
 
-    # TODO: deprecate these are really kind of unnecessary
-
-    # def run_map(self, func, *args, map_func=map, idxs=False, run_sel=None):
-    #     """Function for mapping work onto trajectories in the WepyHDF5 file
-    #        object. The call to iter_runs is run with `idxs=False`.
-        
-    #     func : the function that will be mapped to trajectory groups
-        
-    #     map_func : the function that maps the function. This is where
-    #                     parallelization occurs if desired.  Defaults to
-    #                     the serial python map function.
-        
-    #     traj_sel : a trajectory selection. This is a valid `traj_sel`
-    #     argument for the `iter_trajs` function.
-        
-    #     idxs : if True results contain [(run_idx, result),...], if False
-    #     returns [result,...]
-        
-    #     *args : additional arguments to the function. If this is an
-    #              iterable it will be assumed that it is the appropriate
-    #              length for the number of trajectories, WARNING: this will
-    #              not be checked and could result in a run time
-    #              error. Otherwise single values will be automatically
-    #              mapped to all trajectories.
-        
-    #     **kwargs : same as *args, but will pass all kwargs to the func.
-
-    #     Parameters
-    #     ----------
-    #     func : callable
-    #         Function that will be mapped to each run group.
-    #     *args :
-            
-    #     map_func :
-    #          (Default value = map)
-    #     idxs :
-    #          (Default value = False)
-    #     run_sel :
-    #          (Default value = None)
-
-    #     Returns
-    #     -------
-
-    #     """
-
-    #     # check the args and kwargs to see if they need expanded for
-    #     # mapping inputs
-    #     mapped_args = []
-    #     for arg in args:
-    #         # if it is a sequence or generator we keep just pass it to the mapper
-    #         if isinstance(arg, Sequence) and not isinstance(arg, str):
-    #             assert len(arg) == self.num_runs, \
-    #                 "argument Sequence has fewer number of args then trajectories"
-    #             mapped_args.append(arg)
-    #         # if it is not a sequence or generator we make a generator out
-    #         # of it to map as inputs
-    #         else:
-    #             mapped_arg = (arg for i in range(self.num_runs))
-    #             mapped_args.append(mapped_arg)
-
-
-    #     results = map_func(func, self.iter_runs(idxs=False, run_sel=run_sel),
-    #                        *mapped_args)
-
-    #     if idxs:
-    #         if run_sel is None:
-    #             run_sel = self.run_idxs
-    #         return zip(run_sel, results)
-    #     else:
-    #         return results
-
-
-    # def traj_map(self, func, *args, map_func=map, idxs=False, traj_sel=None):
-    #     """Function for mapping work onto trajectories in the WepyHDF5 file object.
-        
-    #     func : the function that will be mapped to trajectory groups
-        
-    #     map_func : the function that maps the function. This is where
-    #                     parallelization occurs if desired.  Defaults to
-    #                     the serial python map function.
-        
-    #     traj_sel : a trajectory selection. This is a valid `traj_sel`
-    #     argument for the `iter_trajs` function.
-        
-    #     *args : additional arguments to the function. If this is an
-    #              iterable it will be assumed that it is the appropriate
-    #              length for the number of trajectories, WARNING: this will
-    #              not be checked and could result in a run time
-    #              error. Otherwise single values will be automatically
-    #              mapped to all trajectories.
-
-    #     Parameters
-    #     ----------
-    #     func :
-            
-    #     *args :
-            
-    #     map_func :
-    #          (Default value = map)
-    #     idxs :
-    #          (Default value = False)
-    #     traj_sel :
-    #          (Default value = None)
-
-    #     Returns
-    #     -------
-
-    #     """
-
-    #     # check the args and kwargs to see if they need expanded for
-    #     # mapping inputs
-    #     mapped_args = []
-    #     for arg in args:
-    #         # if it is a sequence or generator we keep just pass it to the mapper
-    #         if isinstance(arg, Sequence) and not isinstance(arg, str):
-    #             assert len(arg) == self.num_trajs, "Sequence has fewer"
-    #             mapped_args.append(arg)
-    #         # if it is not a sequence or generator we make a generator out
-    #         # of it to map as inputs
-    #         else:
-    #             mapped_arg = (arg for i in range(self.num_trajs))
-    #             mapped_args.append(mapped_arg)
-
-    #     results = map_func(func, self.iter_trajs(traj_sel=traj_sel), *mapped_args)
-
-    #     if idxs:
-    #         if traj_sel is None:
-    #             traj_sel = self.run_traj_idx_tuples()
-    #         return zip(traj_sel, results)
-    #     else:
-    #         return results
-
     def traj_fields_map(self, func, fields, *args, map_func=map, idxs=False, traj_sel=None):
         """Function for mapping work onto field of trajectories.
 
@@ -4975,6 +4843,7 @@ class WepyHDF5(object):
         
         fields : list of fields that will be serialized into a dictionary
                  and passed to the map function. These must be valid
+
                  `h5py` path strings relative to the trajectory
                  group. These include the standard fields like
                  'positions' and 'weights', as well as compound paths
@@ -5153,17 +5022,33 @@ class WepyHDF5(object):
         return traj
 
     def trace_to_mdtraj(self, trace, alt_rep=None):
-        """
+        """Generate an mdtraj Trajectory from a trace of frames from the runs.
+
+        Uses the default fields for positions (unless an alternate
+        representation is specified) and box vectors which are assumed
+        to be present in the trajectory fields.
+
+        The time value for the mdtraj trajectory is set to the cycle
+        indices for each trace frame.
+
+        This is useful for converting WepyHDF5 data to common
+        molecular dynamics data formats accessible through the mdtraj
+        library.
 
         Parameters
         ----------
-        trace :
-            
-        alt_rep :
+        trace : list of tuple of int
+            The trace values. Each tuple is of the form
+            (run_idx, traj_idx, frame_idx).
+
+        alt_rep : None or str
+            If None uses default 'positions' representation otherwise
+            chooses the representation from the 'alt_reps' compound field.
              (Default value = None)
 
         Returns
         -------
+        traj : mdtraj.Trajectory
 
         """
 
@@ -5190,19 +5075,36 @@ class WepyHDF5(object):
         return traj
 
     def run_trace_to_mdtraj(self, run_idx, trace, alt_rep=None):
-        """
+        """Generate an mdtraj Trajectory from a trace of frames from the runs.
+
+        Uses the default fields for positions (unless an alternate
+        representation is specified) and box vectors which are assumed
+        to be present in the trajectory fields.
+
+        The time value for the mdtraj trajectory is set to the cycle
+        indices for each trace frame.
+
+        This is useful for converting WepyHDF5 data to common
+        molecular dynamics data formats accessible through the mdtraj
+        library.
 
         Parameters
         ----------
-        run_idx :
-            
-        trace :
-            
-        alt_rep :
+        run_idx : int
+            The run the trace is over.
+
+        run_trace : list of tuple of int
+            The trace values. Each tuple is of the form
+            (traj_idx, frame_idx).
+
+        alt_rep : None or str
+            If None uses default 'positions' representation otherwise
+            chooses the representation from the 'alt_reps' compound field.
              (Default value = None)
 
         Returns
         -------
+        traj : mdtraj.Trajectory
 
         """
 
@@ -5227,3 +5129,136 @@ class WepyHDF5(object):
                        unitcell_lengths=unitcell_lengths, unitcell_angles=unitcell_angles)
 
         return traj
+
+
+    # TODO: deprecate these are really kind of unnecessary
+
+    # def run_map(self, func, *args, map_func=map, idxs=False, run_sel=None):
+    #     """Function for mapping work onto trajectories in the WepyHDF5 file
+    #        object. The call to iter_runs is run with `idxs=False`.
+        
+    #     func : the function that will be mapped to trajectory groups
+        
+    #     map_func : the function that maps the function. This is where
+    #                     parallelization occurs if desired.  Defaults to
+    #                     the serial python map function.
+        
+    #     traj_sel : a trajectory selection. This is a valid `traj_sel`
+    #     argument for the `iter_trajs` function.
+        
+    #     idxs : if True results contain [(run_idx, result),...], if False
+    #     returns [result,...]
+        
+    #     *args : additional arguments to the function. If this is an
+    #              iterable it will be assumed that it is the appropriate
+    #              length for the number of trajectories, WARNING: this will
+    #              not be checked and could result in a run time
+    #              error. Otherwise single values will be automatically
+    #              mapped to all trajectories.
+        
+    #     **kwargs : same as *args, but will pass all kwargs to the func.
+
+    #     Parameters
+    #     ----------
+    #     func : callable
+    #         Function that will be mapped to each run group.
+    #     *args :
+            
+    #     map_func :
+    #          (Default value = map)
+    #     idxs :
+    #          (Default value = False)
+    #     run_sel :
+    #          (Default value = None)
+
+    #     Returns
+    #     -------
+
+    #     """
+
+    #     # check the args and kwargs to see if they need expanded for
+    #     # mapping inputs
+    #     mapped_args = []
+    #     for arg in args:
+    #         # if it is a sequence or generator we keep just pass it to the mapper
+    #         if isinstance(arg, Sequence) and not isinstance(arg, str):
+    #             assert len(arg) == self.num_runs, \
+    #                 "argument Sequence has fewer number of args then trajectories"
+    #             mapped_args.append(arg)
+    #         # if it is not a sequence or generator we make a generator out
+    #         # of it to map as inputs
+    #         else:
+    #             mapped_arg = (arg for i in range(self.num_runs))
+    #             mapped_args.append(mapped_arg)
+
+
+    #     results = map_func(func, self.iter_runs(idxs=False, run_sel=run_sel),
+    #                        *mapped_args)
+
+    #     if idxs:
+    #         if run_sel is None:
+    #             run_sel = self.run_idxs
+    #         return zip(run_sel, results)
+    #     else:
+    #         return results
+
+
+    # def traj_map(self, func, *args, map_func=map, idxs=False, traj_sel=None):
+    #     """Function for mapping work onto trajectories in the WepyHDF5 file object.
+        
+    #     func : the function that will be mapped to trajectory groups
+        
+    #     map_func : the function that maps the function. This is where
+    #                     parallelization occurs if desired.  Defaults to
+    #                     the serial python map function.
+        
+    #     traj_sel : a trajectory selection. This is a valid `traj_sel`
+    #     argument for the `iter_trajs` function.
+        
+    #     *args : additional arguments to the function. If this is an
+    #              iterable it will be assumed that it is the appropriate
+    #              length for the number of trajectories, WARNING: this will
+    #              not be checked and could result in a run time
+    #              error. Otherwise single values will be automatically
+    #              mapped to all trajectories.
+
+    #     Parameters
+    #     ----------
+    #     func :
+            
+    #     *args :
+            
+    #     map_func :
+    #          (Default value = map)
+    #     idxs :
+    #          (Default value = False)
+    #     traj_sel :
+    #          (Default value = None)
+
+    #     Returns
+    #     -------
+
+    #     """
+
+    #     # check the args and kwargs to see if they need expanded for
+    #     # mapping inputs
+    #     mapped_args = []
+    #     for arg in args:
+    #         # if it is a sequence or generator we keep just pass it to the mapper
+    #         if isinstance(arg, Sequence) and not isinstance(arg, str):
+    #             assert len(arg) == self.num_trajs, "Sequence has fewer"
+    #             mapped_args.append(arg)
+    #         # if it is not a sequence or generator we make a generator out
+    #         # of it to map as inputs
+    #         else:
+    #             mapped_arg = (arg for i in range(self.num_trajs))
+    #             mapped_args.append(mapped_arg)
+
+    #     results = map_func(func, self.iter_trajs(traj_sel=traj_sel), *mapped_args)
+
+    #     if idxs:
+    #         if traj_sel is None:
+    #             traj_sel = self.run_traj_idx_tuples()
+    #         return zip(traj_sel, results)
+    #     else:
+    #         return results
