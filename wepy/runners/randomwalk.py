@@ -1,3 +1,6 @@
+#TODO: docstring
+""" """
+
 import random as rand
 import logging
 
@@ -8,50 +11,62 @@ from simtk import unit
 from wepy.runners.runner import Runner
 from wepy.walker import Walker, WalkerState
 
+#TODO: docstring
 UNIT_NAMES = (('positions_unit', unit.nanometer.get_name()),
          ('time_unit', unit.picosecond.get_name()),
         )
+""" """
 
 class RandomWalkRunner(Runner):
     """RandomWalkRunner is an object for implementing the dynamic of
     RandomWalk system. To use it, you need to provide the number of dimensions
     and the probability of movement.
-
-    Parameters
-    ----------
-
-    Returns
-    -------
-
     """
+
     def __init__(self, dimension=2, probability=0.25):
         """Initialize RandomWalk object with the number of
         dimension and probability.
 
-        :param dimension: integer
+        dimension : int
+            Number of dimensions for the space of the random walk.
+             (Default = 2)
 
-        :param probability: float
+        probability : float
+           (Default = 0.25)
         """
 
-        self.dimension = dimension
-        self.probability = probability
+        self._dimension = dimension
+        self._probability = probability
 
+    #TODO: docstring
+    @property
+    def dimension(self):
+        """ """
+        return self._dimension
 
-    def walk(self, positions):
-        """Impliment the dynamic of RandomWalk system for one step.
+    #TODO: docstring
+    @property
+    def probability(self):
+        """ """
+        return self._probability
+
+    #TODO: docstring
+    def _walk(self, positions):
+        """Implement the dynamic of RandomWalk system for one step.
+
         Takes the current position vector as input and based on the probability
-        generates new position for each dimension and returns new posiotion
+        generates new position for each dimension and returns new position
         vector.
 
         Parameters
         ----------
-        positions :
+        positions : arraylike
             a numpy array of shape (1, dimension)
 
         Returns
         -------
-        a numpy array of shape (1, dimension)
-            new posiotion
+        new_positions : arraylike
+            a numpy array of shape (1, dimension)
 
         """
         # make the deep copy of current posiotion
@@ -76,28 +91,28 @@ class RandomWalkRunner(Runner):
         return new_positions
 
     def run_segment(self, walker, segment_length):
-        """Run dynamics of RandomWalk system for the number of steps
-        that is specified by segment_length.
+        """Run dynamics for the walker.
 
         Parameters
         ----------
-        walker :
-            a RandomWalk object
-        segment_length :
-            the number of steps
+        walker : object implementing the Walker interface
+            The walker for which dynamics will be propagated.
+        segment_length : int
+            Number of steps to run.
 
         Returns
         -------
-        type
-            a RandomWalk object with new positions
+        new_walker : object implementing the Walker interface
+            Walker after dynamics was run, only the state should be modified.
 
         """
+
         # Gets the current posiotion of RandomWalk Walker
         positions = walker.state['positions']
         # Make movements for the segment_length steps
-        for segment_idx in range(segment_length):
+        for _ in range(segment_length):
             # calls walk function for one step movement
-            new_positions = self.walk(positions)
+            new_positions = self._walk(positions)
             positions = new_positions
         # makes new state form new positions
         new_state = WalkerState(positions=new_positions, time=0.0)
