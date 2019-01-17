@@ -379,12 +379,34 @@ def reconcile(hdf5,
 
     # reconcile them one by one as they are big and too expensive to
     # load all into memory at once
+    click.echo("Deserializing Orchestrator 1")
     new_orch = deserialize_orchestrator(orchestrators[0].read())
-    for orchestrator in orchestrators[1:]:
+    click.echo("Finished Deserializing Orchestrator 1")
+
+    hash_listing_str = "\n".join(["{}, {}".format(start, end) for start, end in new_orch.runs])
+    click.echo("This orchestrator has the following runs:")
+    click.echo(hash_listing_str)
+
+    for orch_idx, orchestrator in enumerate(orchestrators[1:]):
+        orch_idx += 1
+
+        click.echo("/n")
+        click.echo("Deserializing Orchestrator {}", format(orch_idx))
         orch = deserialize_orchestrator(orchestrator.read())
+        click.echo("Finished Deserializing Orchestrator {}", format(orch_idx))
+
+        hash_listing_str = "\n".join(["{}, {}".format(start, end) for start, end in new_orch.runs])
+        click.echo("This orchestrator has the following runs:")
+        click.echo(hash_listing_str)
 
         # reconcile the two orchestrators
+        click.echo("Reconciling this orchestrator to the new orchestrator")
         new_orch = reconcile_orchestrators(new_orch, orch)
+
+        hash_listing_str = "\n".join(["{}, {}".format(start, end) for start, end in new_orch.runs])
+        click.echo("The new orchestrator has the following runs:")
+        click.echo(hash_listing_str)
+
 
     # if a path for an HDF5 file is given
     if hdf5 is not None:
