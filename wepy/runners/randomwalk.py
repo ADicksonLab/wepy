@@ -90,21 +90,7 @@ class RandomWalkRunner(Runner):
         return new_positions
 
     def run_segment(self, walker, segment_length):
-        """Run dynamics for the walker.
-
-        Parameters
-        ----------
-        walker : object implementing the Walker interface
-            The walker for which dynamics will be propagated.
-        segment_length : int
-            Number of steps to run.
-
-        Returns
-        -------
-        new_walker : object implementing the Walker interface
-            Walker after dynamics was run, only the state should be modified.
-
-        """
+        # documented in superclass
 
         # Gets the current posiotion of RandomWalk Walker
         positions = walker.state['positions']
