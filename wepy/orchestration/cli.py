@@ -331,14 +331,24 @@ def combine_orch_wepy_hdf5s(new_orch, new_hdf5_path):
             new_run_idxs = master_wepy_h5.link_file_runs(wepy_h5_path)
 
             # map the hash id to the new run idx created. There should
-            # only be one if we are following the orchestration
-            # workflow.
+            # only be one run in an HDF5 if we are following the
+            # orchestration workflow.
             run_mapping[run_id] = new_run_idxs[0]
 
-        # now that they are all linked we need to set the
-        # continuations correctly, so for each run we find the run it
+        # now that they are all linked we need to add the snapshot
+        # hashes identifying the runs as metadata. This is so we can
+        # map the simple run indices in the HDF5 back to the
+        # orchestrator defined runs. This will be saved as metadata on
+        # the run. Also:
+
+        # We need to set the continuations correctly betwen the runs
+        # in different files, so for each run we find the run it
         # continues in the orchestrator
         for run_id, run_idx in run_mapping.items():
+
+            # set the run snapshot has metadata
+            master_wepy_h5.set_run_start_snapshot_hash(run_idx, run_id[0])
+            master_wepy_h5.set_run_end_snapshot_hash(run_idx, run_id[1])
 
             # find the run_id that this one continues
             continued_run_id = new_orch.run_continues(*run_id)

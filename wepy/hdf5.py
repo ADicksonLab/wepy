@@ -428,7 +428,15 @@ RUNS = 'runs'
 
 ## metadata fields
 RUN_IDX = 'run_idx'
-"""Metadata field for run groups for the run index."""
+"""Metadata field for run groups for the run index within this file."""
+
+RUN_START_SNAPSHOT_HASH = 'start_snapshot_hash'
+"""Metadata field for a run that corresponds to the hash of the
+starting simulation snapshot in orchestration."""
+
+RUN_END_SNAPSHOT_HASH = 'end_snapshot_hash'
+"""Metadata field for a run that corresponds to the hash of the
+ending simulation snapshot in orchestration."""
 
 TRAJ_IDX = 'traj_idx'
 """Metadata field for trajectory groups for the trajectory index in that run."""
@@ -2397,7 +2405,49 @@ class WepyHDF5(object):
     @property
     def runs(self):
         """The runs group."""
-        return self.h5[RUNS].values()
+        return self.h5[RUNS]
+
+    @property
+    def run_grp(self, run_idx):
+        """A group for a single run."""
+        self.runs["{}".format(run_idx)]
+
+    @property
+    def run_start_snapshot_hash(self, run_idx):
+        """Hash identifier for the starting snapshot of a run from
+        orchestration.
+
+        """
+        return self.run_grp(run_idx).attrs[RUN_START_SNAPSHOT_HASH]
+
+    @property
+    def run_end_snapshot_hash(self, run_idx):
+        """Hash identifier for the ending snapshot of a run from
+        orchestration.
+
+        """
+        return self.run_grp(run_idx).attrs[RUN_END_SNAPSHOT_HASH]
+
+    def set_run_start_snapshot_hash(self, run_idx, snaphash):
+        """Set the starting snapshot hash identifier for a run from
+        orchestration.
+
+        """
+
+        if RUN_START_SNAPSHOT_HASH not in self.run_grp(run_idx).attrs:
+            return self.run_grp(run_idx).attrs[RUN_START_SNAPSHOT_HASH] = snaphash
+        else:
+            raise AttributeError("The snapshot has already been set.")
+
+    def set_run_end_snapshot_hash(self, run_idx, snaphash):
+        """Set the ending snapshot hash identifier for a run from
+        orchestration.
+
+        """
+        if RUN_END_SNAPSHOT_HASH not in self.run_grp(run_idx).attrs:
+            return self.run_grp(run_idx).attrs[RUN_END_SNAPSHOT_HASH] = snaphash
+        else:
+            raise AttributeError("The snapshot has already been set.")
 
     @property
     def settings_grp(self):
