@@ -1131,8 +1131,11 @@ class Contig(ContigTree):
         # it is implemented now and there is no reason to change it
         # now, so we keep it hidden
 
-        # the run idxs of the contig
-        if len(self.contig_trace) > 1:
+        # get the number of runs in that trace
+        trace_run_idxs = set(run_idx for run_idx, _ in self._contig_trace)
+
+        # the run idxs of the contig for more than one
+        if len(trace_run_idxs) > 1:
             self._contig_run_idxs = self._continuations_to_contig_runs(self.continuations)
         # if there is only 1 run we set it like this
         else:

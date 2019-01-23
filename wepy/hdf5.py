@@ -1919,6 +1919,7 @@ class WepyHDF5(object):
             Mapping of the record group field to the table-ified values.
 
         """
+
         fields = {}
         for record_field in self.record_fields[run_record_key]:
             fields[record_field] = self._convert_record_field_to_table_column(
@@ -4401,8 +4402,8 @@ class WepyHDF5(object):
                 run_idxs))
 
         # make the resampling panel from the resampling records for the contig
-        contig_resampling_panel = self.run_resampling_panel(self.resampling_records(run_idxs),
-                                                            is_sorted=False)
+        contig_resampling_panel = resampling_panel(self.resampling_records(run_idxs),
+                                                   is_sorted=False)
 
         return contig_resampling_panel
 
