@@ -2435,7 +2435,7 @@ class WepyHDF5(object):
         """
 
         if RUN_START_SNAPSHOT_HASH not in self.run_grp(run_idx).attrs:
-            return self.run_grp(run_idx).attrs[RUN_START_SNAPSHOT_HASH] = snaphash
+            self.run_grp(run_idx).attrs[RUN_START_SNAPSHOT_HASH] = snaphash
         else:
             raise AttributeError("The snapshot has already been set.")
 
@@ -2445,7 +2445,7 @@ class WepyHDF5(object):
 
         """
         if RUN_END_SNAPSHOT_HASH not in self.run_grp(run_idx).attrs:
-            return self.run_grp(run_idx).attrs[RUN_END_SNAPSHOT_HASH] = snaphash
+            self.run_grp(run_idx).attrs[RUN_END_SNAPSHOT_HASH] = snaphash
         else:
             raise AttributeError("The snapshot has already been set.")
 
