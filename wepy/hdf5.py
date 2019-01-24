@@ -2686,6 +2686,14 @@ class WepyHDF5(object):
         return {name : ds[:] for name, ds in idxs_grp.items()}
 
     @property
+    def alt_reps(self):
+        """Names of the alt reps."""
+
+        idxs_grp = self.h5['{}/{}'.format(SETTINGS, ALT_REPS_IDXS)]
+        return {name for name in idxs_grp.keys()}
+
+
+    @property
     def field_feature_shapes(self):
         """Mapping of the names of the trajectory fields to their feature
         vector shapes."""
