@@ -2407,10 +2407,9 @@ class WepyHDF5(object):
         """The runs group."""
         return self.h5[RUNS]
 
-    @property
     def run_grp(self, run_idx):
         """A group for a single run."""
-        self.runs["{}".format(run_idx)]
+        return self.runs["{}".format(run_idx)]
 
     @property
     def run_start_snapshot_hash(self, run_idx):
