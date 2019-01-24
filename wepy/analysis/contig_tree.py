@@ -55,7 +55,6 @@ class ContigTree():
     """Key for discontinuity node attributes in the tree graph."""
 
 
-
     def __init__(self, wepy_h5,
                  continuations=Ellipsis,
                  runs=Ellipsis,
@@ -170,6 +169,7 @@ class ContigTree():
 
             if self._boundary_condition_class is not None:
                 self._set_discontinuities(self._boundary_condition_class)
+
 
     @property
     def graph(self):
@@ -331,8 +331,13 @@ class ContigTree():
         """The WepyHDF5 source object for which the contig tree is being constructed. """
         return self._wepy_h5
 
-    def contig_trace_to_run_trace(self, contig_trace, contig_walker_trace):
+    @staticmethod
+    def contig_trace_to_run_trace(contig_trace, contig_walker_trace):
         """Combine a contig trace and a walker trace to get the equivalen run trace.
+
+        The contig_walker_trace cycle_idxs must be a subset of the
+        frame indices given by the contig_trace.
+
 
         Parameters
         ----------
@@ -347,13 +352,17 @@ class ContigTree():
 
         """
 
+
         trace = []
+        for traj_idx, contig_cycle_idx in contig_walker_trace:
 
-        for frame_idx, contig_el in enumerate(contig_trace):
+            try:
+                run_idx, run_cycle_idx = contig_trace[contig_cycle_idx]
+            except IndexError:
+                raise ValueError("Invalid cycle_idx in the contig_walker_trace. "
+                                 "Must be an index over the frames given by contig_trace.")
 
-            run_idx, cycle_idx = contig_el
-            traj_idx = contig_walker_trace[frame_idx][0]
-            frame = (run_idx, traj_idx, cycle_idx)
+            frame = (run_idx, traj_idx, run_cycle_idx)
             trace.append(frame)
 
         return trace
@@ -1095,6 +1104,22 @@ class ContigTree():
                       decision_class=self.decision_class)
 
 
+    def exit_point_trajectories(self):
+        """Return full run traces for every warping event."""
+
+        # this operation is done over every spanning contig since we
+        # need a parent table
+        span_traces = []
+        for span_trace in self.spanning_contig_traces():
+
+            # make the contig
+            span_contig = self.make_contig(span_trace)
+
+            span_traces.extend(span_contig.exit_point_trajectories())
+
+        return span_traces
+
+
 class Contig(ContigTree):
     """Wraps a WepyHDF5 object and gives access to logical trajectories
     from a single contig.
@@ -1372,3 +1397,26 @@ class Contig(ContigTree):
         """
 
         return self.trace_parent_table(self.contig_trace)
+
+    def exit_point_trajectories(self):
+        """Return full run traces for every warping event."""
+
+        # get the parent table for the spanning contig
+        parent_table = self.parent_table()
+
+        warp_lineages = []
+        # for each warping record
+        for warping_record in self.warping_records():
+
+            cycle_idx = warping_record[0]
+            walker_idx = warping_record[1]
+
+            # get the ancestors as a contig walker trace (traj_idx, cycle_idx)
+            contig_walker_trace = ancestors(parent_table, cycle_idx, walker_idx)
+
+            # convert to a run trace
+            lineage = self.contig_trace_to_run_trace(self.contig_trace, contig_walker_trace)
+
+            warp_lineages.append(lineage)
+
+        return warp_lineages
