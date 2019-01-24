@@ -2834,7 +2834,7 @@ class WepyHDF5(object):
 
         # or choose one of the alternative representations
         elif alt_rep in self.alt_reps_idxs:
-            top = json_top_subset(self.alt_reps_idxs[alt_rep])
+            top = json_top_subset(top, self.alt_reps_idxs[alt_rep])
 
         # and raise an error if the given alternative representation
         # is not given
@@ -2882,18 +2882,9 @@ class WepyHDF5(object):
 
         """
 
-        self.get_topology()
-        full_mdj_top = json_to_mdtraj_topology(self.topology)
-        if alt_rep is None:
-            return full_mdj_top
-        elif alt_rep == POSITIONS:
-            # get the subset topology for the main rep idxs
-            return full_mdj_top.subset(self.main_rep_idxs)
-        elif alt_rep in self.alt_reps_idxs:
-            # get the subset for the alt rep
-            return full_mdj_top.subset(self.alt_reps_idxs[alt_rep])
-        else:
-            raise ValueError("alt_rep {} not found".format(alt_rep))
+        json_top = self.get_topology(alt_rep=alt_rep)
+        return json_to_mdtraj_topology(json_top)
+
 
     ### Counts and Indexing
 
@@ -5131,7 +5122,7 @@ class WepyHDF5(object):
                                                trace_fields[BOX_VECTORS])
 
         cycles = [cycle for run, cycle, walker in trace]
-        traj = mdj.Trajectory(trace_fields[rep_key], topology,
+        traj = mdj.Trajectory(trace_fields[rep_path], topology,
                        time=cycles,
                        unitcell_lengths=unitcell_lengths, unitcell_angles=unitcell_angles)
 
