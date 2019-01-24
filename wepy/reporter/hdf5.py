@@ -242,8 +242,32 @@ class WepyHDF5Reporter(FileReporter):
             filtered_init_walkers = []
             for walker in init_walkers:
                 # make a new state by filtering the attributes of the old ones
-                new_state = WalkerState(**{k : v for k, v in walker.state.dict().items()
-                                           if k in self.save_fields})
+                state_d = {k : v for k, v in walker.state.dict().items()
+                           if k in self.save_fields}
+
+                # and saving alternate representations as we would
+                # expect them
+
+                # if there are any alternate representations set them
+                for alt_rep_name, alt_rep_idxs in self.alt_reps_idxs.items():
+
+                    alt_rep_path = 'alt_reps/{}'.format(alt_rep_name)
+
+                    # if the idxs are None we want all of the atoms
+                    if alt_rep_idxs is None:
+                        state_d[alt_rep_path] = state_d['positions'][:]
+                    # otherwise get only the atoms we want
+                    else:
+                        state_d[alt_rep_path] = state_d['positions'][alt_rep_idxs]
+
+                # if the main rep is different then the full state
+                # positions set that
+                if self.main_rep_idxs is not None:
+                    state_d['positions'] = state_d['positions'][self.main_rep_idxs]
+
+                # then making the new state
+                new_state = WalkerState(**state_d)
+
                 filtered_init_walkers.append(Walker(new_state, walker.weight))
         # otherwise save the full state
         else:

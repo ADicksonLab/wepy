@@ -2466,6 +2466,22 @@ class WepyHDF5(object):
         """
         return self.run(run_idx)[DECISION]
 
+    def init_walkers_grp(self, run_idx):
+        """Get the group for the initial walkers for a run.
+
+        Parameters
+        ----------
+        run_idx : int
+
+        Returns
+        -------
+        init_walkers_grp : h5py.Group
+
+        """
+
+        return self.run(run_idx)[INIT_WALKERS]
+
+
     def records_grp(self, run_idx, run_record_key):
         """Get a record group h5py.Group for a run.
 
@@ -2885,6 +2901,96 @@ class WepyHDF5(object):
         json_top = self.get_topology(alt_rep=alt_rep)
         return json_to_mdtraj_topology(json_top)
 
+    ## Initial walkers
+
+    def initial_walker_fields(self, run_idx, fields, walker_idxs=None):
+        """Get fields from the initial walkers of the simulation.
+
+        Parameters
+        ----------
+        run_idx : int
+            Run to get initial walkers for.
+
+        fields : list of str
+            Names of the fields you want to retrieve.
+
+        walker_idxs : None or list of int
+            If None returns all of the walkers fields, otherwise a
+            list of ints that are a selection from those walkers.
+
+        Returns
+        -------
+        walker_fields : dict of str : array of shape
+            Dictionary mapping fields to the values for all
+            walkers. Frames will be either in counting order if no
+            indices were requested or the order of the walker indices
+            as given.
+
+        """
+
+        # set the walker indices if not specified
+        if walker_idxs is None:
+            walker_idxs = range(self.num_init_walkers(run_idx))
+
+        init_walker_fields = {field : [] for field in fields}
+
+        # for each walker go through and add the selected fields
+        for walker_idx in walker_idxs:
+            init_walker_grp = self.init_walkers_grp(run_idx)[str(walker_idx)]
+            for field in fields:
+                # we remove the first dimension because we just want
+                # them as a single frame
+                init_walker_fields[field].append(init_walker_grp[field][:][0])
+
+        # convert the field values to arrays
+        init_walker_fields = {field : np.array(val) for field, val in init_walker_fields.items()}
+
+        return init_walker_fields
+
+    def initial_walkers_to_mdtraj(self, run_idx, walker_idxs=None, alt_rep=POSITIONS):
+        """Generate an mdtraj Trajectory from a trace of frames from the runs.
+
+        Uses the default fields for positions (unless an alternate
+        representation is specified) and box vectors which are assumed
+        to be present in the trajectory fields.
+
+        The time value for the mdtraj trajectory is set to the cycle
+        indices for each trace frame.
+
+        This is useful for converting WepyHDF5 data to common
+        molecular dynamics data formats accessible through the mdtraj
+        library.
+
+        Parameters
+        ----------
+        run_idx : int
+            Run to get initial walkers for.
+
+        fields : list of str
+            Names of the fields you want to retrieve.
+
+        walker_idxs : None or list of int
+            If None returns all of the walkers fields, otherwise a
+            list of ints that are a selection from those walkers.
+
+        alt_rep : None or str
+            If None uses default 'positions' representation otherwise
+            chooses the representation from the 'alt_reps' compound field.
+             (Default value = None)
+
+        Returns
+        -------
+        traj : mdtraj.Trajectory
+
+        """
+
+        rep_path = self._choose_rep_path(alt_rep)
+
+        init_walker_fields = self.initial_walker_fields(run_idx, [rep_path, BOX_VECTORS],
+                                                        walker_idxs=walker_idxs)
+
+        return self.traj_fields_to_mdtraj(init_walker_fields, alt_rep=alt_rep)
+
 
     ### Counts and Indexing
 
@@ -2907,6 +3013,21 @@ class WepyHDF5(object):
     def num_trajs(self):
         """The total number of trajectories in the entire file."""
         return len(list(self.run_traj_idx_tuples()))
+
+    def num_init_walkers(self, run_idx):
+        """The number of initial walkers for a run.
+
+        Parameters
+        ----------
+        run_idx : int
+
+        Returns
+        -------
+        n_trajs : int
+
+        """
+
+        return len(self.init_walkers_grp(run_idx))
 
     def num_run_trajs(self, run_idx):
         """The number of trajectories in a run.
@@ -5106,27 +5227,11 @@ class WepyHDF5(object):
 
         """
 
-        # the default for alt_rep is the main rep
-        if alt_rep is None:
-            rep_key = POSITIONS
-            rep_path = rep_key
-        else:
-            rep_key = alt_rep
-            rep_path = '{}/{}'.format(ALT_REPS, alt_rep)
-
-        topology = self.get_mdtraj_topology(alt_rep=rep_key)
+        rep_path = self._choose_rep_path(alt_rep)
 
         trace_fields = self.get_trace_fields(trace, [rep_path, BOX_VECTORS])
 
-        unitcell_lengths, unitcell_angles = traj_box_vectors_to_lengths_angles(
-                                               trace_fields[BOX_VECTORS])
-
-        cycles = [cycle for run, cycle, walker in trace]
-        traj = mdj.Trajectory(trace_fields[rep_path], topology,
-                       time=cycles,
-                       unitcell_lengths=unitcell_lengths, unitcell_angles=unitcell_angles)
-
-        return traj
+        return self.traj_fields_to_mdtraj(trace_fields, alt_rep=alt_rep)
 
     def run_trace_to_mdtraj(self, run_idx, trace, alt_rep=None):
         """Generate an mdtraj Trajectory from a trace of frames from the runs.
@@ -5162,30 +5267,47 @@ class WepyHDF5(object):
 
         """
 
+        rep_path = self._choose_rep_path(alt_rep)
+
+        trace_fields = self.get_run_trace_fields(run_idx, trace, [rep_path, BOX_VECTORS])
+
+        return self.traj_fields_to_mdtraj(trace_fields, alt_rep=alt_rep)
+
+    def _choose_rep_path(self, alt_rep):
+
         # the default for alt_rep is the main rep
-        if alt_rep is None:
+        if alt_rep == POSITIONS:
+            rep_path = POSITIONS
+        elif alt_rep is None:
             rep_key = POSITIONS
             rep_path = rep_key
         else:
             rep_key = alt_rep
             rep_path = '{}/{}'.format(ALT_REPS, alt_rep)
 
-        topology = self.get_mdtraj_topology(alt_rep=rep_key)
+        return rep_path
 
-        trace_fields = self.get_run_trace_fields(run_idx, trace, [rep_path, BOX_VECTORS])
+
+    def traj_fields_to_mdtraj(self, traj_fields, alt_rep=POSITIONS):
+
+        rep_path = self._choose_rep_path(alt_rep)
+
+        topology = self.get_mdtraj_topology(alt_rep=rep_path)
+
+        req_fields = [BOX_VECTORS, rep_path]
+        assert [field in traj_fields for field in req_fields], \
+            "Fields must have the fields: {}".format(",".join(req_fields))
 
         unitcell_lengths, unitcell_angles = traj_box_vectors_to_lengths_angles(
-                                               trace_fields[BOX_VECTORS])
+                                               traj_fields[BOX_VECTORS])
 
-        cycles = [cycle for cycle, walker in trace]
-        traj = mdj.Trajectory(trace_fields[rep_key], topology,
+        cycles = list(range(traj_fields[BOX_VECTORS].shape[0]))
+        traj = mdj.Trajectory(traj_fields[rep_path], topology,
                        time=cycles,
                        unitcell_lengths=unitcell_lengths, unitcell_angles=unitcell_angles)
-
         return traj
 
-
-    # TODO: deprecate these are really kind of unnecessary
+    # TODO: deprecate; these are really kind of unnecessary
 
     # def run_map(self, func, *args, map_func=map, idxs=False, run_sel=None):
     #     """Function for mapping work onto trajectories in the WepyHDF5 file
