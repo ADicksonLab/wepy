@@ -2411,7 +2411,6 @@ class WepyHDF5(object):
         """A group for a single run."""
         return self.runs["{}".format(run_idx)]
 
-    @property
     def run_start_snapshot_hash(self, run_idx):
         """Hash identifier for the starting snapshot of a run from
         orchestration.
@@ -2419,7 +2418,6 @@ class WepyHDF5(object):
         """
         return self.run_grp(run_idx).attrs[RUN_START_SNAPSHOT_HASH]
 
-    @property
     def run_end_snapshot_hash(self, run_idx):
         """Hash identifier for the ending snapshot of a run from
         orchestration.
