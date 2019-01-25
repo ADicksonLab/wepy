@@ -677,7 +677,8 @@ class WepyHDF5(object):
 
     #### dunder methods
 
-    def __init__(self, filename, topology=None, mode='x',
+    def __init__(self, filename, mode='x',
+                 topology=None,
                  units=None,
                  sparse_fields=None,
                  feature_shapes=None, feature_dtypes=None,
