@@ -1059,14 +1059,45 @@ class ContigTree():
             return []
 
         continuations = list(copy(continuations))
-        continuations.sort()
 
-        contig_runs = []
-        for next_run, continued_run in continuations:
-            contig_runs.append(continued_run)
+        # for the runs in the continuations figure out which are the
+        # ends and which end they are
+        continued_runs = [continued_run for next_run, continued_run in continuations]
+        next_runs = [next_run for next_run, continued_run in continuations]
 
-        contig_runs.append(continuations[-1][0])
+        # the intersection of these are runs in the middle of the
+        # contig. Runs that are in the continued runs but not in the
+        # next runs are the base of the chain
+        base_run = set(continued_runs).difference(next_runs)
 
+        # double check you don't find multiple bases or none (a loop)
+        assert len(base_run) == 1, "None or multiple base runs in this contig spec"
+        base_run = base_run.pop()
+
+        # do the same for the end run
+        end_run = set(next_runs).difference(continued_runs)
+        assert len(end_run) == 1, "None or multiple end runs in this contig spec"
+        end_run = end_run.pop()
+
+        # now go through the runs starting at the base and ending at
+        # the end and build up the runs
+        continued_run = base_run
+        # get the next run from this base run
+        next_run = [next_run for next_run, cont_run in continuations
+                    if cont_run == continued_run][0]
+
+        # start the listing of the runs in order
+        contig_runs = [base_run, next_run]
+
+        # now iterate through continuations until we get to the end
+        while next_run != end_run:
+            # get the next continuation pair
+            continued_run = next_run
+            next_run = [next_run for next_run, cont_run in continuations
+                        if cont_run == continued_run][0]
+            contig_runs.append(next_run)
+
+        # should have a completed contig_runs listing now
 
         # since this is only valid if the continuations don't form a
         # tree check that we didn't put the same number in twice,
@@ -1140,14 +1171,15 @@ class Contig(ContigTree):
         super().__init__(wepy_h5, **kwargs)
 
         # check that the result is a single contig
-        assert len(self.spanning_contig_traces()) == 1, \
+        spanning_contig_traces = self.spanning_contig_traces()
+        assert len(spanning_contig_traces) == 1, \
             "continuations given do not form a single contig"
 
         # if so we add some useful attributes valid for only a
         # standalone contig
 
         # the contig_trace
-        self._contig_trace = self.spanning_contig_traces()[0]
+        self._contig_trace = spanning_contig_traces[0]
 
         # TODO this should not be part of the API in the future since
         # we don't want to have the run_idxs alone be how contigs are
@@ -1162,6 +1194,7 @@ class Contig(ContigTree):
         # the run idxs of the contig for more than one
         if len(trace_run_idxs) > 1:
             self._contig_run_idxs = self._continuations_to_contig_runs(self.continuations)
+
         # if there is only 1 run we set it like this
         else:
             self._contig_run_idxs = list(self.run_idxs)
