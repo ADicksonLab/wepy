@@ -5015,8 +5015,12 @@ class WepyHDF5(object):
     def traj_fields_map(self, func, fields, *args, map_func=map, idxs=False, traj_sel=None):
         """Function for mapping work onto field of trajectories.
 
-        func : the function that will be mapped to trajectory groups
-        
+        func : the function that will be mapped to trajectory
+               groups. Must accept a dictionary mapping field names to
+               arraylikes of shape (n_cycles, *feature_shape), where
+               n_cycles is the number of cycles (frames) for that
+               trajectory.
+
         fields : list of fields that will be serialized into a dictionary
                  and passed to the map function. These must be valid
 
@@ -5024,14 +5028,14 @@ class WepyHDF5(object):
                  group. These include the standard fields like
                  'positions' and 'weights', as well as compound paths
                  e.g. 'observables/sasa'.
-        
+
         map_func : the function that maps the function. This is where
                         parallelization occurs if desired.  Defaults to
                         the serial python map function.
-        
+
         traj_sel : a trajectory selection. This is a valid `traj_sel`
         argument for the `iter_trajs` function.
-        
+
         *args : additional arguments to the function. If this is an
                  iterable it will be assumed that it is the appropriate
                  length for the number of trajectories, WARNING: this will
