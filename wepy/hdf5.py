@@ -4624,7 +4624,7 @@ class WepyHDF5(object):
 
         self._add_field(obs_path, data, sparse_idxs=sparse_idxs)
 
-    def compute_observable(self, func, fields, *args,
+    def compute_observable(self, func, fields, args,
                            map_func=map,
                            traj_sel=None,
                            save_to_hdf5=None, idxs=False, return_results=True):
@@ -4643,12 +4643,9 @@ class WepyHDF5(object):
         fields : list of str
             A list of trajectory field names to pass to the mapped function.
 
-        args : None or list of tuple or tuple
-            If not None either a list of additional positional
-            arguments to pass to the mapped function for each cycle
-            (which must be either the same length as the number of
-            cycles) or only a single tuple of arguments which will be
-            used for every cycle.
+        args : None or or tuple
+            A single tuple of arguments which will be expanded and
+            passed to the mapped function for every evaluation.
 
         map_func : callable
             The mapping function. The implementation of how to map the
@@ -4700,7 +4697,7 @@ class WepyHDF5(object):
         if return_results:
             results = []
 
-        for result in self.traj_fields_map(func, fields, *args,
+        for result in self.traj_fields_map(func, fields, args,
                                            map_func=map_func, traj_sel=traj_sel, idxs=True):
 
             idx_tup, obs_features = result
@@ -5012,33 +5009,9 @@ class WepyHDF5(object):
             else:
                 yield dsets
 
-    def traj_fields_map(self, func, fields, *args,
+    def traj_fields_map(self, func, fields, args,
                         map_func=map, idxs=False, traj_sel=None):
         """Function for mapping work onto field of trajectories.
-
-        func : the function that will be mapped to trajectory
-               groups. Must accept a dictionary mapping field names to
-               arraylikes of shape (n_cycles, *feature_shape), where
-               n_cycles is the number of cycles (frames) for that
-               trajectory.
-
-        fields : list of fields that will be serialized into a dictionary
-                 and passed to the map function. These must be valid
-
-                 `h5py` path strings relative to the trajectory
-                 group. These include the standard fields like
-                 'positions' and 'weights', as well as compound paths
-                 e.g. 'observables/sasa'.
-
-        map_func : the function that maps the function. This is where
-                        parallelization occurs if desired.  Defaults to
-                        the serial python map function.
-
-        traj_sel : a trajectory selection. This is a valid `traj_sel`
-        argument for the `iter_trajs` function.
-
-        *args : additional single arguments to the function, these
-                values will be used for each evaluation of the function.
 
         Parameters
         ----------
@@ -5051,8 +5024,8 @@ class WepyHDF5(object):
         fields : list of str
             A list of trajectory field names to pass to the mapped function.
 
-        args : None or list of tuple or tuple
-            A single expanded tuple of arguments which will be
+        args : None or or tuple
+            A single tuple of arguments which will be
             passed to the mapped function for every evaluation.
 
         map_func : callable
@@ -5095,8 +5068,13 @@ class WepyHDF5(object):
             mapped_arg = (arg for i in range(n_cycles))
             mapped_args.append(mapped_arg)
 
-        results = map_func(func, self.iter_trajs_fields(fields, traj_sel=traj_sel, idxs=False),
-                           *mapped_args)
+        # make a generator for the arguments to pass to the function
+        # from the mapper, for the extra arguments we just have an
+        # endless generator
+        map_args = (self.iter_trajs_fields(fields, traj_sel=traj_sel, idxs=False),
+                    *(it.repeat(arg) for arg in args))
+
+        results = map_func(func, *map_args)
 
         if idxs:
             if traj_sel is None:
