@@ -2329,10 +2329,21 @@ class WepyHDF5(object):
         """The path to the underlying HDF5 file."""
         return self._filename
 
-    def open(self):
-        """Open the underlying HDF5 file for access."""
+    def open(self, mode='r'):
+        """Open the underlying HDF5 file for access.
+
+        Parameters
+        ----------
+
+        mode : str
+           Valid mode spec. Opens the HDF5 file in this mode.
+
+        """
+
         if self.closed:
-            self._h5 = h5py.File(self._filename, self._h5py_mode)
+            self._h5py_mode = mode
+            self._wepy_mode = mode
+            self._h5 = h5py.File(self._filename, mode)
             self.closed = False
         else:
             raise IOError("This file is already open")
