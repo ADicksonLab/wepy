@@ -2102,12 +2102,12 @@ class WepyHDF5(object):
 
             # make the cycle idxs from that
             run_rec_grp = self.records_grp(run_idx, run_record_key)
-            run_cycle_idxs = list(range(run_rec_grp[main_record_field].shape[0]))
+            run_cycle_idxs = np.array(range(run_rec_grp[main_record_field].shape[0]))
 
             # add the total number of cycles that came before this run
             # to each of the cycle idxs to get the cycle_idxs in terms
             # of the full contig
-            run_contig_cycle_indices = run_cycle_idxs + prev_run_cycle_total
+            run_contig_cycle_idxs = run_cycle_idxs + prev_run_cycle_total
 
             # add these cycle indices to the records for the whole contig
             cycle_idxs = np.hstack( (cycle_idxs, run_contig_cycle_idxs) )
