@@ -5012,7 +5012,8 @@ class WepyHDF5(object):
             else:
                 yield dsets
 
-    def traj_fields_map(self, func, fields, *args, map_func=map, idxs=False, traj_sel=None):
+    def traj_fields_map(self, func, fields, *args,
+                        map_func=map, idxs=False, traj_sel=None):
         """Function for mapping work onto field of trajectories.
 
         func : the function that will be mapped to trajectory
@@ -5036,12 +5037,8 @@ class WepyHDF5(object):
         traj_sel : a trajectory selection. This is a valid `traj_sel`
         argument for the `iter_trajs` function.
 
-        *args : additional arguments to the function. If this is an
-                 iterable it will be assumed that it is the appropriate
-                 length for the number of trajectories, WARNING: this will
-                 not be checked and could result in a run time
-                 error. Otherwise single values will be automatically
-                 mapped to all trajectories.
+        *args : additional single arguments to the function, these
+                values will be used for each evaluation of the function.
 
         Parameters
         ----------
@@ -5055,11 +5052,8 @@ class WepyHDF5(object):
             A list of trajectory field names to pass to the mapped function.
 
         args : None or list of tuple or tuple
-            If not None either a list of additional positional
-            arguments to pass to the mapped function for each cycle
-            (which must be either the same length as the number of
-            cycles) or only a single tuple of arguments which will be
-            used for every cycle.
+            A single expanded tuple of arguments which will be
+            passed to the mapped function for every evaluation.
 
         map_func : callable
             The mapping function. The implementation of how to map the
@@ -5097,15 +5091,9 @@ class WepyHDF5(object):
 
         mapped_args = []
         for arg in args:
-            # if it is a sequence or generator we keep just pass it to the mapper
-            if isinstance(arg, list) and not isinstance(arg, str):
-                assert len(arg) == len(n_cycles), "Sequence has fewer"
-                mapped_args.append(arg)
-            # if it is not a sequence or generator we make a generator out
-            # of it to map as inputs
-            else:
-                mapped_arg = (arg for i in range(n_cycles))
-                mapped_args.append(mapped_arg)
+            # make a generator out of it to map as inputs
+            mapped_arg = (arg for i in range(n_cycles))
+            mapped_args.append(mapped_arg)
 
         results = map_func(func, self.iter_trajs_fields(fields, traj_sel=traj_sel, idxs=False),
                            *mapped_args)
