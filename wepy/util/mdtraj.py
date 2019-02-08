@@ -13,6 +13,8 @@ import numpy as np
 import mdtraj as mdj
 import mdtraj.core.element as elem
 
+from wepy.util.util import traj_box_vectors_to_lengths_angles
+
 # the following method contains portions of the software mdtraj which
 # is distributed under the following license
 ##############################################################################
@@ -253,3 +255,21 @@ def _new_json_to_mdtraj_topology(json_string):
         topology.add_bond(atoms[index1], atoms[index2])
 
     return topology
+
+def traj_fields_to_mdtraj(traj_fields, json_topology, rep_key='positions'):
+
+    topology = json_to_mdtraj_topology(json_topology)
+
+    req_fields = ['box_vectors', rep_key]
+    assert [field in traj_fields for field in req_fields], \
+        "Fields must have the fields: {}".format(",".join(req_fields))
+
+    unitcell_lengths, unitcell_angles = traj_box_vectors_to_lengths_angles(
+                                           traj_fields['box_vectors'])
+
+    cycles = list(range(traj_fields['box_vectors'].shape[0]))
+    traj = mdj.Trajectory(traj_fields[rep_key], topology,
+                   time=cycles,
+                   unitcell_lengths=unitcell_lengths, unitcell_angles=unitcell_angles)
+    return traj
+

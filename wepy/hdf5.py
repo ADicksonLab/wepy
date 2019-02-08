@@ -387,7 +387,7 @@ it is a fairly straightforward task from a developers perspective.
 """
 
 import os.path as osp
-from collections import Sequence, namedtuple, defaultdict
+from collections import Sequence, namedtuple, defaultdict, Counter
 import itertools as it
 import json
 from warnings import warn
@@ -399,7 +399,8 @@ import h5py
 import networkx as nx
 
 from wepy.analysis.parents import resampling_panel
-from wepy.util.mdtraj import mdtraj_to_json_topology, json_to_mdtraj_topology
+from wepy.util.mdtraj import mdtraj_to_json_topology, json_to_mdtraj_topology, \
+                             traj_fields_to_mdtraj
 from wepy.util.util import traj_box_vectors_to_lengths_angles, json_top_atom_count, \
                            json_top_subset
 
@@ -2670,6 +2671,54 @@ class WepyHDF5(object):
 
 
     ### Settings
+
+    @property
+    def defined_traj_field_names(self):
+        """A list of the settings defined field names all trajectories have in the file."""
+
+        return list(self.field_feature_shapes.keys())
+
+    @property
+    def observable_field_names(self):
+        """Returns a list of the names of the observables that all trajectories have.
+
+        If this encounters observable fields that don't occur in all
+        trajectories (inconsistency) raises an inconsistency error.
+
+        """
+
+        n_trajs = self.num_trajs
+        field_names = Counter()
+        for traj in self.iter_trajs():
+            for name in list(traj['observables']):
+                field_names[name] += 1
+
+        # if any of the field names has not occured for every
+        # trajectory we raise an error
+        for field_name, count in field_names:
+            if count != n_trajs:
+                raise TypeError("observable field names are inconsistent")
+
+        # otherwise return the field names for the observables
+        return list(field_names.keys())
+
+    def _check_traj_field_consistency(self, field_names):
+
+        n_trajs = self.num_trajs
+        field_names = Counter()
+        for traj in self.iter_trajs():
+            for name in field_names:
+                if name in traj:
+                    field_names[name] += 1
+
+        # if any of the field names has not occured for every
+        # trajectory we raise an error
+        for field_name, count in field_names:
+            if count != n_trajs:
+                return False
+
+        return True
+
 
     @property
     def record_fields(self):
@@ -5274,20 +5323,10 @@ class WepyHDF5(object):
 
         rep_path = self._choose_rep_path(alt_rep)
 
-        topology = self.get_mdtraj_topology(alt_rep=rep_path)
+        json_topology = self.get_topology(alt_rep=rep_path)
 
-        req_fields = [BOX_VECTORS, rep_path]
-        assert [field in traj_fields for field in req_fields], \
-            "Fields must have the fields: {}".format(",".join(req_fields))
+        return traj_fields_to_mdtraj(traj_fields, json_topology, rep_key=rep_path)
 
-        unitcell_lengths, unitcell_angles = traj_box_vectors_to_lengths_angles(
-                                               traj_fields[BOX_VECTORS])
-
-        cycles = list(range(traj_fields[BOX_VECTORS].shape[0]))
-        traj = mdj.Trajectory(traj_fields[rep_path], topology,
-                       time=cycles,
-                       unitcell_lengths=unitcell_lengths, unitcell_angles=unitcell_angles)
-        return traj
 
     # TODO: deprecate; these are really kind of unnecessary
 
