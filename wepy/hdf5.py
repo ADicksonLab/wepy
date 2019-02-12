@@ -401,8 +401,8 @@ import networkx as nx
 from wepy.analysis.parents import resampling_panel
 from wepy.util.mdtraj import mdtraj_to_json_topology, json_to_mdtraj_topology, \
                              traj_fields_to_mdtraj
-from wepy.util.util import traj_box_vectors_to_lengths_angles, json_top_atom_count, \
-                           json_top_subset
+from wepy.util.util import traj_box_vectors_to_lengths_angles
+from wepy.util.json_top import json_top_subset, json_top_atom_count
 
 # optional dependencies
 try:
