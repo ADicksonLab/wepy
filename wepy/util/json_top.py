@@ -54,7 +54,7 @@ def json_top_atom_fields(json_topology):
 
     top = json.loads(json_topology)
 
-    atom_cols = {key : [] for key in RESIDUE_ATTR_KEYS}
+    atom_cols = {key : [] for key in ATOM_ATTR_KEYS}
 
     for chain in top['chains']:
         atom_cols['chain_key'] = chain[CHAIN_KEY]

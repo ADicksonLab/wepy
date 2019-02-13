@@ -3,7 +3,8 @@ import logging
 import numpy as np
 
 from wepy.reporter.reporter import ProgressiveFileReporter
-from wepy.util.util import box_vectors_to_lengths_angles, json_top_subset
+from wepy.util.util import box_vectors_to_lengths_angles
+from wepy.util.json_top import json_top_subset
 from wepy.util.mdtraj import json_to_mdtraj_topology, mdtraj_to_json_topology
 
 import mdtraj as mdj
