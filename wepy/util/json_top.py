@@ -60,7 +60,7 @@ def json_top_atom_fields(json_topology):
         atom_cols['chain_key'] = chain[CHAIN_KEY]
         for residue in chain['residues']:
             for atom in residue['atoms']:
-                atom_cols['residue_key'] = chain[RESIDUE_KEY]
+                atom_cols['residue_key'] = residue[RESIDUE_KEY]
                 for key in ATOM_ATTR_KEYS:
                     atom_cols[key].append(atom[key])
 
