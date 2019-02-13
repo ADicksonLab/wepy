@@ -38,7 +38,7 @@ def json_top_residue_fields(json_topology):
 
     for chain in top['chains']:
         for residue in chain['residues']:
-            residue_cols['chain_key'] = chain[CHAIN_KEY]
+            residue_cols['chain_key'].append(chain[CHAIN_KEY])
             for key in RESIDUE_ATTR_KEYS:
                 residue_cols[key].append(residue[key])
 
@@ -55,12 +55,14 @@ def json_top_atom_fields(json_topology):
     top = json.loads(json_topology)
 
     atom_cols = {key : [] for key in ATOM_ATTR_KEYS}
+    atom_cols['chain_key'] = []
+    atom_cols['residue_key'] = []
 
     for chain in top['chains']:
-        atom_cols['chain_key'] = chain[CHAIN_KEY]
         for residue in chain['residues']:
             for atom in residue['atoms']:
-                atom_cols['residue_key'] = residue[RESIDUE_KEY]
+                atom_cols['chain_key'].append(chain[CHAIN_KEY])
+                atom_cols['residue_key'].append(residue[RESIDUE_KEY])
                 for key in ATOM_ATTR_KEYS:
                     atom_cols[key].append(atom[key])
 
