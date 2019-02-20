@@ -77,3 +77,42 @@ unbinding WExplore simulation of the soluble epoxide hydrolase (sEH)
 protein with the inhibitor TPPU, which was the subject of this paper:
 
 Lotz and Dickson. 2018. JACS 140 (2) pp. 618-628 (DOI: 10.1021/jacs.7b08572)
+
+* Developing
+
+** Building Docs
+
+Install these packages:
+
+#+BEGIN_SRC bash
+pip install sphinx guzzle_sphinx_theme sphinxcontrib-napoleon nbsphinx
+#+END_SRC
+
+Install pandoc for converting org-mode files to rst (optional).
+
+You can follow the instructions on the site or just use anaconda:
+
+#+BEGIN_SRC bash
+conda install pandoc
+#+END_SRC
+
+Then run the build script. This uses the make file and additionally
+runs api-doc, and converts org-mode source files to rst using pandoc.
+
+#+BEGIN_SRC bash
+cd sphinx
+chmod u+x build.sh
+./build.sh
+#+END_SRC
+
+This will build the HTML files in the 'sphinx/_build/html' directory
+and if you point your web browser there you can view them.
+
+** Deploying
+
+To run the current deployments of the docs run the deploy script:
+
+#+BEGIN_SRC bash
+chmod u+x deploy.sh
+./deploy.sh
+#+END_SRC
