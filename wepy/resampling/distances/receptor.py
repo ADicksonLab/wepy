@@ -4,9 +4,10 @@ import numpy as np
 
 from wepy.util.util import box_vectors_to_lengths_angles
 
-from geomm.recentering import recenter_pair
+from geomm.grouping import group_pair
 from geomm.superimpose import superimpose
 from geomm.rmsd import calc_rmsd
+from geomm.centering import center_around
 
 from wepy.resampling.distances.distance import Distance
 
@@ -52,12 +53,16 @@ class ReceptorDistance(Distance):
 
         # recenter the protein-ligand complex into the center of the
         # periodic boundary conditions
-        rece_positions = recenter_pair(state['positions'], box_lengths,
-                                       self._bs_idxs, self._lig_idxs)
 
+        # regroup the ligand and protein in together
+        grouped_positions = group_pair(state['positions'], box_lengths,
+                                    self._bs_idxs, self._lig_idxs)
+
+        # then center them around the binding site
+        centered_positions = center_around(grouped_positions, self._bs_idxs)
 
         # slice these positions to get the image
-        state_image = rece_positions[self._image_idxs]
+        state_image = centered_positions[self._image_idxs]
 
         return state_image
 
@@ -78,7 +83,7 @@ class ReceptorDistance(Distance):
         state_image = self._unaligned_image(state)
 
         # then superimpose it to the reference structure
-        sup_image = superimpose(self.ref_image, state_image, idxs=self._image_bs_idxs)
+        sup_image, _, _ = superimpose(self.ref_image, state_image, idxs=self._image_bs_idxs)
 
         return sup_image
 

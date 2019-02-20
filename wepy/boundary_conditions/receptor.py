@@ -9,9 +9,10 @@ import itertools as it
 
 import numpy as np
 
-from geomm.recentering import recenter_pair
+from geomm.grouping import group_pair
 from geomm.superimpose import superimpose
 from geomm.rmsd import calc_rmsd
+from geomm.centering import center_around
 
 import mdtraj as mdj
 
@@ -453,7 +454,7 @@ class RebindingBC(ReceptorBC):
         ---------
 
         native_state : object implementing the State interface
-            The reference bound state.
+            The reference bound state. Will be automatically centered.
 
         cutoff_rmsd : float, optional
             The cutoff RMSD for considering a walker bound.
@@ -495,6 +496,10 @@ class RebindingBC(ReceptorBC):
         assert native_state is not None, "Must give a native state"
         assert type(cutoff_rmsd) is float
 
+
+        # save the native state and center it around it's binding site
+        native_state['positions'] = center_around(native_state['positions'], binding_site_idxs)
+
         # save attributes
         self._native_state = native_state
         self._cutoff_rmsd = cutoff_rmsd
@@ -535,17 +540,20 @@ class RebindingBC(ReceptorBC):
 
         # first recenter the ligand and the receptor in the walker
         box_lengths, box_angles = box_vectors_to_lengths_angles(walker.state['box_vectors'])
-        rece_walker_pos = recenter_pair(walker.state['positions'], box_lengths,
-                                        self.binding_site_idxs, self.ligand_idxs)
+        grouped_walker_pos = group_pair(walker.state['positions'], box_lengths,
+                                     self.binding_site_idxs, self.ligand_idxs)
+
+        # center the positions around the center of the binding site
+        centered_walker_pos = center_around(grouped_walker_pos, self.binding_site_idxs)
 
         # superimpose the walker state positions over the native state
         # matching the binding site indices only
-        sup_walker = superimpose(self.native_state['positions'], rece_walker_pos,
+        sup_walker_pos, _, _ = superimpose(self.native_state['positions'], centered_walker_pos,
                                  idxs=self.binding_site_idxs)
 
         # calculate the rmsd of the walker ligand (superimposed
         # according to the binding sites) to the native state ligand
-        native_rmsd = calc_rmsd(self.native_state['positions'], rece_walker_pos,
+        native_rmsd = calc_rmsd(self.native_state['positions'], sup_walker_pos,
                                 idxs=self.ligand_idxs)
 
         # test to see if the ligand is re-bound
