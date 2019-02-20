@@ -172,8 +172,9 @@ class ContigTree():
 
         # set the spanning contigs as a mapping of the index to the
         # span trace
-        self._spans = {span_idx : span_trace for span_idx, span_trace in self.spanning_contig_traces()}
-
+        self._spans = {span_idx : span_trace
+                       for span_idx, span_trace
+                       in enumerate(self.spanning_contig_traces())}
 
 
     @property
@@ -197,7 +198,7 @@ class ContigTree():
 
     def span_contig(self, span_idx):
 
-        contig = self.make_contig(self.spans[span_idx])
+        contig = self.make_contig(self.span_traces[span_idx])
 
         return contig
 
