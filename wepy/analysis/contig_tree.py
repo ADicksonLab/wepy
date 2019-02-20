@@ -170,6 +170,11 @@ class ContigTree():
             if self._boundary_condition_class is not None:
                 self._set_discontinuities(self._boundary_condition_class)
 
+        # set the spanning contigs as a mapping of the index to the
+        # span trace
+        self._spans = {span_idx : span_trace for span_idx, span_trace in self.spanning_contig_traces()}
+
+
 
     @property
     def graph(self):
@@ -185,6 +190,16 @@ class ContigTree():
     def boundary_condition_class(self):
         """The boundary condition class is used to determine discontinuities in lineages. """
         return self._boundary_condition_class
+
+    @property
+    def span_traces(self):
+        return self._spans
+
+    def span_contig(self, span_idx):
+
+        contig = self.make_contig(self.spans[span_idx])
+
+        return contig
 
     def _create_tree(self):
         """Generate the tree of cycles from the WepyHDF5 object/file. """
