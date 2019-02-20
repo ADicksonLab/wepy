@@ -865,6 +865,34 @@ class OpenMMWalker(Walker):
 
         super().__init__(state, weight)
 
+
+class OpenMMCPUWorker(Worker):
+    """Worker for OpenMM GPU simulations (CUDA or OpenCL platforms).
+
+    This is intended to be used with the wepy.work_mapper.WorkerMapper
+    work mapper class.
+
+    This class must be used in order to ensure OpenMM runs jobs on the
+    appropriate GPU device.
+
+    """
+
+    NAME_TEMPLATE = "OpenMMCPUWorker-{}"
+    """The name template the worker processes are named to substituting in
+    the process number."""
+
+    def __init__(self, num_threads=1, **kwargs):
+
+        super().__init__(num_threads=num_threads, **kwargs)
+
+    def run_task(self, task):
+        # documented in superclass
+
+        # run the task and pass in the DeviceIndex for OpenMM to
+        # assign work to the correct GPU
+        return task(CpuThreads=self.attributes['num_threads'])
+
+
 class OpenMMGPUWorker(Worker):
     """Worker for OpenMM GPU simulations (CUDA or OpenCL platforms).
 

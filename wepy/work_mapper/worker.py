@@ -19,7 +19,7 @@ class Worker(Process):
     """A string formatting template to identify worker processes in
     logs. The field will be filled with the worker index."""
 
-    def __init__(self, worker_idx, task_queue, result_queue):
+    def __init__(self, worker_idx, task_queue, result_queue, **kwargs):
         """Constructor for the Worker class.
 
         Parameters
@@ -40,9 +40,17 @@ class Worker(Process):
 
         self.worker_idx = worker_idx
 
+        # set all the kwargs into an attributes dictionary
+        self._attributes = kwargs
+
         # the queues for work to be done and work done
         self.task_queue = task_queue
         self.result_queue = result_queue
+
+    @property
+    def attributes(self):
+        """Dictionary of attributes of the worker."""
+        return self.attributes
 
     def run_task(self, task):
         """Runs the given task and returns the results.

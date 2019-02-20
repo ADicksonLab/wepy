@@ -142,10 +142,12 @@ class WorkerMapper(Mapper):
     processes which watch a task queue of walker segments.
     """
 
-    def __init__(self, num_workers=None, worker_type=None, **kwargs):
+    def __init__(self, num_workers=None, worker_type=None,
+                 worker_attributes=None, **kwargs):
         """Constructor for WorkerMapper.
 
         kwargs are ignored.
+
 
         Parameters
         ----------
@@ -157,7 +159,13 @@ class WorkerMapper(Mapper):
             interface, typically a type from a Worker class.
            (Default = Worker)
 
+        worker_attributes : dictionary
+            A dictionary of values that are passed to the worker
+            constructor as key-word arguments.
+
         """
+
+        self._worker_attributes = worker_attributes
 
         self._num_workers = num_workers
         self._worker_segment_times = {i : [] for i in range(self.num_workers)}
@@ -245,7 +253,8 @@ class WorkerMapper(Mapper):
         # Start workers, giving them all the queues
         self._workers = []
         for i in range(num_workers):
-            worker = self.worker_type(i, self._task_queue, self._result_queue)
+            worker = self.worker_type(i, self._task_queue, self._result_queue,
+                                      **self._worker_attributes)
             self._workers.append(worker)
 
         # start the worker processes
