@@ -165,7 +165,10 @@ class WorkerMapper(Mapper):
 
         """
 
-        self._worker_attributes = worker_attributes
+        if worker_attributes is not None:
+            self._worker_attributes = worker_attributes
+        else:
+            self._worker_attributes = {}
 
         self._num_workers = num_workers
         self._worker_segment_times = {i : [] for i in range(self.num_workers)}

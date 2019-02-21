@@ -50,7 +50,7 @@ class Worker(Process):
     @property
     def attributes(self):
         """Dictionary of attributes of the worker."""
-        return self.attributes
+        return self._attributes
 
     def run_task(self, task):
         """Runs the given task and returns the results.
