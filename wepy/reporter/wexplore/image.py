@@ -6,7 +6,7 @@ import mdtraj as mdj
 
 from wepy.reporter.reporter import ProgressiveFileReporter
 from wepy.util.mdtraj import json_to_mdtraj_topology, mdtraj_to_json_topology
-from wepy.util.util import json_top_subset
+from wepy.util.json_top import json_top_subset
 
 class WExploreAtomImageReporter(ProgressiveFileReporter):
     """ """

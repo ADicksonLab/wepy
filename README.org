@@ -85,7 +85,7 @@ Lotz and Dickson. 2018. JACS 140 (2) pp. 618-628 (DOI: 10.1021/jacs.7b08572)
 Install these packages:
 
 #+BEGIN_SRC bash
-pip install sphinx guzzle_sphinx_theme sphinxcontrib-napoleon nbsphinx
+pip install ipython sphinx guzzle_sphinx_theme sphinxcontrib-napoleon nbsphinx
 #+END_SRC
 
 Install pandoc for converting org-mode files to rst (optional).

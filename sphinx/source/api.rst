@@ -15,6 +15,7 @@ TODO
 Analysis
 --------
 
+* :any:`Free Energy Profiles of Observables <../api/wepy.analysis.profiles>`
 * :any:`Macro-State Network <../api/wepy.analysis.network>`
 * :any:`Network Transition Probabilities <../api/wepy.analysis.transitions>`
 * :any:`Contigs and Contig Tree/Forest <../api/wepy.analysis.contig_tree>`
