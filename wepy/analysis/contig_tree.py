@@ -349,7 +349,7 @@ class ContigTree():
 
     @staticmethod
     def contig_trace_to_run_trace(contig_trace, contig_walker_trace):
-        """Combine a contig trace and a walker trace to get the equivalen run trace.
+        """Combine a contig trace and a walker trace to get the equivalent run trace.
 
         The contig_walker_trace cycle_idxs must be a subset of the
         frame indices given by the contig_trace.
@@ -382,6 +382,33 @@ class ContigTree():
             trace.append(frame)
 
         return trace
+
+
+    def walker_trace_to_run_trace(self, contig_walker_trace):
+        """Combine a walker trace to get the equivalent run trace for this contig.
+
+        The contig_walker_trace cycle_idxs must be a subset of the
+        frame indices given by the contig_trace.
+
+
+        Parameters
+        ----------
+
+        contig_walker_trace : list of tuples of ints (traj_idx, cycle_idx)
+
+        Returns
+        -------
+
+        run_trace : list of tuples of ints (run_idx, traj_idx, cycle_idx)
+
+        See Also
+        --------
+        Contig.contig_trace_to_run_trace : calls this static method
+
+        """
+
+        return self.contig_trace_to_run_trace(self.contig_trace, contig_walker_trace)
+
 
 
     def contig_to_run_trace(self, contig, contig_trace):
