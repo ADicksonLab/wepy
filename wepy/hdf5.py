@@ -4659,10 +4659,60 @@ class WepyHDF5(object):
 
         self._add_run_field(run_idx, obs_path, data, sparse_idxs=sparse_idxs)
 
+    def add_traj_observable(self, observable_name, data, sparse_idxs=None):
+        """Add a trajectory sub-field in the compound field "observables" for
+        an entire file, on a trajectory basis.
+
+        Parameters
+        ----------
+        observable_name : str
+            What to name the observable subfield.
+
+        data : list of arraylike
+
+            The data for each run are the elements of this
+            argument. Each element is an arraylike of shape
+            (n_run_frames, *feature_vector_shape) where the
+            n_run_frames is the .
+
+        sparse_idxs : list of list of int, optional
+            If not None, specifies the cycle indices this data
+            corresponds to. First by run, then by trajectory.
+             (Default value = None)
+
+        """
+        obs_path = '{}/{}'.format(OBSERVABLES, observable_name)
+
+        run_results = []
+
+        for run_idx in range(self.num_runs):
+
+            run_num_trajs = self.num_run_trajs(run_idx)
+            run_results.append([])
+
+            for traj_idx in range(run_num_trajs):
+                run_results[run_idx].append(data[(run_idx * run_num_trajs) + traj_idx])
+
+        run_sparse_idxs = None
+        if sparse_idxs is not None:
+            run_sparse_idxs = []
+
+            for run_idx in range(self.num_runs):
+
+                run_num_trajs = self.num_run_trajs(run_idx)
+                run_sparse_idxs.append([])
+
+                for traj_idx in range(run_num_trajs):
+                    run_sparse_idxs[run_idx].append(sparse_idxs[(run_idx * run_num_trajs) + traj_idx])
+
+        self.add_observable(observable_name, run_results,
+                            sparse_idxs=run_sparse_idxs)
+
+
 
     def add_observable(self, observable_name, data, sparse_idxs=None):
         """Add a trajectory sub-field in the compound field "observables" for
-        an entire file.
+        an entire file, on a compound run and trajectory basis.
 
         Parameters
         ----------
@@ -4752,19 +4802,38 @@ class WepyHDF5(object):
             assert isinstance(save_to_hdf5, str),\
                 "`save_to_hdf5` should be the field name to save the data in the `observables`"\
                 " group in each trajectory"
-            field_name=save_to_hdf5
 
-        if return_results:
-            results = []
+            # the field name comes from this kwarg if it satisfies the
+            # string condition above
+            field_name = save_to_hdf5
 
+        # calculate the results and accumulate them here
+        results = []
+
+        # and the indices of the results
+        result_idxs = []
+
+
+        # map over the trajectories and apply the function and save
+        # the results
         for result in self.traj_fields_map(func, fields, args,
                                            map_func=map_func, traj_sel=traj_sel, idxs=True):
 
             idx_tup, obs_features = result
-            run_idx, traj_idx = idx_tup
 
-            # if we are saving this to the trajectories observables add it as a dataset
-            if save_to_hdf5:
+            results.append(obs_features)
+            result_idxs.append(idx_tup)
+
+        # we want to separate writing and computation so we can do it
+        # in parallel without having multiple writers. So if we are
+        # writing directly to the HDF5 we add the results to it.
+
+        # if we are saving this to the trajectories observables add it as a dataset
+        if save_to_hdf5:
+
+            for idx_tup, traj_results in zip(result_idxs, results):
+
+                run_idx, traj_idx = idx_tup
 
                 logging.info("Saving run {} traj {} observables/{}".format(
                     run_idx, traj_idx, field_name))
@@ -4796,16 +4865,12 @@ class WepyHDF5(object):
                         raise RuntimeError(
                             "Dataset already exists and file is in concatenate mode ('c' or 'c-')")
 
-            # also return it if requested
-            if return_results:
-                if idxs:
-                    results.append(( idx_tup, obs_features))
-                else:
-                    results.append(obs_features)
 
         if return_results:
-            return results
-
+            if idxs:
+                return result_idxs, results
+            else:
+                return results
     ## Trajectory Getters
 
     def get_traj_field(self, run_idx, traj_idx, field_path, frames=None, masked=True):

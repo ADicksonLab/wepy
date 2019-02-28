@@ -115,7 +115,7 @@ def free_energy_profile(weights, observables, bins=30,
 
     return hist_fe, bin_edges
 
-def bin_edges(contigtrees, bins, field_key):
+def contigtrees_bin_edges(contigtrees, bins, field_key):
     """Get the bin edges that best describes the aggregate data for
     multiple contigtrees.
 
@@ -148,7 +148,7 @@ def bin_edges(contigtrees, bins, field_key):
 
     all_values = np.concatenate(all_values)
 
-    bin_edges = np.histogram_bin_edges(all_values, bins=num_bins)
+    bin_edges = np.histogram_bin_edges(all_values, bins=bins)
 
     return bin_edges
 
