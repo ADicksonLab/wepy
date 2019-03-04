@@ -292,6 +292,9 @@ class ContigTreeProfiler(object):
             A list of each cumulative free energy profile. Each profile is
             an array of free energies for each bin.
 
+        profile_num_cycles : list of int
+            The number of cycles in each cumulative fe profile.
+
         """
 
         # make the contig for this span
@@ -331,16 +334,19 @@ class ContigTreeProfiler(object):
         # then generate each profile for each cumulative tranche
 
         fe_profiles = []
+        profile_num_cycles = []
         for weights_part in weights_partition_gen:
 
             values_part = next(values_partition_gen)
+
+            profile_num_cycles.append(len(values_part))
 
             fe_profile, _ = free_energy_profile(weights_part, values_part,
                                                 bins=bin_edges)
 
             fe_profiles.append(fe_profile)
 
-        return fe_profiles
+        return fe_profiles, profile_num_cycles
 
 
     def bin_edges(self, bins, field_key):
