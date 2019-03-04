@@ -1476,11 +1476,15 @@ class WepyHDF5(object):
         Parameters
         ----------
         run_idx : int
+
         traj_idx : int
+
         field_path : str
             Field name.
+
         field_data : numpy.array
             The data array to set for the field.
+
         sparse_idxs : arraylike of int of shape (1,)
             List of cycle indices that the data corresponds to.
              (Default value = None)
@@ -1493,8 +1497,23 @@ class WepyHDF5(object):
         # if it is a sparse dataset we need to add the data and add
         # the idxs in a group
         if sparse_idxs is None:
-            traj_grp.create_dataset(field_path, data=field_data,
-                                    maxshape=(None, *field_data.shape[1:]))
+
+            # first require that the dataset exist and is exactly the
+            # same as the one that already exists (if indeed it
+            # does). If it doesn't raise a specific error letting the
+            # user know that they will have to delete the dataset if
+            # they want to change it to something else
+            try:
+                dset = traj_grp.require_dataset(field_path, shape=field_data.shape, dtype=field_data.dtype,
+                                         exact=True,
+                                         maxshape=(None, *field_data.shape[1:]))
+            except TypeError:
+                raise TypeError("For changing the contents of a trajectory field it must be the same shape and dtype.")
+
+            # if that succeeds then go ahead and set the data to the
+            # dataset (overwriting if it is still there)
+            dset[...] = field_data
+
         else:
             sparse_grp = traj_grp.create_group(field_path)
             # add the data to this group
