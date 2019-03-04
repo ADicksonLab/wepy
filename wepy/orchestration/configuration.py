@@ -25,8 +25,6 @@ class Configuration():
                  reporter_classes=None,
                  reporter_partial_kwargs=None,
                  # work mappers
-                 n_workers=None,
-                 worker_type=None,
                  work_mapper_class=None,
                  work_mapper_partial_kwargs=None):
 
@@ -82,36 +80,33 @@ class Configuration():
         else:
             self._work_mapper_partial_kwargs = work_mapper_partial_kwargs
 
+        # if the number of workers is not given set it to None
+        if 'num_workers' not in self._work_mapper_partial_kwargs:
+            self._work_mapper_partial_kwargs['num_workers'] = None
+
+        # same for the worker type
+        if 'worker_type' not in self._work_mapper_partial_kwargs:
+            self._work_mapper_partial_kwargs['worker_type'] = None
 
         # if the number of workers was sepcified and no work_mapper
         # class was specified default to the WorkerMapper
-        if (n_workers is not None) and (work_mapper_class is None):
-            self._n_workers = n_workers
+        if (self._work_mapper_partial_kwargs['num_workers'] is not None) and \
+           (work_mapper_class is None):
             self._work_mapper_class = WorkerMapper
 
         # if no number of workers was specified and no work_mapper
         # class was specified we default to the serial mapper
-        elif (n_workers is None) and (work_mapper_class is None):
-            self._n_workers = None
+        elif (self._work_mapper_partial_kwargs['num_workers'] is not None) and \
+             (work_mapper_class is None):
             self._work_mapper_class = Mapper
 
         # otherwise if the work_mapper class was given we use it and
         # whatever the number of workers was
         else:
-            self._n_workers = n_workers
             self._work_mapper_class = work_mapper_class
 
-        # the default worker type if none was given
-        if worker_type is None:
-            worker_type = Worker
-
-        # set the worker type
-        self._worker_type = worker_type
-
         # then generate a work mapper
-        self._work_mapper = self._work_mapper_class(num_workers=self._n_workers,
-                                                    worker_type=self._worker_type,
-                                                    **self._work_mapper_partial_kwargs)
+        self._work_mapper = self._work_mapper_class(**self._work_mapper_partial_kwargs)
 
     @property
     def reporter_classes(self):
@@ -157,16 +152,6 @@ class Configuration():
     def work_mapper_partial_kwargs(self):
         """ """
         return self._work_mapper_partial_kwargs
-
-    @property
-    def n_workers(self):
-        """ """
-        return self._n_workers
-
-    @property
-    def worker_type(self):
-        """ """
-        return self._worker_type
 
     @property
     def work_mapper(self):
@@ -245,7 +230,7 @@ class Configuration():
     def _gen_work_mapper(self):
         """ """
 
-        work_mapper = self._work_mapper_class(n_workers=self._n_workers)
+        work_mapper = self._work_mapper_class(n_workers=self._default_n_workers)
 
         return work_mapper
 
@@ -276,8 +261,6 @@ class Configuration():
         # dictionary of the possible reparametrizations from the
         # current configuration
         params = {# related to the work mapper
-                  'n_workers' : self.n_workers,
-                  'worker_type' : self.worker_type,
                   'work_mapper_class' : self.work_mapper_class,
                   'work_mapper_partial_kwargs' : self.work_mapper_partial_kwargs,
                   # those related to the reporters
