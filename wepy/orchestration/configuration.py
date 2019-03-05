@@ -272,8 +272,15 @@ class Configuration():
                   'reporter_partial_kwargs' : self.reporter_partial_kwargs}
 
         for key, value in kwargs.items():
+
+            # for the partial kwargs we need to update them not
+            # completely overwrite
+            if key in ['work_mapper_partial_kwargs', 'reporter_partial_kwargs']:
+                if value is not None:
+                    params[key].update(value)
+
             # if the value is given we replace the old one with it
-            if value is not None:
+            elif value is not None:
                 params[key] = value
 
         new_configuration = type(self)(**params)
