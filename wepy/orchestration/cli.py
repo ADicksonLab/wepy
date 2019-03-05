@@ -56,7 +56,8 @@ def settle_run_options(n_workers=None,
                        job_dir=None,
                        job_name=None,
                        narration=None,
-                       configuration=None):
+                       configuration=None,
+                       start_hash=None):
     """
 
     Parameters
@@ -105,11 +106,13 @@ def settle_run_options(n_workers=None,
     # orchestrator API will ignore reparametrization values if a
     # concrete Configuration is given.
     if config is not None:
+        # collect the kwargs for the work mapper to be reparametrized
+        work_mapper_pkwargs = {'num_workers' : n_workers}
+
         config = config.reparametrize(work_dir=job_dir,
                                       config_name=job_name,
                                       narration=narration,
-                                      n_workers=n_workers,
-        )
+                                      work_mapper_partial_kwargs=work_mapper_pkwargs)
 
     return n_workers, job_dir, job_name, narration, config
 
@@ -161,10 +164,11 @@ def run(log, n_workers, checkpoint_freq, job_dir, job_name, narration, configura
 
     # settle what the defaults etc. are for the different options as they are interdependent
     n_workers, job_dir, job_name, narration, config = settle_run_options(n_workers=n_workers,
-                                                                 job_dir=job_dir,
-                                                                 job_name=job_name,
-                                                                 narration=narration,
-                                                                 configuration=configuration)
+                                                                         job_dir=job_dir,
+                                                                         job_name=job_name,
+                                                                         narration=narration,
+                                                                         configuration=configuration,
+                                                                         start_hash=start_hash)
 
     orch = deserialize_orchestrator(orchestrator.read())
 
