@@ -415,6 +415,14 @@ try:
 except ModuleNotFoundError:
     warn("pandas is not installed and that functionality will not work", RuntimeWarning)
 
+## h5py settings
+
+# we set the libver to always be the latest (which should be 1.10) so
+# that we know we can always use SWMR and the newest features. We
+# don't care about backwards compatibility with HDF5 1.8. Just update
+# in a new virtualenv if this is a problem for you
+H5PY_LIBVER = 'latest'
+
 ## Header and settings keywords
 
 TOPOLOGY = 'topology'
@@ -827,7 +835,7 @@ class WepyHDF5(object):
 
         # open the file and then run the different constructors based
         # on the mode
-        with h5py.File(filename, mode=self._h5py_mode) as h5:
+        with h5py.File(filename, mode=self._h5py_mode, libver=H5PY_LIBVER) as h5:
             self._h5 = h5
 
             # create file mode: 'w' will create a new file or overwrite,
@@ -895,7 +903,7 @@ class WepyHDF5(object):
     # context manager methods
 
     def __enter__(self):
-        self._h5 = h5py.File(self._filename)
+        self._h5 = h5py.File(self._filename, libver=H5PY_LIBVER)
         self.closed = False
         return self
 
@@ -2363,7 +2371,7 @@ class WepyHDF5(object):
         if self.closed:
             self._h5py_mode = mode
             self._wepy_mode = mode
-            self._h5 = h5py.File(self._filename, mode)
+            self._h5 = h5py.File(self._filename, mode, libver=H5PY_LIBVER)
             self.closed = False
         else:
             raise IOError("This file is already open")
@@ -3320,7 +3328,7 @@ class WepyHDF5(object):
         assert mode in ['w', 'w-', 'x'], "must be opened in a file creation mode"
 
         # we manually construct an HDF5 and copy the groups over
-        new_h5 = h5py.File(path, mode=mode)
+        new_h5 = h5py.File(path, mode=mode, libver=H5PY_LIBVER)
 
         new_h5.create_group(RUNS)
 
@@ -4130,44 +4138,55 @@ class WepyHDF5(object):
         # add the other fields
         for field_path, field_data in traj_data.items():
 
-            # if the field hasn't been initialized yet initialize it
+            # if the field hasn't been initialized yet initialize it,
+            # unless we are in SWMR mode
             if not field_path in traj_grp:
-                feature_shape = field_data.shape[1:]
-                feature_dtype = field_data.dtype
 
-                # not specified as sparse_field, no settings
-                if (not field_path in self.field_feature_shapes) and \
-                     (not field_path in self.field_feature_dtypes) and \
-                     not field_path in self.sparse_fields:
-                    # only save if it is an observable
-                    is_observable = False
-                    if '/' in field_path:
-                        group_name = field_path.split('/')[0]
-                        if group_name == OBSERVABLES:
-                            is_observable = True
-                    if is_observable:
-                          warn("the field '{}' was received but not previously specified"
-                               " but is being added because it is in observables.".format(field_path))
-                          # save sparse_field flag, shape, and dtype
-                          self._add_sparse_field_flag(field_path)
-                          self._set_field_feature_shape(field_path, feature_shape)
-                          self._set_field_feature_dtype(field_path, feature_dtype)
-                    else:
-                        raise ValueError("the field '{}' was received but not previously specified"
-                            "it is being ignored because it is not an observable.".format(field_path))
+                # if in SWMR mode you cannot create groups so if we
+                # are in SWMR mode raise a warning that the data won't
+                # be recorded
+                if self.swmr_mode:
+                    warn("New datasets cannot be created while in SWMR mode.  The field {} will"
+                    "not be saved. If you want to save this it must be"
+                         "previously created".format(field_path))
+                else:
 
-                # specified as sparse_field but no settings given
-                elif (self.field_feature_shapes[field_path] is None and
-                   self.field_feature_dtypes[field_path] is None) and \
-                   field_path in self.sparse_fields:
-                    # set the feature shape and dtype since these
-                    # should be 0 in the settings
-                    self._set_field_feature_shape(field_path, feature_shape)
+                    feature_shape = field_data.shape[1:]
+                    feature_dtype = field_data.dtype
 
-                    self._set_field_feature_dtype(field_path, feature_dtype)
+                    # not specified as sparse_field, no settings
+                    if (not field_path in self.field_feature_shapes) and \
+                         (not field_path in self.field_feature_dtypes) and \
+                         not field_path in self.sparse_fields:
+                        # only save if it is an observable
+                        is_observable = False
+                        if '/' in field_path:
+                            group_name = field_path.split('/')[0]
+                            if group_name == OBSERVABLES:
+                                is_observable = True
+                        if is_observable:
+                              warn("the field '{}' was received but not previously specified"
+                                   " but is being added because it is in observables.".format(field_path))
+                              # save sparse_field flag, shape, and dtype
+                              self._add_sparse_field_flag(field_path)
+                              self._set_field_feature_shape(field_path, feature_shape)
+                              self._set_field_feature_dtype(field_path, feature_dtype)
+                        else:
+                            raise ValueError("the field '{}' was received but not previously specified"
+                                "it is being ignored because it is not an observable.".format(field_path))
 
-                # initialize
-                self._init_traj_field(run_idx, traj_idx, field_path, feature_shape, feature_dtype)
+                    # specified as sparse_field but no settings given
+                    elif (self.field_feature_shapes[field_path] is None and
+                       self.field_feature_dtypes[field_path] is None) and \
+                       field_path in self.sparse_fields:
+                        # set the feature shape and dtype since these
+                        # should be 0 in the settings
+                        self._set_field_feature_shape(field_path, feature_shape)
+
+                        self._set_field_feature_dtype(field_path, feature_dtype)
+
+                    # initialize
+                    self._init_traj_field(run_idx, traj_idx, field_path, feature_shape, feature_dtype)
 
             # extend it either as a sparse field or a contiguous field
             if field_path in self.sparse_fields:

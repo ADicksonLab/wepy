@@ -53,11 +53,19 @@ class WepyHDF5Reporter(FileReporter):
                  bc_records=None,
                  progress_records=None,
 
+                 # other settings
+                 swmr_mode=False,
+
                  **kwargs
                  ):
 
         # initialize inherited attributes
         super().__init__(**kwargs)
+
+        # set the preference for swmr mode, True or False, if this is
+        # True then SWMR mode will be turned on when the file is
+        # written to during reporting
+        self.swmr_mode = swmr_mode
 
         # do all the WepyHDF5 specific stuff
 
@@ -382,6 +390,10 @@ class WepyHDF5Reporter(FileReporter):
             save_fields = self.save_fields
 
         with self.wepy_h5:
+
+            # turn on SWMR mode if requested for reporting
+            if self.swmr_mode:
+                self.wepy_h5.swmr_mode = True
 
             # add trajectory data for the walkers
             for walker_idx, walker in enumerate(new_walkers):
