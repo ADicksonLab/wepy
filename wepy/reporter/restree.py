@@ -14,6 +14,7 @@ from wepy.analysis.parents import resampling_panel, \
                                   parent_panel, net_parent_table,\
                                   ParentForest
 
+
 class ResTreeReporter(ProgressiveFileReporter):
     """ """
 
@@ -71,8 +72,8 @@ class ResTreeReporter(ProgressiveFileReporter):
 
 
         # make a namedtuple record for these records
-        self._ResamplingRecord = namedtuple('{}_Record'.format('Resampling'),
-                        ['cycle_idx'] + list(self._resampling_record_field_names))
+        # self._ResamplingRecord = namedtuple('{}_Record'.format('Resampling'),
+        #                 ['cycle_idx'] + list(self._resampling_record_field_names))
 
         # we do the same for the bounadry condition class, although we
         # also need the class itself
@@ -83,8 +84,8 @@ class ResTreeReporter(ProgressiveFileReporter):
         self._warping_field_shapes = self._bc.warping_field_shapes()
         self._warping_field_dtypes = self._bc.warping_field_dtypes()
 
-        self._WarpingRecord = namedtuple('{}_Record'.format('Warping'),
-                                    ['cycle_idx'] + list(self._warping_record_field_names))
+        # self._WarpingRecord = namedtuple('{}_Record'.format('Warping'),
+        #                             ['cycle_idx'] + list(self._warping_record_field_names))
 
 
 
@@ -121,10 +122,15 @@ class ResTreeReporter(ProgressiveFileReporter):
 
         """
 
+        # make a namedtuple record for these records
+        ResamplingRecord = namedtuple('{}_Record'.format('Resampling'),
+                        ['cycle_idx'] + list(self._resampling_record_field_names))
+
+
         record = self._make_record(record_d, cycle_idx,
                                    self._resampling_record_field_names,
                                    self._resampling_field_names, self._resampling_field_shapes,
-                                   self._ResamplingRecord)
+                                   ResamplingRecord)
 
         return record
 
@@ -143,10 +149,14 @@ class ResTreeReporter(ProgressiveFileReporter):
 
         """
 
+        # make a namedtuple record for these records
+        WarpingRecord = namedtuple('{}_Record'.format('Warping'),
+                                   ['cycle_idx'] + list(self._warping_record_field_names))
+
         record = self._make_record(record_d, cycle_idx,
                                    self._warping_record_field_names,
                                    self._warping_field_names, self._warping_field_shapes,
-                                   self._WarpingRecord)
+                                   WarpingRecord)
 
         return record
 
