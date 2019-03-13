@@ -125,6 +125,9 @@ class Orchestrator():
         # we also need to save the configurations for each run
         self._run_configurations = {}
 
+        # and the cycles the runs end on
+        self._run_cycles = {}
+
         # if initial walkers were given we save them and also make a
         # snapshot for them
         if default_init_walkers is not None:
@@ -416,7 +419,7 @@ class Orchestrator():
 
         return snaphash
 
-    def _gen_checkpoint_orch(self, start_hash, checkpoint_snapshot, configuration):
+    def _gen_checkpoint_orch(self, start_hash, checkpoint_snapshot, configuration, cycle_idx):
         """
 
         Parameters
@@ -427,6 +430,8 @@ class Orchestrator():
             
         configuration :
             
+        cycle_idx : int
+            The cycle of the simulation run the checkpoint was generated for.
 
         Returns
         -------
@@ -448,12 +453,12 @@ class Orchestrator():
         checkpoint_hash = checkpoint_orch.add_snapshot(checkpoint_snapshot)
 
         # register the run with the two hashes and the configuration
-        checkpoint_orch.register_run(start_hash, checkpoint_hash, configuration)
+        checkpoint_orch.register_run(start_hash, checkpoint_hash, configuration, cycle_idx)
 
         return checkpoint_orch
 
     def _save_checkpoint(self, start_hash, checkpoint_snapshot, configuration,
-                         checkpoint_dir,
+                         checkpoint_dir, cycle_idx,
                          mode='wb'):
         """
 
@@ -481,7 +486,7 @@ class Orchestrator():
         # make a checkpoint object which is an orchestrator with only
         # 1 run in it which is the start and the checkpoint as its end
         checkpoint_orch = self._gen_checkpoint_orch(start_hash, checkpoint_snapshot,
-                                                    configuration)
+                                                    configuration, cycle_idx)
 
         # construct the checkpoint filename from the template using
         # the hashes for the start and the checkpoint, we add a "new""
@@ -614,7 +619,7 @@ class Orchestrator():
 
         return sim_manager
 
-    def register_run(self, start_hash, end_hash, configuration):
+    def register_run(self, start_hash, end_hash, configuration, cycle_idx):
         """
 
         Parameters
@@ -625,6 +630,8 @@ class Orchestrator():
             
         configuration :
             
+        cycle_idx : int
+            The cycle of the simulation run the checkpoint was generated for.
 
         Returns
         -------
@@ -648,6 +655,9 @@ class Orchestrator():
 
         # add the configuration for this run
         self._run_configurations[(start_hash, end_hash)] = configuration
+
+        # save which cycle the run ended on
+        self._run_cycles[(start_hash, end_hash)] = cycle_idx
 
     def new_run_by_time(self, init_walkers, run_time, n_steps,
                         configuration=None,
@@ -768,6 +778,7 @@ class Orchestrator():
                     self._save_checkpoint(start_hash, checkpoint_snapshot,
                                           configuration,
                                           checkpoint_dir,
+                                          cycle_idx,
                                           mode=dump_mode)
 
             cycle_idx += 1
@@ -781,7 +792,7 @@ class Orchestrator():
         # add the snapshot and the run for it
         end_hash = self.add_snapshot(end_snapshot)
 
-        self.register_run(start_hash, end_hash, configuration)
+        self.register_run(start_hash, end_hash, configuration, cycle_idx)
 
         # clear the object variable for the current checkpoints
         del self._curr_run_checkpoints
@@ -1139,7 +1150,8 @@ def reconcile_orchestrators(template_orchestrator, *orchestrators):
         # register all the runs in each
         for run in list(orch.runs):
             run_config = orch.run_configuration(*run)
-            new_orch.register_run(*run, run_config)
+            run_cycle_idx = orch.run_configuration(*run)
+            new_orch.register_run(*run, run_config, run_cycle_idx)
 
     return new_orch
 
