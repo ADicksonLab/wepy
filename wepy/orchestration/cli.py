@@ -407,7 +407,7 @@ def reconcile(hdf5,
         click.echo("/n")
         click.echo("Deserializing Orchestrator {}".format(orch_idx))
         orch = deserialize_orchestrator(orchestrator.read())
-        click.echo("Finished Deserializing Orchestrator {}", format(orch_idx))
+        click.echo("Finished Deserializing Orchestrator {}".format(orch_idx))
 
         hash_listing_str = "\n".join(["{}, {}".format(start, end) for start, end in new_orch.runs])
         click.echo("This orchestrator has the following runs:")
