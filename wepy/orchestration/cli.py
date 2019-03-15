@@ -337,6 +337,9 @@ def combine_orch_wepy_hdf5s(new_orch, new_hdf5_path):
             # map the hash id to the new run idx created. There should
             # only be one run in an HDF5 if we are following the
             # orchestration workflow.
+            assert len(new_run_idxs) < 2, \
+                "Cannot be more than 1 run per HDF5 file in orchestration workflow"
+
             run_mapping[run_id] = new_run_idxs[0]
 
         # now that they are all linked we need to add the snapshot
@@ -350,9 +353,18 @@ def combine_orch_wepy_hdf5s(new_orch, new_hdf5_path):
         # continues in the orchestrator
         for run_id, run_idx in run_mapping.items():
 
-            # set the run snapshot has metadata
-            master_wepy_h5.set_run_start_snapshot_hash(run_idx, run_id[0])
-            master_wepy_h5.set_run_end_snapshot_hash(run_idx, run_id[1])
+            # set the run snapshot hash metadata except for if we have
+            # already done it
+            try:
+                master_wepy_h5.set_run_start_snapshot_hash(run_idx, run_id[0])
+            except AttributeError:
+                # it was already set so just move on
+                pass
+            try:
+                master_wepy_h5.set_run_end_snapshot_hash(run_idx, run_id[1])
+            except AttributeError:
+                # it was already set so just move on
+                pass
 
             # find the run_id that this one continues
             continued_run_id = new_orch.run_continues(*run_id)
@@ -409,7 +421,7 @@ def reconcile(hdf5,
         orch = deserialize_orchestrator(orchestrator.read())
         click.echo("Finished Deserializing Orchestrator {}".format(orch_idx))
 
-        hash_listing_str = "\n".join(["{}, {}".format(start, end) for start, end in new_orch.runs])
+        hash_listing_str = "\n".join(["{}, {}".format(start, end) for start, end in orch.runs])
         click.echo("This orchestrator has the following runs:")
         click.echo(hash_listing_str)
 
@@ -421,16 +433,18 @@ def reconcile(hdf5,
         click.echo("The new orchestrator has the following runs:")
         click.echo(hash_listing_str)
 
+    # then make and output the orchestrator
+    click.echo("Serializing the new orchestrator")
+    output.write(new_orch.serialize())
 
     # if a path for an HDF5 file is given
     if hdf5 is not None:
+        click.echo("Combining the HDF5s together")
         hdf5_path = osp.realpath(hdf5)
         # combine the HDF5 files from those orchestrators
         combine_orch_wepy_hdf5s(new_orch, hdf5_path)
 
 
-    # then make and output the orchestrator
-    output.write(new_orch.serialize())
 
 def hash_listing_formatter(hashes):
     """
