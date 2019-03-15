@@ -405,7 +405,7 @@ def reconcile(hdf5,
         orch_idx += 1
 
         click.echo("/n")
-        click.echo("Deserializing Orchestrator {}", format(orch_idx))
+        click.echo("Deserializing Orchestrator {}".format(orch_idx))
         orch = deserialize_orchestrator(orchestrator.read())
         click.echo("Finished Deserializing Orchestrator {}", format(orch_idx))
 
