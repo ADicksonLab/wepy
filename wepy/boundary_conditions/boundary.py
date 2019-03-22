@@ -95,7 +95,7 @@ class BoundaryConditions(object):
     """
 
     # warping (sporadic)
-    WARPING_FIELDS = ()
+    WARPING_FIELDS = ('walker_idx', 'target_idx', 'weight')
     """String names of fields produced in this record group.
 
     Warping records are typically used to report whenever a walker
@@ -116,7 +116,7 @@ class BoundaryConditions(object):
 
     """
 
-    WARPING_SHAPES = ()
+    WARPING_SHAPES = ((1,), (1,), (1,))
     """Numpy-style shapes of all fields produced in records.
 
     There should be the same number of elements as there are in the
@@ -143,7 +143,7 @@ class BoundaryConditions(object):
 
     """
 
-    WARPING_DTYPES = ()
+    WARPING_DTYPES = (np.int, np.int, np.float)
     """Specifies the numpy dtypes to be used for records.
 
     There should be the same number of elements as there are in the
@@ -160,7 +160,7 @@ class BoundaryConditions(object):
 
     """
 
-    WARPING_RECORD_FIELDS = ()
+    WARPING_RECORD_FIELDS = ('walker_idx', 'target_idx', 'weight')
     """Optional, names of fields to be selected for truncated
     representation of the record group.
 

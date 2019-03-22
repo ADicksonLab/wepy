@@ -51,23 +51,7 @@ class ReceptorBC(BoundaryConditions):
 
     BC_RECORD_FIELDS = ()
 
-    # warping (sporadic)
-    WARPING_FIELDS = ('walker_idx', 'target_idx', 'weight')
-    """Records for the state of this record group.
-
-    The 'walker_idx' is the index of the walker that was warped and
-    'weight' is the weight of that walker.
-
-    The 'target_idx' specifies the target of the warping, which is
-    always 0 since all warped walkers have their state replaced with
-    the initial state.
-    """
-
-    WARPING_SHAPES = ((1,), (1,), (1,))
-
-    WARPING_DTYPES = (np.int, np.int, np.float)
-
-    WARPING_RECORD_FIELDS = ('walker_idx', 'target_idx', 'weight')
+    # warping fields are directly inherited
 
     # progress towards the boundary conditions (continual)
     PROGRESS_FIELDS = ()
