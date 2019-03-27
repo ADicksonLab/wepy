@@ -1256,7 +1256,7 @@ class Contig(ContigTree):
         return self._contig_trace
 
     @property
-    def n_cycles(self):
+    def num_cycles(self):
         """The number of cycles in this contig.
 
         Returns
@@ -1265,6 +1265,28 @@ class Contig(ContigTree):
 
         """
         return len(self.contig_trace)
+
+    def num_walkers(self, cycle_idx):
+        """Get the number of walkers at a given cycle in the contig.
+
+        Parameters
+        ----------
+        cycle_idx : int
+
+        Returns
+        -------
+        n_walkers : int
+
+        """
+
+        # get the run idx and in-run cycle idx for this cycle_idx
+        run_idx, run_cycle_idx = self.contig_trace[cycle_idx]
+
+        # then get the number of walkers for that run and cycle
+        n_walkers = self.wepy_h5.num_walkers(run_idx, run_cycle_idx)
+
+        return n_walkers
+
 
 
     def contig_fields(self, fields):

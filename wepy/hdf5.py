@@ -3111,11 +3111,31 @@ class WepyHDF5(object):
 
         Returns
         -------
-        n_trajs : int
+        n_walkers : int
 
         """
 
         return len(self.init_walkers_grp(run_idx))
+
+    def num_walkers(self, run_idx, cycle_idx):
+        """Get the number of walkers at a given cycle in a run.
+
+        Parameters
+        ----------
+        run_idx : int
+
+        cycle_idx : int
+
+        Returns
+        -------
+        n_walkers : int
+
+        """
+
+        # TODO: currently we do not have a well-defined mechanism for
+        # actually storing variable number of walkers in the
+        # trajectory data so just return the number of trajectories
+        return self.num_run_trajs(run_idx)
 
     def num_run_trajs(self, run_idx):
         """The number of trajectories in a run.
