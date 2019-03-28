@@ -312,6 +312,13 @@ class Orchestrator():
         return list(self._snapshots.keys())
 
     @property
+    def run_cycles(self):
+        """A dictionary mapping the run keys to the number of cycles in
+        them.
+        """
+        return self._run_cycles
+
+    @property
     def default_snapshot_hash(self):
         """ """
         return self._start_hash

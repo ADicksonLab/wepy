@@ -329,6 +329,57 @@ def combine_orch_wepy_hdf5s(new_orch, new_hdf5_path):
         run_mapping = {}
         for run_id, wepy_h5_path in hdf5_paths.items():
 
+            # in the case where continuations were done from
+            # checkpoints then the runs data will potentially (and
+            # most likely) contain extra cycles since checkpoints are
+            # typically produced on some interval of cycles. So, in
+            # order for us to actually piece together contigs we need
+            # to take care of this.
+
+            # There are two ways to deal with this which can both be
+            # done at the same time. The first is to keep the "nubs",
+            # which are the small leftover pieces after the checkpoint
+            # that ended up getting continued, and make a new run from
+            # the last checkpoint to the end of the nub, in both the
+            # WepyHDF5 and the orchestrator run collections.
+
+            # The second is to generate a WepyHDF5 run that
+            # corresponds to the run in the checkpoint orchestrator.
+
+            # To avoid complexity (for now) we opt to simply dispose
+            # of the nubs and assume that not much will be lost from
+            # this. For the typical use case of making multiple
+            # independent and linear contigs this is also the simplest
+            # mode, since the addition of multiple nubs will introduce
+            # an extra spanning contig in the contig tree.
+
+            # furthermore the nubs provide a source of problems if
+            # rnus were abruptly stopped and data is not written some
+            # of the frames can be corrupted. SO until we know how to
+            # stop this (probably SWMR mode will help) this is also a
+            # reason not to deal with nubs.
+
+            # TODO: add option to keep nubs in HDF5, and deal with in
+            # orch (you won't be able to have an end snapshot...).
+
+            # to do this we simply check whether or not the number of
+            # cycles for the run_id are less than the number of cycles
+            # in the corresponding WepyHDF5 run dataset.
+            orch_run_num_cycles = new_orch.run_cycles[run_id]
+
+            wepy_h5 = WepyHDF5(wepy_h5_path, mode='r')
+            with wepy_h5:
+                h5_run_num_cycles = wepy_h5.num_run_cycles(0)
+
+            # if there are fewer cycles in the orch run we need to
+            # trim it and manually set it in the master HDF5
+            if orch_run_num_cycles < h5_run_num_cycles:
+                # TODO: slice the run and set it in the new file
+                pass
+            else:
+                raise ValueError("Number of cycles in orch run is more than HDF5."\
+                                 "This implies missing data")
+
             # we just link the whole file then sort out the
             # continuations later since we aren't necessarily doing
             # this in a logical order
