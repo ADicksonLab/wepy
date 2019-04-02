@@ -3361,15 +3361,16 @@ class WepyHDF5(object):
         h5py.h5o.copy(self._h5.id, UNITS.encode(), new_h5.id, UNITS.encode())
         h5py.h5o.copy(self._h5.id, SETTINGS.encode(), new_h5.id, SETTINGS.encode())
 
-        # for the settings we need to get rid of the data for interun
-        # relationships like the continuations, so we reinitialize the
-        # continuations
-        self._init_continuations()
-
         # now make a WepyHDF5 object in "expert_mode" which means it
         # is just empy and we construct it manually, "surgically" as I
         # like to call it
         new_wepy_h5 = WepyHDF5(path, expert_mode=True)
+
+        # for the settings we need to get rid of the data for interun
+        # relationships like the continuations, so we reinitialize the
+        # continuations for the new file
+        new_wepy_h5._init_continuations()
+
 
         # perform the surgery:
 
