@@ -517,6 +517,7 @@ def copy_h5(no_expand_external, source, target):
 
     # each invocation calls a different group since we can't call the
     # toplevel '/' directly
+    settings_args = ['-s', '/units', '-d', '/units']
     settings_args = ['-s', '/_settings', '-d', '/_settings']
     topology_args = ['-s', '/topology', '-d', '/topology']
     runs_args = ['-s', '/runs', '-d', '/runs']
