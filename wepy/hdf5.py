@@ -665,7 +665,12 @@ def _iter_field_paths(grp):
     for field_name in grp:
         if isinstance(grp[field_name], h5py.Group):
             for subfield in grp[field_name]:
-                field_paths.append(field_name + '/' + subfield)
+
+                # if it is a sparse field don't do the subfields since
+                # they will be _sparse_idxs and data which are not
+                # what we want here
+                if field_name not in grp.file['_settings/sparse_fields']:
+                    field_paths.append(field_name + '/' + subfield)
         else:
             field_paths.append(field_name)
     return field_paths
@@ -3350,7 +3355,7 @@ class WepyHDF5(object):
         # we manually construct an HDF5 and copy the groups over
         new_h5 = h5py.File(path, mode=mode, libver=H5PY_LIBVER)
 
-        new_h5.create_group(RUNS)
+        new_h5.require_group(RUNS)
 
         # flush the datasets buffers
         self.h5.flush()
@@ -3365,12 +3370,6 @@ class WepyHDF5(object):
         # is just empy and we construct it manually, "surgically" as I
         # like to call it
         new_wepy_h5 = WepyHDF5(path, expert_mode=True)
-
-        # for the settings we need to get rid of the data for interun
-        # relationships like the continuations, so we reinitialize the
-        # continuations for the new file
-        new_wepy_h5._init_continuations()
-
 
         # perform the surgery:
 
@@ -5457,134 +5456,163 @@ class WepyHDF5(object):
         return traj_fields_to_mdtraj(traj_fields, json_topology, rep_key=rep_path)
 
 
-    # TODO: deprecate; these are really kind of unnecessary
+    def copy_run_slice(self, run_idx, target_file_path, target_grp_path,
+                 run_slice=None, mode='x'):
+        """Copy this run to another HDF5 file (target_file_path) at the group
+        (target_grp_path)"""
 
-    # def run_map(self, func, *args, map_func=map, idxs=False, run_sel=None):
-    #     """Function for mapping work onto trajectories in the WepyHDF5 file
-    #        object. The call to iter_runs is run with `idxs=False`.
-        
-    #     func : the function that will be mapped to trajectory groups
-        
-    #     map_func : the function that maps the function. This is where
-    #                     parallelization occurs if desired.  Defaults to
-    #                     the serial python map function.
-        
-    #     traj_sel : a trajectory selection. This is a valid `traj_sel`
-    #     argument for the `iter_trajs` function.
-        
-    #     idxs : if True results contain [(run_idx, result),...], if False
-    #     returns [result,...]
-        
-    #     *args : additional arguments to the function. If this is an
-    #              iterable it will be assumed that it is the appropriate
-    #              length for the number of trajectories, WARNING: this will
-    #              not be checked and could result in a run time
-    #              error. Otherwise single values will be automatically
-    #              mapped to all trajectories.
-        
-    #     **kwargs : same as *args, but will pass all kwargs to the func.
+        assert mode in ['w', 'w-', 'x', 'r+'], "must be opened in write mode"
 
-    #     Parameters
-    #     ----------
-    #     func : callable
-    #         Function that will be mapped to each run group.
-    #     *args :
-            
-    #     map_func :
-    #          (Default value = map)
-    #     idxs :
-    #          (Default value = False)
-    #     run_sel :
-    #          (Default value = None)
+        if run_slice is not None:
+            assert run_slice[1] >= run_slice[0], "Must be a contiguous slice"
 
-    #     Returns
-    #     -------
-
-    #     """
-
-    #     # check the args and kwargs to see if they need expanded for
-    #     # mapping inputs
-    #     mapped_args = []
-    #     for arg in args:
-    #         # if it is a sequence or generator we keep just pass it to the mapper
-    #         if isinstance(arg, Sequence) and not isinstance(arg, str):
-    #             assert len(arg) == self.num_runs, \
-    #                 "argument Sequence has fewer number of args then trajectories"
-    #             mapped_args.append(arg)
-    #         # if it is not a sequence or generator we make a generator out
-    #         # of it to map as inputs
-    #         else:
-    #             mapped_arg = (arg for i in range(self.num_runs))
-    #             mapped_args.append(mapped_arg)
+            # get a list of the frames to use
+            slice_frames = list(range(*run_slice))
 
 
-    #     results = map_func(func, self.iter_runs(idxs=False, run_sel=run_sel),
-    #                        *mapped_args)
+        # we manually construct an HDF5 and copy the groups over
+        new_h5 = h5py.File(target_file_path, mode=mode, libver=H5PY_LIBVER)
 
-    #     if idxs:
-    #         if run_sel is None:
-    #             run_sel = self.run_idxs
-    #         return zip(run_sel, results)
-    #     else:
-    #         return results
+        # flush the datasets buffers
+        self.h5.flush()
+        new_h5.flush()
+
+        # get the run group we are interested in
+        run_grp = self.run(run_idx)
+
+        # slice the datasets in the run and set them in the new file
+        if run_slice is not None:
+
+            # initialize the group for the run
+            new_run_grp = new_h5.require_group(target_grp_path)
+
+            # copy the init walkers group
+            h5py.h5o.copy(self.h5.id, run_grp[INIT_WALKERS].name.encode(),
+                          new_h5.id, '{}/{}'.format(target_grp_path, INIT_WALKERS).encode())
+
+            # copy the decision group
+            h5py.h5o.copy(self.h5.id, run_grp[DECISION].name.encode(),
+                          new_h5.id, '{}/{}'.format(target_grp_path, DECISION).encode())
+
+            # create the trajectories group
+            new_trajs_grp = new_run_grp.require_group(TRAJECTORIES)
+
+            # slice the trajectories and copy them
+            for traj_idx in run_grp[TRAJECTORIES]:
+                traj_id = "{}/{}".format(TRAJECTORIES, traj_idx)
+
+                traj_grp = new_trajs_grp.require_group(str(traj_idx))
+
+                for field_name in _iter_field_paths(run_grp[traj_id]):
+                    field_path = "{}/{}".format(traj_id, field_name)
+
+                    data = self.get_traj_field(run_idx, traj_idx, field_name,
+                                               frames=slice_frames)
+
+                    # if it is a sparse field we need to create the
+                    # dataset differently
+                    if field_name in self.sparse_fields:
+
+                        # create a group for the field
+                        field_grp = traj_grp.require_group(field_name)
+
+                        # slice the _sparse_idxs from the original
+                        # dataset that are between the slice
+                        cycle_idxs = self.traj(run_idx, traj_idx)[field_name]['_sparse_idxs']
+                        sparse_idx_idxs = np.argwhere(np.logical_and(
+                            cycle_idxs[:] >= run_slice[0], cycle_idxs[:] < run_slice[1]
+                        )).flatten().tolist()
+
+                        # the cycle idxs there is data for
+                        sliced_cycle_idxs = cycle_idxs[sparse_idx_idxs]
+
+                        # get the data for these cycles
+                        field_data = data[sliced_cycle_idxs]
+
+                        # then create the datasets
+                        field_grp.create_dataset('_sparse_idxs',
+                                                 data=sliced_cycle_idxs)
+                        field_grp.create_dataset('data',
+                                                 data=field_data)
+
+                    else:
+
+                        # require the dataset first to automatically build
+                        # subpaths for compound fields if necessary
+                        dset = traj_grp.require_dataset(field_name,
+                                                        data.shape, data.dtype)
+
+                        # then set the data depending on whether it is
+                        # sparse or not
+                        dset[:] = data
 
 
-    # def traj_map(self, func, *args, map_func=map, idxs=False, traj_sel=None):
-    #     """Function for mapping work onto trajectories in the WepyHDF5 file object.
-        
-    #     func : the function that will be mapped to trajectory groups
-        
-    #     map_func : the function that maps the function. This is where
-    #                     parallelization occurs if desired.  Defaults to
-    #                     the serial python map function.
-        
-    #     traj_sel : a trajectory selection. This is a valid `traj_sel`
-    #     argument for the `iter_trajs` function.
-        
-    #     *args : additional arguments to the function. If this is an
-    #              iterable it will be assumed that it is the appropriate
-    #              length for the number of trajectories, WARNING: this will
-    #              not be checked and could result in a run time
-    #              error. Otherwise single values will be automatically
-    #              mapped to all trajectories.
+            # then do it for the records
+            for rec_grp_name, rec_fields in self.record_fields.items():
 
-    #     Parameters
-    #     ----------
-    #     func :
-            
-    #     *args :
-            
-    #     map_func :
-    #          (Default value = map)
-    #     idxs :
-    #          (Default value = False)
-    #     traj_sel :
-    #          (Default value = None)
+                rec_grp = run_grp[rec_grp_name]
 
-    #     Returns
-    #     -------
+                # if this is a contiguous record we can skip the cycle
+                # indices to record indices conversion that is
+                # necessary for sporadic records
+                if self._is_sporadic_records(rec_grp_name):
 
-    #     """
+                    cycle_idxs = rec_grp[CYCLE_IDXS][:]
 
-    #     # check the args and kwargs to see if they need expanded for
-    #     # mapping inputs
-    #     mapped_args = []
-    #     for arg in args:
-    #         # if it is a sequence or generator we keep just pass it to the mapper
-    #         if isinstance(arg, Sequence) and not isinstance(arg, str):
-    #             assert len(arg) == self.num_trajs, "Sequence has fewer"
-    #             mapped_args.append(arg)
-    #         # if it is not a sequence or generator we make a generator out
-    #         # of it to map as inputs
-    #         else:
-    #             mapped_arg = (arg for i in range(self.num_trajs))
-    #             mapped_args.append(mapped_arg)
+                    # get the indices of the records we are interested in
+                    record_idxs = np.argwhere(np.logical_and(
+                        cycle_idxs >= run_slice[0], cycle_idxs < run_slice[1]
+                    )).flatten().tolist()
 
-    #     results = map_func(func, self.iter_trajs(traj_sel=traj_sel), *mapped_args)
+                    # set the cycle indices in the new run group
+                    new_recgrp_cycle_idxs_path = '{}/{}/_cycle_idxs'.format(target_grp_path,
+                                                                            rec_grp_name)
+                    cycle_data = cycle_idxs[record_idxs]
+                    cycle_dset = new_h5.require_dataset(new_recgrp_cycle_idxs_path,
+                                                        cycle_data.shape, cycle_data.dtype)
+                    cycle_dset[:] = cycle_data
 
-    #     if idxs:
-    #         if traj_sel is None:
-    #             traj_sel = self.run_traj_idx_tuples()
-    #         return zip(traj_sel, results)
-    #     else:
-    #         return results
+                # if contiguous just set the record indices as the
+                # range between the slice
+                else:
+                    record_idxs = list(range(run_slice[0], run_slice[1]))
+
+                # then for each rec_field slice those and set them in the new file
+                for rec_field in rec_fields:
+
+                    field_dset = rec_grp[rec_field]
+
+                    rec_field_path = "{}/{}".format(rec_grp_name, rec_field)
+                    new_recfield_grp_path = '{}/{}'.format(target_grp_path, rec_field_path)
+
+                    # if it is a variable length dtype make the dtype
+                    # that for the dataset and we also slice the
+                    # dataset differently
+                    if h5py.check_dtype(vlen=field_dset.dtype) is not None:
+                        dtype = h5py.special_dtype(vlen=field_dset.dtype)
+                    else:
+                        dtype = field_dset.dtype
+
+                    # if there are no records don't attempt to add them
+                    # get the shape
+                    shape = (len(record_idxs), *field_dset.shape[1:])
+
+                    new_field_dset = new_h5.require_dataset(new_recfield_grp_path,
+                                                            shape, dtype)
+
+                    # if there aren't records just don't do anything,
+                    # and if there are get them and add them
+                    if len(record_idxs) > 0:
+                        rec_data = field_dset[record_idxs]
+                        new_field_dset[:] = rec_data
+
+
+        # just copy the whole thing over, since this will probably be
+        # more efficient
+        else:
+
+            h5py.h5o.copy(self.h5.id, run_grp.name.encode(),
+                          new_h5.id, target_grp_path.encode())
+
+
+        return new_h5
