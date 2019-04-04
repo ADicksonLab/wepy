@@ -3381,6 +3381,11 @@ class WepyHDF5(object):
         new_wepy_h5._wepy_mode = 'r+'
         new_wepy_h5._h5py_mode = 'r+'
 
+        # for the settings we need to get rid of the data for interun
+        # relationships like the continuations, so we reinitialize the
+        # continuations for the new file
+        new_wepy_h5._init_continuations()
+
         # close the h5py.File and set the attribute to closed
         new_wepy_h5._h5.close()
         new_wepy_h5.closed = True
