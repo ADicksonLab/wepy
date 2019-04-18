@@ -2,14 +2,13 @@ import os.path as osp
 import logging
 import subprocess
 
-import dill
-
 import click
 
-from wepy.orchestration.orchestrator import deserialize_orchestrator, \
-                                            reconcile_orchestrators, \
-                                            Orchestrator, \
-                                            recover_run_by_time
+from wepy.orchestration.orchestrator import (
+    reconcile_orchestrators,
+    Orchestrator,
+    recover_run_by_time
+)
 
 from wepy.reporter.hdf5 import WepyHDF5Reporter
 from wepy.hdf5 import WepyHDF5
@@ -100,7 +99,7 @@ def settle_run_options(n_workers=None,
     config = None
     if configuration is not None:
          with open(configuration, 'rb') as rf:
-             config = dill.load(rf)
+             config = Orchestrator.deserialize(rf.read())
 
     # we need to reparametrize the configuration here since the
     # orchestrator API will ignore reparametrization values if a
@@ -170,7 +169,8 @@ def run(log, n_workers, checkpoint_freq, job_dir, job_name, narration, configura
                                                                          configuration=configuration,
                                                                          start_hash=start_hash)
 
-    orch = deserialize_orchestrator(orchestrator.read())
+    # TODO mode right
+    orch = Orchestrator(orchestrator)
 
     logging.info("Orchestrator loaded")
 
@@ -182,6 +182,8 @@ def run(log, n_workers, checkpoint_freq, job_dir, job_name, narration, configura
                                                                  narration=narration,
                                                                  configuration=config,
                                                                  n_workers=n_workers)
+
+    orch.close()
 
     # write the run tuple out to the log
     run_line_str = "Run start and end hashes: {}, {}".format(start_hash, end_hash)
@@ -247,13 +249,18 @@ def recover(log, n_workers, checkpoint_freq, job_dir, job_name, narration, confi
                                                                  narration=narration,
                                                                  configuration=configuration)
 
-    orch = deserialize_orchestrator(orchestrator.read())
+    # TODO do mode right
+    orch = Orchestrator(orchestrator)
 
     logging.info("Orchestrator loaded")
 
-    checkpoint_orch = deserialize_orchestrator(checkpoint.read())
+    # TODO do mode right
+    checkpoint_orch = Orchestrator(checkpoint)
 
     logging.info("Checkpoint loadeded")
+
+    # TODO fix for new implementation shouldn't return a new
+    # orchestrator but the hash or something...
 
     # run the continuation from the new orchestrator with the update
     # from the checkpoint
@@ -265,6 +272,9 @@ def recover(log, n_workers, checkpoint_freq, job_dir, job_name, narration, confi
                                             narration=narration,
                                             configuration=config,
                                             n_workers=n_workers)
+
+    orch.close()
+    checkpoint_orch.close()
 
     start_hash, end_hash = run_tup
 
@@ -454,10 +464,15 @@ def reconcile(hdf5,
 
     """
 
+    # TODO redo with the new implementation, don't need to do it orch
+    # by orch anymore
+
     # reconcile them one by one as they are big and too expensive to
     # load all into memory at once
     click.echo("Deserializing Orchestrator 1")
-    new_orch = deserialize_orchestrator(orchestrators[0].read())
+
+    # 
+    new_orch = Orchestrator(orchestrators[0])
     click.echo("Finished Deserializing Orchestrator 1")
 
     hash_listing_str = "\n".join(["{}, {}".format(start, end) for start, end in new_orch.runs])
@@ -512,7 +527,7 @@ def hash_listing_formatter(hashes):
     hash_listing_str = '\n'.join(hashes)
     return hash_listing_str
 
-@click.argument('orchestrator', type=click.File(mode='rb'))
+@click.argument('orchestrator', type=click.Path(exists=True))
 @click.command()
 def ls_snapshots(orchestrator):
     """
@@ -527,12 +542,15 @@ def ls_snapshots(orchestrator):
 
     """
 
-    orch = deserialize_orchestrator(orchestrator.read())
+    orch = Orchestrator(orch_path=orchestrator, mode='r')
+
     message = hash_listing_formatter(orch.snapshot_hashes)
+
+    orch.close()
 
     click.echo(message)
 
-@click.argument('orchestrator', type=click.File(mode='rb'))
+@click.argument('orchestrator', type=click.Path(exists=True))
 @click.command()
 def ls_runs(orchestrator):
     """
@@ -547,13 +565,17 @@ def ls_runs(orchestrator):
 
     """
 
-    orch = deserialize_orchestrator(orchestrator.read())
+    orch = Orchestrator(orch_path=orchestrator, mode='r')
 
-    runs = orch.runs
+    runs = orch.run_hashes
+
+    orch.close()
 
     hash_listing_str = "\n".join(["{}, {}".format(start, end) for start, end in runs])
 
     click.echo(hash_listing_str)
+
+
 
 @click.command()
 @click.option('--no-expand-external', is_flag=True)

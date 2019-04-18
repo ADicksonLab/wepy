@@ -80,12 +80,14 @@ class OrchestratorError(Exception):
     """ """
     pass
 
+
+
 class Orchestrator():
     """ """
 
     # we freeze the pickle protocol for making hashes, because we care
     # more about stability than efficiency of newer versions
-    HASH_PICKLE_PROTOCOL = 2
+    HASH_PICKLE_PROTOCOL = 3
 
     DEFAULT_WORKDIR = Configuration.DEFAULT_WORKDIR
     DEFAULT_CONFIG_NAME = Configuration.DEFAULT_CONFIG_NAME
@@ -94,158 +96,247 @@ class Orchestrator():
 
     DEFAULT_CHECKPOINT_FILENAME = "checkpoint.chk"
     ORCH_FILENAME_TEMPLATE = "{config}{narration}.orch"
-    DEFAULT_ORCHESTRATION_MODE = 'xb'
 
-    def __init__(self, sim_apparatus,
-                 default_init_walkers=None,
-                 default_configuration=None):
+    # the default way to oepn up the whole parent database
+    DEFAULT_ORCHESTRATION_MODE = 'x'
 
-        # the main dictionary of snapshots keyed by their hashes
-        self._snapshots = {}
+    # mode to open the individual kv stores on the parent database
+    KV_MODE = 'r+'
 
-        # the list of "runs" which are tuples of hashes for the starts
-        # and ends of runs. THis just excludes the checkpoints, this
-        # really is for convenience so you can ignore all the
-        # checkpoints when reconstructing full run continuations etc.
-        self._runs = set()
+    # default timeout for connecting to a database
+    SQLITE3_DEFAULT_TIMEOUT = 5
 
-        # the apparatus for the simulation. This is the configuration
-        # and initial conditions independent components necessary for
-        # running a simulation. The primary (and only necessary)
-        # component is the runner. The other components when passed
-        # here are used as the defaults when unspecified later
-        # (e.g. resampler and boundary conditions)
-        self._apparatus = deepcopy(sim_apparatus)
+    # the fields to return (and their order) as a record for a run
+    # query
+    RUN_SELECT_FIELDS = ('last_cycle_idx', 'config_hash')
 
-        # if a configuration was given use this as the default
-        # configuration, if none is given then we will use the default
-        # one
-        if default_configuration is not None:
-            self._configuration = deepcopy(default_configuration)
-        # TODO: make a default configuration class here
+    def __init__(self, orch_path=":memory:",
+                 mode='x',
+    ):
+
+        self.orch_path = orch_path
+        self._mode = mode
+
+        # initialize or open each of the separate KV-stores (tables in
+        # the same SQLite3 database)
+
+        # we open the first one with the create mode and let the KV
+        # module handle the opening and creation if necessary
+
+        # metadata: default init walkers, default apparatus, default
+        # configuration
+        self.metadata_kv = KV(db_url=self.orch_path,
+                              table='meta',
+                              mode=mode,
+                              value_types=None)
+
+        # snapshots
+        self.snapshot_kv = KV(db_url=self.orch_path,
+                              table='snapshots',
+                              primary_key='snaphash',
+                              value_name='snapshot',
+                              mode=self.KV_MODE)
+
+        # configurations
+        self.configuration_kv = KV(db_url=self.orch_path,
+                                   table='configurations',
+                                   primary_key='config_hash',
+                                   value_name='config',
+                                   mode=self.KV_MODE)
+
+        # run table: start_hash, end_hash, num_cycles, configuration_id
+
+        # get a raw connection to the database
+        self._db = sqlite3.connect(self.orch_path, timeout=self.SQLITE3_DEFAULT_TIMEOUT)
+        self._db.isolation_level = None
+
+        self._closed = False
+
+        # we make a table for the run data
+
+        create_run_table_query = """
+            CREATE TABLE IF NOT EXISTS runs
+             (start_hash TEXT NOT NULL,
+             end_hash TEXT NOT NULL,
+             config_hash NOT NULL,
+             last_cycle_idx INTEGER NOT NULL,
+             PRIMARY KEY (start_hash, end_hash))
+
+        """
+
+        # do the create as a transaction
+        self._db.cursor().execute('BEGIN IMMEDIATE TRANSACTION')
+        # run the query
+        self._db.cursor().execute(create_run_table_query)
+        self._db.cursor().execute('COMMIT')
+
+    def close(self):
+
+        if self._closed == True:
+            raise IOError("The database connection is already closed")
+
         else:
-            self._configuration = None
+            # close all the connections
+            self.metadata_kv.close()
+            self.configuration_kv.close()
+            self.snapshot_kv.close()
+            self._db.close()
+            self._closed = True
 
-        # we also need to save the configurations for each run
-        self._run_configurations = {}
 
-        # and the cycles the runs end on
-        self._run_cycles = {}
+    @classmethod
+    def serialize(cls, snapshot):
+        """Serialize a snapshot to a compressed, encoded, pickle string
+        representation.
 
-        # if initial walkers were given we save them and also make a
-        # snapshot for them
-        if default_init_walkers is not None:
+        Currently uses the dill module for pickling because the base
+        pickle module is inadequate. However, it is mostly compatible
+        and can be read natively with pickle but this usage is
+        officially not supported. Instead use the deserialize_snapshot.
 
-            self._start_hash = self.gen_start_snapshot(default_init_walkers)
+        Also compresses with default zlib compression and is encoded
+        in base64.
 
-    def serialize(self):
-        """ """
+        The object will always have a deepcopy performed on it so that
+        all of the extraneous references to it are avoided since there
+        is no (AFAIK) way to make sure all references to an object are
+        deleted.
 
-        serial_str = dill.dumps(self, recurse=True)
+        NOTE: Perhaps there is a way and that should be done (and
+        tested) to see if it provides stable pickles (i.e. pickles
+        that always hash to the same value). To avoid the overhead of
+        copying large objects.
+
+        Parameters
+        ----------
+        snapshot : SimSnapshot object
+            The snapshot of the simulation you want to serialize.
+
+        Returns
+        -------
+        serial_str : str
+            Serialized string of the snapshot object
+
+        """
+
+        serial_str = b64encode(
+                        compress(
+                            dill.dumps(
+                                deepcopy(snapshot),
+                                protocol=cls.HASH_PICKLE_PROTOCOL,
+                                recurse=True)
+                        )
+                     )
+
         return serial_str
+
+
+    # core methods for serializing python objects, used for snapshots,
+    # apparatuses, configurations, and the initial walker list
 
     @classmethod
     def deserialize(cls, serial_str):
-        """
+        """Deserialize an unencoded string snapshot to an object.
 
         Parameters
         ----------
-        serial_str :
-            
+        serial_str : str
+            Serialized string of the snapshot object
 
         Returns
         -------
+        snapshot : SimSnapshot object
+            Simulation snapshot object
 
         """
 
-        orch = dill.loads(serial_str)
-        return orch
+        return dill.loads(decompress(b64decode(serial_str)))
+
+
+    # defaults getters and setters
+    def set_default_sim_apparatus(self, sim_apparatus):
+
+        # serialize the apparatus and then set it
+        serial_app = self.serialize(sim_apparatus)
+
+        with self.metadata_kv.lock():
+            self.metadata_kv['default_sim_apparatus'] = serial_app
+
+    def set_default_init_walkers(self, init_walkers):
+
+        # serialize the apparatus and then set it
+        serial_walkers = self.serialize(init_walkers)
+
+        with self.metadata_kv.lock():
+            self.metadata_kv['default_init_walkers'] = serial_walkers
+
+    def set_default_configuration(self, configuration):
+
+        # serialize the apparatus and then set it
+        serial_config = self.serialize(configuration)
+
+        config_hash = self.hash_snapshot(serial_config)
+
+        with self.metadata_kv.lock():
+            self.metadata_kv['default_configuration_hash'] = config_hash
+
+        with self.configuration_kv.lock():
+            self.configuration_kv[config_hash] = serial_config
+
+    def set_default_snapshot(self, snapshot):
+
+        snaphash = self.add_snapshot(snapshot)
+
+        # then save the hash in the metadata
+        with self.metadata_kv.lock():
+            self.metadata_kv['default_snapshot_hash'] = snaphash
+
+        return snaphash
+
+    def gen_default_snapshot(self):
+
+        # generate the snapshot
+        sim_start_hash = self.gen_start_snapshot(self.get_default_init_walkers())
+
+        # then save the hash in the metadata
+        with self.metadata_kv.lock():
+            self.metadata_kv['default_snapshot_hash'] = sim_start_hash
+
+        return sim_start_hash
+
+
+    def get_default_sim_apparatus(self):
+
+        return self.deserialize(self.metadata_kv['default_sim_apparatus'])
+
+    def get_default_init_walkers(self):
+
+        return self.deserialize(self.metadata_kv['default_init_walkers'])
+
+    def get_default_configuration(self):
+
+        config_hash = self.metadata_kv['default_configuration_hash']
+
+        return self.get_configuration(config_hash)
+
+    def get_default_configuration_hash(self):
+
+        return self.metadata_kv['default_configuration_hash']
+
+
+    def get_default_snapshot(self):
+
+        start_hash = self.metadata_kv['default_snapshot_hash']
+
+        return self.get_snapshot(start_hash)
+
+    def get_default_snapshot_hash(self):
+
+        return self.metadata_kv['default_snapshot_hash']
+
 
     @classmethod
-    def load(cls, filepath, mode='rb'):
-        """
-
-        Parameters
-        ----------
-        filepath :
-            
-        mode :
-             (Default value = 'rb')
-
-        Returns
-        -------
-
-        """
-
-        with open(filepath, mode) as rf:
-            orch = cls.deserialize(rf.read())
-
-        return orch
-
-
-    def dump(self, filepath, mode=None):
-        """
-
-        Parameters
-        ----------
-        filepath :
-            
-        mode :
-             (Default value = None)
-
-        Returns
-        -------
-
-        """
-
-        if mode is None:
-            mode = self.DEFAULT_ORCHESTRATION_MODE
-
-        with open(filepath, mode) as wf:
-            wf.write(self.serialize())
-
-    @classmethod
-    def encode(cls, obj):
-        """
-
-        Parameters
-        ----------
-        obj :
-            
-
-        Returns
-        -------
-
-        """
-
-        # used for both snapshots and apparatuses even though they
-        # themselves have different methods in the API
-
-        # we use dill to dump to a string and we always do a deepcopy
-        # of the object to avoid differences in the resulting pickle
-        # object from having multiple references, then we encode in 64 bit
-        return b64encode(compress(dill.dumps(deepcopy(obj),
-                                             protocol=cls.HASH_PICKLE_PROTOCOL,
-                                             recurse=True)))
-
-    @classmethod
-    def decode(cls, encoded_str):
-        """
-
-        Parameters
-        ----------
-        encoded_str :
-            
-
-        Returns
-        -------
-
-        """
-
-        return dill.loads(decompress(b64decode(encoded_str)))
-
-    @classmethod
-    def hash(cls, serial_str):
+    def hash_snapshot(cls, serial_str):
         """
 
         Parameters
@@ -259,36 +350,6 @@ class Orchestrator():
         """
         return md5(serial_str).hexdigest()
 
-    @classmethod
-    def serialize_snapshot(cls, snapshot):
-        """
-
-        Parameters
-        ----------
-        snapshot :
-            
-
-        Returns
-        -------
-
-        """
-        return cls.encode(snapshot)
-
-    def hash_snapshot(self, snapshot):
-        """
-
-        Parameters
-        ----------
-        snapshot :
-            
-
-        Returns
-        -------
-
-        """
-
-        serialized_snapshot = self.serialize_snapshot(snapshot)
-        return self.hash(serialized_snapshot)
 
     def get_snapshot(self, snapshot_hash):
         """Returns a copy of a snapshot.
@@ -303,56 +364,15 @@ class Orchestrator():
 
         """
 
-        return deepcopy(self._snapshots[snapshot_hash])
+        return self.deserialize(self.snapshot_kv[snapshot_hash])
 
-    @property
-    def snapshots(self):
-        """ """
-        return deepcopy(list(self._snapshots.values()))
 
-    @property
-    def snapshot_hashes(self):
-        """ """
-        return list(self._snapshots.keys())
-
-    @property
-    def run_cycles(self):
-        """A dictionary mapping the run keys to the number of cycles in
-        them.
-        """
-        return self._run_cycles
-
-    @property
-    def default_snapshot_hash(self):
-        """ """
-        return self._start_hash
-
-    @property
-    def default_snapshot(self):
-        """ """
-        return self.get_snapshot(self.default_snapshot_hash)
-
-    @property
-    def default_init_walkers(self):
-        """ """
-        return self.default_snapshot.walkers
-
-    @property
-    def default_apparatus(self):
-        """ """
-        return self._apparatus
-
-    @property
-    def default_configuration(self):
-        """ """
-        return self._configuration
-
-    def snapshot_registered(self, snapshot):
-        """
+    def get_configuration(self, config_hash):
+        """Returns a copy of a snapshot.
 
         Parameters
         ----------
-        snapshot :
+        config_hash :
             
 
         Returns
@@ -360,19 +380,121 @@ class Orchestrator():
 
         """
 
-        snapshot_md5 = self.hash_snapshot(snapshot)
-        if any([True if snapshot_md5 == h else False for h in self.snapshot_hashes]):
-            return True
-        else:
-            return False
+        return self.deserialize(self.configuration_kv[config_hash])
 
-    def snapshot_hash_registered(self, snapshot_hash):
+
+    @property
+    def snapshot_hashes(self):
+        """ """
+
+        # iterate over the snapshot kv
+        return list(self.snapshot_kv.keys())
+
+    @property
+    def config_hashes(self):
+        """ """
+
+        # iterate over the snapshot kv
+        return list(self.config_kv.keys())
+
+    @property
+    def configuration_hashes(self):
+        """ """
+
+        # iterate over the snapshot kv
+        return list(self.configuration_kv.keys())
+
+
+    def add_snapshot(self, snapshot):
         """
 
         Parameters
         ----------
-        snapshot_hash :
+        snapshot :
+
+        Returns
+        -------
+
+        """
+
+        # serialize the snapshot using the protocol for doing so
+        serialized_snapshot = self.serialize(snapshot)
+
+        # get the hash of the snapshot
+        snaphash = self.hash_snapshot(serialized_snapshot)
+
+        # check that the hash is not already in the snapshots
+        if any([True if snaphash == md5 else False for md5 in self.snapshot_hashes]):
+
+            # just skip the rest of the function and return the hash
+            return snaphash
+
+        # save the snapshot in the KV store
+        with self.snapshot_kv.lock():
+            self.snapshot_kv[snaphash] = serialized_snapshot
+
+        return snaphash
+
+    def gen_start_snapshot(self, init_walkers):
+        """
+
+        Parameters
+        ----------
+        init_walkers :
             
+
+        Returns
+        -------
+
+        """
+
+        # make a SimSnapshot object using the initial walkers and
+        start_snapshot = SimSnapshot(init_walkers, self.get_default_sim_apparatus())
+
+        # save the snapshot, and generate its hash
+        sim_start_md5 = self.add_snapshot(start_snapshot)
+
+        return sim_start_md5
+
+    @property
+    def default_snapshot_hash(self):
+        """ """
+        return self.metadata_kv['default_snapshot_hash']
+
+    @property
+    def default_snapshot(self):
+        """ """
+        return self.get_snapshot(self.default_snapshot_hash)
+
+    def snapshot_registered(self, snapshot):
+        """Check whether a snapshot is already in the database, based on the
+        hash of it.
+
+        This serializes the snapshot so may be slow.
+
+        Parameters
+        ----------
+        snapshot : SimSnapshot object
+            The snapshot object you want to query for.
+
+        Returns
+        -------
+
+        """
+
+        # serialize and hash the snapshot
+        snaphash = self.hash_snapshot(self.serialize(snapshot))
+
+        # then check it
+        return self.snapshot_hash_registered(snaphash)
+
+    def snapshot_hash_registered(self, snapshot_hash):
+        """Check whether a snapshot hash is already in the database.
+
+        Parameters
+        ----------
+        snapshot_hash : str
+            The string hash of the snapshot.
 
         Returns
         -------
@@ -384,12 +506,65 @@ class Orchestrator():
         else:
             return False
 
-    @property
-    def runs(self):
-        """ """
-        return list(deepcopy(self._runs))
 
-    def run_configuration(self, start_hash, end_hash):
+    def configuration_hash_registered(self, config_hash):
+        """Check whether a snapshot hash is already in the database.
+
+        Parameters
+        ----------
+        snapshot_hash : str
+            The string hash of the snapshot.
+
+        Returns
+        -------
+
+        """
+
+        if any([True if config_hash == h else False for h in self.configuration_hashes]):
+            return True
+        else:
+            return False
+
+
+    ### run methods
+
+    def add_configuration(self, configuration):
+
+        serialized_config = self.serialize(configuration)
+
+        config_hash = self.hash_snapshot(serialized_config)
+
+        # check that the hash is not already in the snapshots
+        if any([True if config_hash == md5 else False for md5 in self.configuration_hashes]):
+
+            # just skip the rest of the function and return the hash
+            return config_hash
+
+        # save the snapshot in the KV store
+        with self.configuration_kv.lock():
+            self.configuration_kv[config_hash] = serialized_config
+
+        return config_hash
+
+    def _add_run_record(self, start_hash, end_hash, configuration_hash, cycle_idx):
+
+        add_run_row_query = """
+        INSERT INTO runs (start_hash, end_hash, config_hash, last_cycle_idx)
+        VALUES (?, ?, ?, ?)
+        """
+
+        params = (start_hash, end_hash, configuration_hash, cycle_idx)
+
+        # do it as a transaction
+        self._db.cursor().execute('BEGIN IMMEDIATE TRANSACTION')
+
+        # run the insert
+        self._db.cursor().execute(add_run_row_query, params)
+
+        self._db.cursor().execute('COMMIT')
+
+
+    def register_run(self, start_hash, end_hash, config_hash, cycle_idx):
         """
 
         Parameters
@@ -398,37 +573,95 @@ class Orchestrator():
             
         end_hash :
             
-
-        Returns
-        -------
-
-        """
-        return deepcopy(self._run_configurations[(start_hash, end_hash)])
-
-    def _add_snapshot(self, snaphash, snapshot):
-        """
-
-        Parameters
-        ----------
-        snaphash :
+        config_hash :
             
-        snapshot :
-            
+        cycle_idx : int
+            The cycle of the simulation run the checkpoint was generated for.
 
         Returns
         -------
 
         """
 
-        # check that the hash is not already in the snapshots
-        if any([True if snaphash == md5 else False for md5 in self.snapshot_hashes]):
+        # check that the hashes are for snapshots in the orchestrator
+        # if one is not registered raise an error
+        if not self.snapshot_hash_registered(start_hash):
+            raise OrchestratorError(
+                "snapshot start_hash {} is not registered with the orchestrator".format(
+                start_hash))
 
-            # just skip the rest of the function and return the hash
-            return snaphash
+        if not self.snapshot_hash_registered(end_hash):
+            raise OrchestratorError(
+                "snapshot end_hash {} is not registered with the orchestrator".format(
+                end_hash))
 
-        self._snapshots[snaphash] = snapshot
+        if not self.configuration_hash_registered(config_hash):
+            raise OrchestratorError(
+                "config hash {} is not registered with the orchestrator".format(
+                config_hash))
 
-        return snaphash
+
+        # save the configuration and get it's id
+
+        self._add_run_record(start_hash, end_hash, config_hash, cycle_idx)
+
+    def get_run_records(self):
+
+        get_run_record_query = """
+        SELECT *
+        FROM runs
+        """.format(fields=', '.join(self.RUN_SELECT_FIELDS))
+
+        cursor = self._db.cursor()
+        cursor.execute(get_run_record_query)
+        records = cursor.fetchall()
+
+        return records
+
+    def get_run_record(self, start_hash, end_hash):
+
+        get_run_record_query = """
+        SELECT {fields}
+        FROM runs
+        WHERE start_hash=? AND end_hash=?
+        """.format(fields=', '.join(self.RUN_SELECT_FIELDS))
+
+        params = (start_hash, end_hash)
+
+        cursor = self._db.cursor()
+        cursor.execute(get_run_record_query, params)
+        record = cursor.fetchone()
+
+        return record
+
+    def run_last_cycle_idx(self, start_hash, end_hash):
+
+        record = self.get_run_record(start_hash, end_hash)
+
+        last_cycle_idx = record[self.RUN_SELECT_FIELDS.index('last_cycle_idx')]
+
+        return last_cycle_idx
+
+
+    def run_configuration(self, start_hash, end_hash):
+
+        record = self.get_run_record(start_hash, end_hash)
+
+        config_hash = record[self.RUN_SELECT_FIELDS.index('config_hash')]
+
+        # get the configuration object and deserialize it
+        return self.deserialize(self.configuration_kv[config_hash])
+
+
+    def run_hashes(self):
+
+        return [(rec[0], rec[1]) for rec in self.get_run_records()]
+
+
+    @property
+    def runs(self):
+        """ """
+        return list(deepcopy(self._runs))
 
     def _gen_checkpoint_orch(self, start_hash, checkpoint_snapshot, configuration, cycle_idx):
         """
@@ -524,83 +757,6 @@ class Orchestrator():
         # then rename the one with "new" at the end to the final path
         os.rename(new_checkpoint_path, checkpoint_path)
 
-    @classmethod
-    def load_snapshot(cls, file_handle):
-        """
-
-        Parameters
-        ----------
-        file_handle :
-            
-
-        Returns
-        -------
-
-        """
-
-        return cls.decode(file_handle.read())
-
-    @classmethod
-    def dump_snapshot(cls, snapshot, file_handle):
-        """
-
-        Parameters
-        ----------
-        snapshot :
-            
-        file_handle :
-            
-
-        Returns
-        -------
-
-        """
-
-        file_handle.write(cls.serialize_snapshot(snapshot))
-
-
-    def add_snapshot(self, snapshot):
-        """
-
-        Parameters
-        ----------
-        snapshot :
-            
-
-        Returns
-        -------
-
-        """
-
-        # copy the snapshot
-        snapshot = deepcopy(snapshot)
-
-        # get the hash of the snapshot
-        snaphash = self.hash_snapshot(snapshot)
-
-        return self._add_snapshot(snaphash, snapshot)
-
-    def gen_start_snapshot(self, init_walkers):
-        """
-
-        Parameters
-        ----------
-        init_walkers :
-            
-
-        Returns
-        -------
-
-        """
-
-        # make a SimSnapshot object using the initial walkers and
-        start_snapshot = SimSnapshot(init_walkers, self.default_apparatus)
-
-        # save the snapshot, and generate its hash
-        sim_start_md5 = self.add_snapshot(start_snapshot)
-
-        return sim_start_md5
-
     def gen_sim_manager(self, start_snapshot, configuration):
         """
 
@@ -630,45 +786,6 @@ class Orchestrator():
 
         return sim_manager
 
-    def register_run(self, start_hash, end_hash, configuration, cycle_idx):
-        """
-
-        Parameters
-        ----------
-        start_hash :
-            
-        end_hash :
-            
-        configuration :
-            
-        cycle_idx : int
-            The cycle of the simulation run the checkpoint was generated for.
-
-        Returns
-        -------
-
-        """
-
-        # check that the hashes are for snapshots in the orchestrator
-        # if one is not registered raise an error
-        if not self.snapshot_hash_registered(start_hash):
-            raise OrchestratorError(
-                "snapshot start_hash {} is not registered with the orchestrator".format(
-                start_hash))
-
-        if not self.snapshot_hash_registered(end_hash):
-            raise OrchestratorError(
-                "snapshot end_hash {} is not registered with the orchestrator".format(
-                end_hash))
-
-        # if they both are registered register the segment
-        self._runs.add((start_hash, end_hash))
-
-        # add the configuration for this run
-        self._run_configurations[(start_hash, end_hash)] = configuration
-
-        # save which cycle the run ended on
-        self._run_cycles[(start_hash, end_hash)] = cycle_idx
 
     def new_run_by_time(self, init_walkers, run_time, n_steps,
                         configuration=None,
@@ -1032,6 +1149,50 @@ class Orchestrator():
             if run_idx >= len(runs):
                 return None
 
+    # @classmethod
+    # def load(cls, filepath, mode='rb'):
+    #     """
+
+    #     Parameters
+    #     ----------
+    #     filepath :
+
+    #     mode :
+    #          (Default value = 'rb')
+
+    #     Returns
+    #     -------
+
+    #     """
+
+    #     with open(filepath, mode) as rf:
+    #         orch = cls.deserialize(rf.read())
+
+    #     return orch
+
+
+    # def dump(self, filepath, mode=None):
+    #     """
+
+    #     Parameters
+    #     ----------
+    #     filepath :
+            
+    #     mode :
+    #          (Default value = None)
+
+    #     Returns
+    #     -------
+
+    #     """
+
+    #     if mode is None:
+    #         mode = self.DEFAULT_ORCHESTRATION_MODE
+
+    #     with open(filepath, mode) as wf:
+    #         wf.write(self.serialize())
+
+
 def reconcile_orchestrators(template_orchestrator, *orchestrators):
     """
 
@@ -1068,8 +1229,6 @@ def reconcile_orchestrators(template_orchestrator, *orchestrators):
             new_orch.register_run(*run, run_config, run_cycle_idx)
 
     return new_orch
-
-
 
 def recover_run_by_time(start_orch, checkpoint_orch,
                         run_time, n_steps,
@@ -1110,5 +1269,3 @@ def recover_run_by_time(start_orch, checkpoint_orch,
                                                         **kwargs)
 
     return new_orch, run_tup
-
-

@@ -143,6 +143,7 @@ class KV(MutableMapping):
         # connect to the db
         self._db = sqlite3.connect(self._db_uri, timeout=timeout, uri=True)
         self._db.isolation_level = None
+        self._closed = False
 
         self._table = table
         self._primary_key = primary_key
@@ -158,6 +159,15 @@ class KV(MutableMapping):
         self._execute(create_table_query)
 
         self._locks = 0
+
+    def close(self):
+
+        if self._closed == True:
+            raise IOError("The database connection is already closed")
+
+        else:
+            self._db.close()
+            self._closed = True
 
 
     @property
