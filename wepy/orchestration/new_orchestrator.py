@@ -657,11 +657,45 @@ class Orchestrator():
 
         return [(rec[0], rec[1]) for rec in self.get_run_records()]
 
+    def run_continues(self, start_hash, end_hash):
+        """
 
-    @property
-    def runs(self):
-        """ """
-        return list(deepcopy(self._runs))
+        Parameters
+        ----------
+        start_hash :
+            
+        end_hash :
+            
+
+        Returns
+        -------
+        type
+            
+
+        """
+
+        # loop through the runs in this orchestrator until we find one
+        # where the start_hash matches the end hash
+        runs = self.run_hashes()
+        run_idx = 0
+        while True:
+
+            run_start_hash, run_end_hash = runs[run_idx]
+
+            # if the start hash of the queried run is the same as the
+            # end hash for this run we have found it
+            if start_hash == run_end_hash:
+
+                return (run_start_hash, run_end_hash)
+
+            run_idx += 1
+
+            # if the index is over the number of runs we quit and
+            # return None as no match
+            if run_idx >= len(runs):
+                return None
+
+
 
     def _gen_checkpoint_orch(self, start_hash, checkpoint_snapshot, configuration, cycle_idx):
         """
@@ -757,7 +791,7 @@ class Orchestrator():
         # then rename the one with "new" at the end to the final path
         os.rename(new_checkpoint_path, checkpoint_path)
 
-    def gen_sim_manager(self, start_snapshot, configuration):
+    def gen_sim_manager(self, snapshot_hash, configuration):
         """
 
         Parameters
@@ -773,7 +807,7 @@ class Orchestrator():
         """
 
         # copy the snapshot to use for the sim_manager
-        start_snapshot = deepcopy(start_snapshot)
+        start_snapshot = self.get_snapshot(snapshot_hash)
 
         # construct the sim manager, in a wepy specific way
         sim_manager = Manager(start_snapshot.walkers,
@@ -785,44 +819,6 @@ class Orchestrator():
                               reporters=configuration.reporters)
 
         return sim_manager
-
-
-    def new_run_by_time(self, init_walkers, run_time, n_steps,
-                        configuration=None,
-                        checkpoint_freq=None,
-                        checkpoint_dir=None):
-        """Start a new run that will go for a certain amount of time given a
-        new set of initial conditions.
-
-        Parameters
-        ----------
-        init_walkers :
-            
-        run_time :
-            
-        n_steps :
-            
-        configuration :
-             (Default value = None)
-        checkpoint_freq :
-             (Default value = None)
-        checkpoint_dir :
-             (Default value = None)
-
-        Returns
-        -------
-
-        """
-
-        # make the starting snapshot from the walkers
-        start_hash = self.gen_start_snapshot(init_walkers)
-
-        # then perform a run with the checkpoints etc using the
-        # dedicated method that works on snapshots
-        return self.run_snapshot_by_time(start_hash, run_time, n_steps,
-                                         configuration=configuration,
-                                         checkpoint_freq=checkpoint_freq,
-                                         checkpoint_dir=checkpoint_dir)
 
 
     def run_snapshot_by_time(self, start_hash, run_time, n_steps,
@@ -1080,74 +1076,7 @@ class Orchestrator():
 
         return run_tup
 
-    def orchestrate_run_by_time(self, init_walkers, run_time, n_steps,
-                                **kwargs):
-        """
 
-        Parameters
-        ----------
-        init_walkers :
-            
-        run_time :
-            
-        n_steps :
-            
-        **kwargs :
-            
-
-        Returns
-        -------
-
-        """
-
-
-        # make the starting snapshot from the walkers and the
-        # apparatus if given, otherwise the default will be used
-        start_hash = self.gen_start_snapshot(init_walkers)
-
-
-        # orchestrate from the snapshot
-        return self.orchestrate_snapshot_run_by_time(start_hash, run_time, n_steps,
-                                                     **kwargs)
-
-
-    def run_continues(self, start_hash, end_hash):
-        """
-
-        Parameters
-        ----------
-        start_hash :
-            
-        end_hash :
-            
-
-        Returns
-        -------
-        type
-            
-
-        """
-
-        # loop through the runs in this orchestrator until we find one
-        # where the start_hash matches the end hash
-        runs = self.runs
-        run_idx = 0
-        while True:
-
-            run_start_hash, run_end_hash = runs[run_idx]
-
-            # if the start hash of the queried run is the same as the
-            # end hash for this run we have found it
-            if start_hash == run_end_hash:
-
-                return (run_start_hash, run_end_hash)
-
-            run_idx += 1
-
-            # if the index is over the number of runs we quit and
-            # return None as no match
-            if run_idx >= len(runs):
-                return None
 
     # @classmethod
     # def load(cls, filepath, mode='rb'):
