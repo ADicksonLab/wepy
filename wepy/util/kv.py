@@ -243,19 +243,8 @@ class KV(MutableMapping):
             assert isinstance(value, self.value_types), "Value must be a value supported by this kv"
 
         with self.lock():
+            self.lockless_set(key, value)
 
-            # insert the key-value pair if the key isn't in the db
-            try:
-                self._execute('INSERT INTO {table} VALUES (?, ?)'.format(table=self.table),
-                              (key, value))
-
-            # otherwise update the keys value
-            except sqlite3.IntegrityError:
-                self._execute('UPDATE {table} SET {value}=? WHERE {key}=?'.format(
-                                      key=self.primary_key,
-                                      value=self.value_name,
-                                      table=self.table),
-                              (value, key))
 
     def __delitem__(self, key):
         if key in self:
@@ -265,6 +254,23 @@ class KV(MutableMapping):
                           (key,))
         else:
             raise KeyError
+
+    def lockless_set(self, key, value):
+        """an implementation of the __setitem__ without a lock. """
+
+        # insert the key-value pair if the key isn't in the db
+        try:
+            self._execute('INSERT INTO {table} VALUES (?, ?)'.format(table=self.table),
+                          (key, value))
+
+        # otherwise update the keys value
+        except sqlite3.IntegrityError:
+            self._execute('UPDATE {table} SET {value}=? WHERE {key}=?'.format(
+                                  key=self.primary_key,
+                                  value=self.value_name,
+                                  table=self.table),
+                          (value, key))
+
 
     @contextmanager
     def lock(self):

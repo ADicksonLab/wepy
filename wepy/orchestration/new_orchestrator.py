@@ -696,59 +696,35 @@ class Orchestrator():
                 return None
 
 
+    def _init_checkpoint_db(self, start_hash, config_hash, checkpoint_dir, mode='x'):
 
-    def _gen_checkpoint_orch(self, start_hash, checkpoint_snapshot, configuration, cycle_idx):
+        # make the checkpoint with the default filename at the checkpoint directory
+        checkpoint_path = osp.join(checkpoint_dir, self.DEFAULT_CHECKPOINT_FILENAME)
+
+        # create a new database in the mode specified
+        checkpoint_orch = Orchestrator(checkpoint_path, mode=mode)
+
+        # add the starting snapshot, bypassing the serialization stuff
+        checkpoint_orch.snapshot_kv[start_hash] = self.snapshot_kv[start_hash]
+
+        # save the configuration as well
+        checkpoint_orch.configuration_kv[config_hash] = self.configuration_kv[config_hash]
+
+        return checkpoint_path
+
+
+    def _save_checkpoint(self, checkpoint_snapshot, config_hash,
+                         checkpoint_db_path, cycle_idx,
+                         ):
         """
 
         Parameters
         ----------
-        start_hash :
-            
         checkpoint_snapshot :
             
-        configuration :
+        config_hash :
             
-        cycle_idx : int
-            The cycle of the simulation run the checkpoint was generated for.
-
-        Returns
-        -------
-
-        """
-        # make an orchestrator with the only run going from the start
-        # hash snapshot to the checkpoint
-        start_snapshot = self.get_snapshot(start_hash)
-        checkpoint_orch = type(self)(start_snapshot.apparatus)
-
-        # add the the starting snapshot to the orchestrator, we do
-        # this the sneaky way because I am worried about hash
-        # stability and we need to preserve the intial hash, so we
-        # force the hash to be the start_hash and add the object regardless
-        checkpoint_orch._add_snapshot(start_hash, deepcopy(start_snapshot))
-
-        # then add a run to this checkpoint orchestrator by adding the
-        # checkpoint snapshot and registering the run
-        checkpoint_hash = checkpoint_orch.add_snapshot(checkpoint_snapshot)
-
-        # register the run with the two hashes and the configuration
-        checkpoint_orch.register_run(start_hash, checkpoint_hash, configuration, cycle_idx)
-
-        return checkpoint_orch
-
-    def _save_checkpoint(self, start_hash, checkpoint_snapshot, configuration,
-                         checkpoint_dir, cycle_idx,
-                         mode='wb'):
-        """
-
-        Parameters
-        ----------
-        start_hash :
-            
-        checkpoint_snapshot :
-            
-        configuration :
-            
-        checkpoint_dir :
+        checkpoint_db_path :
             
         mode :
              (Default value = 'wb')
@@ -758,40 +734,63 @@ class Orchestrator():
 
         """
 
-        if 'b' not in mode:
-            mode = mode + 'b'
+        # orchestrator wrapper to the db
+        checkpoint_orch = Orchestrator(checkpoint_db_path, mode='r+')
 
-        # make a checkpoint object which is an orchestrator with only
-        # 1 run in it which is the start and the checkpoint as its end
-        checkpoint_orch = self._gen_checkpoint_orch(start_hash, checkpoint_snapshot,
-                                                    configuration, cycle_idx)
+        # connection to the db
+        cursor = checkpoint_orch._db.cursor()
 
-        # construct the checkpoint filename from the template using
-        # the hashes for the start and the checkpoint, we add a "new""
-        # at the end of the file to indicate that it was just written
-        # and if the other checkpoint is not removed you will be able
-        # to tell them apart, this will get renamed without the new
-        # once the other checkpoint is deleted successfully
-        new_checkpoint_filename = self.DEFAULT_CHECKPOINT_FILENAME + "new"
+        # we replicate the code for adding the snapshot here because
+        # we want it to occur transactionally the delete and add
 
-        new_checkpoint_path = osp.join(checkpoint_dir, new_checkpoint_filename)
+        # serialize the snapshot using the protocol for doing so
+        serialized_snapshot = self.serialize(checkpoint_snapshot)
 
-        # write out the pickle to the file
-        with open(new_checkpoint_path, mode) as wf:
-            wf.write(checkpoint_orch.serialize())
+        # get the hash of the snapshot
+        snaphash = self.hash_snapshot(serialized_snapshot)
 
-        # the path that the checkpoint should be existing
-        checkpoint_path = osp.join(checkpoint_dir, self.DEFAULT_CHECKPOINT_FILENAME)
+        # the hashes in the checkpoint
+        start_hash, old_checkpoint_hash = checkpoint_orch.run_hashes()[0]
 
-        # only after the writing is complete do we delete the old
-        # checkpoint, if there are any to delete
-        if osp.exists(checkpoint_path):
-            os.remove(checkpoint_path)
+        # the queries for deleting and inserting the new run record
+        delete_query = """
+        DELETE FROM runs
+        WHERE start_hash=?
+          AND end_hash=?
+        """
 
-        # then rename the one with "new" at the end to the final path
-        os.rename(new_checkpoint_path, checkpoint_path)
+        delete_params = (start_hash, old_checkpoint_hash)
 
-    def gen_sim_manager(self, snapshot_hash, configuration):
+        insert_query = """
+        INSERT INTO runs (start_hash, end_hash, config_hash, last_cycle_idx)
+        VALUES (?, ?, ?, ?)
+        """
+
+        # the config should already be in the orchestrator db
+        insert_params = (start_hash, snaphash, config_hash, cycle_idx)
+
+        # start this whole process as a transaction so we don't get
+        # something weird in between
+        cursor.execute("BEGIN IMMEDIATE TRANSACTION")
+
+        # add the new one
+        checkpoint_orch.snapshot_kv.lockless_set(snaphash, serialized_snapshot)
+
+        # delete the old one
+        del checkpoint_orch.snapshot_kv[old_checkpoint_hash]
+
+        # remove the old run from the run table
+        cursor.execute(delete_query, delete_params)
+
+        # register the new run in the run table
+        cursor.execute(insert_query, insert_params)
+
+        # end the transaction
+        cursor.execute("COMMIT")
+
+
+
+    def gen_sim_manager(self, start_snapshot, configuration):
         """
 
         Parameters
@@ -805,9 +804,6 @@ class Orchestrator():
         -------
 
         """
-
-        # copy the snapshot to use for the sim_manager
-        start_snapshot = self.get_snapshot(snapshot_hash)
 
         # construct the sim manager, in a wepy specific way
         sim_manager = Manager(start_snapshot.walkers,
@@ -825,7 +821,7 @@ class Orchestrator():
                              checkpoint_freq=None,
                              checkpoint_dir=None,
                              configuration=None,
-                             mode=None):
+                             checkpoint_mode='x'):
         """For a finished run continue it but resetting all the state of the
         resampler and boundary conditions
 
@@ -843,7 +839,7 @@ class Orchestrator():
              (Default value = None)
         configuration :
              (Default value = None)
-        mode :
+        checkpoint_mode :
              (Default value = None)
 
         Returns
@@ -857,33 +853,40 @@ class Orchestrator():
             checkpoint_dir = osp.realpath(checkpoint_dir)
             os.makedirs(checkpoint_dir, exist_ok=True)
 
-        if mode is None:
-            mode = self.DEFAULT_MODE
-
-        dump_mode = mode
-        if 'b' not in dump_mode:
-            dump_mode = mode + 'b'
-
         if configuration is None:
-            configuration = deepcopy(self.default_configuration)
+            configuration = self.get_default_configuration()
+            # since we already have the has for this don't need to
+            # waste time serializing and hashing it
+            configuration_hash = self.get_default_configuration_hash()
+        else:
+            # if we have a new configuration at runtime serialize and
+            # hash it
+            serialized_config = self.serialize(configuration)
+            configuration_hash = self.hash_snapshot(serialized_config)
+
+            # get rid of this since we won't need it
+            del serialized_config
 
 
-
-        # get the snapshot
+        # get the snapshot and the configuration to use for the sim_manager
         start_snapshot = self.get_snapshot(start_hash)
+
+        # initialize the checkpoint db if requested
+        if checkpoint_freq is not None:
+            checkpoint_db_path = self._init_checkpoint_db(start_snapshot,
+                                                          configuration_hash,
+                                                          checkpoint_dir,
+                                                          mode=checkpoint_mode)
 
         # generate the simulation manager given the snapshot and the
         # configuration
-        sim_manager = self.gen_sim_manager(start_snapshot, configuration=configuration)
+        sim_manager = self.gen_sim_manager(start_snapshot, configuration)
 
-        # run the init subroutine
+        # run the init subroutine for the simulation manager
         sim_manager.init()
 
-        # keep a running list of the checkpoints for this run
-        self._curr_run_checkpoints = []
-
         # run each cycle manually creating checkpoints when necessary
-        walkers = start_snapshot.walkers
+        walkers = sim_manager.init_walkers
         cycle_idx = 0
         start_time = time.time()
         while time.time() - start_time < run_time:
@@ -899,29 +902,27 @@ class Orchestrator():
                     checkpoint_snapshot = SimSnapshot(walkers, SimApparatus(filters))
 
                     # save the checkpoint (however that is implemented)
-                    self._save_checkpoint(start_hash, checkpoint_snapshot,
-                                          configuration,
-                                          checkpoint_dir,
-                                          cycle_idx,
-                                          mode=dump_mode)
+                    self._save_checkpoint(checkpoint_snapshot,
+                                          configuration_hash,
+                                          checkpoint_db_path,
+                                          cycle_idx)
 
+            # increase the cycle index for the next cycle
             cycle_idx += 1
 
-        # run the segment given the sim manager and run parameters
-        end_snapshot = SimSnapshot(walkers, SimApparatus(filters))
+        # the cycle index was set for the next cycle which didn't run
+        # so we decrement it
+        last_cycle_idx = cycle_idx - 1
 
         # run the cleanup subroutine
         sim_manager.cleanup()
 
-        # add the snapshot and the run for it
-        end_hash = self.add_snapshot(end_snapshot)
+        # run the segment given the sim manager and run parameters
+        end_snapshot = SimSnapshot(walkers, SimApparatus(filters))
 
-        self.register_run(start_hash, end_hash, configuration, cycle_idx)
-
-        # clear the object variable for the current checkpoints
-        del self._curr_run_checkpoints
-
-        return start_hash, end_hash
+        # return the things necessary for saving to the checkpoint if
+        # that is what is wanted later on
+        return end_snapshot, configuration_hash, checkpoint_db_path, last_cycle_idx
 
     def orchestrate_snapshot_run_by_time(self, snapshot_hash, run_time, n_steps,
                                          checkpoint_freq=None,
@@ -1033,7 +1034,7 @@ class Orchestrator():
 
         # if no configuration was specified use the default one
         if configuration is None:
-            configuration = self.default_configuration
+            configuration = self.get_default_configuration()
 
             # reparametrize the configuration with the given path
             # parameters and anything else in kwargs. If they are none
@@ -1064,62 +1065,31 @@ class Orchestrator():
 
 
 
-
-        run_tup = self.run_snapshot_by_time(snapshot_hash, run_time, n_steps,
+        # then actually run the simulation with checkpointing. This
+        # returns the end snapshot and doesn't write out anything to
+        # orchestrators other than the checkpointing
+        (end_snapshot, configuration_hash, checkpoint_db_path, last_cycle_idx) =\
+            self.run_snapshot_by_time(snapshot_hash, run_time, n_steps,
                                             checkpoint_freq=checkpoint_freq,
                                             checkpoint_dir=checkpoint_dir,
                                             configuration=configuration,
-                                            mode=mode)
+                                            checkpoint_mode=mode)
 
-        # then serialize thineself
-        self.dump(orchestrator_path, mode=orch_mode)
+        # now that it is finished we save the final snapshot to the
+        # checkpoint file. This is done transactionally using the
+        # SQLite transaction functionality (either succeeds or doesn't
+        # happen) that way we don't have worry about data integrity
+        # loss. Here we also don't have to worry about other processes
+        # interacting with the checkpoint which makes it isolated.
+        self._save_checkpoint(end_snapshot, configuration_hash,
+                              checkpoint_db_path, last_cycle_idx)
 
-        return run_tup
+        # then we return the hashes of the start and end
+        start_hash, end_hash = Orchestrator(checkpoint_db_path).run_hashes()[0]
 
-
-
-    # @classmethod
-    # def load(cls, filepath, mode='rb'):
-    #     """
-
-    #     Parameters
-    #     ----------
-    #     filepath :
-
-    #     mode :
-    #          (Default value = 'rb')
-
-    #     Returns
-    #     -------
-
-    #     """
-
-    #     with open(filepath, mode) as rf:
-    #         orch = cls.deserialize(rf.read())
-
-    #     return orch
+        return start_hash, end_hash
 
 
-    # def dump(self, filepath, mode=None):
-    #     """
-
-    #     Parameters
-    #     ----------
-    #     filepath :
-            
-    #     mode :
-    #          (Default value = None)
-
-    #     Returns
-    #     -------
-
-    #     """
-
-    #     if mode is None:
-    #         mode = self.DEFAULT_ORCHESTRATION_MODE
-
-    #     with open(filepath, mode) as wf:
-    #         wf.write(self.serialize())
 
 
 def reconcile_orchestrators(host_path, *orchestrator_paths):

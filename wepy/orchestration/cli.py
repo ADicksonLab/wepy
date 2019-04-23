@@ -169,21 +169,21 @@ def run(log, n_workers, checkpoint_freq, job_dir, job_name, narration, configura
                                                                          configuration=configuration,
                                                                          start_hash=start_hash)
 
-    # TODO mode right
-    orch = Orchestrator(orchestrator)
+    # Open a wrapper around the orchestrator database that provides
+    # the inputs for the simulation
+    orch = Orchestrator(orchestrator, mode='r')
 
     logging.info("Orchestrator loaded")
 
     start_hash, end_hash = orch.orchestrate_snapshot_run_by_time(start_hash,
-                                                                 run_time, n_cycle_steps,
+                                                                 run_time,
+                                                                 n_cycle_steps,
                                                                  checkpoint_freq=checkpoint_freq,
                                                                  work_dir=job_dir,
                                                                  config_name=job_name,
                                                                  narration=narration,
                                                                  configuration=config,
                                                                  n_workers=n_workers)
-
-    orch.close()
 
     # write the run tuple out to the log
     run_line_str = "Run start and end hashes: {}, {}".format(start_hash, end_hash)
