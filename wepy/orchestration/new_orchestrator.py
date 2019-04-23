@@ -1122,7 +1122,7 @@ class Orchestrator():
     #         wf.write(self.serialize())
 
 
-def reconcile_orchestrators(template_orchestrator, *orchestrators):
+def reconcile_orchestrators(host_path, *orchestrator_paths):
     """
 
     Parameters
@@ -1137,25 +1137,114 @@ def reconcile_orchestrators(template_orchestrator, *orchestrators):
 
     """
 
-    # make a new orchestrator
-    new_orch = Orchestrator(template_orchestrator.default_apparatus,
-                            default_init_walkers=template_orchestrator.default_init_walkers,
-                            default_configuration=template_orchestrator.default_configuration)
+    if not osp.exists(host_path):
+        assert len(orchestrator_paths) > 1, \
+            "If the host path is a new orchestrator, must give at least 2 orchestrators to merge."
 
-    # put the template back into the list of orchestrators
-    orchestrators = (template_orchestrator, *orchestrators)
-    for orch in orchestrators:
+    # open the host orchestrator at the location which will have all
+    # of the new things put into it from the other orchestrators. If
+    # it doesn't already exist it will be created otherwise open
+    # read-write.
+    new_orch = Orchestrator(orch_path=host_path,
+                            mode='a')
+
+    # if this is an existing orchestrator copy the default
+    # sim_apparatus and init_walkers
+    try:
+        default_app = new_orch.get_default_sim_apparatus()
+    except KeyError:
+        # no default apparatus, that is okay
+        pass
+    else:
+        # set it
+        new_orch.set_default_sim_apparatus(default_app)
+
+    # same for the initial walkers
+    try:
+        default_walkers = new_orch.get_default_init_walkers()
+    except KeyError:
+        # no default apparatus, that is okay
+        pass
+    else:
+        # set it
+        new_orch.set_default_sim_apparatus(default_walkers)
+
+
+    for orch_path in orchestrator_paths:
+
+        # open it in read-write fail if doesn't exist
+        orch = Orchestrator(orch_path=orch_path,
+                            mode='r+')
+
         # add in all snapshots from each orchestrator, by the hash not the
-        # snapshots themselves
+        # snapshots themselves, we trust they are correct
         for snaphash in orch.snapshot_hashes:
-            snapshot = orch.get_snapshot(snaphash)
-            new_orch._add_snapshot(snaphash, snapshot)
 
-        # register all the runs in each
-        for run in list(orch.runs):
-            run_config = orch.run_configuration(*run)
-            run_cycle_idx = orch.run_configuration(*run)
-            new_orch.register_run(*run, run_config, run_cycle_idx)
+            # check that the hash is not already in the snapshots
+            if any([True if snaphash == md5 else False for md5 in new_orch.snapshot_hashes]):
+
+                # skip it and move on
+                continue
+
+            # if it is not copy it over without deserializing
+            with new_orch.snapshot_kv.lock():
+                new_orch.snapshot_kv[snaphash] = orch.snapshot_kv[snaphash]
+
+        # add in all the configuration from each orchestrator, by the
+        # hash not the snapshots themselves, we trust they are correct
+        for config_hash in orch.configuration_hashes:
+
+            # check that the hash is not already in the snapshots
+            if any([True if config_hash == md5 else False for md5 in new_orch.configuration_hashes]):
+
+                # skip it and move on
+                continue
+
+            # if it is not set it
+            with new_orch.configuration_kv.lock():
+                new_orch.configuration_kv[config_hash] = orch.configuration_kv[config_hash]
+
+        # concatenate the run table with an SQL union from an attached
+        # database
+
+        attached_table_name = "other"
+
+        # query to attach the foreign database
+        attach_query = """
+        ATTACH '{}' AS {}
+        """.format(orch_path, attached_table_name)
+
+        # query to update the runs tabel with new unique runs
+        union_query = """
+        INSERT INTO runs
+        SELECT * FROM (
+        SELECT * FROM {}.runs
+        EXCEPT
+        SELECT * FROM runs
+        )
+        """.format(attached_table_name)
+
+        # query to detach the table
+        detach_query = """
+        DETACH {}
+        """.format(attached_table_name)
+
+        # DEBUG
+        print(attach_query)
+        print(union_query)
+        print(detach_query)
+
+        # then run the queries
+
+        c = new_orch._db.cursor()
+        c.execute('BEGIN IMMEDIATE TRANSACTION')
+        c.execute(attach_query)
+        c.execute(union_query)
+        c.execute('COMMIT')
+        c.execute(detach_query)
+
+
+
 
     return new_orch
 
