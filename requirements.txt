@@ -1,0 +1,11 @@
+numpy
+h5py
+networkx >= 2
+pandas
+dill
+click
+scipy
+geomm
+matplotlib
+
+git+https://github.com/salotz/mdtraj.git

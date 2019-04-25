@@ -18,7 +18,6 @@ Wepy: A Weighted Ensemble  (WE) simulation framework
    source/architecture
 
 
-
 Indices and tables
 ==================
 

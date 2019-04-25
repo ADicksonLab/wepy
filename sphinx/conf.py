@@ -25,7 +25,7 @@ author = 'Samuel D. Lotz'
 # The short X.Y version
 version = ''
 # The full version, including alpha/beta/rc tags
-release = 'v0.10'
+release = 'v0.10.2'
 
 
 # -- General configuration ---------------------------------------------------
@@ -47,7 +47,7 @@ extensions = [
     'sphinx.ext.ifconfig',
     'sphinx.ext.viewcode',
     'sphinx.ext.napoleon',
-    'nbsphinx'
+    'nbsphinx',
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -218,3 +218,5 @@ intersphinx_mapping = {'https://docs.python.org/': None}
 
 # If true, `todo` and `todoList` produce output, else they produce nothing.
 todo_include_todos = True
+
+

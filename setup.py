@@ -1,22 +1,71 @@
+#!/usr/bin/env python
+# -*- encoding: utf-8 -*-
+
+from __future__ import absolute_import
+from __future__ import print_function
+
 from setuptools import setup, find_packages
+
+import itertools as it
+
+# setuptools only specifies abstract requirements. For the concrete
+# requirements i.e. index or repo URL see requirements.txt
+abstract_requirements = [
+    'numpy',
+    'h5py',
+    'networkx>=2',
+    'pandas',
+    'dill',
+    'click',
+    'scipy',
+    'geomm',
+    'matplotlib'
+]
+
+# extras requirements list
+mdtraj_requirements = ['mdtraj']
+
+# combination of all the extras requirements
+all_requirements = it.chain.from_iterable([mdtraj_requirements, ])
 
 setup(
     name='wepy',
     version='0.10.2',
-    py_modules=['wepy'],
-    packages=find_packages(),
-    include_package_data=True,
-    entry_points={'console_scripts' : ['wepy=wepy.orchestration.cli:cli']},
-    install_requires=[
-        'numpy',
-        'h5py',
-        'networkx>=2',
-        'pandas',
-        'dill',
-        'click',
-        'mdtraj',
-        'scipy',
-        'geomm',
-        'matplotlib'
+    author="Samuel D. Lotz",
+    author_email="samuel.lotz@salotz.info",
+    description="Weighted Ensemble Framework",
+    long_description=open('README.org').read(),
+    license="MIT",
+    url="https://github.com/ADicksonLab/wepy",
+    classifiers=[
+        "Development Status :: 3 - Alpha",
+        "Topic :: Utilities",
+        "License :: OSI Approved :: MIT License",
+        'Programming Language :: Python :: 3'
     ],
+    # building/dev
+    setup_requires=['pytest-runner', 'numpy', 'cython'],
+    tests_require=['pytest', 'tox'],
+    # package
+    packages=find_packages('src'),
+
+    package_dir={'' : 'src'},
+    # if this is true then the package_data won't be included in the
+    # dist, and I prefer this to MANIFEST
+    include_package_data=False,
+
+    # pymodules is for single file standalone modules not part of the
+    # package
+    # py_modules=[],
+
+    entry_points={
+        'console_scripts' : ['wepy=wepy.orchestration.cli:cli']
+    },
+
+    install_requires=abstract_requirements,
+
+    extras_require={
+        'mdtraj' : mdtraj_requirements,
+        'all' : all_requirements,
+    }
 )

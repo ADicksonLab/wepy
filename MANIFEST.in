@@ -1,0 +1,10 @@
+include AUTHORS.org
+include CHANGELOG.org
+include LICENSE
+include README.org
+
+recursive-include tests *
+recursive-exclude * __pycache__
+recursive-exclude * *.py[co]
+
+recursive-include sphinx build.sh *.rst conf.py Makefile make.bat *.jpg *.png *.gif

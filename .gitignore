@@ -12,3 +12,6 @@ wepy.egg-info
 *.orch
 sphinx/_build
 docs/_build
+.tox
+.eggs
+pip-wheel-metadata

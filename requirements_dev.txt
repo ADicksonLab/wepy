@@ -1,0 +1,37 @@
+# core
+pip
+wheel
+twine
+
+# virtual environments
+virtualenv
+
+# interactive and debugging
+ipython
+ipdb
+
+# utilities
+bumpversion
+
+# testing
+pytest
+pytest-runner
+flake8
+tox
+coverage
+
+# docs
+sphinx
+guzzle_sphinx_theme
+sphinxcontrib-napoleon
+nbsphinx
+
+
+# simultaneous development
+-e ../geomm
+
+
+# testing if they work
+
+# incompatible with newest sphinx
+releases
