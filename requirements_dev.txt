@@ -16,6 +16,7 @@ bumpversion
 # testing
 pytest
 pytest-runner
+pytest-datadir
 flake8
 tox
 coverage
@@ -29,9 +30,3 @@ nbsphinx
 
 # simultaneous development
 -e ../geomm
-
-
-# testing if they work
-
-# incompatible with newest sphinx
-releases
