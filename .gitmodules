@@ -1,0 +1,3 @@
+[submodule "wepy-tests"]
+	path = wepy-tests
+	url = git@gitlab.com:salotz/wepy-tests.git
