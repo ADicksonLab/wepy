@@ -30,7 +30,7 @@
 import os
 import os.path as osp
 import sqlite3
-from collections import MutableMapping
+from collections.abc import MutableMapping
 from contextlib import contextmanager
 
 # mapping of the modes we support and the modes that SQLite provides

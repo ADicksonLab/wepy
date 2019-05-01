@@ -8,7 +8,7 @@ virtualenv
 
 # interactive and debugging
 ipython
-ipdb
+pdbpp
 
 # utilities
 bumpversion
@@ -30,6 +30,7 @@ nbsphinx
 
 # simultaneous development
 -e ../geomm
+-e ../mdtraj
 
 # this module was used to generate an orchestrator, which is used in
 # the test fixtures, it should in the future be either made a submodule
