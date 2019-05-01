@@ -265,11 +265,20 @@ class Manager(object):
 
         logging.info("Begin cycle {}".format(cycle_idx))
 
+        # run the pre-cycle hook
+        self.runner.pre_cycle(walkers=walkers,
+                              n_segment_steps=n_segment_steps,
+                              cycle_idx=cycle_idx)
+
         # run the segment
         start = time.time()
         new_walkers = self.run_segment(walkers, n_segment_steps)
         end = time.time()
         runner_time = end - start
+
+        # run post-cycle hook
+        self.runner.post_cycle()
+
 
         logging.info("End cycle {}".format(cycle_idx))
 

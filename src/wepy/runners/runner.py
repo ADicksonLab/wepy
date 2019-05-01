@@ -22,6 +22,26 @@ import logging
 class Runner(object):
     """Abstract base class for the Runner interface."""
 
+    def pre_cycle(self, **kwargs):
+        """Perform pre-cycle behavior. run_segment will be called for each
+        walker so this allows you to perform changes of state on a
+        per-cycle basis.
+
+        """
+
+        # by default just pass since subclasses need not implement this
+        pass
+
+    def post_cycle(self, **kwargs):
+        """Perform post-cycle behavior. run_segment will be called for each
+        walker so this allows you to perform changes of state on a
+        per-cycle basis.
+
+        """
+
+        # by default just pass since subclasses need not implement this
+        pass
+
     def run_segment(self, walker, segment_length, **kwargs):
         """Run dynamics for the walker.
 
