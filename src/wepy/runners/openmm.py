@@ -192,6 +192,9 @@ class OpenMMRunner(Runner):
         # random number
         new_integrator.setRandomNumberSeed(0)
 
+
+        # create simulation object
+
         # if a platform was given we use it to make a Simulation object
         if self.platform_name is not None:
             # get the platform by its name to use
@@ -218,6 +221,8 @@ class OpenMMRunner(Runner):
         logging.info("Time to generate the system: {}".format(gen_sim_time))
 
 
+        # actually run the simulation
+
         steps_start = time.time()
 
         # Run the simulation segment for the number of time steps
@@ -230,15 +235,15 @@ class OpenMMRunner(Runner):
 
         get_state_start = time.time()
 
-        # save the state of the system with all possible values
-        new_sim_state = simulation.context.getState(**getState_kwargs)
 
         get_state_end = time.time()
         get_state_time = get_state_end - get_state_start
         logging.info("Getting context state time: {}".format(get_state_time))
 
-        # make an OpenMMState wrapper with this
-        new_state = OpenMMState(new_sim_state)
+
+        # generate the new state/walker
+        new_state = self.generate_state(simulation, segment_length,
+                                        walker, getState_kwargs)
 
         # create a new walker for this
         new_walker = OpenMMWalker(new_state, walker.weight)
@@ -248,6 +253,17 @@ class OpenMMRunner(Runner):
         logging.info("Total internal run_segment time: {}".format(run_segment_time))
 
         return new_walker
+
+    def generate_state(self, simulation, segment_length, starting_walker, getState_kwargs):
+
+        # save the state of the system with all possible values
+        new_sim_state = simulation.context.getState(**getState_kwargs)
+
+        # make an OpenMMState wrapper with this
+        new_state = OpenMMState(new_sim_state)
+
+        return new_state
+
 
 
 class OpenMMState(WalkerState):
