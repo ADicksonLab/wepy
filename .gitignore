@@ -15,3 +15,5 @@ docs/_build
 .tox
 .eggs
 pip-wheel-metadata
+build
+dist

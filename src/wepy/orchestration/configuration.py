@@ -96,7 +96,7 @@ class Configuration():
 
         # if no number of workers was specified and no work_mapper
         # class was specified we default to the serial mapper
-        elif (self._work_mapper_partial_kwargs['num_workers'] is not None) and \
+        elif (self._work_mapper_partial_kwargs['num_workers'] is None) and \
              (work_mapper_class is None):
             self._work_mapper_class = Mapper
 

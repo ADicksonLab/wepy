@@ -193,6 +193,29 @@ We are using pytest so just run that from the main directory:
 pytest
 #+END_SRC
 
+We use a special marker for interacting with test fixtures. We find
+this more useful in many cases where you just want to spin up a test
+fixture with the newest changes and inspect it, perhaps to help in
+writing real tests. We incorporate this with the testing suite so we
+only have to implement the boilerplate code of setting up test
+fixtures once, and we gain that it is now version controlled.
+
+To select just the interactive tests (which just have
+a fixture and a breakpoint) run:
+
+#+BEGIN_SRC bash
+pytest -m interactive
+#+END_SRC
+
+To run automated tests:
+
+#+BEGIN_SRC bash
+pytest -m 'not interactive'
+#+END_SRC
+
+TODO: we will probably add more categories in the future for selecting
+particular fixtures.
+
 We are also using tox to test against different python versions. To
 test against all of the versions they must be installed on the machine
 in a directory here called `PREFIX`. To let tox see them they must be

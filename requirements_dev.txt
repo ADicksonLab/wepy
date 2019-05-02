@@ -21,6 +21,12 @@ flake8
 tox
 coverage
 
+
+# modules just for tests
+
+# openmmtools for setting up the mock systems, should be installed with anaconda
+# conda install -c omnia openmmtools
+
 # docs
 sphinx
 guzzle_sphinx_theme

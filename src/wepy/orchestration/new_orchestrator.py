@@ -658,7 +658,8 @@ class Orchestrator():
         return [(rec[0], rec[1]) for rec in self.get_run_records()]
 
     def run_continues(self, start_hash, end_hash):
-        """
+        """Given a start hash and end hash for a run, find the run that this
+        continues.
 
         Parameters
         ----------
@@ -669,8 +670,7 @@ class Orchestrator():
 
         Returns
         -------
-        type
-            
+        run_id
 
         """
 
@@ -872,11 +872,13 @@ class Orchestrator():
         start_snapshot = self.get_snapshot(start_hash)
 
         # initialize the checkpoint db if requested
+        checkpoint_db_path = None
         if checkpoint_freq is not None:
             checkpoint_db_path = self._init_checkpoint_db(start_snapshot,
                                                           configuration_hash,
                                                           checkpoint_dir,
                                                           mode=checkpoint_mode)
+
 
         # generate the simulation manager given the snapshot and the
         # configuration
