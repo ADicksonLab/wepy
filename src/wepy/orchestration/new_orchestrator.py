@@ -15,7 +15,7 @@ import dill
 
 from wepy.sim_manager import Manager
 from wepy.orchestration.configuration import Configuration
-from wepy.util.kv import KV
+from wepy.util.kv import KV, SQLITE3_INMEMORY_URI, gen_uri
 
 class SimApparatus():
     """The simulation apparatus are the components needed for running a
@@ -110,12 +110,17 @@ class Orchestrator():
     # query
     RUN_SELECT_FIELDS = ('last_cycle_idx', 'config_hash')
 
-    def __init__(self, orch_path=":memory:",
+    def __init__(self, orch_path=None,
                  mode='x',
+                 append_only=False,
     ):
 
-        self.orch_path = orch_path
         self._mode = mode
+        self._append_only = append_only
+
+        # handle the path and convert to a proper URI for the database
+        # given the path and the mode
+        self._db_uri = gen_uri(orch_path, mode)
 
         # initialize or open each of the separate KV-stores (tables in
         # the same SQLite3 database)
@@ -125,50 +130,58 @@ class Orchestrator():
 
         # metadata: default init walkers, default apparatus, default
         # configuration
-        self.metadata_kv = KV(db_url=self.orch_path,
+        self.metadata_kv = KV(db_url=self.db_uri,
                               table='meta',
-                              mode=mode,
-                              value_types=None)
+                              mode=self.mode,
+                              value_types=None,
+                              append_only=self.append_only)
+
+        # this will produce a proper URI (rather than the URL) so we
+        # want to use this from here on out
 
         # snapshots
-        self.snapshot_kv = KV(db_url=self.orch_path,
+        self.snapshot_kv = KV(db_url=self.db_uri,
                               table='snapshots',
                               primary_key='snaphash',
                               value_name='snapshot',
-                              mode=self.KV_MODE)
+                              mode=self.mode,
+                              append_only=self.append_only)
 
         # configurations
-        self.configuration_kv = KV(db_url=self.orch_path,
+        self.configuration_kv = KV(db_url=self.db_uri,
                                    table='configurations',
                                    primary_key='config_hash',
                                    value_name='config',
-                                   mode=self.KV_MODE)
+                                   mode=self.mode,
+                                   append_only=self.append_only)
 
         # run table: start_hash, end_hash, num_cycles, configuration_id
 
         # get a raw connection to the database
-        self._db = sqlite3.connect(self.orch_path, timeout=self.SQLITE3_DEFAULT_TIMEOUT)
-        self._db.isolation_level = None
-
+        self._db = sqlite3.connect(self.db_uri, uri=True,
+                                   timeout=self.SQLITE3_DEFAULT_TIMEOUT)
         self._closed = False
 
-        # we make a table for the run data
+        # set isolation level to autocommit
+        self._db.isolation_level = None
 
-        create_run_table_query = """
-            CREATE TABLE IF NOT EXISTS runs
-             (start_hash TEXT NOT NULL,
-             end_hash TEXT NOT NULL,
-             config_hash NOT NULL,
-             last_cycle_idx INTEGER NOT NULL,
-             PRIMARY KEY (start_hash, end_hash))
+        # we can use read_uncommited only in append_only mode (no
+        # updates) because you never have to worry about dirty reads
+        # since you can't update
+        if self.append_only:
+            self._execute("PRAGMA read_uncommited=1")
 
-        """
+        # we make a table for the run data, if it doesn't already
+        # exist
+        c = self._db.cursor().execute(self.create_run_table_query)
 
-        # do the create as a transaction
-        self._db.cursor().execute('BEGIN IMMEDIATE TRANSACTION')
-        # run the query
-        self._db.cursor().execute(create_run_table_query)
-        self._db.cursor().execute('COMMIT')
+    @property
+    def mode(self):
+        return self._mode
+
+    @property
+    def append_only(self):
+        return self._append_only
 
     def close(self):
 
@@ -182,6 +195,30 @@ class Orchestrator():
             self.snapshot_kv.close()
             self._db.close()
             self._closed = True
+
+    @property
+    def db_uri(self):
+        return self._db_uri
+
+    @property
+    def orch_path(self):
+
+        # if it is not an in-memory database we parse off the path and
+        # return that
+        if self.db_uri == SQLITE3_INMEMORY_URI:
+            return None
+        else:
+
+            # URIs have the following form: protocol:url?query
+            # destructure the URI
+            _, tail = self.db_uri.split(':')
+
+            if len(tail.split('?')) > 1:
+                url, _ = tail.split('?')
+            else:
+                url = tail
+
+            return url
 
 
     @classmethod
@@ -259,16 +296,14 @@ class Orchestrator():
         # serialize the apparatus and then set it
         serial_app = self.serialize(sim_apparatus)
 
-        with self.metadata_kv.lock():
-            self.metadata_kv['default_sim_apparatus'] = serial_app
+        self.metadata_kv['default_sim_apparatus'] = serial_app
 
     def set_default_init_walkers(self, init_walkers):
 
         # serialize the apparatus and then set it
         serial_walkers = self.serialize(init_walkers)
 
-        with self.metadata_kv.lock():
-            self.metadata_kv['default_init_walkers'] = serial_walkers
+        self.metadata_kv['default_init_walkers'] = serial_walkers
 
     def set_default_configuration(self, configuration):
 
@@ -277,19 +312,16 @@ class Orchestrator():
 
         config_hash = self.hash_snapshot(serial_config)
 
-        with self.metadata_kv.lock():
-            self.metadata_kv['default_configuration_hash'] = config_hash
+        self.metadata_kv['default_configuration_hash'] = config_hash
 
-        with self.configuration_kv.lock():
-            self.configuration_kv[config_hash] = serial_config
+        self.configuration_kv[config_hash] = serial_config
 
     def set_default_snapshot(self, snapshot):
 
         snaphash = self.add_snapshot(snapshot)
 
         # then save the hash in the metadata
-        with self.metadata_kv.lock():
-            self.metadata_kv['default_snapshot_hash'] = snaphash
+        self.metadata_kv['default_snapshot_hash'] = snaphash
 
         return snaphash
 
@@ -299,8 +331,7 @@ class Orchestrator():
         sim_start_hash = self.gen_start_snapshot(self.get_default_init_walkers())
 
         # then save the hash in the metadata
-        with self.metadata_kv.lock():
-            self.metadata_kv['default_snapshot_hash'] = sim_start_hash
+        self.metadata_kv['default_snapshot_hash'] = sim_start_hash
 
         return sim_start_hash
 
@@ -430,8 +461,7 @@ class Orchestrator():
             return snaphash
 
         # save the snapshot in the KV store
-        with self.snapshot_kv.lock():
-            self.snapshot_kv[snaphash] = serialized_snapshot
+        self.snapshot_kv[snaphash] = serialized_snapshot
 
         return snaphash
 
@@ -541,27 +571,43 @@ class Orchestrator():
             return config_hash
 
         # save the snapshot in the KV store
-        with self.configuration_kv.lock():
-            self.configuration_kv[config_hash] = serialized_config
+        self.configuration_kv[config_hash] = serialized_config
 
         return config_hash
 
-    def _add_run_record(self, start_hash, end_hash, configuration_hash, cycle_idx):
+    @property
+    def create_run_table_query(self):
+        create_run_table_query = """
+            CREATE TABLE IF NOT EXISTS runs
+             (start_hash TEXT NOT NULL,
+             end_hash TEXT NOT NULL,
+             config_hash NOT NULL,
+             last_cycle_idx INTEGER NOT NULL,
+             PRIMARY KEY (start_hash, end_hash))
+
+        """
+
+        return create_run_table_query
+
+    @property
+    def add_run_record_query(self):
 
         add_run_row_query = """
         INSERT INTO runs (start_hash, end_hash, config_hash, last_cycle_idx)
         VALUES (?, ?, ?, ?)
         """
 
+        return add_run_row_query
+
+    def _add_run_record(self, start_hash, end_hash, configuration_hash, cycle_idx):
+
         params = (start_hash, end_hash, configuration_hash, cycle_idx)
 
         # do it as a transaction
-        self._db.cursor().execute('BEGIN IMMEDIATE TRANSACTION')
+        c = self._db.cursor()
 
         # run the insert
-        self._db.cursor().execute(add_run_row_query, params)
-
-        self._db.cursor().execute('COMMIT')
+        c.execute(self.add_run_record_query, params)
 
 
     def register_run(self, start_hash, end_hash, config_hash, cycle_idx):
@@ -696,7 +742,7 @@ class Orchestrator():
                 return None
 
 
-    def _init_checkpoint_db(self, start_hash, config_hash, checkpoint_dir, mode='x'):
+    def _init_checkpoint_db(self, start_hash, configuration, checkpoint_dir, mode='x'):
 
         # make the checkpoint with the default filename at the checkpoint directory
         checkpoint_path = osp.join(checkpoint_dir, self.DEFAULT_CHECKPOINT_FILENAME)
@@ -707,10 +753,15 @@ class Orchestrator():
         # add the starting snapshot, bypassing the serialization stuff
         checkpoint_orch.snapshot_kv[start_hash] = self.snapshot_kv[start_hash]
 
-        # save the configuration as well
-        checkpoint_orch.configuration_kv[config_hash] = self.configuration_kv[config_hash]
+        # if we have a new configuration at runtime serialize and
+        # hash it
+        serialized_config = self.serialize(configuration)
+        config_hash = self.hash_snapshot(serialized_config)
 
-        return checkpoint_path
+        # save the configuration as well
+        checkpoint_orch.configuration_kv[config_hash] = serialized_config
+
+        return checkpoint_path, config_hash
 
 
     def _save_checkpoint(self, checkpoint_snapshot, config_hash,
@@ -749,9 +800,6 @@ class Orchestrator():
         # get the hash of the snapshot
         snaphash = self.hash_snapshot(serialized_snapshot)
 
-        # the hashes in the checkpoint
-        start_hash, old_checkpoint_hash = checkpoint_orch.run_hashes()[0]
-
         # the queries for deleting and inserting the new run record
         delete_query = """
         DELETE FROM runs
@@ -759,28 +807,42 @@ class Orchestrator():
           AND end_hash=?
         """
 
-        delete_params = (start_hash, old_checkpoint_hash)
-
         insert_query = """
         INSERT INTO runs (start_hash, end_hash, config_hash, last_cycle_idx)
         VALUES (?, ?, ?, ?)
         """
 
+        # if there are any runs in the checkpoint orch remove the
+        # final snapshot
+        delete_params = None
+        if len(checkpoint_orch.run_hashes()) > 0:
+            start_hash, old_checkpoint_hash = checkpoint_orch.run_hashes()[0]
+
+            delete_params = (start_hash, old_checkpoint_hash)
+        else:
+            start_hash = list(checkpoint_orch.snapshot_kv.keys())[0]
+
         # the config should already be in the orchestrator db
         insert_params = (start_hash, snaphash, config_hash, cycle_idx)
 
+
         # start this whole process as a transaction so we don't get
         # something weird in between
-        cursor.execute("BEGIN IMMEDIATE TRANSACTION")
+        cursor.execute("BEGIN TRANSACTION")
 
-        # add the new one
-        checkpoint_orch.snapshot_kv.lockless_set(snaphash, serialized_snapshot)
+        # add the new one, using a special method for setting inside
+        # of a transaction
+        cursor = checkpoint_orch.snapshot_kv.set_in_tx(cursor, snaphash, serialized_snapshot)
 
-        # delete the old one
-        del checkpoint_orch.snapshot_kv[old_checkpoint_hash]
+        # if we need to delete the old end of the run snapshot and the
+        # run record for it
+        if delete_params is not None:
 
-        # remove the old run from the run table
-        cursor.execute(delete_query, delete_params)
+            # delete the old one
+            cursor = checkpoint_orch.snapshot_kv.del_in_tx(cursor, old_checkpoint_hash)
+
+            # remove the old run from the run table
+            cursor.execute(delete_query, delete_params)
 
         # register the new run in the run table
         cursor.execute(insert_query, insert_params)
@@ -821,6 +883,7 @@ class Orchestrator():
                              checkpoint_freq=None,
                              checkpoint_dir=None,
                              configuration=None,
+                             configuration_hash=None,
                              checkpoint_mode='x'):
         """For a finished run continue it but resetting all the state of the
         resampler and boundary conditions
@@ -839,6 +902,8 @@ class Orchestrator():
              (Default value = None)
         configuration :
              (Default value = None)
+        configuration_hash :
+             (Default value = None)
         checkpoint_mode :
              (Default value = None)
 
@@ -847,38 +912,47 @@ class Orchestrator():
 
         """
 
+
+        # you must have a checkpoint dir if you ask for a checkpoint
+        # frequency
+        if checkpoint_freq is not None and checkpoint_dir is None:
+            raise ValueError("Must provide a directory for the checkpoint file "
+                             "is a frequency is specified")
+
+
+        if configuration_hash is not None and configuration is not None:
+            raise ValueError("Cannot specify both a hash of an existing configuration"
+                             "and provide a runtime configuration")
+
+        # if no configuration was specified we use the default one, oth
+        elif (configuration is None) and (configuration_hash is None):
+            configuration = self.get_default_configuration()
+
+        # if a configuration hash was given only then we retrieve that
+        # configuration since we must pass configurations to the
+        # checkpoint DB initialization
+        elif configuration_hash is not None:
+            configuration = self.configuration_kv[configuration_hash]
+
+
         # check that the directory for checkpoints exists, and create
         # it if it doesn't and isn't already created
         if checkpoint_dir is not None:
             checkpoint_dir = osp.realpath(checkpoint_dir)
             os.makedirs(checkpoint_dir, exist_ok=True)
 
-        if configuration is None:
-            configuration = self.get_default_configuration()
-            # since we already have the has for this don't need to
-            # waste time serializing and hashing it
-            configuration_hash = self.get_default_configuration_hash()
-        else:
-            # if we have a new configuration at runtime serialize and
-            # hash it
-            serialized_config = self.serialize(configuration)
-            configuration_hash = self.hash_snapshot(serialized_config)
 
-            # get rid of this since we won't need it
-            del serialized_config
-
+        # if the checkpoint dir is not specified don't create a
+        # checkpoint db orch
+        checkpoint_db_path = None
+        if checkpoint_dir is not None:
+            checkpoint_db_path, configuration_hash = self._init_checkpoint_db(start_hash,
+                                                                              configuration,
+                                                                              checkpoint_dir,
+                                                                              mode=checkpoint_mode)
 
         # get the snapshot and the configuration to use for the sim_manager
         start_snapshot = self.get_snapshot(start_hash)
-
-        # initialize the checkpoint db if requested
-        checkpoint_db_path = None
-        if checkpoint_freq is not None:
-            checkpoint_db_path = self._init_checkpoint_db(start_snapshot,
-                                                          configuration_hash,
-                                                          checkpoint_dir,
-                                                          mode=checkpoint_mode)
-
 
         # generate the simulation manager given the snapshot and the
         # configuration
@@ -1086,10 +1160,12 @@ class Orchestrator():
         self._save_checkpoint(end_snapshot, configuration_hash,
                               checkpoint_db_path, last_cycle_idx)
 
-        # then we return the hashes of the start and end
-        start_hash, end_hash = Orchestrator(checkpoint_db_path).run_hashes()[0]
+        # then return the final orchestrator
+        checkpoint_orch = Orchestrator(checkpoint_db_path,
+                                       mode='r+',
+                                       append_only=True)
 
-        return start_hash, end_hash
+        return checkpoint_orch
 
 
 
@@ -1118,7 +1194,8 @@ def reconcile_orchestrators(host_path, *orchestrator_paths):
     # it doesn't already exist it will be created otherwise open
     # read-write.
     new_orch = Orchestrator(orch_path=host_path,
-                            mode='a')
+                            mode='a',
+                            append_only=True)
 
     # if this is an existing orchestrator copy the default
     # sim_apparatus and init_walkers
@@ -1146,7 +1223,8 @@ def reconcile_orchestrators(host_path, *orchestrator_paths):
 
         # open it in read-write fail if doesn't exist
         orch = Orchestrator(orch_path=orch_path,
-                            mode='r+')
+                            mode='r+',
+                            append_only=True)
 
         # add in all snapshots from each orchestrator, by the hash not the
         # snapshots themselves, we trust they are correct
@@ -1159,8 +1237,7 @@ def reconcile_orchestrators(host_path, *orchestrator_paths):
                 continue
 
             # if it is not copy it over without deserializing
-            with new_orch.snapshot_kv.lock():
-                new_orch.snapshot_kv[snaphash] = orch.snapshot_kv[snaphash]
+            new_orch.snapshot_kv[snaphash] = orch.snapshot_kv[snaphash]
 
         # add in all the configuration from each orchestrator, by the
         # hash not the snapshots themselves, we trust they are correct
@@ -1173,8 +1250,7 @@ def reconcile_orchestrators(host_path, *orchestrator_paths):
                 continue
 
             # if it is not set it
-            with new_orch.configuration_kv.lock():
-                new_orch.configuration_kv[config_hash] = orch.configuration_kv[config_hash]
+            new_orch.configuration_kv[config_hash] = orch.configuration_kv[config_hash]
 
         # concatenate the run table with an SQL union from an attached
         # database
@@ -1209,11 +1285,12 @@ def reconcile_orchestrators(host_path, *orchestrator_paths):
         # then run the queries
 
         c = new_orch._db.cursor()
-        c.execute('BEGIN IMMEDIATE TRANSACTION')
+        c.execute('BEGIN TRANSACTION')
         c.execute(attach_query)
         c.execute(union_query)
         c.execute('COMMIT')
         c.execute(detach_query)
+
 
 
 

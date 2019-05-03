@@ -26,12 +26,16 @@
 # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-# Software copied and modified directly from this source
+# Software copied and modified heavily from this source
+
+
 import os
 import os.path as osp
 import sqlite3
 from collections.abc import MutableMapping
 from contextlib import contextmanager
+
+import aiosqlite
 
 # mapping of the modes we support and the modes that SQLite provides
 # KV mode -> sqlite3 mode
@@ -46,7 +50,6 @@ MODE_MAPPING = (
 
 # modes that sqlite3 itself doesn't support and have to manual
 # processing for
-NON_SQLITE_MODES = ('x', 'w-', 'w')
 TRUNCATE_MODES = ('w',)
 FAIL_IF_EXISTS_CREATE_MODES = ('w-', 'x')
 
@@ -55,84 +58,150 @@ SQLITE3_QUERY_URI_TEMPLATE = "{protocol}:{url}?{query}"
 
 SQLITE3_QUERY_JOIN_CHAR = "&"
 
-SQLITE3_INMEMORY_URI = ":memory:"
+SQLITE3_INMEMORY_URI = "file::memory:?cache=shared"
 
 
 # the default types for the values that is checked, is bytes
 DEFAULT_VALUE_TYPES = (bytes, bytearray)
 
-def handle_mode(db_url, mode_spec):
+def gen_uri(db_url, mode_spec):
 
-    db_uri = False
+    # if the db url is the in memory special string or None or the
+    # :memory: identifier, use the full in-memory URI
+    if (db_url == SQLITE3_INMEMORY_URI or
+        db_url is None or
+        db_url == ":memory:"):
 
-    # if the db url is the in memory special string just use that
-    if db_url == SQLITE3_INMEMORY_URI:
+        db_uri = SQLITE3_INMEMORY_URI
 
-        db_uri = SQLITE3_URI_TEMPLATE.format(protocol='file',
-                                             url=db_url)
+        return db_uri
 
-    # if it is a mode that sqlite3 doesn't support explicitly so we
-    # have to do manual processing for
-    elif mode_spec in NON_SQLITE_MODES:
+    # check for and split the URI into the components: protocol, URL, query
+    if len(db_url.split(':')) > 1:
+        # for a query
+        if len(db_url.split('?')) > 1:
 
-        # we just use th url as the uri since we don't need to specify
-        # anything else becase create mode is the default
-        db_uri = SQLITE3_URI_TEMPLATE.format(protocol='file',
-                                             url=db_url)
-
-        # if the mode is either 'x' or 'w-' check to see if the db
-        # already exists. If it does raise an error.
-        if mode_spec in FAIL_IF_EXISTS_CREATE_MODES:
-
-            if osp.exists(db_url):
-                raise FileExistsError
-
-        # if it is 'w' we want to delete the old file
-        elif mode_spec in TRUNCATE_MODES:
-
-            # if it exists remove it
-            if osp.exists(db_url):
-                os.remove(db_url)
+            # protocol and queries
+            ((protocol,), (url, query)) = [comp.split('?') for comp in
+                                           db_url.split(':')]
 
         else:
-            raise ValueError("Unrecognized non-sqlite mode '{}'".format(mode_spec))
+            # no query
+            protocol, url = db_url.split(':')
+            query = ""
+    else:
+        protocol = ""
+        if len(db_url.split('?')) > 1:
+            url, query = db_url.split('?')
+        else:
+            query = ""
+            url = db_url
 
+    # process and build the URI given this information
 
-    # if the mode is one of the modes in the mode mapping use that to
-    # generate the URI
-    elif mode_spec in dict(MODE_MAPPING):
+    # if the protocol is not given set it to the default
+    if len(protocol) == 0:
+        protocol = 'file'
 
-        sqlite_mode = dict(MODE_MAPPING)[mode_spec]
+    # split the query up into sections if it has them
+    if len(query.split('?')) > 1:
+        queries = query.split('?')
 
-        # if it is a mode with no SQLite comparison dont do anything
-        # special
-        if sqlite_mode is not None:
-            mode_q = "mode={}".format(sqlite_mode)
-            query_str = SQLITE3_QUERY_JOIN_CHAR.join([mode_q])
-            db_uri = SQLITE3_QUERY_URI_TEMPLATE.format(protocol='file',
-                                                       url=db_url,
-                                                       query=query_str)
+        # split the "key=value" pairs in each query
+        queries = {q.split('=')[0] : q.split('=')[0]
+                   for q in queries}
+    else:
+        queries = {}
 
-    # should have generated a URI by now, and if we didn't raise an error
-    if not db_uri:
-        raise ValueError("The given url and mode_spec did not produce a valid URI")
+    # now handle the mode. If it was given as an argument then we have
+    # to set the appropriate query in the URI. If it was given in the
+    # URI that takes precedence however.
+
+    # check for a mode option in the given query section, if no mode
+    # is given then we set it depending on what mode_spec was given
+    if 'mode' not in queries:
+
+        # default to rwc mode
+        mode_query_value = 'rwc'
+
+        if mode_spec is not None:
+
+            # if the mode is one of the modes in the mode mapping use that to
+            # generate the URI, otherwise raise an error
+            if mode_spec not in dict(MODE_MAPPING):
+
+                raise ValueError("kv mode spec '{}' not recognized".format(mode_spec))
+
+            else:
+
+                sqlite_mode = dict(MODE_MAPPING)[mode_spec]
+
+                # if the sqlite_mode is recognized as a mode that can
+                # be given in the query section do that
+                if sqlite_mode is not None:
+                    mode_query_value = sqlite_mode
+
+                # otherwise we handle these special modes ourselves
+                # here, checking file properties and raising errors as
+                # necessary
+                else:
+
+                    # if the mode is either 'x' or 'w-' check to see if the db
+                    # already exists. If it does raise an error.
+                    if mode_spec in FAIL_IF_EXISTS_CREATE_MODES:
+
+                        if osp.exists(url):
+                            raise OSError("File exists")
+
+                    # if it is 'w' we want to delete the old file
+                    elif mode_spec in TRUNCATE_MODES:
+
+                        # if it exists remove it
+                        if osp.exists(url):
+                            os.remove(url)
+
+                    # the sqlite_mode for these is rwc (a), since we
+                    # need to create it
+                    mode_query_value = "rwc"
+
+        # add the mode query to queries list
+        queries['mode'] = mode_query_value
+
+    # if thw queries are empty just use the protocol and URL
+    if not queries:
+        db_uri = SQLITE3_URI_TEMPLATE.format(protocol=protocol,
+                                             url=url)
+    # otherwise do the whole thing
+    else:
+
+        # build the query substring
+        query = SQLITE3_QUERY_JOIN_CHAR.join(["{}={}".format(key, value)
+                                              for key, value in queries.items()])
+
+        # build the URI string
+        db_uri = SQLITE3_QUERY_URI_TEMPLATE.format(protocol=protocol,
+                                                   url=url,
+                                                   query=query)
 
     return db_uri
 
 class KV(MutableMapping):
 
-    def __init__(self, db_url=':memory:',
+    def __init__(self, db_url=None,
                  table='data',
                  primary_key='key',
                  value_name='value',
                  timeout=5,
                  mode='x',
+                 append_only=False,
                  value_types=DEFAULT_VALUE_TYPES,
     ):
 
         # generate a good URI from the url and the mode
-        db_uri = handle_mode(db_url, mode)
+        db_uri = gen_uri(db_url, mode)
 
+        self._mode = mode
+        self._append_only = append_only
 
         # set the value types for this kv
         self._kv_types = value_types
@@ -142,8 +211,17 @@ class KV(MutableMapping):
 
         # connect to the db
         self._db = sqlite3.connect(self._db_uri, timeout=timeout, uri=True)
-        self._db.isolation_level = None
         self._closed = False
+
+        # set the isolation level to autocommit
+        self._db.isolation_level = None
+
+        # we can use read_uncommited only in append_only mode (no
+        # updates) because you never have to worry about dirty reads
+        # since you can't update
+        if self.append_only:
+            self._execute("PRAGMA read_uncommited=1")
+
 
         self._table = table
         self._primary_key = primary_key
@@ -159,6 +237,14 @@ class KV(MutableMapping):
         self._execute(create_table_query)
 
         self._locks = 0
+
+    @property
+    def mode(self):
+        return self._mode
+
+    @property
+    def append_only(self):
+        return self._append_only
 
     def close(self):
 
@@ -242,44 +328,113 @@ class KV(MutableMapping):
         if self.value_types is not None:
             assert isinstance(value, self.value_types), "Value must be a value supported by this kv"
 
-        with self.lock():
-            self.lockless_set(key, value)
+        self.lockless_set(key, value)
 
 
     def __delitem__(self, key):
-        if key in self:
-            self._execute('DELETE FROM {table} WHERE {key}=?'.format(
-                                 key=self.primary_key,
-                                 table=self.table),
+
+        # no deletions in append only mode
+        if self.append_only:
+            raise sqlite3.IntegrityError("DB is opened in append only mode, "
+                                         "and {} has already been set".format(key))
+
+        # delete it if it exists
+        elif key in self:
+            self._execute(self.del_query,
                           (key,))
+
         else:
             raise KeyError
 
+    @property
+    def insert_query(self):
+        query = 'INSERT INTO {table} VALUES (?, ?)'.format(table=self.table)
+
+        return query
+
+    @property
+    def update_query(self):
+
+        query = 'UPDATE {table} SET {value}=? WHERE {key}=?'.format(
+            key=self.primary_key,
+            value=self.value_name,
+            table=self.table)
+
+        return query
+
+    @property
+    def del_query(self):
+
+        query = 'DELETE FROM {table} WHERE {key}=?'.format(
+            key=self.primary_key,
+            table=self.table)
+
+        return query
+
     def lockless_set(self, key, value):
-        """an implementation of the __setitem__ without a lock. """
+        """an implementation of the __setitem__ without the lock context
+        manager which turns on the DEFERRED isolation level. The
+        isolation level of the KV is set to autocommit so now lock is
+        needed anyhow.
+
+        """
 
         # insert the key-value pair if the key isn't in the db
         try:
-            self._execute('INSERT INTO {table} VALUES (?, ?)'.format(table=self.table),
-                          (key, value))
+            self._execute(self.insert_query, (key, value))
 
         # otherwise update the keys value
         except sqlite3.IntegrityError:
-            self._execute('UPDATE {table} SET {value}=? WHERE {key}=?'.format(
-                                  key=self.primary_key,
-                                  value=self.value_name,
-                                  table=self.table),
-                          (value, key))
+
+            # if we are in append only mode don't allow updates
+            if self.append_only:
+                raise sqlite3.IntegrityError("DB is opened in append only mode, "
+                                             "and {} has already been set".format(key))
+            else:
+                self._execute(self.update_query,
+                              (value, key))
+
+    def set_in_tx(self, cursor, key, value):
+        """Do a set with a cursor, this allows it to be done in a transaction."""
+
+        try:
+            cursor.execute(self.insert_query, (key, value))
+        except sqlite3.IntegrityError:
+
+            # if we are in append only mode don't allow updates
+            if self.append_only:
+                raise sqlite3.IntegrityError("DB is opened in append only mode, "
+                                             "and {} has already been set".format(key))
+
+            else:
+                cursor.execute(self.update_query, (key, value))
+
+        return cursor
+
+    def del_in_tx(self, cursor, key):
+
+        # no deletions in append only mode
+        if self.append_only:
+            raise sqlite3.IntegrityError("DB is opened in append only mode, "
+                                         "and {} has already been set".format(key))
+
+        elif key in self:
+            cursor.execute(self.del_query, (key,))
+
+        else:
+            raise KeyError
+
+        return cursor
 
 
     @contextmanager
     def lock(self):
         if not self._locks:
-            self._execute('BEGIN IMMEDIATE TRANSACTION')
-        self._locks += 1
+            self._execute('BEGIN TRANSACTION')
+        self._locks = True
         try:
             yield
         finally:
-            self._locks -= 1
+            self._locks = False
             if not self._locks:
                 self._execute('COMMIT')

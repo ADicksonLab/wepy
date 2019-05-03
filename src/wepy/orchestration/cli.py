@@ -6,8 +6,7 @@ import click
 
 from wepy.orchestration.orchestrator import (
     reconcile_orchestrators,
-    Orchestrator,
-    recover_run_by_time
+    Orchestrator
 )
 
 from wepy.reporter.hdf5 import WepyHDF5Reporter

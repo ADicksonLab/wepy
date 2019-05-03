@@ -17,9 +17,11 @@ bumpversion
 pytest
 pytest-runner
 pytest-datadir
+argcomplete
 flake8
 tox
 coverage
+
 
 
 # modules just for tests
