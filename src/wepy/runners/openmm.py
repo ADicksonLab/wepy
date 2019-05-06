@@ -285,7 +285,7 @@ class OpenMMState(WalkerState):
     OTHER_KEY_TEMPLATE = "{}_OTHER"
     """String formatting template for attributes not set in KEYS."""
 
-    def __init__(self, sim_state=None, **kwargs):
+    def __init__(self, sim_state, **kwargs):
         """Constructor for OpenMMState.
 
         Parameters
@@ -309,7 +309,7 @@ class OpenMMState(WalkerState):
 
             # if the key is already in the sim_state keys we need to
             # modify it and raise a warning
-            if self.sim_state is not None and key in self.KEYS:
+            if key in self.KEYS:
 
                 warn("Key {} in kwargs is already taken by this class, renaming to {}".format(
                     self.OTHER_KEY_TEMPLATE).format(key))
@@ -324,22 +324,12 @@ class OpenMMState(WalkerState):
             else:
                 self._data[key] = value
 
-    def __deepcopy__(self, memo):
-
-        # call dict to make copies of everything
-        data = self.dict()
-
-        return OpenMMState(**data)
-
     @property
     def sim_state(self):
         """The underlying simtk.openmm.State object this is wrapping."""
         return self._sim_state
 
     def __getitem__(self, key):
-
-        if self.sim_state is None:
-            return super().__getitem__(key)
 
         # if this was a key for data not mapped from the OpenMM.State
         # object we use the _data attribute
@@ -849,13 +839,8 @@ class OpenMMState(WalkerState):
         d = {}
         for key, value in self._data.items():
             d[key] = value
-
-        if self.sim_state is not None:
-
-            # special getters for the openmm sim_state
-            for key, value in self.omm_state_dict().items():
-                d[key] = value
-
+        for key, value in self.omm_state_dict().items():
+            d[key] = value
         return d
 
     def to_mdtraj(self, topology):
