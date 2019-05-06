@@ -398,7 +398,7 @@ class WepyHDF5Reporter(FileReporter):
             # add trajectory data for the walkers
             for walker_idx, walker in enumerate(new_walkers):
 
-                walker = deepcopy(walker)
+                walker_weight = walker.weight
                 walker_data = walker.state.dict()
 
                 # iterate through the feature vectors of the walker
@@ -458,14 +458,14 @@ class WepyHDF5Reporter(FileReporter):
 
                     # if it does then append to the trajectory
                     self.wepy_h5.extend_traj(self.wepy_run_idx, walker_idx,
-                                             weights=np.array([[walker.weight]]),
+                                             weights=np.array([[walker_weight]]),
                                              data=walker_data)
                 # start a new trajectory
                 else:
                     # add the traj for the walker with the data
 
                     traj_grp = self.wepy_h5.add_traj(self.wepy_run_idx,
-                                                     weights=np.array([[walker.weight]]),
+                                                     weights=np.array([[walker_weight]]),
                                                      data=walker_data)
 
                     # add as metadata the cycle idx where this walker started
