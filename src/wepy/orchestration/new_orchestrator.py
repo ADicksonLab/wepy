@@ -122,39 +122,6 @@ class Orchestrator():
         # given the path and the mode
         self._db_uri = gen_uri(orch_path, mode)
 
-        # initialize or open each of the separate KV-stores (tables in
-        # the same SQLite3 database)
-
-        # we open the first one with the create mode and let the KV
-        # module handle the opening and creation if necessary
-
-        # metadata: default init walkers, default apparatus, default
-        # configuration
-        self.metadata_kv = KV(db_url=self.db_uri,
-                              table='meta',
-                              mode=self.mode,
-                              value_types=None,
-                              append_only=self.append_only)
-
-        # this will produce a proper URI (rather than the URL) so we
-        # want to use this from here on out
-
-        # snapshots
-        self.snapshot_kv = KV(db_url=self.db_uri,
-                              table='snapshots',
-                              primary_key='snaphash',
-                              value_name='snapshot',
-                              mode=self.mode,
-                              append_only=self.append_only)
-
-        # configurations
-        self.configuration_kv = KV(db_url=self.db_uri,
-                                   table='configurations',
-                                   primary_key='config_hash',
-                                   value_name='config',
-                                   mode=self.mode,
-                                   append_only=self.append_only)
-
         # run table: start_hash, end_hash, num_cycles, configuration_id
 
         # get a raw connection to the database
@@ -169,11 +136,43 @@ class Orchestrator():
         # updates) because you never have to worry about dirty reads
         # since you can't update
         if self.append_only:
-            self._execute("PRAGMA read_uncommited=1")
+            self._db.execute("PRAGMA read_uncommited=1")
 
         # we make a table for the run data, if it doesn't already
         # exist
         c = self._db.cursor().execute(self.create_run_table_query)
+
+
+        # initialize or open each of the separate KV-stores (tables in
+        # the same SQLite3 database)
+
+        # change the mode for the KV stores since we already created the database
+
+        # metadata: default init walkers, default apparatus, default
+        # configuration
+        self.metadata_kv = KV(db_url=self.db_uri,
+                              table='meta',
+                              mode='a',
+                              value_types=None,
+                              append_only=self.append_only)
+
+
+
+        # snapshots
+        self.snapshot_kv = KV(db_url=self.db_uri,
+                              table='snapshots',
+                              primary_key='snaphash',
+                              value_name='snapshot',
+                              mode='a',
+                              append_only=self.append_only)
+
+        # configurations
+        self.configuration_kv = KV(db_url=self.db_uri,
+                                   table='configurations',
+                                   primary_key='config_hash',
+                                   value_name='config',
+                                   mode='a',
+                                   append_only=self.append_only)
 
     @property
     def mode(self):
@@ -1057,12 +1056,6 @@ class Orchestrator():
             # orchestrator and so must be in bytes mode
             orch_mode = self.DEFAULT_ORCHESTRATION_MODE
 
-        elif 'b' not in mode:
-            # add a bytes to the end of the mode for the orchestrator pickleization
-            orch_mode = mode + 'b'
-        else:
-            orch_mode = mode
-
         # there are two possible uses for the path reparametrizations:
         # the configuration and the orchestrator file paths. If both
         # of those are explicitly specified by passing in the whole
@@ -1149,7 +1142,7 @@ class Orchestrator():
                                             checkpoint_freq=checkpoint_freq,
                                             checkpoint_dir=checkpoint_dir,
                                             configuration=configuration,
-                                            checkpoint_mode=mode)
+                                            checkpoint_mode=orch_mode)
 
         # now that it is finished we save the final snapshot to the
         # checkpoint file. This is done transactionally using the
@@ -1291,48 +1284,4 @@ def reconcile_orchestrators(host_path, *orchestrator_paths):
         c.execute('COMMIT')
         c.execute(detach_query)
 
-
-
-
-
     return new_orch
-
-def recover_run_by_time(start_orch, checkpoint_orch,
-                        run_time, n_steps,
-                        **kwargs):
-    """
-
-    Parameters
-    ----------
-    start_orch :
-        
-    checkpoint_orch :
-        
-    run_time :
-        
-    n_steps :
-        
-    **kwargs :
-        
-
-    Returns
-    -------
-
-    """
-
-    # reconcile the checkpoint orchestrator with the master the
-    # original orchestrator, we put the original orch first so that it
-    # preserves the defaults
-    new_orch = reconcile_orchestrators(start_orch, checkpoint_orch)
-
-    # now we need to get the hash of the checkpoint at the end of
-    # the checkpoint orch to start from that, a checkpoint orch
-    # should only have one run and the checkpoint will be the end
-    # of that run.
-    checkpoint_hash = checkpoint_orch.runs[0][-1]
-
-    # then all we need to do is orchestrate from this checkpoint
-    run_tup = new_orch.orchestrate_snapshot_run_by_time(checkpoint_hash, run_time, n_steps,
-                                                        **kwargs)
-
-    return new_orch, run_tup

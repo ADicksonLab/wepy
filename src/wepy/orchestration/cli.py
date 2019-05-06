@@ -4,7 +4,7 @@ import subprocess
 
 import click
 
-from wepy.orchestration.orchestrator import (
+from wepy.orchestration.new_orchestrator import (
     reconcile_orchestrators,
     Orchestrator
 )
@@ -124,7 +124,7 @@ def settle_run_options(n_workers=None,
 @click.argument('n_cycle_steps', type=click.INT)
 @click.argument('run_time', type=click.FLOAT)
 @click.argument('start_hash')
-@click.argument('orchestrator', type=click.File(mode='rb'))
+@click.argument('orchestrator', type=click.Path(exists=True))
 @click.command()
 def run(log, n_workers, checkpoint_freq, job_dir, job_name, narration, configuration,
         n_cycle_steps, run_time, start_hash, orchestrator):
@@ -174,15 +174,17 @@ def run(log, n_workers, checkpoint_freq, job_dir, job_name, narration, configura
 
     logging.info("Orchestrator loaded")
 
-    start_hash, end_hash = orch.orchestrate_snapshot_run_by_time(start_hash,
-                                                                 run_time,
-                                                                 n_cycle_steps,
-                                                                 checkpoint_freq=checkpoint_freq,
-                                                                 work_dir=job_dir,
-                                                                 config_name=job_name,
-                                                                 narration=narration,
-                                                                 configuration=config,
-                                                                 n_workers=n_workers)
+    run_orch = orch.orchestrate_snapshot_run_by_time(start_hash,
+                                                     run_time,
+                                                     n_cycle_steps,
+                                                     checkpoint_freq=checkpoint_freq,
+                                                     work_dir=job_dir,
+                                                     config_name=job_name,
+                                                     narration=narration,
+                                                     configuration=config,
+                                                     n_workers=n_workers)
+
+    start_hash, end_hash = run_orch.run_hashes()[0]
 
     # write the run tuple out to the log
     run_line_str = "Run start and end hashes: {}, {}".format(start_hash, end_hash)
@@ -192,100 +194,6 @@ def run(log, n_workers, checkpoint_freq, job_dir, job_name, narration, configura
 
     # also put it to the terminal
     click.echo(run_line_str)
-
-@click.option('--log', default="WARNING")
-@click.option('--n-workers', type=click.INT)
-@click.option('--checkpoint-freq', default=None, type=click.INT)
-@click.option('--job-dir', default=CURDIR, type=click.Path(writable=True))
-@click.option('--job-name', default=START_HASH)
-@click.option('--narration', default="recovery")
-@click.option('--configuration', type=click.Path(exists=True), default=None)
-@click.argument('n_cycle_steps', type=click.INT)
-@click.argument('run_time', type=click.FLOAT)
-@click.argument('checkpoint', type=click.File(mode='rb'))
-@click.argument('start_hash')
-@click.argument('orchestrator', type=click.File(mode='rb'))
-@click.command()
-def recover(log, n_workers, checkpoint_freq, job_dir, job_name, narration, configuration,
-            n_cycle_steps, run_time, checkpoint, start_hash, orchestrator):
-    """
-
-    Parameters
-    ----------
-    log :
-        
-    n_workers :
-        
-    checkpoint_freq :
-        
-    job_dir :
-        
-    job_name :
-        
-    narration :
-        
-    n_cycle_steps :
-        
-    run_time :
-        
-    checkpoint :
-        
-    start_hash :
-        
-    orchestrator :
-        
-
-    Returns
-    -------
-
-    """
-
-    set_loglevel(log)
-
-    n_workers, job_dir, job_name, narration, config = settle_run_options(n_workers=n_workers,
-                                                                 job_dir=job_dir,
-                                                                 job_name=job_name,
-                                                                 narration=narration,
-                                                                 configuration=configuration)
-
-    # TODO do mode right
-    orch = Orchestrator(orchestrator)
-
-    logging.info("Orchestrator loaded")
-
-    # TODO do mode right
-    checkpoint_orch = Orchestrator(checkpoint)
-
-    logging.info("Checkpoint loadeded")
-
-    # TODO fix for new implementation shouldn't return a new
-    # orchestrator but the hash or something...
-
-    # run the continuation from the new orchestrator with the update
-    # from the checkpoint
-    new_orch, run_tup = recover_run_by_time(orch, checkpoint_orch,
-                                            run_time, n_cycle_steps,
-                                            checkpoint_freq=checkpoint_freq,
-                                            work_dir=job_dir,
-                                            config_name=job_name,
-                                            narration=narration,
-                                            configuration=config,
-                                            n_workers=n_workers)
-
-    orch.close()
-    checkpoint_orch.close()
-
-    start_hash, end_hash = run_tup
-
-    # write the run tuple out to the log
-    run_line_str = "Run start and end hashes: {}, {}".format(start_hash, end_hash)
-
-    # log it
-    logging.info(run_line_str)
-
-    # also put it to the terminal
-    click.echo(run_line_str)
-
 
 def combine_orch_wepy_hdf5s(new_orch, new_hdf5_path):
     """
@@ -306,7 +214,7 @@ def combine_orch_wepy_hdf5s(new_orch, new_hdf5_path):
     hdf5_paths = {}
 
     # go through each run in the new orchestrator
-    for run_id in new_orch.runs:
+    for run_id in new_orch.run_hashes():
 
         # get the configuration used for this run
         run_config = new_orch.run_configuration(*run_id)
@@ -326,7 +234,7 @@ def combine_orch_wepy_hdf5s(new_orch, new_hdf5_path):
     # first we need a master linker HDF5 to do this with
 
     # so load a template WepyHDF5
-    template_wepy_h5_path = hdf5_paths[new_orch.runs[0]]
+    template_wepy_h5_path = hdf5_paths[new_orch.run_hashes()[0]]
     template_wepy_h5 = WepyHDF5(template_wepy_h5_path, mode='r')
 
     # clone it
@@ -374,7 +282,7 @@ def combine_orch_wepy_hdf5s(new_orch, new_hdf5_path):
             # to do this we simply check whether or not the number of
             # cycles for the run_id are less than the number of cycles
             # in the corresponding WepyHDF5 run dataset.
-            orch_run_num_cycles = new_orch.run_cycles[run_id]
+            orch_run_num_cycles = new_orch.run_last_cycle_idx(*run_id)
 
             wepy_h5 = WepyHDF5(wepy_h5_path, mode='r')
             with wepy_h5:
@@ -443,8 +351,8 @@ def combine_orch_wepy_hdf5s(new_orch, new_hdf5_path):
 
 @click.command()
 @click.option('--hdf5', type=click.Path(exists=False))
-@click.argument('output', nargs=1, type=click.File(mode='wb'))
-@click.argument('orchestrators', nargs=-1, type=click.File(mode='rb'))
+@click.argument('output', nargs=1, type=click.Path(exists=False))
+@click.argument('orchestrators', nargs=-1, type=click.Path(exists=True))
 def reconcile(hdf5,
               output, orchestrators):
     """
@@ -463,44 +371,37 @@ def reconcile(hdf5,
 
     """
 
-    # TODO redo with the new implementation, don't need to do it orch
-    # by orch anymore
+    # new_orch = Orchestrator(output, mode='x')
 
-    # reconcile them one by one as they are big and too expensive to
-    # load all into memory at once
-    click.echo("Deserializing Orchestrator 1")
+    # orchs = []
+    # for orch_path in orchestrators:
+    #     orchs.append(Orchestrator(orch_path, mode='r'))
 
-    # 
-    new_orch = Orchestrator(orchestrators[0])
-    click.echo("Finished Deserializing Orchestrator 1")
+    new_orch = reconcile_orchestrators(output, *orchestrators)
 
-    hash_listing_str = "\n".join(["{}, {}".format(start, end) for start, end in new_orch.runs])
-    click.echo("This orchestrator has the following runs:")
-    click.echo(hash_listing_str)
+    # for orch_idx, orchestrator in enumerate(orchestrators[1:]):
+    #     orch_idx += 1
 
-    for orch_idx, orchestrator in enumerate(orchestrators[1:]):
-        orch_idx += 1
+    #     click.echo("/n")
+    #     click.echo("Deserializing Orchestrator {}".format(orch_idx))
+    #     orch = deserialize_orchestrator(orchestrator.read())
+    #     click.echo("Finished Deserializing Orchestrator {}".format(orch_idx))
 
-        click.echo("/n")
-        click.echo("Deserializing Orchestrator {}".format(orch_idx))
-        orch = deserialize_orchestrator(orchestrator.read())
-        click.echo("Finished Deserializing Orchestrator {}".format(orch_idx))
+    #     hash_listing_str = "\n".join(["{}, {}".format(start, end) for start, end in orch.runs])
+    #     click.echo("This orchestrator has the following runs:")
+    #     click.echo(hash_listing_str)
 
-        hash_listing_str = "\n".join(["{}, {}".format(start, end) for start, end in orch.runs])
-        click.echo("This orchestrator has the following runs:")
-        click.echo(hash_listing_str)
+    #     # reconcile the two orchestrators
+    #     click.echo("Reconciling this orchestrator to the new orchestrator")
+    #     new_orch = reconcile_orchestrators(new_orch, orch)
 
-        # reconcile the two orchestrators
-        click.echo("Reconciling this orchestrator to the new orchestrator")
-        new_orch = reconcile_orchestrators(new_orch, orch)
+    #     hash_listing_str = "\n".join(["{}, {}".format(start, end) for start, end in new_orch.runs])
+    #     click.echo("The new orchestrator has the following runs:")
+    #     click.echo(hash_listing_str)
 
-        hash_listing_str = "\n".join(["{}, {}".format(start, end) for start, end in new_orch.runs])
-        click.echo("The new orchestrator has the following runs:")
-        click.echo(hash_listing_str)
-
-    # then make and output the orchestrator
-    click.echo("Serializing the new orchestrator")
-    output.write(new_orch.serialize())
+    # # then make and output the orchestrator
+    # click.echo("Serializing the new orchestrator")
+    # output.write(new_orch.serialize())
 
     # if a path for an HDF5 file is given
     if hdf5 is not None:
@@ -566,7 +467,7 @@ def ls_runs(orchestrator):
 
     orch = Orchestrator(orch_path=orchestrator, mode='r')
 
-    runs = orch.run_hashes
+    runs = orch.run_hashes()
 
     orch.close()
 
@@ -581,6 +482,8 @@ def ls_runs(orchestrator):
 @click.argument('source', type=click.Path(exists=True))
 @click.argument('target', type=click.Path(exists=False))
 def copy_h5(no_expand_external, source, target):
+    """Copy a WepyHDF5 file, except links to other runs will optionally be
+    expanded and truly duplicated if symbolic inter-file links are present."""
 
 
     # arg clusters to pass to subprocess for the files
@@ -611,7 +514,6 @@ def copy_h5(no_expand_external, source, target):
 
 # command groupings
 cli.add_command(run)
-cli.add_command(recover)
 cli.add_command(reconcile)
 cli.add_command(ls_snapshots)
 cli.add_command(ls_runs)
