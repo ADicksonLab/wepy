@@ -94,8 +94,8 @@ class Orchestrator():
     DEFAULT_NARRATION = Configuration.DEFAULT_NARRATION
     DEFAULT_MODE = Configuration.DEFAULT_MODE
 
-    DEFAULT_CHECKPOINT_FILENAME = "checkpoint.chk"
-    ORCH_FILENAME_TEMPLATE = "{config}{narration}.orch"
+    DEFAULT_CHECKPOINT_FILENAME = "checkpoint.orch.sqlite"
+    ORCH_FILENAME_TEMPLATE = "{config}{narration}.orch.sqlite"
 
     # the default way to oepn up the whole parent database
     DEFAULT_ORCHESTRATION_MODE = 'x'

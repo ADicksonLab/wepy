@@ -35,8 +35,6 @@ import sqlite3
 from collections.abc import MutableMapping
 from contextlib import contextmanager
 
-import aiosqlite
-
 # mapping of the modes we support and the modes that SQLite provides
 # KV mode -> sqlite3 mode
 MODE_MAPPING = (
