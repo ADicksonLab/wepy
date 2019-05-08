@@ -4,7 +4,7 @@ import subprocess
 
 import click
 
-from wepy.orchestration.new_orchestrator import (
+from wepy.orchestration.orchestrator import (
     reconcile_orchestrators,
     Orchestrator
 )
