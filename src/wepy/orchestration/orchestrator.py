@@ -365,13 +365,6 @@ class Orchestrator():
         return list(self.snapshot_kv.keys())
 
     @property
-    def config_hashes(self):
-        """ """
-
-        # iterate over the snapshot kv
-        return list(self.config_kv.keys())
-
-    @property
     def configuration_hashes(self):
         """ """
 
@@ -405,6 +398,22 @@ class Orchestrator():
 
         # save the snapshot in the KV store
         self.snapshot_kv[snaphash] = serialized_snapshot
+
+        return snaphash
+
+    def add_serial_snapshot(self, serial_snapshot):
+
+        # get the hash of the snapshot
+        snaphash = self.hash_snapshot(serial_snapshot)
+
+        # check that the hash is not already in the snapshots
+        if any([True if snaphash == md5 else False for md5 in self.snapshot_hashes]):
+
+            # just skip the rest of the function and return the hash
+            return snaphash
+
+        # save the snapshot in the KV store
+        self.snapshot_kv[snaphash] = serial_snapshot
 
         return snaphash
 
@@ -517,6 +526,23 @@ class Orchestrator():
         self.configuration_kv[config_hash] = serialized_config
 
         return config_hash
+
+    def add_serial_configuration(self, serial_configuration):
+
+        # get the hash of the configuration
+        snaphash = self.hash_snapshot(serial_configuration)
+
+        # check that the hash is not already in the configurations
+        if any([True if snaphash == md5 else False for md5 in self.configuration_hashes]):
+
+            # just skip the rest of the function and return the hash
+            return snaphash
+
+        # save the configuration in the KV store
+        self.configuration_kv[snaphash] = serial_configuration
+
+        return snaphash
+
 
     @property
     def create_run_table_query(self):

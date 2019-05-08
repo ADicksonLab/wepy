@@ -16,11 +16,6 @@ ORCHESTRATOR_DEFAULT_FILENAME = \
             Orchestrator.ORCH_FILENAME_TEMPLATE.format(config=Orchestrator.DEFAULT_CONFIG_NAME,
                                                        narration=Orchestrator.DEFAULT_NARRATION)
 
-@click.group()
-def cli():
-    """ """
-    pass
-
 def set_loglevel(loglevel):
     """
 
@@ -120,13 +115,101 @@ def settle_run_options(n_workers=None,
 @click.option('--job-dir', default=CURDIR, type=click.Path(writable=True))
 @click.option('--job-name', default=START_HASH)
 @click.option('--narration', default="")
+@click.argument('n_cycle_steps', type=click.INT)
+@click.argument('run_time', type=click.FLOAT)
+@click.argument('configuration', type=click.Path(exists=True))
+@click.argument('snapshot', type=click.File('rb'))
+@click.command()
+def run_snapshot(log, n_workers, checkpoint_freq, job_dir, job_name, narration,
+                 n_cycle_steps, run_time, configuration, snapshot):
+    """
+
+    Parameters
+    ----------
+    log :
+        
+    n_workers :
+        
+    checkpoint_freq :
+        
+    job_dir :
+        
+    job_name :
+        
+    narration :
+        
+    n_cycle_steps :
+        
+    run_time :
+        
+    start_hash :
+        
+    orchestrator :
+        
+
+    Returns
+    -------
+
+    """
+
+    set_loglevel(log)
+
+    # read the config and snapshot in
+    serial_snapshot = snapshot.read()
+
+    # make the orchestrator for this simulation in memory to start
+    orch = Orchestrator()
+    start_hash = orch.add_serial_snapshot(serial_snapshot)
+
+    # settle what the defaults etc. are for the different options as they are interdependent
+    job_dir, job_name, narration, config = settle_run_options(n_workers=n_workers,
+                                                                         job_dir=job_dir,
+                                                                         job_name=job_name,
+                                                                         narration=narration,
+                                                                         configuration=configuration,
+                                                                         start_hash=start_hash)
+
+    # add the parametrized configuration to the orchestrator
+    # config_hash = orch.add_serial_configuration(config)
+
+    logging.info("Orchestrator loaded")
+
+    run_orch = orch.orchestrate_snapshot_run_by_time(start_hash,
+                                                     run_time,
+                                                     n_cycle_steps,
+                                                     checkpoint_freq=checkpoint_freq,
+                                                     work_dir=job_dir,
+                                                     config_name=job_name,
+                                                     narration=narration,
+                                                     configuration=config,
+                                                     )
+
+    start_hash, end_hash = run_orch.run_hashes()[0]
+
+    # write the run tuple out to the log
+    run_line_str = "Run start and end hashes: {}, {}".format(start_hash, end_hash)
+
+    # log it
+    logging.info(run_line_str)
+
+    # also put it to the terminal
+    click.echo(run_line_str)
+
+    orch.close()
+
+@click.option('--log', default="WARNING")
+@click.option('--n-workers', type=click.INT)
+@click.option('--checkpoint-freq', default=None, type=click.INT)
+@click.option('--job-dir', default=CURDIR, type=click.Path(writable=True))
+@click.option('--job-name', default=START_HASH)
+@click.option('--narration', default="")
 @click.option('--configuration', type=click.Path(exists=True), default=None)
 @click.argument('n_cycle_steps', type=click.INT)
 @click.argument('run_time', type=click.FLOAT)
 @click.argument('start_hash')
 @click.argument('orchestrator', type=click.Path(exists=True))
 @click.command()
-def run(log, n_workers, checkpoint_freq, job_dir, job_name, narration, configuration,
+def run_orch(log, n_workers, checkpoint_freq, job_dir, job_name, narration, configuration,
         n_cycle_steps, run_time, start_hash, orchestrator):
     """
 
@@ -194,6 +277,8 @@ def run(log, n_workers, checkpoint_freq, job_dir, job_name, narration, configura
 
     # also put it to the terminal
     click.echo(run_line_str)
+
+    orch.close()
 
 def combine_orch_wepy_hdf5s(new_orch, new_hdf5_path):
     """
@@ -475,6 +560,29 @@ def ls_runs(orchestrator):
 
     click.echo(hash_listing_str)
 
+@click.argument('orchestrator', type=click.Path(exists=True))
+@click.command()
+def ls_configs(orchestrator):
+    """
+
+    Parameters
+    ----------
+    orchestrator :
+        
+
+    Returns
+    -------
+
+    """
+
+    orch = Orchestrator(orch_path=orchestrator, mode='r')
+
+    message = hash_listing_formatter(orch.configuration_hashes)
+
+    orch.close()
+
+    click.echo(message)
+
 
 
 @click.command()
@@ -512,12 +620,139 @@ def copy_h5(no_expand_external, source, target):
 
     runs_output = subprocess.check_output(['h5copy'] + common_args + runs_args)
 
+
+@click.option('-O', '--output', type=click.Path(exists=False), default=None)
+@click.argument('snapshot_hash')
+@click.argument('orchestrator', type=click.Path(exists=True))
+@click.command()
+def get_snapshot(output, snapshot_hash, orchestrator):
+
+    # first check if the output is None, if it is we automatically
+    # generate a file in the cwd that is the hash of the snapshot
+    if output is None:
+        output = "{}.snap.dill.pkl".format(snapshot_hash)
+
+        # check that it doesn't exist, and fail if it does, since we
+        # don't want to implicitly overwrite stuff
+        if osp.exists(output):
+            raise OSError("No output path was specified and default alredy exists, exiting.")
+
+    orch = Orchestrator(orchestrator, mode='r')
+
+    serial_snapshot = orch.snapshot_kv[snapshot_hash]
+
+    with open(output, 'wb') as wf:
+        wf.write(serial_snapshot)
+
+    orch.close()
+
+@click.option('-O', '--output', type=click.Path(exists=False), default=None)
+@click.argument('config_hash')
+@click.argument('orchestrator', type=click.Path(exists=True))
+@click.command()
+def get_config(output, config_hash, orchestrator):
+
+    # first check if the output is None, if it is we automatically
+    # generate a file in the cwd that is the hash of the snapshot
+    if output is None:
+        output = "{}.config.dill.pkl".format(config_hash)
+
+        # check that it doesn't exist, and fail if it does, since we
+        # don't want to implicitly overwrite stuff
+        if osp.exists(output):
+            raise OSError("No output path was specified and default alredy exists, exiting.")
+
+    orch = Orchestrator(orchestrator, mode='r')
+
+    serial_snapshot = orch.configuration_kv[config_hash]
+
+    with open(output, 'wb') as wf:
+        wf.write(serial_snapshot)
+
+        orch.close()
+
+@click.option('-O', '--output', type=click.Path(exists=False), default=None)
+@click.argument('end_hash')
+@click.argument('start_hash')
+@click.argument('orchestrator', type=click.Path(exists=True))
+@click.command()
+def get_run(output, end_hash, start_hash, orchestrator):
+
+    # first check if the output is None, if it is we automatically
+    # generate a file in the cwd that is the hash of the snapshot
+    if output is None:
+        output = "{}-{}.orch.sqlite".format(start_hash, end_hash)
+
+        # check that it doesn't exist, and fail if it does, since we
+        # don't want to implicitly overwrite stuff
+        if osp.exists(output):
+            raise OSError("No output path was specified and default alredy exists, exiting.")
+
+    orch = Orchestrator(orchestrator, mode='r')
+
+    start_serial_snapshot = orch.snapshot_kv[start_hash]
+    end_serial_snapshot = orch.snapshot_kv[end_hash]
+
+
+    # get the records values for this run
+    rec_d = {field : value for field, value in
+           zip(Orchestrator.RUN_SELECT_FIELDS, orch.get_run_record(start_hash, end_hash))}
+
+    config = orch.configuration_kv[rec_d['config_hash']]
+
+    # create a new orchestrator at the output location
+    new_orch = Orchestrator(output, mode='w')
+
+    _ = new_orch.add_serial_snapshot(start_serial_snapshot)
+    _ = new_orch.add_serial_snapshot(end_serial_snapshot)
+    config_hash = new_orch.add_serial_configuration(config)
+
+    new_orch.register_run(start_hash, end_hash, config_hash, rec_d['last_cycle_idx'])
+
+    orch.close()
+    new_orch.close()
+
+@click.group()
+def cli():
+    """ """
+    pass
+
+@click.group()
+def run():
+    """ """
+    pass
+
+@click.group()
+def get():
+    """ """
+    pass
+
+@click.group()
+def ls():
+    """ """
+    pass
+
 # command groupings
-cli.add_command(run)
+
+run.add_command(run_orch, name='orch')
+run.add_command(run_snapshot, name='snapshot')
+
+ls.add_command(ls_snapshots, name='snapshots')
+ls.add_command(ls_runs, name='runs')
+ls.add_command(ls_configs, name='configs')
+
+get.add_command(get_snapshot, name='snapshot')
+get.add_command(get_config, name='config')
+get.add_command(get_run, name='run')
+
 cli.add_command(reconcile)
-cli.add_command(ls_snapshots)
-cli.add_command(ls_runs)
 cli.add_command(copy_h5)
+# subgroups
+cli.add_command(run)
+cli.add_command(get)
+cli.add_command(ls)
+
+
 
 
 if __name__ == "__main__":
