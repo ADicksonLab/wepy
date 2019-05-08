@@ -112,7 +112,7 @@ def settle_run_options(n_workers=None,
                                       narration=narration,
                                       work_mapper_partial_kwargs=work_mapper_pkwargs)
 
-    return n_workers, job_dir, job_name, narration, config
+    return job_dir, job_name, narration, config
 
 @click.option('--log', default="WARNING")
 @click.option('--n-workers', type=click.INT)
@@ -161,7 +161,7 @@ def run(log, n_workers, checkpoint_freq, job_dir, job_name, narration, configura
     set_loglevel(log)
 
     # settle what the defaults etc. are for the different options as they are interdependent
-    n_workers, job_dir, job_name, narration, config = settle_run_options(n_workers=n_workers,
+    job_dir, job_name, narration, config = settle_run_options(n_workers=n_workers,
                                                                          job_dir=job_dir,
                                                                          job_name=job_name,
                                                                          narration=narration,
@@ -182,7 +182,7 @@ def run(log, n_workers, checkpoint_freq, job_dir, job_name, narration, configura
                                                      config_name=job_name,
                                                      narration=narration,
                                                      configuration=config,
-                                                     n_workers=n_workers)
+                                                     )
 
     start_hash, end_hash = run_orch.run_hashes()[0]
 
