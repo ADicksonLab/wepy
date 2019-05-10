@@ -255,6 +255,46 @@ class OpenMMRunner(Runner):
         return new_walker
 
     def generate_state(self, simulation, segment_length, starting_walker, getState_kwargs):
+        """Method for generating a wepy compliant state from an OpenMM
+        simulation object and data about the last segment of dynamics run.
+
+        Parameters
+        ----------
+
+        simulation : simtk.openmm.app.Simulation object
+            A complete simulation object from which the state will be extracted.
+
+        segment_length : int
+            The number of integration steps run in a segment of simulation.
+
+        starting_walker : wepy.walker.Walker subclass object
+            The walker that was the beginning of this segment of simyulation.
+
+        getState_kwargs : dict of str : bool, optional
+            Specify the key-word arguments to pass to
+            simulation.context.getState when getting simulation
+            states. If None defaults to the values in the
+            GET_STATE_KWARG_DEFAULTS module constant.
+             (Default value = None)
+
+        Returns
+        -------
+
+        new_state : wepy.runners.openmm.OpenMMState object
+            A new state from the simulation state.
+
+        This method is meant to be called from within the
+        `run_segment` method during a simulation. It can be customized
+        in subclasses to allow for the addition of custom attributes
+        for a state, in addition to the base ones implemented in the
+        interface to the openmm simulation state in OpenMMState.
+
+        The extra arguments to this function are data that would allow
+        for the calculation of integral values over the duration of
+        the segment, such as time elapsed and differences from the
+        starting state.
+
+        """
 
         # save the state of the system with all possible values
         new_sim_state = simulation.context.getState(**getState_kwargs)

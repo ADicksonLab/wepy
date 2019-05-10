@@ -2737,6 +2737,21 @@ class WepyHDF5(object):
         return list(field_names.keys())
 
     def _check_traj_field_consistency(self, field_names):
+        """Checks that every trajectory has the given fields across
+        the entire dataset.
+
+        Parameters
+        ----------
+
+        field_names : list of str
+            The field names to check for.
+
+        Returns
+        -------
+        consistent : bool
+           True if all trajs have the fields, False otherwise
+
+        """
 
         n_trajs = self.num_trajs
         field_names = Counter()
@@ -5435,6 +5450,29 @@ class WepyHDF5(object):
         return self.traj_fields_to_mdtraj(trace_fields, alt_rep=alt_rep)
 
     def _choose_rep_path(self, alt_rep):
+        """Given a positions specification string, gets the field name/path
+        for it.
+
+        Parameters
+        ----------
+
+        alt_rep : str
+            The short name (non relative path) for a representation of
+            the positions.
+
+        Returns
+        -------
+
+        rep_path : str
+            The relative field path to that representation.
+
+        E.g.:
+
+        If you give it 'positions' or None it will simply return
+        'positions', however if you ask for 'all_atoms' it will return
+        'alt_reps/all_atoms'.
+
+        """
 
         # the default for alt_rep is the main rep
         if alt_rep == POSITIONS:
@@ -5442,6 +5480,15 @@ class WepyHDF5(object):
         elif alt_rep is None:
             rep_key = POSITIONS
             rep_path = rep_key
+        # if it is already a path we don't add more to it and just
+        # return it.
+        elif len(alt_rep.split('/')) > 1:
+            if len(alt_rep.split('/')) > 2:
+                raise ValueError("unrecognized alt_rep spec")
+            elif alt_rep.split('/')[0] != ALT_REPS:
+                raise ValueError("unrecognized alt_rep spec")
+            else:
+                rep_path = alt_rep
         else:
             rep_key = alt_rep
             rep_path = '{}/{}'.format(ALT_REPS, alt_rep)
@@ -5450,6 +5497,29 @@ class WepyHDF5(object):
 
 
     def traj_fields_to_mdtraj(self, traj_fields, alt_rep=POSITIONS):
+        """Create an mdtraj.Trajectory from a traj_fields dictionary.
+
+        Parameters
+        ----------
+
+        traj_fields : dict of str : arraylike
+            Dictionary of the traj fields to their values
+
+        alt_reps : str
+            The base alt rep name for the positions representation to
+            use for the topology, should have the corresponding
+            alt_rep field in the traj_fields
+
+        Returns
+        -------
+
+        traj : mdtraj.Trajectory object
+
+        This is mainly a convenience function to retrieve the correct
+        topology for the positions which will be passed to the generic
+        `traj_fields_to_mdtraj` function.
+
+        """
 
         rep_path = self._choose_rep_path(alt_rep)
 

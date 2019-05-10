@@ -154,8 +154,19 @@ def contigtrees_bin_edges(contigtrees, bins, field_key):
 
 
 class ContigTreeProfiler(object):
+    """A wrapper class around a ContigTree that provides extra methods for
+    generating free energy profiles for observables."""
 
     def __init__(self, contigtree):
+        """Create a wrapper around a contigtree for the profiler.
+
+        Parameters
+        ----------
+
+        contigtree : ContigTree object
+            The contigtree you want to generate profiles for.
+
+        """
 
         self._contigtree = contigtree
 
@@ -166,6 +177,7 @@ class ContigTreeProfiler(object):
 
     @property
     def contigtree(self):
+        """The underlying contigtree this wraps."""
         return self._contigtree
 
     def fe_profile(self, span, field_key, bins=None):

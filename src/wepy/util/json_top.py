@@ -24,6 +24,7 @@ def json_top_chain_fields(json_topology):
     return chain_cols
 
 def json_top_chain_df(json_topology):
+    """Make a pandas dataframe for the chains in the JSON topology."""
 
     return pd.DataFrame(json_top_chain_fields(json_topology))
 
@@ -45,6 +46,7 @@ def json_top_residue_fields(json_topology):
     return residue_cols
 
 def json_top_residue_df(json_topology):
+    """Make a pandas dataframe for the residues in the JSON topology."""
 
     return pd.DataFrame(json_top_residue_fields(json_topology))
 
@@ -69,6 +71,7 @@ def json_top_atom_fields(json_topology):
     return atom_cols
 
 def json_top_atom_df(json_topology):
+    """Make a pandas dataframe for the atoms in the JSON topology."""
 
     return pd.DataFrame(json_top_atom_fields(json_topology))
 

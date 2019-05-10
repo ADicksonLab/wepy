@@ -215,6 +215,24 @@ class Manager(object):
         can be composed in many ways and is then handled by
         higher-level methods calling run_cycle.
 
+        Each component should implement its respective interface to be
+        called in this method, the order and names of the methods
+        called are as follows:
+
+        1. runner.pre_cycle
+        2. run_segment -> work_mapper.map(runner.run_segment)
+        3. runner.post_cycle
+        4. boundary_conditions.warp_walkers (if present)
+        5. resampler.resample
+        6. reporter.report for all reporters
+
+        The pre and post cycle calls to the runner allow for a parity
+        of one call per cycle to the runner.
+
+        The boundary_conditions component is optional, as are the
+        reporters (although it won't be very useful to run this
+        without any).
+
         Parameters
         ----------
         walkers : list of walkers

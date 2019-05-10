@@ -194,9 +194,11 @@ class ContigTree():
 
     @property
     def span_traces(self):
+        """Dictionary mapping the spand indices to their run traces."""
         return self._spans
 
     def span_contig(self, span_idx):
+        """Generates a contig object for the specified spanning contig."""
 
         contig = self.make_contig(self.span_traces[span_idx])
 

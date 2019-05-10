@@ -27,6 +27,12 @@ class Runner(object):
         walker so this allows you to perform changes of state on a
         per-cycle basis.
 
+        Parameters
+        ----------
+
+        kwargs : key-word arguments
+            Key-value pairs to be interpreted by each runner implementation.
+
         """
 
         # by default just pass since subclasses need not implement this
@@ -36,6 +42,12 @@ class Runner(object):
         """Perform post-cycle behavior. run_segment will be called for each
         walker so this allows you to perform changes of state on a
         per-cycle basis.
+
+        Parameters
+        ----------
+
+        kwargs : key-word arguments
+            Key-value pairs to be interpreted by each runner implementation.
 
         """
 
