@@ -1,3 +1,7 @@
+"""WIP: Reporter that produces a text file that gives high level
+information on the progress of a simulation.
+
+"""
 import logging
 
 from wepy.reporter.reporter import ProgressiveFileReporter

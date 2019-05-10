@@ -8,22 +8,46 @@ class ReporterError(Exception):
     pass
 
 class Reporter(object):
-    """ """
+    """Abstract base class for wepy reporters.
+
+    All reporters must customize and override minimally the 'report'
+    method. Optionally the 'init' and 'cleanup' can be overriden.
+
+    See Also
+    --------
+
+    wepy.sim_manager : details of calls to reporter methods.
+
+    """
 
 
     def __init__(self, **kwargs):
-        pass
+        """Construct a reporter.
 
-    def init(self, **kwargs):
-        """
+        Void constructor for the Reporter base class.
 
         Parameters
         ----------
-        **kwargs :
-            
+        **kwargs : key-value pairs
+            Ignored kwargs, but accepts them from subclass calls for
+            compatibility.
 
-        Returns
-        -------
+        """
+        pass
+
+    def init(self, **kwargs):
+        """Initialization routines for the reporter at simulation runtime.
+
+        Initialize I/O connections including file descriptors,
+        database connections, timers, stdout/stderr etc.
+
+        Parameters
+        ----------
+        **kwargs : key-value pairs
+            Ignored kwargs, but accepts them from subclass calls for
+            compatibility.
+
+        Void method for reporter base class.
 
         """
         method_name = 'init'
@@ -31,15 +55,18 @@ class Reporter(object):
             "Superclass with method {} is masked".format(method_name)
 
     def report(self, **kwargs):
-        """
+        """Given data concerning the main simulation components state, perform
+        I/O operations to persist that data.
+
+        Void method for reporter base class.
 
         Parameters
         ----------
-        **kwargs :
-            
+        **kwargs :  key-value pairs
+            Ignored kwargs, but accepts them from subclass calls for
+            compatibility.
 
-        Returns
-        -------
+        Void method for reporter base class.
 
         """
 
@@ -48,12 +75,18 @@ class Reporter(object):
             "Superclass with method {} is masked".format(method_name)
 
     def cleanup(self, **kwargs):
-        """
+        """Teardown routines for the reporter at the end of the simulation.
+
+        Use to cleanly and safely close I/O connections or other
+        cleanup I/O.
+
+        Use to close file descriptors, database connections etc.
 
         Parameters
         ----------
-        **kwargs :
-            
+        **kwargs :  key-value pairs
+            Ignored kwargs, but accepts them from subclass calls for
+            compatibility.
 
         Returns
         -------
@@ -65,31 +98,104 @@ class Reporter(object):
 
 
 class FileReporter(Reporter):
-    """ """
+    """Abstract reporter that handles specifying file paths for a
+    reporter.
+
+    This abstract class doesn't perform any operations that involve
+    actually opening file descriptors, but only the validation and
+    organization of file paths.
+
+    This provides a uniform API for retrieving file paths from all
+    reporters inheriting from it.
+
+    Additionally, FileReporter implements an interface for performing
+    a so-called reparametrization of the relevant values associated
+    with each file specification (i.e. file path and mode).
+
+    A reparametrization can be performed by calling the
+    'reparametrize' method, and can be customized.
+
+    Additionally, there are some customizable class constants than can
+    be used in subclasses to control this process including:
+    DEFAULT_MODE, SUGGESTED_FILENAME_TEMPLATE,
+    DEFAULT_SUGGESTED_EXTENSION, FILE_ORDER, and SUGGESTED_EXTENSIONS.
+
+    The intention is to allow the redefinition of file paths
+    dynamically to adapt to changing runtime requirements. Such as
+    execution on a separate subtree of a directory hierarchy.
+
+    """
 
     MODES = ('x', 'w', 'w-', 'r', 'r+',)
+    """Valid modes accepted for files."""
 
     DEFAULT_MODE = 'x'
+    """The default mode to set for opening files if none is specified
+    (create if doesn't exist, fail if it does.)"""
 
-    # these are keywords that can be recognized by subclasses of
-    # FileReporter in kwargs in order to bypass path methods, in order
-    # to always support a direct file_path setting method. For example
-    # in the ParametrizableFileReporter if you don't want to set the
-    # parametrizable things then you just pass in one of the bypass
-    # keywords and it will skip its generation of the file_paths
-    # through components
-    BYPASS_KEYWORDS = ('file_path', 'file_paths',)
 
     SUGGESTED_FILENAME_TEMPLATE = "{config}{narration}{reporter_class}.{ext}"
+    """Template to use for dynamic reparametrization of file path names.
+
+    The fields in the template are:
+
+    config : indicator of the runtime configuration used
+
+    narration : freeform description of the instance
+
+    reporter_class : the name of the class that produced the
+        output. When no specific name is given for a file report generated
+        from a reporter this is used to disambiguate, along with the
+        extension.
+
+    ext : The file extension, for multiple files produced from one
+    reporter this should be sufficient to disambiguate the files.
+
+    The 'config' and 'narration' should be the same across all
+    reporters in the same simulation manager, and the 'narration' is
+    considered optional.
+
+    """
 
     DEFAULT_SUGGESTED_EXTENSION = 'report'
+    """The default file extension used for files during dynamic
+    reparametrization, if none is specified"""
 
     FILE_ORDER = ()
+    """Specify an ordering of file paths. Should be customized."""
+
     SUGGESTED_EXTENSIONS = ()
+    """Suggested extensions for file paths for use with the automatic
+    reparametrization feature. Should be customized."""
 
     def __init__(self, file_paths=None, modes=None,
                  file_path=None, mode=None,
                  **kwargs):
+        """Constructor for FileReporter.
+
+        This constructor allows the specification of either a list of
+        file names (and modes) via 'file_paths' and 'modes' key-word
+        arguments or a single 'file_path' and 'mode'.
+
+        The access API though is always a list of file paths and modes
+        where order is important for associating other features.
+
+        Parameters
+        ----------
+
+        file_paths : list of str
+            The list of file paths (in order) to use.
+
+        modes : list of str
+            The list of mode specs (in order) to use.
+
+        file_path : str
+            If 'file_paths' not specified, the single file path to use.
+
+        mode : str
+            If 'file_path' option used, this is the mode for that file.
+
+        """
 
         # file paths
 
@@ -189,47 +295,17 @@ class FileReporter(Reporter):
 
         super().__init__(**kwargs)
 
-    def _bypass_dispatch(self, **kwargs):
-        """
-
-        Parameters
-        ----------
-        **kwargs :
-            
-
-        Returns
-        -------
-
-        """
-
-        # check if we are bypassing the parametrization for
-        # compatibility
-        if any([True if key in self.BYPASS_KEYWORDS else False
-                for key in kwargs.keys()]):
-
-            # we just call the superclass methods then
-            FileReporter.__init__(self, **kwargs)
-
-            # unfortunately without doing metaclass weird stuff the
-            # returned object will be an unparametrizable
-            # ParamatrizableFileReporter but I think its okay for the
-            # use cases it will be used for
-
-            return True
-        else:
-            return False
-
 
     def _validate_mode(self, mode):
-        """
+        """Check if the mode spec is a valid one.
 
         Parameters
         ----------
-        mode :
-            
+        mode : str
 
         Returns
         -------
+        valid : bool
 
         """
         if mode in self.MODES:
@@ -239,7 +315,7 @@ class FileReporter(Reporter):
 
     @property
     def mode(self):
-        """ """
+        """For single file path reporters the mode of that file."""
         if len(self._file_paths) > 1:
             raise ReporterError("there are multiple files and modes defined")
 
@@ -247,7 +323,7 @@ class FileReporter(Reporter):
 
     @property
     def file_path(self):
-        """ """
+        """For single file path reporters the file path to that file spec."""
         if len(self._file_paths) > 1:
             raise ReporterError("there are multiple files and modes defined")
 
@@ -255,74 +331,60 @@ class FileReporter(Reporter):
 
     @property
     def file_paths(self):
-        """ """
+        """The file paths for this reporter, in order."""
         return self._file_paths
 
     @file_paths.setter
     def file_paths(self, file_paths):
-        """
+        """Setter for the file paths.
 
         Parameters
         ----------
-        file_paths :
-            
-
-        Returns
-        -------
+        file_paths : list of str
 
         """
         for i, file_path in enumerate(file_paths):
             self.set_path(i, file_path)
 
     def set_path(self, file_idx, path):
-        """
+        """Set the path for a single indexed file.
 
         Parameters
         ----------
-        file_idx :
-            
-        path :
-            
-
-        Returns
-        -------
+        file_idx : int
+            Index in the listing of files.
+        path : str
+            The new path to set for this file
 
         """
         self._paths[file_idx] = path
 
     @property
     def modes(self):
-        """ """
+        """The modes for the files, in order."""
         return self._modes
 
     @modes.setter
     def modes(self, modes):
-        """
+        """Setter for the modes.
 
         Parameters
         ----------
-        modes :
-            
-
-        Returns
-        -------
+        modes : list of str
 
         """
         for i, mode in enumerate(modes):
             self.set_mode(i, mode)
 
     def set_mode(self, file_idx, mode):
-        """
+        """Set the mode for a single indexed file.
 
         Parameters
         ----------
-        file_idx :
-            
-        mode :
-            
-
-        Returns
-        -------
+        file_idx : int
+            Index in the listing of files.
+        mode : str
+            The new mode spec.
 
         """
 
@@ -333,17 +395,14 @@ class FileReporter(Reporter):
 
 
     def reparametrize(self, file_paths, modes):
-        """
+        """Set the file paths and modes for all files in the reporter.
 
         Parameters
         ----------
-        file_paths :
-            
-        modes :
-            
-
-        Returns
-        -------
+        file_paths : list of str
+            New file paths for each file, in order.
+        modes : list of str
+            New modes for each file, in order.
 
         """
 
@@ -355,24 +414,33 @@ class ProgressiveFileReporter(FileReporter):
     same file over and over again. The base FileReporter really only
     supports creation of file one time.
 
-    Parameters
-    ----------
-
-    Returns
-    -------
-
     """
 
     def init(self, **kwargs):
-        """
+        """Construct a ProgressiveFileReporter.
+
+        This is exactly the same as the FileReporter.
+
 
         Parameters
         ----------
-        **kwargs :
-            
 
-        Returns
-        -------
+        file_paths : list of str
+            The list of file paths (in order) to use.
+
+        modes : list of str
+            The list of mode specs (in order) to use.
+
+        file_path : str
+            If 'file_paths' not specified, the single file path to use.
+
+        mode : str
+            If 'file_path' option used, this is the mode for that file.
+
+        See Also
+        --------
+
+        wepy.reporter.reporter.FileReporter
 
         """
 
