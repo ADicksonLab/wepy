@@ -568,6 +568,17 @@ class Orchestrator():
 
         return add_run_row_query
 
+    @property
+    def update_run_record_query(self):
+
+        q = """
+        UPDATE runs
+        SET config_hash = ?,
+            last_cycle_idx = ?
+        WHERE start_hash=? AND end_hash=?
+        """
+
+
     def _add_run_record(self, start_hash, end_hash, configuration_hash, cycle_idx):
 
         params = (start_hash, end_hash, configuration_hash, cycle_idx)
@@ -577,6 +588,16 @@ class Orchestrator():
 
         # run the insert
         c.execute(self.add_run_record_query, params)
+
+    def _update_run_record(self, start_hash, end_hash, new_config_hash, new_last_cycle_idx):
+
+        params = (start_hash, end_hash, new_config_hash, new_last_cycle_idx)
+
+        # do it as a transaction
+        c = self._db.cursor()
+
+        # run the insert
+
 
 
     def register_run(self, start_hash, end_hash, config_hash, cycle_idx):
