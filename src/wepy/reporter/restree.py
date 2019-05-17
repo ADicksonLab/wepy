@@ -1,3 +1,7 @@
+"""Provides a reporter for generating graphical depictions of
+resampling parent trees.
+"""
+
 from collections import namedtuple
 
 import numpy as np
@@ -16,7 +20,8 @@ from wepy.analysis.parents import resampling_panel, \
 
 
 class ResTreeReporter(ProgressiveFileReporter):
-    """ """
+    """Reporter that generates resampling parent trees in the GEXF
+    format."""
 
     FILE_ORDER = ('gexf_restree_path',)
 
@@ -25,7 +30,10 @@ class ResTreeReporter(ProgressiveFileReporter):
     MAX_PROGRESS_NORM = 1.0
 
     DISCONTINUOUS_NODE_SHAPE = 'square'
+    """The shape of nodes that signify a discontinuity in the lineage."""
+
     DEFAULT_NODE_SHAPE = 'disc'
+    """The shape of normal nodes that signify a continuity in the lineage."""
 
     def __init__(self,
                  resampler=None,
@@ -37,12 +45,54 @@ class ResTreeReporter(ProgressiveFileReporter):
                  max_progress_value=None,
                  colormap_name='plasma',
                  **kwargs):
+        """Constructor for the ResTreeReporter.
+
+        Parameters
+        ----------
+
+        resampler : Resampler
+            Used to generate parental relations from resampling
+            records.
+
+        boundary_condition : BoundaryCondition, optional
+            Used to determine discontinuities in the lineages.
+             (Default value = None)
+
+        row_spacing : float, optional
+            Spacing between nodes in a single row in layout.
+             (Default value = 5.0)
+
+        step_spacing : float
+            Spacing between the rows of nodes in each step of the layout.
+             (Default value = 20.0)
+
+        default_node_radius : float
+            Default node radius to use.
+             (Default value = 1.0)
+
+        progress_key : str
+            The key of the value in the progress records to use for
+            coloring nodes in the tree.
+
+        max_progress_value : float or None
+            The maximum value to consider for progress values, if None
+            no max value will be used.
+
+        colormap_name : str
+            The name of the colormap to use from the matplotlib
+            colormap library (i.e. 'matplotlib.cm.get_cmap')
+             (Default value = 'plasma')
+
+        """
 
         assert resampler is not None, \
             "Must provide a resampler, this is used to get the correct records "\
             "from resampling data and is not saved in this object"
 
         assert boundary_condition is not None, "must give the boundary condition class"
+
+        # TODO: this should be made optional
+        assert progress_key is not None, "Currently, a progress key must be given."
 
         super().__init__(**kwargs)
 
@@ -104,21 +154,24 @@ class ResTreeReporter(ProgressiveFileReporter):
 
     @property
     def parent_table(self):
-        """ """
+        """The net parent table datastructure."""
         return self._parent_table
 
     def _make_resampling_record(self, record_d, cycle_idx):
-        """
+        """Make a namedtuple resampling record from a dictionary
+        representation.
 
         Parameters
         ----------
-        record_d :
-            
-        cycle_idx :
-            
+        record_d : dict of str : value
+            The dictionary of values to make a namedtuple record from.
+        cycle_idx : int
+            The cycle index the record is associated with.
 
         Returns
         -------
+
+        record : namedtuple
 
         """
 
@@ -135,17 +188,19 @@ class ResTreeReporter(ProgressiveFileReporter):
         return record
 
     def _make_warping_record(self, record_d, cycle_idx):
-        """
+        """Make a namedtuple warping record from a dictionary representation.
 
         Parameters
         ----------
-        record_d :
-            
-        cycle_idx :
-            
+        record_d : dict of str : value
+            The dictionary of values to make a namedtuple record from.
+        cycle_idx : int
+            The cycle index the record is associated with.
 
         Returns
         -------
+
+        record : namedtuple
 
         """
 
@@ -164,25 +219,30 @@ class ResTreeReporter(ProgressiveFileReporter):
     @staticmethod
     def _make_record(record_d, cycle_idx,
                      record_field_names, field_names, field_shapes, rec_namedtuple):
-        """
+        """Generic record making function.
 
         Parameters
         ----------
-        record_d :
-            
-        cycle_idx :
-            
-        record_field_names :
-            
-        field_names :
-            
-        field_shapes :
-            
-        rec_namedtuple :
-            
+        record_d : dict of str : value
+
+        cycle_idx : int
+
+        record_field_names : list of str
+            The record field names to use for the record.
+
+        field_names : list of str
+            All of the field names available for the field type.
+
+        field_shapes : list of tuple of int
+            Shapes for each field
+
+        rec_namedtuple : namedtuple object
+            The namedtuple class to make records out of
 
         Returns
         -------
+
+        record : namedtuple object
 
         """
 
@@ -240,25 +300,19 @@ class ResTreeReporter(ProgressiveFileReporter):
                progress_data=None,
                resampling_data=None,
                **kwargs):
-        """
+        """Generate the resampling tree GEXF file.
 
         Parameters
         ----------
-        cycle_idx :
-             (Default value = None)
-        resampled_walkers :
-             (Default value = None)
-        warp_data :
-             (Default value = None)
-        progress_data :
-             (Default value = None)
-        resampling_data :
-             (Default value = None)
-        **kwargs :
-            
+        cycle_idx : int
 
-        Returns
-        -------
+        resampled_walkers : list of Walker
+
+        warp_data : dict of str : value
+
+        progress_data : dict of str : value
+
+        resampling_data : dict of str : value
 
         """
 

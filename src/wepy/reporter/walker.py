@@ -1,3 +1,11 @@
+"""Provides a reporter for generating 3D molecular structure files for
+walkers.
+
+This is useful for getting a snapshot of what is happening in the
+simulation as it progresses.
+
+"""
+
 import logging
 
 import numpy as np
@@ -10,7 +18,29 @@ from wepy.util.mdtraj import json_to_mdtraj_topology, mdtraj_to_json_topology
 import mdtraj as mdj
 
 class WalkerReporter(ProgressiveFileReporter):
-    """ """
+    """Reporter for generating 3D molecular structure files of the walkers
+    produced by a cycle.
+
+    It generates two different files using the mdtraj library: a PDB
+    format and a DCD file.
+
+    The PDB is used as a "topology" that is only generated once at the
+    beginning of a simulation (in the call to the 'init' method). This
+    defines the atom types and bonds for non-protein molecules. Most
+    molecular viewers have special algorithms that automatically
+    determine bond topologies from amino acid residue designations.
+
+    The DCD is a binary format that carries only information about the
+    positions of atoms (essentially a (N_frames, N_atoms, 3) array)
+    that is recognized by many different molecular viewer
+    software. This is generated every cycle and the number of frames
+    is the number of walkers.
+
+    Because this representation is meant to be amenable to visual
+    inspection, there is functionality for subsetting atoms from the
+    full simulation system (i.e. to remove solvent).
+
+    """
 
 
     # the order the files are in
@@ -24,6 +54,22 @@ class WalkerReporter(ProgressiveFileReporter):
                  json_topology=None,
                  main_rep_idxs=None,
                  **kwargs):
+        """Constructor for the WalkerReporter.
+
+        Parameters
+        ----------
+
+        init_state : object implementing WalkerState
+            An initial state, only used for writing the PDB topology.
+
+        json_topology : str
+            A molecular topology in the common JSON format, that
+            matches the main_rep_idxs.
+
+        main_rep_idxs : listlike of int
+            The indices of the atoms to select from the full representation.
+
+        """
 
         super().__init__(**kwargs)
 
@@ -45,15 +91,9 @@ class WalkerReporter(ProgressiveFileReporter):
 
 
     def init(self, **kwargs):
-        """
+        """Initialize the reporter at simulation time.
 
-        Parameters
-        ----------
-        **kwargs :
-            
-
-        Returns
-        -------
+        This will generate the initial state PDB file.
 
         """
 
@@ -75,19 +115,14 @@ class WalkerReporter(ProgressiveFileReporter):
 
     def report(self, cycle_idx=None, new_walkers=None,
                **kwargs):
-        """
+        """Report the current cycle's walker states as 3D molecular
+        structures.
 
         Parameters
         ----------
-        cycle_idx :
-             (Default value = None)
-        new_walkers :
-             (Default value = None)
-        **kwargs :
-            
+        cycle_idx : int
 
-        Returns
-        -------
+        new_walkers : list of Walker objects
 
         """
 
