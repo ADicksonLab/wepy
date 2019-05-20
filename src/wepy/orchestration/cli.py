@@ -185,6 +185,7 @@ def run_snapshot(log, n_workers, checkpoint_freq, job_dir, job_name, narration,
                                                      )
 
     start_hash, end_hash = run_orch.run_hashes()[0]
+    run_orch.close()
 
     # write the run tuple out to the log
     run_line_str = "Run start and end hashes: {}, {}".format(start_hash, end_hash)
@@ -268,6 +269,8 @@ def run_orch(log, n_workers, checkpoint_freq, job_dir, job_name, narration, conf
                                                      )
 
     start_hash, end_hash = run_orch.run_hashes()[0]
+
+    run_orch.close()
 
     # write the run tuple out to the log
     run_line_str = "Run start and end hashes: {}, {}".format(start_hash, end_hash)

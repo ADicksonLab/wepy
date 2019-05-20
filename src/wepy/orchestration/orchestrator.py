@@ -751,6 +751,8 @@ class Orchestrator():
         # save the configuration as well
         checkpoint_orch.configuration_kv[config_hash] = serialized_config
 
+        checkpoint_orch.close()
+
         return checkpoint_path, config_hash
 
 
@@ -839,6 +841,8 @@ class Orchestrator():
 
         # end the transaction
         cursor.execute("COMMIT")
+
+        checkpoint_orch.close()
 
 
 
@@ -1090,7 +1094,7 @@ class Orchestrator():
         if narration is None:
             narration = self.DEFAULT_NARRATION
         if mode is None:
-            mode = self.DEFAULT_MODE
+           mode = self.DEFAULT_MODE
 
         # if no configuration was specified use the default one
         if configuration is None:
