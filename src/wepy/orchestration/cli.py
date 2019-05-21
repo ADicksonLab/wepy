@@ -154,11 +154,14 @@ def run_snapshot(log, n_workers, checkpoint_freq, job_dir, job_name, narration,
 
     set_loglevel(log)
 
+    logging.info("Loading the starting snapshot file")
     # read the config and snapshot in
     serial_snapshot = snapshot.read()
 
+    logging.info("Creating orchestrating orch database")
     # make the orchestrator for this simulation in memory to start
     orch = Orchestrator()
+    logging.info("Adding the starting snapshot to database")
     start_hash = orch.add_serial_snapshot(serial_snapshot)
 
     # settle what the defaults etc. are for the different options as they are interdependent
@@ -173,7 +176,7 @@ def run_snapshot(log, n_workers, checkpoint_freq, job_dir, job_name, narration,
     # config_hash = orch.add_serial_configuration(config)
 
     logging.info("Orchestrator loaded")
-
+    logging.info("Running snapshot by time")
     run_orch = orch.orchestrate_snapshot_run_by_time(start_hash,
                                                      run_time,
                                                      n_cycle_steps,
@@ -183,9 +186,12 @@ def run_snapshot(log, n_workers, checkpoint_freq, job_dir, job_name, narration,
                                                      narration=narration,
                                                      configuration=config,
                                                      )
+    logging.info("Finished running snapshot by time")
 
     start_hash, end_hash = run_orch.run_hashes()[0]
+
     run_orch.close()
+    logging.info("Closed the resultant orch")
 
     # write the run tuple out to the log
     run_line_str = "Run start and end hashes: {}, {}".format(start_hash, end_hash)
@@ -197,6 +203,7 @@ def run_snapshot(log, n_workers, checkpoint_freq, job_dir, job_name, narration,
     click.echo(run_line_str)
 
     orch.close()
+    logging.info("closed the orchestrating orch database")
 
 @click.option('--log', default="WARNING")
 @click.option('--n-workers', type=click.INT)
@@ -258,6 +265,7 @@ def run_orch(log, n_workers, checkpoint_freq, job_dir, job_name, narration, conf
 
     logging.info("Orchestrator loaded")
 
+    logging.info("Running snapshot by time")
     run_orch = orch.orchestrate_snapshot_run_by_time(start_hash,
                                                      run_time,
                                                      n_cycle_steps,
@@ -267,9 +275,11 @@ def run_orch(log, n_workers, checkpoint_freq, job_dir, job_name, narration, conf
                                                      narration=narration,
                                                      configuration=config,
                                                      )
+    logging.info("Finished running snapshot by time")
 
     start_hash, end_hash = run_orch.run_hashes()[0]
 
+    logging.info("Closing the resultant orchestrator")
     run_orch.close()
 
     # write the run tuple out to the log
@@ -281,6 +291,7 @@ def run_orch(log, n_workers, checkpoint_freq, job_dir, job_name, narration, conf
     # also put it to the terminal
     click.echo(run_line_str)
 
+    logging.info("Closing the orchestrating orch")
     orch.close()
 
 def combine_orch_wepy_hdf5s(new_orch, new_hdf5_path):
