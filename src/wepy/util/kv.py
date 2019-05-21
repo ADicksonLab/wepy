@@ -31,6 +31,7 @@
 
 import os
 import os.path as osp
+import logging
 import sqlite3
 from collections.abc import MutableMapping
 from contextlib import contextmanager
@@ -331,6 +332,8 @@ class KV(MutableMapping):
 
     def __delitem__(self, key):
 
+        logging.debug("Deleting the snapshot {}".format(key))
+
         # no deletions in append only mode
         if self.append_only:
             raise sqlite3.IntegrityError("DB is opened in append only mode, "
@@ -338,8 +341,10 @@ class KV(MutableMapping):
 
         # delete it if it exists
         elif key in self:
+            logging.debug("executing delete query")
             self._execute(self.del_query,
                           (key,))
+            logging.debug("finished")
 
         else:
             raise KeyError

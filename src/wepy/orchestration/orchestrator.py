@@ -839,12 +839,7 @@ class Orchestrator():
         # run record for it
         if delete_params is not None:
 
-            logging.debug("Old snapshot and run need to be removed")
-
-            # delete the old one
-            logging.debug("Deleting the old snapshot")
-            cursor = checkpoint_orch.snapshot_kv.del_in_tx(cursor, old_checkpoint_hash)
-            logging.debug("finished")
+            logging.debug("Old run record needs to be removed")
 
             # remove the old run from the run table
             logging.debug("Deleting the old run record")
@@ -860,6 +855,18 @@ class Orchestrator():
         logging.debug("Finishing transaction")
         cursor.execute("COMMIT")
         logging.debug("Transaction committed")
+
+        # we do the removal of the old snapshot outside of the
+        # transaction since it is slow and can cause timeouts to
+        # occur. Furthermore, it is okay if it is in the checkpoint as
+        # the run record is what matters as long as the new checkpoint
+        # is there.
+
+        # delete the old snapshot if we need to
+        if delete_params is not None:
+            logging.debug("Deleting the old snapshot")
+            del checkpoint_orch.snapshot_kv[old_checkpoint_hash]
+            logging.debug("finished")
 
 
         checkpoint_orch.close()
