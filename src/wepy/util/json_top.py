@@ -10,7 +10,20 @@ RESIDUE_ATTR_KEYS = (RESIDUE_KEY, 'name', 'resSeq', 'segmentID')
 ATOM_ATTR_KEYS = (ATOM_KEY, 'name', 'element')
 
 def json_top_chain_fields(json_topology):
-    """Creates a fields dictionary for all of the chains in a topology."""
+    """Creates a fields dictionary for all of the chains in a topology.
+
+    Parameters
+    ----------
+
+    json_topology : str
+        JSON format topology
+
+    Returns
+    -------
+
+    chain_cols : dict of str: list
+
+    """
 
 
     top = json.loads(json_topology)
@@ -24,12 +37,38 @@ def json_top_chain_fields(json_topology):
     return chain_cols
 
 def json_top_chain_df(json_topology):
-    """Make a pandas dataframe for the chains in the JSON topology."""
+    """Make a pandas dataframe for the chains in the JSON topology.
+
+    Parameters
+    ----------
+
+    json_topology : str
+        JSON format topology
+
+    Returns
+    -------
+
+    chain_df : pandas.DataFrame
+
+    """
 
     return pd.DataFrame(json_top_chain_fields(json_topology))
 
 def json_top_residue_fields(json_topology):
-    """Creates a fields dictionary for all of the residues in a topology."""
+    """Creates a fields dictionary for all of the residues in a topology.
+
+    Parameters
+    ----------
+
+    json_topology : str
+        JSON format topology
+
+    Returns
+    -------
+
+    residue_cols : dict of str: list
+
+    """
 
 
     top = json.loads(json_topology)
@@ -46,13 +85,39 @@ def json_top_residue_fields(json_topology):
     return residue_cols
 
 def json_top_residue_df(json_topology):
-    """Make a pandas dataframe for the residues in the JSON topology."""
+    """Make a pandas dataframe for the residues in the JSON topology.
+
+    Parameters
+    ----------
+
+    json_topology : str
+        JSON format topology
+
+    Returns
+    -------
+
+    residue_df : pandas.DataFrame
+
+    """
 
     return pd.DataFrame(json_top_residue_fields(json_topology))
 
 
 def json_top_atom_fields(json_topology):
-    """Creates a fields dictionary for all of the atoms in a topology."""
+    """Creates a fields dictionary for all of the atoms in a topology.
+
+    Parameters
+    ----------
+
+    json_topology : str
+        JSON format topology
+
+    Returns
+    -------
+
+    atom_cols : dict of str: list
+
+    """
 
     top = json.loads(json_topology)
 
@@ -71,7 +136,20 @@ def json_top_atom_fields(json_topology):
     return atom_cols
 
 def json_top_atom_df(json_topology):
-    """Make a pandas dataframe for the atoms in the JSON topology."""
+    """Make a pandas dataframe for the atoms in the JSON topology.
+
+    Parameters
+    ----------
+
+    json_topology : str
+        JSON format topology
+
+    Returns
+    -------
+
+    atoms_df : pandas.DataFrame
+
+    """
 
     return pd.DataFrame(json_top_atom_fields(json_topology))
 
@@ -109,6 +187,7 @@ def json_top_subset(json_str, atom_idxs):
 
     Parameters
     ----------
+
     json_str : str
         A string of valid JSON in the format of JSON used in WepyHDF5
         and mdtraj HDF5 format.
@@ -118,6 +197,7 @@ def json_top_subset(json_str, atom_idxs):
 
     Returns
     -------
+
     subset_json_str : str
         JSON string of the subset of atoms. Ordering preserved.
 

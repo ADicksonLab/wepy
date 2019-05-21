@@ -9,7 +9,22 @@ from wepy.walker import Walker, WalkerState
 from wepy.util.json_top import json_top_atom_count
 
 class WepyHDF5Reporter(FileReporter):
-    """ """
+    """Reporter for generating an HDF5 format (WepyHDF5) data file from
+    simulations.
+
+    This is the most important reporter as it is the principle output
+    format for storing weighted ensemble simulation data.
+
+    Files generated with this reporter can be opened using the
+    wepy.hdf5.WepyHDF5 class.
+
+    See Also
+    --------
+
+    wepy.hdf5.WepyHDF5
+
+
+    """
 
     # this is the name of the dataset that the all atoms will be saved
     # under in the HDF5 alt_reps group
@@ -58,6 +73,119 @@ class WepyHDF5Reporter(FileReporter):
 
                  **kwargs
                  ):
+        """Constructor for the WepyHDF5Reporter.
+
+        Parameters
+        ----------
+
+        save_fields : tuple of str, default: None
+           A selection of fields from the walker states to be
+           stored. Allows for the ignoring of some states. If None all
+           fields from states will attempted to be saved.
+
+        topology : str
+            JSON string representing topology of system being simulated.
+
+        units : dict of str: str, optional
+            Mapping of trajectory field names to string specs
+            for units.
+
+        sparse_fields : list of str, optional
+            List of trajectory fields that should be initialized as sparse.
+
+        feature_shapes : dict of str: shape_spec, optional
+            Mapping of trajectory fields to their shape spec for initialization.
+
+        feature_dtypes : dict of str: dtype_spec, optional
+            Mapping of trajectory fields to their shape spec for initialization.
+
+        n_dims : int, default: 3
+            Set the number of spatial dimensions for the default
+            positions trajectory field.
+
+        alt_reps : dict of str: tuple of (list of int, int), optional
+            Specifies that there will be 'alt_reps' of positions each
+            named by the keys of this mapping and containing the
+            indices in each value list as the first value of the tuple
+            and the second value being the frequency at which this
+            field gets saved. Setting `all_atoms_rep_freq` is the
+            equivalent of setting an entry {'all_atoms' : ([...],
+            `all_atoms_rep_freq`)}.
+
+        main_rep_idxs : list of int, optional
+            The indices of atom positions to save as the main 'positions'
+            trajectory field. Defaults to all atoms.
+
+        all_atoms_rep_freq : int, optional
+            The frequency at which to set an 'alt_rep' for all of the
+            atoms in a simulation. Will be set as the field
+            'alt_rep/all_atoms'.
+
+        resampler : Resampler object, optional but recommended
+            The resampler being used for the simulation. Is used as a
+            convenient container for a variety of constants needed for
+            specifying data for the resampling records. If this is not
+            given then these of the Other Parameters below must be
+            specified manually: resampling_fields, decision_enum_dict,
+            resampler_fields, resampling_records, resampler_records.
+
+        boundary_conditions : BoundaryConditions object, optional but recommended
+            The boundary conditions being used for the simulation. Is
+            used as a convenient container for a variety of constants
+            needed for specifying data for the warping and progress
+            records. If this is not given then these of the Other
+            Parameters below must be specified manually:
+            warping_fields, progress_fields, bc_fields,
+            warping_records, bc_records, progress_records
+
+        swmr_mode : bool
+           Whether to write to open the HDF5 in single-writer
+           multi-reader (SWMR) mode.
+
+
+        Other Parameters
+        ----------------
+
+        resampling_fields : list of str
+            The names of the fields for resampling records
+
+        decision_enum_dict : dict of str : int
+            Mapping of the names of resampling decision enum to their
+            integer values.
+
+        resampler_fields : list of str
+            The names of the fields for the resampler records
+
+        warping_fields : list of str
+            The names of the fields for the warping records
+
+        progress_fields : list of str
+            The names of the fields for the progress records
+
+        bc_fields : list of str
+            The names of the fields for the bounadry condition records.
+
+        resampling_records : list of str, optional
+            Names of the resampling_fields that will be used in
+            table-like views.
+
+        resampler_records : list of str, optional
+            Names of the resampler_fields that will be used in
+            table-like views.
+
+        warping_records : list of str, optional
+            Names of the warping_fields that will be used in
+            table-like views.
+
+        bc_records : list of str, optional
+            Names of the bc_fields that will be used in table-like
+            views.
+
+        progress_records : list of str, optional
+            Names of the progress_fields that will be used in
+            table-like views.
+
+        """
 
         # initialize inherited attributes
         super().__init__(**kwargs)
@@ -205,21 +333,6 @@ class WepyHDF5Reporter(FileReporter):
     def init(self, continue_run=None,
              init_walkers=None,
              **kwargs):
-        """
-
-        Parameters
-        ----------
-        continue_run :
-             (Default value = None)
-        init_walkers :
-             (Default value = None)
-        **kwargs :
-            
-
-        Returns
-        -------
-
-        """
 
         # do the inherited stuff
         super().init(**kwargs)
@@ -323,18 +436,6 @@ class WepyHDF5Reporter(FileReporter):
             self.set_mode(0, 'r+')
 
     def cleanup(self, **kwargs):
-        """
-
-        Parameters
-        ----------
-        **kwargs :
-            
-
-        Returns
-        -------
-
-        """
-
 
         # it should be already closed at this point but just in case
         if not self.wepy_h5.closed:
@@ -354,31 +455,6 @@ class WepyHDF5Reporter(FileReporter):
                resampling_data=None,
                resampler_data=None,
                **kwargs):
-        """
-
-        Parameters
-        ----------
-        new_walkers :
-             (Default value = None)
-        cycle_idx :
-             (Default value = None)
-        warp_data :
-             (Default value = None)
-        bc_data :
-             (Default value = None)
-        progress_data :
-             (Default value = None)
-        resampling_data :
-             (Default value = None)
-        resampler_data :
-             (Default value = None)
-        **kwargs :
-            
-
-        Returns
-        -------
-
-        """
 
         n_walkers = len(new_walkers)
 
@@ -475,66 +551,60 @@ class WepyHDF5Reporter(FileReporter):
             # report the boundary conditions records data, if boundary
             # conditions were initialized
             if self.warping_fields is not None:
-                self.report_warping(cycle_idx, warp_data)
-                self.report_bc(cycle_idx, bc_data)
-                self.report_progress(cycle_idx, progress_data)
+                self._report_warping(cycle_idx, warp_data)
+                self._report_bc(cycle_idx, bc_data)
+                self._report_progress(cycle_idx, progress_data)
 
             # report the resampling records data
-            self.report_resampling(cycle_idx, resampling_data)
-            self.report_resampler(cycle_idx, resampler_data)
+            self._report_resampling(cycle_idx, resampling_data)
+            self._report_resampler(cycle_idx, resampler_data)
 
         super().report(**kwargs)
 
 
     # sporadic
-    def report_warping(self, cycle_idx, warping_data):
-        """
+    def _report_warping(self, cycle_idx, warping_data):
+        """Method to write warping specific information.
 
         Parameters
         ----------
-        cycle_idx :
-            
-        warping_data :
-            
+        cycle_idx : int
 
-        Returns
-        -------
+        warp_data : list of dict of str : value
+            List of dict-like records for each warping event from the
+            last cycle.
 
         """
 
         if len(warping_data) > 0:
             self.wepy_h5.extend_cycle_warping_records(self.wepy_run_idx, cycle_idx, warping_data)
 
-    def report_bc(self, cycle_idx, bc_data):
-        """
+    def _report_bc(self, cycle_idx, bc_data):
+        """Method to write boundary condition update specific information.
 
         Parameters
         ----------
-        cycle_idx :
-            
-        bc_data :
-            
+        cycle_idx : int
 
-        Returns
-        -------
+        bc_data : list of dict of str : value
+           List of dict-like records specifying the changes to the
+           state of the boundary conditions in the last cycle.
 
         """
 
         if len(bc_data) > 0:
             self.wepy_h5.extend_cycle_bc_records(self.wepy_run_idx, cycle_idx, bc_data)
 
-    def report_resampler(self, cycle_idx, resampler_data):
-        """
+    def _report_resampler(self, cycle_idx, resampler_data):
+        """Method to write resampler update specific information.
 
         Parameters
         ----------
-        cycle_idx :
-            
-        resampler_data :
-            
+        cycle_idx : int
 
-        Returns
-        -------
+        resampler_data : list of dict of str : value
+            List of records specifying the changes to the state of the
+            resampler in the last cycle.
 
         """
 
@@ -543,36 +613,32 @@ class WepyHDF5Reporter(FileReporter):
 
     # the resampling records are provided every cycle but they need to
     # be saved as sporadic because of the variable number of walkers
-    def report_resampling(self, cycle_idx, resampling_data):
-        """
+    def _report_resampling(self, cycle_idx, resampling_data):
+        """Method to write resampling specific information.
 
         Parameters
         ----------
-        cycle_idx :
-            
-        resampling_data :
-            
+        cycle_idx : int
 
-        Returns
-        -------
+        resampling_data : list of dict of str : value
+            List of records specifying the resampling to occur at this
+            cycle.
 
         """
 
         self.wepy_h5.extend_cycle_resampling_records(self.wepy_run_idx, cycle_idx, resampling_data)
 
     # continual
-    def report_progress(self, cycle_idx, progress_data):
-        """
+    def _report_progress(self, cycle_idx, progress_data):
+        """Method to write progress specific information.
 
         Parameters
         ----------
-        cycle_idx :
-            
-        progress_data :
-            
+        cycle_idx : int
 
-        Returns
-        -------
+        progress_data : dict str : list
+            A record indicating the progress values for each walker in
+            the last cycle.
 
         """
 

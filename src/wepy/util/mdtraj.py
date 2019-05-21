@@ -198,11 +198,13 @@ def _new_json_to_mdtraj_topology(json_string):
 
     Parameters
     ----------
-    json_string :
-        
+    json_string : str
+        JSON string of the topology.
 
     Returns
     -------
+    topology : mdtraj.Topology object
+
 
     """
 
@@ -257,6 +259,28 @@ def _new_json_to_mdtraj_topology(json_string):
     return topology
 
 def traj_fields_to_mdtraj(traj_fields, json_topology, rep_key='positions'):
+    """Create an mdtraj.Trajectory object directly from a dictionary of
+    fields values.
+
+    The time value in the trajectory will just be the frame indices
+    for the positions.
+
+    Parameters
+    ----------
+
+    traj_fields : dict of str: values
+        The values for the trajectory, must have a positions field
+        specified by the `rep_key` kwarg, and a 'box_vectors' field.
+
+    json_topology : str
+        JSON format topology of the positions.
+
+    rep_key : str
+        The key that will be used to access the field that will be
+        used as the positions in the trajectory, and must match the
+        topology.
+
+    """
 
     topology = json_to_mdtraj_topology(json_topology)
 

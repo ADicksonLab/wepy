@@ -41,13 +41,37 @@ class Reporter(object):
         Initialize I/O connections including file descriptors,
         database connections, timers, stdout/stderr etc.
 
+        Void method for reporter base class.
+
+        Reporters can expect to have the following key word arguments
+        passed to them during a simulation by the sim_manager in this
+        call.
+
+
         Parameters
         ----------
-        **kwargs : key-value pairs
-            Ignored kwargs, but accepts them from subclass calls for
-            compatibility.
 
-        Void method for reporter base class.
+        init_walkers : list of Walker objects
+            The initial walkers for the simulation.
+
+        runner : Runner object
+            The runner that will be used in the simulation.
+
+        resampler : Resampler object
+            The resampler that will be used in the simulation.
+
+        boundary_conditions : BoundaryConditions object
+            The boundary conditions taht will be used in the simulation.
+
+        work_mapper : WorkMapper object
+            The work mapper that will be used in the simulation.
+
+        reporters : list of Reporter objects
+            The list of reporters that are in the simulation.
+
+        continue_run : int
+            The index of the run that is being continued within this
+            same file.
 
         """
         method_name = 'init'
@@ -126,14 +150,26 @@ class Reporter(object):
 
         Use to close file descriptors, database connections etc.
 
+        Reporters can expect to have the following key word arguments
+        passed to them during a simulation by the sim_manager.
+
         Parameters
         ----------
-        **kwargs :  key-value pairs
-            Ignored kwargs, but accepts them from subclass calls for
-            compatibility.
 
-        Returns
-        -------
+        runner : Runner object
+            The runner at the end of the simulation
+
+        work_mapper : WorkeMapper object
+            The work mapper at the end of the simulation
+
+        resampler : Resampler object
+            The resampler at the end of the simulation
+
+        boundary_conditions : BoundaryConditions object
+            The boundary conditions at the end of the simulation
+
+        reporters : list of Reporter objects
+            The list of reporters at the end of the simulation
 
         """
         method_name = 'cleanup'

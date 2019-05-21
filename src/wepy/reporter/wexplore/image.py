@@ -9,7 +9,13 @@ from wepy.util.mdtraj import json_to_mdtraj_topology, mdtraj_to_json_topology
 from wepy.util.json_top import json_top_subset
 
 class WExploreAtomImageReporter(ProgressiveFileReporter):
-    """ """
+    """Reporter for generating 3D molecular structures from WExplore
+    region images.
+
+    This will only be meaningful for WExplore simulations where the
+    region images are actually 3D coordinates.
+
+    """
 
     FILE_ORDER = ("init_state_path", "image_path")
     SUGGESTED_EXTENSIONS = ("image_top.pdb", "wexplore_images.dcd")
@@ -20,6 +26,25 @@ class WExploreAtomImageReporter(ProgressiveFileReporter):
                  image_atom_idxs=None,
                  json_topology=None,
                  **kwargs):
+        """Constructor for the WExploreAtomImageReporter.
+
+        Parameters
+        ----------
+
+        init_image : numpy.array, optional
+            The initial region image. Used for generating the topology
+            as well. If not given will be eventually generated.
+            (Default = None)
+
+        image_atom_idxs : list of int
+            The indices of the atoms that are part of the topology
+            subset that comprises the image.
+
+        json_topology : str
+            JSON format topology for the whole system. A subset of the
+            atoms will be taken using the image_atom_idxs.
+
+        """
 
         super().__init__(**kwargs)
 
@@ -48,17 +73,6 @@ class WExploreAtomImageReporter(ProgressiveFileReporter):
 
 
     def init(self, **kwargs):
-        """
-
-        Parameters
-        ----------
-        **kwargs :
-            
-
-        Returns
-        -------
-
-        """
 
         super().init(**kwargs)
 
@@ -82,21 +96,6 @@ class WExploreAtomImageReporter(ProgressiveFileReporter):
 
     def report(self, cycle_idx=None, resampler_data=None,
                **kwargs):
-        """
-
-        Parameters
-        ----------
-        cycle_idx :
-             (Default value = None)
-        resampler_data :
-             (Default value = None)
-        **kwargs :
-            
-
-        Returns
-        -------
-
-        """
 
         # load the json topology as an mdtraj one
         image_mdj_topology = json_to_mdtraj_topology(self.json_main_rep_top)
