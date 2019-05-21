@@ -60,13 +60,57 @@ class Reporter(object):
 
         Void method for reporter base class.
 
+        Reporters can expect to have the following key word arguments
+        passed to them during a simulation by the sim_manager.
+
         Parameters
         ----------
-        **kwargs :  key-value pairs
-            Ignored kwargs, but accepts them from subclass calls for
-            compatibility.
 
-        Void method for reporter base class.
+        cycle_idx : int
+
+        new_walkers : list of Walker objects
+            List of walkers that were produced from running their
+            dynamics by the runner.
+
+        warp_data : list of dict of str : value
+            List of dict-like records for each warping event from the
+            last cycle.
+
+        bc_data : list of dict of str : value
+           List of dict-like records specifying the changes to the
+           state of the boundary conditions in the last cycle.
+
+        progress_data : dict str : list
+            A record indicating the progress values for each walker in
+            the last cycle.
+
+        resampling_data : list of dict of str : value
+            List of records specifying the resampling to occur at this
+            cycle.
+
+        resampler_data : list of dict of str : value
+            List of records specifying the changes to the state of the
+            resampler in the last cycle.
+
+        n_segment_steps : int
+            The number of dynamics steps that were completed in the last cycle
+
+        worker_segment_times : dict of int : list of float
+            Mapping worker index to the times they took for each
+            segment they processed.
+
+        cycle_runner_time : float
+            Total time runner took in last cycle.
+
+        cycle_bc_time : float
+            Total time boundary conditions took in last cycle.
+
+        cycle_resampling_time : float
+            Total time resampler took in last cycle.
+
+        resampled_walkers : list of Walker objects
+            List of walkers that were produced from the new_walkers
+            from applying resampling and boundary conditions.
 
         """
 

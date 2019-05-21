@@ -17,3 +17,8 @@ docs/_build
 pip-wheel-metadata
 build
 dist
+/sphinx/source/architecture.rst
+/sphinx/source/explanation.rst
+/sphinx/source/installation.rst
+/sphinx/source/introduction.rst
+/sphinx/api/

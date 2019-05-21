@@ -37,6 +37,7 @@ nbsphinx
 
 
 # simultaneous development
+cython
 -e ../geomm
 -e ../mdtraj
 

@@ -72,17 +72,18 @@ Glossary
 
       The cycle element is a list of records.
 
-      The structure looks like this roughly:
+      The structure for the resampling panel looks like this roughly:
 
-      resampling_panel
-      [
-        cycle_0 [
-                  step_0 [rec0, rec1, ...],
-                  step_1 [rec0, rec1, ...],
-                  ...
-                ]
-        ...
-      ]
+      .. code:: python
+      
+          [
+            cycle_0 [
+                      step_0 [rec0, rec1, ...],
+                      step_1 [rec0, rec1, ...],
+                      ...
+                    ]
+            ...
+          ]
 
    parent table
       A listing for each cycle snapshot of a weighted ensemble contig that

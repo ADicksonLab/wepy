@@ -209,6 +209,14 @@ epub_exclude_files = ['search.html']
 
 # -- Extension configuration -------------------------------------------------
 
+# autodoc options
+autoclass_content = 'both'
+autodoc_default_options = {'members' : True,
+                           'member-order' :  'bysource',
+                           'undoc-members' : True,
+                           'show-inheritance' : True,
+                           'inherited-members': True}
+
 # -- Options for intersphinx extension ---------------------------------------
 
 # Example configuration for intersphinx: refer to the Python standard library.

@@ -9,7 +9,15 @@ import numpy as np
 import pandas as pd
 
 class WExploreDashboardReporter(DashboardReporter):
-    """ """
+    """A text based report of a wepy simulation with specific information
+    related to the WExplore resampler.
+
+    This includes an overview of the number of regions at each level
+    of the hierarchy, a log of when and under what conditions new
+    regions were defined, and a table showing the populations of
+    walkers and total weights in the leaf regions.
+
+    """
 
     SUGGESTED_EXTENSIONS = ("wexplore.dash.org",)
 
@@ -90,6 +98,26 @@ Defined Regions with the number of child regions per parent region:
                  bc_cutoff_distance=None,
                  **kwargs
                 ):
+        """Constructor for the WExplore dashboard reporter.
+
+        Parameters
+        ----------
+
+        step_time : float
+            The length of the time in each dynamics step.
+
+        max_n_regions : tuple of int
+            The maximum number of regions allowed at each level of the
+            region hierarchy.
+
+        max_region_sizes : tuple of int
+            The distance cutoff at each level of the hierarchy used to
+            determine when a new region needs to be created.
+
+        bc_cutoff_distance : float
+            The distance for which a walker will be warped.
+
+        """
 
         super().__init__(**kwargs)
 
@@ -187,39 +215,6 @@ Defined Regions with the number of child regions per parent region:
                cycle_bc_time=None,
                cycle_resampling_time=None,
                **kwargs):
-        """
-
-        Parameters
-        ----------
-        cycle_idx :
-             (Default value = None)
-        n_segment_steps :
-             (Default value = None)
-        new_walkers :
-             (Default value = None)
-        warp_data :
-             (Default value = None)
-        progress_data :
-             (Default value = None)
-        resampling_data :
-             (Default value = None)
-        resampler_data :
-             (Default value = None)
-        worker_segment_times :
-             (Default value = None)
-        cycle_runner_time :
-             (Default value = None)
-        cycle_bc_time :
-             (Default value = None)
-        cycle_resampling_time :
-             (Default value = None)
-        **kwargs :
-            
-
-        Returns
-        -------
-
-        """
 
         # first recalculate the total sampling time, update the
         # number of cycles, and set the walker probabilities
@@ -249,19 +244,19 @@ Defined Regions with the number of child regions per parent region:
         self.write_dashboard()
 
     def update_weighted_ensemble_values(self, cycle_idx, n_steps, walkers):
-        """
+        """Update the values held in this object related to general WE
+        simulation details.
 
         Parameters
         ----------
-        cycle_idx :
-            
-        n_steps :
-            
-        walkers :
-            
+        cycle_idx : int
+            The last cycle that was completed.
 
-        Returns
-        -------
+        n_steps : int
+            The number of dynamics steps that were completed in the last cycle
+
+        walkers : list of Walker objects
+            The walkers generated from the last runner segment.
 
         """
 
@@ -286,17 +281,16 @@ Defined Regions with the number of child regions per parent region:
 
 
     def update_warp_values(self, cycle_idx, warp_data):
-        """
+        """Update values associated with the boundary conditions.
 
         Parameters
         ----------
-        cycle_idx :
-            
-        warp_data :
-            
+        cycle_idx : int
+            The index of the last completed cycle.
 
-        Returns
-        -------
+        warp_data : list of dict of str : value
+            List of dict-like records for each warping event from the
+            last cycle.
 
         """
 
@@ -333,36 +327,36 @@ Defined Regions with the number of child regions per parent region:
 
 
     def update_progress_values(self, cycle_idx, progress_data):
-        """
+        """Update values associated with the boundary conditions.
 
         Parameters
         ----------
-        cycle_idx :
-            
-        progress_data :
-            
+        cycle_idx : int
+            The index of the last completed cycle.
 
-        Returns
-        -------
+        progress_data : dict str : list
+            A record indicating the progress values for each walker in
+            the last cycle.
 
         """
 
         self.walker_distance_to_prot = tuple(progress_data['min_distances'])
 
     def update_wexplore_values(self, cycle_idx, resampling_data, resampler_data):
-        """
+        """Update values associated with the boundary conditions.
 
         Parameters
         ----------
-        cycle_idx :
-            
-        resampling_data :
-            
-        resampler_data :
-            
+        cycle_idx : int
+            The index of the last completed cycle.
 
-        Returns
-        -------
+        resampling_data : list of dict of str : value
+            List of records specifying the resampling to occur at this
+            cycle.
+
+        resampler_data : list of dict of str : value
+            List of records specifying the changes to the state of the
+            resampler in the last cycle.
 
         """
 
@@ -451,25 +445,27 @@ Defined Regions with the number of child regions per parent region:
 
     def update_performance_values(self, cycle_idx, n_steps, worker_segment_times,
                                   cycle_runner_time, cycle_bc_time, cycle_resampling_time):
-        """
+        """Update the value associated with performance metrics of the
+        simulation.
 
         Parameters
         ----------
-        cycle_idx :
-            
-        n_steps :
-            
-        worker_segment_times :
-            
-        cycle_runner_time :
-            
-        cycle_bc_time :
-            
-        cycle_resampling_time :
-            
+        cycle_idx : int
 
-        Returns
-        -------
+        n_steps : int
+
+        worker_segment_times : dict of int : list of float
+            Mapping worker index to the times they took for each
+            segment they processed.
+
+        cycle_runner_time : float
+            Total time runner took in last cycle.
+
+        cycle_bc_time : float
+            Total time boundary conditions took in last cycle.
+
+        cycle_resampling_time : float
+            Total time resampler took in last cycle.
 
         """
 
@@ -522,15 +518,18 @@ Defined Regions with the number of child regions per parent region:
 
 
     def leaf_regions_to_all_regions(self, region_ids):
-        """
+        """Convert a listing of just the leaf regions to one of all the
+        regions at every level of the hierarchy.
 
         Parameters
         ----------
-        region_ids :
-            
+        region_ids : list of tuple of int
+            The leaf regions.
 
         Returns
         -------
+        all_region_ids : list of tuple of int
+            All of the regions.
 
         """
         # make a set of all the regions starting with the root region
@@ -545,7 +544,7 @@ Defined Regions with the number of child regions per parent region:
         return regions
 
     def dashboard_string(self):
-        """ """
+        """Generate the dashboard string for the currrent state."""
 
         regions = self.leaf_regions_to_all_regions(self.region_ids)
         region_children = [self.children_per_region[region] for region in regions]
