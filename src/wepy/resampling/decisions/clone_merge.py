@@ -11,7 +11,15 @@ from wepy.walker import split, keep_merge
 # the possible types of decisions that can be made enumerated for
 # storage, these each correspond to specific instruction type
 class CloneMergeDecisionEnum(Enum):
-    """ """
+    """Enum definition for cloning and merging decision values."
+
+    - NOTHING : 1
+    - CLONE : 2
+    - SQUASH : 3
+    - KEEP_MERGE : 4
+
+    """
+
     NOTHING = 1
     CLONE = 2
     SQUASH = 3

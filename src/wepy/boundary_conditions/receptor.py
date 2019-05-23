@@ -392,8 +392,7 @@ class RebindingBC(ReceptorBC):
 
     # Records of boundary condition changes (sporadic)
     BC_FIELDS = ReceptorBC.BC_FIELDS + ('native_rmsd_cutoff', )
-    """
-    The 'native_rmsd_cutoff' is the cutoff used to determine when
+    """The 'native_rmsd_cutoff' is the cutoff used to determine when
     walkers have re-bound to the receptor, which is defined as the
     RMSD of the ligand to the native ligand bound state, when the
     binding sites are aligned and superimposed.
@@ -440,9 +439,8 @@ class RebindingBC(ReceptorBC):
         native_state : object implementing the State interface
             The reference bound state. Will be automatically centered.
 
-        cutoff_rmsd : float, optional
+        cutoff_rmsd : float
             The cutoff RMSD for considering a walker bound.
-             (Default value = 0.2)
 
         initial_states : list of objects implementing the State interface
             The list of possible states that warped walkers will assume.
@@ -451,7 +449,6 @@ class RebindingBC(ReceptorBC):
             List of normalized probabilities of the initial_states
             provided. If not given, uniform probabilities will be
             used.
-             (Default value = None)
 
         ligand_idxs : arraylike of int
             The indices of the atom positions in the state considered

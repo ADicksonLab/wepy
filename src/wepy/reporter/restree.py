@@ -58,17 +58,14 @@ class ResTreeReporter(ProgressiveFileReporter):
             Used to determine discontinuities in the lineages.
              (Default value = None)
 
-        row_spacing : float, optional
+        row_spacing : float, default: 5.0
             Spacing between nodes in a single row in layout.
-             (Default value = 5.0)
 
-        step_spacing : float
+        step_spacing : float, default: 20.0
             Spacing between the rows of nodes in each step of the layout.
-             (Default value = 20.0)
 
-        default_node_radius : float
+        default_node_radius : float, default: 1.0
             Default node radius to use.
-             (Default value = 1.0)
 
         progress_key : str
             The key of the value in the progress records to use for
@@ -78,10 +75,9 @@ class ResTreeReporter(ProgressiveFileReporter):
             The maximum value to consider for progress values, if None
             no max value will be used.
 
-        colormap_name : str
+        colormap_name : str, default: 'plasma'
             The name of the colormap to use from the matplotlib
             colormap library (i.e. 'matplotlib.cm.get_cmap')
-             (Default value = 'plasma')
 
         """
 

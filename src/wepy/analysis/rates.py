@@ -95,7 +95,6 @@ def contig_warp_rates(contig, cycle_time, time_points=None):
     time_points : None or Ellipsis
         Determines how many and which time points are computed for the
         rates of each run. None, only the end; Ellipsis, all cycles.
-       (Default = None)
 
     Returns
     -------

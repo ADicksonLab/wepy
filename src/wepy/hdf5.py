@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
-"""Primary wepy simulation database driver and access API using the HDF5 format.
+"""Primary wepy simulation database driver and access API using the
+HDF5 format.
 
 The HDF5 Format Specification
 =============================
@@ -218,7 +219,7 @@ this is the weight of the walker of this frame and is a value
 important to weighted ensemble and not the underlying dynamics.
 
 The naive approach to these fields is that each is a dataset of
-dimension (n_frames, *feature_vector_shape) where the first dimension
+dimension (n_frames, feature_vector_shape[0], ...) where the first dimension
 is the cycle_idx and the rest of the dimensions are determined by the
 atomic feature vector for each field for a single frame.
 
@@ -730,35 +731,28 @@ class WepyHDF5(object):
         units : dict of str : str, optional
             Mapping of trajectory field names to string specs
             for units.
-           (Default = {})
 
         sparse_fields : list of str, optional
             List of trajectory fields that should be initialized as sparse.
-           (Default = [])
 
         feature_shapes : dict of str : shape_spec, optional
             Mapping of trajectory fields to their shape spec for initialization.
-           (Default = {})
 
         feature_dtypes : dict of str : dtype_spec, optional
             Mapping of trajectory fields to their shape spec for initialization.
-           (Default = {})
 
-        n_dims : int, optional
+        n_dims : int, default: 3
             Set the number of spatial dimensions for the default
             positions trajectory field.
-           (Default = 3)
 
         alt_reps : dict of str : list of int, optional
             Specifies that there will be 'alt_reps' of positions each
             named by the keys of this mapping and containing the
             indices in each value list.
-           (Default = {})
 
         main_rep_idxs : list of int, optional
             The indices of atom positions to save as the main 'positions'
             trajectory field. Defaults to all atoms.
-           (Default = None)
 
         expert_mode : bool
             If True no initialization is performed other than the
@@ -769,7 +763,8 @@ class WepyHDF5(object):
 
         AssertionError
             If the mode is not one of the supported mode specs.
-        or
+
+        AssertionError
             If a topology is not given for a creation mode.
 
         Warns
@@ -1081,7 +1076,6 @@ class WepyHDF5(object):
         Parameters
         ----------
         n_dims : int
-             (Default value = None)
 
         """
 
@@ -1190,7 +1184,6 @@ class WepyHDF5(object):
 
         continue_run : int
             Index of the run to continue.
-             (Default value = None)
 
         """
 
@@ -1502,7 +1495,6 @@ class WepyHDF5(object):
 
         sparse_idxs : arraylike of int of shape (1,)
             List of cycle indices that the data corresponds to.
-             (Default value = None)
 
         """
 
@@ -2169,7 +2161,6 @@ class WepyHDF5(object):
             Trajectory field name to access
         frames : list of int, optional
             The indices of the frames to return if you don't want all of them.
-             (Default value = None)
 
         Returns
         -------
@@ -2196,13 +2187,13 @@ class WepyHDF5(object):
         traj_idx : int
         field_path : str
             Trajectory field name to access
+
         frames : list of int, optional
             The indices of the frames to return if you don't want all of them.
-             (Default value = None)
+
         masked : bool
             If True returns the array data as numpy masked array, and
             only the available values if False.
-             (Default value = True)
 
         Returns
         -------
@@ -2274,11 +2265,10 @@ class WepyHDF5(object):
         run_idx : int
         field_path : str
             Name to set the trajectory field as. Can be compound.
-        data : arraylike of shape (n_trajectories, n_cycles, *feature_vector_shape)
+        data : arraylike of shape (n_trajectories, n_cycles, feature_vector_shape[0],...)
             The data for all trajectories to be added.
         sparse_idxs : list of int
             If the data you are adding is sparse specify which cycles to apply them to.
-             (Default value = None)
 
         """
 
@@ -2341,11 +2331,11 @@ class WepyHDF5(object):
         data : list of arraylike
             Each element of this list corresponds to a single run. The
             elements of which are arraylikes of shape (n_trajectories,
-            n_cycles, *feature_vector_shape) for each run.
+            n_cycles, feature_vector_shape[0],...) for each run.
         sparse_idxs : list of list of int
             The list of cycle indices to set for the sparse fields. If
             None, no trajectories are set as sparse.
-             (Default value = None)
+
 
         """
 
@@ -2623,10 +2613,10 @@ class WepyHDF5(object):
         ----------
         idxs : bool
             If True yields the run index in addition to the group.
-             (Default value = False)
+
         run_sel : list of int, optional
             If not None should be a list of the runs you want to iterate over.
-             (Default value = None)
+
 
         Yields
         ------
@@ -2655,11 +2645,9 @@ class WepyHDF5(object):
         idxs : bool
             If True returns a tuple of the run index and trajectory
             index in addition to the trajectory group.
-             (Default value = False)
         traj_sel : list of int, optional
             If not None is a list of tuples of (run_idx, traj_idx)
             selecting which trajectories to iterate over.
-             (Default value = None)
 
         Yields
         ------
@@ -2693,7 +2681,7 @@ class WepyHDF5(object):
         idxs : bool
             If True returns a tuple of the run index and trajectory
             index in addition to the trajectory group.
-             (Default value = False)
+
 
         Returns
         -------
@@ -2937,7 +2925,7 @@ class WepyHDF5(object):
         ----------
         alt_rep : str
             The base name of the alternate representation, or 'positions', or None.
-             (Default value = 'positions')
+
 
         Returns
         -------
@@ -2999,7 +2987,6 @@ class WepyHDF5(object):
         ----------
         alt_rep : str
             The base name of the alternate representation, or 'positions', or None.
-             (Default value = 'positions')
 
         Returns
         -------
@@ -3086,7 +3073,6 @@ class WepyHDF5(object):
         alt_rep : None or str
             If None uses default 'positions' representation otherwise
             chooses the representation from the 'alt_reps' compound field.
-             (Default value = None)
 
         Returns
         -------
@@ -3229,7 +3215,6 @@ class WepyHDF5(object):
         ----------
         runs : list of int, optional
             If not None, a list of run indices to restrict to.
-             (Default value = None)
 
         Returns
         -------
@@ -3358,7 +3343,6 @@ class WepyHDF5(object):
             File path to save the new file.
         mode : str
             The mode to open the new file with.
-             (Default value = 'x')
 
         Returns
         -------
@@ -3424,7 +3408,7 @@ class WepyHDF5(object):
         continue_run : int, optional
             The run from the linking WepyHDF5 file you want the target
             linked run to continue.
-             (Default value = None)
+
         kwargs : dict
             Adds metadata (h5py.attrs) to the linked run.
 
@@ -3655,7 +3639,7 @@ class WepyHDF5(object):
             The walkers that will be the start of this run.
         continue_run : int, optional
             If this run is a continuation of another set which one it is continuing.
-             (Default value = None)
+
         kwargs : dict
             Metadata to set for the run.
 
@@ -4011,13 +3995,13 @@ class WepyHDF5(object):
             Mapping of trajectory fields to the data for them to add.
         weights : 1-D arraylike of float
             The weights of each frame. If None defaults all frames to 1.0.
-             (Default value = None)
+
         sparse_idxs : list of int
             Cycle indices the data corresponds to.
-             (Default value = None)
+
         metadata : dict of str : value
             Metadata for the trajectory.
-             (Default value = None)
+
 
         Returns
         -------
@@ -4131,7 +4115,6 @@ class WepyHDF5(object):
             have the same first dimension.
         weights : arraylike
             Weights for the frames of the trajectory. If None defaults all frames to 1.0.
-             (Default value = None)
 
         """
 
@@ -4727,12 +4710,11 @@ class WepyHDF5(object):
         run_idx : int
         observable_name : str
             What to name the observable subfield.
-        data : arraylike of shape (n_trajs, *feature_vector_shape)
+        data : arraylike of shape (n_trajs, feature_vector_shape[0], ...)
             The data for all of the trajectories that will be set to
             this observable field.
         sparse_idxs : list of int, optional
             If not None, specifies the cycle indices this data corresponds to.
-             (Default value = None)
 
         """
         obs_path = '{}/{}'.format(OBSERVABLES, observable_name)
@@ -4752,13 +4734,12 @@ class WepyHDF5(object):
 
             The data for each run are the elements of this
             argument. Each element is an arraylike of shape
-            (n_run_frames, *feature_vector_shape) where the
+            (n_run_frames, feature_vector_shape[0],...) where the
             n_run_frames is the .
 
         sparse_idxs : list of list of int, optional
             If not None, specifies the cycle indices this data
             corresponds to. First by run, then by trajectory.
-             (Default value = None)
 
         """
         obs_path = '{}/{}'.format(OBSERVABLES, observable_name)
@@ -4802,12 +4783,11 @@ class WepyHDF5(object):
         data : list of arraylike
             The data for each run are the elements of this
             argument. Each element is an arraylike of shape
-            (n_trajs, *feature_vector_shape) for this run.
+            (n_trajs, feature_vector_shape[0],...) for this run.
 
         sparse_idxs : list of list of int, optional
             If not None, specifies the cycle indices this data
             corresponds to. First by run, then by trajectory.
-             (Default value = None)
 
         """
         obs_path = '{}/{}'.format(OBSERVABLES, observable_name)
@@ -4842,28 +4822,23 @@ class WepyHDF5(object):
             computation function over the data. Default is the python
             builtin `map` function. Can be a parallel implementation
             for example.
-             (Default value = map)
 
         traj_sel : list of tuple, optional
             If not None, a list of trajectory identifier tuple
             (run_idx, traj_idx) to restrict the computation to.
-             (Default value = None)
 
         save_to_hdf5 : None or string, optional
             If not None, a string that specifies the name of the
             observables sub-field that the computed values will be saved to.
-             (Default value = None)
 
         idxs : bool
             If True will return the trajectory identifier tuple
             (run_idx, traj_idx) along with other return values.
-             (Default value = False)
 
         return_results : bool
             If True will return the results of the mapping. If not
             using the 'save_to_hdf5' option, be sure to use this or
             results will be lost.
-             (Default value = True)
 
         Returns
         -------
@@ -4972,12 +4947,10 @@ class WepyHDF5(object):
         frames : None or list of int
             If not None, a list of the frame indices of the trajectory
             to return values for.
-             (Default value = None)
 
         masked : bool
             If true will return sparse field values as masked arrays,
             otherwise just returns the compacted data.
-             (Default value = True)
 
         Returns
         -------
@@ -5091,7 +5064,7 @@ class WepyHDF5(object):
         Returns
         -------
         contig_fields : dict of str : arraylike
-                             of shape (n_cycles, n_trajs, *field_feature_shape)
+                             of shape (n_cycles, n_trajs, field_feature_shape[0],...)
             Mapping of the field names to the array of feature vectors
             for contig trace.
 
@@ -5168,12 +5141,10 @@ class WepyHDF5(object):
         idxs : bool
             If True will also return the tuple identifier of the
             trajectory the field data is from.
-             (Default value = False)
 
         traj_sel : list of tuple of int
             If not None, a list of trajectory identifiers to restrict
             iteration over.
-             (Default value = None)
 
         Yields
         ------
@@ -5238,17 +5209,14 @@ class WepyHDF5(object):
             computation function over the data. Default is the python
             builtin `map` function. Can be a parallel implementation
             for example.
-             (Default value = map)
 
         traj_sel : list of tuple, optional
             If not None, a list of trajectory identifier tuple
             (run_idx, traj_idx) to restrict the computation to.
-             (Default value = None)
 
         idxs : bool
             If True will return the trajectory identifier tuple
             (run_idx, traj_idx) along with other return values.
-             (Default value = False)
 
         Returns
         -------
@@ -5309,12 +5277,10 @@ class WepyHDF5(object):
 
         frames : None or list of int
             If not None, a list of the frames to include.
-             (Default value = None)
 
         alt_rep : str
             If not None, an 'alt_reps' subfield name to use for
             positions instead of the 'positions' field.
-             (Default value = None)
 
         Returns
         -------
@@ -5395,7 +5361,6 @@ class WepyHDF5(object):
         alt_rep : None or str
             If None uses default 'positions' representation otherwise
             chooses the representation from the 'alt_reps' compound field.
-             (Default value = None)
 
         Returns
         -------
@@ -5435,7 +5400,6 @@ class WepyHDF5(object):
         alt_rep : None or str
             If None uses default 'positions' representation otherwise
             chooses the representation from the 'alt_reps' compound field.
-             (Default value = None)
 
         Returns
         -------

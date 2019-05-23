@@ -121,8 +121,8 @@ class OpenMMRunner(Runner):
             The specification for the computational platform to
             use. If None uses OpenMM default platform, see OpenMM
             documentation for all value but typical ones are:
-            Reference, CUDA, OpenCL
-           (Default = None)
+            Reference, CUDA, OpenCL. If value is None the automatic
+            platform determining mechanism in OpenMM will be used.
 
         """
 
@@ -164,7 +164,6 @@ class OpenMMRunner(Runner):
             simulation.context.getState when getting simulation
             states. If None defaults to the values in the
             GET_STATE_KWARG_DEFAULTS module constant.
-             (Default value = None)
 
 
         Returns
@@ -275,7 +274,6 @@ class OpenMMRunner(Runner):
             simulation.context.getState when getting simulation
             states. If None defaults to the values in the
             GET_STATE_KWARG_DEFAULTS module constant.
-             (Default value = None)
 
         Returns
         -------

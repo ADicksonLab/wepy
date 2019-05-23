@@ -18,16 +18,16 @@ def cumulative_partitions(ensemble_values,
     ensemble_values : arraylikes of float of shape (n_cycles, n_trajs)
         Array of scalar values for all of the frames of an ensemble simulation.
 
-    time_tranche : int, overrides partitions Width of
-        time-bins/windows/tranche to compute free energies for. This
-        overrides the functionality of the 'partitions' argument. The
-        last tranche will be truncated to the remainder after
-        partitioning by tranches.
+    time_tranche : int
+        Width of time-bins/windows/tranche to compute free energies
+        for. This overrides the functionality of the 'partitions'
+        argument. The last tranche will be truncated to the remainder
+        after partitioning by tranches.
 
-    num_partitions : int, overriden by time_tranche
+    num_partitions : int
         Will evenly partition the time coordinate given the
-        dataset. The first partition will carry the remainder.
-       (Default = 5)
+        dataset. The first partition will carry the
+        remainder. Overriden by time_tranche.
 
     Yields
     ------
@@ -198,18 +198,18 @@ class ContigTreeProfiler(object):
             the actual bin edges, or the spec for the binning method,
             or None. If None will generate them with the 'auto'
             setting for this span.
-           (Default = None)
 
-        time_tranche : int, overrides partitions Width of
-            time-bins/windows/tranche to compute free energies for. This
-            overrides the functionality of the 'partitions' argument. The
-            last tranche will be truncated to the remainder after
-            partitioning by tranches.
+        time_tranche : int
+            Width of time-bins/windows/tranche to compute free
+            energies for. This overrides the functionality of the
+            'partitions' argument. The last tranche will be truncated
+            to the remainder after partitioning by tranches. Overrides
+            partitions.
 
-        num_partitions : int, overriden by time_tranche
+        num_partitions : int
             Will evenly partition the time coordinate given the
             dataset. The first partition will carry the remainder.
-           (Default = 5)
+            Overriden by time_tranche.
 
         Returns
         -------
@@ -284,18 +284,18 @@ class ContigTreeProfiler(object):
             the actual bin edges, or the spec for the binning method,
             or None. If None will generate them with the 'auto'
             setting for this span.
-           (Default = None)
 
-        time_tranche : int, overrides partitions Width of
-            time-bins/windows/tranche to compute free energies for. This
-            overrides the functionality of the 'partitions' argument. The
-            last tranche will be truncated to the remainder after
-            partitioning by tranches.
+        time_tranche : int
+            Width of time-bins/windows/tranche to compute free
+            energies for. This overrides the functionality of the
+            'partitions' argument. The last tranche will be truncated
+            to the remainder after partitioning by tranches. Overrides
+            partitions.
 
-        num_partitions : int, overriden by time_tranche
+        num_partitions : int
             Will evenly partition the time coordinate given the
             dataset. The first partition will carry the remainder.
-           (Default = 5)
+            Overriden by time_tranche.
 
         Returns
         -------

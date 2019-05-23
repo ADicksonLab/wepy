@@ -71,8 +71,8 @@ to set this value.
 
 def resampling_panel(resampling_records, is_sorted=False):
     """Converts an unordered collection of resampling records into a
-       structured array (lists) corresponding to cycles and resampling steps
-       within cycles.
+    structured array (lists) corresponding to cycles and resampling
+    steps within cycles.
 
     It is like doing a pivot on the step indices into an extra
     dimension. Hence it can be thought of as a list of tables indexed
@@ -82,10 +82,10 @@ def resampling_panel(resampling_records, is_sorted=False):
     ----------
     resampling_records : list of nametuple records
         A list of resampling records.
+
     is_sorted : bool
         If this is True it will be assumed that the resampling_records
         are presorted, otherwise they will be sorted.
-         (Default value = False)
 
     Returns
     -------
@@ -478,27 +478,13 @@ class ParentForest():
         Arguments
         ---------
         contig : Conting object, optional conditional on parent_table
+
         parent_table : list of list of int, optional conditional on contig
 
         Raises
         ------
         ValueError
             If neither parent_table nor contig is given, or if both are given.
-
-        Warnings
-        --------
-
-        See Also
-        --------
-
-        Notes
-        -----
-
-        References
-        ----------
-
-        Examples
-        --------
 
         """
 

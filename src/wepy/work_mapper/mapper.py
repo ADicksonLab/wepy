@@ -54,7 +54,6 @@ class Mapper(object):
         Parameters
         ----------
         segment_func : callable implementing the Runner.run_segment interface
-             (Default value = None)
 
         """
 
@@ -157,7 +156,6 @@ class WorkerMapper(Mapper):
         worker_type : callable, optional
             Callable that generates an object implementing the Worker
             interface, typically a type from a Worker class.
-           (Default = Worker)
 
         worker_attributes : dictionary
             A dictionary of values that are passed to the worker
@@ -230,10 +228,8 @@ class WorkerMapper(Mapper):
         ----------
         num_workers : int
             The number of worker processes to spawn
-             (Default value = None)
 
         segment_func : callable implementing the Runner.run_segment interface
-             (Default value = None)
 
         """
 

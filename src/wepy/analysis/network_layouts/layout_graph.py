@@ -62,20 +62,6 @@ class LayoutGraph():
         ---------
         graph : any networkx graph
 
-        Warnings
-        --------
-
-        See Also
-        --------
-
-        Notes
-        -----
-
-        References
-        ----------
-
-        Examples
-        --------
 
         """
 

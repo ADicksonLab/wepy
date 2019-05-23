@@ -5,19 +5,6 @@ Routines
 
 ResamplingTreeLayout.layout
 
-See Also
---------
-
-Notes
------
-
-References
-----------
-
-Examples
---------
-
-
 """
 
 from warnings import warn
@@ -127,6 +114,8 @@ class ResamplingTreeLayout():
         Returns
         -------
 
+        row_length : float
+
         """
 
         max_child_idx = np.argmax(node_positions)
@@ -148,6 +137,8 @@ class ResamplingTreeLayout():
 
         Returns
         -------
+
+        new_nodes_positions
 
         """
 
@@ -363,6 +354,8 @@ class ResamplingTreeLayout():
         Returns
         -------
 
+        children_x
+
         """
 
         children_x = []
@@ -390,6 +383,8 @@ class ResamplingTreeLayout():
 
         Returns
         -------
+
+        positions
 
         """
 
@@ -439,6 +434,8 @@ class ResamplingTreeLayout():
         Returns
         -------
 
+        centered_positions
+
         """
 
         # calculate the length of the row
@@ -467,6 +464,8 @@ class ResamplingTreeLayout():
 
         Returns
         -------
+
+        node_positions
 
         """
 

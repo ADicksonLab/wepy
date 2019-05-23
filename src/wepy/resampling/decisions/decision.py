@@ -1,3 +1,7 @@
+"""
+
+"""
+
 from collections import namedtuple
 from enum import Enum
 from string import ascii_lowercase
@@ -7,7 +11,9 @@ import numpy as np
 
 # ABC for the Decision class
 class Decision(object):
-    """ """
+    """Represents and provides methods for a set of decision values.
+
+    """
     ENUM = None
 
     FIELDS = ('decision_id')
