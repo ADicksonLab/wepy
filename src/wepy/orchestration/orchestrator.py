@@ -1302,11 +1302,6 @@ def reconcile_orchestrators(host_path, *orchestrator_paths):
         DETACH {}
         """.format(attached_table_name)
 
-        # DEBUG
-        print(attach_query)
-        print(union_query)
-        print(detach_query)
-
         # then run the queries
 
         c = new_orch._db.cursor()
