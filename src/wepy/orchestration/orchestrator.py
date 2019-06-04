@@ -578,6 +578,18 @@ class Orchestrator():
         WHERE start_hash=? AND end_hash=?
         """
 
+        return q
+
+    @property
+    def delete_run_record_query(self):
+
+        q = """
+        DELETE FROM runs
+        WHERE start_hash=? AND end_hash=?
+        """
+
+        return q
+
 
     def _add_run_record(self, start_hash, end_hash, configuration_hash, cycle_idx):
 
@@ -589,14 +601,23 @@ class Orchestrator():
         # run the insert
         c.execute(self.add_run_record_query, params)
 
+    def _delete_run_record(self, start_hash, end_hash):
+
+        params = (start_hash, end_hash)
+
+        cursor = self._db.cursor()
+
+        cursor.execute(self.delete_run_record_query, params)
+
     def _update_run_record(self, start_hash, end_hash, new_config_hash, new_last_cycle_idx):
 
-        params = (start_hash, end_hash, new_config_hash, new_last_cycle_idx)
+        params = (new_config_hash, new_last_cycle_idx, start_hash, end_hash)
 
         # do it as a transaction
         c = self._db.cursor()
 
-        # run the insert
+        # run the update
+        c.execute(self.update_run_record_query, params)
 
 
 
@@ -688,6 +709,13 @@ class Orchestrator():
         # get the configuration object and deserialize it
         return self.deserialize(self.configuration_kv[config_hash])
 
+    def run_configuration_hash(self, start_hash, end_hash):
+
+        record = self.get_run_record(start_hash, end_hash)
+
+        config_hash = record[self.RUN_SELECT_FIELDS.index('config_hash')]
+
+        return config_hash
 
     def run_hashes(self):
 
@@ -1264,9 +1292,12 @@ def reconcile_orchestrators(host_path, *orchestrator_paths):
             # if it is not copy it over without deserializing
             new_orch.snapshot_kv[snaphash] = orch.snapshot_kv[snaphash]
 
-        # add in all the configuration from each orchestrator, by the
-        # hash not the snapshots themselves, we trust they are correct
-        for config_hash in orch.configuration_hashes:
+        # add in the configurations for the runs from each
+        # orchestrator, by the hash not the snapshots themselves, we
+        # trust they are correct
+        for run_id in orch.run_hashes():
+
+            config_hash = orch.run_configuration_hash(*run_id)
 
             # check that the hash is not already in the snapshots
             if any([True if config_hash == md5 else False for md5 in new_orch.configuration_hashes]):
@@ -1304,11 +1335,17 @@ def reconcile_orchestrators(host_path, *orchestrator_paths):
 
         # then run the queries
 
-        c = new_orch._db.cursor()
-        c.execute('BEGIN TRANSACTION')
-        c.execute(attach_query)
-        c.execute(union_query)
-        c.execute('COMMIT')
-        c.execute(detach_query)
+        cursor = new_orch._db.cursor()
+        try:
+            cursor.execute('BEGIN TRANSACTION')
+            cursor.execute(attach_query)
+            cursor.execute(union_query)
+            cursor.execute('COMMIT')
+            cursor.execute(detach_query)
+        except:
+            cursor.execute('COMMIT')
+            import pdb; pdb.set_trace()
+            cursor.execute("SELECT * FROM (SELECT * FROM other.runs EXCEPT SELECT * FROM runs)")
+            recs = cursor.fetchall()
 
     return new_orch
