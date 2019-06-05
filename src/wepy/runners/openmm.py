@@ -196,8 +196,10 @@ class OpenMMRunner(Runner):
 
         # if a platform was given we use it to make a Simulation object
         if self.platform_name is not None:
+
             # get the platform by its name to use
             platform = omm.Platform.getPlatformByName(self.platform_name)
+
             # set properties from the kwargs if they apply to the platform
             for key, value in kwargs.items():
                 if key in platform.getPropertyNames():

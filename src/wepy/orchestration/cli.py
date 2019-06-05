@@ -309,6 +309,10 @@ def combine_orch_wepy_hdf5s(new_orch, new_hdf5_path):
 
     """
 
+    # we assume that the run we are interested in is the only run in
+    # the WepyHDF5 file so it is index 0
+    singleton_run_idx = 0
+
     # a key-value for the paths for each run
     hdf5_paths = {}
 
@@ -326,6 +330,9 @@ def combine_orch_wepy_hdf5s(new_orch, new_hdf5_path):
                 # and save the path for that run
                 hdf5_paths[run_id] = reporter.file_path
 
+    click.echo("Combining these HDF5 files:")
+    click.echo('\n'.join(hdf5_paths.values()))
+
     # now that we have the paths (or lack of paths) for all
     # the runs we need to start linking them all
     # together.
@@ -333,73 +340,103 @@ def combine_orch_wepy_hdf5s(new_orch, new_hdf5_path):
     # first we need a master linker HDF5 to do this with
 
     # so load a template WepyHDF5
-    template_wepy_h5_path = hdf5_paths[new_orch.run_hashes()[0]]
+    template_wepy_h5_path = hdf5_paths[new_orch.run_hashes()[singleton_run_idx]]
     template_wepy_h5 = WepyHDF5(template_wepy_h5_path, mode='r')
 
     # clone it
     with template_wepy_h5:
         master_wepy_h5 = template_wepy_h5.clone(new_hdf5_path, mode='x')
 
-    with master_wepy_h5:
-        # then link all the files to it
-        run_mapping = {}
-        for run_id, wepy_h5_path in hdf5_paths.items():
+    click.echo("Into a single master hdf5 file: {}".format(new_hdf5_path))
 
-            # in the case where continuations were done from
-            # checkpoints then the runs data will potentially (and
-            # most likely) contain extra cycles since checkpoints are
-            # typically produced on some interval of cycles. So, in
-            # order for us to actually piece together contigs we need
-            # to take care of this.
+    # then link all the files to it
+    run_mapping = {}
+    for run_id, wepy_h5_path in hdf5_paths.items():
 
-            # There are two ways to deal with this which can both be
-            # done at the same time. The first is to keep the "nubs",
-            # which are the small leftover pieces after the checkpoint
-            # that ended up getting continued, and make a new run from
-            # the last checkpoint to the end of the nub, in both the
-            # WepyHDF5 and the orchestrator run collections.
+        # in the case where continuations were done from
+        # checkpoints then the runs data will potentially (and
+        # most likely) contain extra cycles since checkpoints are
+        # typically produced on some interval of cycles. So, in
+        # order for us to actually piece together contigs we need
+        # to take care of this.
 
-            # The second is to generate a WepyHDF5 run that
-            # corresponds to the run in the checkpoint orchestrator.
+        # There are two ways to deal with this which can both be
+        # done at the same time. The first is to keep the "nubs",
+        # which are the small leftover pieces after the checkpoint
+        # that ended up getting continued, and make a new run from
+        # the last checkpoint to the end of the nub, in both the
+        # WepyHDF5 and the orchestrator run collections.
 
-            # To avoid complexity (for now) we opt to simply dispose
-            # of the nubs and assume that not much will be lost from
-            # this. For the typical use case of making multiple
-            # independent and linear contigs this is also the simplest
-            # mode, since the addition of multiple nubs will introduce
-            # an extra spanning contig in the contig tree.
+        # The second is to generate a WepyHDF5 run that
+        # corresponds to the run in the checkpoint orchestrator.
 
-            # furthermore the nubs provide a source of problems if
-            # rnus were abruptly stopped and data is not written some
-            # of the frames can be corrupted. SO until we know how to
-            # stop this (probably SWMR mode will help) this is also a
-            # reason not to deal with nubs.
+        # To avoid complexity (for now) we opt to simply dispose
+        # of the nubs and assume that not much will be lost from
+        # this. For the typical use case of making multiple
+        # independent and linear contigs this is also the simplest
+        # mode, since the addition of multiple nubs will introduce
+        # an extra spanning contig in the contig tree.
 
-            # TODO: add option to keep nubs in HDF5, and deal with in
-            # orch (you won't be able to have an end snapshot...).
+        # furthermore the nubs provide a source of problems if
+        # rnus were abruptly stopped and data is not written some
+        # of the frames can be corrupted. SO until we know how to
+        # stop this (probably SWMR mode will help) this is also a
+        # reason not to deal with nubs.
 
-            # to do this we simply check whether or not the number of
-            # cycles for the run_id are less than the number of cycles
-            # in the corresponding WepyHDF5 run dataset.
-            orch_run_num_cycles = new_orch.run_last_cycle_idx(*run_id)
+        # TODO: add option to keep nubs in HDF5, and deal with in
+        # orch (you won't be able to have an end snapshot...).
 
-            wepy_h5 = WepyHDF5(wepy_h5_path, mode='r')
-            with wepy_h5:
-                h5_run_num_cycles = wepy_h5.num_run_cycles(0)
+        # to do this we simply check whether or not the number of
+        # cycles for the run_id are less than the number of cycles
+        # in the corresponding WepyHDF5 run dataset.
+        orch_run_num_cycles = new_orch.run_last_cycle_idx(*run_id)
 
-            # if there are fewer cycles in the orch run we need to
-            # trim it and manually set it in the master HDF5
-            if orch_run_num_cycles < h5_run_num_cycles:
-                # TODO: slice the run and set it in the new file
-                pass
-            else:
-                raise ValueError("Number of cycles in orch run is more than HDF5."\
-                                 "This implies missing data")
+        # get the number of cycles that are in the data for the run in
+        # the HDF5 to compare to the number in the orchestrator run
+        # record
+        wepy_h5 = WepyHDF5(wepy_h5_path, mode='r')
+        with wepy_h5:
+            h5_run_num_cycles = wepy_h5.num_run_cycles(singleton_run_idx)
 
-            # we just link the whole file then sort out the
-            # continuations later since we aren't necessarily doing
-            # this in a logical order
-            new_run_idxs = master_wepy_h5.link_file_runs(wepy_h5_path)
+        # sanity check for if the number of cycles in the
+        # orchestrator is greater than the HDF5
+        if orch_run_num_cycles > h5_run_num_cycles:
+            raise ValueError("Number of cycles in orch run is more than HDF5."\
+                             "This implies missing data")
+
+        # copy the run (with the slice)
+        with master_wepy_h5:
+
+            # TODO: this was the old way of combining where we would
+            # just link, however due to the above discussion this is
+            # not tenable now. In the future there might be some more
+            # complex options taking linking into account but for now
+            # we just don't use it and all runs will be copied by this
+            # operation
+
+            # # we just link the whole file then sort out the
+            # # continuations later since we aren't necessarily doing
+            # # this in a logical order
+            # new_run_idxs = master_wepy_h5.link_file_runs(wepy_h5_path)
+
+            # extract the runs from the file (there should only be
+            # one). This means copy the run, but if we only want a
+            # truncation of it we will use the run slice to only get
+            # part of it
+
+            # so first we generate the run slices for this file using
+            # the number of cycles recorded in the orchestrator
+            run_slices = {singleton_run_idx : (0, orch_run_num_cycles)}
+
+            click.echo("Extracting Run: {}".format(run_id))
+
+            # then perform the extraction, which will open the other
+            # file on its own
+            new_run_idxs = master_wepy_h5.extract_file_runs(wepy_h5_path,
+                                                            run_slices=run_slices)
+
+            # DEBUG
+            # new_run_idxs = master_wepy_h5.link_file_runs(wepy_h5_path)
 
             # map the hash id to the new run idx created. There should
             # only be one run in an HDF5 if we are following the
@@ -408,6 +445,13 @@ def combine_orch_wepy_hdf5s(new_orch, new_hdf5_path):
                 "Cannot be more than 1 run per HDF5 file in orchestration workflow"
 
             run_mapping[run_id] = new_run_idxs[0]
+
+
+            click.echo("Set as run: {}".format(new_run_idxs[0]))
+
+    click.echo("Done extracting runs, setting continuations")
+
+    with master_wepy_h5:
 
         # now that they are all linked we need to add the snapshot
         # hashes identifying the runs as metadata. This is so we can
@@ -445,15 +489,45 @@ def combine_orch_wepy_hdf5s(new_orch, new_hdf5_path):
             # get the run_idx in the HDF5 that corresponds to this run
             continued_run_idx = run_mapping[continued_run_id]
 
+            click.echo("Run {} continued by {}".format(continued_run_id, run_idx))
+
             # add the continuation
             master_wepy_h5.add_continuation(run_idx, continued_run_idx)
+
+@click.command()
+@click.argument('orchestrator', nargs=1, type=click.Path(exists=True))
+@click.argument('hdf5', nargs=1, type=click.Path(exists=False))
+def reconcile_hdf5(orchestrator, hdf5):
+    """
+
+    Parameters
+    ----------
+    orchestrator :
+        
+    hdf5 :
+        
+
+    Returns
+    -------
+
+    """
+
+    orch = Orchestrator(orchestrator, mode='r')
+
+    hdf5_path = osp.realpath(hdf5)
+
+    click.echo("Combining the HDF5s together, saving to:")
+    click.echo(hdf5_path)
+
+    # combine the HDF5 files from those orchestrators
+    combine_orch_wepy_hdf5s(orch, hdf5_path)
+
 
 @click.command()
 @click.option('--hdf5', type=click.Path(exists=False))
 @click.argument('output', nargs=1, type=click.Path(exists=False))
 @click.argument('orchestrators', nargs=-1, type=click.Path(exists=True))
-def reconcile(hdf5,
-              output, orchestrators):
+def reconcile_orch(hdf5, output, orchestrators):
     """
 
     Parameters
@@ -470,42 +544,15 @@ def reconcile(hdf5,
 
     """
 
-    # new_orch = Orchestrator(output, mode='x')
-
-    # orchs = []
-    # for orch_path in orchestrators:
-    #     orchs.append(Orchestrator(orch_path, mode='r'))
-
     new_orch = reconcile_orchestrators(output, *orchestrators)
-
-    # for orch_idx, orchestrator in enumerate(orchestrators[1:]):
-    #     orch_idx += 1
-
-    #     click.echo("/n")
-    #     click.echo("Deserializing Orchestrator {}".format(orch_idx))
-    #     orch = deserialize_orchestrator(orchestrator.read())
-    #     click.echo("Finished Deserializing Orchestrator {}".format(orch_idx))
-
-    #     hash_listing_str = "\n".join(["{}, {}".format(start, end) for start, end in orch.runs])
-    #     click.echo("This orchestrator has the following runs:")
-    #     click.echo(hash_listing_str)
-
-    #     # reconcile the two orchestrators
-    #     click.echo("Reconciling this orchestrator to the new orchestrator")
-    #     new_orch = reconcile_orchestrators(new_orch, orch)
-
-    #     hash_listing_str = "\n".join(["{}, {}".format(start, end) for start, end in new_orch.runs])
-    #     click.echo("The new orchestrator has the following runs:")
-    #     click.echo(hash_listing_str)
-
-    # # then make and output the orchestrator
-    # click.echo("Serializing the new orchestrator")
-    # output.write(new_orch.serialize())
 
     # if a path for an HDF5 file is given
     if hdf5 is not None:
-        click.echo("Combining the HDF5s together")
         hdf5_path = osp.realpath(hdf5)
+
+        click.echo("Combining the HDF5s together, saving to:")
+        click.echo(hdf5_path)
+
         # combine the HDF5 files from those orchestrators
         combine_orch_wepy_hdf5s(new_orch, hdf5_path)
 
@@ -603,7 +650,7 @@ def ls_configs(orchestrator):
 @click.option('--no-expand-external', is_flag=True)
 @click.argument('source', type=click.Path(exists=True))
 @click.argument('target', type=click.Path(exists=False))
-def copy_h5(no_expand_external, source, target):
+def hdf5_copy(no_expand_external, source, target):
     """Copy a WepyHDF5 file, except links to other runs will optionally be
     expanded and truly duplicated if symbolic inter-file links are present."""
 
@@ -746,6 +793,16 @@ def ls():
     """ """
     pass
 
+@click.group()
+def reconcile():
+    """ """
+    pass
+
+@click.group()
+def hdf5():
+    """ """
+    pass
+
 # command groupings
 
 run.add_command(run_orch, name='orch')
@@ -759,12 +816,24 @@ get.add_command(get_snapshot, name='snapshot')
 get.add_command(get_config, name='config')
 get.add_command(get_run, name='run')
 
-cli.add_command(reconcile)
-cli.add_command(copy_h5)
+reconcile.add_command(reconcile_orch, name='orch')
+reconcile.add_command(reconcile_hdf5, name='hdf5')
+
+hdf5.add_command(hdf5_copy, name='copy')
+# desired commands
+# hdf5.add_command(hdf5_copy, name='copy-run')
+# hdf5.add_command(hdf5_copy, name='copy-traj')
+# hdf5.add_command(hdf5_copy, name='ls-runs')
+# hdf5.add_command(hdf5_copy, name='ls-run-hashes')
+
+
+
 # subgroups
 cli.add_command(run)
 cli.add_command(get)
 cli.add_command(ls)
+cli.add_command(reconcile)
+cli.add_command(hdf5)
 
 
 

@@ -910,7 +910,6 @@ class WepyHDF5(object):
         return self
 
     def __exit__(self, exc_type, exc_value, exc_tb):
-        self._h5.flush()
         self.close()
 
 
@@ -2376,6 +2375,7 @@ class WepyHDF5(object):
     def close(self):
         """Close the underlying HDF5 file. """
         if not self.closed:
+            self._h5.flush()
             self._h5.close()
             self.closed = True
 
@@ -3485,6 +3485,157 @@ class WepyHDF5(object):
                                   new_run_idxs[continuation[1]])
 
         return new_run_idxs
+
+    def extract_run(self, filepath, run_idx,
+                 continue_run=None,
+                 run_slice=None,
+                 **kwargs):
+        """Add a run from another file to this one by copying it and
+        truncating it if necessary.
+
+        Parameters
+        ----------
+        filepath : str
+            File path to the HDF5 file that the run is on.
+        run_idx : int
+            The run index from the target file you want to link.
+        continue_run : int, optional
+            The run from the linking WepyHDF5 file you want the target
+            linked run to continue.
+        run_slice : 
+
+        kwargs : dict
+            Adds metadata (h5py.attrs) to the linked run.
+
+        Returns
+        -------
+        linked_run_idx : int
+            The index of the linked run in the linking file.
+
+        """
+
+        # close ourselves if not already done, so we can write using
+        # the lower level API
+        was_open = False
+        if not self.closed:
+            self.close()
+            was_open = True
+
+        # do the copying
+
+        # open the other file and get the runs in it and the
+        # continuations it has
+        wepy_h5 = WepyHDF5(filepath, mode='r')
+
+
+
+        with self:
+            # normalize our HDF5s path
+            self_path = osp.realpath(self.filename)
+            # the run index in this file, as determined by the counter
+            here_run_idx = self.next_run_idx()
+
+        # get the group name for the new run in this HDF5
+        target_grp_path = "/runs/{}".format(here_run_idx)
+
+        with wepy_h5:
+            # link the next run, and get its new run index
+            new_h5 = wepy_h5.copy_run_slice(run_idx, self_path,
+                                      target_grp_path,
+                                      run_slice=run_slice,
+                                      mode='r+')
+
+            # close it since we are done
+            #new_h5.close()
+
+
+        with self:
+
+            # run the initialization routines for adding a run, just
+            # sets some metadata
+            self._add_run_init(here_run_idx, continue_run=continue_run)
+
+            run_grp = self._h5['{}/{}'.format(RUNS, here_run_idx)]
+
+            # add metadata if given
+            for key, val in kwargs.items():
+                if key != RUN_IDX:
+                    run_grp.attrs[key] = val
+                else:
+                    warn('run_idx metadata is set by wepy and cannot be used', RuntimeWarning)
+
+        if was_open:
+            self.open()
+
+        return here_run_idx
+
+
+    def extract_file_runs(self, wepy_h5_path,
+                          run_slices=None):
+        """Extract (copying and truncating appropriately) all runs from
+        another WepyHDF5 file.
+
+        This preserves continuations within that file. This will open
+        the file if not already opened.
+
+        Parameters
+        ----------
+        wepy_h5_path : str
+            Filepath to the file you want to link runs from.
+
+        Returns
+        -------
+        new_run_idxs : list of int
+            The new run idxs from the linking file.
+
+        """
+
+        if run_slices is None:
+            run_slices = {}
+
+
+        # open the other file and get the runs in it and the
+        # continuations it has
+        wepy_h5 = WepyHDF5(wepy_h5_path, mode='r')
+        with wepy_h5:
+            # the run idx in the external file
+            ext_run_idxs = wepy_h5.run_idxs
+            continuations = wepy_h5.continuations
+
+        # then for each run in it copy them to this file
+        new_run_idxs = []
+        for ext_run_idx in ext_run_idxs:
+
+            # get the run_slice spec for the run in the other file
+            run_slice = run_slices[ext_run_idx]
+
+            # get the index this run should be when it is added
+            new_run_idx = self.extract_run(wepy_h5_path, ext_run_idx,
+                                           run_slice=run_slice)
+
+            # save that run idx
+            new_run_idxs.append(new_run_idx)
+
+        was_closed = False
+        if self.closed:
+            self.open()
+            was_closed = True
+
+        # copy the continuations over translating the run idxs,
+        # for each continuation in the other files continuations
+        for continuation in continuations:
+
+            # translate each run index from the external file
+            # continuations to the run idxs they were just assigned in
+            # this file
+            self.add_continuation(new_run_idxs[continuation[0]],
+                                  new_run_idxs[continuation[1]])
+
+        if was_closed:
+            self.close()
+
+        return new_run_idxs
+
 
     def join(self, other_h5):
         """Given another WepyHDF5 file object does a left join on this
@@ -5493,7 +5644,7 @@ class WepyHDF5(object):
 
 
     def copy_run_slice(self, run_idx, target_file_path, target_grp_path,
-                 run_slice=None, mode='x'):
+                       run_slice=None, mode='x'):
         """Copy this run to another HDF5 file (target_file_path) at the group
         (target_grp_path)"""
 
@@ -5506,7 +5657,7 @@ class WepyHDF5(object):
             slice_frames = list(range(*run_slice))
 
 
-        # we manually construct an HDF5 and copy the groups over
+        # we manually construct an HDF5 wrapper and copy the groups over
         new_h5 = h5py.File(target_file_path, mode=mode, libver=H5PY_LIBVER)
 
         # flush the datasets buffers
