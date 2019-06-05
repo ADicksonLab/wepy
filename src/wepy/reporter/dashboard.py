@@ -411,7 +411,7 @@ Worker Avg. Segment Times:
     def _weighted_ensemble_string(self):
         weighted_ensemble_string = self.WEIGHTED_ENSEMBLE_TEMPLATE.format(
             step_time=self.step_time,
-            step_time_femtoseconds=self.step_time * 10e15,
+            step_time_femtoseconds=self.step_time * 10e14,
             last_cycle_idx=self.last_cycle_idx,
             n_cycles=self.n_cycles,
             walker_total_sampling_time=self.walker_total_sampling_time,
