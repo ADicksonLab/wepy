@@ -16,6 +16,7 @@ from geomm.centering import center_around
 
 import mdtraj as mdj
 
+from wepy.walker import WalkerState
 from wepy.util.util import box_vectors_to_lengths_angles
 from wepy.util.mdtraj import json_to_mdtraj_topology
 
@@ -477,9 +478,12 @@ class RebindingBC(ReceptorBC):
         assert native_state is not None, "Must give a native state"
         assert type(cutoff_rmsd) is float
 
+        native_state_d = native_state.dict()
 
         # save the native state and center it around it's binding site
-        native_state['positions'] = center_around(native_state['positions'], binding_site_idxs)
+        native_state_d['positions'] = center_around(native_state['positions'], binding_site_idxs)
+
+        native_state = WalkerState(**native_state_d)
 
         # save attributes
         self._native_state = native_state
