@@ -208,8 +208,12 @@ git push gitlab vX.Y.Z
 
 To deploy to PyPI (if you have access)
 #+BEGIN_SRC bash
-
+conda activate wepy-dev
+rm -rf dist/*
+python setup.py sdist
+twine upload dist/*
 #+END_SRC
+
 
 
 ** Building Docs

@@ -34,11 +34,10 @@ setup(
     author="Samuel D. Lotz",
     author_email="samuel.lotz@salotz.info",
     description="Weighted Ensemble Framework",
-    long_description=open('README.org').read(),
+    #long_description=open('README.org').read(),
     license="MIT",
     url="https://github.com/ADicksonLab/wepy",
     classifiers=[
-        "Development Status :: 3 - Alpha",
         "Topic :: Utilities",
         "License :: OSI Approved :: MIT License",
         'Programming Language :: Python :: 3'
