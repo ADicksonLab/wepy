@@ -3546,7 +3546,7 @@ class WepyHDF5(object):
                                       mode='r+')
 
             # close it since we are done
-            #new_h5.close()
+            new_h5.close()
 
 
         with self:
@@ -5800,6 +5800,12 @@ class WepyHDF5(object):
 
             h5py.h5o.copy(self.h5.id, run_grp.name.encode(),
                           new_h5.id, target_grp_path.encode())
+
+
+        # flush the datasets buffers
+        self.h5.flush()
+        new_h5.flush()
+
 
 
         return new_h5

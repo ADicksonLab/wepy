@@ -294,7 +294,7 @@ def run_orch(log, n_workers, checkpoint_freq, job_dir, job_name, narration, conf
     logging.info("Closing the orchestrating orch")
     orch.close()
 
-def combine_orch_wepy_hdf5s(new_orch, new_hdf5_path):
+def combine_orch_wepy_hdf5s(new_orch, new_hdf5_path, run_ids):
     """
 
     Parameters
@@ -309,6 +309,9 @@ def combine_orch_wepy_hdf5s(new_orch, new_hdf5_path):
 
     """
 
+    if run_ids is None:
+        run_ids = new_orch.run_hashes()
+
     # we assume that the run we are interested in is the only run in
     # the WepyHDF5 file so it is index 0
     singleton_run_idx = 0
@@ -317,7 +320,7 @@ def combine_orch_wepy_hdf5s(new_orch, new_hdf5_path):
     hdf5_paths = {}
 
     # go through each run in the new orchestrator
-    for run_id in new_orch.run_hashes():
+    for run_id in run_ids:
 
         # get the configuration used for this run
         run_config = new_orch.run_configuration(*run_id)
@@ -340,7 +343,7 @@ def combine_orch_wepy_hdf5s(new_orch, new_hdf5_path):
     # first we need a master linker HDF5 to do this with
 
     # so load a template WepyHDF5
-    template_wepy_h5_path = hdf5_paths[new_orch.run_hashes()[singleton_run_idx]]
+    template_wepy_h5_path = hdf5_paths[run_ids[singleton_run_idx]]
     template_wepy_h5 = WepyHDF5(template_wepy_h5_path, mode='r')
 
     # clone it
@@ -429,14 +432,13 @@ def combine_orch_wepy_hdf5s(new_orch, new_hdf5_path):
             run_slices = {singleton_run_idx : (0, orch_run_num_cycles)}
 
             click.echo("Extracting Run: {}".format(run_id))
+            click.echo("Frames 0 to {} out of {}".format(
+                orch_run_num_cycles, h5_run_num_cycles))
 
             # then perform the extraction, which will open the other
             # file on its own
             new_run_idxs = master_wepy_h5.extract_file_runs(wepy_h5_path,
                                                             run_slices=run_slices)
-
-            # DEBUG
-            # new_run_idxs = master_wepy_h5.link_file_runs(wepy_h5_path)
 
             # map the hash id to the new run idx created. There should
             # only be one run in an HDF5 if we are following the
@@ -445,7 +447,6 @@ def combine_orch_wepy_hdf5s(new_orch, new_hdf5_path):
                 "Cannot be more than 1 run per HDF5 file in orchestration workflow"
 
             run_mapping[run_id] = new_run_idxs[0]
-
 
             click.echo("Set as run: {}".format(new_run_idxs[0]))
 
@@ -497,7 +498,8 @@ def combine_orch_wepy_hdf5s(new_orch, new_hdf5_path):
 @click.command()
 @click.argument('orchestrator', nargs=1, type=click.Path(exists=True))
 @click.argument('hdf5', nargs=1, type=click.Path(exists=False))
-def reconcile_hdf5(orchestrator, hdf5):
+@click.argument('run_ids', nargs=-1)
+def reconcile_hdf5(orchestrator, hdf5, run_ids):
     """
 
     Parameters
@@ -512,6 +514,9 @@ def reconcile_hdf5(orchestrator, hdf5):
 
     """
 
+    # parse the run ids
+    run_ids = [tuple(run_id.split(',')) for run_id in run_ids]
+
     orch = Orchestrator(orchestrator, mode='r')
 
     hdf5_path = osp.realpath(hdf5)
@@ -520,7 +525,7 @@ def reconcile_hdf5(orchestrator, hdf5):
     click.echo(hdf5_path)
 
     # combine the HDF5 files from those orchestrators
-    combine_orch_wepy_hdf5s(orch, hdf5_path)
+    combine_orch_wepy_hdf5s(orch, hdf5_path, run_ids)
 
 
 @click.command()
