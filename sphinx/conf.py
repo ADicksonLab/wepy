@@ -23,9 +23,9 @@ copyright = '2018, Samuel D. Lotz'
 author = 'Samuel D. Lotz'
 
 # The short X.Y version
-version = ''
+version = '1.0.0'
 # The full version, including alpha/beta/rc tags
-release = 'v0.10.2'
+#release = 'v1.0.0-rc'
 
 
 # -- General configuration ---------------------------------------------------

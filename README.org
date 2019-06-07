@@ -97,13 +97,37 @@ Lotz and Dickson. 2018. JACS 140 (2) pp. 618-628 (DOI: 10.1021/jacs.7b08572)
 
 ** Dev Environment
 
-Clone and install with all the features:
+Get the source code:
 
 #+BEGIN_SRC bash
-  git clone https://github.com/ADicksonLab/wepy
-  cd wepy
-  # install in editable mode
-  pip install -r requirements_dev.txt -e .[all]
+git clone https://github.com/ADicksonLab/wepy
+cd wepy
+#+END_SRC
+
+Install a virtual environment for it:
+
+#+BEGIN_SRC bash
+  wepy_dev_env_refresh () {
+
+      package='wepy'
+      conda deactivate
+      dev_env="${package}-dev"
+      conda env remove -y -n "$dev_env"
+      conda create -y -n "$dev_env" python=3
+      conda activate "$dev_env"
+
+      # install in editable mode, we need to avoid using pep517 which
+      # doesn't allow editable installs
+      pip install -r requirements_dev.txt 
+      pip install --no-use-pep517 -e .[all]
+
+      # we need openmm but can't get it from pip
+      conda install -y -c omnia openmm
+  }
+#+END_SRC
+
+#+BEGIN_SRC bash
+wepy_dev_env_refresh
 #+END_SRC
 
 
@@ -124,7 +148,53 @@ Because at this multiple packages are developed simultaneously we
 require that geomm be installed in the same directory as wepy for
 using the dev requirements.
 
-** TODO Releasing Package
+** Releasing Package
+
+*** Test the installation process
+
+Functions for doing this:
+
+#+BEGIN_SRC bash
+  wepy_test_build () {
+      package='wepy'
+      build_env="test-${package}-build"
+      conda deactivate
+      conda env remove -y -n "$build_env"
+      conda create -y -n "$build_env" python=3
+      conda activate "$build_env"
+      pip install -r requirements_dev.txt
+      rm -rf dist/*
+      python setup.py build sdist
+      conda deactivate
+      conda env remove -y -n "$build_env"
+
+  }
+
+  wepy_test_install () {
+
+      package='wepy'
+      conda deactivate
+      install_env="test-${package}-install"
+      conda env remove -y -n "$install_env"
+      conda create -y -n "$install_env" python=3
+      conda activate "$install_env"
+      pip install dist/"$package"-*.tar.gz
+      conda deactivate
+      conda env remove -y -n "$install_env"
+
+  }
+#+END_SRC
+
+*** Update versions
+
+
+Before we build the package we need to bump the version in all those
+places it is written down at, which is achieved with the bumpversion
+tool:
+
+#+BEGIN_SRC bash
+bumpversion patch # possible: major / minor / patch
+#+END_SRC
 
 Make sure to tag in git (I typically use magit in emacs but the
 command is):
@@ -134,13 +204,7 @@ git tag -a vX.Y.Z -m "release message"
 git push gitlab vX.Y.Z
 #+END_SRC
 
-Before we build the package we need to bump the version in all those
-places it is written down at, which is achieved with the bumpversion
-tool:
-
-#+BEGIN_SRC bash
-bumpversion patch # possible: major / minor / patch
-#+END_SRC
+*** Deploying
 
 To deploy to PyPI (if you have access)
 #+BEGIN_SRC bash

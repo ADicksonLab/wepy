@@ -1,3 +1,5 @@
+#!/bin/sh
+
 # run pandoc to produce rst from org-mode files
 for f in source/*.org; do
     echo "converting $f to rst"
