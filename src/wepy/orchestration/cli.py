@@ -294,7 +294,7 @@ def run_orch(log, n_workers, checkpoint_freq, job_dir, job_name, narration, conf
     logging.info("Closing the orchestrating orch")
     orch.close()
 
-def combine_orch_wepy_hdf5s(new_orch, new_hdf5_path, run_ids):
+def combine_orch_wepy_hdf5s(new_orch, new_hdf5_path, run_ids=None):
     """
 
     Parameters
@@ -525,7 +525,7 @@ def reconcile_hdf5(orchestrator, hdf5, run_ids):
     click.echo(hdf5_path)
 
     # combine the HDF5 files from those orchestrators
-    combine_orch_wepy_hdf5s(orch, hdf5_path, run_ids)
+    combine_orch_wepy_hdf5s(orch, hdf5_path, run_ids=run_ids)
 
 
 @click.command()
