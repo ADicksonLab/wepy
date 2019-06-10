@@ -1,6 +1,5 @@
 * Weighted Ensemble Python (wepy)
 
-
 Modular implementation and framework for running weighted ensemble
 simulations in pure python, where the aim is to have simple things
 simple and complicated things possible. The latter being the priority.
@@ -116,13 +115,14 @@ Install a virtual environment for it:
       conda create -y -n "$dev_env" python=3
       conda activate "$dev_env"
 
+      # we need openmm but can't get it from pip
+      conda install -y -c omnia openmm openmmtools
+
       # install in editable mode, we need to avoid using pep517 which
       # doesn't allow editable installs
       pip install -r requirements_dev.txt 
       pip install --no-use-pep517 -e .[all]
 
-      # we need openmm but can't get it from pip
-      conda install -y -c omnia openmm
   }
 #+END_SRC
 

@@ -22,17 +22,22 @@ nbsphinx
 # testing
 pytest
 pytest-runner
-pytest-datadir
 argcomplete
 flake8
 tox
 coverage
 
+# this is a customized datadir module I made since the off the shelf
+# one wasn't doing what i needed.
+#pytest-datadir
+git+https://github.com/salotz/pytest-datadir.git
+
 # modules just for tests
 
 # openmmtools for setting up the mock systems, should be installed with anaconda
-# conda install -c omnia openmmtools
+# conda install -c omnia openmmtools openmm
 
+mdtraj
 
 # Geomm
 cython
