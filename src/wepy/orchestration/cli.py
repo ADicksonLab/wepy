@@ -778,6 +778,23 @@ def get_run(output, end_hash, start_hash, orchestrator):
     orch.close()
     new_orch.close()
 
+@click.argument('end_hash')
+@click.argument('start_hash')
+@click.argument('orchestrator', type=click.Path(exists=True))
+@click.command()
+def get_run_cycles(end_hash, start_hash, orchestrator):
+
+    orch = Orchestrator(orchestrator, mode='r')
+
+    start_serial_snapshot = orch.snapshot_kv[start_hash]
+    end_serial_snapshot = orch.snapshot_kv[end_hash]
+
+    # get the records values for this run
+    rec_d = {field : value for field, value in
+           zip(Orchestrator.RUN_SELECT_FIELDS, orch.get_run_record(start_hash, end_hash))}
+
+    click.echo(rec_d['last_cycle_idx'])
+
 @click.group()
 def cli():
     """ """
@@ -820,6 +837,7 @@ ls.add_command(ls_configs, name='configs')
 get.add_command(get_snapshot, name='snapshot')
 get.add_command(get_config, name='config')
 get.add_command(get_run, name='run')
+get.add_command(get_run_cycles, name='run-cycles')
 
 reconcile.add_command(reconcile_orch, name='orch')
 reconcile.add_command(reconcile_hdf5, name='hdf5')
