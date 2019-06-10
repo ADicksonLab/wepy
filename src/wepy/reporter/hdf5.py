@@ -299,10 +299,10 @@ class WepyHDF5Reporter(FileReporter):
             for key, (idxs, freq) in alt_reps.items():
                 alt_rep_key = "alt_reps/{}".format(key)
 
-                # if the frequency is Ellipsis then we save it every
-                # frame and don't make it sparse because that is very
-                # innefficient in comparison
-                if freq is Ellipsis:
+                # if the frequency is Ellipsis or 1 then we save it
+                # every frame and don't make it sparse because that is
+                # very innefficient in comparison
+                if freq is Ellipsis or freq == 1 or freq == 0:
                     pass
                 else:
                     self._sparse_fields[alt_rep_key] = freq
