@@ -5668,50 +5668,27 @@ class WepyHDF5(object):
         # get the run group we are interested in
         run_grp = self.run(run_idx)
 
-        # DEBUG
-        print("initialized new file")
-
         # slice the datasets in the run and set them in the new file
         if run_slice is not None:
 
             # initialize the group for the run
             new_run_grp = new_h5.require_group(target_grp_path)
 
-            # DEBUG
-            print("Copying init walkers")
 
             # copy the init walkers group
             self.h5.copy(run_grp[INIT_WALKERS], new_run_grp,
                          name=INIT_WALKERS)
 
-            # DEBUG
-            print("done")
-            print("copying decision")
-
             # copy the decision group
             self.h5.copy(run_grp[DECISION], new_run_grp,
                          name=DECISION)
 
-            # DEBUG
-            print("done")
-
-            # TODO remove when new method is validated
-            # h5py.h5o.copy(self.h5.id, run_grp[INIT_WALKERS].name.encode(),
-            #               new_h5.id, '{}/{}'.format(target_grp_path, INIT_WALKERS).encode())
-            # h5py.h5o.copy(self.h5.id, run_grp[DECISION].name.encode(),
-            #               new_h5.id, '{}/{}'.format(target_grp_path, DECISION).encode())
-
-            # DEBUG
-            print("copying trajectories")
 
             # create the trajectories group
             new_trajs_grp = new_run_grp.require_group(TRAJECTORIES)
 
             # slice the trajectories and copy them
             for traj_idx in run_grp[TRAJECTORIES]:
-
-                # DEBUG
-                print("Copying traj {}".format(traj_idx))
 
                 traj_grp = run_grp[TRAJECTORIES][traj_idx]
 
@@ -5722,30 +5699,20 @@ class WepyHDF5(object):
                 for field_name in _iter_field_paths(run_grp[traj_id]):
                     field_path = "{}/{}".format(traj_id, field_name)
 
-                    # DEBUG
-                    print("Copying field {}".format(field_name))
-                    print("Retrieving data")
-
                     data = self.get_traj_field(run_idx, traj_idx, field_name,
                                                frames=slice_frames)
-
-                    # DEBUG
-                    print("done")
-                    print("copying data")
 
                     # if it is a sparse field we need to create the
                     # dataset differently
                     if field_name in self.sparse_fields:
-
-                        # DEBUG
-                        print("sparse field")
 
                         # create a group for the field
                         new_field_grp = new_traj_grp.require_group(field_name)
 
                         # slice the _sparse_idxs from the original
                         # dataset that are between the slice
-                        cycle_idxs = self.traj(run_idx, traj_idx)[field_name]['_sparse_idxs']
+                        cycle_idxs = self.traj(run_idx, traj_idx)[field_name]['_sparse_idxs'][:]
+
                         sparse_idx_idxs = np.argwhere(np.logical_and(
                             cycle_idxs[:] >= run_slice[0], cycle_idxs[:] < run_slice[1]
                         )).flatten().tolist()
@@ -5788,8 +5755,6 @@ class WepyHDF5(object):
 
                     else:
 
-                        print("normal field")
-
                         # get the information on compression,
                         # chunking, and filters and use it when we set
                         # the new data
@@ -5813,15 +5778,8 @@ class WepyHDF5(object):
                         # sparse or not
                         dset[:] = data
 
-                    print("done")
-                print("Done with trajectory {}".format(traj_idx))
-            print("Done with trajectories")
-            print("copying records")
-
             # then do it for the records
             for rec_grp_name, rec_fields in self.record_fields.items():
-
-                print("rec group {}".format(rec_grp_name))
 
                 rec_grp = run_grp[rec_grp_name]
 
@@ -5834,8 +5792,12 @@ class WepyHDF5(object):
 
                     # get dataset info
                     cycle_idxs_dset = rec_grp[CYCLE_IDXS]
+
+                    # we use autochunk, because I can't figure out how
+                    # the chunks are set and I can't reuse them
                     idxs_dset_kwargs = {
-                        'chunks' : cycle_idxs_dset.chunks,
+                        'chunks' : True,
+                        # 'chunks' : cycle_idxs_dset.chunks,
                         'compression' : cycle_idxs_dset.compression,
                         'compression_opts' : cycle_idxs_dset.compression_opts,
                         'shuffle' : cycle_idxs_dset.shuffle,
@@ -5851,6 +5813,7 @@ class WepyHDF5(object):
                     new_recgrp_cycle_idxs_path = '{}/{}/_cycle_idxs'.format(target_grp_path,
                                                                             rec_grp_name)
                     cycle_data = cycle_idxs[record_idxs]
+
                     cycle_dset = new_h5.require_dataset(new_recgrp_cycle_idxs_path,
                                                         cycle_data.shape, cycle_data.dtype,
                                                         **idxs_dset_kwargs)
@@ -5864,13 +5827,12 @@ class WepyHDF5(object):
                 # then for each rec_field slice those and set them in the new file
                 for rec_field in rec_fields:
 
-                    print("rec field {}".format(rec_field))
-
                     field_dset = rec_grp[rec_field]
 
                     # get dataset info
                     field_dset_kwargs = {
-                        'chunks' : field_dset.chunks,
+                        'chunks' : True,
+                        # 'chunks' : field_dset.chunks,
                         'compression' : field_dset.compression,
                         'compression_opts' : field_dset.compression_opts,
                         'shuffle' : field_dset.shuffle,
@@ -5884,10 +5846,15 @@ class WepyHDF5(object):
                     # if it is a variable length dtype make the dtype
                     # that for the dataset and we also slice the
                     # dataset differently
-                    if h5py.check_dtype(vlen=field_dset.dtype) is not None:
-                        dtype = h5py.special_dtype(vlen=field_dset.dtype)
+                    vlen_type = h5py.check_dtype(vlen=field_dset.dtype)
+                    if vlen_type is not None:
+
+                        dtype = h5py.special_dtype(vlen=vlen_type)
+
                     else:
                         dtype = field_dset.dtype
+
+
 
                     # if there are no records don't attempt to add them
                     # get the shape
@@ -5901,18 +5868,19 @@ class WepyHDF5(object):
                     # and if there are get them and add them
                     if len(record_idxs) > 0:
                         rec_data = field_dset[record_idxs]
-                        new_field_dset[:] = rec_data
 
-                    print("done with rec field {}".format(rec_field))
-                print("done with rec group {}".format(rec_grp_name))
-            print("done with  group {}".format(rec_grp_name))
-
+                        # if it is a variable length data type we have
+                        # to do it 1 by 1
+                        if vlen_type is not None:
+                            for i, vlen_rec in enumerate(rec_data):
+                                new_field_dset[i] = rec_data[i]
+                        # otherwise just set it all at once
+                        else:
+                            new_field_dset[:] = rec_data
 
         # just copy the whole thing over, since this will probably be
         # more efficient
         else:
-
-            print("Just copying the whole thing since no slice was requested")
 
             # split off the last bit of the target path, for copying we
             # need it's parent group but not it to exist
@@ -5925,20 +5893,8 @@ class WepyHDF5(object):
             self.h5.copy(run_grp, new_run_prefix_grp,
                          name=target_grp_path_basename)
 
-            # TODO remove when new method is validated
-            # h5py.h5o.copy(self.h5.id, run_grp.name.encode(),
-            #               new_h5.id, target_grp_path.encode())
-
-            print("Done with raw copy")
-
-
-        print("Done, flushing buffers")
-
         # flush the datasets buffers
         self.h5.flush()
         new_h5.flush()
-
-
-        print("Done returning")
 
         return new_h5
