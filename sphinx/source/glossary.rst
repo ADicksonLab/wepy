@@ -53,11 +53,19 @@ Glossary
       a cycle.
 
    resampling records
-      Records that report on the resampling of walkers i.e. cloning and
-      merging.
+      Records that report on the resampling of walkers i.e. cloning
+      and merging. Contains the fields of a decision record. A
+      destructured resampling panel.
 
    resampler records
       Records that report on the state of the resampler itself.
+
+   resampling step
+      A single cycle of resampling may be broken into several steps
+      that are applied in order. A single step is a collection of
+      decision records for each walker in the cohort. This, for
+      example, allows for recursive clones, which would be very
+      difficult to encode in a simple decision set.
 
    resampling panel
       This is the datastructure that describes the full process of
@@ -188,3 +196,19 @@ Glossary
       A reporter is an object that receives all of the walker states and
       records at the end of the cycle and is allowed to write it out in some
       way.
+
+   resampling decision
+      A specification of a type of action to take on a sample within a sample set.
+
+   decision record
+      A specific key-value data structure that represents a resampling
+      decision. Must contain a representation of the decision value
+      (enum or its integer value) and any additional fields
+      (instructions) that are needed to perform the resampling, such
+      as the number of clones or which walker to merge with. Contained
+      within a resampling record which adds metadata which places it
+      within the context of an entire simulation.
+
+   decision instruction record
+      See decision record.
+

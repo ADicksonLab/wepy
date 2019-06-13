@@ -1,3 +1,22 @@
+"""Distance metrics related to common features of receptor-ligand
+processes in molecular systems.
+
+The ReceptorDistance class is an abstract class that provides some
+common functionality for normalizing reference states, providing
+correct indices of receptor and ligand atoms, and a common image
+function.
+
+Subclasses of ReceptorDistance need only implement the
+'image_distance' function according to their needs.
+
+The UnbindingDistance is a useful metric for enhancing ligand movement
+away from the reference bound state conformation.
+
+The RebindingDistance is a useful metric for enhancing the movement of
+a ligand towards a reference state.
+
+"""
+
 import logging
 
 import numpy as np
@@ -12,8 +31,43 @@ from geomm.centering import center_around
 from wepy.resampling.distances.distance import Distance
 
 class ReceptorDistance(Distance):
-    """ """
+    """Common abstract class for receptor-ligand molecular systems.
+
+    Any input walker state should have the attributes 'positions' and
+    'box_vectors' and will first preprocess these states, by
+    recentering the complex. Two component systems like
+    receptor-ligands in periodic boxes can sometimes drift to
+    different periodic images of the box making them unsuitable for
+    RMSD calculations.
+
+    The 'image' method will align the receptor structures of the state
+    to the reference state after the recentering.
+
+    """
+
     def __init__(self, ligand_idxs, binding_site_idxs, ref_state):
+        """Construct a distance metric.
+
+        Parameters
+        ----------
+
+        ligand_idxs : arraylike of int
+            The indices of the atoms from the 'positions' attribute of
+            states that correspond to the ligand molecule.
+
+        binding_site_idxs : arraylike of int
+            The indices of the atoms from the 'positions' attribute of
+            states that correspond to the atoms of the binding site of
+            the receptor. These are the atoms you want to perform
+            alignment on and so can be a subset of a complete molecule.
+
+        ref_state : object implementing WalkerState
+            The reference state all walker states will be aligned to
+            with 'positions' (Nx3 dims) and 'box_vectors' (3x3 array)
+            attributes.
+
+        """
+
 
         # the idxs of the ligand and binding site from the whole state
         self._lig_idxs = ligand_idxs
@@ -36,12 +90,18 @@ class ReceptorDistance(Distance):
         self.ref_image = self._unaligned_image(ref_state)
 
     def _unaligned_image(self, state):
-        """
+        """The preprocessing method of states.
+
+        First it groups the binding site and ligand into the same
+        periodic box image and then centers the box around their
+        mutual center of mass and returns only the positions of the
+        binding site and ligand.
 
         Parameters
         ----------
-        state :
-            
+        state : object implementing WalkerState
+            State with 'positions' (Nx3 dims) and 'box_vectors' (3x3
+            array) attributes.
 
         Returns
         -------
@@ -67,15 +127,25 @@ class ReceptorDistance(Distance):
         return state_image
 
     def image(self, state):
-        """
+        """Transform a state to a receptor image.
+
+        A receptor image is one in which the binding site and ligand
+        are first normalized to be within the same periodic box image
+        and at the center of the box, and then only the binding site
+        and ligand are retained.
 
         Parameters
         ----------
-        state :
-            
+        state : object implementing WalkerState
+            State with 'positions' (Nx3 dims) and 'box_vectors' (3x3 array)
+            attributes.
 
         Returns
         -------
+
+        receptor_image : array of float
+            The positions of binding site and ligand after
+            preprocessing.
 
         """
 
@@ -89,21 +159,19 @@ class ReceptorDistance(Distance):
 
 
 class UnbindingDistance(ReceptorDistance):
-    """ """
+    """Distance metric for measuring differences between walker states in
+    regards to the RMSDs between ligands.
+
+    Images are produced using the ReceptorDistance.image method. The
+    distance between images then is solely the RMSD of the ligand
+    atoms.
+
+    Thus walkers were ligands are divergent in position will have
+    higher distances.
+
+    """
+
     def image_distance(self, image_a, image_b):
-        """
-
-        Parameters
-        ----------
-        image_a :
-            
-        image_b :
-            
-
-        Returns
-        -------
-
-        """
 
         # we calculate the rmsd of only the ligands between the
         # images
@@ -112,21 +180,16 @@ class UnbindingDistance(ReceptorDistance):
         return lig_rmsd
 
 class RebindingDistance(ReceptorDistance):
-    """ """
+    """Distance metric for measuring differences between walker states in
+    regards to the RMSDs between ligands.
+
+    Images are produced using the ReceptorDistance.image method. The
+    distance between images then is the relative difference between
+    the ligand RMSDs to the reference state.
+
+    """
+
     def image_distance(self, image_a, image_b):
-        """
-
-        Parameters
-        ----------
-        image_a :
-            
-        image_b :
-            
-
-        Returns
-        -------
-
-        """
 
         # we calculate the rmsd of only the ligands between each image
         # and the reference
