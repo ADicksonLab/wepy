@@ -13,7 +13,7 @@ from wepy.resampling.resamplers.clone_merge  import CloneMergeResampler
 from wepy.resampling.decisions.clone_merge import MultiCloneMergeDecision
 
 class RegionTreeError(Exception):
-    """ """
+    """Errors related to violations of constraints in RegionTree algorithms."""
     pass
 
 
@@ -21,17 +21,27 @@ class RegionTreeError(Exception):
 
 # algorithms for finding the number of mergeable walkers in a group
 def calc_squashable_walkers_single_method(walker_weights, max_weight):
-    """
+    """Calculate the maximum number of squashable walkers in collection of
+    walkers, that still satisfies the max weight constraint.
+
+    We don't guarantee or know if this is a completely optimal solver
+    for this problem but it is assumed to be good enough in practice
+    and no harm comes from underestimating it only a reduced potential
+    performance.
 
     Parameters
     ----------
-    walker_weights :
-        
-    max_weight :
-        
+    walker_weights : list of float
+        The weights of the walkers
+
+    max_weight : float
+        The maximum weight a walker can have.
 
     Returns
     -------
+
+    n_squashable : int
+        The maximum number of squashable walkers.
 
     """
 
@@ -92,19 +102,33 @@ def calc_squashable_walkers_single_method(walker_weights, max_weight):
 
 # algorithms for actually generating the merge groups
 def decide_merge_groups_single_method(walker_weights, balance, max_weight):
-    """
+    """Use the 'single' method for determining the merge groups.
+
+    Determine a solution to the backpack-like problem of assigning
+    squashed walkers to KEEP_MERGE walkers.
+
+    The single method just assigns all squashed walkers in the
+    collection to a single walker, thus there is a single merge_group.
 
     Parameters
     ----------
-    walker_weights :
-        
-    balance :
-        
-    max_weight :
-        
+    walker_weights : list of float
+        The weights of the walkers.
+
+    balance : int
+        The net change in the number of walkers we desire.
+
+    max_weight : float
+        The maximum weight a single walker can be.
 
     Returns
     -------
+
+    merge_groups : list of list of int
+        The merge group solution.
+
+    result : bool
+        Whether the merge group exceeds the max weight.
 
     """
 
@@ -170,7 +194,8 @@ def calc_max_num_clones(walker_weight, min_weight, max_num_walkers):
 
 
 class RegionTree(nx.DiGraph):
-    """ """
+    """Used internally in the WExploreResampler module. Not really
+    intended to be used outside this module."""
 
     # the strings for choosing a method of solving how deciding how
     # many walkers can be merged together given a group of walkers and
@@ -2023,7 +2048,172 @@ class RegionTree(nx.DiGraph):
         return merge_groups, walkers_num_clones
 
 class WExploreResampler(CloneMergeResampler):
-    """ """
+    """Resampler implementing the WExplore algorithm.
+
+    See the paper for a full description of the algorithm, but
+    briefly:
+
+    WExplore defines a hierarchical Voronoi tesselation on a subspace
+    of the full walker state. Regions in a Voronoi cell are defined by
+    a point in this subspace called an 'image', and are scoped by
+    their enclosing region in the hierarchy.
+
+    The hierarchy is defined initially by:
+
+    - number of levels of the hierarchy, AKA depth
+    - number of regions allowed at a level of the hierarchy
+    - a cutoff 'distance' at each level of the hierarchy
+
+    All regions have a unique specification (called a leaf_id) which
+    is a k-tuple of region indices, where k is the depth of the
+    hierarchy.
+
+    At first the hierarchy only has a single region at all levels
+    which is given by the image of the 'init_state' constructor
+    argument.
+
+    For a hierarchy of depth 4 the leaf_id for this first region is
+    (0, 0, 0, 0) which indicates that at level 0 (the highest level)
+    we are selecting the first region (region 0), and at level 1 we
+    select the first region at that level (region 0 again), and so on.
+
+    For this region all images at each level are identical.
+
+    During resampling walkers first are binned into the region they
+    fall. This is achieved using a breadth first search where the
+    distance (according to the distance metric) between the walker
+    state and all region images are computed. The image that is
+    closest to the walker is selected and in the next iteration of
+    comparisons we restrict the search to only regions within this
+    super-region.
+
+    For example for a region tree with the following leaf ids: (0,0,0)
+    and (0,1,0) we skip distance computations at level 0, since there
+    is only one region. At level 1, we compute the distance to images
+    0 and 1 and choose the one that is closest. Since each of these
+    regions only has 1 sub-region we do not need to recalculate the
+    distance and can assign the walker.
+
+    Indeed every super-region will have exactly one sub-region that
+    has the same image as it, and these distance calculations are
+    never repeated for performance.
+
+    This resampler adds the additional 'region_assignment' field to
+    the resampling records which indicates the region a walker was
+    assigned to during resampling.
+
+
+    While walkers can always be assigned uniquely to a region the
+    specification of the cutoff distances at each level indicate when
+    sufficient novelty in a walker motivates creation of a new region.
+
+    The distances of the walker to each of the closest region images
+    is saved for each level, e.g. (0.1, 0.3, 0.5) for the example
+    above. This is compared to the cutoff distance specification,
+    e.g. (0.2, 0.2, 0.2). The highest level at which a distance
+    exceeds the cutoff will trigger region creation.
+
+    Following the example above the walker above exceeded the cutoff
+    distance at level 1 and level 2 of the hierarchy, however level 1
+    takes precedence over the lower level.
+
+    This event of region creation can be thought of as a branching
+    event of the tree, where the branching level is the level at which
+    the branch occurred.
+
+    All branches of a region tree must extend the full depth and so
+    the specification of the new branch can be given by the leaf_id of
+    the region created, which would be (0, 2, 0) for this example.
+
+    The new image of this region is the image of the walker that
+    triggered the branching.
+
+    Note that the 'boundaries' of the Voronoi cells are subject to
+    change during branching.
+
+    The only limitation to this process is the allowed number of
+    sub-regions for a super-region which is given for each level. For
+    example, (5, 10, 10) indicates that regions at the top-most level
+    can have 5 sub-regions, and in turn those sub-regions can have 10
+    sub-regions, and so on.
+
+    The resampler records give updates on the definitions of new
+    regions and includes:
+
+    - branching_level : the level of the tree the branching occured
+          at, which relates it to the number of allowed regions and the
+          cutoff distance new regions are made at.
+
+    - distance : the distance of the walker to the nearest region
+          image that triggered the creation of a new region.
+
+    - new_leaf_id : the leaf id of the new region, which is a tuple of
+          the index of each region index at each branching level.
+
+    - image : a datatype that stores the actual value of the newly
+          created region.
+
+
+
+    That covers how regions are initialized, adaptively created, and
+    recorded, but doesn't explain how these regions are used inform
+    the actual resampling process.
+
+    Essentially, the hierarchical structure allows for balanced
+    resource trading between regions. The resource in the case of
+    weighted ensemble is the allocation of a walker which will be
+    scheduled for sampling in the next cycle. The more walkers a
+    region has the more sampling of the region will occur.
+
+    After the sampling step walkers move around in regions and between
+    regions. Some regions will end up collecting more walkers than
+    other regions during this. The goal is to redistribute those
+    walkers to other regions so that each level of the hierarchy is as
+    balanced as possible.
+
+    So after sampling the number of walkers is added up for each
+    region. At the top of the hierarchy a collection of trades between
+    the super-regions is negotiated based on which regions are able to
+    give up walkers and those that need them such that each region has
+    as close to the same number of walkers as possible.
+
+    The 'payment' of a tax (or donation) is performed by merging
+    walkers and the reception of the donation (or welfare
+    dispensation) is achieved by cloning walkers.
+
+    Because there are constraints on how many walkers can be merged
+    and cloned due to minimum and maximum walker probabilities and
+    total number of walkers, sometimes a region may have an excess of
+    walkers but none of them are taxable (donatable) because any merge
+    would create a walker above the maximum probability. Conversely, a
+    region may not be able to receive walkers because any clone of a
+    walker would make walkers with weight lower than the minimum.
+
+    However, super-regions cannot actually 'pay' for these trades
+    themselves and simply make a request to their sub-regions to
+    provide the requested walkers (or to find room for accepting
+    them). The trade negotiation process then repeats within each
+    sub-region. When the request for debits and credits finally
+    reaches leaf node regions the process stops and the actual
+    identities of the walkers that will be cloned or merged are
+    determined.
+
+    Then the cloning and merging of walkers is performed.
+
+    After this process if we were to recount the number of walkers in
+    all regions then they should be pretty well balanced at each
+    level.
+
+    Its worth noting that some regions will have no walkers because
+    once a region contains no walkers (all walkers leave the region
+    during sampling) it can no longer receive any walkers at all
+    because it cannot clone. Of course walkers may re-enter the region
+    and repopulate it but until that happens these regions are
+    excluded from negotiations.
+
+    Only the net clones and merges are recorded in the records.
+
+    """
 
     # TODO refactor step_idx and walker_idx to superclass
 
@@ -2062,6 +2252,29 @@ class WExploreResampler(CloneMergeResampler):
                  init_state=None,
                  **kwargs
                 ):
+        """Constructor for the WExploreResampler.
+
+        Parameters
+        ----------
+
+        seed : None or int
+            The random seed. If None the system (random) one will be used.
+
+        distance : object implementing Distance
+            The distance metric to compare walkers to region images with.
+
+        init_state : WalkerState object
+            The state that seeds the first region in the region hierarchy.
+
+        max_n_regions : tuple of int
+            The number of allowed sub-regions for a region at each
+            level of the region hierarchy.
+
+        max_region_sizes : tuple of float
+            The cutoff distances that trigger the creation of new
+            regions at each level of the hierarchy.
+
+        """
 
         # we call the common methods in the CloneMergeResampler
         # superclass. We set the min and max number of walkers to be
@@ -2110,7 +2323,6 @@ class WExploreResampler(CloneMergeResampler):
                                        pmax=self.pmax)
 
     def resampler_field_shapes(self):
-        """ """
 
         # index of the image idx
         image_idx = self.resampler_field_names().index('image')
@@ -2122,7 +2334,6 @@ class WExploreResampler(CloneMergeResampler):
         return tuple(shapes)
 
     def resampler_field_dtypes(self):
-        """ """
 
         # index of the image idx
         image_idx = self.resampler_field_names().index('image')
@@ -2133,44 +2344,31 @@ class WExploreResampler(CloneMergeResampler):
 
         return tuple(dtypes)
 
-    # TODO DEPRECATE
-    # this should be okay to have in the superclass, commenting out to test this
-
-    # # override the superclass methods to utilize the decision class
-    # def resampling_field_names(self):
-    #     """ """
-    #     return self.RESAMPLING_FIELDS
-
-    # def resampling_field_shapes(self):
-    #     """ """
-    #     return self.RESAMPLING_SHAPES
-
-    # def resampling_field_dtypes(self):
-    #     """ """
-    #     return self.RESAMPLING_DTYPES
-
-    # def resampling_fields(self):
-    #     """ """
-    #     return list(zip(self.resampling_field_names(),
-    #                self.resampling_field_shapes(),
-    #                self.resampling_field_dtypes()))
-
     @property
     def region_tree(self):
-        """ """
+        """The RegionTree instance used to manage the region hierachy.
+
+        This is really only used internally to this class.
+
+        """
         return self._region_tree
 
 
     def assign(self, walkers):
-        """
+        """Assign walkers to regions in the tree, with region creation.
 
         Parameters
         ----------
-        walkers :
-            
+        walkers : list of Walker objects
 
         Returns
         -------
+
+        assignments : list of tuple of int
+            The leaf_id for each walker that it was assigned to.
+
+        resampler_data : list of dict of str: value
+            The list of resampler records recording each branching event.
 
         """
         ## Assign the walkers based on the current defined Voronoi
@@ -2195,11 +2393,15 @@ class WExploreResampler(CloneMergeResampler):
 
         Parameters
         ----------
-        delta_walkers :
+        delta_walkers : int
+            The net change in the number of walkers to make.
              (Default value = 0)
 
         Returns
         -------
+
+        resampling_data : list of dict of str: value
+            The resampling records resulting from the decisions.
 
         """
 

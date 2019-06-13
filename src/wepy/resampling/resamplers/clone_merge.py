@@ -61,17 +61,24 @@ class CloneMergeResampler(Resampler):
 
 
     def _init_walker_actions(self, n_walkers):
-        """
+        """Returns a list of default resampling records for a single
+        resampling step.
 
         Parameters
         ----------
-        n_walkers :
-            
+
+        n_walkers : int
+            The number of walkers to generate records for
 
         Returns
         -------
 
+        decision_records : list of dict of str: value
+            A list of default decision records for one step of
+            resampling.
+
         """
+
         # determine resampling actions
         walker_actions = [self.decision.record(
                                 enum_value=self.decision.default_decision().value,
@@ -81,15 +88,13 @@ class CloneMergeResampler(Resampler):
         return walker_actions
 
     def _check_resampled_walkers(self, resampled_walkers):
-        """
+        """Check constraints on resampled walkers.
+
+        Raises errors when constraints are violated.
 
         Parameters
         ----------
-        resampled_walkers :
-            
-
-        Returns
-        -------
+        resampled_walkers : list of Walker objects
 
         """
 
@@ -114,17 +119,42 @@ class CloneMergeResampler(Resampler):
 
 
     def assign_clones(self, merge_groups, walker_clone_nums):
-        """
+        """Convert two convenient data structures to a list of almost
+        normalized resampling records.
+
+        The two data structures are merge_groups and walker_clone_nums
+        and are convenient to make.
+
+        Each is a list with number of elements equal to the number of
+        walkers that resampling will act on.
+
+        Each element of the merge_groups is a list-like of integers
+        indicating the indices of the walkers that will be merged into
+        this one (i.e. squashed). A non-empty collection indicates a
+        KEEP_MERGE decision.
+
+        Each element of the walker_clone_nums is simply an integer
+        specifying how many clones to make of this walker.
+
+        These data structures simply declare requirements on what the
+        actual decision records must achieve. The actual placement of
+        walkers in slots (indices) is unspecified and immaterial.
 
         Parameters
         ----------
-        merge_groups :
-            
-        walker_clone_nums :
-            
+        merge_groups : list of list of int
+            The specification of which walkers will be squashed and merged.
+
+        walker_clone_nums : list of int
+            The number of clones to make for each walker.
 
         Returns
         -------
+
+        walker_actions : list of dict of str: values
+            List of resampling record like dictionaries. These are not
+            completely normalized for consumption by reporters, since
+            they don't have the right list-like wrappers.
 
         """
 
@@ -202,4 +232,3 @@ class CloneMergeResampler(Resampler):
                                                          target_idxs=tuple(clone_targets))
 
         return walker_actions
-
