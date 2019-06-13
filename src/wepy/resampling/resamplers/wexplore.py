@@ -8,7 +8,8 @@ import logging
 import numpy as np
 import networkx as nx
 
-from wepy.resampling.resamplers.resampler  import Resampler, ResamplerError
+from wepy.resampling.resamplers.resampler  import ResamplerError
+from wepy.resampling.resamplers.clone_merge  import CloneMergeResampler
 from wepy.resampling.decisions.clone_merge import MultiCloneMergeDecision
 
 class RegionTreeError(Exception):
@@ -2021,10 +2022,18 @@ class RegionTree(nx.DiGraph):
 
         return merge_groups, walkers_num_clones
 
-class WExploreResampler(Resampler):
+class WExploreResampler(CloneMergeResampler):
     """ """
 
-    DECISION = MultiCloneMergeDecision
+    # TODO refactor step_idx and walker_idx to superclass
+
+    # fields for resampling data
+    RESAMPLING_FIELDS = CloneMergeResampler.RESAMPLING_FIELDS + ('region_assignment',)
+    RESAMPLING_SHAPES = CloneMergeResampler.RESAMPLING_SHAPES + (Ellipsis,)
+    RESAMPLING_DTYPES = CloneMergeResampler.RESAMPLING_DTYPES + (np.int,)
+
+    # fields that can be used for a table like representation
+    RESAMPLING_RECORD_FIELDS = CloneMergeResampler.RESAMPLING_RECORD_FIELDS + ('region_assignment',)
 
     # datatype for the state change records of the resampler, here
     # that is the defnition of a new branch of the region tree, the
@@ -2032,24 +2041,21 @@ class WExploreResampler(Resampler):
     # useful information will be in the auxiliary data, like the
     # image, distance the walker was away from the image at that
     # level, and the id of the leaf node
-    RESAMPLER_FIELDS = ('branching_level', 'distance', 'new_leaf_id', 'image')
-    RESAMPLER_SHAPES = ((1,), (1,), Ellipsis, Ellipsis)
-    RESAMPLER_DTYPES = (np.int, np.float, np.int, None)
+    RESAMPLER_FIELDS = CloneMergeResampler.RESAMPLER_FIELDS + \
+                       ('branching_level', 'distance', 'new_leaf_id', 'image')
+    RESAMPLER_SHAPES = CloneMergeResampler.RESAMPLER_SHAPES + \
+                       ((1,), (1,), Ellipsis, Ellipsis)
+    RESAMPLER_DTYPES = CloneMergeResampler.RESAMPLER_DTYPES + \
+                       (np.int, np.float, np.int, None)
 
     # fields that can be used for a table like representation
-    RESAMPLER_RECORD_FIELDS = ('branching_level', 'distance', 'new_leaf_id')
-
-    # fields for resampling data
-    RESAMPLING_FIELDS = DECISION.FIELDS + ('step_idx', 'walker_idx', 'region_assignment',)
-    RESAMPLING_SHAPES = DECISION.SHAPES + ((1,), (1,), Ellipsis,)
-    RESAMPLING_DTYPES = DECISION.DTYPES + (np.int, np.int, np.int,)
-
-    # fields that can be used for a table like representation
-    RESAMPLING_RECORD_FIELDS = DECISION.RECORD_FIELDS + \
-                               ('step_idx', 'walker_idx', 'region_assignment',)
+    RESAMPLER_RECORD_FIELDS = CloneMergeResampler.RESAMPLER_RECORD_FIELDS + \
+                              ('branching_level', 'distance', 'new_leaf_id')
 
 
-    def __init__(self, seed=None, pmin=1e-12, pmax=0.1,
+
+    def __init__(self, seed=None,
+                 pmin=1e-12, pmax=0.1,
                  distance=None,
                  max_n_regions=(10, 10, 10, 10),
                  max_region_sizes=(1, 0.5, 0.35, 0.25),
@@ -2057,16 +2063,20 @@ class WExploreResampler(Resampler):
                  **kwargs
                 ):
 
-        # we call the common methods in the Resampler superclass. We
-        # set the min and max number of walkers to be constant
-        super().__init__(min_num_walkers=Ellipsis,
+        # we call the common methods in the CloneMergeResampler
+        # superclass. We set the min and max number of walkers to be
+        # constant
+        super().__init__(pmin=pmin, pmax=pmax,
+                         min_num_walkers=Ellipsis,
                          max_num_walkers=Ellipsis,
                          **kwargs)
 
+        # TODO refactor out the distance things to a superclass
         assert distance is not None, "Distance object must be given."
-        assert init_state is not None, "An initial state must be given."
 
-        self.decision = self.DECISION
+        self.distance = distance
+
+        assert init_state is not None, "An initial state must be given."
 
         # the region tree which keeps track of the regions and can be
         # balanced for cloning and merging between them, is
@@ -2075,8 +2085,6 @@ class WExploreResampler(Resampler):
         self._region_tree = None
 
         # parameters
-        self.pmin=pmin
-        self.pmax=pmax
         self.seed = seed
         if self.seed is not None:
             rand.seed(self.seed)
@@ -2085,8 +2093,6 @@ class WExploreResampler(Resampler):
         self.n_levels = len(max_n_regions)
         self.max_region_sizes = max_region_sizes # in nanometers!
 
-        # distance metric
-        self.distance = distance
 
         # we do not know the shape and dtype of the images until
         # runtime so we determine them here
@@ -2127,24 +2133,27 @@ class WExploreResampler(Resampler):
 
         return tuple(dtypes)
 
-    # override the superclass methods to utilize the decision class
-    def resampling_field_names(self):
-        """ """
-        return self.RESAMPLING_FIELDS
+    # TODO DEPRECATE
+    # this should be okay to have in the superclass, commenting out to test this
 
-    def resampling_field_shapes(self):
-        """ """
-        return self.RESAMPLING_SHAPES
+    # # override the superclass methods to utilize the decision class
+    # def resampling_field_names(self):
+    #     """ """
+    #     return self.RESAMPLING_FIELDS
 
-    def resampling_field_dtypes(self):
-        """ """
-        return self.RESAMPLING_DTYPES
+    # def resampling_field_shapes(self):
+    #     """ """
+    #     return self.RESAMPLING_SHAPES
 
-    def resampling_fields(self):
-        """ """
-        return list(zip(self.resampling_field_names(),
-                   self.resampling_field_shapes(),
-                   self.resampling_field_dtypes()))
+    # def resampling_field_dtypes(self):
+    #     """ """
+    #     return self.RESAMPLING_DTYPES
+
+    # def resampling_fields(self):
+    #     """ """
+    #     return list(zip(self.resampling_field_names(),
+    #                self.resampling_field_shapes(),
+    #                self.resampling_field_dtypes()))
 
     @property
     def region_tree(self):
@@ -2225,9 +2234,6 @@ class WExploreResampler(Resampler):
                 print(resampler_err)
                 import ipdb; ipdb.set_trace()
 
-        # add the walker_idx to the records to be returned
-        for walker_idx, walker_record in enumerate(resampling_actions):
-            walker_record['walker_idx'] = walker_idx
 
         return resampling_actions
 
@@ -2282,7 +2288,7 @@ class WExploreResampler(Resampler):
          for squash_slot_idx in set(squash_slot_idxs)]):
             raise ResamplerError("Not all squashes are assigned to keep_merge slots")
 
-    def _resample_init(self, walkers):
+    def _resample_init(self, walkers=None):
         """
 
         Parameters
@@ -2295,7 +2301,7 @@ class WExploreResampler(Resampler):
 
         """
 
-        super()._resample_init(walkers)
+        super()._resample_init(walkers=walkers)
 
         # then get the walker nums using our methods to get it for
         # this resampling and just give that to the region tree
@@ -2311,7 +2317,9 @@ class WExploreResampler(Resampler):
             # and keep the walkers too
             self._input_walkers = deepcopy(walkers)
 
-    def _resample_cleanup(self, resampling_data, resampler_data, resampled_walkers):
+    def _resample_cleanup(self, resampling_data=None,
+                          resampler_data=None,
+                          resampled_walkers=None):
         """
 
         Parameters
@@ -2367,29 +2375,23 @@ class WExploreResampler(Resampler):
 
 
     def resample(self, walkers):
-        """
-
-        Parameters
-        ----------
-        walkers :
-            
-
-        Returns
-        -------
-
-        """
 
         # do some initialiation routines and debugging preparations if
         # necessary
-        self._resample_init(walkers)
+        self._resample_init(walkers=walkers)
 
         ## assign/score the walkers, also getting changes in the
         ## resampler state
         assignments, resampler_data = self.assign(walkers)
 
+
         # make the decisions for the the walkers for only a single
         # step
         resampling_data = self.decide(delta_walkers=0)
+
+        # add the walker idxs
+        for walker_idx, walker_record in enumerate(resampling_data):
+            walker_record['walker_idx'] = walker_idx
 
         # perform the cloning and merging, the action function expects
         # records a lists of lists for steps and walkers
@@ -2398,6 +2400,7 @@ class WExploreResampler(Resampler):
         # normally decide is only for a single step and so does not
         # include the step_idx, so we add this to the records
         for walker_idx, walker_record in enumerate(resampling_data):
+
             walker_record['step_idx'] = np.array([0])
 
         # convert the target idxs and decision_id to feature vector arrays
@@ -2411,41 +2414,12 @@ class WExploreResampler(Resampler):
         for walker_idx, assignment in enumerate(assignments):
             resampling_data[walker_idx]['region_assignment'] = assignment
 
-        self._resample_cleanup(resampling_data, resampler_data, resampled_walkers)
+
+
+        self._resample_cleanup(resampling_data=resampling_data,
+                               resampler_data=resampler_data,
+                               resampled_walkers=resampled_walkers)
 
         return resampled_walkers, resampling_data, resampler_data
 
-
-    def _check_resampled_walkers(self, resampled_walkers):
-        """
-
-        Parameters
-        ----------
-        resampled_walkers :
-            
-
-        Returns
-        -------
-
-        """
-
-        walker_weights = np.array([walker.weight for walker in resampled_walkers])
-
-        # check that all of the weights are less than or equal to the pmax
-        overweight_walker_idxs = np.where(walker_weights > self.pmax)[0]
-        if len(overweight_walker_idxs) > 0:
-
-
-
-            raise ResamplerError("All walker weights must be less than the pmax, "
-                                 "walkers {} are all overweight".format(
-                                     ','.join([str(i) for i in overweight_walker_idxs])))
-
-        # check that all walkers are greater than or equal to the pmin
-        underweight_walker_idxs = np.where(walker_weights < self.pmin)[0]
-        if len(underweight_walker_idxs) > 0:
-
-            raise ResamplerError("All walker weights must be greater than the pmin, "
-                                 "walkers {} are all underweight".format(
-                                     ','.join([str(i) for i in underweight_walker_idxs])))
 

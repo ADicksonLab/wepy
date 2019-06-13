@@ -32,10 +32,12 @@ class WepySimApparatus(SimApparatus):
 
         # add them in the order they are done in Wepy
         filters = [runner]
-        if boundary_conditions is not None:
-            filters.append(boundary_conditions)
-        if resampler is not None:
-            filters.append(resampler)
+        filters.append(boundary_conditions)
+
+        if resampler is None:
+            raise ValueError("must provide a resampler")
+
+        filters.append(resampler)
 
         super().__init__(filters)
 

@@ -21,23 +21,52 @@ class CloneMergeDecisionEnum(Enum):
     """
 
     NOTHING = 1
+    """Do nothing with the walker sample. """
+
     CLONE = 2
+    """Clone the walker into multiple children equally splitting the weight."""
+
     SQUASH = 3
+    """Destroy the walker sample value (state) and donate the sample
+    weight to another KEEP_MERGE walker sample."""
+
     KEEP_MERGE = 4
+    """Do nothing with the sample value (state) but squashed walkers will
+    donate their weight to it."""
 
 
 
 class MultiCloneMergeDecision(Decision):
-    """ """
+    """Decision encoding cloning and merging decisions for weighted ensemble.
+
+    The decision records have in addition to the 'decision_id' a field
+    called 'target_idxs'. This field has differing interpretations
+    depending on the 'decision_id'.
+
+    For NOTHING and KEEP_MERGE it indicates the walker index to assign
+    this sample to after resampling. In this sense the walker is
+    merely a vessel for the propagation of the state and acts as a
+    slot.
+
+    For SQUASH it indicates the walker that it's weight will be given
+    to, which must have a KEEP_MERGE record for it.
+
+    For CLONE it indicates the walker indices that clones of this one
+    will be placed in. This field is variable length and the length
+    corresponds to the number of clones.
+
+    """
 
 
     ENUM = CloneMergeDecisionEnum
 
-    FIELDS = ('decision_id', 'target_idxs',)
-    SHAPES = ((1,), Ellipsis,)
-    DTYPES = (np.int, np.int,)
+    DEFAULT_DECISION = ENUM.NOTHING
 
-    RECORD_FIELDS = ('decision_id', 'target_idxs')
+    FIELDS = Decision.FIELDS + ('target_idxs',)
+    SHAPES = Decision.SHAPES + (Ellipsis,)
+    DTYPES = Decision.DTYPES + (np.int,)
+
+    RECORD_FIELDS = Decision.RECORD_FIELDS + ('target_idxs',)
 
 
     # the decision types that pass on their state
@@ -45,48 +74,10 @@ class MultiCloneMergeDecision(Decision):
                              ENUM.KEEP_MERGE.value,
                              ENUM.CLONE.value,)
 
-    @classmethod
-    def field_names(cls):
-        """ """
-        return cls.FIELDS
 
-    @classmethod
-    def field_shapes(cls):
-        """ """
-        return cls.SHAPES
-
-    @classmethod
-    def field_dtypes(cls):
-        """ """
-        return cls.DTYPES
-
-    @classmethod
-    def fields(cls):
-        """ """
-        return list(zip(cls.field_names(),
-                   cls.field_shapes(),
-                   cls.field_dtypes()))
-
-    @classmethod
-    def record_field_names(cls):
-        """ """
-        return self.RECORD_FIELDS
-
+    # TODO deprecate in favor of Decision implementation
     @classmethod
     def record(cls, enum_value, target_idxs):
-        """
-
-        Parameters
-        ----------
-        enum_value :
-            
-        target_idxs :
-            
-
-        Returns
-        -------
-
-        """
         record = super().record(enum_value)
         record['target_idxs'] = target_idxs
 
@@ -94,20 +85,6 @@ class MultiCloneMergeDecision(Decision):
 
     @classmethod
     def action(cls, walkers, decisions):
-        """Performs cloning and merging according to a list of resampling
-        records for some walkers.
-
-        Parameters
-        ----------
-        walkers :
-            
-        decisions :
-            
-
-        Returns
-        -------
-
-        """
 
         # list for the modified walkers
         mod_walkers = [None for i in range(len(walkers))]

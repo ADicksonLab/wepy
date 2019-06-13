@@ -577,6 +577,7 @@ class WepyHDF5Reporter(FileReporter):
 
             # report the resampling records data
             self._report_resampling(cycle_idx, resampling_data)
+
             self._report_resampler(cycle_idx, resampler_data)
 
         super().report(**kwargs)

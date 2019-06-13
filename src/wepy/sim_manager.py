@@ -307,7 +307,7 @@ class Manager(object):
         warped_walkers = new_walkers
         warp_data = []
         bc_data = []
-        progress_data = []
+        progress_data = {}
         bc_time = 0.0
         if self.boundary_conditions is not None:
 
@@ -331,7 +331,9 @@ class Manager(object):
 
         # resample walkers
         start = time.time()
+
         resampling_results = self.resampler.resample(warped_walkers)
+
         end = time.time()
         resampling_time = end - start
 
