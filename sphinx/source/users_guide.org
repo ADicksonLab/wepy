@@ -1,0 +1,563 @@
+* User's Guide
+
+** How to approach learning and using wepy
+
+The ~wepy~ project is a framework and library written in python for
+performing weighted ensemble (WE) simulations.
+
+
+That means there is no special language to learn and use other than
+python itself. This also means you are able to harness the power of
+the entire language and ecosystem in prototyping methods and analyzing
+data.
+
+To use prebuilt components all it takes is some basic knowledge of
+python.
+
+With a little knowledge of object-oriented programming (OOP) you can
+utilize a collection of functionality to help you focus prototype your
+complex algorithms rather than worrying about how to save data etc.
+
+The first question is what exactly do you need to write to be able to
+run a wepy simulation and how to run it.
+
+
+** The software configuration trap
+
+Some people may not understand (or agree with) the approach to the
+design of ~wepy~ as it diverges from many packages in the field. So we
+will provide a summary of the issues leading to the deliberately made
+choices.
+
+
+Many other tools utilize some sort of separate "configuration" file
+that is used to specify in a declarative manner what the simulation is
+supposed to do. Typically, these kinds of configurations are supposed
+to cater to beginners that have no experience in
+programming. Inevitably the features of the program start to expand
+and the complexity of configuration files grow until the developers
+have accidentally created an entire programming language, which
+invariably is very clumsy to program. Moreover, this language is a
+completely isolated ecosystem.
+
+.. TODO add a figure of the cycle of despair
+
+~wepy~ was designed to avoid this issue and from the start and
+embraces a well-designed and highly popular programming language with
+a huge standard library and massive collection of highle-trusted third
+party libraries; Python (version 3 specifically). So while in ~wepy~
+you are still "configuring" your simulations by building components
+there is no need to limit yourself to a small insular ecosystem in a
+sub-par programming language designed by a chemist when punch cards
+were still cutting edge.
+
+Many older simulation engines fall into the traps described above
+simply because there were no obviously dominant high-level languages
+like python at the time. The implementers of these engines were
+pioneers and we admire them for the intrepid and forthright spirit
+that drove them to accomplish there scientific goals given the
+available infrastructure at the time. However, we try not to mistake
+particular implementations for the important traditions. As the
+success of a particular tradition in scientific modelling gains
+popularity, as molecular dynamics has, the requirements on
+implementation grows as many more diverse and previously unthunk use
+cases emerge for the better. We endeavour to highlight these successes
+as best and as honestly as we can.
+
+As equally as we respect the scientific traditions we should also look
+to other disciplines such as computer science which have worked just
+as industriously to provide tools that enable us to actualize our
+ideas.
+
+Python is the /lingua franca/ of the scientific community as of the
+time of writing this, and the developers feel this is for the
+better.
+
+The insular ecosystem problem is essentially solved by the use of a
+general-purpose programming language such as Python. For example, a
+massive collection of numerical algorithms and linear algebra can be
+used in your component as easily as ~import numpy~.  Furthermore,
+anyone can use or incorporate wepy into their project with a simple
+~import wepy~.
+
+Furthermore, ~wepy~ is only as system dependent as far as python is
+(and consequently C). It doesn't rely on any environmental variables
+for its functioning or other special operating specific details,
+(excepting performance optimizations). Everything is contained within
+python files. Some basic know-how of environments is assumed to be
+able to even install and configure python, but is completely
+orthogonal to wepy itself.
+
+If you wish to use some OS-specific or legacy programs, there is the
+python ~subprocess~ module that allows for doing just that, and
+perhaps a wrapper package ready to be imported.
+
+To run wepy you simply write a file that runs a simulation and then
+run it on the command line:
+
+#+BEGIN_SRC bash
+python run_wepy.py
+#+END_SRC
+
+The use of pure python files for configuring may seem complicated to
+someone that doesn't know python, but when you are running complex
+simulations it is comforting to know that there is no magic involved.
+
+If you are dissappointed that wepy does not follow the "Unix"
+philosophy, there is a simple explanation. The so-called "universal"
+textual interface is wholly unsuited to storing any kind of molecular
+simulation data (much less snapshots of simulations) and so right at
+the start you are stuck with the decision of what your binary format
+is.
+
+*** Intended audience and some suggestions
+
+With all of this in mind ~wepy~ is meant to be a tool for a fairly
+expert user that is willing to write python code and understand some
+basic software patterns; that is the primary users of ~wepy~ are the
+developers. We want to make "complex things possible" first and
+secondarily "simple things simple". As of the ~1.0~ release we believe
+that "complex things possible" has largely been achieved and now the
+focus is making particular use-cases more streamlined as well as
+broadening the number of domains addressed.
+
+That said there is no reason that specific applications of wepy could
+not eventually be provided with some sort of easy-to-use configuration
+file format, command-line or web application.
+
+We warn anyone that wants to do this to have a very clear idea of the
+scope of this application and keep the above comments in mind. Some
+suggestions on tools for such application/configurations are:
+
+- using the orchestration sub-packages Snapshot and Configuration
+  objects for setting up and serializing (storage via python pickles)
+  specific simulation initial conditions for short term (as updates to
+  the code may break these objects).
+- A very simple, well-specified, and human-writable format such as
+  [[https://github.com/toml-lang/toml][TOML]] that has simple translations to all programming languages.
+- A simple and popular template engine such as [[https://github.com/pallets/jinja][Jinja]] for generating
+  python scripts.
+
+
+Some anti-examples would be:
+
+- ad hoc unspecified configuration files
+- human written XML files
+- operating system specific environmental variables
+- metaprogramming: such as python metaclasses
+
+
+*** Snapshot and Configuration files
+
+The ~orchestration~ sub-package, as mentioned, does come with a
+serialization format for simulation snapshots and configurations. This
+is an advanced general purpose tool that is primarily meant for
+managing large numbers of interconnected simulations and for adding in
+checkpointing capabilities for hardware that tends to crash.
+
+The snapshot and configuration files use python pickling to be able
+easily serialize them which should be used with caution. Pickle files
+should be read with the exact same version of the software that wrote
+them, otherwise complete and utter loss of data should be expected. It
+is possible that updates to the code will not effect the readability,
+but should never be assumed. So this is a very short term solution to
+storage.
+
+This sub-package will be discussed later as an advanced topic in depth.
+
+
+
+** Framework or library
+
+At first a pedantic distinction, but understanding which parts of wepy
+are the "framework" and which parts are the "library" (and which parts
+are both) should eliminate some confusion (and hopefully lead to a
+sympathizing elightenment).
+
+It helps to understand that wepy fulfills a few roles:
+
+- wepy provides components that can be used together
+- wepy defines *interfaces* that new components may implement so that
+  they can be used with existing components
+
+Because python is dynamically typed (AKA duck typing) interfaces and
+object identities (types) are not explicitly enforced. In fact the
+interfaces cannot even be expressed in python syntax. Instead we rely
+on the following sources to determine interfaces in order of
+precedence:
+
+- the original developers intention 
+- the source code
+- the source code docstrings
+- the source code comments
+- the written documentation
+- ...
+- a person on the internet
+
+
+The developers ultimately have the final say because there will always
+be bugs in implementation and mistakes in documentation.
+
+Developers make mistakes and are willing to fix them, if you think
+they have made a mistake and there is a bug or problem in an interface
+please reach out for clarification before assuming it was not already
+though of. If you are still convinced of the issue, prepare an
+argument to be made for your case for a change in an interface and
+prepare for it to be questioned and critiqued in an objective manner.
+
+*** wepy: the framework
+
+~wepy~ is a framework, in that, you execute it by configuring an
+"engine" that then takes your configurations and uses them on your
+behalf. So your goal as a wepy user is to obtain the necessary
+components and give them to the engine (the simulation manager) which
+will run the entire workflow.
+
+For the learned software engineers out there ~wepy~ uses dependency
+injection (AKA inversion of control).
+
+First we assemble our components by whatever means necessary:
+
+#+BEGIN_SRC python
+  from some.sim.engine import SimRunner
+  from some.resampler import SomeResampler
+
+  runner = SimRunner()
+  resampler = SomeResampler()
+#+END_SRC
+
+
+Then we configure the engine by passing it the things it needs
+(injecting the runner and resampler dependencies):
+
+
+#+BEGIN_SRC python
+  from wepy.sim_manager import Manager
+
+  # create initial walkers...
+  init_walkers = make_walkers()
+
+  sim_manager = Manager(init_walkers,
+                        runner=runner,
+                        resampler=resampler)
+#+END_SRC
+
+This gives the ~sim_manager~ object control of our components. It
+expects them to have methods for running simulations and
+resampling. We instruct the ~sim_manager~ to run a simulation:
+
+#+BEGIN_SRC python
+  results = sim_manager.run_simulation(...)
+#+END_SRC
+
+And we get back our results.
+
+In the future examples we will also give the simulation manager a
+collection "reporters" which will produce rich datasets as
+"side-effects" of the simulation. In practice, running simulations
+isn't very useful without them, but for simplicity we leave them out
+for now.
+
+So we see that the core framework of wepy is actually very simple and
+really only consists of the ~Manager~ object and the interface it
+defines (by calling specific methods of the components you gave
+it). The simplicity of this makes it very flexible to use with other
+components.
+
+
+*** wepy: the library
+
+It is a library in the sense some of these components come freely
+available and off the shelf for you to use, perhaps with the tweaking
+of a few simple parameters.
+
+For example you can import the WExplore resampler simply by writing:
+
+#+BEGIN_SRC python
+  from wepy.resampling.resamplers.wexplore import WExploreResampler
+#+END_SRC
+
+The nonsense example above does this to retrieve some components from
+some library not included in wepy.
+
+Thus, wepy also includes a library of generally useful components that
+can be used to configure the simulation manager.
+
+The main categories of library components used by the sim manager are:
+
+- runners
+- resamplers
+- distance metrics
+- boundary conditions
+- reporters
+- work mappers
+
+There is also some libraries related to storage and analysis of WE
+simulation data that are not used as injected dependencies of the sim
+manager:
+
+- HDF5 storage
+- analysis
+
+Some examples of off-the-shelf components are:
+
+.. TODO make links to the actual API docs for these things
+
+- ~runners.openmm.OpenMMRunner~
+- ~resampling.resamplers.revo.REVOResampler~
+- ~resampling.distances.receptor.UnbindingDistance~
+- ~boundary_conditions.receptor.UnbindingBC~
+- ~reporter.hdf5.WepyHDF5Reporter~
+- ~reporter.dashboard.DashboardReporter~
+
+These only need to be imported and constructed, e.g.:
+
+#+BEGIN_SRC python
+  from wepy.runners.openmm import OpenMMRunner
+
+  runner = OpenMMRunner(system, topology, integrator,
+                         platform='Reference')
+#+END_SRC
+
+
+
+*** wepy: the library of frameworks
+
+
+As a reminder classes in OOP define a type of object, similar to how
+the type ~Int~ or ~str~ defines a /class/ of possible values. To
+create an object from class you are said to *construct* it.
+
+Objects (and classes) are essentially containers for both code and
+data. The code of an object or class is a method, and the data is an
+attribute.
+
+Classes can be created in two ways. The developer writes it defining
+how to construct it and what the methods and attributes are. The
+second way is to make a class out of another class. Classes made from
+other classes in OOP is called *inheritance* and all functionality of
+a super-class is shared by the sub-class.
+
+*Abstract base classes (ABC)* are classes that are available for the
+sole purpose of making other classes from. Sub-classes of ABCs in turn
+can either be abstract again, or concrete.
+
+A subclass that inherits from an abstract class only becomes concrete
+(and thus usable like the OpenMMRunner component) when it is
+*customized* which are additional code written by the developer.
+
+Customizations can either add orthogonal functionality, such as new
+methods or attributes, or they can *override* functionality from a
+super-class, changing the behavior or type of an existing method or
+attribute.
+
+The goal of all this is ultimately is two-fold:
+
+- reduce the amount of code you need to write
+- fix problems only once
+
+
+
+Lets look at a real example in the
+~wepy.resampling.distances.receptor~ module.
+
+First there is the definition of the class ~ReceptorDistance~:
+
+#+BEGIN_SRC python
+  from wepy.resampling.distances.distance import Distance
+  class ReceptorDistance(Distance):
+      """Common abstract class for receptor-ligand molecular systems."""
+
+      def _unaligned_image(self, state):
+          box_lengths, box_angles = box_vectors_to_lengths_angles(state['box_vectors'])
+          grouped_positions = group_pair(state['positions'], box_lengths,
+                                      self._bs_idxs, self._lig_idxs)
+          # then center them around the binding site
+          centered_positions = center_around(grouped_positions,
+                                             self._bs_idxs)
+          state_image = centered_positions[self._image_idxs]
+
+          return state_image
+
+
+      def image(self, state):
+          state_image = self._unaligned_image(state)
+          sup_image, _, _ = superimpose(self.ref_image,
+                                        state_image,
+                                        idxs=self._image_bs_idxs)
+
+          return sup_image
+#+END_SRC
+
+We see that ReceptorDistance is inheriting from the ~Distance~ class,
+which is defined as such:
+
+#+BEGIN_SRC python
+  class Distance(object):
+      """Abstract Base class for Distance classes."""
+
+      def __init__(self):
+          """Constructor for Distance class."""
+          pass
+
+      ...
+#+END_SRC
+
+All classes ultimately inherit from ~object~.
+
+Also ignore the ~self~ keyword for now, except to note that all object
+methods must have them.
+
+The method ~__init__~ is how this class constructs an object. You can
+think of this:
+
+#+BEGIN_SRC python
+  dist = Distance()
+#+END_SRC
+
+as being equivalent to:
+
+#+BEGIN_SRC python
+  dist = Distance.__init__()
+#+END_SRC
+
+
+We notice that the ~Distance~ class defines this method ~distance~:
+
+#+BEGIN_SRC python
+  class Distance(object):
+      ...
+
+      def distance(self, state_a, state_b):
+
+          ...
+
+#+END_SRC
+
+
+But this is not written under ~ReceptorDistance~. Because
+~ReceptorDistance~ inherits from ~Distance~ it also inherits the
+~distance~ method. So while it is not written under ~ReceptorDistance~
+it still has access to it.
+
+
+We notice that ~Distance~ also defines the method ~image_distance~:
+
+#+BEGIN_SRC python
+  class Distance(object):
+
+      ...
+
+      def image_distance(self, image_a, image_b):
+
+          raise NotImplementedError
+
+#+END_SRC
+
+But this will always raise the ~NotImplementedError~ exception, which
+makes it an unusable function. This is because the method is defined
+merely as an example of what an ~image_distance~ method should look
+like; it is an interface definition.
+
+Because only the ~image_distance~ interface is defined and not its
+implementation the whole ~Distance~ class is labelled
+abstract. Despite it having some functioning methods like ~distance~.
+
+The ~ReceptorDistance~ class customizes ~Distance~ in a couple
+ways. It re-implements the ~__init__~ and ~image~ methods
+(overriding), adds the ~_unaligned_image~ method, and inherits the
+abstract ~image_distance~. So it has added some valuable methods but
+is still abstract because ~image_distance~ still raises the
+~NotImplementedError~.
+
+Concrete sub-classes of ~ReceptorDistance~ are defined by
+~UnbindingDistance~ and ~RebindingDistance~.
+
+#+BEGIN_SRC python
+  class UnbindingDistance(ReceptorDistance):
+
+      def image_distance(self, image_a, image_b):
+          lig_rmsd = calc_rmsd(image_a, image_b, idxs=self._image_lig_idxs)
+
+          return lig_rmsd
+
+
+  class RebindingDistance(ReceptorDistance):
+
+      def image_distance(self, image_a, image_b):
+          state_a_rmsd = calc_rmsd(self.ref_image, image_a, idxs=self._image_lig_idxs)
+          state_b_rmsd = calc_rmsd(self.ref_image, image_b, idxs=self._image_lig_idxs)
+          d = abs(1./state_a_rmsd - 1./state_b_rmsd)
+
+          return d
+
+#+END_SRC
+
+In both of these only the ~image_distance~ method is implemented.
+
+Whats important to notice is that both ~UnbindingDistance~ and
+~RebindingDistance~ have the capabilities to run the ~distance~,
+~image~, etc. methods that were defined in their common superclasses.
+
+So not only is the amount of code written for these classes small and
+focused on the task at hand (calculating the distance between two
+walker images), but if there are any bugs in the shared code, say in
+~_unaligned_image~, then when it is fixed they both will be
+fixed. They both will also break when something in a superclass
+breaks, but this can be seen as a good thing because bugs will be
+found faster.
+
+
+So when you import an abstract base class to use as the foundation to
+build other classes you are importing a framework from a library.
+
+For example, when we imported ~Distance~ above for the
+~ReceptorDistance~ we wanted to build something that looks, talks, and
+quacks the same as a ~Distance~ class but that adds some new and
+interesting functionality to it. The methods that are inherited may be
+expected by other components in a framework or they may be only for
+internal use only. In any case, inheritance is easy, easily overriden,
+and can make interfacing more seamless.
+
+So in this sense the ~wepy~ project contains not only the main
+~sim_manager~ framework but a number of sub-frameworks that aid in
+constructing the main components.
+
+** Simulation manager components
+
+The simulation manager framework can be configured with the following
+components:
+
+- *initial walkers*: the initial
+- *runner*: the dynamics (or sampling) engine, which acts on the initial walkers
+- *resampler*: performs the resampling through cloning and merging
+- *boundary conditions*: specify walker modifications (warping) based
+                         on rules which is outside of the runner dynamics
+- *reporters*: generate data as side effects based on the behavior of
+               the other components.
+- *work mappers*: the mechanism by which the work of the runner is
+                  achieved, i.e. achieving parallelism.
+
+The simulation manager can also be made to run simulations by
+different methods which can be seen in the API documentation.
+
+*** The sim manager itself
+
+Here we discuss how the simulation manager actually achieves the work
+of running a simulation and how the components are actually used.
+
+.. TODO diagram of the WE simulations
+
+.. TODO flow chart of running a cycle
+
+
+*** Runners
+
+*** Resamplers
+
+*** Boundary Conditions
+
+*** Reporters
+
+
+*** Work Mappers

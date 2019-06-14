@@ -22,3 +22,7 @@ dist
 /sphinx/source/installation.rst
 /sphinx/source/introduction.rst
 /sphinx/api/
+/sphinx/source/dev_guide.rst
+/sphinx/source/quick_start.rst
+/sphinx/source/users_guide.rst
+/sphinx/source/troubleshooting.rst

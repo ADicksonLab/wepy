@@ -47,6 +47,8 @@ import time
 from copy import deepcopy
 import logging
 
+from wepy.work_mapper.mapper import Mapper
+
 class Manager(object):
     """The class that coordinates wepy simulations.
 
@@ -155,8 +157,10 @@ class Manager(object):
         else:
             self.reporters = reporters
 
-        self.work_mapper = work_mapper
-
+        if work_mapper is None:
+            self.work_mapper = Mapper()
+        else:
+            self.work_mapper = work_mapper
 
     def run_segment(self, walkers, segment_length):
         """Run a time segment for all walkers using the available workers.
