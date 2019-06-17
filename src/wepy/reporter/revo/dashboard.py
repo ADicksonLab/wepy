@@ -28,7 +28,7 @@ The percentage of merged walkers: {percentage_merged_walkers} %
 Average All to All Distance: {avg_distance}
 Minimum All to All Distance: {min_distance}
 Maximum All to All Distance: {max_distance}
-Variation value = {spread}
+Variation value = {variation}
 """
 
     def __init__(self,
@@ -39,20 +39,22 @@ Variation value = {spread}
                  bc_cutoff_distance=None,
                  **kwargs
                 ):
-        """Constructor for the WExplore dashboard reporter.
+        """Constructor for the REVO dashboard reporter.
 
         Parameters
         ----------
+        dist_exponent : int
+          The distance exponent that modifies distance and weight novelty
+          relative to each other in the variation equation.
 
-        dist_exponent : float
-            The power of distance in Variation equation.
+        merge_dist : float
+            The merge distance threshold. Its value depends on the system
+            of interest.
 
-        merge_dist : float The minimum distance that required for
-            merging walkers.
-
-        char_dist : float This prameter is the average value of
-            all-to-all diatnces for one cycle simulation and used to
-            make variation equation unitless.
+        char_dist : float
+            The characteristic distance value. It is calculated by running
+            a single dynamic cycle and then calculating the average distance
+            between all walkers.
 
         step_time : float
             The length of the time in each dynamics step.
@@ -117,7 +119,7 @@ Variation value = {spread}
 
         #Get the statistics
         for resampler_record in resampler_data:
-            self.variation_value = resampler_record['spread'][0]
+            self.variation_value = resampler_record['variation'][0]
             distance_matrix = resampler_record['distance_matrix']
 
 
@@ -142,7 +144,7 @@ Variation value = {spread}
             avg_distance = self.avg_distance,
             min_distance = self.min_distance,
             max_distance = self.max_distance,
-            spread = self.variation_value
+            variation = self.variation_value
         )
 
         return resampler_string
