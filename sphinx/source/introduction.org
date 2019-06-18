@@ -1,56 +1,95 @@
 * Introduction
 
-~wepy~ is a framework for running and analyzing weighted ensemble (WE) simulations.
+** Weighted Ensemble (WE)
 
-#+MYTODO
-For a background to weighted ensemble see: 
-
-To install ~wepy~ simple use pip:
-
-#+BEGIN_SRC bash
-pip install wepy
-#+END_SRC
-
-If you want to use the built-in OpenMM capabilities that will need to
-be installed as well and is not done automatically. We highly
-recommend installing using ~conda~:
-
-#+BEGIN_SRC bash
-conda install -c omnia openmm
-#+END_SRC
-
-#+MYTODO
-See the full installation instructions:
-
-#+MYTODO
-You can jump straight to the example scripts in: 
-
-#+MYTODO
-Or you take a look at the worked tutorials in the jupyter notebooks:
+.. TODO For a background to weighted ensemble see: 
 
 
-#+MYTODO
+** Features
 
-If you need a more in depth explanation of the abstractions used in
-~wepy~ see the Explanation.
+#+begin_export rst
+  .. _resources:
+#+end_export
 
-#+MYTODO
+** Contributed wepy libraries and other useful resources
 
-A good place to start after understanding the abstractions and before
-digging into the API reference or source code is the manual which
-gives some prose describing the important parts of the modules.
+Here is a list of packages that are not in the main ~wepy~ repository
+but may be of interest to users of wepy.
 
-This is where you first look when you want to start implementing a
-module yourself.
+These include things like :
+
+- distance metrics and boundary conditions for different kinds of
+  systems
+- resampler and runner prototypes
+- related analysis or utility libraries
 
 
-#+MYTODO
+They are:
 
-For an overview of the architecture of the project see Architecture.
 
-#+MYTODO
+- [[https://github.com/ADicksonLab/geomm][geomm]] : purely functional library for common numerical routines in
+        computational biology and chemistry, with no dependency on
+        specific file or topology formats.
 
-The API reference is here and is somewhat dependent on the Glossary to
-explain some of the "types" used in different sections.
+- [[https://github.com/ADicksonLab/wepy-developer-resources][wepy-developer-resources]] : Unofficial and miscellaneous materials
+  related to wepy, including talks, workshops, contributed tutorials
+  etc. May be out of date.
+
+- [[https://github.com/ADicksonLab/wepy/blob/master/sphinx/source/introduction.org][mastic]] : Library for doing general purpose "profiling" of
+  intermolecular interactions. Useful for computing observables an
+  experimental chemist understands. Also useful for building distance
+  metrics.
+
+- [[https://github.com/mdtraj/mdtraj][mdtraj]] : Excellent library with optimized code for numerical
+  routines of interest in computational biology and chemistry. Differs
+  from geomm in that it relies on their own topology format. The
+  WepyHDF5 JSON topology format is borrowed from this library. Used in
+  wepy as a utility writer of commonly used formats like PDBs, DCDs,
+  etc.
+
+- [[https://github.com/choderalab/openmmtools][openmmtools]] : Contributed components for OpenMM. Contains some
+  ready-made test systems that are very convenient for testing and
+  prototyping components in wepy.
+
+- [[https://github.com/ADicksonLab/CSNAnalysis][CSNAnalysis]] : small library for aiding in the analysis of
+  conformation state networks (CSNs) which can be generated from
+  ~wepy~ data.
+
+
+
+** Alternatives
+
+~wepy~ is not the only WE framework package. Other packages have
+different scopes and features. I have tried to provide a fair
+comparison of ~wepy~ to them to help potential users make an informed
+decision. If you feel a package is misrepresented contact the ~wepy~
+devs or submit a pull request with your desired changes.
+
+*** [[https://github.com/westpa/westpa][WESTPA]]
+
+Weighted ensemble package in Python 2.7. More reliant and integrated
+with unix-like operating systems providing modularity through shell
+scripting and python modules.
+
+As an older project it has support for more MD engines (and non-MD
+stochastic sampling engines, e.g. BioNetGen) and is currently better
+suited for running simulations on large numbers of CPUs in a clustered
+environment.
+
+Support for WE algorithms closer to the original paper by Huber and
+Kim with a focus on static tesselation of conformational space.
+
+Has some support for adaptive binning algorithms like WExplore, but it
+is a little more challenging to develop radically different resamplers
+like REVO, which have no concept of bins at all.
+
+
+*** [[http://ccl.cse.nd.edu/software/awe/][AWE: Accelerated Weighted Ensemble]]
+
+Another Python 2 library with a focus on the Accelerated WE resampling
+algorithm and integration with a Work Queue library for distributed
+jobs.
+
+
 
 

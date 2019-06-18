@@ -9,17 +9,16 @@ Wepy: A Weighted Ensemble  (WE) simulation framework
 .. toctree::
    :maxdepth: 1
 
-
+   source/introduction
    source/installation
    source/quick_start
-   source/introduction
 
    source/users_guide
    tutorials/index
+   source/api                    
    source/troubleshooting
-   
+
    source/dev_guide
-   source/api   
    source/glossary
    api/modules   
 

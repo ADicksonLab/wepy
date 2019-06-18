@@ -1,3 +1,237 @@
+* Development Setup
+
+Get the source code:
+
+#+BEGIN_SRC bash
+git clone https://github.com/ADicksonLab/wepy
+cd wepy
+#+END_SRC
+
+Install a virtual environment for it:
+
+#+BEGIN_SRC bash
+  wepy_dev_env_refresh () {
+
+      package='wepy'
+      conda deactivate
+      dev_env="${package}-dev"
+      conda env remove -y -n "$dev_env"
+      conda create -y -n "$dev_env" python=3
+      conda activate "$dev_env"
+
+      # we need openmm but can't get it from pip
+      conda install -y -c omnia openmm openmmtools
+
+      # install in editable mode, we need to avoid using pep517 which
+      # doesn't allow editable installs
+      pip install -r requirements_dev.txt 
+      pip install --no-use-pep517 -e .[all]
+
+  }
+#+END_SRC
+
+#+BEGIN_SRC bash
+wepy_dev_env_refresh
+#+END_SRC
+
+
+Currently, for installing mdtraj we use a forked repository which
+handles pip installations better that allows for seamless dependecy
+resolution and doesn't require manual intervention to install cython.
+
+This is specified in the requirements.txt file which should be used
+for specifying the "concrete" requirements of the project (i.e. the
+literal repo or index URL that packages should be retrieved from).
+
+"Abstract" requirements should also be listed in setup.py.
+
+For development specific requirements, we have the separate
+requirements_dev.txt.
+
+Because at this multiple packages are developed simultaneously we
+require that geomm be installed in the same directory as wepy for
+using the dev requirements.
+
+** Releasing Package
+
+*** Test the installation process
+
+Functions for doing this:
+
+#+BEGIN_SRC bash
+  wepy_test_build () {
+      package='wepy'
+      build_env="test-${package}-build"
+      conda deactivate
+      conda env remove -y -n "$build_env"
+      conda create -y -n "$build_env" python=3
+      conda activate "$build_env"
+      pip install -r requirements_dev.txt
+      rm -rf dist/*
+      python setup.py build sdist
+      conda deactivate
+      conda env remove -y -n "$build_env"
+
+  }
+
+  wepy_test_install () {
+
+      package='wepy'
+      conda deactivate
+      install_env="test-${package}-install"
+      conda env remove -y -n "$install_env"
+      conda create -y -n "$install_env" python=3
+      conda activate "$install_env"
+      pip install dist/"$package"-*.tar.gz
+      conda deactivate
+      conda env remove -y -n "$install_env"
+
+  }
+#+END_SRC
+
+*** Update versions
+
+
+Before we build the package we need to bump the version in all those
+places it is written down at, which is achieved with the bumpversion
+tool:
+
+#+BEGIN_SRC bash
+bumpversion patch # possible: major / minor / patch
+#+END_SRC
+
+Make sure to tag in git (I typically use magit in emacs but the
+command is):
+
+#+BEGIN_SRC bash
+git tag -a vX.Y.Z -m "release message"
+git push gitlab vX.Y.Z
+#+END_SRC
+
+*** Deploying
+
+To deploy to PyPI (if you have access)
+#+BEGIN_SRC bash
+conda activate wepy-dev
+rm -rf dist/*
+python setup.py sdist
+twine upload dist/*
+#+END_SRC
+
+
+
+** Building Docs
+
+Install pandoc for converting org-mode files to rst.
+
+You can follow the instructions on the site or just use anaconda:
+
+#+BEGIN_SRC bash
+conda install pandoc
+#+END_SRC
+
+Then run the build script. This uses the make file and additionally
+runs api-doc, and converts org-mode source files to rst using pandoc.
+
+#+BEGIN_SRC bash
+pushd sphinx
+chmod u+x build.sh
+./build.sh
+popd
+#+END_SRC
+
+This will build the HTML files in the ~sphinx/_build/html~ directory
+and if you point your web browser there you can view them.
+
+** Deploying Docs
+
+To run the current deployments of the docs run the deploy script:
+
+#+BEGIN_SRC bash
+pushd sphinx
+chmod u+x deploy.sh
+./deploy.sh
+popd
+#+END_SRC
+
+Currently this only is pushing to the server in our lab.
+
+
+** Testing
+
+We are using pytest so just run that from the main directory:
+
+#+BEGIN_SRC bash
+pytest
+#+END_SRC
+
+We use a special marker for interacting with test fixtures. We find
+this more useful in many cases where you just want to spin up a test
+fixture with the newest changes and inspect it, perhaps to help in
+writing real tests. We incorporate this with the testing suite so we
+only have to implement the boilerplate code of setting up test
+fixtures once, and we gain that it is now version controlled.
+
+To select just the interactive tests (which just have
+a fixture and a breakpoint) run:
+
+#+BEGIN_SRC bash
+pytest -m interactive
+#+END_SRC
+
+To run automated tests:
+
+#+BEGIN_SRC bash
+pytest -m 'not interactive'
+#+END_SRC
+
+TODO: we will probably add more categories in the future for selecting
+particular fixtures.
+
+We are also using tox to test against different python versions. To
+test against all of the versions they must be installed on the machine
+in a directory here called `PREFIX`. To let tox see them they must be
+on your path so run tox with a modified environment so we don't have
+to dingle with the path in an interactive shell and confuse ourselves:
+
+#+BEGIN_SRC bash
+env PATH="$PREFIX/bin:$PATH" tox
+#+END_SRC
+
+To install these different pythons download, unpack and build the
+python configuring it to be installed to the prefix:
+
+#+BEGIN_SRC bash
+wget "https://www.python.org/ftp/python/3.7.3/Python-3.7.3.tgz"
+tar --extract -f Python-3.7.3
+cd Python-3.7.3
+./configure --prefix=$PREFIX
+make -j 8
+make install
+#+END_SRC
+
+To run tox for a specific environment check which environment names
+are possible by looking in the `tox.ini` file:
+
+#+BEGIN_SRC bash
+env PATH="$PREFIX/bin:$PATH" tox -r -e py37
+#+END_SRC
+
+Where the `-r` option recreates it from scratch.
+
+
+
+You can also lint the code with flake8:
+
+#+BEGIN_SRC bash
+flake8 src/wepy tests
+#+END_SRC
+
+** Contributing
+
+TBD
+
+
 * Architecture
 
 ** Record Groups

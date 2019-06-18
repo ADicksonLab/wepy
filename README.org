@@ -20,6 +20,8 @@ integrated for the most common of use cases, i.e. molecular dynamics.
 
 This allows freedom for fast development of new methods.
 
+Also see the full [[https://github.com/ADicksonLab/wepy/blob/master/sphinx/source/introduction.org][introduction]].
+
 ** Community
 
 Discussion takes place on riot.im (#wepy:matrix.org) which is a slack-like app that works
@@ -31,6 +33,8 @@ You can also contact me directly:
 samuel.lotz@salotz.info
 
 ** Installation
+
+Also see: [[https://github.com/ADicksonLab/wepy/blob/master/sphinx/source/installation.org][Installation Instructions]]
 
 To install from pip (which may be out of date):
 
@@ -79,8 +83,24 @@ interface for working with orchestration available:
 
 ** Getting Started
 
-Until there is proper documentation there are a few examples here
-(https://github.com/ADicksonLab/wepy/tree/master/examples).
+ATTENTION: these parts of the documentation are under construction
+now. Please check back for updates.
+
+For a very quick sketch of how to use wepy see the [[https://github.com/ADicksonLab/wepy/blob/master/sphinx/source/quick_start.org][quickstart]].
+
+It is recommended to read the [[https://github.com/ADicksonLab/wepy/blob/master/sphinx/source/users_guide.org][User's Guide]] before starting to use
+wepy, especially if you are new to programming or only have experience
+with older simulation engines and packages, as it will focus your
+attention on the relevant aspects.
+
+If you are competent in object-oriented programming and python you can
+probably skip the first sections and head straight to the outline of
+simulation manager and its components in the user's guide.
+
+Otherwise you can head straight to the [[https://github.com/ADicksonLab/wepy/tree/master/sphinx/tutorials][tutorials]] and [[https://github.com/ADicksonLab/wepy/tree/master/examples][examples]].
+
+The tutorials are ipython notebooks while the examples are collections
+of scripts showing you how you might actually run wepy in production.
 
 There is an example with a pair of Lennard-Jones particles that runs
 on the reference implementation. This is the "Hello World" example and
@@ -92,7 +112,10 @@ protein with the inhibitor TPPU, which was the subject of this paper:
 
 Lotz and Dickson. 2018. JACS 140 (2) pp. 618-628 (DOI: 10.1021/jacs.7b08572)
 
-* Developing
+
+If you plan developing wepy read the [[https://github.com/ADicksonLab/wepy/blob/master/sphinx/source/dev_guide.org][Dev Guide]].
+
+** Developing
 
 ** Dev Environment
 
