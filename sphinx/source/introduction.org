@@ -7,9 +7,41 @@
 
 ** Features
 
+- State of the art WE resamplers: WExplore and REVO
+- Super fast molecular dynamics via OpenMM
+- One of a kind HDF5 storage format for WE data: ~WepyHDF5~
+- Analysis routines for:
+  - free energy profiles
+  - rate calculations
+  - computing trajectory observables
+  - extracting linear trajectories from clone-merge trees
+  - conformation state networks such as Markov State Models (MSMs)
+  - aggregating multiple runs
+- Orchestration framework for managing large number of simulations
+  with simulation checkpointing, recovery, and continuations.
+- Expert friendly: Fully-featured framework for building and
+  customizing simulations for exactly what you need.
+- Leverage the entire python ecosystem, you're limited to an old
+  version of an embedded interpreter.
+- No complex /ad hoc/ configuration files, everything is python.
+
+
 #+begin_export rst
   .. _resources:
 #+end_export
+
+** Getting Started
+
+Once you have wepy @@rst::any:`installed <installation>`@@ you can
+check out the @@rst::any:`quickstart <quick_start>`@@ to get a rough
+idea of how it works.
+
+Then you can either read the @@rst::any:`user's guide <users_guide>`@@
+or head on to the @@rst::any:`tutorials <../tutorials>`@@ or execute the
+[[https://github.com/ADicksonLab/wepy/tree/master/examples][examples]] in the source code.
+
+For a complete description of the modules and their components check
+out the @@rst::any:`API documentation <../api/modules>`@@.
 
 ** Contributed wepy libraries and other useful resources
 
@@ -65,7 +97,7 @@ comparison of ~wepy~ to them to help potential users make an informed
 decision. If you feel a package is misrepresented contact the ~wepy~
 devs or submit a pull request with your desired changes.
 
-*** [[https://github.com/westpa/westpa][WESTPA]]
+**** [[https://github.com/westpa/westpa][WESTPA]]
 
 Weighted ensemble package in Python 2.7. More reliant and integrated
 with unix-like operating systems providing modularity through shell
@@ -84,7 +116,7 @@ is a little more challenging to develop radically different resamplers
 like REVO, which have no concept of bins at all.
 
 
-*** [[http://ccl.cse.nd.edu/software/awe/][AWE: Accelerated Weighted Ensemble]]
+**** [[http://ccl.cse.nd.edu/software/awe/][AWE: Accelerated Weighted Ensemble]]
 
 Another Python 2 library with a focus on the Accelerated WE resampling
 algorithm and integration with a Work Queue library for distributed
