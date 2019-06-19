@@ -2353,7 +2353,7 @@ class WepyHDF5(object):
         """The path to the underlying HDF5 file."""
         return self._filename
 
-    def open(self, mode='r'):
+    def open(self, mode=None):
         """Open the underlying HDF5 file for access.
 
         Parameters
@@ -2363,6 +2363,9 @@ class WepyHDF5(object):
            Valid mode spec. Opens the HDF5 file in this mode.
 
         """
+
+        if mode is None:
+            mode = self.mode
 
         if self.closed:
             self._h5py_mode = mode

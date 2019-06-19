@@ -1250,26 +1250,32 @@ def reconcile_orchestrators(host_path, *orchestrator_paths):
                             mode='a',
                             append_only=True)
 
-    # if this is an existing orchestrator copy the default
-    # sim_apparatus and init_walkers
-    try:
-        default_app = new_orch.get_default_sim_apparatus()
-    except KeyError:
-        # no default apparatus, that is okay
-        pass
-    else:
-        # set it
-        new_orch.set_default_sim_apparatus(default_app)
+    # TODO deprecate, if there is no defaults we can't set them since
+    # the mode is append only, we don't really care about these so
+    # don't set them, otherwise do some mode logic to figure this out
+    # and open in write mode and set defaults, then change to append
+    # only
 
-    # same for the initial walkers
-    try:
-        default_walkers = new_orch.get_default_init_walkers()
-    except KeyError:
-        # no default apparatus, that is okay
-        pass
-    else:
-        # set it
-        new_orch.set_default_sim_apparatus(default_walkers)
+    # # if this is an existing orchestrator copy the default
+    # # sim_apparatus and init_walkers
+    # try:
+    #     default_app = new_orch.get_default_sim_apparatus()
+    # except KeyError:
+    #     # no default apparatus, that is okay
+    #     pass
+    # else:
+    #     # set it
+    #     new_orch.set_default_sim_apparatus(default_app)
+
+    # # same for the initial walkers
+    # try:
+    #     default_walkers = new_orch.get_default_init_walkers()
+    # except KeyError:
+    #     # no default apparatus, that is okay
+    #     pass
+    # else:
+    #     # set it
+    #     new_orch.set_default_sim_apparatus(default_walkers)
 
 
     for orch_path in orchestrator_paths:
