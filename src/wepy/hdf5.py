@@ -5451,7 +5451,11 @@ class WepyHDF5(object):
 
         topology = self.get_mdtraj_topology(alt_rep=rep_key)
 
-        frames = self.get_traj_field_cycle_idxs(run_idx, traj_idx, rep_path)
+
+        # get the frames if they are not given
+        if frames is None:
+            frames = self.get_traj_field_cycle_idxs(run_idx, traj_idx, rep_path)
+
 
         # get the data for all or for the frames specified
         positions = self.get_traj_field(run_idx, traj_idx, rep_path,
