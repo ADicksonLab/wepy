@@ -3,7 +3,7 @@
 
 In the course of a real project that was meant to simulate different
 ligands unbinding from the protein soluble epoxide hydrolase (sEH) a
-small importable package was built called @@rst:`seh_prep <https://gitlab.com/salotz/seh_prep>`@@.
+small importable package was built called [[https://gitlab.com/salotz/seh_prep][seh_prep]].
 
 In this tutorial we will use this package to build a simulation
 similar to the one in this paper: TODO.
@@ -82,8 +82,8 @@ The other files here are the forcefields for OpenMM in their XML
 format. The ~charmm36.xml~, ~charm36_solvent.xml~ files come with the
 OpenMM distribution and are just copied over. The forcefield for the
 ligand, ~unl.xml~, was generated from the corresponding 'prm' and
-'rtf' from CGENFF files using a utility in the package 
-@@rst`parmed <https://github.com/ParmEd/ParmEd>`@@.  Something like:
+'rtf' from CGENFF files using a utility in the package [[https://github.com/ParmEd/ParmEd][parmed]].
+Something like:
 
 #+begin_src python
   lig_params = pmd.charmm.CharmmParameterSet("unl.rtf", "unl.prm")
