@@ -24,6 +24,12 @@ from wepy.reporter.wexplore.dashboard import WExploreDashboardReporter
 from wepy.reporter.restree import ResTreeReporter
 from wepy.util.mdtraj import mdtraj_to_json_topology
 
+from wepy.work_mapper.mapper import Mapper
+
+from wepy.orchestration.orchestrator import Orchestrator
+from wepy.orchestration.snapshot import WepySimApparatus
+from wepy.orchestration.configuration import Configuration
+
 ## PARAMETERS
 
 # Platform used for OpenMM which uses different hardware computation
@@ -170,10 +176,6 @@ reporter_kwargs = [hdf5_reporter_kwargs, dashboard_reporter_kwargs,
                    restree_reporter_kwargs]
 
 
-from wepy.work_mapper.mapper import Mapper
-
-from wepy.orchestration.orchestrator import WepySimApparatus, Orchestrator
-from wepy.orchestration.configuration import Configuration
 
 sim_apparatus = WepySimApparatus(runner, resampler=resampler,
                                  boundary_conditions=ubc)
@@ -181,8 +183,7 @@ sim_apparatus = WepySimApparatus(runner, resampler=resampler,
 # we also create a default configuration for the orchestrator that
 # will be used unless one is given at runtime for the creation of a
 # simulation manager
-configuration = Configuration(n_workers=4,
-                              reporter_classes=reporter_classes,
+configuration = Configuration(reporter_classes=reporter_classes,
                               reporter_partial_kwargs=reporter_kwargs)
 
 # we also want to set up the orchestrator with some default walkers to
@@ -195,11 +196,13 @@ init_walkers = [Walker(OpenMMState(init_sim_state), init_weight) for i in range(
 
 # then create the seed/root/master orchestrator which will be used
 # from here on out
-orchestrator = Orchestrator(sim_apparatus,
-                            default_init_walkers=init_walkers,
-                            default_configuration=configuration)
+orch = Orchestrator(orch_path='LJ-pair.orch.sqlite',
+                            mode='w')
 
+# set the defaults
+orch.set_default_sim_apparatus(sim_apparatus)
+orch.set_default_init_walkers(init_walkers)
+orch.set_default_configuration(configuration)
+orch.gen_default_snapshot()
 
-# save it
-orchestrator.dump('LJ-pair.orch', mode='wb')
 

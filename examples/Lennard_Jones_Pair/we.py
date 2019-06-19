@@ -6,34 +6,22 @@ anaconda: `conda install -c omnia openmmtools`
 Openmmtools just provides a ready-made system for the lennard jones
 particles.
 
-This script is broken up into several parts:
+This script has several pieces to pay attention to:
 
-1. Importing the pieces from wepy to run a WExplore simulation.
+- Importing the pieces from wepy to run a WExplore simulation.
 
-2. Definition of a distance metric for this system and process.
+- Definition of a distance metric for this system and process.
 
-3. Definition of the parameters used in the simulation. Each is
-described in detail.
+- Definition of the components used in the simulation: resampler,
+boundary conditions, runner.
 
-4. Definition of the I/O end points.
+- Definition of the reporters which will write the data out.
 
-5. Initialize the OpenMM Runner and get the starting state from the
-openmmtools system.
+- Create the work mapper for a non-parallel run.
 
-6. Initialize the Wexplore resampler.
+- Construct the simulation manager with all the parts.
 
-7. Initialize the boundary conditions. This makes the simulation
-non-equilibrium by restarting "unbound" simulations in the initial
-state.
-
-8. Initialize the reporters. This will result in the results files.
-
-9. Initialize the work mapper, which in this case is trivial since
-this will only be run in serial.
-
-10. Initialize the simulation manager with all the parts.
-
-11. Actually run the simulation.
+- Actually run the simulation.
 
 """
 
@@ -214,7 +202,7 @@ hdf5_reporter = WepyHDF5Reporter(file_path=hdf5_path, mode='w',
                                  topology=json_str_top,
                                  units=units)
 
-dashboard_reporter = WExploreDashboardReporter(file_path='./outputs/wepy.dash.txt', mode='w',
+dashboard_reporter = WExploreDashboardReporter(file_path='./outputs/wepy.dash.org.txt', mode='w',
                                                step_time=STEP_SIZE.value_in_unit(unit.second),
                                                max_n_regions=resampler.max_n_regions,
                                                max_region_sizes=resampler.max_region_sizes,

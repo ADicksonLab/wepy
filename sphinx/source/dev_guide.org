@@ -159,6 +159,7 @@ Currently this only is pushing to the server in our lab.
 
 ** Testing
 
+*** Test Suite
 We are using pytest so just run that from the main directory:
 
 #+BEGIN_SRC bash
@@ -226,6 +227,45 @@ You can also lint the code with flake8:
 #+BEGIN_SRC bash
 flake8 src/wepy tests
 #+END_SRC
+
+*** Testing examples and tutorials
+
+We also want to make sure that the tutorials and examples work.
+
+For this we want to emulate the experience of somebody installing it
+from scratch and running the examples.
+
+#+BEGIN_SRC bash
+  wepy_test_user_install () {
+
+      package='wepy'
+      conda deactivate
+      install_env="test-${package}-user-install"
+      conda env remove -y -n "$install_env"
+      conda create -y -n "$install_env" python=3
+      conda activate "$install_env"
+      conda install -y -c omnia openmm openmmtools
+      pip install wepy[all]==1.0.0rc0
+  }
+
+  wepy_test_user_master_install () {
+
+      package='wepy_master'
+      conda deactivate
+      install_env="test-${package}-user-install"
+      conda env remove -y -n "$install_env"
+      conda create -y -n "$install_env" python=3
+      conda activate "$install_env"
+      conda install -y -c omnia openmm openmmtools
+      pip install mdtraj
+      pip install git+https://github.com/ADicksonLab/wepy.git
+  }
+#+END_SRC
+
+
+**** Examples
+
+
 
 ** Contributing
 

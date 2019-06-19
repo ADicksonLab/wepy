@@ -26,3 +26,6 @@ dist
 /sphinx/source/quick_start.rst
 /sphinx/source/users_guide.rst
 /sphinx/source/troubleshooting.rst
+/examples/*/outputs
+*.sqlite
+/sphinx/tutorials/seh_prep.rst
