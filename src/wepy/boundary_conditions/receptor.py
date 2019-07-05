@@ -4,8 +4,11 @@ including unbinding and rebinding.
 """
 
 from collections import defaultdict
+from multiprocessing import Pool
 import logging
 import itertools as it
+import time
+import os
 
 import numpy as np
 
@@ -279,10 +282,13 @@ class ReceptorBC(BoundaryConditions):
         # continual, one record per call
         progress_data = defaultdict(list)
 
+        # calculate progress data
+        all_progress_data = [self._progress(w) for w in walkers]
+
         for walker_idx, walker in enumerate(walkers):
 
-            # check if it is unbound, also gives the progress record
-            to_warp, walker_progress_data = self._progress(walker)
+            # unpack progress data
+            to_warp, walker_progress_data = all_progress_data[walker_idx]
 
             # add that to the progress data record
             for key, value in walker_progress_data.items():
@@ -662,6 +668,10 @@ class UnbindingBC(ReceptorBC):
         self._cutoff_distance = cutoff_distance
         self._topology = topology
 
+        # convert the json topology to an mdtraj one
+        self._mdj_top = json_to_mdtraj_topology(self._topology)
+
+
     @property
     def cutoff_distance(self):
         """The distance a ligand must be to be unbound."""
@@ -687,21 +697,23 @@ class UnbindingBC(ReceptorBC):
 
         cell_lengths, cell_angles = box_vectors_to_lengths_angles(walker.state['box_vectors'])
 
-        # convert the json topology to an mdtraj one
-        mdj_top = json_to_mdtraj_topology(self._topology)
-
+        t2 = time.time()
         # make a traj out of it so we can calculate distances through
         # the periodic boundary conditions
         walker_traj = mdj.Trajectory(walker.state['positions'],
-                                     topology=mdj_top,
+                                     topology=self._mdj_top,
                                      unitcell_lengths=cell_lengths,
                                      unitcell_angles=cell_angles)
 
+        t3 = time.time()
         # calculate the distances through periodic boundary conditions
         # and get hte minimum distance
         min_distance = np.min(mdj.compute_distances(walker_traj,
                                                     it.product(self.ligand_idxs,
                                                                self.receptor_idxs)))
+        t4 = time.time()
+        logging.info("Make a traj: {0}; Calc dists: {1}".format(t3-t2,t4-t3))
+        
         return min_distance
 
     def _progress(self, walker):

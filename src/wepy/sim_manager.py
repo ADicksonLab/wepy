@@ -290,10 +290,12 @@ class Manager(object):
 
         # run the segment
         start = time.time()
+        logging.info("Entering run segment")
         new_walkers = self.run_segment(walkers, n_segment_steps)
         end = time.time()
         runner_time = end - start
 
+        logging.info("Starting post cycle")
         # run post-cycle hook
         self.runner.post_cycle()
 
@@ -313,6 +315,7 @@ class Manager(object):
 
             # apply rules of boundary conditions and warp walkers through space
             start = time.time()
+            logging.info("Starting boundary conditions")
             bc_results  = self.boundary_conditions.warp_walkers(new_walkers,
                                                                 cycle_idx)
             end = time.time()
@@ -328,9 +331,9 @@ class Manager(object):
                 logging.info("Returned warp record in cycle {}".format(cycle_idx))
 
 
-
         # resample walkers
         start = time.time()
+        logging.info("Starting resampler")
         resampling_results = self.resampler.resample(warped_walkers)
         end = time.time()
         resampling_time = end - start
@@ -347,6 +350,19 @@ class Manager(object):
 
         # make a dictionary of all the results that will be reported
 
+        try:
+            seg_times = self.work_mapper.worker_segment_times
+            sampling_time = 0
+            for w_list in self.work_mapper.worker_segment_times:
+                for t in w_list:
+                    sampling_time += t
+            overhead_time = runner_time - sampling_time
+            logging.info("Runner time = {}; Sampling = ({}); Overhead = ({})".format(runner_time,sampling_time,overhead_time))
+        except:
+            seg_times = [None]
+            sampling_time = None
+            overhead_time = None
+            logging.info("Runner time = {}".format(runner_time))
 
         report = {'cycle_idx' : cycle_idx,
                   'new_walkers' : new_walkers,
@@ -356,7 +372,7 @@ class Manager(object):
                   'resampling_data' : resampling_data,
                   'resampler_data' : resampler_data,
                   'n_segment_steps' : n_segment_steps,
-                  'worker_segment_times' : self.work_mapper.worker_segment_times,
+                  'worker_segment_times' : seg_times,
                   'cycle_runner_time' : runner_time,
                   'cycle_bc_time' : bc_time,
                   'cycle_resampling_time' : resampling_time,
@@ -367,6 +383,7 @@ class Manager(object):
         assert all([True if rep_key in report else False
                     for rep_key in self.REPORT_ITEM_KEYS])
 
+        logging.info("Starting reporting")
         # report results to the reporters
         for reporter in self.reporters:
             reporter.report(**report)
@@ -387,6 +404,7 @@ class Manager(object):
         # mutated. We don't do this here for efficiency.
         filters = [self.runner, self.boundary_conditions, self.resampler]
 
+        logging.info("Done: returning walkers")
         return walkers, filters
 
     def init(self, num_workers=None, continue_run=None):
