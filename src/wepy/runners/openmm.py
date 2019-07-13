@@ -899,7 +899,7 @@ class OpenMMState(WalkerState):
         import mdtraj as mdj
         # resize the time to a 1D vector
         unitcell_lengths, unitcell_angles = box_vectors_to_lengths_angles(self.box_vectors)
-        return mdj.Trajectory([self.positions],
+        return mdj.Trajectory(np.array([self.positions_values()]),
                               unitcell_lengths=[unitcell_lengths],
                               unitcell_angles=[unitcell_angles],
                               topology=topology)
