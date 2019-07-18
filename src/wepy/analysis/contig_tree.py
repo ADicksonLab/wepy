@@ -119,60 +119,66 @@ class BaseContigTree():
         get erroneous contiguous trajectories.
         """
 
-        with wepy_h5:
-
-            self._graph = nx.DiGraph()
-
-            self._boundary_condition_class=boundary_condition_class
-            self._decision_class = decision_class
-
-            # we can optionally specify which continuations to use when
-            # creating the contig tree instead of defaulting to the whole file
-            self._continuations = set()
-            self._run_idxs = set()
-
-            # if specific runs were specified we add them right away, they
-            # should be unique
-            if runs is Ellipsis:
-                self._run_idxs.update(wepy_h5.run_idxs)
-            elif runs is not None:
-                self._run_idxs.update(runs)
-
-            # the continuations also give extra runs to incorporate into
-            # this contig tree
-
-            # if it is Ellipsis (...) then we include all runs and all the continuations
-            if continuations is Ellipsis:
-                self._run_idxs.update(wepy_h5.run_idxs)
-                self._continuations.update([(a,b) for a, b in wepy_h5.continuations])
-
-            # otherwise we make the tree based on the runs in the
-            # continuations
-            elif continuations is not None:
-                # the unique run_idxs
-                self._run_idxs.update(it.chain(*self._continuations))
-
-                # the continuations themselves
-                self._continuations.update([(a,b) for a, b in continuations])
+        was_closed = False
+        if wepy_h5.closed:
+            was_closed = True
+            wepy_h5.open()
 
 
-            # using the wepy_h5 create a tree of the cycles
-            self._create_tree(wepy_h5)
+        self._graph = nx.DiGraph()
 
-            self._set_resampling_panels(wepy_h5)
+        self._boundary_condition_class=boundary_condition_class
+        self._decision_class = decision_class
 
-            if self._decision_class is not None:
-                self._set_parents(self._decision_class)
+        # we can optionally specify which continuations to use when
+        # creating the contig tree instead of defaulting to the whole file
+        self._continuations = set()
+        self._run_idxs = set()
 
-                if self._boundary_condition_class is not None:
-                    self._set_discontinuities(wepy_h5, self._boundary_condition_class)
+        # if specific runs were specified we add them right away, they
+        # should be unique
+        if runs is Ellipsis:
+            self._run_idxs.update(wepy_h5.run_idxs)
+        elif runs is not None:
+            self._run_idxs.update(runs)
 
-            # set the spanning contigs as a mapping of the index to the
-            # span trace
-            self._spans = {span_idx : span_trace
-                           for span_idx, span_trace
-                           in enumerate(self.spanning_contig_traces())}
+        # the continuations also give extra runs to incorporate into
+        # this contig tree
 
+        # if it is Ellipsis (...) then we include all runs and all the continuations
+        if continuations is Ellipsis:
+            self._run_idxs.update(wepy_h5.run_idxs)
+            self._continuations.update([(a,b) for a, b in wepy_h5.continuations])
+
+        # otherwise we make the tree based on the runs in the
+        # continuations
+        elif continuations is not None:
+            # the unique run_idxs
+            self._run_idxs.update(it.chain(*self._continuations))
+
+            # the continuations themselves
+            self._continuations.update([(a,b) for a, b in continuations])
+
+
+        # using the wepy_h5 create a tree of the cycles
+        self._create_tree(wepy_h5)
+
+        self._set_resampling_panels(wepy_h5)
+
+        if self._decision_class is not None:
+            self._set_parents(self._decision_class)
+
+            if self._boundary_condition_class is not None:
+                self._set_discontinuities(wepy_h5, self._boundary_condition_class)
+
+        # set the spanning contigs as a mapping of the index to the
+        # span trace
+        self._spans = {span_idx : span_trace
+                       for span_idx, span_trace
+                       in enumerate(self.spanning_contig_traces())}
+
+        if was_closed:
+            wepy_h5.close()
 
     @property
     def graph(self):
@@ -1182,10 +1188,12 @@ class ContigTree(BaseContigTree):
 
     def __enter__(self):
         self.wepy_h5.__enter__()
+        self.closed = False
         return self
 
     def __exit__(self, exc_type, exc_value, exc_tb):
         self.wepy_h5.__exit__(exc_type, exc_value, exc_tb)
+        self.close()
 
 
     @property
@@ -1449,6 +1457,8 @@ class ContigTree(BaseContigTree):
         return run_trace_elements
 
 
+    # TODO: optimize this, we don't need to recalculate everything
+    # each time to implement this
     def make_contig(self, contig_trace):
         """Create a Contig object given a contig trace.
 
