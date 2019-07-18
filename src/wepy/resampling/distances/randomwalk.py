@@ -2,6 +2,7 @@
 This module here is part of RandomWalk object that implements computing
 distance between pairs of positions of RandomWalk walkers.
 """
+
 import logging
 
 import numpy as np

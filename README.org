@@ -1,6 +1,5 @@
 * Weighted Ensemble Python (wepy)
 
-
 Modular implementation and framework for running weighted ensemble
 simulations in pure python, where the aim is to have simple things
 simple and complicated things possible. The latter being the priority.
@@ -21,6 +20,8 @@ integrated for the most common of use cases, i.e. molecular dynamics.
 
 This allows freedom for fast development of new methods.
 
+Also see the full [[https://github.com/ADicksonLab/wepy/blob/master/sphinx/source/introduction.org][introduction]].
+
 ** Community
 
 Discussion takes place on riot.im (#wepy:matrix.org) which is a slack-like app that works
@@ -33,13 +34,15 @@ samuel.lotz@salotz.info
 
 ** Installation
 
+Also see: [[https://github.com/ADicksonLab/wepy/blob/master/sphinx/source/installation.org][Installation Instructions]]
+
 To install from pip (which may be out of date):
 
 #+BEGIN_SRC bash
   pip install wepy[all]
 #+END_SRC
 
-Which will install most dependencies,
+Which will install most dependencies.
 
 To install the optional, but likely desired feature, OpenMM you should
 probably just use the omnia channel on conda, otherwise you will need
@@ -80,8 +83,24 @@ interface for working with orchestration available:
 
 ** Getting Started
 
-Until there is proper documentation there are a few examples here
-(https://github.com/ADicksonLab/wepy/tree/master/examples).
+ATTENTION: these parts of the documentation are under construction
+now. Please check back for updates.
+
+For a very quick sketch of how to use wepy see the [[https://github.com/ADicksonLab/wepy/blob/master/sphinx/source/quick_start.org][quickstart]].
+
+It is recommended to read the [[https://github.com/ADicksonLab/wepy/blob/master/sphinx/source/users_guide.org][User's Guide]] before starting to use
+wepy, especially if you are new to programming or only have experience
+with older simulation engines and packages, as it will focus your
+attention on the relevant aspects.
+
+If you are competent in object-oriented programming and python you can
+probably skip the first sections and head straight to the outline of
+simulation manager and its components in the user's guide.
+
+Otherwise you can head straight to the [[https://github.com/ADicksonLab/wepy/tree/master/sphinx/tutorials][tutorials]] and [[https://github.com/ADicksonLab/wepy/tree/master/examples][examples]].
+
+The tutorials are ipython notebooks while the examples are collections
+of scripts showing you how you might actually run wepy in production.
 
 There is an example with a pair of Lennard-Jones particles that runs
 on the reference implementation. This is the "Hello World" example and
@@ -93,168 +112,6 @@ protein with the inhibitor TPPU, which was the subject of this paper:
 
 Lotz and Dickson. 2018. JACS 140 (2) pp. 618-628 (DOI: 10.1021/jacs.7b08572)
 
-* Developing
 
-** Dev Environment
+If you plan developing wepy read the [[https://github.com/ADicksonLab/wepy/blob/master/sphinx/source/dev_guide.org][Dev Guide]].
 
-Clone and install with all the features:
-
-#+BEGIN_SRC bash
-  git clone https://github.com/ADicksonLab/wepy
-  cd wepy
-  # install in editable mode
-  pip install -r requirements_dev.txt -e .[all]
-#+END_SRC
-
-
-Currently, for installing mdtraj we use a forked repository which
-handles pip installations better that allows for seamless dependecy
-resolution and doesn't require manual intervention to install cython.
-
-This is specified in the requirements.txt file which should be used
-for specifying the "concrete" requirements of the project (i.e. the
-literal repo or index URL that packages should be retrieved from).
-
-"Abstract" requirements should also be listed in setup.py.
-
-For development specific requirements, we have the separate
-requirements_dev.txt.
-
-Because at this multiple packages are developed simultaneously we
-require that geomm be installed in the same directory as wepy for
-using the dev requirements.
-
-** TODO Releasing Package
-
-Make sure to tag in git (I typically use magit in emacs but the
-command is):
-
-#+BEGIN_SRC bash
-git tag -a vX.Y.Z -m "release message"
-git push gitlab vX.Y.Z
-#+END_SRC
-
-Before we build the package we need to bump the version in all those
-places it is written down at, which is achieved with the bumpversion
-tool:
-
-#+BEGIN_SRC bash
-bumpversion patch # possible: major / minor / patch
-#+END_SRC
-
-To deploy to PyPI (if you have access)
-#+BEGIN_SRC bash
-
-#+END_SRC
-
-
-** Building Docs
-
-Install pandoc for converting org-mode files to rst.
-
-You can follow the instructions on the site or just use anaconda:
-
-#+BEGIN_SRC bash
-conda install pandoc
-#+END_SRC
-
-Then run the build script. This uses the make file and additionally
-runs api-doc, and converts org-mode source files to rst using pandoc.
-
-#+BEGIN_SRC bash
-pushd sphinx
-chmod u+x build.sh
-./build.sh
-popd
-#+END_SRC
-
-This will build the HTML files in the 'sphinx/_build/html' directory
-and if you point your web browser there you can view them.
-
-** Deploying Docs
-
-To run the current deployments of the docs run the deploy script:
-
-#+BEGIN_SRC bash
-pushd sphinx
-chmod u+x deploy.sh
-./deploy.sh
-popd
-#+END_SRC
-
-Currently this only is pushing to the server in our lab.
-
-
-** Testing
-
-We are using pytest so just run that from the main directory:
-
-#+BEGIN_SRC bash
-pytest
-#+END_SRC
-
-We use a special marker for interacting with test fixtures. We find
-this more useful in many cases where you just want to spin up a test
-fixture with the newest changes and inspect it, perhaps to help in
-writing real tests. We incorporate this with the testing suite so we
-only have to implement the boilerplate code of setting up test
-fixtures once, and we gain that it is now version controlled.
-
-To select just the interactive tests (which just have
-a fixture and a breakpoint) run:
-
-#+BEGIN_SRC bash
-pytest -m interactive
-#+END_SRC
-
-To run automated tests:
-
-#+BEGIN_SRC bash
-pytest -m 'not interactive'
-#+END_SRC
-
-TODO: we will probably add more categories in the future for selecting
-particular fixtures.
-
-We are also using tox to test against different python versions. To
-test against all of the versions they must be installed on the machine
-in a directory here called `PREFIX`. To let tox see them they must be
-on your path so run tox with a modified environment so we don't have
-to dingle with the path in an interactive shell and confuse ourselves:
-
-#+BEGIN_SRC bash
-env PATH="$PREFIX/bin:$PATH" tox
-#+END_SRC
-
-To install these different pythons download, unpack and build the
-python configuring it to be installed to the prefix:
-
-#+BEGIN_SRC bash
-wget "https://www.python.org/ftp/python/3.7.3/Python-3.7.3.tgz"
-tar --extract -f Python-3.7.3
-cd Python-3.7.3
-./configure --prefix=$PREFIX
-make -j 8
-make install
-#+END_SRC
-
-To run tox for a specific environment check which environment names
-are possible by looking in the `tox.ini` file:
-
-#+BEGIN_SRC bash
-env PATH="$PREFIX/bin:$PATH" tox -r -e py37
-#+END_SRC
-
-Where the `-r` option recreates it from scratch.
-
-
-
-You can also lint the code with flake8:
-
-#+BEGIN_SRC bash
-flake8 src/wepy tests
-#+END_SRC
-
-** Contributing
-
-TBD

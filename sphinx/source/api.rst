@@ -4,14 +4,6 @@ API Reference
 This is a listing of the important and most used for an exhaustive
 (and potentially exhausting) listing see the module index:
 
-#+MY_TODO
-
-
-Orchestration CLI
------------------
-
-TODO
-
    
 Analysis
 --------
@@ -38,6 +30,11 @@ Wepy Core
 
 * :any:`Simulation Manager <../api/wepy.sim_manager>`
 * :any:`Walker <../api/wepy.walker>`
+
+  Orchestration CLI
+-----------------
+
+TODO
 
    
 Utilities

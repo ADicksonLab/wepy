@@ -2353,7 +2353,7 @@ class WepyHDF5(object):
         """The path to the underlying HDF5 file."""
         return self._filename
 
-    def open(self, mode='r'):
+    def open(self, mode=None):
         """Open the underlying HDF5 file for access.
 
         Parameters
@@ -2363,6 +2363,9 @@ class WepyHDF5(object):
            Valid mode spec. Opens the HDF5 file in this mode.
 
         """
+
+        if mode is None:
+            mode = self.mode
 
         if self.closed:
             self._h5py_mode = mode
@@ -3546,7 +3549,7 @@ class WepyHDF5(object):
                                       mode='r+')
 
             # close it since we are done
-            #new_h5.close()
+            new_h5.close()
 
 
         with self:
@@ -5451,7 +5454,11 @@ class WepyHDF5(object):
 
         topology = self.get_mdtraj_topology(alt_rep=rep_key)
 
-        frames = self.get_traj_field_cycle_idxs(run_idx, traj_idx, rep_path)
+
+        # get the frames if they are not given
+        if frames is None:
+            frames = self.get_traj_field_cycle_idxs(run_idx, traj_idx, rep_path)
+
 
         # get the data for all or for the frames specified
         positions = self.get_traj_field(run_idx, traj_idx, rep_path,
@@ -5643,6 +5650,7 @@ class WepyHDF5(object):
         return traj_fields_to_mdtraj(traj_fields, json_topology, rep_key=rep_path)
 
 
+
     def copy_run_slice(self, run_idx, target_file_path, target_grp_path,
                        run_slice=None, mode='x'):
         """Copy this run to another HDF5 file (target_file_path) at the group
@@ -5673,22 +5681,27 @@ class WepyHDF5(object):
             # initialize the group for the run
             new_run_grp = new_h5.require_group(target_grp_path)
 
+
             # copy the init walkers group
-            h5py.h5o.copy(self.h5.id, run_grp[INIT_WALKERS].name.encode(),
-                          new_h5.id, '{}/{}'.format(target_grp_path, INIT_WALKERS).encode())
+            self.h5.copy(run_grp[INIT_WALKERS], new_run_grp,
+                         name=INIT_WALKERS)
 
             # copy the decision group
-            h5py.h5o.copy(self.h5.id, run_grp[DECISION].name.encode(),
-                          new_h5.id, '{}/{}'.format(target_grp_path, DECISION).encode())
+            self.h5.copy(run_grp[DECISION], new_run_grp,
+                         name=DECISION)
+
 
             # create the trajectories group
             new_trajs_grp = new_run_grp.require_group(TRAJECTORIES)
 
             # slice the trajectories and copy them
             for traj_idx in run_grp[TRAJECTORIES]:
+
+                traj_grp = run_grp[TRAJECTORIES][traj_idx]
+
                 traj_id = "{}/{}".format(TRAJECTORIES, traj_idx)
 
-                traj_grp = new_trajs_grp.require_group(str(traj_idx))
+                new_traj_grp = new_trajs_grp.require_group(str(traj_idx))
 
                 for field_name in _iter_field_paths(run_grp[traj_id]):
                     field_path = "{}/{}".format(traj_id, field_name)
@@ -5701,11 +5714,12 @@ class WepyHDF5(object):
                     if field_name in self.sparse_fields:
 
                         # create a group for the field
-                        field_grp = traj_grp.require_group(field_name)
+                        new_field_grp = new_traj_grp.require_group(field_name)
 
                         # slice the _sparse_idxs from the original
                         # dataset that are between the slice
-                        cycle_idxs = self.traj(run_idx, traj_idx)[field_name]['_sparse_idxs']
+                        cycle_idxs = self.traj(run_idx, traj_idx)[field_name]['_sparse_idxs'][:]
+
                         sparse_idx_idxs = np.argwhere(np.logical_and(
                             cycle_idxs[:] >= run_slice[0], cycle_idxs[:] < run_slice[1]
                         )).flatten().tolist()
@@ -5716,23 +5730,60 @@ class WepyHDF5(object):
                         # get the data for these cycles
                         field_data = data[sliced_cycle_idxs]
 
+                        # get the information on compression,
+                        # chunking, and filters and use it when we set
+                        # the new data
+                        field_data_dset = traj_grp[field_name]['data']
+                        data_dset_kwargs = {
+                            'chunks' : field_data_dset.chunks,
+                            'compression' : field_data_dset.compression,
+                            'compression_opts' : field_data_dset.compression_opts,
+                            'shuffle' : field_data_dset.shuffle,
+                            'fletcher32' : field_data_dset.fletcher32,
+                        }
+
+                        # and for the sparse idxs although it is probably overkill
+                        field_idxs_dset = traj_grp[field_name]['_sparse_idxs']
+                        idxs_dset_kwargs = {
+                            'chunks' : field_idxs_dset.chunks,
+                            'compression' : field_idxs_dset.compression,
+                            'compression_opts' : field_idxs_dset.compression_opts,
+                            'shuffle' : field_idxs_dset.shuffle,
+                            'fletcher32' : field_idxs_dset.fletcher32,
+                        }
+
                         # then create the datasets
-                        field_grp.create_dataset('_sparse_idxs',
-                                                 data=sliced_cycle_idxs)
-                        field_grp.create_dataset('data',
-                                                 data=field_data)
+                        new_field_grp.create_dataset('_sparse_idxs',
+                                                     data=sliced_cycle_idxs,
+                                                     **idxs_dset_kwargs)
+                        new_field_grp.create_dataset('data',
+                                                     data=field_data,
+                                                     **data_dset_kwargs)
 
                     else:
 
+                        # get the information on compression,
+                        # chunking, and filters and use it when we set
+                        # the new data
+                        field_dset = traj_grp[field_name]
+
+                        dset_kwargs = {
+                            'chunks' : field_dset.chunks,
+                            'compression' : field_dset.compression,
+                            'compression_opts' : field_dset.compression_opts,
+                            'shuffle' : field_dset.shuffle,
+                            'fletcher32' : field_dset.fletcher32,
+                        }
+
                         # require the dataset first to automatically build
                         # subpaths for compound fields if necessary
-                        dset = traj_grp.require_dataset(field_name,
-                                                        data.shape, data.dtype)
+                        dset = new_traj_grp.require_dataset(field_name,
+                                                            data.shape, data.dtype,
+                                                            **dset_kwargs)
 
                         # then set the data depending on whether it is
                         # sparse or not
                         dset[:] = data
-
 
             # then do it for the records
             for rec_grp_name, rec_fields in self.record_fields.items():
@@ -5746,6 +5797,20 @@ class WepyHDF5(object):
 
                     cycle_idxs = rec_grp[CYCLE_IDXS][:]
 
+                    # get dataset info
+                    cycle_idxs_dset = rec_grp[CYCLE_IDXS]
+
+                    # we use autochunk, because I can't figure out how
+                    # the chunks are set and I can't reuse them
+                    idxs_dset_kwargs = {
+                        'chunks' : True,
+                        # 'chunks' : cycle_idxs_dset.chunks,
+                        'compression' : cycle_idxs_dset.compression,
+                        'compression_opts' : cycle_idxs_dset.compression_opts,
+                        'shuffle' : cycle_idxs_dset.shuffle,
+                        'fletcher32' : cycle_idxs_dset.fletcher32,
+                    }
+
                     # get the indices of the records we are interested in
                     record_idxs = np.argwhere(np.logical_and(
                         cycle_idxs >= run_slice[0], cycle_idxs < run_slice[1]
@@ -5755,8 +5820,10 @@ class WepyHDF5(object):
                     new_recgrp_cycle_idxs_path = '{}/{}/_cycle_idxs'.format(target_grp_path,
                                                                             rec_grp_name)
                     cycle_data = cycle_idxs[record_idxs]
+
                     cycle_dset = new_h5.require_dataset(new_recgrp_cycle_idxs_path,
-                                                        cycle_data.shape, cycle_data.dtype)
+                                                        cycle_data.shape, cycle_data.dtype,
+                                                        **idxs_dset_kwargs)
                     cycle_dset[:] = cycle_data
 
                 # if contiguous just set the record indices as the
@@ -5769,37 +5836,72 @@ class WepyHDF5(object):
 
                     field_dset = rec_grp[rec_field]
 
+                    # get dataset info
+                    field_dset_kwargs = {
+                        'chunks' : True,
+                        # 'chunks' : field_dset.chunks,
+                        'compression' : field_dset.compression,
+                        'compression_opts' : field_dset.compression_opts,
+                        'shuffle' : field_dset.shuffle,
+                        'fletcher32' : field_dset.fletcher32,
+                    }
+
+
                     rec_field_path = "{}/{}".format(rec_grp_name, rec_field)
                     new_recfield_grp_path = '{}/{}'.format(target_grp_path, rec_field_path)
 
                     # if it is a variable length dtype make the dtype
                     # that for the dataset and we also slice the
                     # dataset differently
-                    if h5py.check_dtype(vlen=field_dset.dtype) is not None:
-                        dtype = h5py.special_dtype(vlen=field_dset.dtype)
+                    vlen_type = h5py.check_dtype(vlen=field_dset.dtype)
+                    if vlen_type is not None:
+
+                        dtype = h5py.special_dtype(vlen=vlen_type)
+
                     else:
                         dtype = field_dset.dtype
+
+
 
                     # if there are no records don't attempt to add them
                     # get the shape
                     shape = (len(record_idxs), *field_dset.shape[1:])
 
                     new_field_dset = new_h5.require_dataset(new_recfield_grp_path,
-                                                            shape, dtype)
+                                                            shape, dtype,
+                                                            **field_dset_kwargs)
 
                     # if there aren't records just don't do anything,
                     # and if there are get them and add them
                     if len(record_idxs) > 0:
                         rec_data = field_dset[record_idxs]
-                        new_field_dset[:] = rec_data
 
+                        # if it is a variable length data type we have
+                        # to do it 1 by 1
+                        if vlen_type is not None:
+                            for i, vlen_rec in enumerate(rec_data):
+                                new_field_dset[i] = rec_data[i]
+                        # otherwise just set it all at once
+                        else:
+                            new_field_dset[:] = rec_data
 
         # just copy the whole thing over, since this will probably be
         # more efficient
         else:
 
-            h5py.h5o.copy(self.h5.id, run_grp.name.encode(),
-                          new_h5.id, target_grp_path.encode())
+            # split off the last bit of the target path, for copying we
+            # need it's parent group but not it to exist
+            target_grp_path_basename = target_grp_path.split('/')[-1]
+            target_grp_path_prefix = target_grp_path.split('/')[:-1]
 
+            new_run_prefix_grp = self.h5.require_group(target_grp_path_prefix)
+
+            # copy the whole thing
+            self.h5.copy(run_grp, new_run_prefix_grp,
+                         name=target_grp_path_basename)
+
+        # flush the datasets buffers
+        self.h5.flush()
+        new_h5.flush()
 
         return new_h5

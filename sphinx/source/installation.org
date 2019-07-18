@@ -1,3 +1,48 @@
+
 * Installation
 
-TODO
+
+To install from pip (which may be out of date):
+
+#+BEGIN_SRC bash
+  pip install wepy[all]
+#+END_SRC
+
+Which will install most dependencies.
+
+To install the optional, but likely desired feature, OpenMM you should
+probably just use the omnia channel on conda, otherwise you will need
+to compile it yourself.
+
+#+BEGIN_SRC bash
+  conda install -c omnia openmm
+#+END_SRC
+
+There are some optional features you can install as well using the
+"extras" spec in pip. The base package aims to be very easy to install
+but lacks a lot of functionality that makes wepy truly
+useful. Currently, these are:
+
+- mdtraj :: allows export of structures to the mdtraj format which has
+            many writers for serialization, e.g. pdb, dcd, etc.
+- all :: installs all extras
+
+Check the setup.py file under 'extras_requirements' for the full listing.
+
+#+BEGIN_SRC bash
+pip install wepy[mdtraj]
+#+END_SRC
+
+You can always install from git as well for the latest:
+
+#+BEGIN_SRC bash
+pip install git+https://github.com/ADicksonLab/wepy.git
+#+END_SRC
+
+
+If installation went alright you should have this command line
+interface for working with orchestration available:
+
+#+BEGIN_SRC bash
+  wepy --help
+#+END_SRC

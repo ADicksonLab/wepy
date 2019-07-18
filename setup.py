@@ -30,28 +30,28 @@ all_requirements = it.chain.from_iterable([mdtraj_requirements, ])
 
 setup(
     name='wepy',
-    version='0.10.2',
+    version='1.0.0-rc',
     author="Samuel D. Lotz",
     author_email="samuel.lotz@salotz.info",
     description="Weighted Ensemble Framework",
-    long_description=open('README.org').read(),
+    #long_description=open('README.org').read(),
     license="MIT",
     url="https://github.com/ADicksonLab/wepy",
     classifiers=[
-        "Development Status :: 3 - Alpha",
         "Topic :: Utilities",
         "License :: OSI Approved :: MIT License",
         'Programming Language :: Python :: 3'
     ],
     # building/dev
-    setup_requires=['pytest-runner', 'numpy', 'cython'],
+    setup_requires=['pytest-runner'],
     tests_require=['pytest', 'tox'],
     # package
     packages=find_packages('src'),
 
     package_dir={'' : 'src'},
+
     # if this is true then the package_data won't be included in the
-    # dist, and I prefer this to MANIFEST
+    # dist. Use MANIFEST.in for this
     include_package_data=False,
 
     # pymodules is for single file standalone modules not part of the

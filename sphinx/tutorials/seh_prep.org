@@ -1,0 +1,123 @@
+
+* sEH ligand unbinding: A real use-case
+
+In the course of a real project that was meant to simulate different
+ligands unbinding from the protein soluble epoxide hydrolase (sEH) a
+small importable package was built called [[https://gitlab.com/salotz/seh_prep][seh_prep]].
+
+In this tutorial we will use this package to build a simulation
+similar to the one in this paper: TODO.
+
+#+RST: .. TODO add paper citation
+
+** Getting Started
+
+In the package you will find several scripts (in the ~seh_prep~ dir)
+for:
+
+- equilibrating freshly minted systems: ~equilibrate.py~
+- common components and functions used by these types of simulations: ~modules.py~
+- a complete definition of all parameters used for all components used
+  by the simulation: ~parameters.py~
+- script for running a simple simulation for testing: ~run_without_orch.py~
+- a script for generating an initial orchestrator for running
+  simulations: ~gen_orchestrator.py~
+
+There are others but lets ignore them for now.
+
+The necessary force field data used for all simulations is in the
+~data~ folder. For these simulations we are using CHARMM 36 with the
+CGENFF force fields for parametrizing the ligands.
+
+There are some example inputs in the ~example_data~ folder we will be
+using for the tutorial.
+
+To use and edit this project it is probably best to just use git to
+clone it and install it:
+
+#+begin_src bash
+  git clone https://gitlab.com/salotz/seh_prep.git
+  pip install --no-use-pep517 -e ./seh_prep
+#+end_src
+
+I won't take you through creating virtual environments but it is
+probably good to do this in a virtual environment.
+
+
+** The inputs
+
+Its worth talking about what the inputs are here since this is a point
+of considerable confusion.
+
+Ultimately we are going to be running MD simulations using OpenMM and
+a lot of input files are related to the force fields, topologies, and
+initial positions for that.
+
+For this we can't really recommend any single tool since there are
+many different programs and suites of programs that do
+this. Furthermore, it is not a really well-defined process and there
+is considerable complexity involved (at least in our experience). The
+only inputs, besides parameters, we need for our wepy simulations are
+the JSON topology of the full MD system and the initial positions for
+the full system.
+
+These are in the ~sEH_lig-X.top.json~ and ~initial_positions.coords.txt~
+files respectively. The latter can be read using the standard numpy
+reader for text files.
+
+For this particular case we used the CHARMM-GUI server to do the
+preprocessing of the system. Unfortunately, the topology formats
+produced by this service were not easily transformed into mdtraj or
+OpenMM topologies (which can easily be translated to the JSON
+format). And so manual scripting was used to accomplish this as well
+as extracting the positions (in the correct order). I suggest if
+possible to use the model building tools provided by OpenMM itself or
+other related programs like PDBFixer.
+
+In any case once you will want to ultimately get an mdtraj ~Topology~
+object and then use the ~mdtraj_to_json_topology~ method from
+~wepy.utils.mdtraj~ to convert it to JSON.
+
+The other files here are the forcefields for OpenMM in their XML
+format. The ~charmm36.xml~, ~charm36_solvent.xml~ files come with the
+OpenMM distribution and are just copied over. The forcefield for the
+ligand, ~unl.xml~, was generated from the corresponding 'prm' and
+'rtf' from CGENFF files using a utility in the package [[https://github.com/ParmEd/ParmEd][parmed]].
+Something like:
+
+#+begin_src python
+  lig_params = pmd.charmm.CharmmParameterSet("unl.rtf", "unl.prm")
+  params = pmd.openmm.OpenMMParameterSet.from_parameterset(lig_params)
+
+  # here you have an opportunity to rename the ligand if you choose
+  params.residues['UNL'] = lig_params.residues["UNL"]
+  params.write('unl.xml')
+#+end_src
+
+** Equilibrating the starting structure
+
+Once you have assembled the necessary components to at least run a
+straigtforward OpenMM simulation we can start to equilibrate it. I
+won't go through the details here, but in brief it first does a
+steepest descent minimization followed by a series of MD with
+increasing temperatures. If you installed the ~seh_prep~ package with
+pip then you can run the modules/scripts anywhere like this:
+
+#+begin_src bash
+  lig_id="X"
+  python -m seh_prep.equilibrate \
+         "initial_positions.coords.txt" \
+         "sEH_lig-${lig_id}.top.json" \
+         "UNL" \
+         "charmm36.xml" "charmm36_solvent.xml" "unl.xml" \
+         $lig_id
+#+end_src
+
+We are calling giving the ligand the ID "X" and the residue name in
+all the topologies for the ligand is "UNL".
+
+This requires that you have OpenCL installed and have a GPU to
+actually run it on.
+
+
+

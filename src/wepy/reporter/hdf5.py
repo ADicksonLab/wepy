@@ -293,12 +293,22 @@ class WepyHDF5Reporter(FileReporter):
         # the idxs for alternate representations of the system
         # positions
         if alt_reps is not None:
-            self.alt_reps_idxs = {key: list(tup[0]) for key, tup in alt_reps.items()}
 
             # add the frequencies for these alt_reps to the
             # sparse_fields frequency dictionary
-            self._sparse_fields.update({"alt_reps/{}".format(key): tup[1] for key, tup
-                                       in alt_reps.items()})
+            for key, (idxs, freq) in alt_reps.items():
+                alt_rep_key = "alt_reps/{}".format(key)
+
+                # if the frequency is Ellipsis or 1 then we save it
+                # every frame and don't make it sparse because that is
+                # very innefficient in comparison
+                if freq is Ellipsis or freq == 1 or freq == 0:
+                    pass
+                else:
+                    self._sparse_fields[alt_rep_key] = freq
+
+                self.alt_reps_idxs[key] = list(idxs)
+
         else:
             self.alt_reps_idxs = {}
 
@@ -504,16 +514,26 @@ class WepyHDF5Reporter(FileReporter):
                 # Add the alt_reps fields by slicing the positions
                 for alt_rep_key, alt_rep_idxs in self.alt_reps_idxs.items():
                     alt_rep_path = "alt_reps/{}".format(alt_rep_key)
-                    # check to make sure this is a cycle this is to be
-                    # saved to, if it is add it to the walker_data
-                    if cycle_idx % self._sparse_fields[alt_rep_path] == 0:
-                        # if the idxs are None we want all of the atoms
-                        if alt_rep_idxs is None:
-                            alt_rep_data = walker_data['positions'][:]
-                        # otherwise get only th atoms we want
-                        else:
-                            alt_rep_data = walker_data['positions'][alt_rep_idxs]
-                        walker_data[alt_rep_path] = alt_rep_data
+
+                    # if the alt rep is also a sparse field check this
+                    if alt_rep_path in self._sparse_fields:
+
+                        # check to make sure this is a cycle this is
+                        # to be saved to, if it is not continue on to
+                        # the next field without saving this one
+                        if cycle_idx % self._sparse_fields[alt_rep_path] != 0:
+
+                            continue
+
+                    # slice them and save them
+
+                    # if the idxs are None we want all of the atoms
+                    if alt_rep_idxs is None:
+                        alt_rep_data = walker_data['positions'][:]
+                    # otherwise get only th atoms we want
+                    else:
+                        alt_rep_data = walker_data['positions'][alt_rep_idxs]
+                    walker_data[alt_rep_path] = alt_rep_data
 
 
                 # lastly reduce the atoms for the main representation
@@ -557,6 +577,7 @@ class WepyHDF5Reporter(FileReporter):
 
             # report the resampling records data
             self._report_resampling(cycle_idx, resampling_data)
+
             self._report_resampler(cycle_idx, resampler_data)
 
         super().report(**kwargs)

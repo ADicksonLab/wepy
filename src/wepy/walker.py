@@ -28,6 +28,7 @@ magic method for the accessor syntax, i.e. walker.state['positions'].
 
 import random as rand
 import logging
+from copy import deepcopy
 
 def split(walker, number=2):
     """Split (AKA make multiple clones) of a single walker.
@@ -228,4 +229,4 @@ class WalkerState(object):
 
     def dict(self):
         """Return all key-value pairs as a dictionary."""
-        return self._data
+        return deepcopy(self._data)

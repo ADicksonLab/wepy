@@ -1,5 +1,4 @@
-"""Representing resampling processes through decision records.
-
-The main
+"""Classes for encapsulating the and providing semantics for
+resampling decisions.
 
 """

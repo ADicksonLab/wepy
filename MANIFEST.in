@@ -3,7 +3,13 @@ include CHANGELOG.org
 include LICENSE
 include README.org
 
+include requirements.txt
+include requirements_dev.txt
+
+include pyproject.toml
+
 recursive-include tests *
+
 recursive-exclude * __pycache__
 recursive-exclude * *.py[co]
 

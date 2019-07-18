@@ -305,7 +305,6 @@ class OpenMMRunner(Runner):
         return new_state
 
 
-
 class OpenMMState(WalkerState):
     """Walker state that wraps an simtk.openmm.State object.
 
@@ -900,10 +899,66 @@ class OpenMMState(WalkerState):
         import mdtraj as mdj
         # resize the time to a 1D vector
         unitcell_lengths, unitcell_angles = box_vectors_to_lengths_angles(self.box_vectors)
-        return mdj.Trajectory([self.positions],
+        return mdj.Trajectory(np.array([self.positions_values()]),
                               unitcell_lengths=[unitcell_lengths],
                               unitcell_angles=[unitcell_angles],
                               topology=topology)
+
+def gen_sim_state(positions, system, integrator):
+    """Convenience function for generating an omm.State object.
+
+    Parameters
+    ----------
+
+    positions : arraylike of float
+        The positions for the system you want to set
+
+    system : openmm.app.System object
+
+    integrator : openmm.Integrator object
+
+    Returns
+    -------
+
+    sim_state : openmm.State object
+
+    """
+
+    # generate a throwaway context
+    context = omm.Context(system, copy(integrator))
+    # set the positions
+    context.setPositions(positions)
+
+    # then just retrieve it as a state using the default kwargs
+    sim_state = context.getState(**dict(GET_STATE_KWARG_DEFAULTS))
+
+    return sim_state
+
+def gen_walker_state(positions, system, integrator):
+    """Convenience function for generating a wepy walker State object for
+    an openmm simulation state.
+
+    Parameters
+    ----------
+
+    positions : arraylike of float
+        The positions for the system you want to set
+
+    system : openmm.app.System object
+
+    integrator : openmm.Integrator object
+
+    Returns
+    -------
+
+    walker_state : wepy.runners.openmm.OpenMMState object
+
+    """
+
+    state = OpenMMState(gen_sim_state(positions, system, integrator))
+
+    return state
+
 
 class OpenMMWalker(Walker):
     """Walker for OpenMMRunner simulations.

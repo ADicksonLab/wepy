@@ -28,11 +28,11 @@ if __name__ == "__main__":
 
     with wepy_h5:
         wepy_h5.compute_observable(traj_field_lj_dist, ['positions'],
-                                   2.0,
+                                   (2.0,),
                                    save_to_hdf5='2*rmsd',
                                    map_func=map)
 
         wepy_h5.compute_observable(traj_field_lj_dist, ['positions'],
-                                   1.0,
+                                   (1.0,),
                                    save_to_hdf5='rmsd',
                                    map_func=map)

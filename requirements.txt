@@ -7,8 +7,3 @@ click
 scipy
 geomm
 matplotlib
-
-# this is a special patched version of mdtraj that has the setup.py
-# fixed to allow for installation via pip
-#git+https://github.com/salotz/mdtraj.git
-git+https://github.com/mdtraj/mdtraj.git
