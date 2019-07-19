@@ -133,6 +133,10 @@ class Mapper(object):
         """
         return self._worker_segment_times
 
+
+# TODO: move this class to the wepy.work_mapper.worker class where it
+# belongs. It shouldn't be in this namespace, but we will leave it
+# here.
 class WorkerMapper(Mapper):
     """Work mapper implementation using multiple worker processes and task
     queue.
@@ -364,3 +368,5 @@ class WorkerMapper(Mapper):
 
         # then just return the values of the function
         return [result for task_idx, worker_idx, task_time, result in results]
+
+

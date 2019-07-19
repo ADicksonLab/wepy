@@ -1,13 +1,39 @@
-import multiprocessing as mulproc
+import multiprocessing as mp
 import time
+import logging
+
 from wepy.work_mapper.mapper import Mapper
 from wepy.runners.openmm import OpenMMState, OpenMMWalker
 
-import logging
-import simtk.openmm as omm
+# TODO remove this so it isn't coupled to OpenMM
+# import simtk.openmm as omm
 
+class TaskMapper(Mapper):
+    """Process-per-task mapper.
 
-class GPUMapper(Mapper):
+    This method of work mapper starts new processes for each runner
+    segment task that needs to be run. This allows cheap copying of
+    shared state using the operating system primitives. On linux this
+    would be either 'fork' (default) or 'spawn'. Fork is cheap but
+    doesn't initialize certain process namespace things, whereas spawn
+    is much more expensive but properly cleans things up. Fork should
+    be sufficient in most cases, however spawn may be needed when you
+    have some special contexts in the parent process. This is the case
+    with starting CUDA contexts in the main parent process and then
+    forking new processes from it. We suggest using fork and avoiding
+    making these kinds of contexts in the main process.
+
+    This method avoids using shared memory or sending objects through
+    interprocess communication (that has a serialization and
+    deserialization cost associated with them) by using OS copying
+    mechanism. However, a new process will be created each cycle for
+    each walker in the simulation. So if you want a large number of
+    walkers you may experience a large overhead. If your walker states
+    are very small or a very fast serializer is available you may also
+    not benefit from full process address space copies. Instead the
+    WorkerMapper may be better suited.
+
+    """
 
     def __init__(self, n_walkers, gpu_indices=None, num_workers=None, **kwargs):
 
@@ -28,15 +54,15 @@ class GPUMapper(Mapper):
 
         # make a Queue for free workers, when one is being used it is
         # popped off and locked
-        self.free_workers = mulproc.Queue()
+        self.free_workers = mp.Queue()
         # the semaphore provides the locks on the workers
-        self.lock = mulproc.Semaphore(self.n_workers)
+        self.lock = mp.Semaphore(self.n_workers)
         # initialize a list to put results in
-        self.results_list = mulproc.Manager().list()
+        self.results_list = mp.Manager().list()
         for i in range(self.n_walkers):
             self.results_list.append(None)
 
-        self._worker_segment_times = mulproc.Manager().dict()
+        self._worker_segment_times = mp.Manager().dict()
         self._worker_segment_times = {i : [] for i in range(self.n_workers)}
         # add the free worker indices (not device/gpu indices) to the
         # free workers queue
@@ -55,11 +81,11 @@ class GPUMapper(Mapper):
 
         # call the function setting the appropriate properties of the
         # platform
-        start = time.time()        
+        start = time.time()
         new_walker = _call_(*args, DeviceIndex=str(gpu_idx))
         self.results_list[index] = new_walker.state.sim_state.__getstate__()
         end = time.time()
-        
+
         self.free_workers.put(worker_idx)
         self._worker_segment_times[worker_idx].append(end-start)
 
@@ -80,7 +106,7 @@ class GPUMapper(Mapper):
 
         for args in zip(*iterables):
             weights.append(args[0].weight)
-            walkers_pool.append(mulproc.Process(target=self.exec_call,
+            walkers_pool.append(mp.Process(target=self.exec_call,
                                                 args=(self._func, index, *args)))
             index += 1
 
