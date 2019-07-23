@@ -691,6 +691,8 @@ class WepyHDF5(object):
     MODES = ('r', 'r+', 'w', 'w-', 'x', 'a')
     """The recognized modes for opening the WepyHDF5 file."""
 
+    WRITE_MODES = ('r+', 'w', 'w-', 'x', 'a')
+
 
     #### dunder methods
 
@@ -701,6 +703,7 @@ class WepyHDF5(object):
                  feature_shapes=None, feature_dtypes=None,
                  n_dims=None,
                  alt_reps=None, main_rep_idxs=None,
+                 swmr_mode=False,
                  expert_mode=False
     ):
         """Constructor for the WepyHDF5 class.
@@ -775,6 +778,7 @@ class WepyHDF5(object):
         """
 
         self._filename = filename
+        self._swmr_mode = swmr_mode
 
         if expert_mode is True:
             self._h5 = None
@@ -837,8 +841,13 @@ class WepyHDF5(object):
 
         # open the file and then run the different constructors based
         # on the mode
-        with h5py.File(filename, mode=self._h5py_mode, libver=H5PY_LIBVER) as h5:
+        with h5py.File(filename, mode=self._h5py_mode,
+                       libver=H5PY_LIBVER, swmr=self._swmr_mode) as h5:
             self._h5 = h5
+
+            # set SWMR mode if asked for if we are in write mode also
+            if self._swmr_mode is True and mode in self.WRITE_MODES:
+                self._h5.swmr_mode = swmr_mode
 
             # create file mode: 'w' will create a new file or overwrite,
             # 'w-' and 'x' will not overwrite but will create a new file
@@ -905,12 +914,18 @@ class WepyHDF5(object):
     # context manager methods
 
     def __enter__(self):
-        self._h5 = h5py.File(self._filename, libver=H5PY_LIBVER)
-        self.closed = False
+        self.open()
+        # self._h5 = h5py.File(self._filename,
+        #                      libver=H5PY_LIBVER, swmr=self._swmr_mode)
+        # self.closed = False
         return self
 
     def __exit__(self, exc_type, exc_value, exc_tb):
         self.close()
+
+    @property
+    def swmr_mode(self):
+        return self._swmr_mode
 
 
     # TODO custom deepcopy to avoid copying the actual HDF5 object
@@ -2370,7 +2385,8 @@ class WepyHDF5(object):
         if self.closed:
             self._h5py_mode = mode
             self._wepy_mode = mode
-            self._h5 = h5py.File(self._filename, mode, libver=H5PY_LIBVER)
+            self._h5 = h5py.File(self._filename, mode,
+                                 libver=H5PY_LIBVER, swmr=self.swmr_mode)
             self.closed = False
         else:
             raise IOError("This file is already open")
