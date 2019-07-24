@@ -113,31 +113,17 @@ inundated with too many tasks (chunk sizes too small, say of only 1
 frame).
 
 """
+from collections import defaultdict
 
 import numpy as np
 
 from wepy.hdf5 import WepyHDF5
+from wepy.util.util import concat_traj_fields
 
-def load_frames_fields(args):
-
-    from wepy.hdf5 import WepyHDF5
-
-    # unpack the arguments
-    wepy_h5_path, run_idx, traj_idx, frame_idxs, fields = args
-
-    wepy_h5 = WepyHDF5(wepy_h5_path, mode='r')
-
-    with wepy_h5:
-        frame_fields = {}
-        for field in fields:
-            frame_fields[field] = wepy_h5.get_traj_field(run_idx, traj_idx, field,
-                                                         frames=frame_idxs)
-    return frame_fields
-
-def traj_fields_chunk_items(wepy_h5_path, fields, chunk_size=1):
+def traj_fields_chunk_items(wepy_h5_path, fields,
+                            run_idxs=Ellipsis,
+                            chunk_size=1):
     """Generate items that can be used to create a dask.bag object.
-
-
 
     Arguments
     ---------
@@ -154,9 +140,11 @@ def traj_fields_chunk_items(wepy_h5_path, fields, chunk_size=1):
         data for which a single task will work on. Dask will also
         partition these chunks as it sees fit.
 
+    Returns
+    -------
+    chunk_specs : list of dict of str : value
+
     """
-
-
 
     # open the HDF5
     try:
@@ -166,9 +154,15 @@ def traj_fields_chunk_items(wepy_h5_path, fields, chunk_size=1):
         return None
 
     with wepy_h5:
-        items = []
-        # DEBUG
-        for run_idx in [0]: #wepy_h5.run_idxs:
+
+        # choose the run idxs
+        if run_idxs is not Ellipsis:
+            assert all([run_idx in wepy_h5.run_idxs for run_idx in run_idxs]), "run_idx not in runs"
+        else:
+            run_idxs = wepy_h5.run_idxs
+
+        chunk_specs = []
+        for run_idx in run_idxs:
             for traj_idx in wepy_h5.run_traj_idxs(run_idx):
 
                 num_frames = wepy_h5.num_traj_frames(run_idx, traj_idx)
@@ -178,9 +172,108 @@ def traj_fields_chunk_items(wepy_h5_path, fields, chunk_size=1):
                                         num_frames // chunk_size)
 
                 for frame_idxs in chunks:
-                    items.append((wepy_h5_path, run_idx, traj_idx, frame_idxs, fields))
+                    chunk_spec = {
+                        'wepy_h5_path' : wepy_h5_path,
+                        'run_idx' : run_idx,
+                        'traj_idx' : traj_idx,
+                        'frame_idxs' : frame_idxs,
+                        'fields' : fields,
+                    }
+                    chunk_specs.append(chunk_spec)
 
-    bag = dbag.from_sequence(items)
+    return chunk_specs
 
-    return bag
+def load_frames_fields(chunk_spec):
 
+    wepy_h5 = WepyHDF5(chunk_spec['wepy_h5_path'], mode='r')
+
+    with wepy_h5:
+        frame_fields = {}
+        for field in chunk_spec['fields']:
+            frame_fields[field] = wepy_h5.get_traj_field(chunk_spec['run_idx'],
+                                                         chunk_spec['traj_idx'],
+                                                         field,
+                                                         frames=chunk_spec['frame_idxs'])
+
+    # combine the chunk spec with the traj_fields data
+    chunk_spec['traj_fields'] = frame_fields
+
+    return chunk_spec
+
+def traj_fields_chunk_func_wrapper(func,
+                                   result_name=None,
+                                   keep_traj_fields=False):
+
+    # if the result name wasn't given use the function name
+    if result_name is None:
+        result_name = func.__name__
+    else:
+        assert isinstance(result_name, str)
+
+        result_name = result_name
+
+
+    def chunk_func(chunk_spec):
+
+
+        assert not result_name in chunk_spec.keys()
+
+        # pop the trajectory fields off if we are to keep them or not
+        if keep_traj_fields:
+            traj_fields = chunk_spec['traj_fields']
+        else:
+            traj_fields = chunk_spec.pop('traj_fields')
+
+        chunk_spec[result_name] = func(traj_fields)
+
+        return chunk_spec
+
+    return chunk_func
+
+# for reduction
+def chunk_key_func(chunk_spec):
+    return (chunk_spec['run_idx'], chunk_spec['traj_idx'])
+
+def chunk_concat_func(*concat_funcs):
+
+    def chunk_concat(cum_chunk_spec, new_chunk_spec):
+
+        assert cum_chunk_spec['wepy_h5_path'] == new_chunk_spec['wepy_h5_path']
+        assert cum_chunk_spec['run_idx'] == new_chunk_spec['run_idx']
+        assert cum_chunk_spec['traj_idx'] == new_chunk_spec['traj_idx']
+        assert cum_chunk_spec['fields'] == new_chunk_spec['fields']
+
+        # for each extra concat function feed it the two chunk specs
+        for concat_func in concat_funcs:
+
+            # update the cumulative chunk spec in-place
+            cum_chunk_spec = concat_func(cum_chunk_spec,
+                                         new_chunk_spec)
+
+        # concatenate the frame indices in this chunk
+        cum_chunk_spec['frame_idxs'] = np.concatenate(
+            [cum_chunk_spec['frame_idxs'], new_chunk_spec['frame_idxs']])
+        return cum_chunk_spec
+
+    return chunk_concat
+
+
+def chunk_array_concat_func(field):
+
+    def func(cum_chunk_spec, new_chunk_spec):
+
+        cum_chunk_spec[field] = np.concatenate([cum_chunk_spec[field], new_chunk_spec[field]])
+
+        return cum_chunk_spec
+
+    return func
+
+def chunk_traj_fields_concat(cum_chunk_spec, new_chunk_spec):
+    """Binary operation for dask foldby reductions for concatenating chunk
+    specs with a traj_fields payload"""
+
+    # concatenate the traj fields
+    cum_chunk_spec['traj_fields'] = concat_traj_fields(
+        [cum_chunk_spec['traj_fields'], new_chunk_spec['traj_fields']])
+
+    return cum_chunk_spec
