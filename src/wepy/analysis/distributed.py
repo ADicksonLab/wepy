@@ -467,7 +467,14 @@ def compute_observable_graph(func, chunk_bag, chunk_size):
 
     # optionally, defrag the chunks into chunks which are the same
     # as trajectories using a reduce step
-    if chunk_size is not Ellipsis:
+
+    # TODO currently we just always reduce, since that gives us the
+    # structure we need at the end, and don't have that for the
+    # non-reduction option i.e. when chunk size is same as
+    # trajectories. We didn't want to code up the function to
+    # structure it that way (in dask) and so leave this for now and if
+    # it becomes a performance issue we can make that
+    if True: #chunk_size is not Ellipsis:
 
         # generate the concatenation function for the result so we can
         # reduce and defrag it, this only deals with the part of the chunk of the field name
