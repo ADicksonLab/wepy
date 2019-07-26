@@ -113,13 +113,19 @@ inundated with too many tasks (chunk sizes too small, say of only 1
 frame).
 
 """
+import time
+
 from collections import defaultdict
 from copy import deepcopy
 
 import numpy as np
 
+import dask.bag as dbag
+
 from wepy.hdf5 import WepyHDF5
 from wepy.util.util import concat_traj_fields
+
+RESULT_FIELD_NAME = 'observable'
 
 def traj_fields_chunk_items(wepy_h5_path, fields,
                             run_idxs=Ellipsis,
@@ -335,3 +341,151 @@ def chunk_traj_fields_concat(cum_chunk_spec, new_chunk_spec):
         [cum_chunk_spec['traj_fields'], new_chunk_spec['traj_fields']])
 
     return cum_chunk_spec
+
+
+# this needs to be tested etc.
+# def compute_observable_gen(func,
+#                            wepy_h5_path,
+#                            dask_client,
+#                            fields,
+#                            chunk_size=Ellipsis,
+#                            # TODO replace with traj_sels
+#                            run_idxs=Ellipsis):
+
+#     with dask_client:
+
+#         chunks = traj_fields_chunk_items(wepy_h5_path,
+#                                          fields,
+#                                          chunk_size=chunk_size,
+#                                          run_idxs=run_idxs)
+
+#         # DEBUG
+#         # TODO add to logging
+#         print("generated {} chunks".format(len(chunks)))
+
+#         frame_fields_bag = dbag.from_sequence(chunks)
+
+#         last_step = compute_observable_graph(func, frame_fields_bag, chunk_size)
+
+#         # then we can just iterate through the values (JIT compute)
+#         # and set them into the appropriate trajectory
+#         while True:
+#             traj_id, struct = last_step.take(1)
+#             yield (traj_id, struct['observable'])
+
+def _by_traj_to_multidimensional(traj_d):
+    """Convert a dictionary of keys (run_idx, traj_idx) and values (of
+    dimension val_dim) as arrays to a list of lists of the value
+    arrays.
+
+    """
+
+    # get all of the unique run_idxs and sort them
+    run_idxs = sorted(list(set([traj_id[0] for traj_id in traj_d.keys()])))
+
+    # then get which trajectories each run has
+    run_trajs = defaultdict(list)
+    for run_idx, traj_idx in traj_d.keys():
+        run_trajs[run_idx].append(traj_idx)
+
+    for run_idx in run_trajs.keys():
+        # sort the traj indices (these are unique already within the
+        # run)
+        run_trajs[run_idx] = sorted(list(run_trajs[run_idx]))
+
+    # then just iterate in order over the run_idxs and inside each the
+    # traj indices, as we build these add them to the big structure
+    runs_arr = []
+    for run_idx in run_idxs:
+        run_arr = []
+        for traj_idx in run_trajs[run_idx]:
+            traj_id = (run_idx, traj_idx)
+            run_arr.append(traj_d[traj_id])
+        runs_arr.append(run_arr)
+
+    return runs_arr
+
+
+def compute_observable(func,
+                       wepy_h5_path,
+                       dask_client,
+                       fields,
+                       chunk_size=Ellipsis,
+                       # TODO replace with traj_sels
+                       run_idxs=Ellipsis):
+
+    with dask_client:
+
+        chunks = traj_fields_chunk_items(wepy_h5_path,
+                                         fields,
+                                         chunk_size=chunk_size,
+                                         run_idxs=run_idxs)
+
+        # DEBUG
+        # TODO add to logging
+        print("generated {} chunks".format(len(chunks)))
+
+        frame_fields_bag = dbag.from_sequence(chunks)
+
+        last_step = compute_observable_graph(func, frame_fields_bag, chunk_size)
+
+        chunk_results = last_step.compute()
+
+        # get just the result value with the traj id
+        results_d = {traj_id : chunk_struct[RESULT_FIELD_NAME]
+                   for traj_id, chunk_struct in chunk_results}
+
+        results_arr = _by_traj_to_multidimensional(results_d)
+
+        return results_arr
+
+
+def compute_observable_graph(func, chunk_bag, chunk_size):
+
+    # since the inputs to any mapped function will be chunk
+    # structs (i.e. having metadata about the identity of the
+    # chunk, plus any data it drags along, namely traj_fields and
+    # computed observables, but perhaps other intermediates in
+    # more complex pipelines) we need to wrap any function that we
+    # want to call on this data with a function which gets the
+    # field of data it needs, and the name of the field it will
+    # save data in, optionally we can get rid of the input data if
+    # it is no longer needed
+
+    chunk_func = chunk_func_funcgen(func,
+                                    input_keys=['traj_fields'],
+                                    result_name=RESULT_FIELD_NAME,
+                                    keep_inputs=False)
+
+    # start constructing computational graph
+
+    # load chunks into distributed memory
+    load_step = chunk_bag.map(load_chunk)
+
+    # run the function over the chunks
+    map_step = load_step.map(chunk_func)
+
+    # optionally, defrag the chunks into chunks which are the same
+    # as trajectories using a reduce step
+    if chunk_size is not Ellipsis:
+
+        # generate the concatenation function for the result so we can
+        # reduce and defrag it, this only deals with the part of the chunk of the field name
+        result_concat = chunk_array_concat_funcgen(RESULT_FIELD_NAME)
+
+        # now generate the entire chunk concatenation which aggregates
+        # multiple other specific field concatenation functions,
+        # fundamentally this really only deals with concatenating the
+        # frame indices for the chunk
+        chunk_concat = chunk_concat_funcgen(result_concat)
+
+        init_cum_chunk = init_chunk()
+
+        # reduce the results by de-fragging the chunks into trajectory
+        # chunks
+        defrag_step = map_step.foldby(chunk_key_func, chunk_concat,
+                                      init_cum_chunk)
+    else:
+        defrag_step = map_step
+
+    return defrag_step
