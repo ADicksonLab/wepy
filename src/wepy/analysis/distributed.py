@@ -114,6 +114,7 @@ frame).
 
 """
 from collections import defaultdict
+from copy import deepcopy
 
 import numpy as np
 
@@ -122,7 +123,7 @@ from wepy.util.util import concat_traj_fields
 
 def traj_fields_chunk_items(wepy_h5_path, fields,
                             run_idxs=Ellipsis,
-                            chunk_size=1):
+                            chunk_size=Ellipsis):
     """Generate items that can be used to create a dask.bag object.
 
     Arguments
@@ -167,9 +168,19 @@ def traj_fields_chunk_items(wepy_h5_path, fields,
 
                 num_frames = wepy_h5.num_traj_frames(run_idx, traj_idx)
 
-                # split it allowing for an unequal chunk sizes
-                chunks = np.array_split(range(num_frames),
-                                        num_frames // chunk_size)
+                # determine the specific frame indices in the chunks
+
+                # if the chunk size is either larger than the
+                # trajectory, or chunk size is Ellipsis we take the
+                # whole trajectory
+                if chunk_size is Ellipsis:
+                    chunks = [range(num_frames)]
+                elif chunk_size > num_frames:
+                    chunks = [range(num_frames)]
+                else:
+                    # split it allowing for an unequal chunk sizes
+                    chunks = np.array_split(range(num_frames),
+                                            num_frames // chunk_size)
 
                 for frame_idxs in chunks:
                     chunk_spec = {
@@ -183,7 +194,7 @@ def traj_fields_chunk_items(wepy_h5_path, fields,
 
     return chunk_specs
 
-def load_frames_fields(chunk_spec):
+def load_chunk(chunk_spec):
 
     wepy_h5 = WepyHDF5(chunk_spec['wepy_h5_path'], mode='r')
 
@@ -200,9 +211,10 @@ def load_frames_fields(chunk_spec):
 
     return chunk_spec
 
-def traj_fields_chunk_func_wrapper(func,
-                                   result_name=None,
-                                   keep_traj_fields=False):
+def chunk_func_funcgen(func,
+                       input_keys=['traj_fields'],
+                       result_name=None,
+                       keep_inputs=False):
 
     # if the result name wasn't given use the function name
     if result_name is None:
@@ -218,51 +230,97 @@ def traj_fields_chunk_func_wrapper(func,
 
         assert not result_name in chunk_spec.keys()
 
-        # pop the trajectory fields off if we are to keep them or not
-        if keep_traj_fields:
-            traj_fields = chunk_spec['traj_fields']
-        else:
-            traj_fields = chunk_spec.pop('traj_fields')
+        fields = []
+        for key in input_keys:
 
-        chunk_spec[result_name] = func(traj_fields)
+            # pop the trajectory fields off if we are to keep them or not
+            if keep_inputs:
+                field = chunk_spec[key]
+            else:
+                field = chunk_spec.pop(key)
+
+            fields.append(field)
+
+        chunk_spec[result_name] = func(*fields)
 
         return chunk_spec
 
     return chunk_func
 
+# NOTE: probably shouldn't need this. THere is a dask function called
+# 'pluck' which does the same thing, except only for 1 key
+def unwrap_chunk_funcgen(keys=None):
+    """Consider first using the bag.pluck method"""
+
+    assert keys is not None, "must give at least one key or this is useless"
+    assert len(keys) > 0, "must give at least one key or this is useless"
+
+    def unwrap_chunk_func(chunk_struct):
+
+        return {key: value for key, value in chunk_struct.items()
+                if key in keys}
+
+    return unwrap_chunk_func
+
 # for reduction
 def chunk_key_func(chunk_spec):
     return (chunk_spec['run_idx'], chunk_spec['traj_idx'])
 
-def chunk_concat_func(*concat_funcs):
+def init_chunk():
+
+    return {'wepy_h5_path' : None,
+            'run_idx' : None,
+            'traj_idx' : None,
+            'fields' : None,
+            'frame_idxs' : np.array([])}
+
+def chunk_concat_funcgen(*concat_funcs):
 
     def chunk_concat(cum_chunk_spec, new_chunk_spec):
 
-        assert cum_chunk_spec['wepy_h5_path'] == new_chunk_spec['wepy_h5_path']
-        assert cum_chunk_spec['run_idx'] == new_chunk_spec['run_idx']
-        assert cum_chunk_spec['traj_idx'] == new_chunk_spec['traj_idx']
-        assert cum_chunk_spec['fields'] == new_chunk_spec['fields']
+        new_chunk = deepcopy(cum_chunk_spec)
+
+        # check to see that the accumulator chunk struct has been
+        # initialized, if not initialize it with the values from the new_chunk
+        if (
+                (cum_chunk_spec['wepy_h5_path'] is None) or
+                (cum_chunk_spec['run_idx'] is None) or
+                (cum_chunk_spec['traj_idx'] is None) or
+                (cum_chunk_spec['fields'] is None)
+        ):
+            cum_chunk_spec['wepy_h5_path'] = new_chunk_spec['wepy_h5_path']
+            cum_chunk_spec['run_idx'] = new_chunk_spec['run_idx']
+            cum_chunk_spec['traj_idx'] = new_chunk_spec['traj_idx']
+            cum_chunk_spec['fields'] = new_chunk_spec['fields']
+
+        # concatenate the frame indices in this chunk
+        new_chunk['frame_idxs'] = np.concatenate(
+            [cum_chunk_spec['frame_idxs'], new_chunk_spec['frame_idxs']])
 
         # for each extra concat function feed it the two chunk specs
         for concat_func in concat_funcs:
 
             # update the cumulative chunk spec in-place
-            cum_chunk_spec = concat_func(cum_chunk_spec,
-                                         new_chunk_spec)
+            new_chunk = concat_func(new_chunk,
+                                    new_chunk_spec)
 
-        # concatenate the frame indices in this chunk
-        cum_chunk_spec['frame_idxs'] = np.concatenate(
-            [cum_chunk_spec['frame_idxs'], new_chunk_spec['frame_idxs']])
-        return cum_chunk_spec
+
+        return new_chunk
 
     return chunk_concat
 
 
-def chunk_array_concat_func(field):
+def chunk_array_concat_funcgen(field):
 
     def func(cum_chunk_spec, new_chunk_spec):
 
-        cum_chunk_spec[field] = np.concatenate([cum_chunk_spec[field], new_chunk_spec[field]])
+        # only add it if it has been initialized in the cum_chunk
+        if field in cum_chunk_spec:
+            cum_chunk_spec[field] = np.concatenate([cum_chunk_spec[field], new_chunk_spec[field]])
+
+        # otherwise set just the new chunk
+        else:
+            cum_chunk_spec[field] = new_chunk_spec[field]
 
         return cum_chunk_spec
 
