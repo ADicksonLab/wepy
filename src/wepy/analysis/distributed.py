@@ -411,6 +411,7 @@ def compute_observable(func,
                        dask_client,
                        fields,
                        chunk_size=Ellipsis,
+                       num_partitions=100,
                        # TODO replace with traj_sels
                        run_idxs=Ellipsis):
 
@@ -425,7 +426,7 @@ def compute_observable(func,
         # TODO add to logging
         print("generated {} chunks".format(len(chunks)))
 
-        frame_fields_bag = dbag.from_sequence(chunks)
+        frame_fields_bag = dbag.from_sequence(chunks, npartitions=num_partitions)
 
         last_step = compute_observable_graph(func, frame_fields_bag, chunk_size)
 
