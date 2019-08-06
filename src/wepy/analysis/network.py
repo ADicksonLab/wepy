@@ -58,113 +58,119 @@ class MacroStateNetwork():
         assg_field_key : str, conditionally optional on 'assignments'
             The field in the WepyHDF5 dataset you want to generate macrostates for.
 
-        assignments : list of array_like of dim (num_traj, num_cycles),
+        assignments : list of list of array_like of dim (n_traj_frames, observable_shape[0], ...),
                       conditionally optional on 'assg_field_key'
-            List of assignments for all frames in each run.
+
+            List of assignments for all frames in each run, where each
+            element of the outer list is for a run, the elements of
+            these lists are lists for each trajectory which are
+            arraylikes of shape (n_traj, observable_shape[0], ...).
         """
 
-        self._graph = nx.DiGraph()
+        with contig_tree:
 
-        assert not (assg_field_key is None and assignments is None), \
-            "either assg_field_key or assignments must be given"
+            self._graph = nx.DiGraph()
 
-        assert assg_field_key is not None or assignments is not None, \
-            "one of assg_field_key or assignments must be given"
+            assert not (assg_field_key is None and assignments is None), \
+                "either assg_field_key or assignments must be given"
 
-        self._contig_tree = contig_tree
-        self._wepy_h5 = self._contig_tree.wepy_h5
+            assert assg_field_key is not None or assignments is not None, \
+                "one of assg_field_key or assignments must be given"
 
-        self._assg_field_key = assg_field_key
+            self._contig_tree = contig_tree
+            self._wepy_h5 = self._contig_tree.wepy_h5
 
-        # the temporary assignments dictionary
-        self._node_assignments = None
-        # and temporary raw assignments
-        self._assignments = None
+            self._assg_field_key = assg_field_key
 
-        # map the keys to their lists of assignments, depending on
-        # whether or not we are using a field from the HDF5 traj or
-        # assignments provided separately
-        if assg_field_key is not None:
-            assert type(assg_field_key) == str, "assignment key must be a string"
+            # the temporary assignments dictionary
+            self._node_assignments = None
+            # and temporary raw assignments
+            self._assignments = None
 
-            self._key_init(assg_field_key)
-        else:
-            self._assignments_init(assignments)
+            # map the keys to their lists of assignments, depending on
+            # whether or not we are using a field from the HDF5 traj or
+            # assignments provided separately
+            if assg_field_key is not None:
+                assert type(assg_field_key) == str, "assignment key must be a string"
 
-        # once we have made th dictionary add the nodes to the network
-        # and reassign the assignments to the nodes
-        self._node_idxs = {}
-        for node_idx, assg_item in enumerate(self._node_assignments.items()):
-            assg_key, assigs = assg_item
-            self._graph.add_node(assg_key, node_idx=node_idx, assignments=assigs)
-            self._node_idxs[assg_key] = node_idx
+                self._key_init(assg_field_key)
+            else:
+                self._assignments_init(assignments)
 
-        # then we compute the total weight of the macrostate and set
-        # that as the default node weight
-        #self.set_macrostate_weights()
+            # once we have made th dictionary add the nodes to the network
+            # and reassign the assignments to the nodes
+            self._node_idxs = {}
+            for node_idx, assg_item in enumerate(self._node_assignments.items()):
+                assg_key, assigs = assg_item
+                self._graph.add_node(assg_key, node_idx=node_idx, assignments=assigs)
+                self._node_idxs[assg_key] = node_idx
 
-        # now count the transitions between the states and set those
-        # as the edges between nodes
+            # then we compute the total weight of the macrostate and set
+            # that as the default node weight
+            #self.set_macrostate_weights()
 
-        # first get the sliding window transitions from the contig
-        # tree, once we set edges for a tree we don't really want to
-        # have multiple sets of transitions on the same network so we
-        # don't provide the method to add different assignments
-        if transition_lag_time is not None:
+            # now count the transitions between the states and set those
+            # as the edges between nodes
 
-            # set the lag time attribute
-            self._transition_lag_time = transition_lag_time
+            # first get the sliding window transitions from the contig
+            # tree, once we set edges for a tree we don't really want to
+            # have multiple sets of transitions on the same network so we
+            # don't provide the method to add different assignments
+            if transition_lag_time is not None:
 
-            # get the transitions
-            transitions = []
-            for window in self._contig_tree.sliding_windows(self._transition_lag_time):
+                # set the lag time attribute
+                self._transition_lag_time = transition_lag_time
 
-                transition = [window[0], window[-1]]
+                # get the transitions
+                transitions = []
+                for window in self._contig_tree.sliding_windows(self._transition_lag_time):
 
-                # convert the window trace on the contig to a trace
-                # over the runs
-                transitions.append(transition)
+                    transition = [window[0], window[-1]]
 
-            # then get the counts for those edges
-            counts_d = transition_counts(self._assignments, transitions)
+                    # convert the window trace on the contig to a trace
+                    # over the runs
+                    transitions.append(transition)
 
-            # create the edges and set the counts into them
-            for edge, trans_counts in counts_d.items():
-                self._graph.add_edge(*edge, counts=trans_counts)
+                # then get the counts for those edges
+                counts_d = transition_counts(self._assignments, transitions)
 
-            # then we also want to get the transition probabilities so
-            # we get the counts matrix and compute the probabilities
-            # we first have to replace the keys of the counts of the
-            # node_ids with the node_idxs
-            node_id_to_idx_dict = self.node_id_to_idx_dict()
-            self._countsmat = counts_d_to_matrix(
-                                {(node_id_to_idx_dict[edge[0]],
-                                  node_id_to_idx_dict[edge[1]]) : counts
-                                 for edge, counts in counts_d.items()})
-            self._probmat = normalize_counts(self._countsmat)
+                # create the edges and set the counts into them
+                for edge, trans_counts in counts_d.items():
+                    self._graph.add_edge(*edge, counts=trans_counts)
 
-            # then we add these attributes to the edges in the network
-            node_idx_to_id_dict = self.node_id_to_idx_dict()
-            for i_id, j_id in self._graph.edges:
-                # i and j are the node idxs so we need to get the
-                # actual node_ids of them
-                i_idx = node_idx_to_id_dict[i_id]
-                j_idx = node_idx_to_id_dict[j_id]
+                # then we also want to get the transition probabilities so
+                # we get the counts matrix and compute the probabilities
+                # we first have to replace the keys of the counts of the
+                # node_ids with the node_idxs
+                node_id_to_idx_dict = self.node_id_to_idx_dict()
+                self._countsmat = counts_d_to_matrix(
+                                    {(node_id_to_idx_dict[edge[0]],
+                                      node_id_to_idx_dict[edge[1]]) : counts
+                                     for edge, counts in counts_d.items()})
+                self._probmat = normalize_counts(self._countsmat)
 
-                # convert to a normal float and set it as an explicitly named attribute
-                self._graph.edges[i_id, j_id]['transition_probability'] = \
-                                                            float(self._probmat[i_idx, j_idx])
+                # then we add these attributes to the edges in the network
+                node_idx_to_id_dict = self.node_id_to_idx_dict()
+                for i_id, j_id in self._graph.edges:
+                    # i and j are the node idxs so we need to get the
+                    # actual node_ids of them
+                    i_idx = node_idx_to_id_dict[i_id]
+                    j_idx = node_idx_to_id_dict[j_id]
 
-                # we also set the general purpose default weight of
-                # the edge to be this.
-                self._graph.edges[i_id, j_id]['Weight'] = \
-                                                float(self._probmat[i_idx, j_idx])
+                    # convert to a normal float and set it as an explicitly named attribute
+                    self._graph.edges[i_id, j_id]['transition_probability'] = \
+                                                                float(self._probmat[i_idx, j_idx])
+
+                    # we also set the general purpose default weight of
+                    # the edge to be this.
+                    self._graph.edges[i_id, j_id]['Weight'] = \
+                                                    float(self._probmat[i_idx, j_idx])
 
 
-        # then get rid of the assignments dictionary, this information
-        # can be accessed from the network
-        del self._node_assignments
-        del self._assignments
+            # then get rid of the assignments dictionary, this information
+            # can be accessed from the network
+            del self._node_assignments
+            del self._assignments
 
     def _key_init(self, assg_field_key):
         """Initialize the assignments structures given the field key to use.
@@ -202,9 +208,13 @@ class MacroStateNetwork():
 
         Parameters
         ----------
-        assignments : list of array_like of dim (num_traj, num_cycles),
+        assignments : list of list of array_like of dim (n_traj_frames, observable_shape[0], ...),
                       conditionally optional on 'assg_field_key'
-            List of assignments for all frames in each run.
+
+            List of assignments for all frames in each run, where each
+            element of the outer list is for a run, the elements of
+            these lists are lists for each trajectory which are
+            arraylikes of shape (n_traj, observable_shape[0], ...).
 
         """
 
@@ -477,7 +487,8 @@ class MacroStateNetwork():
         return macrostate_weights
 
     def set_macrostate_weights(self):
-        """Compute the macrostate weights and set them as node attributes."""
+        """Compute the macrostate weights and set them as node attributes
+        'Weight'."""
         self.set_nodes_field('Weight', self.macrostate_weights())
 
     def state_to_mdtraj(self, node_id, alt_rep=None):

@@ -4901,11 +4901,10 @@ class WepyHDF5(object):
             What to name the observable subfield.
 
         data : list of arraylike
-
             The data for each run are the elements of this
             argument. Each element is an arraylike of shape
-            (n_run_frames, feature_vector_shape[0],...) where the
-            n_run_frames is the .
+            (n_traj_frames, feature_vector_shape[0],...) where the
+            n_run_frames is the number of frames in trajectory.
 
         sparse_idxs : list of list of int, optional
             If not None, specifies the cycle indices this data
@@ -4950,10 +4949,12 @@ class WepyHDF5(object):
         observable_name : str
             What to name the observable subfield.
 
-        data : list of arraylike
+        data : list of list of arraylike
+
             The data for each run are the elements of this
-            argument. Each element is an arraylike of shape
-            (n_trajs, feature_vector_shape[0],...) for this run.
+            argument. Each element is a list of the trajectory
+            observable arraylikes of shape (n_traj_frames,
+            feature_vector_shape[0],...).
 
         sparse_idxs : list of list of int, optional
             If not None, specifies the cycle indices this data
