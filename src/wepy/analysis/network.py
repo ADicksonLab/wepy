@@ -376,7 +376,7 @@ class BaseMacroStateNetwork():
         return self.get_node_attribute(node_id, self.ASSIGNMENTS)
 
 
-    def set_nodes_attributes(self, key, values_dict):
+    def set_nodes_attribute(self, key, values_dict):
         """Set node attributes for the key and values for each node.
 
         Parameters
@@ -542,7 +542,7 @@ class MacroStateNetwork():
 
         # then make references to this for the attributes we need
 
-        # TODO add these
+        # attributes
         self._graph = self._base_network._graph
         self._assg_field_key = self._base_network._assg_field_key
         self._node_idxs = self._base_network._node_idxs
@@ -550,10 +550,17 @@ class MacroStateNetwork():
         self._probmat = self._base_network._probmat
         self._countsmat = self._base_network._countsmat
 
-        # TODO: not sure I need this
-        # make a new wepy_h5 wrapped contigtree from the base one used
-        # in the base network
-        # self._contig_tree = ContigTree(self._wepy_h5 base_contigtree=self._base_network._contigtree)
+        # functions
+        self.node_id_to_idx = self._base_network.node_id_to_idx
+        self.node_idx_to_id = self._base_network.node_idx_to_id
+        self.node_id_to_idx_dict = self._base_network.node_id_to_idx_dict
+        self.node_idx_to_id_dict = self._base_network.node_idx_to_id_dict
+
+        self.get_node_attributes = self._base_network.get_node_attributes
+        self.get_node_attribute = self._base_network.get_node_attribute
+        self.node_assignments = self._base_network.node_assignments
+        self.set_nodes_attribute = self._base_network.set_nodes_attribute
+        self.write_gexf = self._base_network.write_gexf
 
     def open(self, mode=None):
         if self.closed:
@@ -639,6 +646,10 @@ class MacroStateNetwork():
             raise MacroStateNetworkError("transition probability matrix not set")
         else:
             return self._probmat
+
+
+
+
 
 
     # unique to the HDF5 holding one
@@ -764,5 +775,5 @@ class MacroStateNetwork():
     def set_macrostate_weights(self):
         """Compute the macrostate weights and set them as node attributes
         'Weight'."""
-        self.base_network.set_nodes_attributes('Weight', self.macrostate_weights())
+        self.base_network.set_nodes_attribute('Weight', self.macrostate_weights())
 
