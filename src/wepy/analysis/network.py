@@ -14,21 +14,11 @@ class MacroStateNetworkError(Exception):
     """Errors specific to MacroStateNetwork requirements."""
     pass
 
-class MacroStateNetwork():
-    """Provides an abstraction over weighted ensemble data in the form of
-    a kinetically connected network.
+class BaseMacroStateNetwork():
+    """A base class for the MacroStateNetwork which doesn't contain a
+    WepyHDF5 object. Useful for serialization of the object and can
+    then be reattached later to a WepyHDF5.
 
-    The MacroStateNetwork refers to any grouping of the so called
-    "micro" states that were observed during simulation,
-    i.e. trajectory frames, and not necessarily in the usual sense
-    used in statistical mechanics. Although it is the perfect vehicle
-    for working with such macrostates.
-
-    Because walker trajectories in weighted ensemble there is a
-    natural way to generate the edges between the macrostate nodes in
-    the network. These edges are determined automatically and a lag
-    time can also be specified, which is useful in the creation of
-    Markov State Models.
     """
 
     ASSIGNMENTS = 'assignments'
@@ -67,25 +57,25 @@ class MacroStateNetwork():
             arraylikes of shape (n_traj, observable_shape[0], ...).
         """
 
+        self._graph = nx.DiGraph()
+
+        assert not (assg_field_key is None and assignments is None), \
+            "either assg_field_key or assignments must be given"
+
+        assert assg_field_key is not None or assignments is not None, \
+            "one of assg_field_key or assignments must be given"
+
+        self._base_contig_tree = contig_tree.base_contigtree
+
+        self._assg_field_key = assg_field_key
+
+        # the temporary assignments dictionary
+        self._node_assignments = None
+        # and temporary raw assignments
+        self._assignments = None
+
         with contig_tree:
 
-            self._graph = nx.DiGraph()
-
-            assert not (assg_field_key is None and assignments is None), \
-                "either assg_field_key or assignments must be given"
-
-            assert assg_field_key is not None or assignments is not None, \
-                "one of assg_field_key or assignments must be given"
-
-            self._contig_tree = contig_tree
-            self._wepy_h5 = self._contig_tree.wepy_h5
-
-            self._assg_field_key = assg_field_key
-
-            # the temporary assignments dictionary
-            self._node_assignments = None
-            # and temporary raw assignments
-            self._assignments = None
 
             # map the keys to their lists of assignments, depending on
             # whether or not we are using a field from the HDF5 traj or
@@ -93,7 +83,7 @@ class MacroStateNetwork():
             if assg_field_key is not None:
                 assert type(assg_field_key) == str, "assignment key must be a string"
 
-                self._key_init(assg_field_key)
+                self._key_init(contig_tree, assg_field_key)
             else:
                 self._assignments_init(assignments)
 
@@ -116,6 +106,9 @@ class MacroStateNetwork():
             # tree, once we set edges for a tree we don't really want to
             # have multiple sets of transitions on the same network so we
             # don't provide the method to add different assignments
+            self._transition_lag_time = None
+            self._probmat = None
+            self._countsmat = None
             if transition_lag_time is not None:
 
                 # set the lag time attribute
@@ -123,7 +116,7 @@ class MacroStateNetwork():
 
                 # get the transitions
                 transitions = []
-                for window in self._contig_tree.sliding_windows(self._transition_lag_time):
+                for window in contig_tree.sliding_windows(self._transition_lag_time):
 
                     transition = [window[0], window[-1]]
 
@@ -167,12 +160,12 @@ class MacroStateNetwork():
                                                     float(self._probmat[i_idx, j_idx])
 
 
-            # then get rid of the assignments dictionary, this information
-            # can be accessed from the network
-            del self._node_assignments
-            del self._assignments
+        # then get rid of the assignments dictionary, this information
+        # can be accessed from the network
+        del self._node_assignments
+        del self._assignments
 
-    def _key_init(self, assg_field_key):
+    def _key_init(self, contig_tree, assg_field_key):
         """Initialize the assignments structures given the field key to use.
 
         Parameters
@@ -181,16 +174,18 @@ class MacroStateNetwork():
 
         """
 
+        wepy_h5 = contig_tree.wepy_h5
+
         # the key for the assignment in the wepy dataset
         self._assg_field_key = assg_field_key
 
         # blank assignments
-        assignments = [[[] for traj_idx in range(self._wepy_h5.num_run_trajs(run_idx))]
-                             for run_idx in self._wepy_h5.run_idxs]
+        assignments = [[[] for traj_idx in range(wepy_h5.num_run_trajs(run_idx))]
+                             for run_idx in wepy_h5.run_idxs]
 
         # the raw assignments
         curr_run_idx = -1
-        for idx_tup, fields_d in self._wepy_h5.iter_trajs_fields(
+        for idx_tup, fields_d in wepy_h5.iter_trajs_fields(
                                          [self.assg_field_key], idxs=True):
             run_idx = idx_tup[0]
             traj_idx = idx_tup[1]
@@ -286,12 +281,7 @@ class MacroStateNetwork():
     @property
     def contig_tree(self):
         """The underlying ContigTree"""
-        return self._contig_tree
-
-    @property
-    def wepy_h5(self):
-        """The underlying WepyHDF5 object."""
-        return self._wepy_h5
+        return self._base_contig_tree
 
     @property
     def assg_field_key(self):
@@ -303,10 +293,10 @@ class MacroStateNetwork():
             If this wasn't used to construct the MacroStateNetwork.
 
         """
-        try:
-            return self._assg_field_key
-        except AttributeError:
+        if self._assg_field_key is None:
             raise MacroStateNetworkError("Assignments were manually defined, no key.")
+        else:
+            return self._assg_field_key
 
     @property
     def countsmat(self):
@@ -318,10 +308,11 @@ class MacroStateNetwork():
             If no lag time was given.
 
         """
-        try:
-            return self._countsmat
-        except AttributeError:
+
+        if self._countsmat is None:
             raise MacroStateNetworkError("transition counts matrix not calculated")
+        else:
+            return self._countsmat
 
     @property
     def probmat(self):
@@ -334,10 +325,10 @@ class MacroStateNetwork():
 
         """
 
-        try:
-            return self._probmat
-        except AttributeError:
+        if self._probmat is None:
             raise MacroStateNetworkError("transition probability matrix not set")
+        else:
+            return self._probmat
 
     def get_node_attributes(self, node_id):
         """Returns the node attributes of the macrostate.
@@ -384,57 +375,8 @@ class MacroStateNetwork():
         """
         return self.get_node_attribute(node_id, self.ASSIGNMENTS)
 
-    def get_node_fields(self, node_id, fields):
-        """Return the trajectory fields for all the microstates in the
-        specified macrostate.
 
-        Parameters
-        ----------
-        node_id : node_id
-
-        fields : list of str
-            Field name to retrieve.
-
-        Returns
-        -------
-
-        fields : dict of str: array_like
-           A dictionary mapping the names of the fields to an array of the field.
-           Like fields of a trace.
-
-        """
-        node_trace = self.node_assignments(node_id)
-
-        # use the node_trace to get the weights from the HDF5
-        with self.wepy_h5:
-            fields_d = self.wepy_h5.get_trace_fields(node_trace, fields)
-
-        return fields_d
-
-    def iter_nodes_fields(self, fields):
-        """Iterate over all nodes and return the field values for all the
-        microstates for each.
-
-        Parameters
-        ----------
-        fields : list of str
-
-        Returns
-        -------
-        nodes_fields : dict of node_id: (dict of field: array_like)
-            A dictionary with an entry for each node.
-            Each node has it's own dictionary of node fields for each microstate.
-
-        """
-
-        nodes_d = {}
-        for node_id in self.graph.nodes:
-            fields_d = self.get_node_fields(node_id, fields)
-            nodes_d[node_id] = fields_d
-
-        return nodes_d
-
-    def set_nodes_field(self, key, values_dict):
+    def set_nodes_attributes(self, key, values_dict):
         """Set node attributes for the key and values for each node.
 
         Parameters
@@ -447,71 +389,6 @@ class MacroStateNetwork():
         for node_id, value in values_dict.items():
             self.graph.nodes[node_id][key] = value
 
-
-    def microstate_weights(self):
-        """Returns the weights of each microstate on the basis of macrostates.
-
-        Returns
-        -------
-        microstate_weights : dict of node_id: ndarray
-
-        """
-
-        node_weights = {}
-        for node_id in self.graph.nodes:
-            # get the trace of the frames in the node
-            node_trace = self.node_assignments(node_id)
-
-            # use the node_trace to get the weights from the HDF5
-            with self.wepy_h5:
-                trace_weights = self.wepy_h5.get_trace_fields(node_trace, ['weights'])['weights']
-
-            node_weights[node_id] = trace_weights
-
-        return node_weights
-
-    def macrostate_weights(self):
-        """Compute the total weight of each macrostate.
-
-        Returns
-        -------
-        macrostate_weights : dict of node_id: float
-
-        """
-
-        macrostate_weights = {}
-        microstate_weights = self.microstate_weights()
-        for node_id, weights in microstate_weights.items():
-            macrostate_weights[node_id] = float(sum(weights)[0])
-
-        return macrostate_weights
-
-    def set_macrostate_weights(self):
-        """Compute the macrostate weights and set them as node attributes
-        'Weight'."""
-        self.set_nodes_field('Weight', self.macrostate_weights())
-
-    def state_to_mdtraj(self, node_id, alt_rep=None):
-        """Generate an mdtraj.Trajectory object from a macrostate.
-
-        By default uses the "main_rep" in the WepyHDF5
-        object. Alternative representations of the topology can be
-        specified.
-
-        Parameters
-        ----------
-        node_id : node_id
-
-        alt_rep : str
-             (Default value = None)
-
-        Returns
-        -------
-        traj : mdtraj.Trajectory
-
-        """
-        with self.wepy_h5:
-            return self.wepy_h5.trace_to_mdtraj(self.node_assignments(node_id), alt_rep=alt_rep)
 
     def write_gexf(self, filepath):
         """Writes a graph file in the gexf format of the network.
@@ -611,4 +488,281 @@ class MacroStateNetwork():
 
     #     """
     #     pass
+
+
+
+class MacroStateNetwork():
+    """Provides an abstraction over weighted ensemble data in the form of
+    a kinetically connected network.
+
+    The MacroStateNetwork refers to any grouping of the so called
+    "micro" states that were observed during simulation,
+    i.e. trajectory frames, and not necessarily in the usual sense
+    used in statistical mechanics. Although it is the perfect vehicle
+    for working with such macrostates.
+
+    Because walker trajectories in weighted ensemble there is a
+    natural way to generate the edges between the macrostate nodes in
+    the network. These edges are determined automatically and a lag
+    time can also be specified, which is useful in the creation of
+    Markov State Models.
+    """
+
+
+    def __init__(self, contig_tree,
+                 base_network=None,
+                 assg_field_key=None,
+                 assignments=None,
+                 transition_lag_time=2):
+
+        self.closed = True
+        self._contig_tree = contig_tree
+        self._wepy_h5 = self._contig_tree.wepy_h5
+
+        # if we pass a base network use that one instead of building
+        # one manually
+        if base_network is not None:
+            assert isinstance(base_network, BaseMacroStateNetwork)
+
+            self._set_base_network_to_self(base_network)
+
+        else:
+            new_network = BaseMacroStateNetwork(contig_tree,
+                                                assg_field_key=assg_field_key,
+                                                assignments=assignments,
+                                                transition_lag_time=transition_lag_time)
+
+            self._set_base_network_to_self(new_network)
+
+
+
+    def _set_base_network_to_self(self, base_network):
+
+        self._base_network = base_network
+
+        # then make references to this for the attributes we need
+
+        # TODO add these
+        self._graph = self._base_network._graph
+        self._assg_field_key = self._base_network._assg_field_key
+        self._node_idxs = self._base_network._node_idxs
+        self._transition_lag_time = self._base_network._transition_lag_time
+        self._probmat = self._base_network._probmat
+        self._countsmat = self._base_network._countsmat
+
+        # TODO: not sure I need this
+        # make a new wepy_h5 wrapped contigtree from the base one used
+        # in the base network
+        # self._contig_tree = ContigTree(self._wepy_h5 base_contigtree=self._base_network._contigtree)
+
+    def open(self, mode=None):
+        if self.closed:
+            self.wepy_h5.open(mode=mode)
+            self.closed = False
+        else:
+            raise IOError("This file is already open")
+
+    def close(self):
+        self.wepy_h5.close()
+        self.closed = True
+
+    def __enter__(self):
+        self.wepy_h5.__enter__()
+        self.closed = False
+        return self
+
+    def __exit__(self, exc_type, exc_value, exc_tb):
+        self.wepy_h5.__exit__(exc_type, exc_value, exc_tb)
+        self.close()
+
+
+    # from the Base class
+
+    @property
+    def graph(self):
+        """The networkx.DiGraph of the macrostate network."""
+        return self._graph
+
+    @property
+    def num_states(self):
+        """The number of states in the network."""
+        return len(self.graph)
+
+    @property
+    def node_ids(self):
+        """A list of the node_ids."""
+        return list(self.graph.nodes)
+
+    @property
+    def assg_field_key(self):
+        """The string key of the field used to make macro states from the WepyHDF5 dataset.
+
+        Raises
+        ------
+        MacroStateNetworkError
+            If this wasn't used to construct the MacroStateNetwork.
+
+        """
+        if self._assg_field_key is None:
+            raise MacroStateNetworkError("Assignments were manually defined, no key.")
+        else:
+            return self._assg_field_key
+
+    @property
+    def countsmat(self):
+        """Return the transition counts matrix of the network.
+
+        Raises
+        ------
+        MacroStateNetworkError
+            If no lag time was given.
+
+        """
+
+        if self._countsmat is None:
+            raise MacroStateNetworkError("transition counts matrix not calculated")
+        else:
+            return self._countsmat
+
+    @property
+    def probmat(self):
+        """Return the transition probability matrix of the network.
+
+        Raises
+        ------
+        MacroStateNetworkError
+            If no lag time was given.
+
+        """
+
+        if self._probmat is None:
+            raise MacroStateNetworkError("transition probability matrix not set")
+        else:
+            return self._probmat
+
+
+    # unique to the HDF5 holding one
+    @property
+    def base_network(self):
+        return self._base_network
+
+    @property
+    def wepy_h5(self):
+        """The WepyHDF5 source object for which the contig tree is being constructed. """
+        return self._wepy_h5
+
+    def state_to_mdtraj(self, node_id, alt_rep=None):
+        """Generate an mdtraj.Trajectory object from a macrostate.
+
+        By default uses the "main_rep" in the WepyHDF5
+        object. Alternative representations of the topology can be
+        specified.
+
+        Parameters
+        ----------
+        node_id : node_id
+
+        alt_rep : str
+             (Default value = None)
+
+        Returns
+        -------
+        traj : mdtraj.Trajectory
+
+        """
+        with self.wepy_h5:
+            return self.wepy_h5.trace_to_mdtraj(self.base_network.node_assignments(node_id), alt_rep=alt_rep)
+
+    def get_node_fields(self, node_id, fields):
+        """Return the trajectory fields for all the microstates in the
+        specified macrostate.
+
+        Parameters
+        ----------
+        node_id : node_id
+
+        fields : list of str
+            Field name to retrieve.
+
+        Returns
+        -------
+
+        fields : dict of str: array_like
+           A dictionary mapping the names of the fields to an array of the field.
+           Like fields of a trace.
+
+        """
+        node_trace = self.base_network.node_assignments(node_id)
+
+        # use the node_trace to get the weights from the HDF5
+        with self.wepy_h5:
+            fields_d = self.wepy_h5.get_trace_fields(node_trace, fields)
+
+        return fields_d
+
+    def iter_nodes_fields(self, fields):
+        """Iterate over all nodes and return the field values for all the
+        microstates for each.
+
+        Parameters
+        ----------
+        fields : list of str
+
+        Returns
+        -------
+        nodes_fields : dict of node_id: (dict of field: array_like)
+            A dictionary with an entry for each node.
+            Each node has it's own dictionary of node fields for each microstate.
+
+        """
+
+        nodes_d = {}
+        for node_id in self.graph.nodes:
+            fields_d = self.base_network.get_node_fields(node_id, fields)
+            nodes_d[node_id] = fields_d
+
+        return nodes_d
+
+    def microstate_weights(self):
+        """Returns the weights of each microstate on the basis of macrostates.
+
+        Returns
+        -------
+        microstate_weights : dict of node_id: ndarray
+
+        """
+
+        node_weights = {}
+        for node_id in self.graph.nodes:
+            # get the trace of the frames in the node
+            node_trace = self.base_network.node_assignments(node_id)
+
+            # use the node_trace to get the weights from the HDF5
+            with self.wepy_h5:
+                trace_weights = self.wepy_h5.get_trace_fields(node_trace, ['weights'])['weights']
+
+            node_weights[node_id] = trace_weights
+
+        return node_weights
+
+    def macrostate_weights(self):
+        """Compute the total weight of each macrostate.
+
+        Returns
+        -------
+        macrostate_weights : dict of node_id: float
+
+        """
+
+        macrostate_weights = {}
+        microstate_weights = self.microstate_weights()
+        for node_id, weights in microstate_weights.items():
+            macrostate_weights[node_id] = float(sum(weights)[0])
+
+        return macrostate_weights
+
+    def set_macrostate_weights(self):
+        """Compute the macrostate weights and set them as node attributes
+        'Weight'."""
+        self.base_network.set_nodes_attributes('Weight', self.macrostate_weights())
 
