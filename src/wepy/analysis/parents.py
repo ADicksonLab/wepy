@@ -424,6 +424,7 @@ def sliding_window(parent_table, window_length):
     # we make a range iterator which goes from the last cycle to the
     # cycle which would be the end of the first possible sliding window
     for cycle_idx in range(len(parent_table)-1, window_length-2, -1):
+
         # then iterate for each walker at this cycle
         for walker_idx in range(len(parent_table[0])):
 

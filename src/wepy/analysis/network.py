@@ -121,6 +121,8 @@ class BaseMacroStateNetwork():
                                      num_samples=num_samples)
                 self._node_idxs[assg_key] = node_idx
 
+            # also initialize the reverse which is memoized if needed
+            self._node_idx_to_id_dict = None
 
             # now count the transitions between the states and set those
             # as the edges between nodes
@@ -282,8 +284,16 @@ class BaseMacroStateNetwork():
 
     def node_idx_to_id_dict(self):
         """Generate a full mapping of node_idxs to node_ids."""
+
+
+        if self._node_idx_to_id_dict is None:
+            rev = {node_idx : node_id for node_id, node_idx in self._node_idxs}
+            self._node_idx_to_id_dict = rev
+        else:
+            rev = self._node_idx_to_id_dict
+
         # just reverse the dictionary and return
-        return {node_idx : node_id for node_id, node_idx in self._node_idxs}
+        return rev
 
 
     @property
@@ -498,7 +508,8 @@ class BaseMacroStateNetwork():
         self.set_nodes_attribute(layout_key, node_values)
 
         # then add to the list of available observables
-        self._layouts.append(layout_name)
+        if layout_name not in self._layouts:
+            self._layouts.append(layout_name)
 
 
     def write_gexf(self, filepath, exclude_fields=None, layout='main'):
@@ -735,6 +746,7 @@ class MacroStateNetwork():
         self._graph = self._base_network._graph
         self._assg_field_key = self._base_network._assg_field_key
         self._node_idxs = self._base_network._node_idxs
+        self._node_idx_to_id_dict = self._base_network._node_idx_to_id_dict
         self._transition_lag_time = self._base_network._transition_lag_time
         self._probmat = self._base_network._probmat
         self._countsmat = self._base_network._countsmat
