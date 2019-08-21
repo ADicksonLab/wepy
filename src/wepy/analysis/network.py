@@ -287,7 +287,7 @@ class BaseMacroStateNetwork():
 
 
         if self._node_idx_to_id_dict is None:
-            rev = {node_idx : node_id for node_id, node_idx in self._node_idxs}
+            rev = {node_idx : node_id for node_id, node_idx in self._node_idxs.items()}
             self._node_idx_to_id_dict = rev
         else:
             rev = self._node_idx_to_id_dict
@@ -571,7 +571,7 @@ class BaseMacroStateNetwork():
         keys.extend(['_groups/{}'.format(key) for key in self.node_groups.keys()])
 
         # add the observables
-        keys.extend(self.observables)
+        keys.extend(['_observables/{}'.format(obs) for obs in self.observables])
 
         recs = []
         for node_id in self.graph.nodes:
@@ -903,9 +903,23 @@ class MacroStateNetwork():
 
     def state_to_traj_fields(self, node_id, alt_rep=None):
 
+        return self.states_to_traj_fields([node_id], alt_rep=alt_rep)
+
+    def states_to_traj_fields(self, node_ids, alt_rep=None):
+
+
+        node_assignments = []
+        for node_id in node_ids:
+            node_assignments.extend(self.base_network.node_assignments(node_id))
+
         with self.wepy_h5:
-            return self.wepy_h5.get_trace_fields(self.base_network.node_assignments(node_id),
-                                                 alt_rep=alt_rep)
+
+            # get the right fields
+            rep_path = self.wepy_h5._choose_rep_path(alt_rep)
+            fields = [rep_path, 'box_vectors']
+
+            return self.wepy_h5.get_trace_fields(node_assignments,
+                                                 fields)
 
 
     def get_node_fields(self, node_id, fields):
