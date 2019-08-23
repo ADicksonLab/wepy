@@ -2268,7 +2268,8 @@ class WepyHDF5(object):
         return data
 
 
-    def _add_run_field(self, run_idx, field_path, data, sparse_idxs=None):
+    def _add_run_field(self, run_idx, field_path, data, sparse_idxs=None,
+                       force=False):
         """Add a trajectory field to all trajectories in a run.
 
         By enforcing adding it to all trajectories at one time we
@@ -2284,30 +2285,35 @@ class WepyHDF5(object):
         sparse_idxs : list of int
             If the data you are adding is sparse specify which cycles to apply them to.
 
+
+        If 'force' is turned on, no checking for constraints will be done.
+
         """
 
         # check that the data has the correct number of trajectories
-        assert len(data) == self.num_run_trajs(run_idx),\
-            "The number of trajectories in data, {}, is different than the number"\
-            "of trajectories in the run, {}.".format(len(data), self.num_run_trajs(run_idx))
+        if not force:
+            assert len(data) == self.num_run_trajs(run_idx),\
+                "The number of trajectories in data, {}, is different than the number"\
+                "of trajectories in the run, {}.".format(len(data), self.num_run_trajs(run_idx))
 
-        # for each trajectory check that the data is compliant
-        for traj_idx, traj_data in enumerate(data):
-            # check that the number of frames is not larger than that for the run
-            if traj_data.shape[0] > self.num_run_cycles(run_idx):
-                raise ValueError("The number of frames in data for traj {} , {},"
-                                  "is larger than the number of frames"
-                                  "for this run, {}.".format(
-                                          traj_idx, data.shape[1], self.num_run_cycles(run_idx)))
+            # for each trajectory check that the data is compliant
+            for traj_idx, traj_data in enumerate(data):
+
+                if not force:
+                    # check that the number of frames is not larger than that for the run
+                    if traj_data.shape[0] > self.num_run_cycles(run_idx):
+                        raise ValueError("The number of frames in data for traj {} , {},"
+                                          "is larger than the number of frames"
+                                          "for this run, {}.".format(
+                                                  traj_idx, data.shape[1], self.num_run_cycles(run_idx)))
 
 
-            # if the number of frames given is the same or less than
-            # the number of frames in the run
-            elif (traj_data.shape[0] <= self.num_run_cycles(run_idx)):
+                # if the number of frames given is the same or less than
+                # the number of frames in the run
+                elif (traj_data.shape[0] <= self.num_run_cycles(run_idx)):
 
-                # if sparse idxs were given we check to see there is
-                # the right number of them
-                if sparse_idxs is not None:
+                    # if sparse idxs were given we check to see there is
+                    # the right number of them
                     #  and that they match the number of frames given
                     if data.shape[0] != len(sparse_idxs[traj_idx]):
 
@@ -2318,14 +2324,15 @@ class WepyHDF5(object):
                                             self.num_run_cycles(run_idx), len(sparse_idxs[traj_idx])))
 
 
-                # if there were strictly fewer frames given and the
-                # sparse idxs were not given we need to raise an error
-                elif (traj_data.shape[0] < self.num_run_cycles(run_idx)):
-                    raise ValueError("The number of frames provided for traj {}, {},"
-                                      "was less than the total number of frames, {},"
-                                      "but sparse_idxs were not supplied.".format(
-                                              traj_idx, traj_data.shape[0],
-                                              self.num_run_cycles(run_idx)))
+                    # if there were strictly fewer frames given and the
+                    # sparse idxs were not given we need to raise an error
+                    elif (traj_data.shape[0] < self.num_run_cycles(run_idx)):
+
+                        raise ValueError("The number of frames provided for traj {}, {},"
+                                          "was less than the total number of frames, {},"
+                                          "but sparse_idxs were not supplied.".format(
+                                                  traj_idx, traj_data.shape[0],
+                                                  self.num_run_cycles(run_idx)))
 
         # add it to each traj
         for i, idx_tup in enumerate(self.run_traj_idx_tuples([run_idx])):
@@ -2335,7 +2342,8 @@ class WepyHDF5(object):
                 self._add_traj_field_data(*idx_tup, field_path, data[i],
                                           sparse_idxs=sparse_idxs[i])
 
-    def _add_field(self, field_path, data, sparse_idxs=None):
+    def _add_field(self, field_path, data, sparse_idxs=None,
+                   force=False):
         """Add a trajectory field to all runs in a file.
 
         Parameters
@@ -2355,9 +2363,11 @@ class WepyHDF5(object):
 
         for i, run_idx in enumerate(self.run_idxs):
             if sparse_idxs is not None:
-                self._add_run_field(run_idx, field_path, data[i], sparse_idxs=sparse_idxs[i])
+                self._add_run_field(run_idx, field_path, data[i], sparse_idxs=sparse_idxs[i],
+                                    force=force)
             else:
-                self._add_run_field(run_idx, field_path, data[i])
+                self._add_run_field(run_idx, field_path, data[i],
+                                    force=force)
 
     #### Public Methods
 
