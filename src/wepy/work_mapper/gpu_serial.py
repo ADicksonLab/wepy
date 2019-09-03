@@ -69,7 +69,7 @@ class TaskMapper(Mapper):
         for i in range(self.n_workers):
             self.free_workers.put(i)
 
-    def exec_call(self, _call_, index, *args):
+    def exec_call(self, _call_, index, seg_time_dic, *args):
 
         # lock a worker, then pop it off the queue so no other process
         # tries to use it
@@ -112,7 +112,8 @@ class TaskMapper(Mapper):
         for args in zip(*iterables):
             weights.append(args[0].weight)
             walkers_pool.append(mp.Process(target=self.exec_call,
-                                                args=(self._func, index, *args)))
+                                                args=(self._func, index, 
+                                                worker_segment_times, *args)))
             index += 1
 
         for p in walkers_pool:
