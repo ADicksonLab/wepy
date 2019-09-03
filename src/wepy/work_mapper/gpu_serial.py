@@ -95,7 +95,7 @@ class TaskMapper(Mapper):
 
         # initialize segment times and results list for workers to
         # fill in
-        manager = Manager()
+        manager = mp.Manager()
 
         worker_segment_times = manager.dict()
 
