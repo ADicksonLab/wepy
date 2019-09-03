@@ -4,11 +4,9 @@ including unbinding and rebinding.
 """
 
 from collections import defaultdict
-from multiprocessing import Pool
 import logging
 import itertools as it
 import time
-import os
 
 import numpy as np
 
