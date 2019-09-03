@@ -87,7 +87,7 @@ class TaskMapper(Mapper):
         end = time.time()
 
         self.free_workers.put(worker_idx)
-        self._worker_segment_times[worker_idx].append(end-start)
+        seg_time_dic[worker_idx] = seg_time_dic[worker_idx] + [end - start]
 
         self.lock.release()
 
@@ -95,9 +95,14 @@ class TaskMapper(Mapper):
 
         # initialize segment times and results list for workers to
         # fill in
-        self._worker_segment_times = {i : [] for i in range(self.n_workers)}
-        for i in range(self.n_walkers):
+        manager = Manager()
+
+        worker_segment_times = manager.dict()
+
+        for i in range(self.n_workers):
+            worker_segment_times.update({i:[]})
             self.results_list[i] = None
+
 
         walkers_pool = []
         weights = []
@@ -115,6 +120,8 @@ class TaskMapper(Mapper):
 
         for p in walkers_pool:
             p.join()
+
+        self._worker_segment_times = worker_segment_times
 
         # rebuild walkers
         new_walkers = []
