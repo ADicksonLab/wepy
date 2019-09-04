@@ -6,7 +6,7 @@ from wepy.work_mapper.mapper import Mapper
 from wepy.runners.openmm import OpenMMState, OpenMMWalker
 
 # TODO remove this so it isn't coupled to OpenMM
-# import simtk.openmm as omm
+import simtk.openmm as omm
 
 class TaskMapper(Mapper):
     """Process-per-task mapper.
