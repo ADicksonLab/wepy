@@ -355,20 +355,31 @@ class Manager(object):
         logging.info(walker_weight_str)
 
         # make a dictionary of all the results that will be reported
+        seg_times = [None]
+        sampling_time = None
+        overhead_time = None
 
-        try:
+        if hasattr(self.work_mapper, 'worker_segment_times'):
+
             seg_times = self.work_mapper.worker_segment_times
+
+            # count up the total sampling time from the segments
             sampling_time = 0
-            for w_list in self.work_mapper.worker_segment_times:
-                for t in w_list:
-                    sampling_time += t
+            for worker_id, segments_times in self.work_mapper.worker_segment_times.items():
+                for seg_time in segments_times:
+                    sampling_time += seg_time
+
+            # calculate the overhead for logging
             overhead_time = runner_time - sampling_time
-            logging.info("Runner time = {}; Sampling = ({}); Overhead = ({})".format(runner_time,sampling_time,overhead_time))
-        except:
-            seg_times = [None]
-            sampling_time = None
-            overhead_time = None
+
+            logging.info(
+                "Runner time = {}; Sampling = ({}); Overhead = ({})".format(
+                    runner_time, sampling_time, overhead_time))
+
+        else:
+            logging.info("No worker segment times given")
             logging.info("Runner time = {}".format(runner_time))
+
 
         report = {'cycle_idx' : cycle_idx,
                   'new_walkers' : new_walkers,

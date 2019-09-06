@@ -136,7 +136,9 @@ class Mapper(object):
 
 # TODO: move this class to the wepy.work_mapper.worker class where it
 # belongs. It shouldn't be in this namespace, but we will leave it
-# here.
+# here. Furthermore I would like to rename it since we now have
+# different worker mapper implementations with different concurrency
+# models
 class WorkerMapper(Mapper):
     """Work mapper implementation using multiple worker processes and task
     queue.
