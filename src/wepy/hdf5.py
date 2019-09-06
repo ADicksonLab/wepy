@@ -691,6 +691,8 @@ class WepyHDF5(object):
     MODES = ('r', 'r+', 'w', 'w-', 'x', 'a')
     """The recognized modes for opening the WepyHDF5 file."""
 
+    WRITE_MODES = ('r+', 'w', 'w-', 'x', 'a')
+
 
     #### dunder methods
 
@@ -701,6 +703,7 @@ class WepyHDF5(object):
                  feature_shapes=None, feature_dtypes=None,
                  n_dims=None,
                  alt_reps=None, main_rep_idxs=None,
+                 swmr_mode=False,
                  expert_mode=False
     ):
         """Constructor for the WepyHDF5 class.
@@ -775,6 +778,7 @@ class WepyHDF5(object):
         """
 
         self._filename = filename
+        self._swmr_mode = swmr_mode
 
         if expert_mode is True:
             self._h5 = None
@@ -837,8 +841,13 @@ class WepyHDF5(object):
 
         # open the file and then run the different constructors based
         # on the mode
-        with h5py.File(filename, mode=self._h5py_mode, libver=H5PY_LIBVER) as h5:
+        with h5py.File(filename, mode=self._h5py_mode,
+                       libver=H5PY_LIBVER, swmr=self._swmr_mode) as h5:
             self._h5 = h5
+
+            # set SWMR mode if asked for if we are in write mode also
+            if self._swmr_mode is True and mode in self.WRITE_MODES:
+                self._h5.swmr_mode = swmr_mode
 
             # create file mode: 'w' will create a new file or overwrite,
             # 'w-' and 'x' will not overwrite but will create a new file
@@ -905,12 +914,18 @@ class WepyHDF5(object):
     # context manager methods
 
     def __enter__(self):
-        self._h5 = h5py.File(self._filename, libver=H5PY_LIBVER)
-        self.closed = False
+        self.open()
+        # self._h5 = h5py.File(self._filename,
+        #                      libver=H5PY_LIBVER, swmr=self._swmr_mode)
+        # self.closed = False
         return self
 
     def __exit__(self, exc_type, exc_value, exc_tb):
         self.close()
+
+    @property
+    def swmr_mode(self):
+        return self._swmr_mode
 
 
     # TODO custom deepcopy to avoid copying the actual HDF5 object
@@ -2253,7 +2268,8 @@ class WepyHDF5(object):
         return data
 
 
-    def _add_run_field(self, run_idx, field_path, data, sparse_idxs=None):
+    def _add_run_field(self, run_idx, field_path, data, sparse_idxs=None,
+                       force=False):
         """Add a trajectory field to all trajectories in a run.
 
         By enforcing adding it to all trajectories at one time we
@@ -2269,30 +2285,35 @@ class WepyHDF5(object):
         sparse_idxs : list of int
             If the data you are adding is sparse specify which cycles to apply them to.
 
+
+        If 'force' is turned on, no checking for constraints will be done.
+
         """
 
         # check that the data has the correct number of trajectories
-        assert len(data) == self.num_run_trajs(run_idx),\
-            "The number of trajectories in data, {}, is different than the number"\
-            "of trajectories in the run, {}.".format(len(data), self.num_run_trajs(run_idx))
+        if not force:
+            assert len(data) == self.num_run_trajs(run_idx),\
+                "The number of trajectories in data, {}, is different than the number"\
+                "of trajectories in the run, {}.".format(len(data), self.num_run_trajs(run_idx))
 
-        # for each trajectory check that the data is compliant
-        for traj_idx, traj_data in enumerate(data):
-            # check that the number of frames is not larger than that for the run
-            if traj_data.shape[0] > self.num_run_cycles(run_idx):
-                raise ValueError("The number of frames in data for traj {} , {},"
-                                  "is larger than the number of frames"
-                                  "for this run, {}.".format(
-                                          traj_idx, data.shape[1], self.num_run_cycles(run_idx)))
+            # for each trajectory check that the data is compliant
+            for traj_idx, traj_data in enumerate(data):
+
+                if not force:
+                    # check that the number of frames is not larger than that for the run
+                    if traj_data.shape[0] > self.num_run_cycles(run_idx):
+                        raise ValueError("The number of frames in data for traj {} , {},"
+                                          "is larger than the number of frames"
+                                          "for this run, {}.".format(
+                                                  traj_idx, data.shape[1], self.num_run_cycles(run_idx)))
 
 
-            # if the number of frames given is the same or less than
-            # the number of frames in the run
-            elif (traj_data.shape[0] <= self.num_run_cycles(run_idx)):
+                # if the number of frames given is the same or less than
+                # the number of frames in the run
+                elif (traj_data.shape[0] <= self.num_run_cycles(run_idx)):
 
-                # if sparse idxs were given we check to see there is
-                # the right number of them
-                if sparse_idxs is not None:
+                    # if sparse idxs were given we check to see there is
+                    # the right number of them
                     #  and that they match the number of frames given
                     if data.shape[0] != len(sparse_idxs[traj_idx]):
 
@@ -2303,14 +2324,15 @@ class WepyHDF5(object):
                                             self.num_run_cycles(run_idx), len(sparse_idxs[traj_idx])))
 
 
-                # if there were strictly fewer frames given and the
-                # sparse idxs were not given we need to raise an error
-                elif (traj_data.shape[0] < self.num_run_cycles(run_idx)):
-                    raise ValueError("The number of frames provided for traj {}, {},"
-                                      "was less than the total number of frames, {},"
-                                      "but sparse_idxs were not supplied.".format(
-                                              traj_idx, traj_data.shape[0],
-                                              self.num_run_cycles(run_idx)))
+                    # if there were strictly fewer frames given and the
+                    # sparse idxs were not given we need to raise an error
+                    elif (traj_data.shape[0] < self.num_run_cycles(run_idx)):
+
+                        raise ValueError("The number of frames provided for traj {}, {},"
+                                          "was less than the total number of frames, {},"
+                                          "but sparse_idxs were not supplied.".format(
+                                                  traj_idx, traj_data.shape[0],
+                                                  self.num_run_cycles(run_idx)))
 
         # add it to each traj
         for i, idx_tup in enumerate(self.run_traj_idx_tuples([run_idx])):
@@ -2320,7 +2342,8 @@ class WepyHDF5(object):
                 self._add_traj_field_data(*idx_tup, field_path, data[i],
                                           sparse_idxs=sparse_idxs[i])
 
-    def _add_field(self, field_path, data, sparse_idxs=None):
+    def _add_field(self, field_path, data, sparse_idxs=None,
+                   force=False):
         """Add a trajectory field to all runs in a file.
 
         Parameters
@@ -2340,9 +2363,11 @@ class WepyHDF5(object):
 
         for i, run_idx in enumerate(self.run_idxs):
             if sparse_idxs is not None:
-                self._add_run_field(run_idx, field_path, data[i], sparse_idxs=sparse_idxs[i])
+                self._add_run_field(run_idx, field_path, data[i], sparse_idxs=sparse_idxs[i],
+                                    force=force)
             else:
-                self._add_run_field(run_idx, field_path, data[i])
+                self._add_run_field(run_idx, field_path, data[i],
+                                    force=force)
 
     #### Public Methods
 
@@ -2360,7 +2385,8 @@ class WepyHDF5(object):
         ----------
 
         mode : str
-           Valid mode spec. Opens the HDF5 file in this mode.
+           Valid mode spec. Opens the HDF5 file in this mode if given
+           otherwise uses the existing mode.
 
         """
 
@@ -2368,9 +2394,11 @@ class WepyHDF5(object):
             mode = self.mode
 
         if self.closed:
-            self._h5py_mode = mode
-            self._wepy_mode = mode
-            self._h5 = h5py.File(self._filename, mode, libver=H5PY_LIBVER)
+
+            self.set_mode(mode)
+
+            self._h5 = h5py.File(self._filename, mode,
+                                 libver=H5PY_LIBVER, swmr=self.swmr_mode)
             self.closed = False
         else:
             raise IOError("This file is already open")
@@ -2387,10 +2415,38 @@ class WepyHDF5(object):
         """The WepyHDF5 mode this object was created with."""
         return self._wepy_mode
 
+    @mode.setter
+    def mode(self, mode):
+        """Set the mode for opening the file with."""
+        self.set_mode(mode)
+
+    def set_mode(self, mode):
+        """Set the mode for opening the file with."""
+
+        if not self.closed:
+            raise AttributeError("Cannot set the mode while the file is open.")
+
+        self._set_h5_mode(mode)
+
+        self._wepy_mode = mode
+
     @property
     def h5_mode(self):
         """The h5py.File mode the HDF5 file currently has."""
         return self._h5.mode
+
+    def _set_h5_mode(self, h5_mode):
+        """Set the mode to open the HDF5 file with.
+
+        This really shouldn't be set without using the main wepy mode
+        as they need to be aligned.
+
+        """
+
+        if not self.closed:
+            raise AttributeError("Cannot set the mode while the file is open.")
+
+        self._h5py_mode = h5_mode
 
     @property
     def h5(self):
@@ -4885,11 +4941,10 @@ class WepyHDF5(object):
             What to name the observable subfield.
 
         data : list of arraylike
-
             The data for each run are the elements of this
             argument. Each element is an arraylike of shape
-            (n_run_frames, feature_vector_shape[0],...) where the
-            n_run_frames is the .
+            (n_traj_frames, feature_vector_shape[0],...) where the
+            n_run_frames is the number of frames in trajectory.
 
         sparse_idxs : list of list of int, optional
             If not None, specifies the cycle indices this data
@@ -4934,10 +4989,12 @@ class WepyHDF5(object):
         observable_name : str
             What to name the observable subfield.
 
-        data : list of arraylike
+        data : list of list of arraylike
+
             The data for each run are the elements of this
-            argument. Each element is an arraylike of shape
-            (n_trajs, feature_vector_shape[0],...) for this run.
+            argument. Each element is a list of the trajectory
+            observable arraylikes of shape (n_traj_frames,
+            feature_vector_shape[0],...).
 
         sparse_idxs : list of list of int, optional
             If not None, specifies the cycle indices this data

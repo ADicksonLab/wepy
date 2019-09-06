@@ -171,3 +171,16 @@ def lengths_and_angles_to_box_vectors(a_length, b_length, c_length, alpha, beta,
     c[np.logical_and(c>-tol, c<tol)] = 0.0
 
     return a.T, b.T, c.T
+
+
+def concat_traj_fields(trajs_fields):
+
+    # get the fields
+    fields = list(trajs_fields[0].keys())
+
+    cum_traj_fields = {}
+    for field in fields:
+        cum_traj_fields[field] = np.concatenate(
+            [traj_fields[field] for traj_fields in trajs_fields])
+
+    return cum_traj_fields

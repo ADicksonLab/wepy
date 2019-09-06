@@ -3,7 +3,7 @@
 Get the source code:
 
 #+BEGIN_SRC bash
-git clone https://github.com/ADicksonLab/wepy
+git clone https://github.com/ADicksonLab/wepy --recurse-submodules
 cd wepy
 #+END_SRC
 
@@ -159,6 +159,34 @@ Currently this only is pushing to the server in our lab.
 
 ** Testing
 
+*** Getting the wepy-tests submodule
+
+The tests for wepy are included as a submodule because some of the
+associated data is large and we want to make the install base for the
+program smaller than that. Development of this is tracked in
+https://gitlab.com/salotz/wepy-tests.
+
+If you cloned without the recurse-submodules flag you can always pull
+them in later like this:
+
+#+begin_src bash
+git submodule update --init --recursive
+#+end_src
+
+
+WARNING: before you start editing the ~wepy-tests~ submodule you need
+to check out master.
+
+#+begin_src bash
+git checkout master
+#+end_src
+
+How many times I have edited it before I checked out master...
+
+If you do edit and commit try to get the hash of the commit and then
+merge with master. If you don't then you need to figure out which
+commit that was.
+
 *** Test Suite
 We are using pytest so just run that from the main directory:
 
@@ -264,6 +292,147 @@ from scratch and running the examples.
 
 
 **** Examples
+
+*** Writing Tests
+
+If you add a feature ideally you should add some sort of test to make
+sure it works.
+
+We currently don't do extensive tests at fine grained levels like unit
+tests. Largely, I think these are a waste of time for a project like
+wepy without a full time developer. These are welcome contributions
+however, if anyone finds the time to write them.
+
+Our tests do however try to do some basic integration tests where we
+just try to build up and run simulations and perhaps run some analysis
+routines just to make sure that your changes or new component can be
+run without errors somewhere down the line.
+
+Aside from the automated tests which get run by pytest there are a
+number of other useful pieces of code that tend to be useful during
+the development or perhaps maintenance cycle. This is a little
+different from other repos I have seen, and perhaps adds a little bit
+of messiness to the whole thing. It should add however, some value to
+dealing with difficult and slippery problems that at least I have
+encountered in the day to day of developing a project. Our goal is to
+have clear boundaries for quarantining our messiness so that it
+doesn't inevitably bleed into the perfectly crystalline purity of the
+main code base. A complete lack of messiness (IMO) is either a sign of
+immense maturity (unlikely) or premature optimization. So we aim to
+start treating it as a first class citizen.
+
+These categories and the related folders are:
+
+- tests :: Proper tests that would get run by pytest and your CI/CD pipeline
+- examples and mocks (harnesses) :: Well-behaved "context" scripts for
+     prototyping, bugfixing, and showcasing how to accomplish very
+     specific tasks.
+- troubleshooting :: Misbehaved "context" scripts for broad domain
+     problem solving. This is more oriented towards improving the
+     operation of the repo tooling, how installations are failing, how
+     builds are failing etc.
+- scrapyard :: If you feel too much apprehension in burninating your
+               lovely prototype or script park it here to rust in
+               peace.
+
+
+The harnesses, troubleshooting, and scrapyard folders should be
+flat. That means don't nest directories for categorization, instead
+put it in the file name. If you can use an org-mode file to contain
+explanations, instructions, or multiple code blocks, please do so. It
+helps immensely to have all of the necessary context in one artifact
+if possible. If you absolutely must have more than one file (if you
+have config files small inputs that must be read from the program to
+operate etc.) for the unit go ahead and make a directory.
+
+For data that should be stored in git LFS (large file storage) please
+put them in either:
+
+- lfs-data :: for the automatic 'tests' data. These are relied on
+              being available to run the tests and should be kept
+              organized and clean.
+- lfs-misc :: for all the files that are used by the harnesses,
+              troubleshooting, and scrapyard. Although try not to
+              store large data at all for these things, or when it is
+              no longer need it remove them from the repo and untrack
+              with LFS.
+
+**** Tests
+
+This is the thing that most developers think of. Basically we run
+pytests and you can write tests like you would for that, so go read
+that documentation.
+
+I do offer some insights into our focus however. Because we do not
+have unit testing we focus more on building up a collection of useful
+fixtures, which build on each other. This is to approximate some
+integration testing where all the components must work to even get the
+end product.
+
+The favorite test system is the Lennard-Jones (lj) pair, for which we
+can build a system with no input files, along with a dependency on
+openmmtools.
+
+The integration tests for this basically amount to just importing the
+fixtures. If the fixture generation part works, then we just pass the
+test.
+
+We also have a series of special test cases which are tagged as
+'interactive' (which also appears in the test name).
+
+**** Harnesses
+
+These are scripts and code blocks that build up a mock system or
+"harness" to allow interactive prototyping. These should share code
+through copy-paste. be independent, and never assumed to work how you
+think. Usually you will use one of these for developing the feature or
+component. These should not have a module structure and should be
+copy-pastable into an IPython session or notebook and run using the
+dev virtual environment. If you have explanations or other
+instructions please put them into an org-mode document along with the
+the script in a code block which can be copy-pasted or tangled.
+
+Because, wepy doesn't have config files and other such things you
+should be able to put everything into a single python code block. This
+is kind of the litmus test for whether it belongs in the harnesses or
+not. If you have to set new virtual envs or do reinstallations
+etc. your problem is in troubleshooting.  The only exception is if you
+are prototyping something that brings in a new library, which should
+be rare for core wepy. If this is the case, consider that you should
+be doing this in a separate repo. The idea is that these code blocks
+should be runnable version to version and the only thing that might
+break is the API calls.
+
+**** Troubleshooting
+
+Scripts and code block/prose for specific contexts that used for
+problem solving. Ideally, once a troubleshooting problem is fixed
+there should be no need for the file, so go ahead and remove it,
+unless you suspect the problem will rear its ugly head again. These
+contexts, typically are for pathological cases and as such may involve
+tweaking environmental knobs like virtual envs, package versions, OS
+env variables, etc. So you probably should be writing an org mode file
+(or I guess markdown; whatever floats your boat) that is very detailed
+in the process providing copy-pasted outputs from your terminal
+etc. Try to include a date or commit that you are working from so
+future devs know what to clean out based on how old it is. If that is
+you don't clean up your own mess.
+
+**** Scrapyard
+
+Really this is just a dumping ground for half-baked, forgotten, or
+dead end things that never went anywhere. They can be prototypes,
+deprecated modules, harnesses, troubleshooting scripts, anything. We
+make no effort to organize anything in here at all. The idea is that
+if you have this nagging feeling in the back of your mind that you
+really shouldn't completely delete that thing and lose it forever. Of
+course if it is in the git history it is safe (sort of), but no one
+goes digging in git history for parts and pieces, its more useful for
+merging branches and recovering when things go horribly wrong.
+
+That said don't be offended if your old scrap pieces get
+deleted. There are no naming conentions and there never should be
+here. If you have "picked parts" they probably should go in harnesses.
 
 
 

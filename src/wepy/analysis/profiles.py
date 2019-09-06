@@ -142,9 +142,10 @@ def contigtrees_bin_edges(contigtrees, bins, field_key):
 
     all_values = []
     for contigtree in contigtrees:
-        all_values.append(np.concatenate([fields[field_key]
-                                          for fields
-                                          in contigtree.wepy_h5.iter_trajs_fields([field_key])]))
+        with contigtree:
+            all_values.append(np.concatenate([fields[field_key]
+                                              for fields
+                                              in contigtree.wepy_h5.iter_trajs_fields([field_key])]))
 
     all_values = np.concatenate(all_values)
 
@@ -180,8 +181,152 @@ class ContigTreeProfiler(object):
         """The underlying contigtree this wraps."""
         return self._contigtree
 
+    def fe_profile_trace(self, trace, field_key, bins=None):
+        """Calculate the free energy histogram over a trajectory field.
+
+        Parameters
+        ----------
+
+        trace : list of tuple of ints (run_idx, traj_idx, cycle_idx)
+
+        field_key : str
+            The key for the trajectory field to calculate the profiles
+            for. Must be a rank 0 (or equivalent (1,) rank) field.
+
+        bins : int or sequence of scalars or str or None
+            The number of bins to bin along the observable axis, or
+            the actual bin edges, or the spec for the binning method,
+            or None. If None will generate them with the 'auto'
+            setting for this span.
+
+
+        Returns
+        -------
+
+        fe_profile : arraylike of dtype float
+            An array of free energies for each bin.
+
+        """
+
+        fields = self.contigtree.wepy_h5.get_trace_fields(trace, [field_key, 'weights'])
+
+        weights = fields['weights'].flatten()
+        values = fields[field_key]
+
+        # the feature vector must be either shape 0 or (1,) i.e. rank
+        # 0 equivalent, so we get one feature and check its shape
+        test_feature = values[0]
+
+        # if it doesn't satisfy this requirement we need to raise an error
+        if not (test_feature.shape == () or test_feature.shape == (1,)):
+            raise TypeError("The field key specified a field that is non-scalar."
+                            "The shape of the feature vector must be () or (1,).")
+
+        # determine the bin_edges
+
+        # if the bins were not specified generate them from all the
+        # values for this span
+        if bins is None:
+            bin_edges = np.histogram_bin_edges(values, bins='auto')
+
+        # if the number or binning strategy was given generate them
+        # according to that
+        elif type(bins) in (str, int):
+            bin_edges = np.histogram_bin_edges(values, bins=bins)
+
+        # if it wasn't those things we assume it is already a correct
+        # bin_edges
+        else:
+            bin_edges = bins
+
+
+        fe_profile, _ = free_energy_profile(weights, values,
+                                            bins=bin_edges)
+
+        return fe_profile
+
+
+    def fe_profile_all(self, field_key, bins=None):
+        """Calculate the free energy histogram over a trajectory field.
+
+        Parameters
+        ----------
+
+        field_key : str
+            The key for the trajectory field to calculate the profiles
+            for. Must be a rank 0 (or equivalent (1,) rank) field.
+
+        bins : int or sequence of scalars or str or None
+            The number of bins to bin along the observable axis, or
+            the actual bin edges, or the spec for the binning method,
+            or None. If None will generate them with the 'auto'
+            setting for this span.
+
+
+        Returns
+        -------
+
+        fe_profile : arraylike of dtype float
+            An array of free energies for each bin.
+
+        """
+
+        weights = []
+        values = []
+        for run_idx in self.contigtree.wepy_h5.run_idxs:
+            for traj_idx in range(self.contigtree.wepy_h5.num_run_trajs(run_idx)):
+
+                traj_weights = self.contigtree.wepy_h5.get_traj_field(run_idx, traj_idx, 'weights')
+                traj_weights = traj_weights.flatten()
+                weights.append(traj_weights)
+
+                values.append(self.contigtree.wepy_h5.get_traj_field(run_idx, traj_idx, field_key))
+
+        # the feature vector must be either shape 0 or (1,) i.e. rank
+        # 0 equivalent
+
+        # concatenate all of the weights and features
+        weights = np.concatenate(weights)
+        values = np.concatenate(values)
+
+        # so we get one feature and check its shape
+        test_feature = values[0]
+
+        # if it doesn't satisfy this requirement we need to raise an error
+        if not (test_feature.shape == () or test_feature.shape == (1,)):
+            raise TypeError("The field key specified a field that is non-scalar."
+                            "The shape of the feature vector must be () or (1,).")
+
+        # determine the bin_edges
+
+        # if the bins were not specified generate them from all the
+        # values for this span
+        if bins is None:
+            bin_edges = np.histogram_bin_edges(values, bins='auto')
+
+        # if the number or binning strategy was given generate them
+        # according to that
+        elif type(bins) in (str, int):
+            bin_edges = np.histogram_bin_edges(values, bins=bins)
+
+        # if it wasn't those things we assume it is already a correct
+        # bin_edges
+        else:
+            bin_edges = bins
+
+
+        fe_profile, _ = free_energy_profile(weights, values,
+                                            bins=bin_edges)
+
+        return fe_profile
+
+
     def fe_profile(self, span, field_key, bins=None):
         """Calculate the free energy histogram over a trajectory field.
+
+        Deprecation warning: This will likely be deprecated and
+        renamed to fe_profile_span because it is misleading that a
+        profile is span based.
 
         Parameters
         ----------
@@ -199,17 +344,6 @@ class ContigTreeProfiler(object):
             or None. If None will generate them with the 'auto'
             setting for this span.
 
-        time_tranche : int
-            Width of time-bins/windows/tranche to compute free
-            energies for. This overrides the functionality of the
-            'partitions' argument. The last tranche will be truncated
-            to the remainder after partitioning by tranches. Overrides
-            partitions.
-
-        num_partitions : int
-            Will evenly partition the time coordinate given the
-            dataset. The first partition will carry the remainder.
-            Overriden by time_tranche.
 
         Returns
         -------
