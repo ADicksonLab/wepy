@@ -2385,7 +2385,8 @@ class WepyHDF5(object):
         ----------
 
         mode : str
-           Valid mode spec. Opens the HDF5 file in this mode.
+           Valid mode spec. Opens the HDF5 file in this mode if given
+           otherwise uses the existing mode.
 
         """
 
@@ -2393,8 +2394,9 @@ class WepyHDF5(object):
             mode = self.mode
 
         if self.closed:
-            self._h5py_mode = mode
-            self._wepy_mode = mode
+
+            self.set_mode(mode)
+
             self._h5 = h5py.File(self._filename, mode,
                                  libver=H5PY_LIBVER, swmr=self.swmr_mode)
             self.closed = False
@@ -2413,10 +2415,38 @@ class WepyHDF5(object):
         """The WepyHDF5 mode this object was created with."""
         return self._wepy_mode
 
+    @mode.setter
+    def mode(self, mode):
+        """Set the mode for opening the file with."""
+        self.set_mode(mode)
+
+    def set_mode(self, mode):
+        """Set the mode for opening the file with."""
+
+        if not self.closed:
+            raise AttributeError("Cannot set the mode while the file is open.")
+
+        self._set_h5_mode(mode)
+
+        self._wepy_mode = mode
+
     @property
     def h5_mode(self):
         """The h5py.File mode the HDF5 file currently has."""
         return self._h5.mode
+
+    def _set_h5_mode(self, h5_mode):
+        """Set the mode to open the HDF5 file with.
+
+        This really shouldn't be set without using the main wepy mode
+        as they need to be aligned.
+
+        """
+
+        if not self.closed:
+            raise AttributeError("Cannot set the mode while the file is open.")
+
+        self._h5py_mode = h5_mode
 
     @property
     def h5(self):
