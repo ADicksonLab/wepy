@@ -403,9 +403,9 @@ Worker Avg. Segment Times:
 
 
 
-    def _update_resampler_values(cycle_idx,
-                                    resampling_data,
-                                    resampler_data):
+    def _update_resampler_values(self, cycle_idx,
+                                 resampling_data,
+                                 resampler_data):
         pass
 
     def _weighted_ensemble_string(self):

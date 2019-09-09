@@ -147,8 +147,10 @@ class WorkerMapper(Mapper):
     processes which watch a task queue of walker segments.
     """
 
-    def __init__(self, num_workers=None, worker_type=None,
-                 worker_attributes=None, **kwargs):
+    def __init__(self, num_workers=None,
+                 worker_type=None,
+                 worker_attributes=None,
+                 **kwargs):
         """Constructor for WorkerMapper.
 
         kwargs are ignored.

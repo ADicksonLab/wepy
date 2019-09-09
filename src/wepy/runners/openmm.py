@@ -148,7 +148,8 @@ class OpenMMRunner(Runner):
 
         return (self.system, self.integrator)
 
-    def run_segment(self, walker, segment_length, getState_kwargs=None, **kwargs):
+    def run_segment(self, walker, segment_length, getState_kwargs=None,
+                    platform_kwargs=None):
         """Run dynamics for the walker.
 
         Parameters
@@ -181,6 +182,9 @@ class OpenMMRunner(Runner):
         if tmp_getState_kwargs is not None:
             getState_kwargs.update(tmp_getState_kwargs)
 
+        # just initialize on a no platform kwargs input
+        if platform_kwargs is None:
+            platform_kwargs = {}
 
         gen_sim_start = time.time()
 
@@ -201,7 +205,7 @@ class OpenMMRunner(Runner):
             platform = omm.Platform.getPlatformByName(self.platform_name)
 
             # set properties from the kwargs if they apply to the platform
-            for key, value in kwargs.items():
+            for key, value in platform_kwargs.items():
                 if key in platform.getPropertyNames():
                     platform.setPropertyDefaultValue(key, value)
 
@@ -1011,9 +1015,12 @@ class OpenMMCPUWorker(Worker):
     def run_task(self, task):
         # documented in superclass
 
+        # make the platform kwargs dictionary
+        platform_options = {'CpuThreads' : self.attributes['num_threads']}
+
         # run the task and pass in the DeviceIndex for OpenMM to
         # assign work to the correct GPU
-        return task(CpuThreads=self.attributes['num_threads'])
+        return task(platform_kwargs=platform_options)
 
 
 class OpenMMGPUWorker(Worker):
@@ -1034,6 +1041,47 @@ class OpenMMGPUWorker(Worker):
     def run_task(self, task):
         # documented in superclass
 
+        # make the platform kwargs dictionary
+        platform_options = {'DeviceIndex' : str(gpu_idx)}
+
         # run the task and pass in the DeviceIndex for OpenMM to
         # assign work to the correct GPU
-        return task(DeviceIndex=str(self.worker_idx))
+        return task(platform_kwargs=platform_options)
+
+
+
+class OpenMMCPUWalkerTaskProcess(WalkerTaskProcess):
+
+    NAME_TEMPLATE = "OpenMM_CPU_Walker_Task-{}"
+
+
+    def run_task(task):
+
+        num_threads = self.attributes['num_threads']
+
+        # make the platform kwargs dictionary
+        platform_options = {'CpuThreads' : num_threads}
+
+        new_walker = task(platform_kwargs=platform_options)
+
+class OpenMMGPUWalkerTaskProcess(WalkerTaskProcess):
+
+    NAME_TEMPLATE = "OpenMM_GPU_Walker_Task-{}"
+
+
+    def run_task(task):
+
+        # get the device index from the attributes
+        gpu_idx = self.attributes['gpu_idx']
+
+        # make the platform kwargs dictionary
+        platform_options = {'DeviceIndex' : str(gpu_idx)}
+
+        new_walker = task(platform_kwargs=platform_options)
+
+        # TODO: do we really need to unpack just the openmm.State
+        # object? If it has the __getstate__ thing properly defined
+        # (it does) then the native serializing calls to pickle should
+        # pick that up and it should be efficient. There shouldn't be
+        # any need to unwrap it from the walker since the overhead of
+        # that will be very minimal.
