@@ -404,6 +404,7 @@ class WepyHDF5Reporter(FileReporter):
         else:
             filtered_init_walkers = init_walkers
 
+        self.wepy_h5.set_mode(mode='r+')
         with self.wepy_h5:
 
             # if this is a continuation run of another run we want to

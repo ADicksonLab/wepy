@@ -411,6 +411,33 @@ class BaseContigTree():
         return self.contig_trace_to_run_trace(self.contig_trace, contig_walker_trace)
 
 
+    def run_trace_to_contig_trace(self, run_trace):
+        """
+
+        Assumes that the run trace goes along a valid contig.
+
+        Parameters
+        ----------
+
+        run_trace : list of tuples of ints (run_idx, traj_idx, cycle_idx)
+
+        Returns
+        -------
+
+        contig_walker_trace : list of tuples of ints (traj_idx, contig_cycle_idx)
+
+
+        """
+
+        contig_walker_trace = []
+        for run_idx, traj_idx, cycle_idx in run_trace:
+
+            # get the contig cycle index given the branch we are on
+            contig_cycle_idx = self.contig_cycle_idx(run_idx, cycle_idx)
+
+            contig_walker_trace.append((traj_idx, contig_cycle_idx))
+
+        return contig_walker_trace
 
 
     def contig_cycle_idx(self, run_idx, cycle_idx):
@@ -495,12 +522,15 @@ class BaseContigTree():
 
         return contig_trace
 
-    def trace_parent_table(self, contig_trace):
+    def trace_parent_table(self, contig_trace, discontinuities=True):
         """Given a contig trace returns a parent table for that contig.
 
         Parameters
         ----------
         contig_trace : list of tuples (run_idx, cycle_idx)
+
+        discontinuities : bool
+           Whether or not to include discontinuities in the table.
 
         Returns
         -------
@@ -511,6 +541,13 @@ class BaseContigTree():
         parent_table = []
         for run_idx, cycle_idx in contig_trace:
             parent_idxs = self.graph.node[(run_idx, cycle_idx)][self.PARENTS_KEY]
+
+            # if there are discontinuities add them to the table if we asked for this
+            if discontinuities:
+                discs = self.graph.node[(run_idx, cycle_idx)][self.DISCONTINUITY_KEY]
+                parent_idxs = [-1 if disc else p_idx
+                             for p_idx, disc in zip(parent_idxs, discs)]
+
             parent_table.append(parent_idxs)
 
         return parent_table
@@ -1205,6 +1242,144 @@ class ContigTree(BaseContigTree):
         """The WepyHDF5 source object for which the contig tree is being constructed. """
         return self._wepy_h5
 
+    # TODO deprecate, commenting to catch errors if this breaks
+    # stuff. THis shouldn't be something we want to expose since it
+    # defines a contig as a sequence of runs, which it needn't be. Nor
+    # do I think this code is even correct, so...
+
+    # def contig_to_run_trace(self, contig, contig_trace):
+    #     """Convert a run listing (contig) and a contig trace to a run trace.
+
+    #     Parameters
+    #     ----------
+    #     contig : list of int
+
+    #     contig_trace : list of tuples of ints (run_idx, cycle_idx)
+
+    #     Returns
+    #     -------
+
+    #     run_trace : list of tuples of ints (run_idx, traj_idx, cycle_idx)
+
+    #     """
+
+    #     # go through the contig and get the lengths of the runs that
+    #     # are its components, and slice that many trace elements and
+    #     # build up the new trace
+    #     runs_trace = []
+    #     cum_n_frames = 0
+    #     for run_idx in contig:
+
+    #         # number of frames in this run
+    #         n_frames = self.wepy_h5.num_run_cycles(run_idx)
+
+    #         # get the contig trace elements for this run
+    #         contig_trace_elements = contig_trace[cum_n_frames : n_frames + cum_n_frames]
+
+    #         # convert the cycle_idxs to the run indexing and add a run_idx to each
+    #         run_trace_elements = [(run_idx, traj_idx, contig_cycle_idx - cum_n_frames)
+    #                               for traj_idx, contig_cycle_idx in contig_trace_elements]
+
+    #         # add these to the trace
+    #         runs_trace.extend(run_trace_elements)
+
+    #         # then increase the cumulative n_frames for the next run
+    #         cum_n_frames += n_frames
+
+    #     return run_trace_elements
+
+
+    # TODO: optimize this, we don't need to recalculate everything
+    # each time to implement this
+    def make_contig(self, contig_trace):
+        """Create a Contig object given a contig trace.
+
+        Parameters
+        ----------
+        contig_trace : list of tuples of ints (run_idx, cycle_idx)
+
+        Returns
+        -------
+        contig : Contig object
+
+        """
+
+        # get the runs and continuations for just this contig
+
+        # get the contig as the sequence of run idxs
+        contig_runs = self._contig_trace_to_contig_runs(contig_trace)
+
+        # then convert to continuations
+        continuations = self._contig_runs_to_continuations(contig_runs)
+
+        return Contig(self.wepy_h5,
+                      runs=contig_runs,
+                      continuations=continuations,
+                      boundary_condition_class=self.boundary_condition_class,
+                      decision_class=self.decision_class)
+
+
+    def warp_trace(self):
+        """Get the trace for all unique warping events from all contigs."""
+
+        with self:
+            big_trace = []
+            for contig_idx in self.span_traces.keys():
+                contig = self.span_contig(contig_idx)
+
+                big_trace.extend(contig.warp_trace())
+
+        # then cast to a set to get the unique ones
+        return list(set(big_trace))
+
+class Contig(ContigTree):
+    """Wraps a WepyHDF5 object and gives access to logical trajectories
+    from a single contig.
+
+    This class is very similar to the ContigTree class and inherits
+    all of those methods. It adds methods for getting records and
+    other data about a single contig.
+
+    """
+
+    def __init__(self, wepy_h5,
+                 **kwargs):
+
+        # uses superclass docstring exactly, this constructor just
+        # generates some extra attributes
+
+        # use the superclass initialization
+        super().__init__(wepy_h5, **kwargs)
+
+        # check that the result is a single contig
+        spanning_contig_traces = self.spanning_contig_traces()
+        assert len(spanning_contig_traces) == 1, \
+            "continuations given do not form a single contig"
+
+        # if so we add some useful attributes valid for only a
+        # standalone contig
+
+        # the contig_trace
+        self._contig_trace = spanning_contig_traces[0]
+
+        # TODO this should not be part of the API in the future since
+        # we don't want to have the run_idxs alone be how contigs are
+        # defined (since we want contigs to be able to go to different
+        # runs from the middle of other runs), in any case that is how
+        # it is implemented now and there is no reason to change it
+        # now, so we keep it hidden
+
+        # get the number of runs in that trace
+        trace_run_idxs = set(run_idx for run_idx, _ in self._contig_trace)
+
+        # the run idxs of the contig for more than one
+        if len(trace_run_idxs) > 1:
+            self._contig_run_idxs = self._continuations_to_contig_runs(self.continuations)
+
+        # if there is only 1 run we set it like this
+        else:
+            self._contig_run_idxs = list(self.run_idxs)
+
     def contig_fields(self, fields):
         """Returns trajectory field data for the specified fields.
 
@@ -1220,6 +1395,51 @@ class ContigTree(BaseContigTree):
         """
 
         return self.wepy_h5.get_contig_trace_fields(self.contig_trace, fields)
+
+    @property
+    def contig_trace(self):
+        """Returns the contig trace corresponding to this contig.
+
+        Returns
+        -------
+        contig_trace :: list of tuples of ints (run_idx, cycle_idx)
+
+        """
+
+        return self._contig_trace
+
+    @property
+    def num_cycles(self):
+        """The number of cycles in this contig.
+
+        Returns
+        -------
+        num_cycles : int
+
+        """
+        return len(self.contig_trace)
+
+    # TODO: may need to be implemented without using the wepy_h5 in the BaseContigTree
+    def num_walkers(self, cycle_idx):
+        """Get the number of walkers at a given cycle in the contig.
+
+        Parameters
+        ----------
+        cycle_idx : int
+
+        Returns
+        -------
+        n_walkers : int
+
+        """
+
+        # get the run idx and in-run cycle idx for this cycle_idx
+        run_idx, run_cycle_idx = self.contig_trace[cycle_idx]
+
+        # then get the number of walkers for that run and cycle
+        n_walkers = self.wepy_h5.num_walkers(run_idx, run_cycle_idx)
+
+        return n_walkers
 
     def records(self, record_key):
         """Returns the records for the given key.
@@ -1385,181 +1605,6 @@ class ContigTree(BaseContigTree):
 
         return self.wepy_h5.contig_resampling_panel(self._contig_run_idxs)
 
-
-
-    # targetted for removal from the base, not sure if some of these
-    # will break things moving out of them.
-
-    # could be reimplemented in the BaseCOntigTree
-
-    # TODO: may need to be implemented without using the wepy_h5 in the BaseContigTree
-    def num_walkers(self, cycle_idx):
-        """Get the number of walkers at a given cycle in the contig.
-
-        Parameters
-        ----------
-        cycle_idx : int
-
-        Returns
-        -------
-        n_walkers : int
-
-        """
-
-        # get the run idx and in-run cycle idx for this cycle_idx
-        run_idx, run_cycle_idx = self.contig_trace[cycle_idx]
-
-        # then get the number of walkers for that run and cycle
-        n_walkers = self.wepy_h5.num_walkers(run_idx, run_cycle_idx)
-
-        return n_walkers
-
-
-    def contig_to_run_trace(self, contig, contig_trace):
-        """Convert a run listing (contig) and a contig trace to a run trace.
-
-        Parameters
-        ----------
-        contig : list of int
-
-        contig_trace : list of tuples of ints (run_idx, cycle_idx)
-
-        Returns
-        -------
-
-        run_trace : list of tuples of ints (run_idx, traj_idx, cycle_idx)
-
-        """
-
-        # go through the contig and get the lengths of the runs that
-        # are its components, and slice that many trace elements and
-        # build up the new trace
-        runs_trace = []
-        cum_n_frames = 0
-        for run_idx in contig:
-
-            # number of frames in this run
-            n_frames = self.wepy_h5.num_run_cycles(run_idx)
-
-            # get the contig trace elements for this run
-            contig_trace_elements = contig_trace[cum_n_frames : n_frames + cum_n_frames]
-
-            # convert the cycle_idxs to the run indexing and add a run_idx to each
-            run_trace_elements = [(run_idx, traj_idx, contig_cycle_idx - cum_n_frames)
-                                  for traj_idx, contig_cycle_idx in contig_trace_elements]
-
-            # add these to the trace
-            runs_trace.extend(run_trace_elements)
-
-            # then increase the cumulative n_frames for the next run
-            cum_n_frames += n_frames
-
-        return run_trace_elements
-
-
-    # TODO: optimize this, we don't need to recalculate everything
-    # each time to implement this
-    def make_contig(self, contig_trace):
-        """Create a Contig object given a contig trace.
-
-        Parameters
-        ----------
-        contig_trace : list of tuples of ints (run_idx, cycle_idx)
-
-        Returns
-        -------
-        contig : Contig object
-
-        """
-
-        # get the runs and continuations for just this contig
-
-        # get the contig as the sequence of run idxs
-        contig_runs = self._contig_trace_to_contig_runs(contig_trace)
-
-        # then convert to continuations
-        continuations = self._contig_runs_to_continuations(contig_runs)
-
-        return Contig(self.wepy_h5,
-                      runs=contig_runs,
-                      continuations=continuations,
-                      boundary_condition_class=self.boundary_condition_class,
-                      decision_class=self.decision_class)
-
-
-
-
-class Contig(ContigTree):
-    """Wraps a WepyHDF5 object and gives access to logical trajectories
-    from a single contig.
-
-    This class is very similar to the ContigTree class and inherits
-    all of those methods. It adds methods for getting records and
-    other data about a single contig.
-
-    """
-
-    def __init__(self, wepy_h5,
-                 **kwargs):
-
-        # uses superclass docstring exactly, this constructor just
-        # generates some extra attributes
-
-        # use the superclass initialization
-        super().__init__(wepy_h5, **kwargs)
-
-        # check that the result is a single contig
-        spanning_contig_traces = self.spanning_contig_traces()
-        assert len(spanning_contig_traces) == 1, \
-            "continuations given do not form a single contig"
-
-        # if so we add some useful attributes valid for only a
-        # standalone contig
-
-        # the contig_trace
-        self._contig_trace = spanning_contig_traces[0]
-
-        # TODO this should not be part of the API in the future since
-        # we don't want to have the run_idxs alone be how contigs are
-        # defined (since we want contigs to be able to go to different
-        # runs from the middle of other runs), in any case that is how
-        # it is implemented now and there is no reason to change it
-        # now, so we keep it hidden
-
-        # get the number of runs in that trace
-        trace_run_idxs = set(run_idx for run_idx, _ in self._contig_trace)
-
-        # the run idxs of the contig for more than one
-        if len(trace_run_idxs) > 1:
-            self._contig_run_idxs = self._continuations_to_contig_runs(self.continuations)
-
-        # if there is only 1 run we set it like this
-        else:
-            self._contig_run_idxs = list(self.run_idxs)
-
-    @property
-    def contig_trace(self):
-        """Returns the contig trace corresponding to this contig.
-
-        Returns
-        -------
-        contig_trace :: list of tuples of ints (run_idx, cycle_idx)
-
-        """
-
-        return self._contig_trace
-
-    @property
-    def num_cycles(self):
-        """The number of cycles in this contig.
-
-        Returns
-        -------
-        num_cycles : int
-
-        """
-        return len(self.contig_trace)
-
     def parent_table(self):
         """Returns the full parent table for this contig.
 
@@ -1586,6 +1631,50 @@ class Contig(ContigTree):
 
         return self.trace_parent_table(self.contig_trace)
 
+    # TODO
+    def terminal_trace(self):
+        """Return a trace of all of the walkers, whose state was not
+        propagated forward.
+
+        i.e. all squashed and warped walkers as well as the last walkers in the simulation
+
+        """
+
+        raise NotImplementedError
+
+        trace = self.squash_trace() + self.final_trace() + self.warp_trace()
+
+        return trace
+
+    def squash_trace(self):
+        """Return a trace of all of the squashed walkers in the simulation."""
+
+        raise NotImplementedError
+
+    def final_trace(self):
+        """Return a trace of all the walkers at the end of the contig."""
+
+        raise NotImplementedError
+
+
+    def warp_trace(self):
+        """Return a trace that gives all of the walkers that were warped."""
+
+        trace = []
+        for warping_record in self.warping_records():
+
+            cycle_idx = warping_record[0]
+            walker_idx = warping_record[1]
+
+            rec = (walker_idx, cycle_idx)
+
+            trace.append(rec)
+
+        run_trace = self.contig_trace_to_run_trace(self.contig_trace, trace)
+
+        return run_trace
+
+
     def exit_point_trajectories(self):
         """Return full run traces for every warping event."""
 
@@ -1608,7 +1697,3 @@ class Contig(ContigTree):
             warp_lineages.append(lineage)
 
         return warp_lineages
-
-
-
-    

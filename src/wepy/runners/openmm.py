@@ -372,7 +372,10 @@ class OpenMMState(WalkerState):
 
         # if this was a key for data not mapped from the OpenMM.State
         # object we use the _data attribute
-        if key not in self.KEYS:
+        if (key not in self.KEYS) and (
+                (not key.startswith('parameters')) and
+                (not key.startswith('parameter_derivatives'))
+        ):
             return self._data[key]
 
         # otherwise we have to specifically get the correct data and
@@ -402,7 +405,15 @@ class OpenMMState(WalkerState):
                 if parameters_dict is None:
                     return None
                 else:
-                    return self._get_nested_attr_from_compound_key(key, parameters_dict)
+
+                    # TODO: this was an attempt at a general way to do
+                    # this but it doesn't work and I only ever need
+                    # one nested level, so for now we just implement it that way
+                    # return self._get_nested_attr_from_compound_key(key, parameters_dict)
+
+                    param_key = key.split('/')[-1]
+                    return parameters_dict[param_key]
+
             elif key.startswith('parameter_derivatives'):
                 pd_dict = self.parameter_derivatives_values()
                 if pd_dict is None:

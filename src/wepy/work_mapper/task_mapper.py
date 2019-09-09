@@ -3,10 +3,11 @@ import time
 import logging
 
 from wepy.work_mapper.mapper import Mapper
-from wepy.runners.openmm import OpenMMState, OpenMMWalker
+
 
 # TODO remove this so it isn't coupled to OpenMM
-# import simtk.openmm as omm
+import simtk.openmm as omm
+from wepy.runners.openmm import OpenMMState, OpenMMWalker
 
 class TaskMapper(Mapper):
     """Process-per-task mapper.
@@ -38,6 +39,11 @@ class TaskMapper(Mapper):
     def __init__(self, n_walkers, gpu_indices=None, num_workers=None, **kwargs):
 
         self.n_walkers = n_walkers
+
+        # initialize a list to put results in
+        self.results_list = None
+        self._worker_segment_times = None
+
         if gpu_indices is not None:
             self.gpu_indices = gpu_indices
             self.n_workers = len(gpu_indices)
@@ -57,19 +63,13 @@ class TaskMapper(Mapper):
         self.free_workers = mp.Queue()
         # the semaphore provides the locks on the workers
         self.lock = mp.Semaphore(self.n_workers)
-        # initialize a list to put results in
-        self.results_list = mp.Manager().list()
-        for i in range(self.n_walkers):
-            self.results_list.append(None)
 
-        self._worker_segment_times = mp.Manager().dict()
-        self._worker_segment_times = {i : [] for i in range(self.n_workers)}
         # add the free worker indices (not device/gpu indices) to the
         # free workers queue
         for i in range(self.n_workers):
             self.free_workers.put(i)
 
-    def exec_call(self, _call_, index, *args):
+    def exec_call(self, _call_, index, seg_time_dic, *args):
 
         # lock a worker, then pop it off the queue so no other process
         # tries to use it
@@ -95,25 +95,33 @@ class TaskMapper(Mapper):
 
         # initialize segment times and results list for workers to
         # fill in
-        manager = Manager()
+        manager = mp.Manager()
 
-        worker_segment_times = manager.dict()
+        # make a shared dictionary for the segment times
+        self._worker_segment_times = manager.dict()
 
-        for i in range(self.n_workers):
-            worker_segment_times.update({i:[]})
-            self.results_list[i] = None
+        # initialize for the number of workers
+        self._worker_segment_times = {i : [] for i in range(self.n_workers)}
+
+        # make a shared list for the walker results
+        self.results_list = manager.list()
+
+        # since this will be indexed by walker index initialize the
+        # length of the array
+        for walker in range(len(args)):
+            self.results_list.append(None)
 
 
         walkers_pool = []
         weights = []
-        # create processes and start to run
-        index = 0
 
-        for args in zip(*iterables):
+        # create processes and start to run, first transposing the
+        # args calls
+        for walker_idx, args in enumerate(zip(*args)):
             weights.append(args[0].weight)
             walkers_pool.append(mp.Process(target=self.exec_call,
-                                                args=(self._func, index, *args)))
-            index += 1
+                                           args=(self._func, index,
+                                                 worker_segment_times, *args)))
 
         for p in walkers_pool:
             p.start()
