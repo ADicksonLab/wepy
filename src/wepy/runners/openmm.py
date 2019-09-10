@@ -1041,8 +1041,10 @@ class OpenMMGPUWorker(Worker):
     def run_task(self, task):
         # documented in superclass
 
+        device_id = self.mapper_attributes['device_ids'][self._worker_idx]
+
         # make the platform kwargs dictionary
-        platform_options = {'DeviceIndex' : str(gpu_idx)}
+        platform_options = {'DeviceIndex' : device_id}
 
         # run the task and pass in the DeviceIndex for OpenMM to
         # assign work to the correct GPU
@@ -1072,16 +1074,9 @@ class OpenMMGPUWalkerTaskProcess(WalkerTaskProcess):
     def run_task(task):
 
         # get the device index from the attributes
-        gpu_idx = self.attributes['gpu_idx']
+        device_idx = self.mapper_attributes['device_ids'][self._worker_idx]
 
         # make the platform kwargs dictionary
-        platform_options = {'DeviceIndex' : str(gpu_idx)}
+        platform_options = {'DeviceIndex' : device_id}
 
         new_walker = task(platform_kwargs=platform_options)
-
-        # TODO: do we really need to unpack just the openmm.State
-        # object? If it has the __getstate__ thing properly defined
-        # (it does) then the native serializing calls to pickle should
-        # pick that up and it should be efficient. There shouldn't be
-        # any need to unwrap it from the walker since the overhead of
-        # that will be very minimal.

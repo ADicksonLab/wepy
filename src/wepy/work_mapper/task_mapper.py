@@ -2,14 +2,14 @@ import multiprocessing as mp
 import time
 import logging
 
-from wepy.work_mapper.mapper import Mapper
+from wepy.work_mapper.mapper import ABCWorkerMapper
 
 
 # TODO remove this so it isn't coupled to OpenMM
 import simtk.openmm as omm
 from wepy.runners.openmm import OpenMMState, OpenMMWalker
 
-class TaskMapper(Mapper):
+class TaskMapper(ABCWorkerMapper):
     """Process-per-task mapper.
 
     This method of work mapper starts new processes for each runner
@@ -37,32 +37,36 @@ class TaskMapper(Mapper):
     """
 
     def __init__(self,
-                 gpu_indices=None,
-                 worker_type=None,
+                 walker_task_type=None,
                  num_workers=None,
+                 segment_func=None,
                  **kwargs):
+
+        super().__init__(num_workers=num_workers,
+                         segment_func=segment_func,
+                         **kwargs)
+        # choose the type of the worker
+        if walker_task_type is None:
+            self._walker_task_type_type = WalkerTaskProcess
+            warn("walker_task_type not given using the default base class")
+            logging.warn("walker_task_type not given using the default base class")
+        else:
+            self._walker_task_type = walker_task_type
 
         # initialize a list to put results in
         self.results = None
-        self._worker_segment_times = None
-
-        # TODO: make this work in a subclass for GPUs and OpenMM
-        # convert this to an available GPU index
-        gpu_idx = self.gpu_indices[worker_idx]
-
-        if gpu_indices is not None:
-            self.gpu_indices = gpu_indices
-            self.n_workers = len(gpu_indices)
-        else:
-            assert num_workers, "If gpu_indices are not given the n_workers must be given"
-            self.n_workers = num_workers
-            self.gpu_indices = range(num_workers)
 
 
+    @property
+    def walker_task_type(self):
+        """The callable that generates a worker object.
 
-    # def init(self, **kwargs):
+        Typically this is just the type from the class definition of
+        the Worker where the constructor is called.
 
-    #     super().init(**kwargs)
+        """
+        return self._walker_task_type
+
 
 
     def map(self, *iterables):
@@ -99,15 +103,12 @@ class TaskMapper(Mapper):
             walker_processes = []
             for walker_idx, task_args in enumerate(zip(*args)):
 
-                weights.append(args[0].weight)
-
                 # start a process for this walker
-
-                walker_process = WalkerTaskProcess(walker_idx,
-                                                   self._func, task_args,
-                                                   worker_queue,
-                                                   results,
-                                                   worker_segment_times)
+                walker_process = self.walker_task_type(walker_idx, self._attributes,
+                                                       self._func, task_args,
+                                                       worker_queue,
+                                                       results,
+                                                       worker_segment_times)
 
                 walker_process.start()
 
@@ -118,7 +119,8 @@ class TaskMapper(Mapper):
                 p.join()
 
             # save the managed list of the recorded worker times locally
-            self._worker_segment_times = worker_segment_times
+            for key, val in worker_segment_times.items():
+                self._worker_segment_times[key] = val
 
             new_walkers = [result for result in results]
 
@@ -129,7 +131,7 @@ def WalkerTaskProcess(Process):
 
     NAME_TEMPLATE = "Walker-{}"
 
-    def __init__(self, walker_idx,
+    def __init__(self, walker_idx, mapper_attributes,
                  func, task_args,
                  worker_queue, results_list, worker_segment_times,
                  **kwargs
@@ -151,8 +153,14 @@ def WalkerTaskProcess(Process):
 
         # set the managed datastructure proxies as an attribute so we
         self.walker_idx = walker_idx
+        self.mapper_attributes = mapper_attributes
         self.free_workers = free_workers
         self.worker_segment_times = worker_segment_times
+
+        # the variable for the current worker index this is supposed
+        # to be using, transient
+        self._worker_idx = None
+
 
         self._attributes = kwargs
 
@@ -180,13 +188,13 @@ def WalkerTaskProcess(Process):
         # tries to use it
 
         # pop off a worker to use it
-        worker_idx = self.free_workers.get()
+        self._worker_idx = self.free_workers.get()
 
         logging.info("{}: acquired worker {}".format(walker_process.name,
                                                     worker_idx))
 
         # generate the task thunk
-        task = Task(self._func, self.task_args)
+        task = self._make_task(*self.task_args)
 
         # run the task
         start = time.time()
@@ -209,7 +217,9 @@ def WalkerTaskProcess(Process):
                                                                                   time.time()))
 
         # put the worker back onto the queue since we are done using it
-        self.free_workers.put(worker_idx)
+        self.free_workers.put(self._worker_idx)
+        self._worker_idx = None
+
         logging.info("{}: released worker {}".format(walker_process.name,
                                                      worker_idx))
 
