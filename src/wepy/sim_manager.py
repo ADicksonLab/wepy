@@ -188,10 +188,19 @@ class Manager(object):
 
         logging.info("Starting segment")
 
-        new_walkers = list(self.work_mapper.map(walkers,
-                                                (segment_length for i in range(num_walkers)),
-                                               )
-                          )
+        try:
+            new_walkers = list(self.work_mapper.map(walkers,
+                                                    (segment_length for i in range(num_walkers)),
+                                                   )
+                              )
+
+        except Exception as exception:
+
+            # get the errors from the work mapper error queue
+            self.cleanup()
+
+            # report on all of the errors that occured
+
         logging.info("Ending segment")
 
         return new_walkers
@@ -268,19 +277,8 @@ class Manager(object):
         # this one is called to just easily be able to catch all the
         # errors from it so we can cleanup if an error is caught
 
-        try:
-            return self._run_cycle(walkers, n_segment_steps, cycle_idx)
-        except Exception as err:
 
-            # if we catch any error we want to make sure that run the
-            # cleanup for everything. By policy this should make sure
-            # all running processes are killed (i.e. does not actually
-            # kill processes and the modules should implement this
-            # themselves in their cleanup method)
-            self.cleanup()
-
-            # then reraise the error
-            raise err
+        return self._run_cycle(walkers, n_segment_steps, cycle_idx)
 
     def _run_cycle(self, walkers, n_segment_steps, cycle_idx):
         """See run_cycle."""

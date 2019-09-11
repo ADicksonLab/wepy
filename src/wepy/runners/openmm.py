@@ -38,6 +38,7 @@ import simtk.unit as unit
 from wepy.walker import Walker, WalkerState
 from wepy.runners.runner import Runner
 from wepy.work_mapper.worker import Worker
+from wepy.work_mapper.task_mapper import WalkerTaskProcess
 from wepy.reporter.reporter import Reporter
 from wepy.util.util import box_vectors_to_lengths_angles
 
@@ -1057,7 +1058,7 @@ class OpenMMCPUWalkerTaskProcess(WalkerTaskProcess):
     NAME_TEMPLATE = "OpenMM_CPU_Walker_Task-{}"
 
 
-    def run_task(task):
+    def run_task(self, task):
 
         num_threads = self.attributes['num_threads']
 
@@ -1071,7 +1072,7 @@ class OpenMMGPUWalkerTaskProcess(WalkerTaskProcess):
     NAME_TEMPLATE = "OpenMM_GPU_Walker_Task-{}"
 
 
-    def run_task(task):
+    def run_task(self, task):
 
         # get the device index from the attributes
         device_idx = self.mapper_attributes['device_ids'][self._worker_idx]

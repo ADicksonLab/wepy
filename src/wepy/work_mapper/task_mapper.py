@@ -1,13 +1,9 @@
 import multiprocessing as mp
 import time
 import logging
+from warnings import warn
 
 from wepy.work_mapper.mapper import ABCWorkerMapper
-
-
-# TODO remove this so it isn't coupled to OpenMM
-import simtk.openmm as omm
-from wepy.runners.openmm import OpenMMState, OpenMMWalker
 
 class TaskMapper(ABCWorkerMapper):
     """Process-per-task mapper.
@@ -79,7 +75,7 @@ class TaskMapper(ABCWorkerMapper):
             worker_queue = manager.Queue()
 
             # put the workers onto the queue
-            for worker_idx in range(self.n_workers):
+            for worker_idx in range(self.num_workers):
                 worker_queue.put(worker_idx)
 
             # initialize segment times for workers to
@@ -88,7 +84,7 @@ class TaskMapper(ABCWorkerMapper):
 
             # initialize for the number of workers, since these will be
             # the slots to put timing results in
-            for i in range(self.n_workers):
+            for i in range(self.num_workers):
                 worker_segment_times[i] = []
 
             # make a shared list for the walker results
@@ -127,7 +123,7 @@ class TaskMapper(ABCWorkerMapper):
         return new_walkers
 
 
-def WalkerTaskProcess(Process):
+class WalkerTaskProcess(mp.Process):
 
     NAME_TEMPLATE = "Walker-{}"
 
@@ -138,7 +134,7 @@ def WalkerTaskProcess(Process):
                  ):
 
         # initialize the process customizing the name
-        Process.__init__(self, name=self.NAME_TEMPLATE.format(walker_idx))
+        mp.Process.__init__(self, name=self.NAME_TEMPLATE.format(walker_idx))
 
         # the idea with this TaskProcess thing is that we pass in all
         # the data to the constructor to create a "thunk" (a closure
@@ -163,6 +159,10 @@ def WalkerTaskProcess(Process):
 
 
         self._attributes = kwargs
+
+    @property
+    def attributes(self, key):
+        return self._attributes
 
     @attributes.getter
     def attributes(self, key):

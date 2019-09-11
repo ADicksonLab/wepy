@@ -170,7 +170,7 @@ class REVOResampler(CloneMergeResampler):
         self.distance = distance
 
         # the characteristic distance, char_dist
-        assert char_dist is not None, "Characteristic distance value (d0) msu be given"
+        assert char_dist is not None, "Characteristic distance value (d0) must be given"
         self.char_dist = char_dist
 
         # setting the random seed

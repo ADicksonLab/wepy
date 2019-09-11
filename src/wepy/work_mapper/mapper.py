@@ -3,8 +3,10 @@ ready worker style mapper for mapping runner dynamics to walkers for
 wepy simulation cycles.
 
 """
-
+import sys
 import multiprocessing as mp
+import queue as pyq
+import traceback
 import time
 import logging
 from warnings import warn
@@ -24,9 +26,13 @@ class ABCMapper(object):
 
         """
 
-        self._segment_func = segment_func
+        self._func = segment_func
 
         self._attributes = kwargs
+
+    @property
+    def attributes(self):
+        return self._attributes
 
     @attributes.getter
     def attributes(self, key):
@@ -42,10 +48,16 @@ class ABCMapper(object):
         """
 
 
-        if segment_func is None:
-            ValueError("segment_func must be given")
+        if self.segment_func is not None and segment_func is not None:
+            logging.info("overriding default segment_func {} with {}".format(self._func, segment_func))
+            self._func = segment_func
 
-        self._func = segment_func
+        elif self.segment_func is None and segment_func is None:
+            ValueError("segment_func must be given since no default specified")
+
+        elif self.segment_func is None and segment_func is not None:
+            self._func = segment_func
+
 
     @property
     def segment_func(self):
@@ -168,6 +180,31 @@ class Task(object):
         # worker information in the kwargs
         return self.func(*self.args, **kwargs)
 
+class WrapperException(Exception):
+    """Exception used for wrapping another exception.
+
+    Since tracebacks can't be pickled we format it and save that
+    instead.
+
+    """
+
+    def __init__(self, message,
+                 # must be kwargs so we can pickle it (I know weird...)
+                 wrapped_exception=None,
+                 tb=None):
+        super().__init__(message)
+
+        # save the exception with the traceback
+        self.wrapped_exception = wrapped_exception
+        self.formatted_tb = traceback.format_tb(tb)
+
+
+class TaskException(WrapperException):
+    pass
+
+class WorkerException(WrapperException):
+    pass
+
 class ABCWorkerMapper(ABCMapper):
 
     def __init__(self,
@@ -191,7 +228,10 @@ class ABCWorkerMapper(ABCMapper):
 
 
         self._num_workers = num_workers
-        self._worker_segment_times = {i : [] for i in range(self.num_workers)}
+        self._worker_segment_times = None
+
+        if num_workers is not None:
+            self._worker_segment_times = {i : [] for i in range(self.num_workers)}
 
 
     def init(self, num_workers=None, segment_func=None,
@@ -206,6 +246,9 @@ class ABCWorkerMapper(ABCMapper):
         segment_func : callable implementing the Runner.run_segment interface
 
         """
+
+        # TODO add in after debugging the hanging part
+        #super().init(segment_func=segment_func)
 
         # the number of workers must be given here or set as an object attribute
         if num_workers is None and self.num_workers is None:
@@ -237,6 +280,7 @@ class ABCWorkerMapper(ABCMapper):
 
         """
         return Task(self._func, *args, **kwargs)
+
 
 # TODO: move this class to the wepy.work_mapper.worker class where it
 # belongs. It shouldn't be in this namespace, but we will leave it
@@ -324,22 +368,27 @@ class WorkerMapper(ABCWorkerMapper):
         super().init(num_workers=num_workers, segment_func=segment_func,
                      **kwargs)
 
+        manager = mp.Manager()
 
         # Establish communication queues
 
-        # use a joinable queue for the tasks so we can process them in
-        # batches per cycle
-        self._task_queue = mp.JoinableQueue()
+        # A queue for errors
+        self._exception_queue = manager.Queue()
 
-        # use a managed queue for the results, as it is a little safer
-        # than the bare Queue
-        manager = mp.Manager()
+        # queue for the tasks we know the batch size so we don't need
+        # a JoinableQueue
+        self._task_queue = manager.Queue()
+
+        # results queue
         self._result_queue = manager.Queue()
 
         # Start workers, giving them all the queues
         self._workers = []
-        for i in range(num_workers):
-            worker = self.worker_type(i, self._task_queue, self._result_queue,
+        for i in range(self.num_workers):
+            worker = self.worker_type(i,
+                                      self._task_queue,
+                                      self._result_queue,
+                                      self._exception_queue,
                                       **self._worker_attributes)
             self._workers.append(worker)
 
@@ -349,6 +398,18 @@ class WorkerMapper(ABCWorkerMapper):
 
             logging.info("Worker process started as name: {}; PID: {}".format(worker.name,
                                                                               worker.pid))
+
+    def force_shutdown(self, **kwargs):
+
+        logging.critical("Forcing shutdown")
+
+        # our primary job is to shut down all of the running processes
+        # without just shutting down the queues and breaking the pipes
+
+        # to do this we send the kill signals to them on the kill
+        # channel.
+        pass
+
 
     def cleanup(self, **kwargs):
         """Runtime post-simulation tasks.
@@ -393,9 +454,87 @@ class WorkerMapper(ABCWorkerMapper):
 
         logging.info("Waiting for tasks to be run")
 
+        # poll the exception and result queues for results
+        n_results = num_tasks
+        results = []
+        while n_results > 0:
+
+            # first check if any errors came back but don't wait,
+            # since the methods for querying whether it is empty or
+            # not are not reliable we just try and if we don't get
+            # anything we will come back around
+            try:
+                proc_name, pid, exception = self._exception_queue.get_nowait()
+            except pyq.Empty:
+                pass
+
+            else:
+
+                logging.error("Exception occured in process {}; pid {}.".format(
+                    proc_name, pid))
+
+                # we can handle Task and Worker exceptions differently
+                if type(exception) == TaskException:
+
+                    logging.critical("Exception encountered in a task which is unrecoverable."
+                                "You will need to reconfigure your components in a stable manner.")
+
+
+                    self.force_shutdown()
+
+                    logging.critical("Shutdown complete.")
+                    raise SystemError("Exiting")
+
+                elif type(exception) == WorkerException:
+
+                    # we make just an error message to say that errors
+                    # in the worker may be due to the network or
+                    # something and could recover
+                    logging.error("Exception encountered in the work mapper worker process."
+                                  "Recovery possible, see further messages.")
+
+                    # However, the current implementation doesn't
+                    # support retries or whatever so we issue a
+                    # critical log informing that it has been elevated
+                    # to critical and will force shutdown
+                    logging.critical("Worker error mode resiliency not supported at this time."
+                                     "Performing force shutdown and simulation ending.")
+
+                    self.force_shutdown()
+
+                    logging.critical("Shutdown complete.")
+                    raise SystemError("Exiting")
+
+                else:
+                    logging.critical("Unknown exception encountered.")
+
+                    self.force_shutdown()
+
+                    logging.critical("Shutdown complete.")
+
+                    raise SystemError("Exiting")
+
+
+            # attempt to get something off of the results queue
+            try:
+                result = self._result_queue.get_nowait()
+            except pyq.Empty:
+                pass
+
+            # if we get something handle it
+            else:
+
+                logging.info("Retrieved result {}: {}".format(n_results, result))
+                results.append(result)
+
+                # reduce the counter so we know when we are done
+                n_results -= 1
+
         # Wait for all of the tasks to finish
         self._task_queue.join()
 
+
+        # TODO remove when ready
         # workers_done = [worker.done for worker in self._workers]
 
         # if all(workers_done):
@@ -406,24 +545,18 @@ class WorkerMapper(ABCWorkerMapper):
         # forever, since nothing is there. ALternatively it is risky
         # to implement a wait timeout or no wait in case there is a
         # small wait time.
-        logging.info("Retrieving results")
+        # logging.info("Retrieving results")
 
-        n_results = num_tasks
-        results = []
-        while n_results > 0:
 
-            logging.info("trying to retrieve result: {}".format(n_results))
+        #     logging.info("trying to retrieve result: {}".format(n_results))
 
-            result = self._result_queue.get()
-            results.append(result)
+        #     result = self._result_queue.get()
 
-            logging.info("Retrieved result {}: {}".format(n_results, result))
 
-            n_results -= 1
 
-        logging.info("No more results")
+        # logging.info("No more results")
 
-        logging.info("Retrieved results")
+        # logging.info("Retrieved results")
 
         # sort the results according to their task_idx
         results.sort()
@@ -436,6 +569,36 @@ class WorkerMapper(ABCWorkerMapper):
 
         # then just return the values of the function
         return [result for task_idx, worker_idx, task_time, result in results]
+
+
+class ManagedProcess(mp.Process):
+
+    def __init__(self, exception_queue, *args, **kwargs):
+        mp.Process.__init__(self, *args, **kwargs)
+
+        self._exception_queue = exception_queue
+        self._exception = None
+        self._traceback = None
+
+
+    def run(self):
+
+        try:
+            # run the raw run call, which is not error handling
+            self._raw_run()
+        except Exception as exception:
+
+            # get the formatted traceback
+            tb = traceback.format_exc()
+
+            self._exception = exception
+            self._traceback = tb
+
+            # then put the exception and the traceback onto the queue
+            # so we can communicate back to the parent process
+            self._exception_queue.put((self.name, self.pid, exception))
+
+
 
 # same for the worker in terms of refactoring
 class Worker(mp.Process):
@@ -452,7 +615,9 @@ class Worker(mp.Process):
     """A string formatting template to identify worker processes in
     logs. The field will be filled with the worker index."""
 
-    def __init__(self, worker_idx, task_queue, result_queue, **kwargs):
+    def __init__(self, worker_idx,
+                 task_queue, result_queue, exception_queue,
+                 **kwargs):
         """Constructor for the Worker class.
 
         Parameters
@@ -471,14 +636,19 @@ class Worker(mp.Process):
         # call the Process constructor
         mp.Process.__init__(self, name=self.NAME_TEMPLATE.format(worker_idx))
 
+
+        self._exception_queue = exception_queue
+        self._exception = None
+        self._traceback = None
+
         self._worker_idx = worker_idx
 
         # set all the kwargs into an attributes dictionary
         self._attributes = kwargs
 
         # the queues for work to be done and work done
-        self.task_queue = task_queue
-        self.result_queue = result_queue
+        self._task_queue = task_queue
+        self._result_queue = result_queue
 
 
     @property
@@ -491,7 +661,128 @@ class Worker(mp.Process):
         """Dictionary of attributes of the worker."""
         return self._attributes
 
-    def run_task(self, task):
+    def run(self):
+
+        # try to run the worker and it's task, except either class of
+        # error that can come from it either from the worker
+        # (WorkerException) or the task (TaskException) and communicate it
+        # back to the main process
+
+        # if we get an exception there is some cleanup logic
+        run_exception = None
+
+        try:
+
+            # run the worker, which will retrieve its task from the
+            # queue attempt to run the task, and if it succeeds will
+            # put the results on the result queue, if the task fails
+            # it will catch it and wrap it as a task exception
+            self._run_worker()
+
+        except TaskException as task_exception:
+
+            run_exception = task_exception
+
+        # anything else is considered a WorkerException so take the
+        # original exception and generate a worker exception from that
+        except Exception as exception:
+
+            # get the traceback
+            tb = sys.exc_info()[2]
+
+            msg = "Exception '{}({})' caught in a worker.".format(
+                                   type(exception).__name__, exception)
+            traceback_log_msg = \
+                """Traceback:
+--------------------------------------------------------------------------------
+{}
+--------------------------------------------------------------------------------
+                """.format(''.join(traceback.format_exception(
+                    type(exception), exception, tb)),
+                )
+
+            logging.error(msg + '\n' + traceback_log_msg)
+
+            # raise a TaskError to distinguish it from the worker
+            # errors with the metadata about the original exception
+
+            worker_exception = WorkerException(
+                "Error occured during worker execution.",
+                wrapped_exception=exception,
+                tb=tb)
+
+            exception = worker_exception
+
+            # raise worker_exception
+
+
+        if run_exception is not None:
+
+            logging.debug("Putting exception on exception queue")
+            # then put the exception and the traceback onto the queue
+            # so we can communicate back to the parent process
+            self._exception_queue.put((self.name, self.pid, run_exception))
+
+            # then reraise the exception so it can be caught
+
+    def _run_worker(self):
+
+        # run the logic associated with communication and liveness of
+        # the worker process itself, this is not necessarily a fatal
+        # (critical) error and restarting a worker might resolve the
+        # problem. This calls the _run_task method though which is
+        # always critical since the logic in the code cannot be
+        # disputed
+
+        # TODO remove when confirmed that this works
+        # worker_process = mp.current_process()
+        logging.info("Worker process started as name: {}; PID: {}".format(self.name,
+                                                                          self.pid))
+
+        while True:
+
+            # get the next task
+            task_idx, next_task = self._task_queue.get()
+
+            # # check for the poison pill which is the signal to stop
+            if next_task is None:
+
+                logging.info('Worker: {}; received {} {}: FINISHED'.format(
+                    self.name, task_idx, next_task))
+
+                # TODO remove since we aren't using joinble queue anymore
+                # mark the poison pill task as done
+                #self.task_queue.task_done()
+
+                # and exit the loop
+                break
+
+            logging.info('Worker: {}; task_idx : {}; args : {} '.format(
+                self.name, task_idx, next_task.args))
+
+            # run the task
+            start = time.time()
+
+            answer = self._run_task(next_task)
+
+            end = time.time()
+            task_time = end - start
+
+            logging.info('Worker: {}; task_idx : {}; COMPLETED in {} s'.format(
+                self.name, task_idx, task_time))
+
+            # TODO remove since we aren't using joinble queue anymore
+            # (for joinable queue) tell the queue that the formerly
+            # enqued task is complete
+            # self.task_queue.task_done()
+
+            # put the results into the results queue with it's task
+            # index so we can sort them later
+            self._result_queue.put((task_idx, self.worker_idx, task_time, answer))
+
+
+
+    def _run_task(self, task):
         """Runs the given task and returns the results.
 
         Parameters
@@ -506,49 +797,31 @@ class Worker(mp.Process):
 
         """
 
-        return task()
+        try:
+            logging.info("Running task")
+            return task()
 
-    def run(self):
-        """Overriding method for Process. Starts this process."""
+        except Exception as task_exception:
 
-        worker_process = mp.current_process()
-        logging.info("Worker process started as name: {}; PID: {}".format(worker_process.name,
-                                                                          worker_process.pid))
+            # get the traceback for the exception
+            tb = sys.exc_info()[2]
 
-        while True:
+            msg = "Exception '{}({})' caught in a task.".format(
+                                   type(task_exception).__name__, task_exception)
+            traceback_log_msg = \
+                """Traceback:
+--------------------------------------------------------------------------------
+{}
+--------------------------------------------------------------------------------
+                """.format(''.join(traceback.format_exception(
+                    type(task_exception), task_exception, tb)),
+                )
 
-            # get the next task
-            task_idx, next_task = self.task_queue.get()
+            logging.critical(msg + '\n' + traceback_log_msg)
 
-            # # check for the poison pill which is the signal to stop
-            if next_task is None:
+            # raise a TaskException to distinguish it from the worker
+            # errors with the metadata about the original exception
 
-                logging.info('Worker: {}; received {} {}: FINISHED'.format(
-                    self.name, task_idx, next_task))
-
-                # mark the poison pill task as done
-                self.task_queue.task_done()
-
-                # and exit the loop
-                break
-
-            logging.info('Worker: {}; task_idx : {}; args : {} '.format(
-                self.name, task_idx, next_task.args))
-
-            # run the task
-            start = time.time()
-            answer = self.run_task(next_task)
-            end = time.time()
-            task_time = end - start
-
-            logging.info('Worker: {}; task_idx : {}; COMPLETED in {} s'.format(
-                self.name, task_idx, task_time))
-
-            # (for joinable queue) tell the queue that the formerly
-            # enqued task is complete
-            self.task_queue.task_done()
-
-            # put the results into the results queue with it's task
-            # index so we can sort them later
-            self.result_queue.put((task_idx, self.worker_idx, task_time, answer))
-
+            raise TaskException("Error occured during task execution, recovery not possible.",
+                            wrapped_exception=task_exception,
+                            tb=tb)
