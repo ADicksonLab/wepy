@@ -10,6 +10,7 @@ import traceback
 import time
 import logging
 from warnings import warn
+import signal
 
 PY_MAP = map
 
@@ -130,7 +131,38 @@ class Mapper(ABCMapper):
         results = []
         for arg_idx in range(len(args[0])):
             start = time.time()
-            result = self._func(*[arg[arg_idx] for arg in args])
+
+            # run the task, catch any errors and reraise as a
+            # TaskException to satisfy the pattern
+            try:
+
+                result = self._func(*[arg[arg_idx] for arg in args])
+
+            except Exception as task_exception:
+
+                # get the traceback for the exception
+                tb = sys.exc_info()[2]
+
+                msg = "Exception '{}({})' caught in a task.".format(
+                                       type(task_exception).__name__, task_exception)
+                traceback_log_msg = \
+                    """Traceback:
+--------------------------------------------------------------------------------
+{}
+--------------------------------------------------------------------------------
+                    """.format(''.join(traceback.format_exception(
+                        type(task_exception), task_exception, tb)),
+                    )
+
+                logging.critical(msg + '\n' + traceback_log_msg)
+
+                # raise a TaskException to distinguish it from the worker
+                # errors with the metadata about the original exception
+
+                raise TaskException("Error occured during task execution, recovery not possible.",
+                                wrapped_exception=task_exception,
+                                tb=tb)
+
             end = time.time()
             segment_time = end - start
             segment_times.append(segment_time)
@@ -200,9 +232,6 @@ class WrapperException(Exception):
 
 
 class TaskException(WrapperException):
-    pass
-
-class WorkerException(WrapperException):
     pass
 
 class ABCWorkerMapper(ABCMapper):
@@ -280,6 +309,17 @@ class ABCWorkerMapper(ABCMapper):
 
         """
         return Task(self._func, *args, **kwargs)
+
+
+# ----------------------------------
+# everything below this logically belongs in worker.py and should be imported from there
+
+
+class WorkerException(WrapperException):
+    pass
+
+class WorkerKilledError(ChildProcessError):
+    pass
 
 
 # TODO: move this class to the wepy.work_mapper.worker class where it
@@ -382,13 +422,29 @@ class WorkerMapper(ABCWorkerMapper):
         # results queue
         self._result_queue = manager.Queue()
 
+        # use pipes for communication channels between this parent
+        # process and the children for sending specific interrupts
+        # such as the signal to kill them. Note that the clean way to
+        # end the process is to send poison pills on the task queue,
+        # this is for other stuff. IRQ is a common abbreviation for
+        # interrupts
+        self._irq_parent_conns = []
+
         # Start workers, giving them all the queues
         self._workers = []
         for i in range(self.num_workers):
+
+            # make a pipe to communicate with this worker for the int
+            parent_conn, child_conn = mp.Pipe()
+            self._irq_parent_conns.append(parent_conn)
+
+            # create the worker giving it all of the communication
+            # channels
             worker = self.worker_type(i,
                                       self._task_queue,
                                       self._result_queue,
                                       self._exception_queue,
+                                      child_conn,
                                       **self._worker_attributes)
             self._workers.append(worker)
 
@@ -399,6 +455,16 @@ class WorkerMapper(ABCWorkerMapper):
             logging.info("Worker process started as name: {}; PID: {}".format(worker.name,
                                                                               worker.pid))
 
+        # now that we have started the processes register the handler
+        # for SIGTERM signals that will clean up our children cleanly
+        signal.signal(signal.SIGTERM, self._sigterm_shutdown)
+
+    def _sigterm_shutdown(self, signum, frame):
+
+        logging.critical("Received external SIGTERM, forcing shutdown.")
+
+        self.force_shutdown()
+
     def force_shutdown(self, **kwargs):
 
         logging.critical("Forcing shutdown")
@@ -408,7 +474,78 @@ class WorkerMapper(ABCWorkerMapper):
 
         # to do this we send the kill signals to them on the kill
         # channel.
-        pass
+
+        for worker_idx, worker in enumerate(self._workers):
+
+            logging.critical("Sending SIGTERM message on {} to worker {}".format(
+                self._irq_parent_conns[worker_idx].fileno(), worker_idx))
+
+            # send a kill message to the worker
+            self._irq_parent_conns[worker_idx].send(signal.SIGTERM)
+
+        logging.critical("All kill messages sent to workers")
+
+
+
+        # check that all have exited
+        alive_workers = [worker.is_alive() for worker in self._workers]
+        worker_acks = {}
+        worker_exitcodes = {}
+        premature_exit = False
+        while any(alive_workers) and not premature_exit:
+
+            for worker_idx, worker in enumerate(self._workers):
+
+                # ignore already known dead workers
+                if not alive_workers[worker_idx]:
+                    continue
+
+                if worker.is_alive():
+
+                    # if it is still alive and we have an ack from it
+                    # just terminate. There is a bug in the code and
+                    # is out of our control
+                    if worker_idx in worker_acks:
+                        logging.debug("Ack received from {} but has not shut down".format(worker.name))
+                        premature_exit = True
+
+                    # otherwise we need to try and receive the ack
+                    elif self._irq_parent_conns[worker_idx].poll(1):
+
+                        # receive the acknowledgement
+                        ack = self._irq_parent_conns[worker_idx].recv()
+
+                        logging.debug("Received {} acknowledgement from {}".format(ack,
+                                                                                   worker.name))
+
+                        # make sure the ack is affirmative
+                        if ack is True:
+                            worker_acks[worker_idx] = ack
+
+                        # if it is an exeption wrap it as a worker
+                        # error and use the os to kill the process
+                        elif issubclass(type(ack), Exception):
+
+                            # wrap it as a worker exception
+                            exception = WorkerException(wrapped_exception=ack)
+                            worker_acks[worker_idx] = exception
+
+                            logging.critical("{} not responding, terminating with SIGTERM".format(
+                                worker.name))
+
+                            worker.terminate()
+
+
+                else:
+                    alive_workers[worker_idx] = False
+                    worker_exitcodes[worker_idx] = worker.exitcode
+
+        if any(alive_workers):
+            logging.critical("Terminating main process with running workers {}".format(
+                ','.join([str(worker_idx) for worker_idx in range(len(self._workers))
+                          if alive_workers[worker_idx]])))
+
+
 
 
     def cleanup(self, **kwargs):
@@ -483,7 +620,7 @@ class WorkerMapper(ABCWorkerMapper):
                     self.force_shutdown()
 
                     logging.critical("Shutdown complete.")
-                    raise SystemError("Exiting")
+                    raise exception
 
                 elif type(exception) == WorkerException:
 
@@ -503,7 +640,7 @@ class WorkerMapper(ABCWorkerMapper):
                     self.force_shutdown()
 
                     logging.critical("Shutdown complete.")
-                    raise SystemError("Exiting")
+                    raise exception
 
                 else:
                     logging.critical("Unknown exception encountered.")
@@ -512,7 +649,7 @@ class WorkerMapper(ABCWorkerMapper):
 
                     logging.critical("Shutdown complete.")
 
-                    raise SystemError("Exiting")
+                    raise exception
 
 
             # attempt to get something off of the results queue
@@ -524,14 +661,14 @@ class WorkerMapper(ABCWorkerMapper):
             # if we get something handle it
             else:
 
-                logging.info("Retrieved result {}: {}".format(n_results, result))
+                logging.info("Retrieved result: {}".format(result))
                 results.append(result)
 
                 # reduce the counter so we know when we are done
                 n_results -= 1
 
         # Wait for all of the tasks to finish
-        self._task_queue.join()
+        #self._task_queue.join()
 
 
         # TODO remove when ready
@@ -571,35 +708,6 @@ class WorkerMapper(ABCWorkerMapper):
         return [result for task_idx, worker_idx, task_time, result in results]
 
 
-class ManagedProcess(mp.Process):
-
-    def __init__(self, exception_queue, *args, **kwargs):
-        mp.Process.__init__(self, *args, **kwargs)
-
-        self._exception_queue = exception_queue
-        self._exception = None
-        self._traceback = None
-
-
-    def run(self):
-
-        try:
-            # run the raw run call, which is not error handling
-            self._raw_run()
-        except Exception as exception:
-
-            # get the formatted traceback
-            tb = traceback.format_exc()
-
-            self._exception = exception
-            self._traceback = tb
-
-            # then put the exception and the traceback onto the queue
-            # so we can communicate back to the parent process
-            self._exception_queue.put((self.name, self.pid, exception))
-
-
-
 # same for the worker in terms of refactoring
 class Worker(mp.Process):
     """Worker process.
@@ -616,7 +724,8 @@ class Worker(mp.Process):
     logs. The field will be filled with the worker index."""
 
     def __init__(self, worker_idx,
-                 task_queue, result_queue, exception_queue,
+                 task_queue, result_queue,
+                 exception_queue, interrupt_connection,
                  **kwargs):
         """Constructor for the Worker class.
 
@@ -631,15 +740,24 @@ class Worker(mp.Process):
         result_queue : multiprocessing.Queue
             The shared queue that completed task results will be placed on.
 
+        interrupt_connection : multiprocessing.Connection
+            One end of a pipe to listen for messages specific to this worker.
+
         """
 
         # call the Process constructor
         mp.Process.__init__(self, name=self.NAME_TEMPLATE.format(worker_idx))
 
-
         self._exception_queue = exception_queue
         self._exception = None
         self._traceback = None
+
+        # the queue that will trigger a shutdown in the event of failure
+        self._irq_channel = interrupt_connection
+
+        # also register the SIGTERM signal handler for graceful
+        # shutdown with reporting to mapper
+        signal.signal(signal.SIGTERM, self._sigterm_shutdown)
 
         self._worker_idx = worker_idx
 
@@ -649,6 +767,8 @@ class Worker(mp.Process):
         # the queues for work to be done and work done
         self._task_queue = task_queue
         self._result_queue = result_queue
+
+        logging.debug("{} process created".format(self.name))
 
 
     @property
@@ -662,6 +782,8 @@ class Worker(mp.Process):
         return self._attributes
 
     def run(self):
+
+        logging.debug("{} starting to run".format(self.name))
 
         # try to run the worker and it's task, except either class of
         # error that can come from it either from the worker
@@ -681,11 +803,16 @@ class Worker(mp.Process):
 
         except TaskException as task_exception:
 
+            logging.error("{} TaskException caught".format(self.name))
+
             run_exception = task_exception
 
         # anything else is considered a WorkerException so take the
         # original exception and generate a worker exception from that
         except Exception as exception:
+
+            logging.debug("{} WorkerError caught".format(self.name))
+
 
             # get the traceback
             tb = sys.exc_info()[2]
@@ -711,19 +838,53 @@ class Worker(mp.Process):
                 wrapped_exception=exception,
                 tb=tb)
 
-            exception = worker_exception
+            run_exception = worker_exception
 
-            # raise worker_exception
-
-
+        # raise worker_exception
         if run_exception is not None:
 
             logging.debug("Putting exception on exception queue")
+
             # then put the exception and the traceback onto the queue
             # so we can communicate back to the parent process
-            self._exception_queue.put((self.name, self.pid, run_exception))
+            try:
+                self._exception_queue.put((self.name, self.pid, run_exception))
+            except BrokenPipeError as exc:
+                logging.error(
+                    "Pipe is broken indicating the root process has already exited:\n{}".format(
+                        exc))
 
+            # TODO: not sure if this is good or not
             # then reraise the exception so it can be caught
+            # raise run_exception
+
+    def _sigterm_shutdown(self, signum, frame):
+
+        logging.debug("Received external SIGTERM kill command.")
+
+        logging.debug("Alerting mapper that this will be honored.")
+
+        # send an error to the mapper that the worker has been killed
+        self._irq_channel.send(WorkerKilledWarning(
+            "{} (pid: {}) killed by external SIGTERM signal".format(self.name, self.pid)))
+
+        logging.debug("Acknowledgment sent")
+
+        logging.debug("Shutting down process")
+
+    def _shutdown(self):
+
+        logging.debug("Received SIGTERM kill command from mapper")
+
+        logging.debug("Acknowledging kill request will be honored")
+
+        # report back that we are shutting down with a True
+        self._irq_channel.send(True)
+
+        logging.debug("Acknowledgment sent")
+
+        logging.debug("Shutting down process")
+
 
     def _run_worker(self):
 
@@ -736,18 +897,57 @@ class Worker(mp.Process):
 
         # TODO remove when confirmed that this works
         # worker_process = mp.current_process()
-        logging.info("Worker process started as name: {}; PID: {}".format(self.name,
-                                                                          self.pid))
+        logging.info("{}: Worker process started as name: {}; PID: {}".format(
+            self.name, self.name, self.pid))
 
         while True:
 
+            # check to see if there is any signals in the interrupt channel
+            if self._irq_channel.poll():
+                # get the message
+                message = self._irq_channel.recv()
+
+                logging.debug("{}: Received message from mapper on filehandle {}: {}".format(
+                    self.name, self._irq_channel.fileno(), message))
+
+                # handle the message
+
+                # a None is a signal to kill the process
+                # unconditionally
+                if message is signal.SIGTERM:
+
+                    self._shutdown()
+
+                    # break from the event (while) loop and shut down
+                    break
+
+                # anything is not recognized and we will continue and
+                # report back that we don't recognize the message with
+                # a ValueError object
+                else:
+                    logging.error("{}: Message not recognized, continuing operations and"
+                                  " sending error to mapper".format(self.name))
+                    self._irq_channel.send(
+                        ValueError(
+                            "Message: {} not recognized continuing operations".format(
+                                message)))
+
             # get the next task
-            task_idx, next_task = self._task_queue.get()
+            try:
+                 task_idx, next_task = self._task_queue.get(block=False, timeout=None)
+
+                 logging.debug("{}: Got task {}".format(self.name, task_idx))
+
+            except pyq.Empty:
+
+                task_idx = None
+                next_task = Ellipsis
+
 
             # # check for the poison pill which is the signal to stop
             if next_task is None:
 
-                logging.info('Worker: {}; received {} {}: FINISHED'.format(
+                logging.info('{}: received {} {}: FINISHED'.format(
                     self.name, task_idx, next_task))
 
                 # TODO remove since we aren't using joinble queue anymore
@@ -757,30 +957,27 @@ class Worker(mp.Process):
                 # and exit the loop
                 break
 
-            logging.info('Worker: {}; task_idx : {}; args : {} '.format(
-                self.name, task_idx, next_task.args))
+            # only execute this if a task was actually receieved from
+            # the queue; an Ellipsis indicates continue the loop
+            elif next_task is not Ellipsis:
 
-            # run the task
-            start = time.time()
+                logging.info('{}; task_idx : {}; args : {} '.format(
+                    self.name, task_idx, next_task.args))
 
-            answer = self._run_task(next_task)
+                # run the task
+                start = time.time()
 
-            end = time.time()
-            task_time = end - start
+                answer = self._run_task(next_task)
 
-            logging.info('Worker: {}; task_idx : {}; COMPLETED in {} s'.format(
-                self.name, task_idx, task_time))
+                end = time.time()
+                task_time = end - start
 
-            # TODO remove since we aren't using joinble queue anymore
-            # (for joinable queue) tell the queue that the formerly
-            # enqued task is complete
-            # self.task_queue.task_done()
+                logging.info('{}: task_idx : {}; COMPLETED in {} s'.format(
+                    self.name, task_idx, task_time))
 
-            # put the results into the results queue with it's task
-            # index so we can sort them later
-            self._result_queue.put((task_idx, self.worker_idx, task_time, answer))
-
-
+                # put the results into the results queue with it's task
+                # index so we can sort them later
+                self._result_queue.put((task_idx, self.worker_idx, task_time, answer))
 
     def _run_task(self, task):
         """Runs the given task and returns the results.

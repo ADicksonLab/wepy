@@ -27,10 +27,12 @@ flake8
 tox
 coverage
 
+pytest-datadir
+
 # this is a customized datadir module I made since the off the shelf
-# one wasn't doing what i needed.
-#pytest-datadir
-git+https://github.com/salotz/pytest-datadir.git
+# one wasn't doing what i needed. Only need this when I need to share
+# the big data until that PR gets accepted
+#git+https://github.com/salotz/pytest-datadir.git
 
 # modules just for tests
 

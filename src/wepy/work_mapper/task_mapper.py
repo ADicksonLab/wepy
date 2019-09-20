@@ -3,7 +3,10 @@ import time
 import logging
 from warnings import warn
 
-from wepy.work_mapper.mapper import ABCWorkerMapper
+from wepy.work_mapper.mapper import ABCWorkerMapper, WrapperException, TaskException
+
+class TaskProcessException(WrapperException):
+    pass
 
 class TaskMapper(ABCWorkerMapper):
     """Process-per-task mapper.
