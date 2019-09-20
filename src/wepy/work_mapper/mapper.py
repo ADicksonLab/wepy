@@ -262,7 +262,6 @@ class ABCWorkerMapper(ABCMapper):
         if num_workers is not None:
             self._worker_segment_times = {i : [] for i in range(self.num_workers)}
 
-
     def init(self, num_workers=None, segment_func=None,
              **kwargs):
         """Runtime initialization and setting of function to map over walkers.
@@ -276,8 +275,7 @@ class ABCWorkerMapper(ABCMapper):
 
         """
 
-        # TODO add in after debugging the hanging part
-        #super().init(segment_func=segment_func)
+        super().init(segment_func=segment_func)
 
         # the number of workers must be given here or set as an object attribute
         if num_workers is None and self.num_workers is None:
@@ -286,8 +284,8 @@ class ABCWorkerMapper(ABCMapper):
         # if the number of walkers was given for this init() call use
         # that, otherwise we use the default that was specified when
         # the object was created
-        elif num_workers is None and self.num_workers is not None:
-            num_workers = self.num_workers
+        elif num_workers is not None and self.num_workers is None:
+            self._num_workers = num_workers
 
     @property
     def num_workers(self):
@@ -592,9 +590,9 @@ class WorkerMapper(ABCWorkerMapper):
         logging.info("Waiting for tasks to be run")
 
         # poll the exception and result queues for results
-        n_results = num_tasks
+        n_results_left = num_tasks
         results = []
-        while n_results > 0:
+        while n_results_left > 0:
 
             # first check if any errors came back but don't wait,
             # since the methods for querying whether it is empty or
@@ -665,35 +663,7 @@ class WorkerMapper(ABCWorkerMapper):
                 results.append(result)
 
                 # reduce the counter so we know when we are done
-                n_results -= 1
-
-        # Wait for all of the tasks to finish
-        #self._task_queue.join()
-
-
-        # TODO remove when ready
-        # workers_done = [worker.done for worker in self._workers]
-
-        # if all(workers_done):
-
-        # get the results out in an unordered way. We rely on the
-        # number of tasks we know we put out because if you just try
-        # to get from the queue until it is empty it will just wait
-        # forever, since nothing is there. ALternatively it is risky
-        # to implement a wait timeout or no wait in case there is a
-        # small wait time.
-        # logging.info("Retrieving results")
-
-
-        #     logging.info("trying to retrieve result: {}".format(n_results))
-
-        #     result = self._result_queue.get()
-
-
-
-        # logging.info("No more results")
-
-        # logging.info("Retrieved results")
+                n_results_left -= 1
 
         # sort the results according to their task_idx
         results.sort()
@@ -783,7 +753,7 @@ class Worker(mp.Process):
 
     def run(self):
 
-        logging.debug("{} starting to run".format(self.name))
+        logging.debug("{}: starting to run".format(self.name))
 
         # try to run the worker and it's task, except either class of
         # error that can come from it either from the worker
@@ -803,7 +773,7 @@ class Worker(mp.Process):
 
         except TaskException as task_exception:
 
-            logging.error("{} TaskException caught".format(self.name))
+            logging.error("{}: TaskException caught".format(self.name))
 
             run_exception = task_exception
 
@@ -811,7 +781,7 @@ class Worker(mp.Process):
         # original exception and generate a worker exception from that
         except Exception as exception:
 
-            logging.debug("{} WorkerError caught".format(self.name))
+            logging.debug("{}: WorkerError caught".format(self.name))
 
 
             # get the traceback
@@ -828,7 +798,7 @@ class Worker(mp.Process):
                     type(exception), exception, tb)),
                 )
 
-            logging.error(msg + '\n' + traceback_log_msg)
+            logging.error("{}:".format(self.name) + msg + '\n' + traceback_log_msg)
 
             # raise a TaskError to distinguish it from the worker
             # errors with the metadata about the original exception
@@ -843,7 +813,7 @@ class Worker(mp.Process):
         # raise worker_exception
         if run_exception is not None:
 
-            logging.debug("Putting exception on exception queue")
+            logging.debug("{}: Putting exception on exception queue".format(self.name))
 
             # then put the exception and the traceback onto the queue
             # so we can communicate back to the parent process
@@ -865,7 +835,7 @@ class Worker(mp.Process):
         logging.debug("Alerting mapper that this will be honored.")
 
         # send an error to the mapper that the worker has been killed
-        self._irq_channel.send(WorkerKilledWarning(
+        self._irq_channel.send(WorkerKilledError(
             "{} (pid: {}) killed by external SIGTERM signal".format(self.name, self.pid)))
 
         logging.debug("Acknowledgment sent")
@@ -994,8 +964,8 @@ class Worker(mp.Process):
 
         """
 
+        logging.info("Running task")
         try:
-            logging.info("Running task")
             return task()
 
         except Exception as task_exception:
