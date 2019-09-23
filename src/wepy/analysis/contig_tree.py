@@ -545,8 +545,13 @@ class BaseContigTree():
             # if there are discontinuities add them to the table if we asked for this
             if discontinuities:
                 discs = self.graph.node[(run_idx, cycle_idx)][self.DISCONTINUITY_KEY]
-                parent_idxs = [-1 if disc else p_idx
-                             for p_idx, disc in zip(parent_idxs, discs)]
+                for value in range(len(discs)):
+                    if discs[value] == -1:
+                        for parent in range(len(parent_idxs)):
+                            if parent_idxs[parent] == value:
+                                parent_idxs[parent] = -1
+                #parent_idxs = [-1 if disc else p_idx
+                #             for p_idx, disc in zip(parent_idxs, discs)]
 
             parent_table.append(parent_idxs)
 
@@ -1679,7 +1684,7 @@ class Contig(ContigTree):
         """Return full run traces for every warping event."""
 
         # get the parent table for the spanning contig
-        parent_table = self.parent_table()
+        parent_table = self.parent_tselable()
 
         warp_lineages = []
         # for each warping record
