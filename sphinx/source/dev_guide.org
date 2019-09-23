@@ -249,12 +249,29 @@ env PATH="$PREFIX/bin:$PATH" tox -r -e py37
 Where the `-r` option recreates it from scratch.
 
 
+*** Code Quality
 
 You can also lint the code with flake8:
 
 #+BEGIN_SRC bash
 flake8 src/wepy wepy-tests
 #+END_SRC
+
+And get reports on the complexity of our code:
+
+TODO
+
+*** Profiling
+
+We also have tests for profiling the performance sensitive parts of
+our code.
+
+You will need to install graphviz for this to get nice SVGs of the
+call graphs. On ubuntu and debian:
+
+#+begin_src bash
+  sudo apt install -y graphviz
+#+end_src
 
 *** Testing examples and tutorials
 

@@ -7,8 +7,11 @@ SHELL = "/bin/bash"
 ENV = "wepy-dev"
 CONDA = "${CONDA_EXE}"
 
-CONDA_DEPS = ['pandoc']
+CONDA_DEPS = ['pandoc', 'graphviz']
 OMNIA_DEPS = ['openmm']
+
+BENCHMARK_STORAGE_URL="./metrics/benchmarks"
+BENCHMARK_STORAGE_URI="\"file://{}\"".format(BENCHMARK_STORAGE_URL)
 
 @task
 def deps_dev(ctx):
@@ -50,10 +53,10 @@ def inc_version(ctx, level='patch'):
 
 
 @task
-def clean_build(ctx):
+def clean_dist(ctx):
     """Remove all build products."""
 
-    ctx.run("rm -rf dist")
+    ctx.run("rm -rf dist build */*.egg-info *.egg-info")
 
 @task
 def clean_cache(ctx):
@@ -122,3 +125,53 @@ def tests_tox(ctx):
 def lint(ctx):
 
     ctx.run("flake8 src/wepy")
+
+@task
+def complexity(ctx):
+    """Analyze the complexity of the project."""
+
+    ctx.run("lizard -o metrics/code_quality/lizard.csv src/wepy")
+    ctx.run("lizard -o metrics/code_quality/lizard.html src/wepy")
+
+    # make a cute word cloud of the things used
+    ctx.run("(cd metrics/code_quality; lizard -EWordCount src/wepy > /dev/null)")
+
+@task
+def profile(ctx):
+    NotImplemented
+
+@task
+def benchmark_adhoc(ctx):
+    """An ad hoc benchmark that will not be saved."""
+
+    ctx.run("pytest wepy-tests/tests/test_benchmarks")
+
+@task
+def benchmark_save(ctx):
+    """Run a proper benchmark that will be saved into the metrics for regression testing etc."""
+
+    run_command = \
+"""pytest --benchmark-autosave --benchmark-save-data \
+          --benchmark-storage={storage} \
+          wepy-tests/tests/test_benchmarks
+""".format(BENCHMARK_STORAGE_URI)
+
+    ctx.run(run_command)
+
+@task
+def benchmark_compare(ctx):
+
+    # TODO logic for comparing across the last two
+
+    run_command = \
+"""pytest-benchmark \
+                    --storage {storage} \
+                    compare 'Linux-CPython-3.6-64bit/*' \
+                    --csv=\"{csv}\" \
+                    > {output}
+""".format(storage=BENCHMARK_STORAGE_URI,
+           csv="{}/Linux-CPython-3.6-64bit/comparison.csv".format(BENCHMARK_STORAGE_URL),
+           output="{}/Linux-CPython-3.6-64bit/report.pytest.txt".format(BENCHMARK_STORAGE_URL),
+)
+
+    ctx.run(run_command)

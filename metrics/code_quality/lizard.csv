@@ -1,0 +1,880 @@
+5,1,20,5,5,"__init__@24-28@src/wepy/reporter/wexplore/image.py","src/wepy/reporter/wexplore/image.py","__init__","__init__( self , init_image = None , image_atom_idxs = None , json_topology = None , ** kwargs )",24,28
+10,2,81,2,21,"init@75-95@src/wepy/reporter/wexplore/image.py","src/wepy/reporter/wexplore/image.py","init","init( self , ** kwargs )",75,95
+2,1,16,4,2,"report@97-98@src/wepy/reporter/wexplore/image.py","src/wepy/reporter/wexplore/image.py","report","report( self , cycle_idx = None , resampler_data = None , ** kwargs )",97,98
+6,1,22,6,6,"__init__@47-52@src/wepy/reporter/wexplore/dashboard.py","src/wepy/reporter/wexplore/dashboard.py","__init__","__init__( self , step_time = None , max_n_regions = None , max_region_sizes = None , bc_cutoff_distance = None , ** kwargs",47,52
+43,13,326,4,99,"_update_resampler_values@106-204@src/wepy/reporter/wexplore/dashboard.py","src/wepy/reporter/wexplore/dashboard.py","_update_resampler_values","_update_resampler_values( self , cycle_idx , resampling_data , resampler_data )",106,204
+9,1,63,1,12,"_walker_table_string@206-217@src/wepy/reporter/wexplore/dashboard.py","src/wepy/reporter/wexplore/dashboard.py","_walker_table_string","_walker_table_string( self )",206,217
+8,3,60,2,22,"leaf_regions_to_all_regions@221-242@src/wepy/reporter/wexplore/dashboard.py","src/wepy/reporter/wexplore/dashboard.py","leaf_regions_to_all_regions","leaf_regions_to_all_regions( self , region_ids )",221,242
+26,5,235,1,37,"_resampler_string@244-280@src/wepy/reporter/wexplore/dashboard.py","src/wepy/reporter/wexplore/dashboard.py","_resampler_string","_resampler_string( self )",244,280
+7,1,26,7,7,"__init__@34-40@src/wepy/reporter/revo/dashboard.py","src/wepy/reporter/revo/dashboard.py","__init__","__init__( self , dist_exponent = None , merge_dist = None , char_dist = None , step_time = None , bc_cutoff_distance = None , ** kwargs",34,40
+20,5,173,4,45,"_update_resampler_values@89-133@src/wepy/reporter/revo/dashboard.py","src/wepy/reporter/revo/dashboard.py","_update_resampler_values","_update_resampler_values( self , cycle_idx , resampling_data , resampler_data )",89,133
+14,1,75,1,16,"_resampler_string@135-150@src/wepy/reporter/revo/dashboard.py","src/wepy/reporter/revo/dashboard.py","_resampler_string","_resampler_string( self )",135,150
+10,1,40,10,10,"__init__@38-47@src/wepy/reporter/restree.py","src/wepy/reporter/restree.py","__init__","__init__( self , resampler = None , boundary_condition = None , row_spacing = None , step_spacing = None , default_node_radius = None , progress_key = None , max_progress_value = None , colormap_name = 'plasma' , ** kwargs )",38,47
+2,1,10,1,3,"parent_table@152-154@src/wepy/reporter/restree.py","src/wepy/reporter/restree.py","parent_table","parent_table( self )",152,154
+8,1,58,3,29,"_make_resampling_record@156-184@src/wepy/reporter/restree.py","src/wepy/reporter/restree.py","_make_resampling_record","_make_resampling_record( self , record_d , cycle_idx )",156,184
+8,1,58,3,27,"_make_warping_record@186-212@src/wepy/reporter/restree.py","src/wepy/reporter/restree.py","_make_warping_record","_make_warping_record( self , record_d , cycle_idx )",186,212
+2,1,15,6,2,"_make_record@216-217@src/wepy/reporter/restree.py","src/wepy/reporter/restree.py","_make_record","_make_record( record_d , cycle_idx , record_field_names , field_names , field_shapes , rec_namedtuple )",216,217
+6,1,28,7,6,"report@293-298@src/wepy/reporter/restree.py","src/wepy/reporter/restree.py","report","report( self , cycle_idx = None , resampled_walkers = None , warp_data = None , progress_data = None , resampling_data = None , ** kwargs )",293,298
+4,1,14,4,4,"__init__@74-77@src/wepy/reporter/dashboard.py","src/wepy/reporter/dashboard.py","__init__","__init__( self , step_time = None , bc_cutoff_distance = None , ** kwargs",74,77
+12,1,52,13,12,"report@159-170@src/wepy/reporter/dashboard.py","src/wepy/reporter/dashboard.py","report","report( self , cycle_idx = None , n_segment_steps = None , new_walkers = None , warp_data = None , progress_data = None , resampling_data = None , resampler_data = None , worker_segment_times = None , cycle_runner_time = None , cycle_bc_time = None , cycle_resampling_time = None , ** kwargs )",159,170
+8,2,60,4,35,"_update_weighted_ensemble_values@232-266@src/wepy/reporter/dashboard.py","src/wepy/reporter/dashboard.py","_update_weighted_ensemble_values","_update_weighted_ensemble_values( self , cycle_idx , n_steps , walkers )",232,266
+16,3,145,3,44,"_update_warp_values@269-312@src/wepy/reporter/dashboard.py","src/wepy/reporter/dashboard.py","_update_warp_values","_update_warp_values( self , cycle_idx , warp_data )",269,312
+2,1,21,3,15,"_update_progress_values@315-329@src/wepy/reporter/dashboard.py","src/wepy/reporter/dashboard.py","_update_progress_values","_update_progress_values( self , cycle_idx , progress_data )",315,329
+2,1,17,7,2,"_update_performance_values@332-333@src/wepy/reporter/dashboard.py","src/wepy/reporter/dashboard.py","_update_performance_values","_update_performance_values( self , cycle_idx , n_steps , worker_segment_times , cycle_runner_time , cycle_bc_time , cycle_resampling_time )",332,333
+3,1,11,4,3,"_update_resampler_values@406-408@src/wepy/reporter/dashboard.py","src/wepy/reporter/dashboard.py","_update_resampler_values","_update_resampler_values( self , cycle_idx , resampling_data , resampler_data )",406,408
+12,1,70,1,13,"_weighted_ensemble_string@411-423@src/wepy/reporter/dashboard.py","src/wepy/reporter/dashboard.py","_weighted_ensemble_string","_weighted_ensemble_string( self )",411,423
+2,1,6,1,2,"_resampler_string@425-426@src/wepy/reporter/dashboard.py","src/wepy/reporter/dashboard.py","_resampler_string","_resampler_string( self )",425,426
+14,1,91,1,15,"_boundary_conditions_string@429-443@src/wepy/reporter/dashboard.py","src/wepy/reporter/dashboard.py","_boundary_conditions_string","_boundary_conditions_string( self )",429,443
+23,1,147,1,31,"_performance_string@445-475@src/wepy/reporter/dashboard.py","src/wepy/reporter/dashboard.py","_performance_string","_performance_string( self )",445,475
+12,1,60,1,16,"dashboard_string@477-492@src/wepy/reporter/dashboard.py","src/wepy/reporter/dashboard.py","dashboard_string","dashboard_string( self )",477,492
+3,1,32,1,5,"write_dashboard@495-499@src/wepy/reporter/dashboard.py","src/wepy/reporter/dashboard.py","write_dashboard","write_dashboard( self )",495,499
+5,1,22,6,5,"__init__@52-56@src/wepy/reporter/walker.py","src/wepy/reporter/walker.py","__init__","__init__( self , * , init_state = None , json_topology = None , main_rep_idxs = None , ** kwargs )",52,56
+9,1,79,2,22,"init@93-114@src/wepy/reporter/walker.py","src/wepy/reporter/walker.py","init","init( self , ** kwargs )",93,114
+2,1,16,4,2,"report@116-117@src/wepy/reporter/walker.py","src/wepy/reporter/walker.py","report","report( self , cycle_idx = None , new_walkers = None , ** kwargs )",116,117
+2,1,10,2,13,"__init__@24-36@src/wepy/reporter/reporter.py","src/wepy/reporter/reporter.py","__init__","__init__( self , ** kwargs )",24,36
+4,1,30,2,42,"init@38-79@src/wepy/reporter/reporter.py","src/wepy/reporter/reporter.py","init","init( self , ** kwargs )",38,79
+4,1,30,2,63,"report@81-143@src/wepy/reporter/reporter.py","src/wepy/reporter/reporter.py","report","report( self , ** kwargs )",81,143
+4,1,30,2,33,"cleanup@145-177@src/wepy/reporter/reporter.py","src/wepy/reporter/reporter.py","cleanup","cleanup( self , ** kwargs )",145,177
+3,1,24,6,3,"__init__@251-253@src/wepy/reporter/reporter.py","src/wepy/reporter/reporter.py","__init__","__init__( self , file_paths = None , modes = None , file_path = None , mode = None , ** kwargs )",251,253
+5,2,21,2,16,"_validate_mode@379-394@src/wepy/reporter/reporter.py","src/wepy/reporter/reporter.py","_validate_mode","_validate_mode( self , mode )",379,394
+4,2,28,1,6,"mode@397-402@src/wepy/reporter/reporter.py","src/wepy/reporter/reporter.py","mode","mode( self )",397,402
+4,2,28,1,6,"file_path@405-410@src/wepy/reporter/reporter.py","src/wepy/reporter/reporter.py","file_path","file_path( self )",405,410
+2,1,10,1,3,"file_paths@413-415@src/wepy/reporter/reporter.py","src/wepy/reporter/reporter.py","file_paths","file_paths( self )",413,415
+3,2,26,2,10,"file_paths@418-427@src/wepy/reporter/reporter.py","src/wepy/reporter/reporter.py","file_paths","file_paths( self , file_paths )",418,427
+2,1,18,3,12,"set_path@429-440@src/wepy/reporter/reporter.py","src/wepy/reporter/reporter.py","set_path","set_path( self , file_idx , path )",429,440
+2,1,10,1,3,"modes@443-445@src/wepy/reporter/reporter.py","src/wepy/reporter/reporter.py","modes","modes( self )",443,445
+3,2,26,2,10,"modes@448-457@src/wepy/reporter/reporter.py","src/wepy/reporter/reporter.py","modes","modes( self , modes )",448,457
+5,2,38,3,16,"set_mode@459-474@src/wepy/reporter/reporter.py","src/wepy/reporter/reporter.py","set_mode","set_mode( self , file_idx , mode )",459,474
+3,1,20,3,14,"reparametrize@477-490@src/wepy/reporter/reporter.py","src/wepy/reporter/reporter.py","reparametrize","reparametrize( self , file_paths , modes )",477,490
+8,4,73,2,50,"init@499-548@src/wepy/reporter/reporter.py","src/wepy/reporter/reporter.py","init","init( self , ** kwargs )",499,548
+26,1,104,26,37,"__init__@39-75@src/wepy/reporter/hdf5.py","src/wepy/reporter/hdf5.py","__init__","__init__( self , save_fields = None , topology = None , units = None , sparse_fields = None , feature_shapes = None , feature_dtypes = None , n_dims = None , main_rep_idxs = None , all_atoms_rep_freq = None , alt_reps = None , resampler = None , boundary_conditions = None , resampling_fields = None , decision_enum_dict = None , resampler_fields = None , warping_fields = None , progress_fields = None , bc_fields = None , resampling_records = None , resampler_records = None , warping_records = None , bc_records = None , progress_records = None , swmr_mode = False , ** kwargs )",39,75
+3,1,16,4,3,"init@343-345@src/wepy/reporter/hdf5.py","src/wepy/reporter/hdf5.py","init","init( self , continue_run = None , init_walkers = None , ** kwargs )",343,345
+5,2,36,2,10,"cleanup@449-458@src/wepy/reporter/hdf5.py","src/wepy/reporter/hdf5.py","cleanup","cleanup( self , ** kwargs )",449,458
+8,1,36,9,8,"report@461-468@src/wepy/reporter/hdf5.py","src/wepy/reporter/hdf5.py","report","report( self , new_walkers = None , cycle_idx = None , warp_data = None , bc_data = None , progress_data = None , resampling_data = None , resampler_data = None , ** kwargs )",461,468
+3,2,32,3,15,"_report_warping@588-602@src/wepy/reporter/hdf5.py","src/wepy/reporter/hdf5.py","_report_warping","_report_warping( self , cycle_idx , warping_data )",588,602
+3,2,32,3,15,"_report_bc@604-618@src/wepy/reporter/hdf5.py","src/wepy/reporter/hdf5.py","_report_bc","_report_bc( self , cycle_idx , bc_data )",604,618
+3,2,32,3,15,"_report_resampler@620-634@src/wepy/reporter/hdf5.py","src/wepy/reporter/hdf5.py","_report_resampler","_report_resampler( self , cycle_idx , resampler_data )",620,634
+2,1,24,3,14,"_report_resampling@638-651@src/wepy/reporter/hdf5.py","src/wepy/reporter/hdf5.py","_report_resampling","_report_resampling( self , cycle_idx , resampling_data )",638,651
+2,1,26,3,14,"_report_progress@654-667@src/wepy/reporter/hdf5.py","src/wepy/reporter/hdf5.py","_report_progress","_report_progress( self , cycle_idx , progress_data )",654,667
+5,1,36,5,32,"__init__@107-138@src/wepy/runners/openmm.py","src/wepy/runners/openmm.py","__init__","__init__( self , system , topology , integrator , platform = None )",107,138
+2,1,16,1,10,"_openmm_swig_objects@141-150@src/wepy/runners/openmm.py","src/wepy/runners/openmm.py","_openmm_swig_objects","_openmm_swig_objects( self )",141,150
+2,1,17,5,2,"run_segment@152-153@src/wepy/runners/openmm.py","src/wepy/runners/openmm.py","run_segment","run_segment( self , walker , segment_length , getState_kwargs = None , platform_kwargs = None )",152,153
+4,1,33,5,48,"generate_state@263-310@src/wepy/runners/openmm.py","src/wepy/runners/openmm.py","generate_state","generate_state( self , simulation , segment_length , starting_walker , getState_kwargs )",263,310
+11,3,84,3,38,"__init__@332-369@src/wepy/runners/openmm.py","src/wepy/runners/openmm.py","__init__","__init__( self , sim_state , ** kwargs )",332,369
+2,1,10,1,3,"sim_state@372-374@src/wepy/runners/openmm.py","src/wepy/runners/openmm.py","sim_state","sim_state( self )",372,374
+36,16,210,2,52,"__getitem__@376-427@src/wepy/runners/openmm.py","src/wepy/runners/openmm.py","__getitem__","__getitem__( self , key )",376,427
+7,2,28,1,8,"positions@433-440@src/wepy/runners/openmm.py","src/wepy/runners/openmm.py","positions","positions( self )",433,440
+2,1,12,1,3,"positions_unit@443-445@src/wepy/runners/openmm.py","src/wepy/runners/openmm.py","positions_unit","positions_unit( self )",443,445
+2,1,17,1,7,"positions_values@447-453@src/wepy/runners/openmm.py","src/wepy/runners/openmm.py","positions_values","positions_values( self )",447,453
+7,2,28,1,8,"velocities@457-464@src/wepy/runners/openmm.py","src/wepy/runners/openmm.py","velocities","velocities( self )",457,464
+2,1,12,1,3,"velocities_unit@467-469@src/wepy/runners/openmm.py","src/wepy/runners/openmm.py","velocities_unit","velocities_unit( self )",467,469
+6,2,31,1,12,"velocities_values@471-482@src/wepy/runners/openmm.py","src/wepy/runners/openmm.py","velocities_values","velocities_values( self )",471,482
+7,2,28,1,8,"forces@486-493@src/wepy/runners/openmm.py","src/wepy/runners/openmm.py","forces","forces( self )",486,493
+2,1,12,1,3,"forces_unit@496-498@src/wepy/runners/openmm.py","src/wepy/runners/openmm.py","forces_unit","forces_unit( self )",496,498
+6,2,31,1,12,"forces_values@500-511@src/wepy/runners/openmm.py","src/wepy/runners/openmm.py","forces_values","forces_values( self )",500,511
+7,2,28,1,8,"box_vectors@515-522@src/wepy/runners/openmm.py","src/wepy/runners/openmm.py","box_vectors","box_vectors( self )",515,522
+2,1,12,1,3,"box_vectors_unit@525-527@src/wepy/runners/openmm.py","src/wepy/runners/openmm.py","box_vectors_unit","box_vectors_unit( self )",525,527
+6,2,31,1,12,"box_vectors_values@529-540@src/wepy/runners/openmm.py","src/wepy/runners/openmm.py","box_vectors_values","box_vectors_values( self )",529,540
+7,2,25,1,8,"kinetic_energy@547-554@src/wepy/runners/openmm.py","src/wepy/runners/openmm.py","kinetic_energy","kinetic_energy( self )",547,554
+2,1,12,1,3,"kinetic_energy_unit@557-559@src/wepy/runners/openmm.py","src/wepy/runners/openmm.py","kinetic_energy_unit","kinetic_energy_unit( self )",557,559
+6,2,38,1,12,"kinetic_energy_value@561-572@src/wepy/runners/openmm.py","src/wepy/runners/openmm.py","kinetic_energy_value","kinetic_energy_value( self )",561,572
+7,2,25,1,8,"potential_energy@576-583@src/wepy/runners/openmm.py","src/wepy/runners/openmm.py","potential_energy","potential_energy( self )",576,583
+2,1,12,1,3,"potential_energy_unit@586-588@src/wepy/runners/openmm.py","src/wepy/runners/openmm.py","potential_energy_unit","potential_energy_unit( self )",586,588
+6,2,38,1,12,"potential_energy_value@590-601@src/wepy/runners/openmm.py","src/wepy/runners/openmm.py","potential_energy_value","potential_energy_value( self )",590,601
+7,2,25,1,8,"time@605-612@src/wepy/runners/openmm.py","src/wepy/runners/openmm.py","time","time( self )",605,612
+2,1,12,1,3,"time_unit@615-617@src/wepy/runners/openmm.py","src/wepy/runners/openmm.py","time_unit","time_unit( self )",615,617
+6,2,38,1,12,"time_value@619-630@src/wepy/runners/openmm.py","src/wepy/runners/openmm.py","time_value","time_value( self )",619,630
+7,2,25,1,8,"box_volume@634-641@src/wepy/runners/openmm.py","src/wepy/runners/openmm.py","box_volume","box_volume( self )",634,641
+2,1,12,1,3,"box_volume_unit@644-646@src/wepy/runners/openmm.py","src/wepy/runners/openmm.py","box_volume_unit","box_volume_unit( self )",644,646
+6,2,38,1,12,"box_volume_value@648-659@src/wepy/runners/openmm.py","src/wepy/runners/openmm.py","box_volume_value","box_volume_value( self )",648,659
+7,2,25,1,13,"parameters@666-678@src/wepy/runners/openmm.py","src/wepy/runners/openmm.py","parameters","parameters( self )",666,678
+3,2,27,1,8,"parameters_unit@681-688@src/wepy/runners/openmm.py","src/wepy/runners/openmm.py","parameters_unit","parameters_unit( self )",681,688
+9,4,53,1,22,"parameters_values@690-711@src/wepy/runners/openmm.py","src/wepy/runners/openmm.py","parameters_values","parameters_values( self )",690,711
+7,2,25,1,13,"parameter_derivatives@715-727@src/wepy/runners/openmm.py","src/wepy/runners/openmm.py","parameter_derivatives","parameter_derivatives( self )",715,727
+3,2,27,1,9,"parameter_derivatives_unit@730-738@src/wepy/runners/openmm.py","src/wepy/runners/openmm.py","parameter_derivatives_unit","parameter_derivatives_unit( self )",730,738
+9,4,53,1,23,"parameter_derivatives_values@740-762@src/wepy/runners/openmm.py","src/wepy/runners/openmm.py","parameter_derivatives_values","parameter_derivatives_values( self )",740,762
+12,4,84,3,35,"_dict_attr_to_compound_key_dict@766-800@src/wepy/runners/openmm.py","src/wepy/runners/openmm.py","_dict_attr_to_compound_key_dict","_dict_attr_to_compound_key_dict( self , root_key , attr_dict )",766,800
+12,6,109,3,42,"_get_nested_attr_from_compound_key@802-843@src/wepy/runners/openmm.py","src/wepy/runners/openmm.py","_get_nested_attr_from_compound_key","_get_nested_attr_from_compound_key( self , compound_key , compound_feat_dict )",802,843
+6,2,31,1,10,"parameters_features@845-854@src/wepy/runners/openmm.py","src/wepy/runners/openmm.py","parameters_features","parameters_features( self )",845,854
+7,2,31,1,11,"parameter_derivatives_features@856-866@src/wepy/runners/openmm.py","src/wepy/runners/openmm.py","parameter_derivatives_features","parameter_derivatives_features( self )",856,866
+17,3,114,1,22,"omm_state_dict@868-889@src/wepy/runners/openmm.py","src/wepy/runners/openmm.py","omm_state_dict","omm_state_dict( self )",868,889
+7,3,51,1,9,"dict@891-899@src/wepy/runners/openmm.py","src/wepy/runners/openmm.py","dict","dict( self )",891,899
+7,1,56,2,21,"to_mdtraj@901-921@src/wepy/runners/openmm.py","src/wepy/runners/openmm.py","to_mdtraj","to_mdtraj( self , topology )",901,921
+5,1,43,3,29,"gen_sim_state@923-951@src/wepy/runners/openmm.py","src/wepy/runners/openmm.py","gen_sim_state","gen_sim_state( positions , system , integrator )",923,951
+3,1,25,3,24,"gen_walker_state@953-976@src/wepy/runners/openmm.py","src/wepy/runners/openmm.py","gen_walker_state","gen_walker_state( positions , system , integrator )",953,976
+4,1,37,3,7,"__init__@987-993@src/wepy/runners/openmm.py","src/wepy/runners/openmm.py","__init__","__init__( self , state , weight )",987,993
+3,1,37,6,4,"__init__@1011-1014@src/wepy/runners/openmm.py","src/wepy/runners/openmm.py","__init__","__init__( self , worker_idx , task_queue , result_queue , num_threads = 1 , ** kwargs )",1011,1014
+3,1,26,2,9,"run_task@1016-1024@src/wepy/runners/openmm.py","src/wepy/runners/openmm.py","run_task","run_task( self , task )",1016,1024
+4,1,34,2,11,"run_task@1042-1052@src/wepy/runners/openmm.py","src/wepy/runners/openmm.py","run_task","run_task( self , task )",1042,1052
+4,1,30,2,8,"run_task@1061-1068@src/wepy/runners/openmm.py","src/wepy/runners/openmm.py","run_task","run_task( self , task )",1061,1068
+4,1,35,2,9,"run_task@1075-1083@src/wepy/runners/openmm.py","src/wepy/runners/openmm.py","run_task","run_task( self , task )",1075,1083
+2,1,10,2,15,"pre_cycle@25-39@src/wepy/runners/runner.py","src/wepy/runners/runner.py","pre_cycle","pre_cycle( self , ** kwargs )",25,39
+2,1,10,2,15,"post_cycle@41-55@src/wepy/runners/runner.py","src/wepy/runners/runner.py","post_cycle","post_cycle( self , ** kwargs )",41,55
+2,1,15,4,18,"run_segment@57-74@src/wepy/runners/runner.py","src/wepy/runners/runner.py","run_segment","run_segment( self , walker , segment_length , ** kwargs )",57,74
+2,1,11,3,3,"run_segment@82-84@src/wepy/runners/runner.py","src/wepy/runners/runner.py","run_segment","run_segment( self , walker , segment_length )",82,84
+3,1,26,3,14,"__init__@25-38@src/wepy/runners/randomwalk.py","src/wepy/runners/randomwalk.py","__init__","__init__( self , dimension = 2 , probability = 0 . 25 )",25,38
+2,1,10,1,3,"dimension@42-44@src/wepy/runners/randomwalk.py","src/wepy/runners/randomwalk.py","dimension","dimension( self )",42,44
+2,1,10,1,3,"probability@48-50@src/wepy/runners/randomwalk.py","src/wepy/runners/randomwalk.py","probability","probability( self )",48,50
+11,4,84,2,38,"_walk@53-90@src/wepy/runners/randomwalk.py","src/wepy/runners/randomwalk.py","_walk","_walk( self , positions )",53,90
+8,2,62,3,15,"run_segment@92-106@src/wepy/runners/randomwalk.py","src/wepy/runners/randomwalk.py","run_segment","run_segment( self , walker , segment_length )",92,106
+2,1,9,1,2,"default_decision@90-91@src/wepy/resampling/decisions/decision.py","src/wepy/resampling/decisions/decision.py","default_decision","default_decision( cls )",90,91
+2,1,10,1,3,"field_names@94-96@src/wepy/resampling/decisions/decision.py","src/wepy/resampling/decisions/decision.py","field_names","field_names( cls )",94,96
+2,1,10,1,3,"field_shapes@99-101@src/wepy/resampling/decisions/decision.py","src/wepy/resampling/decisions/decision.py","field_shapes","field_shapes( cls )",99,101
+2,1,10,1,3,"field_dtypes@104-106@src/wepy/resampling/decisions/decision.py","src/wepy/resampling/decisions/decision.py","field_dtypes","field_dtypes( cls )",104,106
+4,1,30,1,13,"fields@109-121@src/wepy/resampling/decisions/decision.py","src/wepy/resampling/decisions/decision.py","fields","fields( cls )",109,121
+2,1,10,1,3,"record_field_names@124-126@src/wepy/resampling/decisions/decision.py","src/wepy/resampling/decisions/decision.py","record_field_names","record_field_names( cls )",124,126
+7,3,38,1,9,"enum_dict_by_name@129-137@src/wepy/resampling/decisions/decision.py","src/wepy/resampling/decisions/decision.py","enum_dict_by_name","enum_dict_by_name( cls )",129,137
+7,3,36,1,10,"enum_dict_by_value@140-149@src/wepy/resampling/decisions/decision.py","src/wepy/resampling/decisions/decision.py","enum_dict_by_value","enum_dict_by_value( cls )",140,149
+3,1,20,2,14,"enum_by_value@152-165@src/wepy/resampling/decisions/decision.py","src/wepy/resampling/decisions/decision.py","enum_by_value","enum_by_value( cls , enum_value )",152,165
+3,1,20,2,15,"enum_by_name@168-182@src/wepy/resampling/decisions/decision.py","src/wepy/resampling/decisions/decision.py","enum_by_name","enum_by_name( cls , enum_name )",168,182
+9,2,65,3,24,"record@186-209@src/wepy/resampling/decisions/decision.py","src/wepy/resampling/decisions/decision.py","record","record( cls , enum_value , ** fields )",186,209
+2,1,12,3,36,"action@212-247@src/wepy/resampling/decisions/decision.py","src/wepy/resampling/decisions/decision.py","action","action( cls , walkers , decisions )",212,247
+8,5,62,2,34,"parents@250-283@src/wepy/resampling/decisions/decision.py","src/wepy/resampling/decisions/decision.py","parents","parents( cls , step )",250,283
+10,5,89,3,22,"action@311-332@src/wepy/resampling/decisions/decision.py","src/wepy/resampling/decisions/decision.py","action","action( cls , walkers , decisions )",311,332
+4,1,27,3,5,"record@80-84@src/wepy/resampling/decisions/clone_merge.py","src/wepy/resampling/decisions/clone_merge.py","record","record( cls , enum_value , target_idxs )",80,84
+38,17,330,3,96,"action@87-182@src/wepy/resampling/decisions/clone_merge.py","src/wepy/resampling/decisions/clone_merge.py","action","action( cls , walkers , decisions )",87,182
+2,1,7,1,3,"__init__@30-32@src/wepy/resampling/distances/distance.py","src/wepy/resampling/distances/distance.py","__init__","__init__( self )",30,32
+2,1,10,2,22,"image@34-55@src/wepy/resampling/distances/distance.py","src/wepy/resampling/distances/distance.py","image","image( self , state )",34,55
+2,1,12,3,22,"image_distance@57-78@src/wepy/resampling/distances/distance.py","src/wepy/resampling/distances/distance.py","image_distance","image_distance( self , image_a , image_b )",57,78
+3,1,29,3,20,"distance@80-99@src/wepy/resampling/distances/distance.py","src/wepy/resampling/distances/distance.py","distance","distance( self , state_a , state_b )",80,99
+2,1,24,2,3,"image@110-112@src/wepy/resampling/distances/distance.py","src/wepy/resampling/distances/distance.py","image","image( self , state )",110,112
+3,1,42,3,4,"image_distance@115-118@src/wepy/resampling/distances/distance.py","src/wepy/resampling/distances/distance.py","image_distance","image_distance( self , image_a , image_b )",115,118
+9,1,102,4,43,"__init__@48-90@src/wepy/resampling/distances/receptor.py","src/wepy/resampling/distances/receptor.py","__init__","__init__( self , ligand_idxs , binding_site_idxs , ref_state )",48,90
+7,1,58,2,36,"_unaligned_image@92-127@src/wepy/resampling/distances/receptor.py","src/wepy/resampling/distances/receptor.py","_unaligned_image","_unaligned_image( self , state )",92,127
+4,1,38,2,30,"image@129-158@src/wepy/resampling/distances/receptor.py","src/wepy/resampling/distances/receptor.py","image","image( self , state )",129,158
+3,1,25,3,7,"image_distance@174-180@src/wepy/resampling/distances/receptor.py","src/wepy/resampling/distances/receptor.py","image_distance","image_distance( self , image_a , image_b )",174,180
+5,1,57,3,12,"image_distance@192-203@src/wepy/resampling/distances/receptor.py","src/wepy/resampling/distances/receptor.py","image_distance","image_distance( self , image_a , image_b )",192,203
+2,1,6,1,2,"__init__@26-27@src/wepy/resampling/distances/randomwalk.py","src/wepy/resampling/distances/randomwalk.py","__init__","__init__( self )",26,27
+2,1,13,2,13,"image@30-42@src/wepy/resampling/distances/randomwalk.py","src/wepy/resampling/distances/randomwalk.py","image","image( self , state )",30,42
+2,1,24,3,21,"image_distance@44-64@src/wepy/resampling/distances/randomwalk.py","src/wepy/resampling/distances/randomwalk.py","image_distance","image_distance( self , image_a , image_b )",44,64
+19,4,80,2,78,"calc_squashable_walkers_single_method@23-100@src/wepy/resampling/resamplers/wexplore.py","src/wepy/resampling/resamplers/wexplore.py","calc_squashable_walkers_single_method","calc_squashable_walkers_single_method( walker_weights , max_weight )",23,100
+9,3,67,3,49,"decide_merge_groups_single_method@104-152@src/wepy/resampling/resamplers/wexplore.py","src/wepy/resampling/resamplers/wexplore.py","decide_merge_groups_single_method","decide_merge_groups_single_method( walker_weights , balance , max_weight )",104,152
+9,3,47,3,39,"calc_max_num_clones@155-193@src/wepy/resampling/resamplers/wexplore.py","src/wepy/resampling/resamplers/wexplore.py","calc_max_num_clones","calc_max_num_clones( walker_weight , min_weight , max_num_walkers )",155,193
+6,1,31,8,6,"__init__@224-229@src/wepy/resampling/resamplers/wexplore.py","src/wepy/resampling/resamplers/wexplore.py","__init__","__init__( self , init_state , max_n_regions = None , max_region_sizes = None , distance = None , pmin = None , pmax = None , merge_method = 'single' )",224,229
+2,1,10,1,3,"merge_method@290-292@src/wepy/resampling/resamplers/wexplore.py","src/wepy/resampling/resamplers/wexplore.py","merge_method","merge_method( self )",290,292
+2,1,10,1,3,"distance@295-297@src/wepy/resampling/resamplers/wexplore.py","src/wepy/resampling/resamplers/wexplore.py","distance","distance( self )",295,297
+2,1,10,1,3,"images@300-302@src/wepy/resampling/resamplers/wexplore.py","src/wepy/resampling/resamplers/wexplore.py","images","images( self )",300,302
+2,1,10,1,3,"max_n_regions@305-307@src/wepy/resampling/resamplers/wexplore.py","src/wepy/resampling/resamplers/wexplore.py","max_n_regions","max_n_regions( self )",305,307
+2,1,10,1,3,"n_levels@310-312@src/wepy/resampling/resamplers/wexplore.py","src/wepy/resampling/resamplers/wexplore.py","n_levels","n_levels( self )",310,312
+2,1,10,1,3,"max_region_sizes@315-317@src/wepy/resampling/resamplers/wexplore.py","src/wepy/resampling/resamplers/wexplore.py","max_region_sizes","max_region_sizes( self )",315,317
+2,1,10,1,3,"pmin@320-322@src/wepy/resampling/resamplers/wexplore.py","src/wepy/resampling/resamplers/wexplore.py","pmin","pmin( self )",320,322
+2,1,10,1,3,"pmax@325-327@src/wepy/resampling/resamplers/wexplore.py","src/wepy/resampling/resamplers/wexplore.py","pmax","pmax( self )",325,327
+2,1,10,1,3,"walker_assignments@330-332@src/wepy/resampling/resamplers/wexplore.py","src/wepy/resampling/resamplers/wexplore.py","walker_assignments","walker_assignments( self )",330,332
+2,1,10,1,3,"walker_weights@335-337@src/wepy/resampling/resamplers/wexplore.py","src/wepy/resampling/resamplers/wexplore.py","walker_weights","walker_weights( self )",335,337
+2,1,10,1,3,"regions@340-342@src/wepy/resampling/resamplers/wexplore.py","src/wepy/resampling/resamplers/wexplore.py","regions","regions( self )",340,342
+11,1,67,3,31,"add_child@344-374@src/wepy/resampling/resamplers/wexplore.py","src/wepy/resampling/resamplers/wexplore.py","add_child","add_child( self , parent_id , image_idx )",344,374
+4,1,30,2,16,"children@376-391@src/wepy/resampling/resamplers/wexplore.py","src/wepy/resampling/resamplers/wexplore.py","children","children( self , parent_id )",376,391
+5,4,37,2,18,"level_nodes@393-410@src/wepy/resampling/resamplers/wexplore.py","src/wepy/resampling/resamplers/wexplore.py","level_nodes","level_nodes( self , level )",393,410
+2,1,15,1,3,"leaf_nodes@412-414@src/wepy/resampling/resamplers/wexplore.py","src/wepy/resampling/resamplers/wexplore.py","leaf_nodes","leaf_nodes( self )",412,414
+9,2,67,3,28,"branch_tree@416-443@src/wepy/resampling/resamplers/wexplore.py","src/wepy/resampling/resamplers/wexplore.py","branch_tree","branch_tree( self , parent_id , image )",416,443
+2,1,10,1,3,"max_num_walkers@447-449@src/wepy/resampling/resamplers/wexplore.py","src/wepy/resampling/resamplers/wexplore.py","max_num_walkers","max_num_walkers( self )",447,449
+2,1,13,2,14,"max_num_walkers@452-465@src/wepy/resampling/resamplers/wexplore.py","src/wepy/resampling/resamplers/wexplore.py","max_num_walkers","max_num_walkers( self , max_num_walkers )",452,465
+2,1,13,2,14,"max_num_walkers@468-481@src/wepy/resampling/resamplers/wexplore.py","src/wepy/resampling/resamplers/wexplore.py","max_num_walkers","max_num_walkers( self , max_num_walkers )",468,481
+2,1,10,1,3,"min_num_walkers@484-486@src/wepy/resampling/resamplers/wexplore.py","src/wepy/resampling/resamplers/wexplore.py","min_num_walkers","min_num_walkers( self )",484,486
+2,1,13,2,14,"min_num_walkers@489-502@src/wepy/resampling/resamplers/wexplore.py","src/wepy/resampling/resamplers/wexplore.py","min_num_walkers","min_num_walkers( self , min_num_walkers )",489,502
+2,1,13,2,14,"min_num_walkers@505-518@src/wepy/resampling/resamplers/wexplore.py","src/wepy/resampling/resamplers/wexplore.py","min_num_walkers","min_num_walkers( self , min_num_walkers )",505,518
+32,5,194,2,75,"assign@521-595@src/wepy/resampling/resamplers/wexplore.py","src/wepy/resampling/resamplers/wexplore.py","assign","assign( self , state )",521,595
+9,2,81,1,15,"clear_walkers@597-611@src/wepy/resampling/resamplers/wexplore.py","src/wepy/resampling/resamplers/wexplore.py","clear_walkers","clear_walkers( self )",597,611
+38,11,364,2,104,"place_walkers@614-717@src/wepy/resampling/resamplers/wexplore.py","src/wepy/resampling/resamplers/wexplore.py","place_walkers","place_walkers( self , walkers )",614,717
+17,8,139,4,73,"_max_n_merges@720-792@src/wepy/resampling/resamplers/wexplore.py","src/wepy/resampling/resamplers/wexplore.py","_max_n_merges","_max_n_merges( cls , pmax , root , weights )",720,792
+6,2,41,2,19,"_calc_squashable_walkers@794-812@src/wepy/resampling/resamplers/wexplore.py","src/wepy/resampling/resamplers/wexplore.py","_calc_squashable_walkers","_calc_squashable_walkers( self , walker_weights )",794,812
+2,1,21,2,14,"_calc_max_num_clones@814-827@src/wepy/resampling/resamplers/wexplore.py","src/wepy/resampling/resamplers/wexplore.py","_calc_max_num_clones","_calc_max_num_clones( self , walker_weight )",814,827
+28,9,209,3,82,"_propagate_and_balance_shares@829-910@src/wepy/resampling/resamplers/wexplore.py","src/wepy/resampling/resamplers/wexplore.py","_propagate_and_balance_shares","_propagate_and_balance_shares( self , parental_balance , children_node_ids )",829,910
+3,1,13,5,3,"_dispense_parental_shares@913-915@src/wepy/resampling/resamplers/wexplore.py","src/wepy/resampling/resamplers/wexplore.py","_dispense_parental_shares","_dispense_parental_shares( self , parental_balance , children_shares , children_donatable_shares , children_receivable_shares )",913,915
+2,1,11,4,2,"_dispense_debit_shares@983-984@src/wepy/resampling/resamplers/wexplore.py","src/wepy/resampling/resamplers/wexplore.py","_dispense_debit_shares","_dispense_debit_shares( self , parental_balance , children_shares , children_donatable_shares )",983,984
+2,1,11,4,2,"_dispense_credit_shares@1056-1057@src/wepy/resampling/resamplers/wexplore.py","src/wepy/resampling/resamplers/wexplore.py","_dispense_credit_shares","_dispense_credit_shares( self , parental_balance , children_shares , children_receivable_shares )",1056,1057
+3,1,11,4,3,"_balance_children_shares@1131-1133@src/wepy/resampling/resamplers/wexplore.py","src/wepy/resampling/resamplers/wexplore.py","_balance_children_shares","_balance_children_shares( self , children_shares , children_donatable_shares , children_receivable_shares )",1131,1133
+3,1,11,4,3,"_gen_best_donation@1223-1225@src/wepy/resampling/resamplers/wexplore.py","src/wepy/resampling/resamplers/wexplore.py","_gen_best_donation","_gen_best_donation( self , children_shares , children_donatable_shares , children_receivable_shares )",1223,1225
+2,1,9,3,2,"_find_best_donation_pair@1374-1375@src/wepy/resampling/resamplers/wexplore.py","src/wepy/resampling/resamplers/wexplore.py","_find_best_donation_pair","_find_best_donation_pair( self , children_donatable_shares , children_receivable_shares )",1374,1375
+2,1,13,5,2,"_calc_share_donation@1459-1460@src/wepy/resampling/resamplers/wexplore.py","src/wepy/resampling/resamplers/wexplore.py","_calc_share_donation","_calc_share_donation( self , donor_n_shares , acceptor_n_shares , donor_donatable_shares , acceptor_receivable_shares )",1459,1460
+17,5,157,3,100,"_decide_merge_leaf@1497-1596@src/wepy/resampling/resamplers/wexplore.py","src/wepy/resampling/resamplers/wexplore.py","_decide_merge_leaf","_decide_merge_leaf( self , leaf , merge_groups )",1497,1596
+11,3,58,3,43,"_solve_merge_groupings@1598-1640@src/wepy/resampling/resamplers/wexplore.py","src/wepy/resampling/resamplers/wexplore.py","_solve_merge_groupings","_solve_merge_groupings( self , walker_weights , balance )",1598,1640
+37,14,288,4,120,"_decide_clone_leaf@1642-1761@src/wepy/resampling/resamplers/wexplore.py","src/wepy/resampling/resamplers/wexplore.py","_decide_clone_leaf","_decide_clone_leaf( self , leaf , merge_groups , walkers_num_clones )",1642,1761
+14,8,143,1,67,"_decide_settle_balance@1763-1829@src/wepy/resampling/resamplers/wexplore.py","src/wepy/resampling/resamplers/wexplore.py","_decide_settle_balance","_decide_settle_balance( self )",1763,1829
+58,21,451,3,152,"_check_clone_merge_specs@1831-1982@src/wepy/resampling/resamplers/wexplore.py","src/wepy/resampling/resamplers/wexplore.py","_check_clone_merge_specs","_check_clone_merge_specs( self , merge_groups , walkers_num_clones )",1831,1982
+23,7,182,2,65,"balance_tree@1984-2048@src/wepy/resampling/resamplers/wexplore.py","src/wepy/resampling/resamplers/wexplore.py","balance_tree","balance_tree( self , delta_walkers = 0 )",1984,2048
+7,1,60,9,7,"__init__@2247-2253@src/wepy/resampling/resamplers/wexplore.py","src/wepy/resampling/resamplers/wexplore.py","__init__","__init__( self , seed = None , pmin = 1e - 12 , pmax = 0 . 1 , distance = None , max_n_regions = ( 10 , 10 , 10 , 10 )",2247,2253
+5,1,42,1,10,"resampler_field_shapes@2325-2334@src/wepy/resampling/resamplers/wexplore.py","src/wepy/resampling/resamplers/wexplore.py","resampler_field_shapes","resampler_field_shapes( self )",2325,2334
+5,1,42,1,10,"resampler_field_dtypes@2336-2345@src/wepy/resampling/resamplers/wexplore.py","src/wepy/resampling/resamplers/wexplore.py","resampler_field_dtypes","resampler_field_dtypes( self )",2336,2345
+2,1,10,1,7,"region_tree@2348-2354@src/wepy/resampling/resamplers/wexplore.py","src/wepy/resampling/resamplers/wexplore.py","region_tree","region_tree( self )",2348,2354
+5,1,37,2,33,"assign@2357-2389@src/wepy/resampling/resamplers/wexplore.py","src/wepy/resampling/resamplers/wexplore.py","assign","assign( self , walkers )",2357,2389
+16,3,134,2,50,"decide@2391-2440@src/wepy/resampling/resamplers/wexplore.py","src/wepy/resampling/resamplers/wexplore.py","decide","decide( self , delta_walkers = 0 )",2391,2440
+21,11,159,1,48,"_check_resampling_data@2444-2491@src/wepy/resampling/resamplers/wexplore.py","src/wepy/resampling/resamplers/wexplore.py","_check_resampling_data","_check_resampling_data( resampling_data )",2444,2491
+7,2,65,2,28,"_resample_init@2493-2520@src/wepy/resampling/resamplers/wexplore.py","src/wepy/resampling/resamplers/wexplore.py","_resample_init","_resample_init( self , walkers = None )",2493,2520
+3,1,17,4,3,"_resample_cleanup@2522-2524@src/wepy/resampling/resamplers/wexplore.py","src/wepy/resampling/resamplers/wexplore.py","_resample_cleanup","_resample_cleanup( self , resampling_data = None , resampler_data = None , resampled_walkers = None )",2522,2524
+19,5,180,2,47,"resample@2579-2625@src/wepy/resampling/resamplers/wexplore.py","src/wepy/resampling/resamplers/wexplore.py","resample","resample( self , walkers )",2579,2625
+4,1,17,4,4,"__init__@259-262@src/wepy/resampling/resamplers/resampler.py","src/wepy/resampling/resamplers/resampler.py","__init__","__init__( self , min_num_walkers = Ellipsis , max_num_walkers = Ellipsis , debug_mode = False )",259,262
+2,1,10,1,3,"decision@318-320@src/wepy/resampling/resamplers/resampler.py","src/wepy/resampling/resamplers/resampler.py","decision","decision( self )",318,320
+2,1,10,1,3,"resampling_field_names@322-324@src/wepy/resampling/resamplers/resampler.py","src/wepy/resampling/resamplers/resampler.py","resampling_field_names","resampling_field_names( self )",322,324
+2,1,10,1,3,"resampling_field_shapes@326-328@src/wepy/resampling/resamplers/resampler.py","src/wepy/resampling/resamplers/resampler.py","resampling_field_shapes","resampling_field_shapes( self )",326,328
+2,1,10,1,3,"resampling_field_dtypes@330-332@src/wepy/resampling/resamplers/resampler.py","src/wepy/resampling/resamplers/resampler.py","resampling_field_dtypes","resampling_field_dtypes( self )",330,332
+4,1,30,1,13,"resampling_fields@334-346@src/wepy/resampling/resamplers/resampler.py","src/wepy/resampling/resamplers/resampler.py","resampling_fields","resampling_fields( self )",334,346
+2,1,10,1,3,"resampling_record_field_names@348-350@src/wepy/resampling/resamplers/resampler.py","src/wepy/resampling/resamplers/resampler.py","resampling_record_field_names","resampling_record_field_names( self )",348,350
+2,1,10,1,3,"resampler_field_names@352-354@src/wepy/resampling/resamplers/resampler.py","src/wepy/resampling/resamplers/resampler.py","resampler_field_names","resampler_field_names( self )",352,354
+2,1,10,1,3,"resampler_field_shapes@356-358@src/wepy/resampling/resamplers/resampler.py","src/wepy/resampling/resamplers/resampler.py","resampler_field_shapes","resampler_field_shapes( self )",356,358
+2,1,10,1,3,"resampler_field_dtypes@360-362@src/wepy/resampling/resamplers/resampler.py","src/wepy/resampling/resamplers/resampler.py","resampler_field_dtypes","resampler_field_dtypes( self )",360,362
+4,1,30,1,13,"resampler_fields@364-376@src/wepy/resampling/resamplers/resampler.py","src/wepy/resampling/resamplers/resampler.py","resampler_fields","resampler_fields( self )",364,376
+2,1,10,1,3,"resampler_record_field_names@378-380@src/wepy/resampling/resamplers/resampler.py","src/wepy/resampling/resamplers/resampler.py","resampler_record_field_names","resampler_record_field_names( self )",378,380
+2,1,10,1,3,"is_debug_on@383-385@src/wepy/resampling/resamplers/resampler.py","src/wepy/resampling/resamplers/resampler.py","is_debug_on","is_debug_on( self )",383,385
+9,4,48,2,23,"set_debug_mode@387-409@src/wepy/resampling/resamplers/resampler.py","src/wepy/resampling/resamplers/resampler.py","set_debug_mode","set_debug_mode( self , mode )",387,409
+4,2,21,1,6,"debug_on@411-416@src/wepy/resampling/resamplers/resampler.py","src/wepy/resampling/resamplers/resampler.py","debug_on","debug_on( self )",411,416
+4,2,22,1,6,"debug_off@418-423@src/wepy/resampling/resamplers/resampler.py","src/wepy/resampling/resamplers/resampler.py","debug_off","debug_off( self )",418,423
+2,1,10,1,3,"max_num_walkers_setting@426-428@src/wepy/resampling/resamplers/resampler.py","src/wepy/resampling/resamplers/resampler.py","max_num_walkers_setting","max_num_walkers_setting( self )",426,428
+2,1,10,1,3,"min_num_walkers_setting@431-433@src/wepy/resampling/resamplers/resampler.py","src/wepy/resampling/resamplers/resampler.py","min_num_walkers_setting","min_num_walkers_setting( self )",431,433
+12,4,48,1,28,"max_num_walkers@435-462@src/wepy/resampling/resamplers/resampler.py","src/wepy/resampling/resamplers/resampler.py","max_num_walkers","max_num_walkers( self )",435,462
+12,4,48,1,28,"min_num_walkers@464-491@src/wepy/resampling/resamplers/resampler.py","src/wepy/resampling/resamplers/resampler.py","min_num_walkers","min_num_walkers( self )",464,491
+13,6,74,2,29,"_set_resampling_num_walkers@494-522@src/wepy/resampling/resamplers/resampler.py","src/wepy/resampling/resamplers/resampler.py","_set_resampling_num_walkers","_set_resampling_num_walkers( self , num_walkers )",494,522
+2,1,10,1,3,"_unset_resampling_num_walkers@524-526@src/wepy/resampling/resamplers/resampler.py","src/wepy/resampling/resamplers/resampler.py","_unset_resampling_num_walkers","_unset_resampling_num_walkers( self )",524,526
+2,1,20,3,13,"_resample_init@530-542@src/wepy/resampling/resamplers/resampler.py","src/wepy/resampling/resamplers/resampler.py","_resample_init","_resample_init( self , walkers , ** kwargs )",530,542
+2,1,14,2,9,"_resample_cleanup@544-552@src/wepy/resampling/resamplers/resampler.py","src/wepy/resampling/resamplers/resampler.py","_resample_cleanup","_resample_cleanup( self , ** kwargs )",544,552
+3,1,24,3,31,"resample@555-585@src/wepy/resampling/resamplers/resampler.py","src/wepy/resampling/resamplers/resampler.py","resample","resample( self , walkers , debug_mode = False )",555,585
+15,2,131,3,35,"resample@593-627@src/wepy/resampling/resamplers/resampler.py","src/wepy/resampling/resamplers/resampler.py","resample","resample( self , walkers , ** kwargs )",593,627
+5,2,39,2,24,"_init_walker_actions@629-652@src/wepy/resampling/resamplers/resampler.py","src/wepy/resampling/resamplers/resampler.py","_init_walker_actions","_init_walker_actions( self , n_walkers )",629,652
+2,1,48,11,2,"__init__@113-114@src/wepy/resampling/resamplers/revo.py","src/wepy/resampling/resamplers/revo.py","__init__","__init__( self , seed = None , pmin = 1e - 12 , pmax = 0 . 1 , dist_exponent = 4 , merge_dist = None , char_dist = None , distance = None , init_state = None , weights = True , ** kwargs )",113,114
+5,1,43,1,18,"resampler_field_dtypes@190-207@src/wepy/resampling/resamplers/revo.py","src/wepy/resampling/resamplers/revo.py","resampler_field_dtypes","resampler_field_dtypes( self )",190,207
+10,5,56,3,36,"_novelty@209-244@src/wepy/resampling/resamplers/revo.py","src/wepy/resampling/resamplers/revo.py","_novelty","_novelty( self , walker_weight , num_walker_copy )",209,244
+16,6,168,4,59,"_calcvariation@246-304@src/wepy/resampling/resamplers/revo.py","src/wepy/resampling/resamplers/revo.py","_calcvariation","_calcvariation( self , walker_weights , num_walker_copies , distance_matrix )",246,304
+83,28,701,4,197,"decide@306-502@src/wepy/resampling/resamplers/revo.py","src/wepy/resampling/resamplers/revo.py","decide","decide( self , walker_weights , num_walker_copies , distance_matrix )",306,502
+11,4,119,2,35,"_all_to_all_distance@504-538@src/wepy/resampling/resamplers/revo.py","src/wepy/resampling/resamplers/revo.py","_all_to_all_distance","_all_to_all_distance( self , walkers )",504,538
+18,4,205,2,52,"resample@540-591@src/wepy/resampling/resamplers/revo.py","src/wepy/resampling/resamplers/revo.py","resample","resample( self , walkers )",540,591
+4,1,28,6,4,"__init__@30-33@src/wepy/resampling/resamplers/clone_merge.py","src/wepy/resampling/resamplers/clone_merge.py","__init__","__init__( self , pmin = 1e - 12 , pmax = 0 . 1 , min_num_walkers = Ellipsis , max_num_walkers = Ellipsis , ** kwargs )",30,33
+2,1,9,1,2,"pmin@55-56@src/wepy/resampling/resamplers/clone_merge.py","src/wepy/resampling/resamplers/clone_merge.py","pmin","pmin( self )",55,56
+2,1,9,1,2,"pmax@59-60@src/wepy/resampling/resamplers/clone_merge.py","src/wepy/resampling/resamplers/clone_merge.py","pmax","pmax( self )",59,60
+6,2,46,2,26,"_init_walker_actions@63-88@src/wepy/resampling/resamplers/clone_merge.py","src/wepy/resampling/resamplers/clone_merge.py","_init_walker_actions","_init_walker_actions( self , n_walkers )",63,88
+12,6,120,2,28,"_check_resampled_walkers@90-117@src/wepy/resampling/resamplers/clone_merge.py","src/wepy/resampling/resamplers/clone_merge.py","_check_resampled_walkers","_check_resampled_walkers( self , resampled_walkers )",90,117
+28,12,250,3,114,"assign_clones@121-234@src/wepy/resampling/resamplers/clone_merge.py","src/wepy/resampling/resamplers/clone_merge.py","assign_clones","assign_clones( self , merge_groups , walker_clone_nums )",121,234
+14,5,157,1,37,"traj_box_vectors_to_lengths_angles@10-46@src/wepy/util/util.py","src/wepy/util/util.py","traj_box_vectors_to_lengths_angles","traj_box_vectors_to_lengths_angles( traj_box_vectors )",10,46
+10,3,123,1,32,"box_vectors_to_lengths_angles@48-79@src/wepy/util/util.py","src/wepy/util/util.py","box_vectors_to_lengths_angles","box_vectors_to_lengths_angles( box_vectors )",48,79
+19,5,317,6,68,"lengths_and_angles_to_box_vectors@106-173@src/wepy/util/util.py","src/wepy/util/util.py","lengths_and_angles_to_box_vectors","lengths_and_angles_to_box_vectors( a_length , b_length , c_length , alpha , beta , gamma )",106,173
+7,3,49,1,11,"concat_traj_fields@176-186@src/wepy/util/util.py","src/wepy/util/util.py","concat_traj_fields","concat_traj_fields( trajs_fields )",176,186
+56,21,368,2,120,"gen_uri@66-185@src/wepy/util/kv.py","src/wepy/util/kv.py","gen_uri","gen_uri( db_url , mode_spec )",66,185
+8,1,36,10,8,"__init__@189-196@src/wepy/util/kv.py","src/wepy/util/kv.py","__init__","__init__( self , db_url = None , table = 'data' , primary_key = 'key' , value_name = 'value' , timeout = 5 , mode = 'x' , append_only = False , value_types = DEFAULT_VALUE_TYPES ,",189,196
+2,1,9,1,2,"mode@241-242@src/wepy/util/kv.py","src/wepy/util/kv.py","mode","mode( self )",241,242
+2,1,9,1,2,"append_only@245-246@src/wepy/util/kv.py","src/wepy/util/kv.py","append_only","append_only( self )",245,246
+6,2,31,1,8,"close@248-255@src/wepy/util/kv.py","src/wepy/util/kv.py","close","close( self )",248,255
+2,1,9,1,2,"db_uri@259-260@src/wepy/util/kv.py","src/wepy/util/kv.py","db_uri","db_uri( self )",259,260
+2,1,9,1,2,"db@263-264@src/wepy/util/kv.py","src/wepy/util/kv.py","db","db( self )",263,264
+2,1,9,1,2,"table@267-268@src/wepy/util/kv.py","src/wepy/util/kv.py","table","table( self )",267,268
+2,1,9,1,2,"primary_key@271-272@src/wepy/util/kv.py","src/wepy/util/kv.py","primary_key","primary_key( self )",271,272
+2,1,9,1,2,"value_name@275-276@src/wepy/util/kv.py","src/wepy/util/kv.py","value_name","value_name( self )",275,276
+2,1,9,1,2,"value_types@279-280@src/wepy/util/kv.py","src/wepy/util/kv.py","value_types","value_types( self )",279,280
+2,1,22,2,2,"_execute@283-284@src/wepy/util/kv.py","src/wepy/util/kv.py","_execute","_execute( self , * args )",283,284
+3,1,28,1,3,"__len__@286-288@src/wepy/util/kv.py","src/wepy/util/kv.py","__len__","__len__( self )",286,288
+18,3,105,2,21,"__getitem__@290-310@src/wepy/util/kv.py","src/wepy/util/kv.py","__getitem__","__getitem__( self , key )",290,310
+7,2,38,1,7,"__iter__@312-318@src/wepy/util/kv.py","src/wepy/util/kv.py","__iter__","__iter__( self )",312,318
+4,2,37,3,11,"__setitem__@320-330@src/wepy/util/kv.py","src/wepy/util/kv.py","__setitem__","__setitem__( self , key , value )",320,330
+12,3,70,2,18,"__delitem__@333-350@src/wepy/util/kv.py","src/wepy/util/kv.py","__delitem__","__delitem__( self , key )",333,350
+3,1,19,1,4,"insert_query@353-356@src/wepy/util/kv.py","src/wepy/util/kv.py","insert_query","insert_query( self )",353,356
+6,1,31,1,8,"update_query@359-366@src/wepy/util/kv.py","src/wepy/util/kv.py","update_query","update_query( self )",359,366
+5,1,25,1,7,"del_query@369-375@src/wepy/util/kv.py","src/wepy/util/kv.py","del_query","del_query( self )",369,375
+10,3,65,3,22,"lockless_set@377-398@src/wepy/util/kv.py","src/wepy/util/kv.py","lockless_set","lockless_set( self , key , value )",377,398
+10,3,69,4,16,"set_in_tx@400-415@src/wepy/util/kv.py","src/wepy/util/kv.py","set_in_tx","set_in_tx( self , cursor , key , value )",400,415
+9,3,51,3,14,"del_in_tx@417-430@src/wepy/util/kv.py","src/wepy/util/kv.py","del_in_tx","del_in_tx( self , cursor , key )",417,430
+10,4,44,1,10,"lock@434-443@src/wepy/util/kv.py","src/wepy/util/kv.py","lock","lock( self )",434,443
+7,4,53,1,26,"json_top_chain_fields@12-37@src/wepy/util/json_top.py","src/wepy/util/json_top.py","json_top_chain_fields","json_top_chain_fields( json_topology )",12,37
+2,1,16,1,17,"json_top_chain_df@39-55@src/wepy/util/json_top.py","src/wepy/util/json_top.py","json_top_chain_df","json_top_chain_df( json_topology )",39,55
+10,5,80,1,29,"json_top_residue_fields@57-85@src/wepy/util/json_top.py","src/wepy/util/json_top.py","json_top_residue_fields","json_top_residue_fields( json_topology )",57,85
+2,1,16,1,17,"json_top_residue_df@87-103@src/wepy/util/json_top.py","src/wepy/util/json_top.py","json_top_residue_df","json_top_residue_df( json_topology )",87,103
+13,6,107,1,31,"json_top_atom_fields@106-136@src/wepy/util/json_top.py","src/wepy/util/json_top.py","json_top_atom_fields","json_top_atom_fields( json_topology )",106,136
+2,1,16,1,17,"json_top_atom_df@138-154@src/wepy/util/json_top.py","src/wepy/util/json_top.py","json_top_atom_df","json_top_atom_df( json_topology )",138,154
+8,3,47,1,24,"json_top_atom_count@157-180@src/wepy/util/json_top.py","src/wepy/util/json_top.py","json_top_atom_count","json_top_atom_count( json_str )",157,180
+56,14,407,2,144,"json_top_subset@182-325@src/wepy/util/json_top.py","src/wepy/util/json_top.py","json_top_subset","json_top_subset( json_str , atom_idxs )",182,325
+37,6,207,1,72,"mdtraj_to_json_topology@64-135@src/wepy/util/mdtraj.py","src/wepy/util/mdtraj.py","mdtraj_to_json_topology","mdtraj_to_json_topology( mdj_top )",64,135
+27,8,209,1,55,"json_to_mdtraj_topology@137-191@src/wepy/util/mdtraj.py","src/wepy/util/mdtraj.py","json_to_mdtraj_topology","json_to_mdtraj_topology( json_string )",137,191
+27,6,193,1,66,"_new_json_to_mdtraj_topology@194-259@src/wepy/util/mdtraj.py","src/wepy/util/mdtraj.py","_new_json_to_mdtraj_topology","_new_json_to_mdtraj_topology( json_string )",194,259
+12,2,103,3,38,"traj_fields_to_mdtraj@261-298@src/wepy/util/mdtraj.py","src/wepy/util/mdtraj.py","traj_fields_to_mdtraj","traj_fields_to_mdtraj( traj_fields , json_topology , rep_key = 'positions' )",261,298
+7,1,37,9,9,"__init__@21-29@src/wepy/orchestration/configuration.py","src/wepy/orchestration/configuration.py","__init__","__init__( self , config_name = None , work_dir = None , mode = None , narration = None , reporter_classes = None , reporter_partial_kwargs = None , work_mapper_class = None , work_mapper_partial_kwargs = None )",21,29
+2,1,10,1,3,"reporter_classes@112-114@src/wepy/orchestration/configuration.py","src/wepy/orchestration/configuration.py","reporter_classes","reporter_classes( self )",112,114
+2,1,10,1,3,"reporter_partial_kwargs@117-119@src/wepy/orchestration/configuration.py","src/wepy/orchestration/configuration.py","reporter_partial_kwargs","reporter_partial_kwargs( self )",117,119
+2,1,10,1,3,"config_name@122-124@src/wepy/orchestration/configuration.py","src/wepy/orchestration/configuration.py","config_name","config_name( self )",122,124
+2,1,10,1,3,"work_dir@127-129@src/wepy/orchestration/configuration.py","src/wepy/orchestration/configuration.py","work_dir","work_dir( self )",127,129
+2,1,10,1,3,"narration@132-134@src/wepy/orchestration/configuration.py","src/wepy/orchestration/configuration.py","narration","narration( self )",132,134
+2,1,10,1,3,"mode@137-139@src/wepy/orchestration/configuration.py","src/wepy/orchestration/configuration.py","mode","mode( self )",137,139
+2,1,10,1,3,"reporters@142-144@src/wepy/orchestration/configuration.py","src/wepy/orchestration/configuration.py","reporters","reporters( self )",142,144
+2,1,10,1,3,"work_mapper_class@147-149@src/wepy/orchestration/configuration.py","src/wepy/orchestration/configuration.py","work_mapper_class","work_mapper_class( self )",147,149
+2,1,10,1,3,"work_mapper_partial_kwargs@152-154@src/wepy/orchestration/configuration.py","src/wepy/orchestration/configuration.py","work_mapper_partial_kwargs","work_mapper_partial_kwargs( self )",152,154
+2,1,10,1,3,"work_mapper@157-159@src/wepy/orchestration/configuration.py","src/wepy/orchestration/configuration.py","work_mapper","work_mapper( self )",157,159
+33,8,225,1,68,"_gen_reporters@161-228@src/wepy/orchestration/configuration.py","src/wepy/orchestration/configuration.py","_gen_reporters","_gen_reporters( self )",161,228
+3,1,20,1,6,"_gen_work_mapper@230-235@src/wepy/orchestration/configuration.py","src/wepy/orchestration/configuration.py","_gen_work_mapper","_gen_work_mapper( self )",230,235
+2,1,13,1,3,"reporters@238-240@src/wepy/orchestration/configuration.py","src/wepy/orchestration/configuration.py","reporters","reporters( self )",238,240
+2,1,13,1,3,"work_mapper@243-245@src/wepy/orchestration/configuration.py","src/wepy/orchestration/configuration.py","work_mapper","work_mapper( self )",243,245
+18,5,119,2,41,"reparametrize@248-288@src/wepy/orchestration/configuration.py","src/wepy/orchestration/configuration.py","reparametrize","reparametrize( self , ** kwargs )",248,288
+2,1,15,2,2,"__init__@18-19@src/wepy/orchestration/snapshot.py","src/wepy/orchestration/snapshot.py","__init__","__init__( self , filters )",18,19
+2,1,10,1,3,"filters@22-24@src/wepy/orchestration/snapshot.py","src/wepy/orchestration/snapshot.py","filters","filters( self )",22,24
+7,2,50,4,12,"__init__@31-42@src/wepy/orchestration/snapshot.py","src/wepy/orchestration/snapshot.py","__init__","__init__( self , runner , resampler = None , boundary_conditions = None )",31,42
+3,1,25,3,4,"__init__@47-50@src/wepy/orchestration/snapshot.py","src/wepy/orchestration/snapshot.py","__init__","__init__( self , walkers , apparatus )",47,50
+2,1,10,1,3,"walkers@53-55@src/wepy/orchestration/snapshot.py","src/wepy/orchestration/snapshot.py","walkers","walkers( self )",53,55
+2,1,10,1,3,"apparatus@58-60@src/wepy/orchestration/snapshot.py","src/wepy/orchestration/snapshot.py","apparatus","apparatus( self )",58,60
+3,1,16,5,3,"__init__@57-59@src/wepy/orchestration/orchestrator.py","src/wepy/orchestration/orchestrator.py","__init__","__init__( self , orch_path = None , mode = 'x' , append_only = False ,",57,59
+2,1,9,1,2,"mode@122-123@src/wepy/orchestration/orchestrator.py","src/wepy/orchestration/orchestrator.py","mode","mode( self )",122,123
+2,1,9,1,2,"append_only@126-127@src/wepy/orchestration/orchestrator.py","src/wepy/orchestration/orchestrator.py","append_only","append_only( self )",126,127
+9,2,52,1,12,"close@129-140@src/wepy/orchestration/orchestrator.py","src/wepy/orchestration/orchestrator.py","close","close( self )",129,140
+2,1,9,1,2,"db_uri@143-144@src/wepy/orchestration/orchestrator.py","src/wepy/orchestration/orchestrator.py","db_uri","db_uri( self )",143,144
+10,3,58,1,18,"orch_path@147-164@src/wepy/orchestration/orchestrator.py","src/wepy/orchestration/orchestrator.py","orch_path","orch_path( self )",147,164
+10,1,37,2,44,"serialize@168-211@src/wepy/orchestration/orchestrator.py","src/wepy/orchestration/orchestrator.py","serialize","serialize( cls , snapshot )",168,211
+2,1,21,2,16,"deserialize@218-233@src/wepy/orchestration/orchestrator.py","src/wepy/orchestration/orchestrator.py","deserialize","deserialize( cls , serial_str )",218,233
+3,1,23,2,6,"set_default_sim_apparatus@237-242@src/wepy/orchestration/orchestrator.py","src/wepy/orchestration/orchestrator.py","set_default_sim_apparatus","set_default_sim_apparatus( self , sim_apparatus )",237,242
+3,1,23,2,6,"set_default_init_walkers@244-249@src/wepy/orchestration/orchestrator.py","src/wepy/orchestration/orchestrator.py","set_default_init_walkers","set_default_init_walkers( self , init_walkers )",244,249
+5,1,39,2,10,"set_default_configuration@251-260@src/wepy/orchestration/orchestrator.py","src/wepy/orchestration/orchestrator.py","set_default_configuration","set_default_configuration( self , configuration )",251,260
+4,1,25,2,8,"set_default_snapshot@262-269@src/wepy/orchestration/orchestrator.py","src/wepy/orchestration/orchestrator.py","set_default_snapshot","set_default_snapshot( self , snapshot )",262,269
+4,1,27,1,9,"gen_default_snapshot@271-279@src/wepy/orchestration/orchestrator.py","src/wepy/orchestration/orchestrator.py","gen_default_snapshot","gen_default_snapshot( self )",271,279
+2,1,17,1,3,"get_default_sim_apparatus@282-284@src/wepy/orchestration/orchestrator.py","src/wepy/orchestration/orchestrator.py","get_default_sim_apparatus","get_default_sim_apparatus( self )",282,284
+2,1,17,1,3,"get_default_init_walkers@286-288@src/wepy/orchestration/orchestrator.py","src/wepy/orchestration/orchestrator.py","get_default_init_walkers","get_default_init_walkers( self )",286,288
+3,1,20,1,5,"get_default_configuration@290-294@src/wepy/orchestration/orchestrator.py","src/wepy/orchestration/orchestrator.py","get_default_configuration","get_default_configuration( self )",290,294
+2,1,12,1,3,"get_default_configuration_hash@296-298@src/wepy/orchestration/orchestrator.py","src/wepy/orchestration/orchestrator.py","get_default_configuration_hash","get_default_configuration_hash( self )",296,298
+3,1,20,1,5,"get_default_snapshot@301-305@src/wepy/orchestration/orchestrator.py","src/wepy/orchestration/orchestrator.py","get_default_snapshot","get_default_snapshot( self )",301,305
+2,1,12,1,3,"get_default_snapshot_hash@307-309@src/wepy/orchestration/orchestrator.py","src/wepy/orchestration/orchestrator.py","get_default_snapshot_hash","get_default_snapshot_hash( self )",307,309
+2,1,17,2,13,"hash_snapshot@313-325@src/wepy/orchestration/orchestrator.py","src/wepy/orchestration/orchestrator.py","hash_snapshot","hash_snapshot( cls , serial_str )",313,325
+2,1,20,2,14,"get_snapshot@328-341@src/wepy/orchestration/orchestrator.py","src/wepy/orchestration/orchestrator.py","get_snapshot","get_snapshot( self , snapshot_hash )",328,341
+2,1,20,2,14,"get_configuration@344-357@src/wepy/orchestration/orchestrator.py","src/wepy/orchestration/orchestrator.py","get_configuration","get_configuration( self , config_hash )",344,357
+2,1,17,1,5,"snapshot_hashes@361-365@src/wepy/orchestration/orchestrator.py","src/wepy/orchestration/orchestrator.py","snapshot_hashes","snapshot_hashes( self )",361,365
+2,1,17,1,5,"configuration_hashes@368-372@src/wepy/orchestration/orchestrator.py","src/wepy/orchestration/orchestrator.py","configuration_hashes","configuration_hashes( self )",368,372
+7,4,56,2,28,"add_snapshot@375-402@src/wepy/orchestration/orchestrator.py","src/wepy/orchestration/orchestrator.py","add_snapshot","add_snapshot( self , snapshot )",375,402
+6,4,47,2,15,"add_serial_snapshot@404-418@src/wepy/orchestration/orchestrator.py","src/wepy/orchestration/orchestrator.py","add_serial_snapshot","add_serial_snapshot( self , serial_snapshot )",404,418
+4,1,30,2,20,"gen_start_snapshot@420-439@src/wepy/orchestration/orchestrator.py","src/wepy/orchestration/orchestrator.py","gen_start_snapshot","gen_start_snapshot( self , init_walkers )",420,439
+2,1,13,1,3,"default_snapshot_hash@442-444@src/wepy/orchestration/orchestrator.py","src/wepy/orchestration/orchestrator.py","default_snapshot_hash","default_snapshot_hash( self )",442,444
+2,1,15,1,3,"default_snapshot@447-449@src/wepy/orchestration/orchestrator.py","src/wepy/orchestration/orchestrator.py","default_snapshot","default_snapshot( self )",447,449
+3,1,28,2,21,"snapshot_registered@451-471@src/wepy/orchestration/orchestrator.py","src/wepy/orchestration/orchestrator.py","snapshot_registered","snapshot_registered( self , snapshot )",451,471
+5,4,34,2,17,"snapshot_hash_registered@473-489@src/wepy/orchestration/orchestrator.py","src/wepy/orchestration/orchestrator.py","snapshot_hash_registered","snapshot_hash_registered( self , snapshot_hash )",473,489
+5,4,34,2,17,"configuration_hash_registered@492-508@src/wepy/orchestration/orchestrator.py","src/wepy/orchestration/orchestrator.py","configuration_hash_registered","configuration_hash_registered( self , config_hash )",492,508
+7,4,55,2,16,"add_configuration@513-528@src/wepy/orchestration/orchestrator.py","src/wepy/orchestration/orchestrator.py","add_configuration","add_configuration( self , configuration )",513,528
+6,4,47,2,15,"add_serial_configuration@530-544@src/wepy/orchestration/orchestrator.py","src/wepy/orchestration/orchestrator.py","add_serial_configuration","add_serial_configuration( self , serial_configuration )",530,544
+11,1,10,1,12,"create_run_table_query@548-559@src/wepy/orchestration/orchestrator.py","src/wepy/orchestration/orchestrator.py","create_run_table_query","create_run_table_query( self )",548,559
+6,1,10,1,8,"add_run_record_query@562-569@src/wepy/orchestration/orchestrator.py","src/wepy/orchestration/orchestrator.py","add_run_record_query","add_run_record_query( self )",562,569
+8,1,10,1,10,"update_run_record_query@572-581@src/wepy/orchestration/orchestrator.py","src/wepy/orchestration/orchestrator.py","update_run_record_query","update_run_record_query( self )",572,581
+6,1,10,1,8,"delete_run_record_query@584-591@src/wepy/orchestration/orchestrator.py","src/wepy/orchestration/orchestrator.py","delete_run_record_query","delete_run_record_query( self )",584,591
+4,1,43,5,9,"_add_run_record@594-602@src/wepy/orchestration/orchestrator.py","src/wepy/orchestration/orchestrator.py","_add_run_record","_add_run_record( self , start_hash , end_hash , configuration_hash , cycle_idx )",594,602
+4,1,35,3,7,"_delete_run_record@604-610@src/wepy/orchestration/orchestrator.py","src/wepy/orchestration/orchestrator.py","_delete_run_record","_delete_run_record( self , start_hash , end_hash )",604,610
+4,1,43,5,9,"_update_run_record@612-620@src/wepy/orchestration/orchestrator.py","src/wepy/orchestration/orchestrator.py","_update_run_record","_update_run_record( self , start_hash , end_hash , new_config_hash , new_last_cycle_idx )",612,620
+14,4,83,5,40,"register_run@624-663@src/wepy/orchestration/orchestrator.py","src/wepy/orchestration/orchestrator.py","register_run","register_run( self , start_hash , end_hash , config_hash , cycle_idx )",624,663
+9,1,46,1,12,"get_run_records@665-676@src/wepy/orchestration/orchestrator.py","src/wepy/orchestration/orchestrator.py","get_run_records","get_run_records( self )",665,676
+11,1,59,3,15,"get_run_record@678-692@src/wepy/orchestration/orchestrator.py","src/wepy/orchestration/orchestrator.py","get_run_record","get_run_record( self , start_hash , end_hash )",678,692
+4,1,34,3,7,"run_last_cycle_idx@694-700@src/wepy/orchestration/orchestrator.py","src/wepy/orchestration/orchestrator.py","run_last_cycle_idx","run_last_cycle_idx( self , start_hash , end_hash )",694,700
+4,1,44,3,8,"run_configuration@703-710@src/wepy/orchestration/orchestrator.py","src/wepy/orchestration/orchestrator.py","run_configuration","run_configuration( self , start_hash , end_hash )",703,710
+4,1,34,3,7,"run_configuration_hash@712-718@src/wepy/orchestration/orchestrator.py","src/wepy/orchestration/orchestrator.py","run_configuration_hash","run_configuration_hash( self , start_hash , end_hash )",712,718
+2,2,27,1,3,"run_hashes@720-722@src/wepy/orchestration/orchestrator.py","src/wepy/orchestration/orchestrator.py","run_hashes","run_hashes( self )",720,722
+10,4,55,3,37,"run_continues@724-760@src/wepy/orchestration/orchestrator.py","src/wepy/orchestration/orchestrator.py","run_continues","run_continues( self , start_hash , end_hash )",724,760
+13,1,107,5,27,"_init_checkpoint_db@763-789@src/wepy/orchestration/orchestrator.py","src/wepy/orchestration/orchestrator.py","_init_checkpoint_db","_init_checkpoint_db( self , start_hash , configuration , checkpoint_dir , mode = 'x' )",763,789
+3,1,14,6,3,"_save_checkpoint@792-794@src/wepy/orchestration/orchestrator.py","src/wepy/orchestration/orchestrator.py","_save_checkpoint","_save_checkpoint( self , checkpoint_snapshot , config_hash , checkpoint_db_path , cycle_idx , )",792,794
+8,1,65,3,25,"gen_sim_manager@904-928@src/wepy/orchestration/orchestrator.py","src/wepy/orchestration/orchestrator.py","gen_sim_manager","gen_sim_manager( self , start_snapshot , configuration )",904,928
+6,1,31,9,6,"run_snapshot_by_time@931-936@src/wepy/orchestration/orchestrator.py","src/wepy/orchestration/orchestrator.py","run_snapshot_by_time","run_snapshot_by_time( self , start_hash , run_time , n_steps , checkpoint_freq = None , checkpoint_dir = None , configuration = None , configuration_hash = None , checkpoint_mode = 'x' )",931,936
+10,1,46,13,15,"orchestrate_snapshot_run_by_time@1065-1079@src/wepy/orchestration/orchestrator.py","src/wepy/orchestration/orchestrator.py","orchestrate_snapshot_run_by_time","orchestrate_snapshot_run_by_time( self , snapshot_hash , run_time , n_steps , checkpoint_freq = None , checkpoint_dir = None , orchestrator_path = None , configuration = None , work_dir = None , config_name = None , narration = None , mode = None , ** kwargs )",1065,1079
+48,12,259,2,132,"reconcile_orchestrators@1226-1357@src/wepy/orchestration/orchestrator.py","src/wepy/orchestration/orchestrator.py","reconcile_orchestrators","reconcile_orchestrators( host_path , * orchestrator_paths )",1226,1357
+8,3,45,1,25,"set_loglevel@19-43@src/wepy/orchestration/cli.py","src/wepy/orchestration/cli.py","set_loglevel","set_loglevel( loglevel )",19,43
+6,1,27,6,6,"settle_run_options@48-53@src/wepy/orchestration/cli.py","src/wepy/orchestration/cli.py","settle_run_options","settle_run_options( n_workers = None , job_dir = None , job_name = None , narration = None , configuration = None , start_hash = None )",48,53
+2,1,23,10,2,"run_snapshot@123-124@src/wepy/orchestration/cli.py","src/wepy/orchestration/cli.py","run_snapshot","run_snapshot( log , n_workers , checkpoint_freq , job_dir , job_name , narration , n_cycle_steps , run_time , configuration , snapshot )",123,124
+2,1,25,11,2,"run_orch@220-221@src/wepy/orchestration/cli.py","src/wepy/orchestration/cli.py","run_orch","run_orch( log , n_workers , checkpoint_freq , job_dir , job_name , narration , configuration , n_cycle_steps , run_time , start_hash , orchestrator )",220,221
+54,11,370,3,200,"combine_orch_wepy_hdf5s@297-496@src/wepy/orchestration/cli.py","src/wepy/orchestration/cli.py","combine_orch_wepy_hdf5s","combine_orch_wepy_hdf5s( new_orch , new_hdf5_path , run_ids = None )",297,496
+7,2,67,3,27,"reconcile_hdf5@502-528@src/wepy/orchestration/cli.py","src/wepy/orchestration/cli.py","reconcile_hdf5","reconcile_hdf5( orchestrator , hdf5 , run_ids )",502,528
+7,2,51,3,28,"reconcile_orch@535-562@src/wepy/orchestration/cli.py","src/wepy/orchestration/cli.py","reconcile_orch","reconcile_orch( hdf5 , output , orchestrators )",535,562
+3,1,16,1,14,"hash_listing_formatter@566-579@src/wepy/orchestration/cli.py","src/wepy/orchestration/cli.py","hash_listing_formatter","hash_listing_formatter( hashes )",566,579
+5,1,37,1,20,"ls_snapshots@583-602@src/wepy/orchestration/cli.py","src/wepy/orchestration/cli.py","ls_snapshots","ls_snapshots( orchestrator )",583,602
+6,2,59,1,22,"ls_runs@606-627@src/wepy/orchestration/cli.py","src/wepy/orchestration/cli.py","ls_runs","ls_runs( orchestrator )",606,627
+5,1,37,1,20,"ls_configs@631-650@src/wepy/orchestration/cli.py","src/wepy/orchestration/cli.py","ls_configs","ls_configs( orchestrator )",631,650
+14,2,131,3,30,"hdf5_copy@658-687@src/wepy/orchestration/cli.py","src/wepy/orchestration/cli.py","hdf5_copy","hdf5_copy( no_expand_external , source , target )",658,687
+10,3,74,3,20,"get_snapshot@694-713@src/wepy/orchestration/cli.py","src/wepy/orchestration/cli.py","get_snapshot","get_snapshot( output , snapshot_hash , orchestrator )",694,713
+10,3,74,3,20,"get_config@719-738@src/wepy/orchestration/cli.py","src/wepy/orchestration/cli.py","get_config","get_config( output , config_hash , orchestrator )",719,738
+18,4,162,4,35,"get_run@745-779@src/wepy/orchestration/cli.py","src/wepy/orchestration/cli.py","get_run","get_run( output , end_hash , start_hash , orchestrator )",745,779
+7,2,71,3,12,"get_run_cycles@785-796@src/wepy/orchestration/cli.py","src/wepy/orchestration/cli.py","get_run_cycles","get_run_cycles( end_hash , start_hash , orchestrator )",785,796
+2,1,6,0,3,"cli@799-801@src/wepy/orchestration/cli.py","src/wepy/orchestration/cli.py","cli","cli( )",799,801
+2,1,6,0,3,"run@804-806@src/wepy/orchestration/cli.py","src/wepy/orchestration/cli.py","run","run( )",804,806
+2,1,6,0,3,"get@809-811@src/wepy/orchestration/cli.py","src/wepy/orchestration/cli.py","get","get( )",809,811
+2,1,6,0,3,"ls@814-816@src/wepy/orchestration/cli.py","src/wepy/orchestration/cli.py","ls","ls( )",814,816
+2,1,6,0,3,"reconcile@819-821@src/wepy/orchestration/cli.py","src/wepy/orchestration/cli.py","reconcile","reconcile( )",819,821
+2,1,6,0,3,"hdf5@824-826@src/wepy/orchestration/cli.py","src/wepy/orchestration/cli.py","hdf5","hdf5( )",824,826
+2,1,10,2,4,"__init__@251-254@src/wepy/boundary_conditions/boundary.py","src/wepy/boundary_conditions/boundary.py","__init__","__init__( self , ** kwargs )",251,254
+2,1,10,1,3,"bc_field_names@256-258@src/wepy/boundary_conditions/boundary.py","src/wepy/boundary_conditions/boundary.py","bc_field_names","bc_field_names( self )",256,258
+2,1,10,1,3,"bc_field_shapes@260-262@src/wepy/boundary_conditions/boundary.py","src/wepy/boundary_conditions/boundary.py","bc_field_shapes","bc_field_shapes( self )",260,262
+2,1,10,1,3,"bc_field_dtypes@264-266@src/wepy/boundary_conditions/boundary.py","src/wepy/boundary_conditions/boundary.py","bc_field_dtypes","bc_field_dtypes( self )",264,266
+4,1,30,1,13,"bc_fields@268-280@src/wepy/boundary_conditions/boundary.py","src/wepy/boundary_conditions/boundary.py","bc_fields","bc_fields( self )",268,280
+2,1,10,1,3,"bc_record_field_names@282-284@src/wepy/boundary_conditions/boundary.py","src/wepy/boundary_conditions/boundary.py","bc_record_field_names","bc_record_field_names( self )",282,284
+2,1,10,1,3,"warping_field_names@286-288@src/wepy/boundary_conditions/boundary.py","src/wepy/boundary_conditions/boundary.py","warping_field_names","warping_field_names( self )",286,288
+2,1,10,1,3,"warping_field_shapes@290-292@src/wepy/boundary_conditions/boundary.py","src/wepy/boundary_conditions/boundary.py","warping_field_shapes","warping_field_shapes( self )",290,292
+2,1,10,1,3,"warping_field_dtypes@294-296@src/wepy/boundary_conditions/boundary.py","src/wepy/boundary_conditions/boundary.py","warping_field_dtypes","warping_field_dtypes( self )",294,296
+4,1,30,1,13,"warping_fields@298-310@src/wepy/boundary_conditions/boundary.py","src/wepy/boundary_conditions/boundary.py","warping_fields","warping_fields( self )",298,310
+2,1,10,1,3,"warping_record_field_names@312-314@src/wepy/boundary_conditions/boundary.py","src/wepy/boundary_conditions/boundary.py","warping_record_field_names","warping_record_field_names( self )",312,314
+2,1,10,1,3,"progress_field_names@316-318@src/wepy/boundary_conditions/boundary.py","src/wepy/boundary_conditions/boundary.py","progress_field_names","progress_field_names( self )",316,318
+2,1,10,1,3,"progress_field_shapes@320-322@src/wepy/boundary_conditions/boundary.py","src/wepy/boundary_conditions/boundary.py","progress_field_shapes","progress_field_shapes( self )",320,322
+2,1,10,1,3,"progress_field_dtypes@324-326@src/wepy/boundary_conditions/boundary.py","src/wepy/boundary_conditions/boundary.py","progress_field_dtypes","progress_field_dtypes( self )",324,326
+4,1,30,1,13,"progress_fields@328-340@src/wepy/boundary_conditions/boundary.py","src/wepy/boundary_conditions/boundary.py","progress_fields","progress_fields( self )",328,340
+2,1,10,1,3,"progress_record_field_names@342-344@src/wepy/boundary_conditions/boundary.py","src/wepy/boundary_conditions/boundary.py","progress_record_field_names","progress_record_field_names( self )",342,344
+2,1,12,3,46,"warp_walkers@346-391@src/wepy/boundary_conditions/boundary.py","src/wepy/boundary_conditions/boundary.py","warp_walkers","warp_walkers( self , walkers , cycle )",346,391
+2,1,10,2,17,"warping_discontinuity@394-410@src/wepy/boundary_conditions/boundary.py","src/wepy/boundary_conditions/boundary.py","warping_discontinuity","warping_discontinuity( cls , warping_record )",394,410
+5,1,30,3,38,"warp_walkers@422-459@src/wepy/boundary_conditions/boundary.py","src/wepy/boundary_conditions/boundary.py","warp_walkers","warp_walkers( self , walkers , cycle )",422,459
+2,1,9,2,5,"warping_discontinuity@462-466@src/wepy/boundary_conditions/boundary.py","src/wepy/boundary_conditions/boundary.py","warping_discontinuity","warping_discontinuity( cls , warping_record )",462,466
+4,1,21,5,4,"__init__@74-77@src/wepy/boundary_conditions/receptor.py","src/wepy/boundary_conditions/receptor.py","__init__","__init__( self , initial_states = None , initial_weights = None , ligand_idxs = None , receptor_idxs = None )",74,77
+2,1,10,1,3,"initial_states@130-132@src/wepy/boundary_conditions/receptor.py","src/wepy/boundary_conditions/receptor.py","initial_states","initial_states( self )",130,132
+2,1,10,1,3,"initial_weights@135-137@src/wepy/boundary_conditions/receptor.py","src/wepy/boundary_conditions/receptor.py","initial_weights","initial_weights( self )",135,137
+2,1,10,1,3,"ligand_idxs@140-142@src/wepy/boundary_conditions/receptor.py","src/wepy/boundary_conditions/receptor.py","ligand_idxs","ligand_idxs( self )",140,142
+2,1,10,1,4,"receptor_idxs@145-148@src/wepy/boundary_conditions/receptor.py","src/wepy/boundary_conditions/receptor.py","receptor_idxs","receptor_idxs( self )",145,148
+2,1,10,2,22,"_progress@151-172@src/wepy/boundary_conditions/receptor.py","src/wepy/boundary_conditions/receptor.py","_progress","_progress( self , walker )",151,172
+8,1,102,2,40,"_warp@174-213@src/wepy/boundary_conditions/receptor.py","src/wepy/boundary_conditions/receptor.py","_warp","_warp( self , walker )",174,213
+2,1,17,5,26,"_update_bc@216-241@src/wepy/boundary_conditions/receptor.py","src/wepy/boundary_conditions/receptor.py","_update_bc","_update_bc( self , new_walkers , warp_data , progress_data , cycle )",216,241
+24,6,190,3,85,"warp_walkers@244-328@src/wepy/boundary_conditions/receptor.py","src/wepy/boundary_conditions/receptor.py","warp_walkers","warp_walkers( self , walkers , cycle )",244,328
+9,4,42,2,34,"warping_discontinuity@331-364@src/wepy/boundary_conditions/receptor.py","src/wepy/boundary_conditions/receptor.py","warping_discontinuity","warping_discontinuity( cls , warping_record )",331,364
+6,1,31,7,6,"__init__@433-438@src/wepy/boundary_conditions/receptor.py","src/wepy/boundary_conditions/receptor.py","__init__","__init__( self , native_state = None , cutoff_rmsd = 0 . 2 , initial_states = None , initial_weights = None , ligand_idxs = None , binding_site_idxs = None )",433,438
+2,1,10,1,3,"native_state@497-499@src/wepy/boundary_conditions/receptor.py","src/wepy/boundary_conditions/receptor.py","native_state","native_state( self )",497,499
+2,1,10,1,3,"cutoff_rmsd@502-504@src/wepy/boundary_conditions/receptor.py","src/wepy/boundary_conditions/receptor.py","cutoff_rmsd","cutoff_rmsd( self )",502,504
+2,1,10,1,4,"binding_site_idxs@507-510@src/wepy/boundary_conditions/receptor.py","src/wepy/boundary_conditions/receptor.py","binding_site_idxs","binding_site_idxs( self )",507,510
+14,2,118,2,44,"_progress@512-555@src/wepy/boundary_conditions/receptor.py","src/wepy/boundary_conditions/receptor.py","_progress","_progress( self , walker )",512,555
+5,1,27,6,5,"__init__@602-606@src/wepy/boundary_conditions/receptor.py","src/wepy/boundary_conditions/receptor.py","__init__","__init__( self , initial_state = None , cutoff_distance = 1 . 0 , topology = None , ligand_idxs = None , receptor_idxs = None )",602,606
+2,1,10,1,3,"cutoff_distance@674-676@src/wepy/boundary_conditions/receptor.py","src/wepy/boundary_conditions/receptor.py","cutoff_distance","cutoff_distance( self )",674,676
+2,1,10,1,3,"topology@679-681@src/wepy/boundary_conditions/receptor.py","src/wepy/boundary_conditions/receptor.py","topology","topology( self )",679,681
+14,1,114,2,33,"_calc_min_distance@683-715@src/wepy/boundary_conditions/receptor.py","src/wepy/boundary_conditions/receptor.py","_calc_min_distance","_calc_min_distance( self , walker )",683,715
+7,2,40,2,29,"_progress@717-745@src/wepy/boundary_conditions/receptor.py","src/wepy/boundary_conditions/receptor.py","_progress","_progress( self , walker )",717,745
+5,2,43,5,31,"_update_bc@747-777@src/wepy/boundary_conditions/receptor.py","src/wepy/boundary_conditions/receptor.py","_update_bc","_update_bc( self , new_walkers , warp_data , progress_data , cycle )",747,777
+3,1,23,3,13,"__init__@20-32@src/wepy/work_mapper/mapper.py","src/wepy/work_mapper/mapper.py","__init__","__init__( self , segment_func = None , ** kwargs )",20,32
+2,1,9,1,2,"attributes@35-36@src/wepy/work_mapper/mapper.py","src/wepy/work_mapper/mapper.py","attributes","attributes( self )",35,36
+2,1,14,2,2,"attributes@39-40@src/wepy/work_mapper/mapper.py","src/wepy/work_mapper/mapper.py","attributes","attributes( self , key )",39,40
+8,7,78,3,19,"init@42-60@src/wepy/work_mapper/mapper.py","src/wepy/work_mapper/mapper.py","init","init( self , segment_func = None , ** kwargs )",42,60
+2,1,10,1,3,"segment_func@64-66@src/wepy/work_mapper/mapper.py","src/wepy/work_mapper/mapper.py","segment_func","segment_func( self )",64,66
+2,1,10,2,14,"cleanup@68-81@src/wepy/work_mapper/mapper.py","src/wepy/work_mapper/mapper.py","cleanup","cleanup( self , ** kwargs )",68,81
+2,1,10,2,2,"map@83-84@src/wepy/work_mapper/mapper.py","src/wepy/work_mapper/mapper.py","map","map( self , ** kwargs )",83,84
+3,1,36,3,14,"__init__@91-104@src/wepy/work_mapper/mapper.py","src/wepy/work_mapper/mapper.py","__init__","__init__( self , segment_func = None , ** kwargs )",91,104
+30,5,184,2,68,"map@107-174@src/wepy/work_mapper/mapper.py","src/wepy/work_mapper/mapper.py","map","map( self , * args )",107,174
+2,1,10,1,11,"worker_segment_times@177-187@src/wepy/work_mapper/mapper.py","src/wepy/work_mapper/mapper.py","worker_segment_times","worker_segment_times( self )",177,187
+3,1,21,3,14,"__init__@193-206@src/wepy/work_mapper/mapper.py","src/wepy/work_mapper/mapper.py","__init__","__init__( self , func , * args )",193,206
+2,1,22,2,6,"__call__@208-213@src/wepy/work_mapper/mapper.py","src/wepy/work_mapper/mapper.py","__call__","__call__( self , ** kwargs )",208,213
+3,1,15,4,4,"__init__@223-226@src/wepy/work_mapper/mapper.py","src/wepy/work_mapper/mapper.py","__init__","__init__( self , message , wrapped_exception = None , tb = None )",223,226
+4,1,16,4,4,"__init__@239-242@src/wepy/work_mapper/mapper.py","src/wepy/work_mapper/mapper.py","__init__","__init__( self , num_workers = None , segment_func = None , ** kwargs )",239,242
+2,1,16,4,2,"init@265-266@src/wepy/work_mapper/mapper.py","src/wepy/work_mapper/mapper.py","init","init( self , num_workers = None , segment_func = None , ** kwargs )",265,266
+2,1,10,1,3,"num_workers@291-293@src/wepy/work_mapper/mapper.py","src/wepy/work_mapper/mapper.py","num_workers","num_workers( self )",291,293
+2,1,25,3,15,"_make_task@295-309@src/wepy/work_mapper/mapper.py","src/wepy/work_mapper/mapper.py","_make_task","_make_task( self , * args , ** kwargs )",295,309
+6,1,24,6,6,"__init__@336-341@src/wepy/work_mapper/mapper.py","src/wepy/work_mapper/mapper.py","__init__","__init__( self , num_workers = None , worker_type = None , worker_attributes = None , segment_func = None , ** kwargs )",336,341
+2,1,10,1,8,"worker_type@384-391@src/wepy/work_mapper/mapper.py","src/wepy/work_mapper/mapper.py","worker_type","worker_type( self )",384,391
+2,1,16,4,2,"init@393-394@src/wepy/work_mapper/mapper.py","src/wepy/work_mapper/mapper.py","init","init( self , num_workers = None , segment_func = None , ** kwargs )",393,394
+3,1,20,3,5,"_sigterm_shutdown@460-464@src/wepy/work_mapper/mapper.py","src/wepy/work_mapper/mapper.py","_sigterm_shutdown","_sigterm_shutdown( self , signum , frame )",460,464
+38,15,304,2,79,"force_shutdown@466-544@src/wepy/work_mapper/mapper.py","src/wepy/work_mapper/mapper.py","force_shutdown","force_shutdown( self , ** kwargs )",466,544
+6,2,46,2,21,"cleanup@549-569@src/wepy/work_mapper/mapper.py","src/wepy/work_mapper/mapper.py","cleanup","cleanup( self , ** kwargs )",549,569
+50,10,313,2,107,"map@572-678@src/wepy/work_mapper/mapper.py","src/wepy/work_mapper/mapper.py","map","map( self , * args )",572,678
+4,1,18,7,4,"__init__@696-699@src/wepy/work_mapper/mapper.py","src/wepy/work_mapper/mapper.py","__init__","__init__( self , worker_idx , task_queue , result_queue , exception_queue , interrupt_connection , ** kwargs )",696,699
+2,1,10,1,3,"worker_idx@745-747@src/wepy/work_mapper/mapper.py","src/wepy/work_mapper/mapper.py","worker_idx","worker_idx( self )",745,747
+2,1,10,1,3,"attributes@750-752@src/wepy/work_mapper/mapper.py","src/wepy/work_mapper/mapper.py","attributes","attributes( self )",750,752
+35,5,210,1,72,"run@754-825@src/wepy/work_mapper/mapper.py","src/wepy/work_mapper/mapper.py","run","run( self )",754,825
+7,1,55,3,13,"_sigterm_shutdown@831-843@src/wepy/work_mapper/mapper.py","src/wepy/work_mapper/mapper.py","_sigterm_shutdown","_sigterm_shutdown( self , signum , frame )",831,843
+6,1,37,1,12,"_shutdown@845-856@src/wepy/work_mapper/mapper.py","src/wepy/work_mapper/mapper.py","_shutdown","_shutdown( self )",845,856
+38,7,271,1,92,"_run_worker@859-950@src/wepy/work_mapper/mapper.py","src/wepy/work_mapper/mapper.py","_run_worker","_run_worker( self )",859,950
+20,2,100,2,43,"_run_task@952-994@src/wepy/work_mapper/mapper.py","src/wepy/work_mapper/mapper.py","_run_task","_run_task( self , task )",952,994
+5,1,20,5,5,"__init__@47-51@src/wepy/work_mapper/task_mapper.py","src/wepy/work_mapper/task_mapper.py","__init__","__init__( self , walker_task_type = None , num_workers = None , segment_func = None , ** kwargs )",47,51
+3,1,29,2,7,"init@71-77@src/wepy/work_mapper/task_mapper.py","src/wepy/work_mapper/task_mapper.py","init","init( self , ** kwargs )",71,77
+4,1,26,3,7,"_sigterm_shutdown@79-85@src/wepy/work_mapper/task_mapper.py","src/wepy/work_mapper/task_mapper.py","_sigterm_shutdown","_sigterm_shutdown( self , signum , frame )",79,85
+2,1,10,1,8,"walker_task_type@90-97@src/wepy/work_mapper/task_mapper.py","src/wepy/work_mapper/task_mapper.py","walker_task_type","walker_task_type( self )",90,97
+13,6,77,1,23,"force_shutdown@100-122@src/wepy/work_mapper/task_mapper.py","src/wepy/work_mapper/task_mapper.py","force_shutdown","force_shutdown( self )",100,122
+80,18,503,2,174,"map@126-299@src/wepy/work_mapper/task_mapper.py","src/wepy/work_mapper/task_mapper.py","map","map( self , * args )",126,299
+5,1,24,10,5,"__init__@306-310@src/wepy/work_mapper/task_mapper.py","src/wepy/work_mapper/task_mapper.py","__init__","__init__( self , walker_idx , mapper_attributes , func , task_args , worker_queue , results_list , worker_segment_times , interrupt_connection , ** kwargs )",306,310
+7,1,55,3,13,"_sigterm_shutdown@340-352@src/wepy/work_mapper/task_mapper.py","src/wepy/work_mapper/task_mapper.py","_sigterm_shutdown","_sigterm_shutdown( self , signum , frame )",340,352
+2,1,11,2,2,"attributes@356-357@src/wepy/work_mapper/task_mapper.py","src/wepy/work_mapper/task_mapper.py","attributes","attributes( self , key )",356,357
+2,1,14,2,2,"attributes@360-361@src/wepy/work_mapper/task_mapper.py","src/wepy/work_mapper/task_mapper.py","attributes","attributes( self , key )",360,361
+21,2,118,2,32,"_run_task@363-394@src/wepy/work_mapper/task_mapper.py","src/wepy/work_mapper/task_mapper.py","_run_task","_run_task( self , task )",363,394
+35,5,197,1,72,"run@396-467@src/wepy/work_mapper/task_mapper.py","src/wepy/work_mapper/task_mapper.py","run","run( self )",396,467
+39,5,278,1,70,"_run_walker@469-538@src/wepy/work_mapper/task_mapper.py","src/wepy/work_mapper/task_mapper.py","_run_walker","_run_walker( self )",469,538
+7,2,74,2,29,"__init__@52-80@src/wepy/analysis/network_layouts/layout_graph.py","src/wepy/analysis/network_layouts/layout_graph.py","__init__","__init__( self , graph )",52,80
+2,1,10,1,3,"graph@83-85@src/wepy/analysis/network_layouts/layout_graph.py","src/wepy/analysis/network_layouts/layout_graph.py","graph","graph( self )",83,85
+2,1,10,1,3,"viz_graph@88-90@src/wepy/analysis/network_layouts/layout_graph.py","src/wepy/analysis/network_layouts/layout_graph.py","viz_graph","viz_graph( self )",88,90
+10,3,53,2,31,"get_node_attributes@93-123@src/wepy/analysis/network_layouts/layout_graph.py","src/wepy/analysis/network_layouts/layout_graph.py","get_node_attributes","get_node_attributes( self , attribute_key )",93,123
+3,2,34,3,15,"set_node_viz_attributes@127-141@src/wepy/analysis/network_layouts/layout_graph.py","src/wepy/analysis/network_layouts/layout_graph.py","set_node_viz_attributes","set_node_viz_attributes( self , attribute_key , node_attribute_dict )",127,141
+2,1,18,2,10,"set_node_positions@143-152@src/wepy/analysis/network_layouts/layout_graph.py","src/wepy/analysis/network_layouts/layout_graph.py","set_node_positions","set_node_positions( self , node_positions_dict )",143,152
+2,1,18,2,9,"set_node_colors@154-162@src/wepy/analysis/network_layouts/layout_graph.py","src/wepy/analysis/network_layouts/layout_graph.py","set_node_colors","set_node_colors( self , node_colors_dict )",154,162
+2,1,18,2,9,"set_node_sizes@164-172@src/wepy/analysis/network_layouts/layout_graph.py","src/wepy/analysis/network_layouts/layout_graph.py","set_node_sizes","set_node_sizes( self , node_sizes_dict )",164,172
+2,1,18,2,9,"set_node_shapes@174-182@src/wepy/analysis/network_layouts/layout_graph.py","src/wepy/analysis/network_layouts/layout_graph.py","set_node_shapes","set_node_shapes( self , node_shapes_dict )",174,182
+5,2,37,2,17,"get_node_viz_attributes@186-202@src/wepy/analysis/network_layouts/layout_graph.py","src/wepy/analysis/network_layouts/layout_graph.py","get_node_viz_attributes","get_node_viz_attributes( self , attribute_key )",186,202
+2,1,14,1,10,"get_node_positions@204-213@src/wepy/analysis/network_layouts/layout_graph.py","src/wepy/analysis/network_layouts/layout_graph.py","get_node_positions","get_node_positions( self )",204,213
+2,1,14,1,10,"get_node_colors@215-224@src/wepy/analysis/network_layouts/layout_graph.py","src/wepy/analysis/network_layouts/layout_graph.py","get_node_colors","get_node_colors( self )",215,224
+2,1,14,1,10,"get_node_sizes@226-235@src/wepy/analysis/network_layouts/layout_graph.py","src/wepy/analysis/network_layouts/layout_graph.py","get_node_sizes","get_node_sizes( self )",226,235
+2,1,14,1,8,"get_node_shapes@237-244@src/wepy/analysis/network_layouts/layout_graph.py","src/wepy/analysis/network_layouts/layout_graph.py","get_node_shapes","get_node_shapes( self )",237,244
+4,6,62,2,19,"RGBA_to_hex@249-267@src/wepy/analysis/network_layouts/layout_graph.py","src/wepy/analysis/network_layouts/layout_graph.py","RGBA_to_hex","RGBA_to_hex( cls , color_vec )",249,267
+4,1,46,2,18,"feature_vector_to_gexf_viz_position@273-290@src/wepy/analysis/network_layouts/layout_graph.py","src/wepy/analysis/network_layouts/layout_graph.py","feature_vector_to_gexf_viz_position","feature_vector_to_gexf_viz_position( cls , coord_vec )",273,290
+4,1,46,2,19,"feature_vector_to_gexf_viz_color_RGB@293-311@src/wepy/analysis/network_layouts/layout_graph.py","src/wepy/analysis/network_layouts/layout_graph.py","feature_vector_to_gexf_viz_color_RGB","feature_vector_to_gexf_viz_color_RGB( cls , color_vec )",293,311
+5,1,58,2,20,"feature_vector_to_gexf_viz_color_RGBA@314-333@src/wepy/analysis/network_layouts/layout_graph.py","src/wepy/analysis/network_layouts/layout_graph.py","feature_vector_to_gexf_viz_color_RGBA","feature_vector_to_gexf_viz_color_RGBA( cls , color_vec )",314,333
+3,2,39,3,20,"set_node_gexf_viz@335-354@src/wepy/analysis/network_layouts/layout_graph.py","src/wepy/analysis/network_layouts/layout_graph.py","set_node_gexf_viz","set_node_gexf_viz( self , viz_key , node_dict )",335,354
+4,2,37,2,14,"set_node_gexf_positions@356-369@src/wepy/analysis/network_layouts/layout_graph.py","src/wepy/analysis/network_layouts/layout_graph.py","set_node_gexf_positions","set_node_gexf_positions( self , node_positions_dict )",356,369
+4,2,37,2,14,"set_node_gexf_colors_rgb@371-384@src/wepy/analysis/network_layouts/layout_graph.py","src/wepy/analysis/network_layouts/layout_graph.py","set_node_gexf_colors_rgb","set_node_gexf_colors_rgb( self , node_colors_dict )",371,384
+4,2,37,2,14,"set_node_gexf_colors_rgba@386-399@src/wepy/analysis/network_layouts/layout_graph.py","src/wepy/analysis/network_layouts/layout_graph.py","set_node_gexf_colors_rgba","set_node_gexf_colors_rgba( self , node_colors_dict )",386,399
+2,1,18,2,10,"set_node_gexf_sizes@401-410@src/wepy/analysis/network_layouts/layout_graph.py","src/wepy/analysis/network_layouts/layout_graph.py","set_node_gexf_sizes","set_node_gexf_sizes( self , node_sizes_dict )",401,410
+2,1,18,2,9,"set_node_gexf_shape@412-420@src/wepy/analysis/network_layouts/layout_graph.py","src/wepy/analysis/network_layouts/layout_graph.py","set_node_gexf_shape","set_node_gexf_shape( self , node_shape_dict )",412,420
+5,1,29,5,5,"__init__@38-42@src/wepy/analysis/network_layouts/tree.py","src/wepy/analysis/network_layouts/tree.py","__init__","__init__( self , node_radius = 1 . 0 , row_spacing = 5 . 0 , step_spacing = 20 . 0 , central_axis = 0 . 0 )",38,42
+12,4,85,4,33,"_overlaps@71-103@src/wepy/analysis/network_layouts/tree.py","src/wepy/analysis/network_layouts/tree.py","_overlaps","_overlaps( self , positions , node_radii , node_idx )",71,103
+6,1,55,3,22,"_node_row_length@105-126@src/wepy/analysis/network_layouts/tree.py","src/wepy/analysis/network_layouts/tree.py","_node_row_length","_node_row_length( self , node_positions , node_radii )",105,126
+74,35,668,3,213,"_simple_gen_distribution@128-340@src/wepy/analysis/network_layouts/tree.py","src/wepy/analysis/network_layouts/tree.py","_simple_gen_distribution","_simple_gen_distribution( self , nodes_x , node_radii )",128,340
+10,4,72,4,33,"_simple_next_gen@342-374@src/wepy/analysis/network_layouts/tree.py","src/wepy/analysis/network_layouts/tree.py","_simple_next_gen","_simple_next_gen( self , parents_x , children_parent_idxs , node_radii )",342,374
+11,2,77,2,44,"_initial_parent_distribution@377-420@src/wepy/analysis/network_layouts/tree.py","src/wepy/analysis/network_layouts/tree.py","_initial_parent_distribution","_initial_parent_distribution( self , node_radii )",377,420
+7,1,57,4,32,"_center_row@422-453@src/wepy/analysis/network_layouts/tree.py","src/wepy/analysis/network_layouts/tree.py","_center_row","_center_row( self , positions , radii , center )",422,453
+26,4,230,3,85,"_layout_array@455-539@src/wepy/analysis/network_layouts/tree.py","src/wepy/analysis/network_layouts/tree.py","_layout_array","_layout_array( self , parent_table , radii_array )",455,539
+29,10,192,3,107,"layout@542-648@src/wepy/analysis/network_layouts/tree.py","src/wepy/analysis/network_layouts/tree.py","layout","layout( self , parent_forest , node_radii = None )",542,648
+10,3,72,2,63,"calc_warp_rate@5-67@src/wepy/analysis/rates.py","src/wepy/analysis/rates.py","calc_warp_rate","calc_warp_rate( warping_records , total_sampling_time )",5,67
+17,9,154,3,76,"contig_warp_rates@70-145@src/wepy/analysis/rates.py","src/wepy/analysis/rates.py","contig_warp_rates","contig_warp_rates( contig , cycle_time , time_points = None )",70,145
+3,1,15,4,3,"traj_fields_chunk_items@130-132@src/wepy/analysis/distributed.py","src/wepy/analysis/distributed.py","traj_fields_chunk_items","traj_fields_chunk_items( wepy_h5_path , fields , run_idxs = Ellipsis , chunk_size = Ellipsis )",130,132
+11,2,69,1,16,"load_chunk@203-218@src/wepy/analysis/distributed.py","src/wepy/analysis/distributed.py","load_chunk","load_chunk( chunk_spec )",203,218
+4,1,19,4,4,"chunk_func_funcgen@220-223@src/wepy/analysis/distributed.py","src/wepy/analysis/distributed.py","chunk_func_funcgen","chunk_func_funcgen( func , input_keys = [ 'traj_fields' ] , result_name = None , keep_inputs = False )",220,223
+11,3,60,1,19,"chunk_func@234-252@src/wepy/analysis/distributed.py","src/wepy/analysis/distributed.py","chunk_func","chunk_func( chunk_spec )",234,252
+3,3,25,1,4,"unwrap_chunk_funcgen.unwrap_chunk_func@264-267@src/wepy/analysis/distributed.py","src/wepy/analysis/distributed.py","unwrap_chunk_funcgen.unwrap_chunk_func","unwrap_chunk_funcgen.unwrap_chunk_func( chunk_struct )",264,267
+5,1,28,1,12,"unwrap_chunk_funcgen@258-269@src/wepy/analysis/distributed.py","src/wepy/analysis/distributed.py","unwrap_chunk_funcgen","unwrap_chunk_funcgen( keys = None )",258,269
+2,1,17,1,2,"chunk_key_func@272-273@src/wepy/analysis/distributed.py","src/wepy/analysis/distributed.py","chunk_key_func","chunk_key_func( chunk_spec )",272,273
+6,1,32,0,7,"init_chunk@275-281@src/wepy/analysis/distributed.py","src/wepy/analysis/distributed.py","init_chunk","init_chunk( )",275,281
+18,6,124,2,30,"chunk_concat_funcgen.chunk_concat@285-314@src/wepy/analysis/distributed.py","src/wepy/analysis/distributed.py","chunk_concat_funcgen.chunk_concat","chunk_concat_funcgen.chunk_concat( cum_chunk_spec , new_chunk_spec )",285,314
+3,1,10,1,34,"chunk_concat_funcgen@283-316@src/wepy/analysis/distributed.py","src/wepy/analysis/distributed.py","chunk_concat_funcgen","chunk_concat_funcgen( * concat_funcs )",283,316
+6,2,46,2,11,"chunk_array_concat_funcgen.func@321-331@src/wepy/analysis/distributed.py","src/wepy/analysis/distributed.py","chunk_array_concat_funcgen.func","chunk_array_concat_funcgen.func( cum_chunk_spec , new_chunk_spec )",321,331
+3,1,9,1,15,"chunk_array_concat_funcgen@319-333@src/wepy/analysis/distributed.py","src/wepy/analysis/distributed.py","chunk_array_concat_funcgen","chunk_array_concat_funcgen( field )",319,333
+4,1,29,2,9,"chunk_traj_fields_concat@335-343@src/wepy/analysis/distributed.py","src/wepy/analysis/distributed.py","chunk_traj_fields_concat","chunk_traj_fields_concat( cum_chunk_spec , new_chunk_spec )",335,343
+15,6,126,1,31,"_by_traj_to_multidimensional@376-406@src/wepy/analysis/distributed.py","src/wepy/analysis/distributed.py","_by_traj_to_multidimensional","_by_traj_to_multidimensional( traj_d )",376,406
+7,1,23,7,8,"compute_observable@409-416@src/wepy/analysis/distributed.py","src/wepy/analysis/distributed.py","compute_observable","compute_observable( func , wepy_h5_path , dask_client , fields , chunk_size = Ellipsis , num_partitions = 100 , run_idxs = Ellipsis )",409,416
+16,2,84,3,56,"compute_observable_graph@444-499@src/wepy/analysis/distributed.py","src/wepy/analysis/distributed.py","compute_observable_graph","compute_observable_graph( func , chunk_bag , chunk_size )",444,499
+3,1,13,3,3,"cumulative_partitions@9-11@src/wepy/analysis/profiles.py","src/wepy/analysis/profiles.py","cumulative_partitions","cumulative_partitions( ensemble_values , time_tranche = None , num_partitions = 5 )",9,11
+3,1,21,5,3,"free_energy_profile@80-82@src/wepy/analysis/profiles.py","src/wepy/analysis/profiles.py","free_energy_profile","free_energy_profile( weights , observables , bins = 30 , max_energy = 100 , zero_point_energy = 1e - 12 )",80,82
+10,3,73,3,37,"contigtrees_bin_edges@118-154@src/wepy/analysis/profiles.py","src/wepy/analysis/profiles.py","contigtrees_bin_edges","contigtrees_bin_edges( contigtrees , bins , field_key )",118,154
+2,1,13,2,12,"__init__@161-172@src/wepy/analysis/profiles.py","src/wepy/analysis/profiles.py","__init__","__init__( self , contigtree )",161,172
+2,1,10,1,3,"contigtree@180-182@src/wepy/analysis/profiles.py","src/wepy/analysis/profiles.py","contigtree","contigtree( self )",180,182
+17,5,142,4,63,"fe_profile_trace@184-246@src/wepy/analysis/profiles.py","src/wepy/analysis/profiles.py","fe_profile_trace","fe_profile_trace( self , trace , field_key , bins = None )",184,246
+24,7,206,3,73,"fe_profile_all@249-321@src/wepy/analysis/profiles.py","src/wepy/analysis/profiles.py","fe_profile_all","fe_profile_all( self , field_key , bins = None )",249,321
+18,5,168,4,75,"fe_profile@324-398@src/wepy/analysis/profiles.py","src/wepy/analysis/profiles.py","fe_profile","fe_profile( self , span , field_key , bins = None )",324,398
+2,1,21,6,2,"fe_cumulative_profiles@401-402@src/wepy/analysis/profiles.py","src/wepy/analysis/profiles.py","fe_cumulative_profiles","fe_cumulative_profiles( self , span , field_key , bins = None , time_tranche = None , num_partitions = 5 )",401,402
+6,2,52,3,33,"bin_edges@498-530@src/wepy/analysis/profiles.py","src/wepy/analysis/profiles.py","bin_edges","bin_edges( self , bins , field_key )",498,530
+2,1,19,5,2,"__init__@32-33@src/wepy/analysis/network.py","src/wepy/analysis/network.py","__init__","__init__( self , contig_tree , assg_field_key = None , assignments = None , transition_lag_time = 2 )",32,33
+12,4,101,2,28,"_key_init@193-220@src/wepy/analysis/network.py","src/wepy/analysis/network.py","_key_init","_key_init( self , contig_tree )",193,220
+8,4,79,2,29,"_assignments_init@222-250@src/wepy/analysis/network.py","src/wepy/analysis/network.py","_assignments_init","_assignments_init( self , assignments )",222,250
+2,1,17,2,13,"node_id_to_idx@252-264@src/wepy/analysis/network.py","src/wepy/analysis/network.py","node_id_to_idx","node_id_to_idx( self , assg_key )",252,264
+2,1,17,2,14,"node_idx_to_id@266-279@src/wepy/analysis/network.py","src/wepy/analysis/network.py","node_idx_to_id","node_idx_to_id( self , node_idx )",266,279
+2,1,10,1,3,"node_id_to_idx_dict@281-283@src/wepy/analysis/network.py","src/wepy/analysis/network.py","node_id_to_idx_dict","node_id_to_idx_dict( self )",281,283
+7,3,46,1,12,"node_idx_to_id_dict@285-296@src/wepy/analysis/network.py","src/wepy/analysis/network.py","node_idx_to_id_dict","node_idx_to_id_dict( self )",285,296
+2,1,10,1,3,"graph@300-302@src/wepy/analysis/network.py","src/wepy/analysis/network.py","graph","graph( self )",300,302
+2,1,13,1,3,"num_states@305-307@src/wepy/analysis/network.py","src/wepy/analysis/network.py","num_states","num_states( self )",305,307
+2,1,15,1,3,"node_ids@310-312@src/wepy/analysis/network.py","src/wepy/analysis/network.py","node_ids","node_ids( self )",310,312
+2,1,10,1,3,"contig_tree@315-317@src/wepy/analysis/network.py","src/wepy/analysis/network.py","contig_tree","contig_tree( self )",315,317
+5,2,24,1,13,"assg_field_key@320-332@src/wepy/analysis/network.py","src/wepy/analysis/network.py","assg_field_key","assg_field_key( self )",320,332
+5,2,24,1,14,"countsmat@335-348@src/wepy/analysis/network.py","src/wepy/analysis/network.py","countsmat","countsmat( self )",335,348
+5,2,24,1,14,"probmat@351-364@src/wepy/analysis/network.py","src/wepy/analysis/network.py","probmat","probmat( self )",351,364
+2,1,17,2,13,"get_node_attributes@366-378@src/wepy/analysis/network.py","src/wepy/analysis/network.py","get_node_attributes","get_node_attributes( self , node_id )",366,378
+2,1,20,3,15,"get_node_attribute@380-394@src/wepy/analysis/network.py","src/wepy/analysis/network.py","get_node_attribute","get_node_attribute( self , node_id , attribute_key )",380,394
+5,2,39,2,8,"get_nodes_attribute@396-403@src/wepy/analysis/network.py","src/wepy/analysis/network.py","get_nodes_attribute","get_nodes_attribute( self , attribute_key )",396,403
+2,1,19,2,14,"node_assignments@405-418@src/wepy/analysis/network.py","src/wepy/analysis/network.py","node_assignments","node_assignments( self , node_id )",405,418
+3,2,34,3,12,"set_nodes_attribute@421-432@src/wepy/analysis/network.py","src/wepy/analysis/network.py","set_nodes_attribute","set_nodes_attribute( self , key , values_dict )",421,432
+2,1,9,1,2,"node_groups@435-436@src/wepy/analysis/network.py","src/wepy/analysis/network.py","node_groups","node_groups( self )",435,436
+3,1,25,3,8,"set_node_group@438-445@src/wepy/analysis/network.py","src/wepy/analysis/network.py","set_node_group","set_node_group( self , group_name , node_ids )",438,445
+5,3,46,3,12,"_set_group_nodes_attribute@448-459@src/wepy/analysis/network.py","src/wepy/analysis/network.py","_set_group_nodes_attribute","_set_group_nodes_attribute( self , group_name , group_node_ids )",448,459
+2,1,10,1,3,"observables@463-465@src/wepy/analysis/network.py","src/wepy/analysis/network.py","observables","observables( self )",463,465
+6,2,42,2,9,"node_observables@467-475@src/wepy/analysis/network.py","src/wepy/analysis/network.py","node_observables","node_observables( self , node_id )",467,475
+4,1,33,3,10,"set_nodes_observable@477-486@src/wepy/analysis/network.py","src/wepy/analysis/network.py","set_nodes_observable","set_nodes_observable( self , observable_name , node_values )",477,486
+2,1,9,1,2,"layouts@489-490@src/wepy/analysis/network.py","src/wepy/analysis/network.py","layouts","layouts( self )",489,490
+6,2,42,2,9,"node_layouts@492-500@src/wepy/analysis/network.py","src/wepy/analysis/network.py","node_layouts","node_layouts( self , node_id )",492,500
+5,2,41,3,11,"set_nodes_layout@502-512@src/wepy/analysis/network.py","src/wepy/analysis/network.py","set_nodes_layout","set_nodes_layout( self , layout_name , node_values )",502,512
+24,10,214,4,49,"write_gexf@515-563@src/wepy/analysis/network.py","src/wepy/analysis/network.py","write_gexf","write_gexf( self , filepath , exclude_fields = None , layout = 'main' )",515,563
+11,5,100,1,19,"nodes_to_records@566-584@src/wepy/analysis/network.py","src/wepy/analysis/network.py","nodes_to_records","nodes_to_records( self )",566,584
+2,1,17,1,22,"nodes_to_dataframe@586-607@src/wepy/analysis/network.py","src/wepy/analysis/network.py","nodes_to_dataframe","nodes_to_dataframe( self )",586,607
+9,3,62,1,29,"edges_to_records@610-638@src/wepy/analysis/network.py","src/wepy/analysis/network.py","edges_to_records","edges_to_records( self )",610,638
+2,1,17,1,14,"edges_to_dataframe@642-655@src/wepy/analysis/network.py","src/wepy/analysis/network.py","edges_to_dataframe","edges_to_dataframe( self )",642,655
+3,1,17,1,3,"node_map.func_wrapper@681-683@src/wepy/analysis/network.py","src/wepy/analysis/network.py","node_map.func_wrapper","node_map.func_wrapper( args )",681,683
+8,3,60,3,36,"node_map@657-692@src/wepy/analysis/network.py","src/wepy/analysis/network.py","node_map","node_map( self , func , map_func = map )",657,692
+5,1,23,6,5,"__init__@712-716@src/wepy/analysis/network.py","src/wepy/analysis/network.py","__init__","__init__( self , contig_tree , base_network = None , assg_field_key = None , assignments = None , transition_lag_time = 2 )",712,716
+30,1,264,2,41,"_set_base_network_to_self@739-779@src/wepy/analysis/network.py","src/wepy/analysis/network.py","_set_base_network_to_self","_set_base_network_to_self( self , base_network )",739,779
+6,2,36,2,6,"open@781-786@src/wepy/analysis/network.py","src/wepy/analysis/network.py","open","open( self , mode = None )",781,786
+3,1,17,1,3,"close@788-790@src/wepy/analysis/network.py","src/wepy/analysis/network.py","close","close( self )",788,790
+4,1,19,1,4,"__enter__@792-795@src/wepy/analysis/network.py","src/wepy/analysis/network.py","__enter__","__enter__( self )",792,795
+3,1,28,4,3,"__exit__@797-799@src/wepy/analysis/network.py","src/wepy/analysis/network.py","__exit__","__exit__( self , exc_type , exc_value , exc_tb )",797,799
+2,1,10,1,3,"graph@805-807@src/wepy/analysis/network.py","src/wepy/analysis/network.py","graph","graph( self )",805,807
+2,1,13,1,3,"num_states@810-812@src/wepy/analysis/network.py","src/wepy/analysis/network.py","num_states","num_states( self )",810,812
+2,1,15,1,3,"node_ids@815-817@src/wepy/analysis/network.py","src/wepy/analysis/network.py","node_ids","node_ids( self )",815,817
+5,2,24,1,13,"assg_field_key@820-832@src/wepy/analysis/network.py","src/wepy/analysis/network.py","assg_field_key","assg_field_key( self )",820,832
+5,2,24,1,14,"countsmat@835-848@src/wepy/analysis/network.py","src/wepy/analysis/network.py","countsmat","countsmat( self )",835,848
+5,2,24,1,14,"probmat@851-864@src/wepy/analysis/network.py","src/wepy/analysis/network.py","probmat","probmat( self )",851,864
+2,1,9,1,2,"base_network@873-874@src/wepy/analysis/network.py","src/wepy/analysis/network.py","base_network","base_network( self )",873,874
+2,1,10,1,3,"wepy_h5@877-879@src/wepy/analysis/network.py","src/wepy/analysis/network.py","wepy_h5","wepy_h5( self )",877,879
+4,1,37,3,22,"state_to_mdtraj@881-902@src/wepy/analysis/network.py","src/wepy/analysis/network.py","state_to_mdtraj","state_to_mdtraj( self , node_id , alt_rep = None )",881,902
+2,1,24,3,3,"state_to_traj_fields@904-906@src/wepy/analysis/network.py","src/wepy/analysis/network.py","state_to_traj_fields","state_to_traj_fields( self , node_id , alt_rep = None )",904,906
+9,2,66,3,15,"states_to_traj_fields@908-922@src/wepy/analysis/network.py","src/wepy/analysis/network.py","states_to_traj_fields","states_to_traj_fields( self , node_ids , alt_rep = None )",908,922
+5,1,39,3,26,"get_node_fields@925-950@src/wepy/analysis/network.py","src/wepy/analysis/network.py","get_node_fields","get_node_fields( self , node_id , fields )",925,950
+6,2,41,2,22,"iter_nodes_fields@952-973@src/wepy/analysis/network.py","src/wepy/analysis/network.py","iter_nodes_fields","iter_nodes_fields( self , fields )",952,973
+8,2,59,1,21,"microstate_weights@975-995@src/wepy/analysis/network.py","src/wepy/analysis/network.py","microstate_weights","microstate_weights( self )",975,995
+6,2,45,1,15,"macrostate_weights@997-1011@src/wepy/analysis/network.py","src/wepy/analysis/network.py","macrostate_weights","macrostate_weights( self )",997,1011
+2,1,20,1,4,"set_macrostate_weights@1013-1016@src/wepy/analysis/network.py","src/wepy/analysis/network.py","set_macrostate_weights","set_macrostate_weights( self )",1013,1016
+3,1,21,1,3,"node_fields_map.func_wrapper@1042-1044@src/wepy/analysis/network.py","src/wepy/analysis/network.py","node_fields_map.func_wrapper","node_fields_map.func_wrapper( args )",1042,1044
+10,3,72,4,38,"node_fields_map@1018-1055@src/wepy/analysis/network.py","src/wepy/analysis/network.py","node_fields_map","node_fields_map( self , func , fields , map_func = map )",1018,1055
+5,1,23,6,5,"__init__@55-59@src/wepy/analysis/contig_tree.py","src/wepy/analysis/contig_tree.py","__init__","__init__( self , wepy_h5 , continuations = Ellipsis , runs = Ellipsis , boundary_condition_class = None , decision_class = None )",55,59
+2,1,10,1,3,"graph@184-186@src/wepy/analysis/contig_tree.py","src/wepy/analysis/contig_tree.py","graph","graph( self )",184,186
+2,1,10,1,3,"decision_class@189-191@src/wepy/analysis/contig_tree.py","src/wepy/analysis/contig_tree.py","decision_class","decision_class( self )",189,191
+2,1,10,1,3,"boundary_condition_class@194-196@src/wepy/analysis/contig_tree.py","src/wepy/analysis/contig_tree.py","boundary_condition_class","boundary_condition_class( self )",194,196
+2,1,10,1,3,"span_traces@199-201@src/wepy/analysis/contig_tree.py","src/wepy/analysis/contig_tree.py","span_traces","span_traces( self )",199,201
+3,1,23,2,6,"span_contig@203-208@src/wepy/analysis/contig_tree.py","src/wepy/analysis/contig_tree.py","span_contig","span_contig( self , span_idx )",203,208
+13,5,143,2,37,"_create_tree@210-246@src/wepy/analysis/contig_tree.py","src/wepy/analysis/contig_tree.py","_create_tree","_create_tree( self , wepy_h5 )",210,246
+6,3,55,2,14,"_set_resampling_panels@248-261@src/wepy/analysis/contig_tree.py","src/wepy/analysis/contig_tree.py","_set_resampling_panels","_set_resampling_panels( self , wepy_h5 )",248,261
+17,12,183,3,51,"_set_discontinuities@263-313@src/wepy/analysis/contig_tree.py","src/wepy/analysis/contig_tree.py","_set_discontinuities","_set_discontinuities( self , wepy_h5 , boundary_conditions_class )",263,313
+6,2,66,2,24,"_set_parents@315-338@src/wepy/analysis/contig_tree.py","src/wepy/analysis/contig_tree.py","_set_parents","_set_parents( self , decision_class )",315,338
+2,1,10,1,3,"run_idxs@341-343@src/wepy/analysis/contig_tree.py","src/wepy/analysis/contig_tree.py","run_idxs","run_idxs( self )",341,343
+2,1,10,1,3,"continuations@346-348@src/wepy/analysis/contig_tree.py","src/wepy/analysis/contig_tree.py","continuations","continuations( self )",346,348
+11,3,55,2,34,"contig_trace_to_run_trace@352-385@src/wepy/analysis/contig_tree.py","src/wepy/analysis/contig_tree.py","contig_trace_to_run_trace","contig_trace_to_run_trace( contig_trace , contig_walker_trace )",352,385
+2,1,19,2,24,"walker_trace_to_run_trace@388-411@src/wepy/analysis/contig_tree.py","src/wepy/analysis/contig_tree.py","walker_trace_to_run_trace","walker_trace_to_run_trace( self , contig_walker_trace )",388,411
+6,2,43,2,27,"run_trace_to_contig_trace@414-440@src/wepy/analysis/contig_tree.py","src/wepy/analysis/contig_tree.py","run_trace_to_contig_trace","run_trace_to_contig_trace( self , run_trace )",414,440
+3,1,27,3,24,"contig_cycle_idx@443-466@src/wepy/analysis/contig_tree.py","src/wepy/analysis/contig_tree.py","contig_cycle_idx","contig_cycle_idx( self , run_idx , cycle_idx )",443,466
+15,3,94,4,55,"get_branch_trace@469-523@src/wepy/analysis/contig_tree.py","src/wepy/analysis/contig_tree.py","get_branch_trace","get_branch_trace( self , run_idx , cycle_idx , start_contig_idx = 0 )",469,523
+10,5,93,3,29,"trace_parent_table@525-553@src/wepy/analysis/contig_tree.py","src/wepy/analysis/contig_tree.py","trace_parent_table","trace_parent_table( self , contig_trace , discontinuities = True )",525,553
+18,6,112,3,57,"_tree_leaves@557-613@src/wepy/analysis/contig_tree.py","src/wepy/analysis/contig_tree.py","_tree_leaves","_tree_leaves( cls , root , tree )",557,613
+5,1,38,2,27,"_subtree_leaves@615-641@src/wepy/analysis/contig_tree.py","src/wepy/analysis/contig_tree.py","_subtree_leaves","_subtree_leaves( self , root )",615,641
+6,2,35,1,15,"leaves@643-657@src/wepy/analysis/contig_tree.py","src/wepy/analysis/contig_tree.py","leaves","leaves( self )",643,657
+12,3,81,2,40,"_subtree_root@659-698@src/wepy/analysis/contig_tree.py","src/wepy/analysis/contig_tree.py","_subtree_root","_subtree_root( self , node )",659,698
+7,2,48,1,18,"roots@700-717@src/wepy/analysis/contig_tree.py","src/wepy/analysis/contig_tree.py","roots","roots( self )",700,717
+6,2,40,1,20,"subtrees@719-738@src/wepy/analysis/contig_tree.py","src/wepy/analysis/contig_tree.py","subtrees","subtrees( self )",719,738
+5,3,27,2,23,"get_subtree@740-762@src/wepy/analysis/contig_tree.py","src/wepy/analysis/contig_tree.py","get_subtree","get_subtree( self , node )",740,762
+4,1,28,3,26,"contig_sliding_windows@764-789@src/wepy/analysis/contig_tree.py","src/wepy/analysis/contig_tree.py","contig_sliding_windows","contig_sliding_windows( self , contig_trace , window_length )",764,789
+7,2,45,2,28,"sliding_contig_windows@791-818@src/wepy/analysis/contig_tree.py","src/wepy/analysis/contig_tree.py","sliding_contig_windows","sliding_contig_windows( self , window_length )",791,818
+19,7,140,3,97,"_subtree_sliding_contig_windows@820-916@src/wepy/analysis/contig_tree.py","src/wepy/analysis/contig_tree.py","_subtree_sliding_contig_windows","_subtree_sliding_contig_windows( self , subtree_root , window_length )",820,916
+9,3,58,2,33,"sliding_windows@918-950@src/wepy/analysis/contig_tree.py","src/wepy/analysis/contig_tree.py","sliding_windows","sliding_windows( self , window_length )",918,950
+15,6,94,3,56,"_spanning_paths@953-1008@src/wepy/analysis/contig_tree.py","src/wepy/analysis/contig_tree.py","_spanning_paths","_spanning_paths( cls , edges , root )",953,1008
+6,2,41,1,28,"spanning_contig_traces@1010-1037@src/wepy/analysis/contig_tree.py","src/wepy/analysis/contig_tree.py","spanning_contig_traces","spanning_contig_traces( self )",1010,1037
+8,3,36,2,22,"_contig_trace_to_contig_runs@1040-1061@src/wepy/analysis/contig_tree.py","src/wepy/analysis/contig_tree.py","_contig_trace_to_contig_runs","_contig_trace_to_contig_runs( cls , contig_trace )",1040,1061
+5,2,50,2,19,"_contig_runs_to_continuations@1064-1082@src/wepy/analysis/contig_tree.py","src/wepy/analysis/contig_tree.py","_contig_runs_to_continuations","_contig_runs_to_continuations( cls , contig_runs )",1064,1082
+24,9,182,2,65,"_continuations_to_contig_runs@1085-1149@src/wepy/analysis/contig_tree.py","src/wepy/analysis/contig_tree.py","_continuations_to_contig_runs","_continuations_to_contig_runs( cls , continuations )",1085,1149
+6,2,39,1,14,"exit_point_trajectories@1152-1165@src/wepy/analysis/contig_tree.py","src/wepy/analysis/contig_tree.py","exit_point_trajectories","exit_point_trajectories( self )",1152,1165
+6,1,27,7,6,"__init__@1176-1181@src/wepy/analysis/contig_tree.py","src/wepy/analysis/contig_tree.py","__init__","__init__( self , wepy_h5 , base_contigtree = None , continuations = Ellipsis , runs = Ellipsis , boundary_condition_class = None , decision_class = None )",1176,1181
+8,1,66,2,11,"_set_base_contigtree_to_self@1203-1213@src/wepy/analysis/contig_tree.py","src/wepy/analysis/contig_tree.py","_set_base_contigtree_to_self","_set_base_contigtree_to_self( self , base_contigtree )",1203,1213
+6,2,36,2,6,"open@1215-1220@src/wepy/analysis/contig_tree.py","src/wepy/analysis/contig_tree.py","open","open( self , mode = None )",1215,1220
+3,1,17,1,3,"close@1222-1224@src/wepy/analysis/contig_tree.py","src/wepy/analysis/contig_tree.py","close","close( self )",1222,1224
+4,1,19,1,4,"__enter__@1226-1229@src/wepy/analysis/contig_tree.py","src/wepy/analysis/contig_tree.py","__enter__","__enter__( self )",1226,1229
+3,1,28,4,3,"__exit__@1231-1233@src/wepy/analysis/contig_tree.py","src/wepy/analysis/contig_tree.py","__exit__","__exit__( self , exc_type , exc_value , exc_tb )",1231,1233
+2,1,9,1,2,"base_contigtree@1237-1238@src/wepy/analysis/contig_tree.py","src/wepy/analysis/contig_tree.py","base_contigtree","base_contigtree( self )",1237,1238
+2,1,10,1,3,"wepy_h5@1241-1243@src/wepy/analysis/contig_tree.py","src/wepy/analysis/contig_tree.py","wepy_h5","wepy_h5( self )",1241,1243
+8,1,51,2,26,"make_contig@1294-1319@src/wepy/analysis/contig_tree.py","src/wepy/analysis/contig_tree.py","make_contig","make_contig( self , contig_trace )",1294,1319
+7,2,50,1,12,"warp_trace@1322-1333@src/wepy/analysis/contig_tree.py","src/wepy/analysis/contig_tree.py","warp_trace","warp_trace( self )",1322,1333
+2,1,10,3,2,"__init__@1345-1346@src/wepy/analysis/contig_tree.py","src/wepy/analysis/contig_tree.py","__init__","__init__( self , wepy_h5 , ** kwargs )",1345,1346
+2,1,21,2,15,"contig_fields@1383-1397@src/wepy/analysis/contig_tree.py","src/wepy/analysis/contig_tree.py","contig_fields","contig_fields( self , fields )",1383,1397
+2,1,10,1,10,"contig_trace@1400-1409@src/wepy/analysis/contig_tree.py","src/wepy/analysis/contig_tree.py","contig_trace","contig_trace( self )",1400,1409
+2,1,13,1,9,"num_cycles@1412-1420@src/wepy/analysis/contig_tree.py","src/wepy/analysis/contig_tree.py","num_cycles","num_cycles( self )",1412,1420
+4,1,32,2,20,"num_walkers@1423-1442@src/wepy/analysis/contig_tree.py","src/wepy/analysis/contig_tree.py","num_walkers","num_walkers( self , cycle_idx )",1423,1442
+2,1,21,2,13,"records@1444-1456@src/wepy/analysis/contig_tree.py","src/wepy/analysis/contig_tree.py","records","records( self , record_key )",1444,1456
+2,1,21,2,13,"records_dataframe@1458-1470@src/wepy/analysis/contig_tree.py","src/wepy/analysis/contig_tree.py","records_dataframe","records_dataframe( self , record_key )",1458,1470
+2,1,13,1,10,"resampling_records@1473-1482@src/wepy/analysis/contig_tree.py","src/wepy/analysis/contig_tree.py","resampling_records","resampling_records( self )",1473,1482
+2,1,17,1,10,"resampling_records_dataframe@1484-1493@src/wepy/analysis/contig_tree.py","src/wepy/analysis/contig_tree.py","resampling_records_dataframe","resampling_records_dataframe( self )",1484,1493
+2,1,13,1,11,"resampler_records@1496-1506@src/wepy/analysis/contig_tree.py","src/wepy/analysis/contig_tree.py","resampler_records","resampler_records( self )",1496,1506
+2,1,17,1,11,"resampler_records_dataframe@1508-1518@src/wepy/analysis/contig_tree.py","src/wepy/analysis/contig_tree.py","resampler_records_dataframe","resampler_records_dataframe( self )",1508,1518
+2,1,13,1,11,"warping_records@1521-1531@src/wepy/analysis/contig_tree.py","src/wepy/analysis/contig_tree.py","warping_records","warping_records( self )",1521,1531
+2,1,17,1,11,"warping_records_dataframe@1533-1543@src/wepy/analysis/contig_tree.py","src/wepy/analysis/contig_tree.py","warping_records_dataframe","warping_records_dataframe( self )",1533,1543
+2,1,13,1,11,"bc_records@1546-1556@src/wepy/analysis/contig_tree.py","src/wepy/analysis/contig_tree.py","bc_records","bc_records( self )",1546,1556
+2,1,17,1,11,"bc_records_dataframe@1558-1568@src/wepy/analysis/contig_tree.py","src/wepy/analysis/contig_tree.py","bc_records_dataframe","bc_records_dataframe( self )",1558,1568
+2,1,13,1,11,"progress_records@1571-1581@src/wepy/analysis/contig_tree.py","src/wepy/analysis/contig_tree.py","progress_records","progress_records( self )",1571,1581
+2,1,17,1,11,"progress_records_dataframe@1583-1593@src/wepy/analysis/contig_tree.py","src/wepy/analysis/contig_tree.py","progress_records_dataframe","progress_records_dataframe( self )",1583,1593
+2,1,17,1,10,"resampling_panel@1597-1606@src/wepy/analysis/contig_tree.py","src/wepy/analysis/contig_tree.py","resampling_panel","resampling_panel( self )",1597,1606
+2,1,15,1,25,"parent_table@1608-1632@src/wepy/analysis/contig_tree.py","src/wepy/analysis/contig_tree.py","parent_table","parent_table( self )",1608,1632
+4,1,29,1,13,"terminal_trace@1635-1647@src/wepy/analysis/contig_tree.py","src/wepy/analysis/contig_tree.py","terminal_trace","terminal_trace( self )",1635,1647
+2,1,8,1,4,"squash_trace@1649-1652@src/wepy/analysis/contig_tree.py","src/wepy/analysis/contig_tree.py","squash_trace","squash_trace( self )",1649,1652
+2,1,8,1,4,"final_trace@1654-1657@src/wepy/analysis/contig_tree.py","src/wepy/analysis/contig_tree.py","final_trace","final_trace( self )",1654,1657
+9,2,58,1,16,"warp_trace@1660-1675@src/wepy/analysis/contig_tree.py","src/wepy/analysis/contig_tree.py","warp_trace","warp_trace( self )",1660,1675
+10,2,68,1,22,"exit_point_trajectories@1678-1699@src/wepy/analysis/contig_tree.py","src/wepy/analysis/contig_tree.py","exit_point_trajectories","exit_point_trajectories( self )",1678,1699
+9,2,86,2,36,"transition_counts@55-90@src/wepy/analysis/transitions.py","src/wepy/analysis/transitions.py","transition_counts","transition_counts( assignments , transitions )",55,90
+6,2,57,1,23,"counts_d_to_matrix@92-114@src/wepy/analysis/transitions.py","src/wepy/analysis/transitions.py","counts_d_to_matrix","counts_d_to_matrix( counts_d )",92,114
+2,1,22,1,16,"normalize_counts@116-131@src/wepy/analysis/transitions.py","src/wepy/analysis/transitions.py","normalize_counts","normalize_counts( transition_counts_matrix )",116,131
+4,1,24,2,26,"transition_counts_matrix@133-158@src/wepy/analysis/transitions.py","src/wepy/analysis/transitions.py","transition_counts_matrix","transition_counts_matrix( assignments , transitions )",133,158
+4,1,24,2,26,"transition_probability_matrix@160-185@src/wepy/analysis/transitions.py","src/wepy/analysis/transitions.py","transition_probability_matrix","transition_probability_matrix( assignments , transitions )",160,185
+16,4,125,4,50,"run_transition_counts_matrix@187-236@src/wepy/analysis/transitions.py","src/wepy/analysis/transitions.py","run_transition_counts_matrix","run_transition_counts_matrix( wepy_hdf5 , run_idx , assignment_key , transitions )",187,236
+4,1,32,4,29,"run_transition_probability_matrix@238-266@src/wepy/analysis/transitions.py","src/wepy/analysis/transitions.py","run_transition_probability_matrix","run_transition_probability_matrix( wepy_hdf5 , run_idx , assignment_key , transitions )",238,266
+57,14,250,2,138,"resampling_panel@72-209@src/wepy/analysis/parents.py","src/wepy/analysis/parents.py","resampling_panel","resampling_panel( resampling_records , is_sorted = False )",72,209
+9,3,48,2,40,"parent_panel@212-251@src/wepy/analysis/parents.py","src/wepy/analysis/parents.py","parent_panel","parent_panel( decision_class , resampling_panel )",212,251
+14,5,91,1,48,"net_parent_table@253-300@src/wepy/analysis/parents.py","src/wepy/analysis/parents.py","net_parent_table","net_parent_table( parent_panel )",253,300
+11,5,80,3,52,"parent_table_discontinuities@302-353@src/wepy/analysis/parents.py","src/wepy/analysis/parents.py","parent_table_discontinuities","parent_table_discontinuities( boundary_condition_class , parent_table , warping_records )",302,353
+10,3,76,4,42,"ancestors@355-396@src/wepy/analysis/parents.py","src/wepy/analysis/parents.py","ancestors","ancestors( parent_table , cycle_idx , walker_idx , ancestor_cycle = 0 )",355,396
+11,4,89,2,45,"sliding_window@398-442@src/wepy/analysis/parents.py","src/wepy/analysis/parents.py","sliding_window","sliding_window( parent_table , window_length )",398,442
+2,1,13,3,2,"__init__@470-471@src/wepy/analysis/parents.py","src/wepy/analysis/parents.py","__init__","__init__( self , contig = None , parent_table = None )",470,471
+15,3,92,3,46,"_make_child_parent_edges@540-585@src/wepy/analysis/parents.py","src/wepy/analysis/parents.py","_make_child_parent_edges","_make_child_parent_edges( self , step_idx , parent_idxs )",540,585
+5,2,24,1,6,"contig@588-593@src/wepy/analysis/parents.py","src/wepy/analysis/parents.py","contig","contig( self )",588,593
+2,1,10,1,3,"parent_table@596-598@src/wepy/analysis/parents.py","src/wepy/analysis/parents.py","parent_table","parent_table( self )",596,598
+2,1,10,1,3,"graph@601-603@src/wepy/analysis/parents.py","src/wepy/analysis/parents.py","graph","graph( self )",601,603
+2,1,10,1,3,"roots@606-608@src/wepy/analysis/parents.py","src/wepy/analysis/parents.py","roots","roots( self )",606,608
+7,5,64,1,8,"trees@611-618@src/wepy/analysis/parents.py","src/wepy/analysis/parents.py","trees","trees( self )",611,618
+2,1,13,1,4,"n_steps@621-624@src/wepy/analysis/parents.py","src/wepy/analysis/parents.py","n_steps","n_steps( self )",621,624
+7,3,42,2,19,"step@626-644@src/wepy/analysis/parents.py","src/wepy/analysis/parents.py","step","step( self , step_idx )",626,644
+5,2,33,1,12,"steps@646-657@src/wepy/analysis/parents.py","src/wepy/analysis/parents.py","steps","steps( self )",646,657
+7,3,42,2,20,"walker@659-678@src/wepy/analysis/parents.py","src/wepy/analysis/parents.py","walker","walker( self , walker_idx )",659,678
+3,2,34,3,15,"set_node_attributes@689-703@src/wepy/analysis/parents.py","src/wepy/analysis/parents.py","set_node_attributes","set_node_attributes( self , attribute_key , node_attribute_dict )",689,703
+4,3,49,3,19,"set_attrs_by_array@705-723@src/wepy/analysis/parents.py","src/wepy/analysis/parents.py","set_attrs_by_array","set_attrs_by_array( self , attribute_key , values )",705,723
+6,2,49,2,27,"split@33-59@src/wepy/walker.py","src/wepy/walker.py","split","split( walker , number = 2 )",33,59
+5,2,46,2,24,"keep_merge@61-84@src/wepy/walker.py","src/wepy/walker.py","keep_merge","keep_merge( walkers , keep_idx )",61,84
+7,2,63,1,33,"merge@86-118@src/wepy/walker.py","src/wepy/walker.py","merge","merge( walkers )",86,118
+3,1,20,3,13,"__init__@130-142@src/wepy/walker.py","src/wepy/walker.py","__init__","__init__( self , state , weight )",130,142
+6,2,53,2,29,"clone@144-172@src/wepy/walker.py","src/wepy/walker.py","clone","clone( self , number = 1 )",144,172
+3,1,29,2,15,"squash@174-188@src/wepy/walker.py","src/wepy/walker.py","squash","squash( self , merge_target )",174,188
+2,1,17,2,14,"merge@190-203@src/wepy/walker.py","src/wepy/walker.py","merge","merge( self , other_walkers )",190,203
+2,1,14,2,8,"__init__@218-225@src/wepy/walker.py","src/wepy/walker.py","__init__","__init__( self , ** kwargs )",218,225
+2,1,14,2,2,"__getitem__@227-228@src/wepy/walker.py","src/wepy/walker.py","__getitem__","__getitem__( self , key )",227,228
+2,1,13,1,3,"dict@230-232@src/wepy/walker.py","src/wepy/walker.py","dict","dict( self )",230,232
+6,1,27,7,6,"__init__@96-101@src/wepy/sim_manager.py","src/wepy/sim_manager.py","__init__","__init__( self , init_walkers , runner = None , work_mapper = None , resampler = None , boundary_conditions = None , reporters = None )",96,101
+12,3,67,3,42,"run_segment@165-206@src/wepy/sim_manager.py","src/wepy/sim_manager.py","run_segment","run_segment( self , walkers , segment_length )",165,206
+2,1,23,4,74,"run_cycle@208-281@src/wepy/sim_manager.py","src/wepy/sim_manager.py","run_cycle","run_cycle( self , walkers , n_segment_steps , cycle_idx )",208,281
+81,11,527,4,141,"_run_cycle@283-423@src/wepy/sim_manager.py","src/wepy/sim_manager.py","_run_cycle","_run_cycle( self , walkers , n_segment_steps , cycle_idx )",283,423
+12,2,89,3,59,"init@425-483@src/wepy/sim_manager.py","src/wepy/sim_manager.py","init","init( self , num_workers = None , continue_run = None )",425,483
+8,2,54,1,33,"cleanup@485-517@src/wepy/sim_manager.py","src/wepy/sim_manager.py","cleanup","cleanup( self )",485,517
+12,2,115,4,58,"run_simulation_by_time@520-577@src/wepy/sim_manager.py","src/wepy/sim_manager.py","run_simulation_by_time","run_simulation_by_time( self , run_time , segments_length , num_workers = None )",520,577
+7,2,64,4,42,"run_simulation@579-620@src/wepy/sim_manager.py","src/wepy/sim_manager.py","run_simulation","run_simulation( self , n_cycles , segment_lengths , num_workers = None )",579,620
+8,2,67,5,49,"continue_run_simulation@622-670@src/wepy/sim_manager.py","src/wepy/sim_manager.py","continue_run_simulation","continue_run_simulation( self , run_idx , n_cycles , segment_lengths , num_workers = None )",622,670
+13,2,118,5,48,"continue_run_simulation_by_time@673-720@src/wepy/sim_manager.py","src/wepy/sim_manager.py","continue_run_simulation_by_time","continue_run_simulation_by_time( self , run_idx , run_time , segments_length , num_workers = None )",673,720
+10,5,67,1,40,"_iter_field_paths@640-679@src/wepy/hdf5.py","src/wepy/hdf5.py","_iter_field_paths","_iter_field_paths( grp )",640,679
+9,1,49,13,9,"__init__@699-707@src/wepy/hdf5.py","src/wepy/hdf5.py","__init__","__init__( self , filename , mode = 'x' , topology = None , units = None , sparse_fields = None , feature_shapes = None , feature_dtypes = None , n_dims = None , alt_reps = None , main_rep_idxs = None , swmr_mode = False , expert_mode = False",699,707
+2,1,10,1,2,"__del__@911-912@src/wepy/hdf5.py","src/wepy/hdf5.py","__del__","__del__( self )",911,912
+3,1,12,1,6,"__enter__@916-921@src/wepy/hdf5.py","src/wepy/hdf5.py","__enter__","__enter__( self )",916,921
+2,1,16,4,2,"__exit__@923-924@src/wepy/hdf5.py","src/wepy/hdf5.py","__exit__","__exit__( self , exc_type , exc_value , exc_tb )",923,924
+2,1,9,1,2,"swmr_mode@927-928@src/wepy/hdf5.py","src/wepy/hdf5.py","swmr_mode","swmr_mode( self )",927,928
+54,17,493,1,125,"_create_init@936-1060@src/wepy/hdf5.py","src/wepy/hdf5.py","_create_init","_create_init( self )",936,1060
+2,1,11,1,4,"_read_write_init@1062-1065@src/wepy/hdf5.py","src/wepy/hdf5.py","_read_write_init","_read_write_init( self )",1062,1065
+5,2,27,1,12,"_add_init@1067-1078@src/wepy/hdf5.py","src/wepy/hdf5.py","_add_init","_add_init( self )",1067,1078
+2,1,7,1,4,"_read_init@1080-1083@src/wepy/hdf5.py","src/wepy/hdf5.py","_read_init","_read_init( self )",1080,1083
+15,4,117,2,43,"_set_default_init_field_attributes@1085-1127@src/wepy/hdf5.py","src/wepy/hdf5.py","_set_default_init_field_attributes","_set_default_init_field_attributes( self , n_dims = None )",1085,1127
+8,2,62,4,36,"_get_field_path_grp@1129-1164@src/wepy/hdf5.py","src/wepy/hdf5.py","_get_field_path_grp","_get_field_path_grp( self , run_idx , traj_idx , field_path )",1129,1164
+8,2,67,1,23,"_init_continuations@1166-1188@src/wepy/hdf5.py","src/wepy/hdf5.py","_init_continuations","_init_continuations( self )",1166,1188
+4,2,46,3,22,"_add_run_init@1191-1212@src/wepy/hdf5.py","src/wepy/hdf5.py","_add_run_init","_add_run_init( self , run_idx , continue_run = None )",1191,1212
+8,4,95,3,33,"_add_init_walkers@1214-1246@src/wepy/hdf5.py","src/wepy/hdf5.py","_add_init_walkers","_add_init_walkers( self , init_walkers_grp , init_walkers )",1214,1246
+9,2,77,4,36,"_init_run_sporadic_record_grp@1249-1284@src/wepy/hdf5.py","src/wepy/hdf5.py","_init_run_sporadic_record_grp","_init_run_sporadic_record_grp( self , run_idx , run_record_key , fields )",1249,1284
+7,2,53,4,30,"_init_run_continual_record_grp@1287-1316@src/wepy/hdf5.py","src/wepy/hdf5.py","_init_run_continual_record_grp","_init_run_continual_record_grp( self , run_idx , run_record_key , fields )",1287,1316
+2,1,15,6,2,"_init_run_records_field@1318-1319@src/wepy/hdf5.py","src/wepy/hdf5.py","_init_run_records_field","_init_run_records_field( self , run_idx , run_record_key , field_name , field_shape , field_dtype )",1318,1319
+5,2,19,2,20,"_is_sporadic_records@1362-1381@src/wepy/hdf5.py","src/wepy/hdf5.py","_is_sporadic_records","_is_sporadic_records( self , run_record_key )",1362,1381
+5,2,53,6,27,"_init_traj_field@1383-1409@src/wepy/hdf5.py","src/wepy/hdf5.py","_init_traj_field","_init_traj_field( self , run_idx , traj_idx , field_path , feature_shape , dtype )",1383,1409
+4,2,67,6,22,"_init_contiguous_traj_field@1411-1432@src/wepy/hdf5.py","src/wepy/hdf5.py","_init_contiguous_traj_field","_init_contiguous_traj_field( self , run_idx , traj_idx , field_path , shape , dtype )",1411,1432
+9,4,115,6,37,"_init_sparse_traj_field@1435-1471@src/wepy/hdf5.py","src/wepy/hdf5.py","_init_sparse_traj_field","_init_sparse_traj_field( self , run_idx , traj_idx , field_path , shape , dtype )",1435,1471
+2,1,15,6,2,"_init_traj_fields@1474-1475@src/wepy/hdf5.py","src/wepy/hdf5.py","_init_traj_fields","_init_traj_fields( self , run_idx , traj_idx , field_paths , field_feature_shapes , field_feature_dtypes )",1474,1475
+16,3,149,6,54,"_add_traj_field_data@1492-1545@src/wepy/hdf5.py","src/wepy/hdf5.py","_add_traj_field_data","_add_traj_field_data( self , run_idx , traj_idx , field_path , field_data , sparse_idxs = None )",1492,1545
+17,3,178,5,55,"_extend_contiguous_traj_field@1547-1601@src/wepy/hdf5.py","src/wepy/hdf5.py","_extend_contiguous_traj_field","_extend_contiguous_traj_field( self , run_idx , traj_idx , field_path , field_data )",1547,1601
+20,3,229,6,62,"_extend_sparse_traj_field@1603-1664@src/wepy/hdf5.py","src/wepy/hdf5.py","_extend_sparse_traj_field","_extend_sparse_traj_field( self , run_idx , traj_idx , field_path , values , sparse_idxs )",1603,1664
+6,2,69,2,18,"_add_sparse_field_flag@1666-1683@src/wepy/hdf5.py","src/wepy/hdf5.py","_add_sparse_field_flag","_add_sparse_field_flag( self , field_path )",1666,1683
+3,1,40,3,13,"_add_field_feature_shape@1685-1697@src/wepy/hdf5.py","src/wepy/hdf5.py","_add_field_feature_shape","_add_field_feature_shape( self , field_path , field_feature_shape )",1685,1697
+4,1,45,3,14,"_add_field_feature_dtype@1699-1712@src/wepy/hdf5.py","src/wepy/hdf5.py","_add_field_feature_dtype","_add_field_feature_dtype( self , field_path , field_feature_dtype )",1699,1712
+13,3,91,3,28,"_set_field_feature_shape@1715-1742@src/wepy/hdf5.py","src/wepy/hdf5.py","_set_field_feature_shape","_set_field_feature_shape( self , field_path , field_feature_shape )",1715,1742
+14,3,101,3,29,"_set_field_feature_dtype@1744-1772@src/wepy/hdf5.py","src/wepy/hdf5.py","_set_field_feature_dtype","_set_field_feature_dtype( self , field_path , field_feature_dtype )",1744,1772
+2,1,13,5,2,"_extend_run_record_data_field@1774-1775@src/wepy/hdf5.py","src/wepy/hdf5.py","_extend_run_record_data_field","_extend_run_record_data_field( self , run_idx , run_record_key , field_name , field_data )",1774,1775
+4,1,32,2,22,"_run_record_namedtuple@1866-1887@src/wepy/hdf5.py","src/wepy/hdf5.py","_run_record_namedtuple","_run_record_namedtuple( self , run_record_key )",1866,1887
+15,7,133,4,61,"_convert_record_field_to_table_column@1889-1949@src/wepy/hdf5.py","src/wepy/hdf5.py","_convert_record_field_to_table_column","_convert_record_field_to_table_column( self , run_idx , run_record_key , record_field )",1889,1949
+6,2,41,3,28,"_convert_record_fields_to_table_columns@1951-1978@src/wepy/hdf5.py","src/wepy/hdf5.py","_convert_record_fields_to_table_columns","_convert_record_fields_to_table_columns( self , run_idx , run_record_key )",1951,1978
+11,4,94,4,34,"_make_records@1980-2013@src/wepy/hdf5.py","src/wepy/hdf5.py","_make_records","_make_records( self , run_record_key , cycle_idxs , fields )",1980,2013
+18,4,132,3,74,"_run_records_sporadic@2015-2088@src/wepy/hdf5.py","src/wepy/hdf5.py","_run_records_sporadic","_run_records_sporadic( self , run_idxs , run_record_key )",2015,2088
+20,4,156,3,75,"_run_records_continual@2090-2164@src/wepy/hdf5.py","src/wepy/hdf5.py","_run_records_continual","_run_records_continual( self , run_idxs , run_record_key )",2090,2164
+7,2,66,5,27,"_get_contiguous_traj_field@2167-2193@src/wepy/hdf5.py","src/wepy/hdf5.py","_get_contiguous_traj_field","_get_contiguous_traj_field( self , run_idx , traj_idx , field_path , frames = None )",2167,2193
+25,4,294,6,74,"_get_sparse_traj_field@2195-2268@src/wepy/hdf5.py","src/wepy/hdf5.py","_get_sparse_traj_field","_get_sparse_traj_field( self , run_idx , traj_idx , field_path , frames = None , masked = True )",2195,2268
+2,1,19,6,2,"_add_run_field@2271-2272@src/wepy/hdf5.py","src/wepy/hdf5.py","_add_run_field","_add_run_field( self , run_idx , field_path , data , sparse_idxs = None , force = False )",2271,2272
+2,1,17,5,2,"_add_field@2345-2346@src/wepy/hdf5.py","src/wepy/hdf5.py","_add_field","_add_field( self , field_path , data , sparse_idxs = None , force = False )",2345,2346
+2,1,10,1,3,"filename@2377-2379@src/wepy/hdf5.py","src/wepy/hdf5.py","filename","filename( self )",2377,2379
+10,3,67,2,24,"open@2381-2404@src/wepy/hdf5.py","src/wepy/hdf5.py","open","open( self , mode = None )",2381,2404
+5,2,31,1,6,"close@2406-2411@src/wepy/hdf5.py","src/wepy/hdf5.py","close","close( self )",2406,2411
+2,1,10,1,3,"mode@2414-2416@src/wepy/hdf5.py","src/wepy/hdf5.py","mode","mode( self )",2414,2416
+2,1,14,2,3,"mode@2419-2421@src/wepy/hdf5.py","src/wepy/hdf5.py","mode","mode( self , mode )",2419,2421
+5,2,30,2,9,"set_mode@2423-2431@src/wepy/hdf5.py","src/wepy/hdf5.py","set_mode","set_mode( self , mode )",2423,2431
+2,1,12,1,3,"h5_mode@2434-2436@src/wepy/hdf5.py","src/wepy/hdf5.py","h5_mode","h5_mode( self )",2434,2436
+4,2,24,2,12,"_set_h5_mode@2438-2449@src/wepy/hdf5.py","src/wepy/hdf5.py","_set_h5_mode","_set_h5_mode( self , h5_mode )",2438,2449
+2,1,10,1,3,"h5@2452-2454@src/wepy/hdf5.py","src/wepy/hdf5.py","h5","h5( self )",2452,2454
+2,1,25,2,13,"run@2458-2470@src/wepy/hdf5.py","src/wepy/hdf5.py","run","run( self , run_idx )",2458,2470
+2,1,28,3,14,"traj@2472-2485@src/wepy/hdf5.py","src/wepy/hdf5.py","traj","traj( self , run_idx , traj_idx )",2472,2485
+2,1,24,2,13,"run_trajs@2487-2499@src/wepy/hdf5.py","src/wepy/hdf5.py","run_trajs","run_trajs( self , run_idx )",2487,2499
+2,1,13,1,3,"runs@2502-2504@src/wepy/hdf5.py","src/wepy/hdf5.py","runs","runs( self )",2502,2504
+2,1,20,2,3,"run_grp@2506-2508@src/wepy/hdf5.py","src/wepy/hdf5.py","run_grp","run_grp( self , run_idx )",2506,2508
+2,1,20,2,6,"run_start_snapshot_hash@2510-2515@src/wepy/hdf5.py","src/wepy/hdf5.py","run_start_snapshot_hash","run_start_snapshot_hash( self , run_idx )",2510,2515
+2,1,20,2,6,"run_end_snapshot_hash@2517-2522@src/wepy/hdf5.py","src/wepy/hdf5.py","run_end_snapshot_hash","run_end_snapshot_hash( self , run_idx )",2517,2522
+5,2,43,3,10,"set_run_start_snapshot_hash@2524-2533@src/wepy/hdf5.py","src/wepy/hdf5.py","set_run_start_snapshot_hash","set_run_start_snapshot_hash( self , run_idx , snaphash )",2524,2533
+5,2,43,3,9,"set_run_end_snapshot_hash@2535-2543@src/wepy/hdf5.py","src/wepy/hdf5.py","set_run_end_snapshot_hash","set_run_end_snapshot_hash( self , run_idx , snaphash )",2535,2543
+3,1,16,1,4,"settings_grp@2546-2549@src/wepy/hdf5.py","src/wepy/hdf5.py","settings_grp","settings_grp( self )",2546,2549
+2,1,18,2,13,"decision_grp@2551-2563@src/wepy/hdf5.py","src/wepy/hdf5.py","decision_grp","decision_grp( self , run_idx )",2551,2563
+2,1,18,2,14,"init_walkers_grp@2565-2578@src/wepy/hdf5.py","src/wepy/hdf5.py","init_walkers_grp","init_walkers_grp( self , run_idx )",2565,2578
+3,1,29,3,16,"records_grp@2581-2596@src/wepy/hdf5.py","src/wepy/hdf5.py","records_grp","records_grp( self , run_idx , run_record_key )",2581,2596
+2,1,17,2,13,"resampling_grp@2598-2610@src/wepy/hdf5.py","src/wepy/hdf5.py","resampling_grp","resampling_grp( self , run_idx )",2598,2610
+2,1,17,2,13,"resampler_grp@2612-2624@src/wepy/hdf5.py","src/wepy/hdf5.py","resampler_grp","resampler_grp( self , run_idx )",2612,2624
+2,1,17,2,13,"warping_grp@2626-2638@src/wepy/hdf5.py","src/wepy/hdf5.py","warping_grp","warping_grp( self , run_idx )",2626,2638
+2,1,17,2,13,"bc_grp@2640-2652@src/wepy/hdf5.py","src/wepy/hdf5.py","bc_grp","bc_grp( self , run_idx )",2640,2652
+2,1,17,2,13,"progress_grp@2654-2666@src/wepy/hdf5.py","src/wepy/hdf5.py","progress_grp","progress_grp( self , run_idx )",2654,2666
+10,5,55,3,30,"iter_runs@2668-2697@src/wepy/hdf5.py","src/wepy/hdf5.py","iter_runs","iter_runs( self , idxs = False , run_sel = None )",2668,2697
+11,4,63,3,34,"iter_trajs@2699-2732@src/wepy/hdf5.py","src/wepy/hdf5.py","iter_trajs","iter_trajs( self , idxs = False , traj_sel = None )",2699,2732
+3,1,35,3,18,"iter_run_trajs@2734-2751@src/wepy/hdf5.py","src/wepy/hdf5.py","iter_run_trajs","iter_run_trajs( self , run_idx , idxs = False )",2734,2751
+2,1,17,1,4,"defined_traj_field_names@2757-2760@src/wepy/hdf5.py","src/wepy/hdf5.py","defined_traj_field_names","defined_traj_field_names( self )",2757,2760
+10,5,68,1,22,"observable_field_names@2763-2784@src/wepy/hdf5.py","src/wepy/hdf5.py","observable_field_names","observable_field_names( self )",2763,2784
+11,6,59,2,31,"_check_traj_field_consistency@2786-2816@src/wepy/hdf5.py","src/wepy/hdf5.py","_check_traj_field_consistency","_check_traj_field_consistency( self , field_names )",2786,2816
+6,2,40,1,18,"record_fields@2820-2837@src/wepy/hdf5.py","src/wepy/hdf5.py","record_fields","record_fields( self )",2820,2837
+2,1,23,1,3,"sparse_fields@2840-2842@src/wepy/hdf5.py","src/wepy/hdf5.py","sparse_fields","sparse_fields( self )",2840,2842
+5,2,41,1,7,"main_rep_idxs@2845-2851@src/wepy/hdf5.py","src/wepy/hdf5.py","main_rep_idxs","main_rep_idxs( self )",2845,2851
+3,2,40,1,6,"alt_reps_idxs@2854-2859@src/wepy/hdf5.py","src/wepy/hdf5.py","alt_reps_idxs","alt_reps_idxs( self )",2854,2859
+3,2,33,1,5,"alt_reps@2862-2866@src/wepy/hdf5.py","src/wepy/hdf5.py","alt_reps","alt_reps( self )",2862,2866
+11,3,74,1,17,"field_feature_shapes@2870-2886@src/wepy/hdf5.py","src/wepy/hdf5.py","field_feature_shapes","field_feature_shapes( self )",2870,2886
+14,4,95,1,21,"field_feature_dtypes@2889-2909@src/wepy/hdf5.py","src/wepy/hdf5.py","field_feature_dtypes","field_feature_dtypes( self )",2889,2909
+2,1,16,1,3,"continuations@2912-2914@src/wepy/hdf5.py","src/wepy/hdf5.py","continuations","continuations( self )",2912,2914
+2,1,15,1,3,"metadata@2917-2919@src/wepy/hdf5.py","src/wepy/hdf5.py","metadata","metadata( self )",2917,2919
+6,2,43,2,24,"decision_enum@2921-2944@src/wepy/hdf5.py","src/wepy/hdf5.py","decision_enum","decision_enum( self , run_idx )",2921,2944
+7,2,46,2,24,"decision_value_names@2946-2969@src/wepy/hdf5.py","src/wepy/hdf5.py","decision_value_names","decision_value_names( self , run_idx )",2946,2969
+11,4,70,2,45,"get_topology@2973-3017@src/wepy/hdf5.py","src/wepy/hdf5.py","get_topology","get_topology( self , alt_rep = POSITIONS )",2973,3017
+2,1,17,1,13,"topology@3020-3032@src/wepy/hdf5.py","src/wepy/hdf5.py","topology","topology( self )",3020,3032
+3,1,25,2,24,"get_mdtraj_topology@3035-3058@src/wepy/hdf5.py","src/wepy/hdf5.py","get_mdtraj_topology","get_mdtraj_topology( self , alt_rep = POSITIONS )",3035,3058
+10,6,108,4,43,"initial_walker_fields@3062-3104@src/wepy/hdf5.py","src/wepy/hdf5.py","initial_walker_fields","initial_walker_fields( self , run_idx , fields , walker_idxs = None )",3062,3104
+5,1,53,4,42,"initial_walkers_to_mdtraj@3106-3147@src/wepy/hdf5.py","src/wepy/hdf5.py","initial_walkers_to_mdtraj","initial_walkers_to_mdtraj( self , run_idx , walker_idxs = None , alt_rep = POSITIONS )",3106,3147
+2,1,24,1,3,"num_atoms@3153-3155@src/wepy/hdf5.py","src/wepy/hdf5.py","num_atoms","num_atoms( self )",3153,3155
+2,1,24,1,3,"num_dims@3158-3160@src/wepy/hdf5.py","src/wepy/hdf5.py","num_dims","num_dims( self )",3158,3160
+2,1,16,1,3,"num_runs@3163-3165@src/wepy/hdf5.py","src/wepy/hdf5.py","num_runs","num_runs( self )",3163,3165
+2,1,18,1,3,"num_trajs@3168-3170@src/wepy/hdf5.py","src/wepy/hdf5.py","num_trajs","num_trajs( self )",3168,3170
+2,1,18,2,14,"num_init_walkers@3172-3185@src/wepy/hdf5.py","src/wepy/hdf5.py","num_init_walkers","num_init_walkers( self , run_idx )",3172,3185
+2,1,17,3,19,"num_walkers@3187-3205@src/wepy/hdf5.py","src/wepy/hdf5.py","num_walkers","num_walkers( self , run_idx , cycle_idx )",3187,3205
+2,1,27,2,13,"num_run_trajs@3207-3219@src/wepy/hdf5.py","src/wepy/hdf5.py","num_run_trajs","num_run_trajs( self , run_idx )",3207,3219
+2,1,17,2,13,"num_run_cycles@3221-3233@src/wepy/hdf5.py","src/wepy/hdf5.py","num_run_cycles","num_run_cycles( self , run_idx )",3221,3233
+2,1,27,3,14,"num_traj_frames@3235-3248@src/wepy/hdf5.py","src/wepy/hdf5.py","num_traj_frames","num_traj_frames( self , run_idx , traj_idx )",3235,3248
+2,1,22,1,3,"run_idxs@3251-3253@src/wepy/hdf5.py","src/wepy/hdf5.py","run_idxs","run_idxs( self )",3251,3253
+2,1,33,2,13,"run_traj_idxs@3255-3267@src/wepy/hdf5.py","src/wepy/hdf5.py","run_traj_idxs","run_traj_idxs( self , run_idx )",3255,3267
+10,4,56,2,26,"run_traj_idx_tuples@3269-3294@src/wepy/hdf5.py","src/wepy/hdf5.py","run_traj_idx_tuples","run_traj_idx_tuples( self , runs = None )",3269,3294
+9,3,92,4,29,"get_traj_field_cycle_idxs@3296-3324@src/wepy/hdf5.py","src/wepy/hdf5.py","get_traj_field_cycle_idxs","get_traj_field_cycle_idxs( self , run_idx , traj_idx , field_path )",3296,3324
+2,1,10,1,13,"next_run_idx@3326-3338@src/wepy/hdf5.py","src/wepy/hdf5.py","next_run_idx","next_run_idx( self )",3326,3338
+2,1,15,2,13,"next_run_traj_idx@3340-3352@src/wepy/hdf5.py","src/wepy/hdf5.py","next_run_traj_idx","next_run_traj_idx( self , run_idx )",3340,3352
+12,6,87,2,29,"is_run_contig@3356-3384@src/wepy/hdf5.py","src/wepy/hdf5.py","is_run_contig","is_run_contig( self , run_idxs )",3356,3384
+17,1,186,3,69,"clone@3386-3454@src/wepy/hdf5.py","src/wepy/hdf5.py","clone","clone( self , path , mode = 'x' )",3386,3454
+12,3,115,5,46,"link_run@3457-3502@src/wepy/hdf5.py","src/wepy/hdf5.py","link_run","link_run( self , filepath , run_idx , continue_run = None , ** kwargs )",3457,3502
+13,3,83,2,43,"link_file_runs@3504-3546@src/wepy/hdf5.py","src/wepy/hdf5.py","link_file_runs","link_file_runs( self , wepy_h5_path )",3504,3546
+4,1,20,6,4,"extract_run@3548-3551@src/wepy/hdf5.py","src/wepy/hdf5.py","extract_run","extract_run( self , filepath , run_idx , continue_run = None , run_slice = None , ** kwargs )",3548,3551
+2,1,11,3,2,"extract_file_runs@3632-3633@src/wepy/hdf5.py","src/wepy/hdf5.py","extract_file_runs","extract_file_runs( self , wepy_h5_path , run_slices = None )",3632,3633
+5,2,49,2,20,"join@3699-3718@src/wepy/hdf5.py","src/wepy/hdf5.py","join","join( self , other_h5 )",3699,3718
+2,1,20,3,11,"add_metadata@3723-3733@src/wepy/hdf5.py","src/wepy/hdf5.py","add_metadata","add_metadata( self , key , value )",3723,3733
+9,2,71,3,35,"init_record_fields@3736-3770@src/wepy/hdf5.py","src/wepy/hdf5.py","init_record_fields","init_record_fields( self , run_record_key , record_fields )",3736,3770
+2,1,20,2,10,"init_resampling_record_fields@3772-3781@src/wepy/hdf5.py","src/wepy/hdf5.py","init_resampling_record_fields","init_resampling_record_fields( self , resampler )",3772,3781
+2,1,20,2,10,"init_resampler_record_fields@3783-3792@src/wepy/hdf5.py","src/wepy/hdf5.py","init_resampler_record_fields","init_resampler_record_fields( self , resampler )",3783,3792
+2,1,20,2,10,"init_bc_record_fields@3794-3803@src/wepy/hdf5.py","src/wepy/hdf5.py","init_bc_record_fields","init_bc_record_fields( self , bc )",3794,3803
+2,1,20,2,10,"init_warping_record_fields@3805-3814@src/wepy/hdf5.py","src/wepy/hdf5.py","init_warping_record_fields","init_warping_record_fields( self , bc )",3805,3814
+2,1,20,2,10,"init_progress_record_fields@3816-3825@src/wepy/hdf5.py","src/wepy/hdf5.py","init_progress_record_fields","init_progress_record_fields( self , bc )",3816,3825
+4,1,63,3,15,"add_continuation@3827-3841@src/wepy/hdf5.py","src/wepy/hdf5.py","add_continuation","add_continuation( self , continuation_run , base_run )",3827,3841
+17,5,131,4,54,"new_run@3843-3896@src/wepy/hdf5.py","src/wepy/hdf5.py","new_run","new_run( self , init_walkers , continue_run = None , ** kwargs )",3843,3896
+7,1,49,3,32,"init_run_resampling@3900-3931@src/wepy/hdf5.py","src/wepy/hdf5.py","init_run_resampling","init_run_resampling( self , run_idx , resampler )",3900,3931
+2,1,24,3,13,"init_run_resampling_decision@3933-3945@src/wepy/hdf5.py","src/wepy/hdf5.py","init_run_resampling_decision","init_run_resampling_decision( self , run_idx , resampler )",3933,3945
+4,1,31,3,23,"init_run_resampler@3947-3969@src/wepy/hdf5.py","src/wepy/hdf5.py","init_run_resampler","init_run_resampler( self , run_idx , resampler )",3947,3969
+4,1,31,3,23,"init_run_warping@3971-3993@src/wepy/hdf5.py","src/wepy/hdf5.py","init_run_warping","init_run_warping( self , run_idx , bc )",3971,3993
+4,1,31,3,24,"init_run_progress@3995-4018@src/wepy/hdf5.py","src/wepy/hdf5.py","init_run_progress","init_run_progress( self , run_idx , bc )",3995,4018
+4,1,31,3,24,"init_run_bc@4020-4043@src/wepy/hdf5.py","src/wepy/hdf5.py","init_run_bc","init_run_bc( self , run_idx , bc )",4020,4043
+3,1,24,3,18,"init_run_fields_resampling@4047-4064@src/wepy/hdf5.py","src/wepy/hdf5.py","init_run_fields_resampling","init_run_fields_resampling( self , run_idx , fields )",4047,4064
+4,2,44,3,14,"init_run_fields_resampling_decision@4066-4079@src/wepy/hdf5.py","src/wepy/hdf5.py","init_run_fields_resampling_decision","init_run_fields_resampling_decision( self , run_idx , decision_enum_dict )",4066,4079
+3,1,24,3,18,"init_run_fields_resampler@4082-4099@src/wepy/hdf5.py","src/wepy/hdf5.py","init_run_fields_resampler","init_run_fields_resampler( self , run_idx , fields )",4082,4099
+3,1,24,3,18,"init_run_fields_warping@4101-4118@src/wepy/hdf5.py","src/wepy/hdf5.py","init_run_fields_warping","init_run_fields_warping( self , run_idx , fields )",4101,4118
+3,1,24,3,18,"init_run_fields_progress@4120-4137@src/wepy/hdf5.py","src/wepy/hdf5.py","init_run_fields_progress","init_run_fields_progress( self , run_idx , fields )",4120,4137
+3,1,24,3,18,"init_run_fields_bc@4139-4156@src/wepy/hdf5.py","src/wepy/hdf5.py","init_run_fields_bc","init_run_fields_bc( self , run_idx , fields )",4139,4156
+7,2,46,4,20,"init_run_record_grp@4159-4178@src/wepy/hdf5.py","src/wepy/hdf5.py","init_run_record_grp","init_run_record_grp( self , run_idx , run_record_key , fields )",4159,4178
+50,11,436,6,117,"add_traj@4198-4314@src/wepy/hdf5.py","src/wepy/hdf5.py","add_traj","add_traj( self , run_idx , data , weights = None , sparse_idxs = None , metadata = None )",4198,4314
+56,17,449,5,115,"extend_traj@4316-4430@src/wepy/hdf5.py","src/wepy/hdf5.py","extend_traj","extend_traj( self , run_idx , traj_idx , data , weights = None )",4316,4430
+2,1,24,4,14,"extend_cycle_warping_records@4434-4447@src/wepy/hdf5.py","src/wepy/hdf5.py","extend_cycle_warping_records","extend_cycle_warping_records( self , run_idx , cycle_idx , warping_data )",4434,4447
+2,1,24,4,15,"extend_cycle_bc_records@4449-4463@src/wepy/hdf5.py","src/wepy/hdf5.py","extend_cycle_bc_records","extend_cycle_bc_records( self , run_idx , cycle_idx , bc_data )",4449,4463
+2,1,24,4,14,"extend_cycle_progress_records@4465-4478@src/wepy/hdf5.py","src/wepy/hdf5.py","extend_cycle_progress_records","extend_cycle_progress_records( self , run_idx , cycle_idx , progress_data )",4465,4478
+2,1,24,4,15,"extend_cycle_resampling_records@4480-4494@src/wepy/hdf5.py","src/wepy/hdf5.py","extend_cycle_resampling_records","extend_cycle_resampling_records( self , run_idx , cycle_idx , resampling_data )",4480,4494
+2,1,24,4,14,"extend_cycle_resampler_records@4496-4509@src/wepy/hdf5.py","src/wepy/hdf5.py","extend_cycle_resampler_records","extend_cycle_resampler_records( self , run_idx , cycle_idx , resampler_data )",4496,4509
+12,4,115,5,41,"extend_cycle_run_group_records@4511-4551@src/wepy/hdf5.py","src/wepy/hdf5.py","extend_cycle_run_group_records","extend_cycle_run_group_records( self , run_idx , run_record_key , cycle_idx , fields_data )",4511,4551
+3,1,24,3,21,"run_records@4557-4577@src/wepy/hdf5.py","src/wepy/hdf5.py","run_records","run_records( self , run_idx , run_record_key )",4557,4577
+9,3,61,3,37,"run_contig_records@4579-4615@src/wepy/hdf5.py","src/wepy/hdf5.py","run_contig_records","run_contig_records( self , run_idxs , run_record_key )",4579,4615
+3,1,27,3,16,"run_records_dataframe@4617-4632@src/wepy/hdf5.py","src/wepy/hdf5.py","run_records_dataframe","run_records_dataframe( self , run_idx , run_record_key )",4617,4632
+3,1,27,3,19,"run_contig_records_dataframe@4634-4652@src/wepy/hdf5.py","src/wepy/hdf5.py","run_contig_records_dataframe","run_contig_records_dataframe( self , run_idxs , run_record_key )",4634,4652
+2,1,17,2,22,"resampling_records@4657-4678@src/wepy/hdf5.py","src/wepy/hdf5.py","resampling_records","resampling_records( self , run_idxs )",4657,4678
+2,1,20,2,17,"resampling_records_dataframe@4680-4696@src/wepy/hdf5.py","src/wepy/hdf5.py","resampling_records_dataframe","resampling_records_dataframe( self , run_idxs )",4680,4696
+2,1,17,2,22,"resampler_records@4699-4720@src/wepy/hdf5.py","src/wepy/hdf5.py","resampler_records","resampler_records( self , run_idxs )",4699,4720
+2,1,20,2,17,"resampler_records_dataframe@4722-4738@src/wepy/hdf5.py","src/wepy/hdf5.py","resampler_records_dataframe","resampler_records_dataframe( self , run_idxs )",4722,4738
+2,1,17,2,22,"warping_records@4741-4762@src/wepy/hdf5.py","src/wepy/hdf5.py","warping_records","warping_records( self , run_idxs )",4741,4762
+2,1,20,2,17,"warping_records_dataframe@4764-4780@src/wepy/hdf5.py","src/wepy/hdf5.py","warping_records_dataframe","warping_records_dataframe( self , run_idxs )",4764,4780
+2,1,17,2,22,"bc_records@4783-4804@src/wepy/hdf5.py","src/wepy/hdf5.py","bc_records","bc_records( self , run_idxs )",4783,4804
+2,1,20,2,17,"bc_records_dataframe@4806-4822@src/wepy/hdf5.py","src/wepy/hdf5.py","bc_records_dataframe","bc_records_dataframe( self , run_idxs )",4806,4822
+2,1,17,2,22,"progress_records@4825-4846@src/wepy/hdf5.py","src/wepy/hdf5.py","progress_records","progress_records( self , run_idxs )",4825,4846
+2,1,20,2,17,"progress_records_dataframe@4848-4864@src/wepy/hdf5.py","src/wepy/hdf5.py","progress_records_dataframe","progress_records_dataframe( self , run_idxs )",4848,4864
+2,1,17,2,15,"run_resampling_panel@4867-4881@src/wepy/hdf5.py","src/wepy/hdf5.py","run_resampling_panel","run_resampling_panel( self , run_idx )",4867,4881
+7,2,44,2,27,"run_contig_resampling_panel@4883-4909@src/wepy/hdf5.py","src/wepy/hdf5.py","run_contig_resampling_panel","run_contig_resampling_panel( self , run_idxs )",4883,4909
+3,1,40,5,19,"add_run_observable@4914-4932@src/wepy/hdf5.py","src/wepy/hdf5.py","add_run_observable","add_run_observable( self , run_idx , observable_name , data , sparse_idxs = None )",4914,4932
+18,6,155,4,46,"add_traj_observable@4934-4979@src/wepy/hdf5.py","src/wepy/hdf5.py","add_traj_observable","add_traj_observable( self , observable_name , data , sparse_idxs = None )",4934,4979
+3,1,36,4,24,"add_observable@4983-5006@src/wepy/hdf5.py","src/wepy/hdf5.py","add_observable","add_observable( self , observable_name , data , sparse_idxs = None )",4983,5006
+4,1,31,9,4,"compute_observable@5008-5011@src/wepy/hdf5.py","src/wepy/hdf5.py","compute_observable","compute_observable( self , func , fields , args , map_func = map , traj_sel = None , save_to_hdf5 = None , idxs = False , return_results = True )",5008,5011
+10,3,98,6,45,"get_traj_field@5142-5186@src/wepy/hdf5.py","src/wepy/hdf5.py","get_traj_field","get_traj_field( self , run_idx , traj_idx , field_path , frames = None , masked = True )",5142,5186
+9,5,87,3,32,"get_trace_fields@5188-5219@src/wepy/hdf5.py","src/wepy/hdf5.py","get_trace_fields","get_trace_fields( self , frame_tups , fields )",5188,5219
+9,5,87,4,39,"get_run_trace_fields@5221-5259@src/wepy/hdf5.py","src/wepy/hdf5.py","get_run_trace_fields","get_run_trace_fields( self , run_idx , frame_tups , fields )",5221,5259
+26,8,187,3,81,"get_contig_trace_fields@5262-5342@src/wepy/hdf5.py","src/wepy/hdf5.py","get_contig_trace_fields","get_contig_trace_fields( self , contig_trace , fields )",5262,5342
+15,5,101,4,54,"iter_trajs_fields@5344-5397@src/wepy/hdf5.py","src/wepy/hdf5.py","iter_trajs_fields","iter_trajs_fields( self , fields , idxs = False , traj_sel = None )",5344,5397
+2,1,23,7,2,"traj_fields_map@5399-5400@src/wepy/hdf5.py","src/wepy/hdf5.py","traj_fields_map","traj_fields_map( self , func , fields , args , map_func = map , idxs = False , traj_sel = None )",5399,5400
+40,10,279,5,85,"to_mdtraj@5470-5554@src/wepy/hdf5.py","src/wepy/hdf5.py","to_mdtraj","to_mdtraj( self , run_idx , traj_idx , frames = None , alt_rep = None )",5470,5554
+4,1,45,3,35,"trace_to_mdtraj@5556-5590@src/wepy/hdf5.py","src/wepy/hdf5.py","trace_to_mdtraj","trace_to_mdtraj( self , trace , alt_rep = None )",5556,5590
+4,1,49,4,38,"run_trace_to_mdtraj@5592-5629@src/wepy/hdf5.py","src/wepy/hdf5.py","run_trace_to_mdtraj","run_trace_to_mdtraj( self , run_idx , trace , alt_rep = None )",5592,5629
+17,6,98,2,45,"_choose_rep_path@5631-5675@src/wepy/hdf5.py","src/wepy/hdf5.py","_choose_rep_path","_choose_rep_path( self , alt_rep )",5631,5675
+4,1,41,3,30,"traj_fields_to_mdtraj@5678-5707@src/wepy/hdf5.py","src/wepy/hdf5.py","traj_fields_to_mdtraj","traj_fields_to_mdtraj( self , traj_fields , alt_rep = POSITIONS )",5678,5707
+2,1,19,6,2,"copy_run_slice@5711-5712@src/wepy/hdf5.py","src/wepy/hdf5.py","copy_run_slice","copy_run_slice( self , run_idx , target_file_path , target_grp_path , run_slice = None , mode = 'x' )",5711,5712

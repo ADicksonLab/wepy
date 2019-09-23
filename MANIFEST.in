@@ -1,3 +1,7 @@
+graft src
+graft examples
+graft docs
+
 include AUTHORS.org
 include CHANGELOG.org
 include LICENSE
@@ -8,9 +12,8 @@ include requirements_dev.txt
 
 include pyproject.toml
 
-recursive-include tests *
-
-recursive-exclude * __pycache__
-recursive-exclude * *.py[co]
-
 recursive-include sphinx build.sh *.rst conf.py Makefile make.bat *.jpg *.png *.gif
+
+global-exclude *.py[co] __pycache__ *.so
+
+

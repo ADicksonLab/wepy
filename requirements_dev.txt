@@ -31,9 +31,12 @@ argcomplete
 flake8
 tox
 coverage
+lizard
 
 pytest-datadir
 pytest-cov
+pytest-benchmark
+pytest-profiling
 
 
 # this is a customized datadir module I made since the off the shelf
@@ -44,7 +47,7 @@ pytest-cov
 # modules just for tests
 
 # openmmtools for setting up the mock systems, should be installed with anaconda
-# conda install -c omnia openmmtools openmm
+# conda install -c omnia openmm
 
 mdtraj
 

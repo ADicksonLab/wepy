@@ -25,6 +25,9 @@ abstract_requirements = [
 # extras requirements list
 mdtraj_requirements = ['mdtraj']
 
+#
+examples_reqs = ['openmmtools']
+
 # combination of all the extras requirements
 all_requirements = it.chain.from_iterable([mdtraj_requirements, ])
 
@@ -45,14 +48,15 @@ setup(
     # building/dev
     setup_requires=['pytest-runner'],
     tests_require=['pytest', 'tox'],
+
     # package
-    packages=find_packages('src'),
+    packages=find_packages(where='src'),
 
     package_dir={'' : 'src'},
 
     # if this is true then the package_data won't be included in the
     # dist. Use MANIFEST.in for this
-    include_package_data=False,
+    include_package_data=True,
 
     # pymodules is for single file standalone modules not part of the
     # package

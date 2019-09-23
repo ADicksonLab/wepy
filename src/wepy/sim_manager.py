@@ -200,6 +200,7 @@ class Manager(object):
             self.cleanup()
 
             # report on all of the errors that occured
+            raise exception
 
         logging.info("Ending segment")
 
@@ -609,6 +610,9 @@ class Manager(object):
         """
 
         self.init(num_workers=num_workers)
+
+        if type(segment_lengths) == int:
+            segment_lengths = [segment_lengths for _ in range(n_cycles)]
 
         walkers = self.init_walkers
         # the main cycle loop
