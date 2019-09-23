@@ -1684,7 +1684,7 @@ class Contig(ContigTree):
         """Return full run traces for every warping event."""
 
         # get the parent table for the spanning contig
-        parent_table = self.parent_tselable()
+        parent_table = self.parent_table()
 
         warp_lineages = []
         # for each warping record
