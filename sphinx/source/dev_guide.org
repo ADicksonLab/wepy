@@ -253,7 +253,7 @@ Where the `-r` option recreates it from scratch.
 You can also lint the code with flake8:
 
 #+BEGIN_SRC bash
-flake8 src/wepy tests
+flake8 src/wepy wepy-tests
 #+END_SRC
 
 *** Testing examples and tutorials

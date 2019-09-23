@@ -9,9 +9,14 @@ virtualenv
 # interactive and debugging
 ipython
 pdbpp
+remote-pdb
 
 # utilities
 bumpversion
+
+# task running
+invoke
+fabric
 
 # docs
 sphinx
@@ -28,6 +33,8 @@ tox
 coverage
 
 pytest-datadir
+pytest-cov
+
 
 # this is a customized datadir module I made since the off the shelf
 # one wasn't doing what i needed. Only need this when I need to share
