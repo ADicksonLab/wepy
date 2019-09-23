@@ -605,7 +605,7 @@ class NoResampler(Resampler):
 
         # we only have one step so our resampling_records are just the
         # single list of walker actions
-        resampling_data = [walker_actions]
+        resampling_data = walker_actions
 
         # there is no change in state in the resampler so there are no
         # resampler records

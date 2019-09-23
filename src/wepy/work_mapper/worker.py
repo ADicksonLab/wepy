@@ -138,3 +138,25 @@ class Task(object):
         # run the function passing in the args for running it and any
         # worker information in the kwargs
         return self.func(*self.args, **kwargs)
+
+class GPUWorker(Worker):
+    """Worker for GPU simulations.
+
+    This is intended to be used with the wepy.work_mapper.WorkerMapper
+    work mapper class.
+
+    This class must be used in order to ensure MD programs (e.g. OpenMM)
+    runs jobs on the appropriate GPU device.
+
+    """
+
+    NAME_TEMPLATE = "GPUWorker-{}"
+    """The name template the worker processes are named to substituting in
+    the process number."""
+
+    def run_task(self, task):
+        # documented in superclass
+
+        # run the task and pass in the DeviceIndex to
+        # assign work to the correct GPU
+        return task(DeviceIndex=str(self.worker_idx))

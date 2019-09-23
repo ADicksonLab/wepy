@@ -83,7 +83,7 @@ class Decision(object):
 
 
     @classmethod
-    def record(cls, enum_value):
+    def record(cls, enum_value, target_idxs=()):
         """
 
         Parameters
@@ -177,7 +177,7 @@ class NoDecision(Decision):
     ANCESTOR_DECISION_IDS = (ENUM.NOTHING.value,)
 
     @classmethod
-    def action(cls, walkers, decisions):
+    def action(cls, walkers, decisions, target_idxs=()):
         """
 
         Parameters
