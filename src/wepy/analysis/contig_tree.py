@@ -15,9 +15,12 @@ from copy import copy
 import networkx as nx
 import numpy as np
 
-from wepy.analysis.parents import DISCONTINUITY_VALUE, \
-                                  parent_panel, net_parent_table,\
-                                  ancestors, sliding_window
+from wepy.analysis.parents import (
+    DISCONTINUITY_VALUE,
+    parent_panel, net_parent_table,
+    ancestors, sliding_window,
+    parent_cycle_discontinuities
+)
 
 # optional dependencies
 try:
@@ -542,18 +545,11 @@ class BaseContigTree():
         for run_idx, cycle_idx in contig_trace:
             parent_idxs = self.graph.node[(run_idx, cycle_idx)][self.PARENTS_KEY]
 
-            # if there are discontinuities add them to the table if we asked for this
-            if discontinuities:
-                discs = self.graph.node[(run_idx, cycle_idx)][self.DISCONTINUITY_KEY]
-                for value in range(len(discs)):
-                    if discs[value] == -1:
-                        for parent in range(len(parent_idxs)):
-                            if parent_idxs[parent] == value:
-                                parent_idxs[parent] = -1
-                #parent_idxs = [-1 if disc else p_idx
-                #             for p_idx, disc in zip(parent_idxs, discs)]
+            discs = self.graph.node[(run_idx, cycle_idx)][self.DISCONTINUITY_KEY]
 
-            parent_table.append(parent_idxs)
+            parent_row = parent_cycle_discontinuities(parent_idxs, discs)
+
+            parent_table.append(parent_row)
 
         return parent_table
 
