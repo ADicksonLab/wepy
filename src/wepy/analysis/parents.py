@@ -333,24 +333,41 @@ def parent_table_discontinuities(boundary_condition_class, parent_table, warping
         n_walkers = len(parent_table[cycle_idx])
 
 
+        discs = [False for _ in range(n_walkers)]
         # Check to see if any walkers in the current step
         # originated from this warped walker
         for walker_idx in range(n_walkers):
 
-            # if it's parent is the walker in this warping event
-            # we also need to check to see if that warping event
-            # was a discontinuous warping event
-            if parent_table[cycle_idx][walker_idx] == parent_idx:
+            # this walker was warped discontinuously make a record true for itq
+            if boundary_condition_class.warping_discontinuity(warp_record):
+                discs[walker_idx] = True
 
-                # just check by using the method from the boundary
-                # condition class used
-                if boundary_condition_class.warping_discontinuity(warp_record):
+        disc_parent_row = parent_cycle_discontinuities(parent_table[cycle_idx],
+                                                       discs)
 
-                    # set the element in the parent table to the
-                    # discontinuity value if it is
-                    new_parent_table[cycle_idx][walker_idx] = DISCONTINUITY_VALUE
+        new_parent_table[cycle_idx] = disc_parent_row
+
 
     return new_parent_table
+
+
+def parent_cycle_discontinuities(parent_idxs, discontinuities):
+
+    parent_row = copy(parent_idxs)
+    for walker_idx, disc in enumerate(discontinuities):
+
+        # if there was a discontinuity in this walker, we need to
+        # check for which children it had and apply the discontinuity
+        # to them
+        if disc:
+            for child_idx in range(len(parent_idxs)):
+
+                parent_idx = parent_idxs[child_idx]
+
+                if parent_idx == walker_idx:
+                    parent_row[child_idx] = DISCONTINUITY_VALUE
+
+    return parent_row
 
 def ancestors(parent_table, cycle_idx, walker_idx, ancestor_cycle=0):
     """Returns the lineage of ancestors as walker indices leading up to
