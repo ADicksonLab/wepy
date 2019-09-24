@@ -19,14 +19,14 @@ import os.path as osp
 import os
 import shutil
 import subprocess
-
+import glob
 import numpy as np
 
 from wepy.walker import Walker, WalkerState
 from wepy.runners.runner import Runner
 from wepy.work_mapper.worker import Worker
 
-def generate_state(work_dir, output_pref, get_velocities=False):
+def generate_state(work_dir, output_pref, cycle=0, next_input_pref=None, get_velocities=False):
     """Method for generating a wepy compliant state from a NAMD
     simulation and obtaining data about the last segment of dynamics.
 
@@ -85,6 +85,10 @@ def generate_state(work_dir, output_pref, get_velocities=False):
             # multiply by 0.1 to convert from angstroms/time to nanometers/time
             state['velocities'] = 0.1*vel.reshape(natoms,3)
 
+    # add cycle and next_input
+    state['cycle'] = cycle
+    state['nextinput'] = next_input_pref
+            
     # make a WalkerState wrapper with this
     new_state = WalkerState(**state)
 
@@ -94,7 +98,7 @@ def generate_state(work_dir, output_pref, get_velocities=False):
 class NAMDRunner(Runner):
     """Runner for NAMD simulations."""
 
-    def __init__(self, runcmd, common_dir_path, conf_file_path, work_dir_path, get_velocities=False):
+    def __init__(self, runcmd, common_dir_path, conf_file_path, work_dir_path, get_velocities=False, cycle_cache=1):
         """Constructor for NAMDRunner.
 
         Parameters
@@ -114,6 +118,10 @@ class NAMDRunner(Runner):
 
         work_dir_path : str
             Location of working directory 
+
+        cycle_cache : int 
+            Controls how many cycles worth of NAMD data to store in the work 
+            directory.  Outdated files are removed in the post_cycle function.
         
         """
 
@@ -134,6 +142,11 @@ class NAMDRunner(Runner):
                 shutil.copy(full_file_name, self.work_dir)
 
         self.get_vel = get_velocities
+
+        if cycle_cache != 'all':
+            assert type(cycle_cache) is int, "Error! cycle cache must be an int or 'all'"
+
+        self.cycle_cache = cycle_cache
 
     def run_segment(self, walker, segment_length, walker_idx=-1, DeviceIndex=0):
         """Run dynamics for the walker.
@@ -159,8 +172,8 @@ class NAMDRunner(Runner):
 
         # build the conf file
         # grab information from walker
-        nextinput = walker.nextinput
-        thiscycle = walker.cycle + 1
+        nextinput = walker.state['nextinput']
+        thiscycle = walker.state['cycle'] + 1
         output_pref = 'walker{0}_{1}'.format(walker_idx,thiscycle)
 
         # write new conf file
@@ -199,10 +212,14 @@ class NAMDRunner(Runner):
         logging.info("Getting context state time: {}".format(get_state_time))
 
         # generate the new state/walker
-        new_state = generate_state(self.work_dir,output_pref,get_velocities=self.get_vel)
+        new_state = generate_state(self.work_dir,
+                                   output_pref,
+                                   cycle=thiscycle,
+                                   next_input_pref=output_pref,
+                                   get_velocities=self.get_vel)
 
         # create a new walker for this
-        new_walker = NAMDWalker(new_state, walker.weight, cycle=thiscycle, next_input_pref=output_pref)
+        new_walker = NAMDWalker(new_state, walker.weight)
 
         run_segment_end = time.time()
         run_segment_time = run_segment_end - run_segment_start
@@ -210,16 +227,35 @@ class NAMDRunner(Runner):
 
         return new_walker
 
+    def post_cycle(self, current_cycle=None):
+        """Clears files from the work directory."""
+        if self.cycle_cache is not None:
+
+            # determine which cycle to delete
+            if current_cycle is None:
+                # find current cycle
+                log_files = glob.glob(osp.join(self.work_dir,'seg*.log'))
+                latest_file = max(log_files, key=osp.getctime)
+                curr_cycle = re.search('([0-9]+).log',latest_file)[1]
+                to_del = curr_cycle - self.cycle_cache
+            else:
+                to_del = current_cycle - self.cycle_cache
+            
+            # make a list of files to remove
+            rm_files = glob.glob(osp.join(self.work_dir,'*_'+str(to_del)+'.*'))
+            
+            # remove them
+            for f in rm_files:
+                os.remove(f)            
+        
+
 class NAMDWalker(Walker):
     """Walker for NAMDRunner simulations.
     Accepts standard WalkerState objects for state.  Carries the current cycle
     and the walker index.
     """
 
-    def __init__(self, state, weight, cycle=0, next_input_pref=None):
+    def __init__(self, state, weight):
         # documented in superclass
 
         super().__init__(state, weight)
-
-        self.cycle = cycle
-        self.nextinput = next_input_pref

@@ -47,7 +47,7 @@ ALL_ATOMS_SAVE_FREQ = 10
 ## INPUTS/OUTPUTS
 
 # the inputs directory
-inputs_dir = osp.realpath('./inputs')
+inputs_dir = osp.realpath('./common')
 # the outputs path
 outputs_dir = osp.realpath('./outputs')
 # make the outputs dir if it doesn't exist
@@ -88,21 +88,21 @@ if __name__ == "__main__":
 
     # set up the NAMDRunner with your system
     runcmd = "/Users/alexrd/programs/NAMD_2.13_MacOSX-x86_64-multicore/namd2 +p4"
-    common_path = "/Users/alexrd/research/NAMD_runner/common"
+    common_path = "/Users/alexrd/research/wepy/examples/ubq_NAMD/common"
     conf_template = osp.join(inputs_dir,"ubq_wb_eq.conf")
-    work_dir = "/Users/alexrd/research/NAMD_runner/work"
+    work_dir = "/Users/alexrd/research/wepy/examples/ubq_NAMD/work"
     
-    runner = NAMDRunner(runcmd, common_path, conf_template, work_dir)
+    runner = NAMDRunner(runcmd, common_path, conf_template, work_dir, cycle_cache=2)
 
     # set up parameters for running the simulation
-    num_walkers = 24
+    num_walkers = 10
     # initial weights
     init_weight = 1.0 / num_walkers
 
     # a list of the initial walkers
-    state = generate_state(work_dir,"ubq_start")
+    state = generate_state(work_dir,"ubq_start", cycle=-1, next_input_pref="ubq_start")
     
-    init_walkers = [NAMDWalker(state, init_weight, cycle=-1, next_input_pref="ubq_start") for i in range(num_walkers)]
+    init_walkers = [NAMDWalker(state, init_weight) for i in range(num_walkers)]
     
     # set up RMSD distance function
     distance_metric = RMSDDistance(protein_idxs)
@@ -111,7 +111,7 @@ if __name__ == "__main__":
     resampler = WExploreResampler(distance=distance_metric,
                                    init_state=state,
                                    max_n_regions=(10,10,10,10),
-                                   max_region_sizes=(1, 0.5, .35, 0.25),
+                                   max_region_sizes=(1, 0.5, 0.2, 0.08),
                                    pmin=1e-12, pmax=1.0)
 
     ## make the reporters
@@ -132,15 +132,15 @@ if __name__ == "__main__":
     reporters = [hdf5_reporter]
     
     # create a work mapper for NVIDIA GPUs for a GPU cluster
-    gpumapper  = GPUMapper(num_walkers, gpu_indices=[0,1])
+    mapper  = GPUMapper(num_walkers, num_workers=2)
 
     # Instantiate a simulation manager
     sim_manager = Manager(init_walkers,
                           runner=runner,
                           resampler=resampler,
-                          work_mapper=gpumapper,
+                          work_mapper=mapper,
                           reporters=reporters)
-    n_steps = 10000
+    n_steps = 100
     n_cycles = 10
 
     # run a simulation with the manager for n_steps cycles of length 1000 each

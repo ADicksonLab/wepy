@@ -295,8 +295,7 @@ class Manager(object):
         runner_time = end - start
 
         # run post-cycle hook
-        self.runner.post_cycle()
-
+        self.runner.post_cycle(current_cycle=cycle_idx)
 
         logging.info("End cycle {}".format(cycle_idx))
 
@@ -327,8 +326,6 @@ class Manager(object):
             if len(warp_data) > 0:
                 logging.info("Returned warp record in cycle {}".format(cycle_idx))
 
-
-
         # resample walkers
         start = time.time()
         resampling_results = self.resampler.resample(warped_walkers)
@@ -346,8 +343,6 @@ class Manager(object):
         logging.info(walker_weight_str)
 
         # make a dictionary of all the results that will be reported
-
-
         report = {'cycle_idx' : cycle_idx,
                   'new_walkers' : new_walkers,
                   'warp_data' : warp_data,
@@ -373,7 +368,6 @@ class Manager(object):
 
         # prepare resampled walkers for running new state changes
         walkers = resampled_walkers
-
 
         # we also return a list of the "filters" which are the
         # classes that are run on the initial walkers to produce

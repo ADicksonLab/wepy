@@ -228,4 +228,7 @@ class WalkerState(object):
 
     def dict(self):
         """Return all key-value pairs as a dictionary."""
-        return self._data
+        d = {}
+        for key, value in self._data.items():
+            d[key] = value
+        return d
