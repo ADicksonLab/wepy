@@ -795,6 +795,46 @@ def get_run_cycles(end_hash, start_hash, orchestrator):
 
     click.echo(rec_d['last_cycle_idx'])
 
+
+@click.argument('orchestrator', type=click.Path(exists=False))
+@click.command()
+def create_orch(orchestrator):
+
+    orch = Orchestrator(orchestrator, mode='x')
+
+    orch.close()
+
+@click.argument('snapshot', type=click.File('rb'))
+@click.argument('orchestrator', type=click.Path(exists=True))
+@click.command()
+def add_snapshot(snapshot, orchestrator):
+
+    orch = Orchestrator(orchestrator, mode='r+')
+
+    serial_snapshot = snapshot.read()
+
+    snaphash = orch.add_serial_snapshot(serial_snapshot)
+
+    orch.close()
+
+    click.echo(snaphash)
+
+
+@click.argument('configuration', type=click.File('rb'))
+@click.argument('orchestrator', type=click.Path(exists=True))
+@click.command()
+def add_config(configuration, orchestrator):
+    orch = Orchestrator(orchestrator, mode='r+')
+
+    serial_config = configuration.read()
+
+    config_hash = orch.add_serial_snapshot(serial_config)
+
+    orch.close()
+
+    click.echo(config_hash)
+
+
 @click.group()
 def cli():
     """ """
@@ -809,6 +849,17 @@ def run():
 def get():
     """ """
     pass
+
+@click.group()
+def add():
+    """ """
+    pass
+
+@click.group()
+def create():
+    """ """
+    pass
+
 
 @click.group()
 def ls():
@@ -827,21 +878,33 @@ def hdf5():
 
 # command groupings
 
+# run
 run.add_command(run_orch, name='orch')
 run.add_command(run_snapshot, name='snapshot')
 
+# ls
 ls.add_command(ls_snapshots, name='snapshots')
 ls.add_command(ls_runs, name='runs')
 ls.add_command(ls_configs, name='configs')
 
+# get
 get.add_command(get_snapshot, name='snapshot')
 get.add_command(get_config, name='config')
 get.add_command(get_run, name='run')
 get.add_command(get_run_cycles, name='run-cycles')
 
+# add
+add.add_command(add_snapshot, name='snapshot')
+add.add_command(add_config, name='config')
+
+# create
+create.add_command(create_orch, name='orch')
+
+# reconcile
 reconcile.add_command(reconcile_orch, name='orch')
 reconcile.add_command(reconcile_hdf5, name='hdf5')
 
+# hdf5
 hdf5.add_command(hdf5_copy, name='copy')
 # desired commands
 # hdf5.add_command(hdf5_copy, name='copy-run')
@@ -850,10 +913,11 @@ hdf5.add_command(hdf5_copy, name='copy')
 # hdf5.add_command(hdf5_copy, name='ls-run-hashes')
 
 
-
 # subgroups
 cli.add_command(run)
 cli.add_command(get)
+cli.add_command(add)
+cli.add_command(create)
 cli.add_command(ls)
 cli.add_command(reconcile)
 cli.add_command(hdf5)
