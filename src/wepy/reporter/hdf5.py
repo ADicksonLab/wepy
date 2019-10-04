@@ -294,6 +294,8 @@ class WepyHDF5Reporter(FileReporter):
         # positions
         if alt_reps is not None:
 
+            self.alt_reps_idxs = {key: list(tup[0]) for key, tup in alt_reps.items()}
+
             # add the frequencies for these alt_reps to the
             # sparse_fields frequency dictionary
             for key, (idxs, freq) in alt_reps.items():
