@@ -901,7 +901,8 @@ class Orchestrator():
         logging.debug("closed the checkpoint orch connection")
 
 
-    def gen_sim_manager(self, start_snapshot, configuration):
+    @staticmethod
+    def gen_sim_manager(start_snapshot, configuration):
         """
 
         Parameters

@@ -28,10 +28,15 @@ from wepy.orchestration.snapshot import WepySimApparatus
 from wepy.orchestration.configuration import Configuration
 
 
-from openmmtools.testsystems import LennardJonesPair
+from openmmtools.testsystems import LysozymeImplicit
 
 ## PARAMETERS
 
+# Platform used for OpenMM which uses different hardware computation
+# kernels. Options are: Reference, CPU, OpenCL, CUDA.
+
+# we use the Reference platform because this is just a test
+PLATFORM = 'Reference'
 
 # Langevin Integrator
 TEMPERATURE= 300.0*unit.kelvin
@@ -75,7 +80,8 @@ UNITS = UNIT_NAMES
 N_WALKERS = 48
 
 
-default_params = {
+params = {
+    'platform' : PLATFORM,
     'temperature' : TEMPERATURE,
     'friction_coefficient' : FRICTION_COEFFICIENT,
     'step_size' : STEP_SIZE,
@@ -108,13 +114,6 @@ _context.setPositions(test_sys.positions)
 _get_state_kwargs = dict(GET_STATE_KWARG_DEFAULTS)
 init_sim_state = _context.getState(**_get_state_kwargs)
 init_state = OpenMMState(init_sim_state)
-
-
-# Platform used for OpenMM which uses different hardware computation
-# kernels. Options are: Reference, CPU, OpenCL, CUDA.
-
-# we use the Reference platform because this is just a test
-PLATFORM = 'Reference'
 
 # initialize the runner
 runner = OpenMMRunner(test_sys.system, test_sys.topology, integrator, platform=PLATFORM)
@@ -212,3 +211,13 @@ configuration = Configuration(reporter_classes=reporter_classes,
 init_weight = 1.0 / N_WALKERS
 init_walkers = [Walker(OpenMMState(init_sim_state), init_weight) for i in range(N_WALKERS)]
 
+# then create the seed/root/master orchestrator which will be used
+# from here on out
+orch = Orchestrator(orch_path='LJ-pair.orch.sqlite',
+                            mode='w')
+
+# set the defaults
+orch.set_default_sim_apparatus(sim_apparatus)
+orch.set_default_init_walkers(init_walkers)
+orch.set_default_configuration(configuration)
+orch.gen_default_snapshot()
