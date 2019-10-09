@@ -1,7 +1,7 @@
 from invoke import task
 import sys
 
-import conda.cli.python_api as Conda
+#import conda.cli.python_api as Conda
 
 SHELL = "/bin/bash"
 ENV = "wepy-dev"
@@ -151,10 +151,10 @@ def benchmark_save(ctx):
     """Run a proper benchmark that will be saved into the metrics for regression testing etc."""
 
     run_command = \
-"""pytest --benchmark-autosave --benchmark-save-data \
-          --benchmark-storage={storage} \
+f"""pytest --benchmark-autosave --benchmark-save-data \
+          --benchmark-storage={BENCHMARK_STORAGE_URI} \
           wepy-tests/tests/test_benchmarks
-""".format(BENCHMARK_STORAGE_URI)
+"""
 
     ctx.run(run_command)
 

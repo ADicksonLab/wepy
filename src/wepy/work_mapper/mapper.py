@@ -246,6 +246,7 @@ class ABCWorkerMapper(ABCMapper):
     def __init__(self,
                  num_workers=None,
                  segment_func=None,
+                 proc_start_method='fork',
                  **kwargs):
         """Constructor for WorkerMapper.
 
@@ -258,10 +259,19 @@ class ABCWorkerMapper(ABCMapper):
         segment_func : callable, optional
             Set a default segment_func. Typically set at runtime.
 
+        proc_start_method : str or None
+            A string indicating the type of process start method to
+            use from python multiprocessing typically 'fork', 'spawn',
+            or 'forkserver', or the platform default for None. See
+            documentation. Generates a context with the method
+            multiprocessing.get_context(proc_start_method) on `init`.
+
         """
 
         super().__init__(segment_func=segment_func, **kwargs)
 
+
+        self._proc_start_method = proc_start_method
 
         self._num_workers = num_workers
         self._worker_segment_times = None
@@ -284,6 +294,10 @@ class ABCWorkerMapper(ABCMapper):
 
         super().init(segment_func=segment_func)
 
+        # create the multiprocessing context to use for spawning
+        # processes here
+        self._mp_ctx = mp.get_context(method=self._proc_start_method)
+
         # the number of workers must be given here or set as an object attribute
         if num_workers is None and self.num_workers is None:
             raise ValueError("The number of workers must be given, received {}".format(num_workers))
@@ -293,6 +307,16 @@ class ABCWorkerMapper(ABCMapper):
         # the object was created
         elif num_workers is not None and self.num_workers is None:
             self._num_workers = num_workers
+
+
+    def cleanup(self, **kwargs):
+
+        # TODO: is this all we need to do? I have a hunch there is
+        # more caveats, but these context objects are not really
+        # documented
+
+        # make sure the context for this work mapper is destroyed
+        del self._mp_ctx
 
     @property
     def num_workers(self):
@@ -427,7 +451,7 @@ class WorkerMapper(ABCWorkerMapper):
         super().init(num_workers=num_workers, segment_func=segment_func,
                      **kwargs)
 
-        manager = mp.Manager()
+        manager = self._mp_ctx.Manager()
 
         # Establish communication queues
 
@@ -454,7 +478,7 @@ class WorkerMapper(ABCWorkerMapper):
         for i in range(self.num_workers):
 
             # make a pipe to communicate with this worker for the int
-            parent_conn, child_conn = mp.Pipe()
+            parent_conn, child_conn = self._mp_ctx.Pipe()
             self._irq_parent_conns.append(parent_conn)
 
             # create the worker giving it all of the communication
@@ -579,6 +603,8 @@ class WorkerMapper(ABCWorkerMapper):
 
         """
 
+        super().cleanup(**kwargs)
+
         # send poison pills (Stop signals) to the queues to stop them in a nice way
         # and let them finish up
         for i in range(self.num_workers):
@@ -593,7 +619,7 @@ class WorkerMapper(ABCWorkerMapper):
     def map(self, *args, **kwargs):
         # docstring in superclass
 
-        map_process = mp.current_process()
+        map_process = self._mp_ctx.current_process()
         logging.info("Mapping from process {}; PID {}".format(map_process.name, map_process.pid))
 
         # make tuples for the arguments to each function call

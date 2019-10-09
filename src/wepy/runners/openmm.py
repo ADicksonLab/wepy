@@ -1050,6 +1050,7 @@ class OpenMMGPUWorker(Worker):
     the process number."""
 
     def run_task(self, task):
+
         # documented in superclass
 
         device_id = self.mapper_attributes['device_ids'][self._worker_idx]

@@ -31,7 +31,10 @@ argcomplete
 flake8
 tox
 coverage
+# code quality metrics
 lizard
+# need this for using multiprocessing logging in the tests
+multiprocessing_logging
 
 pytest-datadir
 pytest-cov

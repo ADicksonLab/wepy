@@ -126,7 +126,7 @@ class TaskMapper(ABCWorkerMapper):
     def map(self, *args, **kwargs):
 
         # run computations in a Manager context
-        with mp.Manager() as manager:
+        with self._mp_ctx.Manager() as manager:
 
             num_walkers = len(args[0])
 
@@ -164,6 +164,9 @@ class TaskMapper(ABCWorkerMapper):
             # interrupts
             self._irq_parent_conns = []
 
+            # unpack the generator for the kwargs
+            kwargs = {key : list(kwarg) for key, kwarg in kwargs.items()}
+
             # create the task based processes
             self._walker_processes = []
             for walker_idx, task_args in enumerate(zip(*args)):
@@ -171,7 +174,7 @@ class TaskMapper(ABCWorkerMapper):
                 task_kwargs = {key : value[walker_idx] for key, value in kwargs.items()}
 
                 # make the interrupt pipe
-                parent_conn, child_conn = mp.Pipe()
+                parent_conn, child_conn = self._mp_ctx.Pipe()
                 self._irq_parent_conns.append(parent_conn)
 
                 # start a process for this walker

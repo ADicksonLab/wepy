@@ -211,15 +211,13 @@ configuration = Configuration(reporter_classes=reporter_classes,
 init_weight = 1.0 / N_WALKERS
 init_walkers = [Walker(OpenMMState(init_sim_state), init_weight) for i in range(N_WALKERS)]
 
-# then create the seed/root/master orchestrator which will be used
-# from here on out
-orch = Orchestrator(orch_path='LJ-pair.orch.sqlite',
-                            mode='w')
-
-# set the defaults
-orch.set_default_sim_apparatus(sim_apparatus)
-orch.set_default_init_walkers(init_walkers)
-orch.set_default_configuration(configuration)
-orch.gen_default_snapshot()
 
 
+def gen_orch():
+    
+
+    return orch
+
+def gen_init_walkers():
+
+    return init_walkers
