@@ -360,7 +360,7 @@ class Manager(object):
         logging.info(walker_weight_str)
 
         # make a dictionary of all the results that will be reported
-        seg_times = [None]
+        seg_times = {}
         sampling_time = None
         overhead_time = None
 

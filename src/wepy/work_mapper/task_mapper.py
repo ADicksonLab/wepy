@@ -56,7 +56,7 @@ class TaskMapper(ABCWorkerMapper):
 
         # choose the type of the worker
         if walker_task_type is None:
-            self._walker_task_type_type = WalkerTaskProcess
+            self._walker_task_type = WalkerTaskProcess
             warn("walker_task_type not given using the default base class")
             logging.warn("walker_task_type not given using the default base class")
         else:

@@ -1010,10 +1010,18 @@ class OpenMMCPUWorker(Worker):
     """The name template the worker processes are named to substituting in
     the process number."""
 
-    def __init__(self, worker_idx, task_queue, result_queue, num_threads=1, **kwargs):
+    DEFAULT_NUM_THREADS = 1
 
-        super().__init__(worker_idx, task_queue, result_queue,
-                         num_threads=num_threads, **kwargs)
+    def __init__(self, *args, **kwargs):
+
+        if 'num_threads' not in kwargs:
+            num_threads = DEFAULT_NUM_THREADS
+        else:
+            num_threads = kwargs.pop('num_threads')
+
+        super().__init__(*args,
+                         num_threads=num_threads,
+                         **kwargs)
 
     def run_task(self, task):
         # documented in superclass

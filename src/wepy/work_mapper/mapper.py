@@ -299,6 +299,19 @@ class ABCWorkerMapper(ABCMapper):
         """The number of worker processes."""
         return self._num_workers
 
+    @property
+    def worker_segment_times(self):
+        """The run timings for each segment for each walker.
+
+        Returns
+        -------
+        worker_seg_times : dict of int : list of float
+            Dictionary mapping worker indices to a list of times in
+            seconds for each segment run.
+
+        """
+        return self._worker_segment_times
+
     def _make_task(self, *args, **kwargs):
         """Generate a task from 'segment_func' attribute.
 
@@ -396,6 +409,7 @@ class WorkerMapper(ABCWorkerMapper):
 
         """
         return self._worker_type
+
 
     def init(self, num_workers=None, segment_func=None,
              **kwargs):
