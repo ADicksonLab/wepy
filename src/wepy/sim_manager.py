@@ -162,7 +162,7 @@ class Manager(object):
         else:
             self.work_mapper = work_mapper
 
-    def run_segment(self, walkers, segment_length):
+    def run_segment(self, walkers, segment_length, cycle_idx):
         """Run a time segment for all walkers using the available workers.
 
         Maps the work for running each segment for each walker using
@@ -189,10 +189,16 @@ class Manager(object):
         logging.info("Starting segment")
 
         try:
-            new_walkers = list(self.work_mapper.map(walkers,
-                                                    (segment_length for i in range(num_walkers)),
-                                                   )
-                              )
+            new_walkers = list(self.work_mapper.map(
+                # args, which must be supported by the map function
+                walkers,
+                (segment_length for i in range(num_walkers)),
+
+                # kwargs which are optionally recognized by the map function
+                cycle_idx=(cycle_idx for i in range(num_walkers)),
+                walker_idx=(walker_idx for walker_idx in range(num_walkers)),
+            )
+            )
 
         except Exception as exception:
 
@@ -294,7 +300,7 @@ class Manager(object):
         # run the segment
         start = time.time()
         logging.info("Entering run segment")
-        new_walkers = self.run_segment(walkers, n_segment_steps)
+        new_walkers = self.run_segment(walkers, n_segment_steps, cycle_idx)
         end = time.time()
         runner_time = end - start
 

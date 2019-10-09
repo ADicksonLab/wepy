@@ -80,7 +80,7 @@ class ABCMapper(object):
         # nothing to do
         pass
 
-    def map(self, **kwargs):
+    def map(self, *args, **kwargs):
         raise NotImplementedError
 
 
@@ -104,7 +104,7 @@ class Mapper(ABCMapper):
         self._worker_segment_times = {0 : []}
 
 
-    def map(self, *args):
+    def map(self, *args, **kwargs):
         """Map the 'segment_func' to args.
 
         Parameters
@@ -132,11 +132,15 @@ class Mapper(ABCMapper):
         for arg_idx in range(len(args[0])):
             start = time.time()
 
+            # get just the args for this call to func
+            call_args = [arg[arg_idx] for arg in args]
+            call_kwargs = {key : value[arg_idx] for key, value in kwargs.items()}
+
             # run the task, catch any errors and reraise as a
             # TaskException to satisfy the pattern
             try:
 
-                result = self._func(*[arg[arg_idx] for arg in args])
+                result = self._func(*call_args, **call_kwargs)
 
             except Exception as task_exception:
 
@@ -569,7 +573,7 @@ class WorkerMapper(ABCWorkerMapper):
         self._workers = None
 
 
-    def map(self, *args):
+    def map(self, *args, **kwargs):
         # docstring in superclass
 
         map_process = mp.current_process()
@@ -582,9 +586,11 @@ class WorkerMapper(ABCWorkerMapper):
         # Enqueue the jobs
         for task_idx, task_arg in enumerate(task_args):
 
+            task_kwargs = {key : value[task_idx] for key, value in kwargs.items()}
+
             # a task will be the actual task and its task idx so we can
             # sort them later
-            self._task_queue.put((task_idx, self._make_task(*task_arg)))
+            self._task_queue.put((task_idx, self._make_task(*task_arg, **task_kwargs)))
 
 
         logging.info("Waiting for tasks to be run")

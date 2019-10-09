@@ -89,7 +89,7 @@ class RandomWalkRunner(Runner):
 
         return new_positions
 
-    def run_segment(self, walker, segment_length):
+    def run_segment(self, walker, segment_length, **kwargs):
         # documented in superclass
 
         # Gets the current posiotion of RandomWalk Walker

@@ -79,6 +79,6 @@ class NoRunner(Runner):
     May be useful for testing.
     """
 
-    def run_segment(self, walker, segment_length):
+    def run_segment(self, walker, segment_length, **kwargs):
         # documented in superclass
         return walker

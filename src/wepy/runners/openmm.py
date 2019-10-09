@@ -149,8 +149,10 @@ class OpenMMRunner(Runner):
 
         return (self.system, self.integrator)
 
-    def run_segment(self, walker, segment_length, getState_kwargs=None,
-                    platform_kwargs=None):
+    def run_segment(self, walker, segment_length,
+                    getState_kwargs=None,
+                    platform_kwargs=None,
+                    **kwargs):
         """Run dynamics for the walker.
 
         Parameters

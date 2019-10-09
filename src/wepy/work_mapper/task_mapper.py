@@ -123,7 +123,7 @@ class TaskMapper(ABCWorkerMapper):
 
 
 
-    def map(self, *args):
+    def map(self, *args, **kwargs):
 
         # run computations in a Manager context
         with mp.Manager() as manager:
@@ -168,13 +168,17 @@ class TaskMapper(ABCWorkerMapper):
             self._walker_processes = []
             for walker_idx, task_args in enumerate(zip(*args)):
 
+                task_kwargs = {key : value[walker_idx] for key, value in kwargs.items()}
+
                 # make the interrupt pipe
                 parent_conn, child_conn = mp.Pipe()
                 self._irq_parent_conns.append(parent_conn)
 
                 # start a process for this walker
                 walker_process = self.walker_task_type(walker_idx, self._attributes,
-                                                       self._func, task_args,
+                                                       self._func,
+                                                       task_args,
+                                                       task_kwargs,
                                                        worker_queue,
                                                        results,
                                                        worker_segment_times,
@@ -304,7 +308,7 @@ class WalkerTaskProcess(mp.Process):
     NAME_TEMPLATE = "Walker-{}"
 
     def __init__(self, walker_idx, mapper_attributes,
-                 func, task_args,
+                 func, task_args, task_kwargs,
                  worker_queue, results_list, worker_segment_times, interrupt_connection,
                  **kwargs
                  ):
@@ -322,6 +326,8 @@ class WalkerTaskProcess(mp.Process):
         # task arguments
         self._func = func
         self._task_args = task_args
+        self._task_kwargs = task_kwargs
+
 
         self.walker_idx = walker_idx
         self.mapper_attributes = mapper_attributes
@@ -496,7 +502,7 @@ class WalkerTaskProcess(mp.Process):
                     return None
 
         # generate the task thunk
-        task = Task(self._func, *self._task_args)
+        task = Task(self._func, *self._task_args, **self._task_kwargs)
 
         # run the task
         start = time.time()
