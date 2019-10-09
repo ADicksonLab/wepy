@@ -72,7 +72,9 @@ Defined Regions with the number of child regions per parent region:
 
         """
 
-        super().__init__(step_time, bc_cutoff_distance, **kwargs)
+        super().__init__(step_time=step_time,
+                         bc_cutoff_distance=bc_cutoff_distance,
+                         **kwargs)
 
         assert max_n_regions is not None, "number of regions per level for WExplore must be given"
         self.max_n_regions = max_n_regions

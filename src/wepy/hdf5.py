@@ -927,6 +927,10 @@ class WepyHDF5(object):
     def swmr_mode(self):
         return self._swmr_mode
 
+    @swmr_mode.setter
+    def swmr_mode(self, val):
+        self._swmr_mode = val
+
 
     # TODO custom deepcopy to avoid copying the actual HDF5 object
 
