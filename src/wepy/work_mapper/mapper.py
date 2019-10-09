@@ -125,7 +125,9 @@ class Mapper(ABCMapper):
 
         """
 
+        # expand the generators for the args and kwargs
         args = [list(arg) for arg in args]
+        kwargs = {key : list(kwarg) for key, kwarg in kwargs.items()}
 
         segment_times = []
         results = []
@@ -194,7 +196,7 @@ class Mapper(ABCMapper):
 class Task(object):
     """Class that composes a function and arguments."""
 
-    def __init__(self, func, *args):
+    def __init__(self, func, *args, **kwargs):
         """Constructor for Task.
 
         Parameters
@@ -207,14 +209,15 @@ class Task(object):
 
         """
         self.args = args
+        self.kwargs = kwargs
         self.func = func
 
-    def __call__(self, **kwargs):
+    def __call__(self, **worker_kwargs):
         """Makes the Task itself callable."""
 
         # run the function passing in the args for running it and any
-        # worker information in the kwargs
-        return self.func(*self.args, **kwargs)
+        # worker information in the worker kwargs.
+        return self.func(*self.args, **self.kwargs, **worker_kwargs)
 
 class WrapperException(Exception):
     """Exception used for wrapping another exception.
@@ -581,6 +584,7 @@ class WorkerMapper(ABCWorkerMapper):
 
         # make tuples for the arguments to each function call
         task_args = zip(*args)
+        kwargs = {key : list(kwarg) for key, kwarg in kwargs.items()}
 
         num_tasks = len(args[0])
         # Enqueue the jobs
