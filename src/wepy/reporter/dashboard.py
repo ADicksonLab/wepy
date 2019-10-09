@@ -442,6 +442,8 @@ Worker Avg. Segment Times:
             warping_log=warp_table_str
         )
 
+        return warping_log
+
     def _performance_string(self):
         # log of cycle times
         cycle_table_colnames = ('cycle_time (s)', 'runner_time (s)', 'boundary_conditions_time (s)',
