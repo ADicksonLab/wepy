@@ -308,6 +308,9 @@ class ABCWorkerMapper(ABCMapper):
         elif num_workers is not None and self.num_workers is None:
             self._num_workers = num_workers
 
+        # update the worker segment times
+        self._worker_segment_times = {i : [] for i in range(self.num_workers)}
+
 
     def cleanup(self, **kwargs):
 
@@ -720,7 +723,10 @@ class WorkerMapper(ABCWorkerMapper):
 
         # save the task run times, so they can be accessed if desired,
         # after clearing the task times from the last mapping
-        self._worker_segment_times = {i : [] for i in range(self.num_workers)}
+
+        # DEBUG: removing this because it should be set on init()
+        #self._worker_segment_times = {i : [] for i in range(self.num_workers)}
+
         for task_idx, worker_idx, task_time, result in results:
             self._worker_segment_times[worker_idx].append(task_time)
 

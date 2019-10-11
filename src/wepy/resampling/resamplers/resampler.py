@@ -259,7 +259,8 @@ class Resampler():
     def __init__(self,
                  min_num_walkers=Ellipsis,
                  max_num_walkers=Ellipsis,
-                 debug_mode=False):
+                 debug_mode=False,
+                 **kwargs):
         """Constructor for Resampler class
 
         Parameters

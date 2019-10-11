@@ -33,7 +33,6 @@ import json
 import numpy as np
 import pandas as pd
 import h5py
-import scoop.futures
 
 import mdtraj as mdj
 
@@ -536,7 +535,6 @@ class RandomwalkProfiler(object):
 
         report_string = randomwalk_string
 
-        #import ipdb; ipdb.set_trace()
         for run_idx, run_results in enumerate(results):
             report_string += self.run_string(run_idx, run_results)
 

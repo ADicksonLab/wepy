@@ -62,10 +62,3 @@ cython
 
 # OR just the latest
 git+https://github.com/ADicksonLab/geomm.git
-
-# this module was used to generate an orchestrator, which is used in
-# the test fixtures, it should in the future be either made a submodule
-# of the testing library if it is to remain a good test case, but for now
-# we just include the git repo head as a dependency for running the tests
-
-git+https://gitlab.com/salotz/seh_prep.git

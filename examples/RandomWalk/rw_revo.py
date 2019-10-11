@@ -18,7 +18,7 @@ from wepy.walker import Walker, WalkerState
 
 from wepy.runners.randomwalk import RandomWalkRunner
 
-from randomwalk_profiler import RandomwalkProfiler
+from wepy_tools.toys.randomwalk import RandomwalkProfiler
 
 
 ON = True
@@ -111,7 +111,7 @@ def get_char_distance(dimension, num_walkers):
     #runs for one cycle
     sim_manager.init(num_walkers)
 
-    new_walkers = sim_manager.run_segment(init_walkers, n_steps)
+    new_walkers = sim_manager.run_segment(init_walkers, n_steps, 0)
 
     dist_matrix, _ = resampler._all_to_all_distance(new_walkers)
 

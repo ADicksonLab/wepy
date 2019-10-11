@@ -11,7 +11,8 @@ from wepy.resampling.resamplers.wexplore import WExploreResampler
 from wepy.resampling.distances.randomwalk import RandomWalkDistance
 from wepy.runners.randomwalk import RandomWalkRunner, UNIT_NAMES
 from wepy.walker import Walker, WalkerState
-from randomwalk_profiler import RandomwalkProfiler
+
+from wepy_tools.toys.randomwalk import RandomwalkProfiler
 
 
 ON = True

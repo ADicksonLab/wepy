@@ -63,7 +63,7 @@ setup(
     # py_modules=[],
 
     entry_points={
-        'console_scripts' : ['wepy=wepy.orchestration.cli:cli']
+        'console_scripts' : ['wepy=wepy.cli:cli']
     },
 
     install_requires=abstract_requirements,

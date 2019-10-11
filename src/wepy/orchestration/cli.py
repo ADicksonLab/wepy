@@ -19,11 +19,13 @@ ORCHESTRATOR_DEFAULT_FILENAME = \
 def set_loglevel(loglevel):
     """
 
+    \b
     Parameters
     ----------
     loglevel :
         
 
+    \b
     Returns
     -------
 
@@ -64,6 +66,7 @@ def settle_run_options(n_workers=None,
     narration :
          (Default value = None)
 
+    \b
     Returns
     -------
 
@@ -124,6 +127,7 @@ def run_snapshot(log, n_workers, checkpoint_freq, job_dir, job_name, narration,
                  n_cycle_steps, run_time, configuration, snapshot):
     """
 
+    \b
     Parameters
     ----------
     log :
@@ -147,6 +151,7 @@ def run_snapshot(log, n_workers, checkpoint_freq, job_dir, job_name, narration,
     orchestrator :
         
 
+    \b
     Returns
     -------
 
@@ -221,6 +226,7 @@ def run_orch(log, n_workers, checkpoint_freq, job_dir, job_name, narration, conf
         n_cycle_steps, run_time, start_hash, orchestrator):
     """
 
+    \b
     Parameters
     ----------
     log :
@@ -244,6 +250,7 @@ def run_orch(log, n_workers, checkpoint_freq, job_dir, job_name, narration, conf
     orchestrator :
         
 
+    \b
     Returns
     -------
 
@@ -297,6 +304,7 @@ def run_orch(log, n_workers, checkpoint_freq, job_dir, job_name, narration, conf
 def combine_orch_wepy_hdf5s(new_orch, new_hdf5_path, run_ids=None):
     """
 
+    \b
     Parameters
     ----------
     new_orch :
@@ -304,6 +312,7 @@ def combine_orch_wepy_hdf5s(new_orch, new_hdf5_path, run_ids=None):
     new_hdf5_path :
         
 
+    \b
     Returns
     -------
 
@@ -502,6 +511,7 @@ def combine_orch_wepy_hdf5s(new_orch, new_hdf5_path, run_ids=None):
 def reconcile_hdf5(orchestrator, hdf5, run_ids):
     """
 
+    \b
     Parameters
     ----------
     orchestrator :
@@ -509,6 +519,7 @@ def reconcile_hdf5(orchestrator, hdf5, run_ids):
     hdf5 :
         
 
+    \b
     Returns
     -------
 
@@ -535,6 +546,7 @@ def reconcile_hdf5(orchestrator, hdf5, run_ids):
 def reconcile_orch(hdf5, output, orchestrators):
     """
 
+    \b
     Parameters
     ----------
     hdf5 :
@@ -544,6 +556,7 @@ def reconcile_orch(hdf5, output, orchestrators):
     orchestrators :
         
 
+    \b
     Returns
     -------
 
@@ -566,11 +579,13 @@ def reconcile_orch(hdf5, output, orchestrators):
 def hash_listing_formatter(hashes):
     """
 
+    \b
     Parameters
     ----------
     hashes :
         
 
+    \b
     Returns
     -------
 
@@ -583,11 +598,13 @@ def hash_listing_formatter(hashes):
 def ls_snapshots(orchestrator):
     """
 
+    \b
     Parameters
     ----------
     orchestrator :
         
 
+    \b
     Returns
     -------
 
@@ -606,11 +623,13 @@ def ls_snapshots(orchestrator):
 def ls_runs(orchestrator):
     """
 
+    \b
     Parameters
     ----------
     orchestrator :
         
 
+    \b
     Returns
     -------
 
@@ -631,11 +650,13 @@ def ls_runs(orchestrator):
 def ls_configs(orchestrator):
     """
 
+    \b
     Parameters
     ----------
     orchestrator :
         
 
+    \b
     Returns
     -------
 
@@ -912,18 +933,11 @@ hdf5.add_command(hdf5_copy, name='copy')
 # hdf5.add_command(hdf5_copy, name='ls-runs')
 # hdf5.add_command(hdf5_copy, name='ls-run-hashes')
 
-
 # subgroups
-cli.add_command(run)
-cli.add_command(get)
-cli.add_command(add)
-cli.add_command(create)
-cli.add_command(ls)
-cli.add_command(reconcile)
-cli.add_command(hdf5)
+subgroups = [run, get, add, create, ls, reconcile, hdf5]
 
-
-
+for subgroup in subgroups:
+    cli.add_command(subgroup)
 
 if __name__ == "__main__":
 

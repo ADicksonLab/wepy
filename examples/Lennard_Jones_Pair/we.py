@@ -230,6 +230,7 @@ if __name__ == "__main__":
         n_cycles = int(sys.argv[1])
         n_steps = int(sys.argv[2])
         n_walkers = int(sys.argv[3])
+        n_workers = int(sys.argv[4])
 
         print("Number of steps: {}".format(n_steps))
         print("Number of cycles: {}".format(n_cycles))
