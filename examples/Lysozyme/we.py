@@ -24,7 +24,7 @@ if __name__ == "__main__":
     sim_maker = LysozymeImplicitOpenMMSimMaker()
 
     apparatus = sim_maker.make_apparatus(platform='OpenCL')
-    config = sim_maker.make_configuration(work_mapper='WorkerMapper', platform='OpenCL')
+    config = sim_maker.make_configuration(work_mapper='TaskMapper', platform='OpenCL')
 
     sim_manager = sim_maker.make_sim_manager(n_walkers, apparatus, config)
 

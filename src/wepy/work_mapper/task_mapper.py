@@ -6,6 +6,7 @@ from warnings import warn
 import sys
 import traceback
 import signal
+import pickle
 
 from wepy.work_mapper.mapper import ABCWorkerMapper, WrapperException, TaskException, Task
 
@@ -237,11 +238,36 @@ class TaskMapper(ABCWorkerMapper):
                     if result is None:
                         pass
 
-                    # there was a walker successfully returned
-                    elif issubclass(type(result), Walker):
-                        logging.info("Got result for walker {}".format(walker_idx))
-                        new_walkers[walker_idx] = result
-                        results_found[walker_idx] = True
+
+                    # walker results are returned serialized as
+                    # pickles, they are packed into a tuple so that we
+                    # can associate them with an explicit marker, if
+                    # we have a tuple then we can handle that
+                    # appropriately
+                    elif type(result) == tuple:
+
+                        logging.debug("Received a results tuple")
+
+                        assert len(result) == 2, "Result tuples should be only be (ID, pickle)"
+
+                        result_id, payload = result
+
+                        # there was a walker successfully returned
+                        if result_id == 'Walker':
+
+                            logging.debug("Received a serialized results walker")
+
+                            # deserialize
+                            logging.debug("deserializing")
+                            new_walker = pickle.loads(payload)
+
+                            logging.info("Got result for walker {}".format(walker_idx))
+
+                            new_walkers[walker_idx] = new_walker
+                            results_found[walker_idx] = True
+
+                        else:
+                            raise ValueError("Unkown result ID: {}".format(result_id))
 
                     elif issubclass(type(result), TaskException):
 
@@ -525,7 +551,13 @@ class WalkerTaskProcess(mp.Process):
         # to computation time and what is due to communication
         logging.info("{}: Setting value to results list. Time {}".format(self.name,
                                                                      time.time()))
-        self._results_list[self.walker_idx] = result
+
+        # DEBUG: testing new serialization thing here
+        logging.debug("Serializing the result walker")
+        serial_result = pickle.dumps(result)
+        logging.debug("Putting tagged serialized walker tuple on managed results list")
+        self._results_list[self.walker_idx] = ('Walker', serial_result)
+
         logging.info("{}: Finished setting value to results list. Time {}".format(self.name,
                                                                                   time.time()))
 
