@@ -7,6 +7,7 @@ import itertools as it
 import logging
 from datetime import datetime
 import time
+from copy import copy
 
 import numpy as np
 import pandas as pd
@@ -220,6 +221,7 @@ Worker Avg. Segment Times:
         self.cycle_bc_times.append(kwargs['cycle_bc_time'])
         self.cycle_resampling_times.append(kwargs['cycle_resampling_time'])
 
+        # TODO: produces nan if one of them is not given
         # add up the three components to get the overall cycle time
         cycle_time = (kwargs['cycle_runner_time'] +
                       kwargs['cycle_bc_time'] +
@@ -366,14 +368,24 @@ class ResamplerDashboardSection():
 
     RESAMPLER_SECTION_TEMPLATE = \
 """
+Resampler: {{ name }}
 """
 
     def __init__(self, resampler):
 
+        self.resampler_name = type(resampler).__name__
+
+    def update_values(self, **kwargs):
         pass
 
     def gen_fields(self, **kwargs):
-        raise NotImplemented
+
+        fields = {
+            'name' : self.resampler_name
+        }
+
+        return fields
+
 
     def gen_resampler_section(self, **kwargs):
 
@@ -389,18 +401,24 @@ class RunnerDashboardSection():
 
     RUNNER_SECTION_TEMPLATE = \
 """
-Integration Step Size: {{ step_time }} seconds
-                       {{ step_time_femtoseconds }} femtoseconds
-
-Single Walker Sampling Time: {{ walker_total_sampling_time }} seconds
-                             {{ walker_total_sampling_time_microseconds }} microseconds
-
-Total Sampling Time: {{ total_sampling_time }} seconds
-                     {{ total_sampling_time_microseconds }} microseconds
+Runner: {{ name }}
 """
 
+    def __init__(self, runner):
+
+        self.runner_name = type(runner).__name__
+
+    def update_values(self, **kwargs):
+        pass
+
     def gen_fields(self, **kwargs):
-        raise NotImplemented
+
+        fields = {
+            'name' : self.runner_name
+        }
+
+        return fields
+
 
     def gen_runner_section(self, **kwargs):
 
@@ -418,26 +436,64 @@ class BCDashboardSection():
 
     BC_SECTION_TEMPLATE = \
 """
-Cutoff Distance: {{ cutoff_distance }}
 
-Number of Exit Points this Cycle: {{ cycle_n_exit_points }}
-
-Total Number of Exit Points: {{ n_exit_points }}
-
-Cumulative Unbound Weight {{ total_unbound_weight }}
-
-Expected Reactive Traj. Time: {{ expected_unbinding_time }} seconds
-Expected Reactive Traj. Rate: {{ reactive_traj_rate }} 1/seconds
-
-Rate: {{ exit_rate }} 1/seconds
+Boundary Condition: {{ name }}
 
 ** Warping Log
+
 {{ warping_log }}
 
 """
 
+    def __init__(self, bc):
+
+        self.bc_name = type(bc).__name__
+        self.warp_records = []
+        self.bc_discontinuities = copy(bc.DISCONTINUITY_TARGET_IDXS)
+
+    def update_values(self, **kwargs):
+
+        # just create the bare warp records, since we know no more
+        # domain knowledge, feel free to override and add more data to
+        # this table
+        for warp_record in kwargs['warp_data']:
+
+            # the cycle
+            cycle_idx = kwargs['cycle_idx']
+
+            # the individual values from the warp record
+            weight = warp_record['weight'][0]
+            walker_idx = warp_record['walker_idx'][0]
+            target_idx = warp_record['target_idx'][0]
+
+            # determine if it was discontinuous
+            discont = True if target_idx in self.bc_discontinuities else False
+
+            record = (cycle_idx, walker_idx, weight, target_idx, discont)
+            self.warp_records.append(record)
+
+
     def gen_fields(self, **kwargs):
-        raise NotImplemented
+
+        # make the table for the collected warping records
+        warp_table_colnames = (
+            'cycle_idx',
+            'walker_idx',
+            'weight',
+            'target_idx',
+            'discontinuous',
+        )
+        warp_table_df = pd.DataFrame(self.warp_records, columns=warp_table_colnames)
+        warp_table_str = tabulate(warp_table_df,
+                                  headers=warp_table_df.columns,
+                                  tablefmt='orgtbl')
+
+        fields = {
+            'name' : self.bc_name,
+            'warping_log' : warp_table_str,
+        }
+
+        return fields
 
     def gen_bc_section(self, **kwargs):
 

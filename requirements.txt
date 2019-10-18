@@ -9,3 +9,4 @@ geomm
 matplotlib
 tabulate
 jinja2
+pint

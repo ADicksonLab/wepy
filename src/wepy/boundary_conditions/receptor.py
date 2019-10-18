@@ -350,7 +350,7 @@ class ReceptorBC(BoundaryConditions):
         if cls.DISCONTINUITY_TARGET_IDXS is Ellipsis:
             return True
 
-        # if it is None then all possible values are discontinuous
+        # if it is None then all possible values are continuous
         elif cls.DISCONTINUITY_TARGET_IDXS is None:
             return False
 

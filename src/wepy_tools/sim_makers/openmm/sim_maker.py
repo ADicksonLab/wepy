@@ -30,6 +30,9 @@ from wepy.resampling.resamplers.resampler import NoResampler
 from wepy.resampling.resamplers.wexplore import WExploreResampler
 from wepy.resampling.resamplers.revo import REVOResampler
 
+# boundary conditions
+from wepy.boundary_conditions.boundary import NoBC, RandomBC
+
 # integrators
 from simtk.openmm import LangevinIntegrator
 
@@ -45,11 +48,19 @@ from wepy.runners.openmm import (
 
 # reporters
 from wepy.reporter.hdf5 import WepyHDF5Reporter
-from wepy.reporter.dashboard import DashboardReporter
-from wepy.reporter.restree import ResTreeReporter
-from wepy.reporter.walker import WalkerReporter
+
+from wepy.reporter.dashboard import (
+    DashboardReporter,
+    ResamplerDashboardSection,
+    RunnerDashboardSection,
+    BCDashboardSection)
 from wepy.reporter.wexplore.dashboard import WExploreDashboardSection
 from wepy.reporter.revo.dashboard import REVODashboardSection
+from wepy.reporter.openmm import OpenMMRunnerDashboardSection
+
+from wepy.reporter.restree import ResTreeReporter
+from wepy.reporter.walker import WalkerReporter
+
 
 # extras for reporters
 from wepy.runners.openmm import UNIT_NAMES
@@ -83,6 +94,16 @@ DEFAULT_RESAMPLER_PARAMS = {
     'REVOResampler' : REVO_DEFAULTS,
 }
 
+
+
+## BCs
+
+BCS = [NoBC, RandomBC,]
+
+DEFAULT_BC_PARAMS = {
+    'NoBC' : {},
+    'RandomBC' : {},
+}
 
 
 ## Integrators
@@ -204,6 +225,8 @@ class OpenMMSimMaker():
                        integrator_params=None,
                        resampler='WExploreResampler',
                        resampler_params=None,
+                       bc=None,
+                       bc_params=None,
     ):
 
         ## RUNNER
@@ -249,9 +272,33 @@ class OpenMMSimMaker():
                                    init_state=self.init_state,
                                    **resampler_params)
 
+
+        # BOUNDARY_CONDITIONS
+
+        # you don't have to specify a boundary condition
+        if bc is not None:
+
+            # choose which bc to use
+            bc_class = [res for res in BCS
+                               if res.__name__ == bc][0]
+
+            bc_name = bc_class.__name__
+
+            # use either the default params or the user params
+            if bc_params is None:
+                bc_params = DEFAULT_BC_PARAMS[bc_name]
+
+
+            bc = bc_class(distance=self.distance,
+                                       init_state=self.init_state,
+                                       **bc_params)
+
+
+        # APPARATUS
+
         # build the apparatus
         sim_apparatus = WepySimApparatus(runner, resampler=resampler,
-                                         boundary_conditions=None)
+                                         boundary_conditions=bc)
 
         return sim_apparatus
 
@@ -304,10 +351,11 @@ class OpenMMSimMaker():
 
 
         # augment the dashboard with the sections relevant to our components
-        dashboard_sections = {'resampler' : None,
-                              'runner' : None,
-                              'bc' : None,
+        dashboard_sections = {'resampler' : ResamplerDashboardSection(apparatus.resampler),
+                              'runner' : RunnerDashboardSection(apparatus.runner),
+                              'bc' : BCDashboardSection(apparatus.boundary_conditions),
         }
+
         if 'DashboardReporter' in reporter_specs:
 
             ## resampler
@@ -317,6 +365,22 @@ class OpenMMSimMaker():
             # REVO
             elif type(apparatus.resampler).__name__ == 'REVOResampler':
                 dashboard_sections['resampler'] = REVODashboardSection(apparatus.resampler)
+
+            ## BC
+            # NoBC
+            if type(apparatus.boundary_conditions).__name__ == 'NoBC':
+                dashboard_sections['bc'] = BCDashboardSection(apparatus.boundary_conditions)
+            # Random
+            elif type(apparatus.boundary_conditions).__name__ == 'RandomBC':
+                dashboard_sections['bc'] = BCDashboardSection(apparatus.boundary_conditions)
+
+            ## Runner
+
+            #OpenMM
+            if type(apparatus.runner).__name__ == 'OpenMMRunner':
+                dashboard_sections['runner'] = OpenMMRunnerDashboardSection(
+                    apparatus.runner)
+
 
 
         # get the actual classes

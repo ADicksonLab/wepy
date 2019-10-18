@@ -38,6 +38,7 @@ if __name__ == "__main__":
     apparatus = sim_maker.make_apparatus(
         integrator='LangevinIntegrator',
         resampler='WExploreResampler',
+        bc='RandomBC',
         platform='OpenCL'
     )
     config = sim_maker.make_configuration(apparatus,

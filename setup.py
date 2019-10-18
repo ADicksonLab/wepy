@@ -22,6 +22,7 @@ abstract_requirements = [
     'matplotlib',
     'tabulate',
     'jinja2',
+    'pint',
 ]
 
 # extras requirements list
