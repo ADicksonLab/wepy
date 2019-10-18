@@ -48,8 +48,27 @@ Number of Cycles: {{ n_cycles }}
 
 """
 
-    PERFORMANCE_SECTION =\
+    PERFORMANCE_SECTION_TEMPLATE =\
 """
+Average Cycle Time: {{ avg_cycle_time }}
+
+{% if avg_runner_time %}Average Runner Time: {{ avg_runner_time }}{% else %}{% endif %}
+{% if avg_bc_time %}Average Boundary Conditions Time: {{ avg_bc_time }}{% else %}{% endif %}
+{% if avg_resampling_time %}Average Resampling Time: {{ avg_resampling_time }}{% else %}{% endif %}
+
+
+Worker Avg. Segment Times:
+
+{{ worker_avg_segment_time }}
+
+** Cycle Performance Log
+
+{{ cycle_log }}
+
+** Worker Performance Log
+
+{{ performance_log }}
+
 
 """
 
@@ -114,6 +133,15 @@ Number of Cycles: {{ n_cycles }}
         # walker probabilities statistics
         self.walker_prob_summaries = []
 
+
+        # performance
+        self.cycle_compute_times = []
+        self.cycle_runner_times = []
+        self.cycle_bc_times = []
+        self.cycle_resampling_times = []
+        self.worker_records = []
+
+
     def init(self, **kwargs):
 
         super().init(**kwargs)
@@ -137,9 +165,78 @@ Number of Cycles: {{ n_cycles }}
 
     def update_values(self, **kwargs):
 
-        self.n_cycles += 1
+        ### simulation
 
+        self.n_cycles += 1
         self.walker_prob_summaries.append(self.calc_walker_summary(**kwargs))
+
+        self.update_performance_values(**kwargs)
+
+        # update all the sections values
+        if self.resampler_dash is not None:
+            self.resampler_dash.update_values(**kwargs)
+        if self.runner_dash is not None:
+            self.runner_dash.update_values(**kwargs)
+        if self.bc_dash is not None:
+            self.bc_dash.update_values(**kwargs)
+
+    def update_performance_values(self, **kwargs):
+
+        ## worker specific performance
+
+        # only do this part if there were any workers
+        if len(kwargs['worker_segment_times']) > 0:
+
+            # log of segment times for workers
+            for worker_idx, segment_times in kwargs['worker_segment_times'].items():
+                for segment_time in segment_times:
+                    record = (
+                        kwargs['cycle_idx'],
+                        kwargs['n_segment_steps'],
+                        worker_idx,
+                        segment_time,
+                    )
+                    self.worker_records.append(record)
+
+            # make a table out of these and compute the averages for each
+            # worker
+            worker_df = pd.DataFrame(self.worker_records, columns=('cycle_idx', 'n_steps',
+                                                                   'worker_idx', 'segment_time'))
+            # the aggregated table for the workers
+            self.worker_agg_table = worker_df.groupby('worker_idx')\
+                                    [['segment_time']].aggregate(np.mean)
+            self.worker_agg_table.rename(columns={'segment_time' : 'avg_segment_time (s)'},
+                                         inplace=True)
+
+        else:
+            self.worker_records = []
+            self.worker_agg_table = pd.DataFrame({'avg_segment_time (s)' : []})
+
+
+        ## cycle times
+
+        # log of the components times
+        self.cycle_runner_times.append(kwargs['cycle_runner_time'])
+        self.cycle_bc_times.append(kwargs['cycle_bc_time'])
+        self.cycle_resampling_times.append(kwargs['cycle_resampling_time'])
+
+        # add up the three components to get the overall cycle time
+        cycle_time = (kwargs['cycle_runner_time'] +
+                      kwargs['cycle_bc_time'] +
+                      kwargs['cycle_resampling_time'])
+
+        # log of cycle times
+        self.cycle_compute_times.append(cycle_time)
+
+        # average of cycle components times
+        self.avg_runner_time = np.mean(self.cycle_runner_times)
+        self.avg_bc_time = np.mean(self.cycle_bc_times)
+        self.avg_resampling_time = np.mean(self.cycle_resampling_times)
+
+        # average cycle time
+        self.avg_cycle_time = np.mean(self.cycle_compute_times)
+
+
 
     def write_dashboard(self, report_str):
         """Write the dashboard to the file."""
@@ -173,7 +270,54 @@ Number of Cycles: {{ n_cycles }}
 
     def gen_performance_section(self, **kwargs):
 
-        return ""
+        # log of cycle times
+        cycle_table_colnames = ('cycle_time (s)',
+                                'runner_time (s)',
+                                'boundary_conditions_time (s)',
+                                'resampling_time (s)')
+
+        cycle_table_df = pd.DataFrame({'cycle_times (s)' : self.cycle_compute_times,
+                                       'runner_time (s)' : self.cycle_runner_times,
+                                       'boundary_conditions_time (s)' : self.cycle_bc_times,
+                                       'resampling_time (s)' : self.cycle_resampling_times},
+                                      columns=cycle_table_colnames)
+
+        cycle_table_str = tabulate(cycle_table_df,
+                                   headers=cycle_table_df.columns,
+                                   tablefmt='orgtbl')
+
+        # log of workers performance
+        worker_table_colnames = ('cycle_idx', 'n_steps', 'worker_idx', 'segment_time (s)',)
+        worker_table_df = pd.DataFrame(self.worker_records, columns=worker_table_colnames)
+        worker_table_str = tabulate(worker_table_df,
+                                    headers=worker_table_df.columns,
+                                    tablefmt='orgtbl',
+                                    showindex=False)
+
+
+        # table for aggregeated worker stats
+        worker_agg_table_str = tabulate(self.worker_agg_table,
+                                        headers=self.worker_agg_table.columns,
+                                        tablefmt='orgtbl')
+
+
+        performance_section_d = {
+            'avg_cycle_time' : self.avg_cycle_time,
+            'worker_avg_segment_time' : worker_agg_table_str,
+            'cycle_log' : cycle_table_str,
+            'performance_log' : worker_table_str,
+
+            # optionals
+            'avg_runner_time' : self.avg_runner_time,
+            'avg_bc_time' : self.avg_bc_time,
+            'avg_resampling_time' : self.avg_resampling_time,
+        }
+
+        performance_section_str = Template(self.PERFORMANCE_SECTION_TEMPLATE).render(
+            **performance_section_d
+        )
+
+        return performance_section_str
 
     def report(self, **kwargs):
 
@@ -217,15 +361,92 @@ Number of Cycles: {{ n_cycles }}
         self.write_dashboard(report_str)
 
 
-class BaseDashboardSection():
-    pass
 
-class ResamplerDashboardSection(BaseDashboardSection):
-    pass
+class ResamplerDashboardSection():
 
-class RunnerDashboardSection(BaseDashboardSection):
-    pass
+    RESAMPLER_SECTION_TEMPLATE = \
+"""
+"""
 
-class BCDashboardSection(BaseDashboardSection):
-    pass
+    def __init__(self, resampler):
+
+        pass
+
+    def gen_fields(self, **kwargs):
+        raise NotImplemented
+
+    def gen_resampler_section(self, **kwargs):
+
+        section_kwargs = self.gen_fields(**kwargs)
+
+        section_str = Template(self.RESAMPLER_SECTION_TEMPLATE).render(
+            **section_kwargs
+        )
+
+        return section_str
+
+class RunnerDashboardSection():
+
+    RUNNER_SECTION_TEMPLATE = \
+"""
+Integration Step Size: {{ step_time }} seconds
+                       {{ step_time_femtoseconds }} femtoseconds
+
+Single Walker Sampling Time: {{ walker_total_sampling_time }} seconds
+                             {{ walker_total_sampling_time_microseconds }} microseconds
+
+Total Sampling Time: {{ total_sampling_time }} seconds
+                     {{ total_sampling_time_microseconds }} microseconds
+"""
+
+    def gen_fields(self, **kwargs):
+        raise NotImplemented
+
+    def gen_runner_section(self, **kwargs):
+
+        section_kwargs = self.gen_fields(**kwargs)
+
+
+        section_str = Template(self.RUNNER_SECTION_TEMPLATE).render(
+            **section_kwargs
+        )
+
+        return section_str
+
+
+class BCDashboardSection():
+
+    BC_SECTION_TEMPLATE = \
+"""
+Cutoff Distance: {{ cutoff_distance }}
+
+Number of Exit Points this Cycle: {{ cycle_n_exit_points }}
+
+Total Number of Exit Points: {{ n_exit_points }}
+
+Cumulative Unbound Weight {{ total_unbound_weight }}
+
+Expected Reactive Traj. Time: {{ expected_unbinding_time }} seconds
+Expected Reactive Traj. Rate: {{ reactive_traj_rate }} 1/seconds
+
+Rate: {{ exit_rate }} 1/seconds
+
+** Warping Log
+{{ warping_log }}
+
+"""
+
+    def gen_fields(self, **kwargs):
+        raise NotImplemented
+
+    def gen_bc_section(self, **kwargs):
+
+        section_kwargs = self.gen_fields(**kwargs)
+
+        section_str = Template(self.BC_SECTION_TEMPLATE).render(
+            **section_kwargs
+        )
+
+        return section_str
+
 

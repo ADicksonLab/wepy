@@ -26,7 +26,11 @@ if __name__ == "__main__":
         print("Number of cycles: {}".format(n_cycles))
 
     # make the results directory if not already made
-    shutil.rmtree('result')
+    try:
+        shutil.rmtree('result')
+    except FileNotFoundError:
+        pass
+
     os.makedirs('result', exist_ok=True)
 
     sim_maker = LysozymeImplicitOpenMMSimMaker()

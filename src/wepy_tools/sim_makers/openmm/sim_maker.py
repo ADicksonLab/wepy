@@ -48,8 +48,8 @@ from wepy.reporter.hdf5 import WepyHDF5Reporter
 from wepy.reporter.dashboard import DashboardReporter
 from wepy.reporter.restree import ResTreeReporter
 from wepy.reporter.walker import WalkerReporter
-from wepy.reporter.wexplore.dashboard import WExploreDashboardReporter
-from wepy.reporter.revo.dashboard import REVODashboardReporter
+from wepy.reporter.wexplore.dashboard import WExploreDashboardSection
+from wepy.reporter.revo.dashboard import REVODashboardSection
 
 # extras for reporters
 from wepy.runners.openmm import UNIT_NAMES
@@ -123,8 +123,6 @@ DEFAULT_MAPPER_PARAMS = {
 REPORTERS = [
     WepyHDF5Reporter,
     DashboardReporter,
-    WExploreDashboardReporter,
-    REVODashboardReporter,
     ResTreeReporter,
     WalkerReporter,
 ]
@@ -149,8 +147,6 @@ RESTREE_REPORTER_DEFAULTS = {
 DEFAULT_REPORTER_PARAMS = {
     'WepyHDF5Reporter' : WEPY_HDF5_REPORTER_DEFAULTS,
     'DashboardReporter' : {},
-    'WExploreDashboardReporter' : {},
-    'REVODashboardReporter' : {},
     'ResTreeReporter' : RESTREE_REPORTER_DEFAULTS,
     'WalkerReporter' : {},
 }
@@ -300,18 +296,21 @@ class OpenMMSimMaker():
                 'WalkerReporter',
             ]
 
-        # if we have a known resampler use the dashboard for it
 
-        # DEBUG: testing new dashboard
-        # if 'DashboardReporter' in reporter_specs:
+        # augment the dashboard with the sections relevant to our components
+        dashboard_sections = {'resampler' : None,
+                              'runner' : None,
+                              'bc' : None,
+        }
+        if 'DashboardReporter' in reporter_specs:
 
-        #     dashboard_idx = reporter_specs.index('DashboardReporter')
-
-        #     if type(apparatus.resampler).__name__ == 'WExploreResampler':
-        #         reporter_specs[dashboard_idx] = 'WExploreDashboardReporter'
-
-        #     elif type(apparatus.resampler).__name__ == 'REVOResampler':
-        #         reporter_specs[dashboard_idx] = 'REVODashboardReporter'
+            ## resampler
+            # WExplore
+            if type(apparatus.resampler).__name__ == 'WExploreResampler':
+                dashboard_sections['resampler'] = WExploreDashboardSection(apparatus.resampler)
+            # REVO
+            elif type(apparatus.resampler).__name__ == 'REVOResampler':
+                dashboard_sections['resampler'] = REVODashboardSection(apparatus.resampler)
 
 
         # get the actual classes
@@ -355,35 +354,11 @@ class OpenMMSimMaker():
                     # the 'getStepSize' method is an abstract one for
                     # all integrators so we can rely on it being here.
                     'step_time' : apparatus.runner.integrator.getStepSize(),
-                }
 
-                reporter_params.update(auto_params)
-                reporter_params.update(deepcopy(DEFAULT_REPORTER_PARAMS[reporter_spec]))
-
-            elif reporter_spec == 'WExploreDashboardReporter':
-
-                # always set these ones automatically
-                auto_params = {
-                    'step_time' : apparatus.runner.integrator.getStepSize(),
-
-                    # resampler stuff
-                    'max_n_regions' : apparatus.resampler.max_n_regions,
-                    'max_region_sizes' : apparatus.resampler.max_region_sizes,
-                }
-
-                reporter_params.update(auto_params)
-                reporter_params.update(deepcopy(DEFAULT_REPORTER_PARAMS[reporter_spec]))
-
-            elif reporter_spec == 'REVODashboardReporter':
-
-                # always set these ones automatically
-                auto_params = {
-                    'step_time' : apparatus.runner.integrator.getStepSize(),
-
-                    # resampler
-                    'dist_exponent' : apparatus.resampler.dist_exponent,
-                    'merge_dist' : apparatus.resampler.merge_dist,
-                    'char_dist' : apparatus.resampler.char_dist,
+                    # the dashboard sections
+                    'resampler_dash' : dashboard_sections['resampler'],
+                    'runner_dash' : dashboard_sections['runner'],
+                    'bc_dash' : dashboard_sections['bc'],
                 }
 
                 reporter_params.update(auto_params)
