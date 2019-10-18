@@ -67,8 +67,14 @@ WEXPLORE_DEFAULTS = {
     'max_region_sizes' : (1, 0.5, 0.35, 0.25),
 }
 
-# TODO
+
 REVO_DEFAULTS = {
+    'pmax' : 0.5,
+    'pmin' : 1e-12,
+    'char_dist' : 1,
+    'merge_dist' : 2.5,
+    'dist_exponent' : 4,
+    'weights' : True,
 }
 
 DEFAULT_RESAMPLER_PARAMS = {
@@ -291,7 +297,7 @@ class OpenMMSimMaker():
             reporter_specs = [
                 'WepyHDF5Reporter',
                 'DashboardReporter',
-                # DEBUG: testing the dashboard
+                # DEBUG: this isn't compatible right now, needs refactoring
                 #'ResTreeReporter',
                 'WalkerReporter',
             ]

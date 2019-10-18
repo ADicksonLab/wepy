@@ -35,7 +35,11 @@ if __name__ == "__main__":
 
     sim_maker = LysozymeImplicitOpenMMSimMaker()
 
-    apparatus = sim_maker.make_apparatus(platform='OpenCL')
+    apparatus = sim_maker.make_apparatus(
+        integrator='LangevinIntegrator',
+        resampler='WExploreResampler',
+        platform='OpenCL'
+    )
     config = sim_maker.make_configuration(apparatus,
                                           work_mapper='TaskMapper',
                                           platform='OpenCL',
