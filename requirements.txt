@@ -7,3 +7,5 @@ click
 scipy
 geomm
 matplotlib
+tabulate
+jinja2

@@ -29,3 +29,4 @@ dist
 /examples/*/outputs
 *.sqlite
 /sphinx/tutorials/seh_prep.rst
+/examples/Lysozyme/result

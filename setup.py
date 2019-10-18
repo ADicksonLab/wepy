@@ -19,7 +19,9 @@ abstract_requirements = [
     'click',
     'scipy',
     'geomm',
-    'matplotlib'
+    'matplotlib',
+    'tabulate',
+    'jinja2',
 ]
 
 # extras requirements list

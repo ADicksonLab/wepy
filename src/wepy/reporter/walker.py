@@ -11,7 +11,7 @@ import logging
 import numpy as np
 
 from wepy.reporter.reporter import ProgressiveFileReporter
-from wepy.util.util import box_vectors_to_lengths_angles
+from wepy.util.util import box_vectors_to_lengths_angles, traj_box_vectors_to_lengths_angles
 from wepy.util.json_top import json_top_subset
 from wepy.util.mdtraj import json_to_mdtraj_topology, mdtraj_to_json_topology
 
@@ -74,10 +74,13 @@ class WalkerReporter(ProgressiveFileReporter):
         super().__init__(**kwargs)
 
         assert json_topology is not None, "must give a JSON format topology"
-        assert main_rep_idxs is not None, "must give the indices of the atoms the topology represents"
         assert init_state is not None, "must give an init state for the topology PDB"
 
-        self.main_rep_idxs = main_rep_idxs
+        # if the main rep indices were not given infer them as all of the atoms
+        if main_rep_idxs is None:
+            self.main_rep_idxs = list(range(init_state['positions'].shape[0]))
+        else:
+            self.main_rep_idxs = main_rep_idxs
 
         # take a subset of the topology using the main rep atom idxs
         self.json_main_rep_top = json_top_subset(json_topology, self.main_rep_idxs)

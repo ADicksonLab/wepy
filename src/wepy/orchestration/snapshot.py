@@ -28,18 +28,32 @@ class SimApparatus():
 class WepySimApparatus(SimApparatus):
     """ """
 
-    def __init__(self, runner, resampler=None, boundary_conditions=None):
+    RUNNER_IDX = 0
+    BC_IDX = 1
+    RESAMPLER_IDX = 2
 
-        # add them in the order they are done in Wepy
-        filters = [runner]
-        filters.append(boundary_conditions)
+    def __init__(self, runner, resampler=None, boundary_conditions=None):
 
         if resampler is None:
             raise ValueError("must provide a resampler")
 
-        filters.append(resampler)
+        # add them in the order they are done in Wepy
+        filters = [runner, boundary_conditions, resampler]
 
         super().__init__(filters)
+
+    @property
+    def runner(self):
+        return self.filters[self.RUNNER_IDX]
+
+    @property
+    def boundary_conditions(self):
+        return self.filters[self.BC_IDX]
+
+    @property
+    def resampler(self):
+        return self.filters[self.RESAMPLER_IDX]
+
 
 class SimSnapshot():
     """ """

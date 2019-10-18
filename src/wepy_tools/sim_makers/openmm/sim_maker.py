@@ -43,6 +43,16 @@ from wepy.runners.openmm import (
     OpenMMCPUWalkerTaskProcess, OpenMMGPUWalkerTaskProcess,
 )
 
+# reporters
+from wepy.reporter.hdf5 import WepyHDF5Reporter
+from wepy.reporter.dashboard import DashboardReporter
+from wepy.reporter.restree import ResTreeReporter
+from wepy.reporter.walker import WalkerReporter
+from wepy.reporter.wexplore.dashboard import WExploreDashboardReporter
+from wepy.reporter.revo.dashboard import REVODashboardReporter
+
+# extras for reporters
+from wepy.runners.openmm import UNIT_NAMES
 
 # workers
 
@@ -108,6 +118,43 @@ DEFAULT_MAPPER_PARAMS = {
     'TaskMapper' : {},
 }
 
+
+## Reporters
+REPORTERS = [
+    WepyHDF5Reporter,
+    DashboardReporter,
+    WExploreDashboardReporter,
+    REVODashboardReporter,
+    ResTreeReporter,
+    WalkerReporter,
+]
+
+WEPY_HDF5_REPORTER_DEFAULTS = {
+                    'main_rep_idxs' : None,
+                    'save_fields' : None,
+                    'units' : dict(UNIT_NAMES),
+                    'sparse_fields' : {'velocities' : 10},
+                    'all_atoms_rep_freqs' : 10,
+                    'alt_reps' : None,
+                    'swmr_mode' : True,
+                }
+
+RESTREE_REPORTER_DEFAULTS = {
+    'node_radius' : 3.0,
+    'row_spacing' : 5.0,
+    'step_spacing' : 20.0,
+    'colormap_name' : 'plasma',
+}
+
+DEFAULT_REPORTER_PARAMS = {
+    'WepyHDF5Reporter' : WEPY_HDF5_REPORTER_DEFAULTS,
+    'DashboardReporter' : {},
+    'WExploreDashboardReporter' : {},
+    'REVODashboardReporter' : {},
+    'ResTreeReporter' : RESTREE_REPORTER_DEFAULTS,
+    'WalkerReporter' : {},
+}
+
 class OpenMMSimMaker():
 
     def __init__(self,
@@ -147,8 +194,6 @@ class OpenMMSimMaker():
         init_walkers = [Walker(deepcopy(state), init_weight) for i in range(n_walkers)]
 
         return init_walkers
-
-
 
     def make_apparatus(self,
                        platform='Reference',
@@ -240,12 +285,149 @@ class OpenMMSimMaker():
 
         return work_mapper_params
 
+    def resolve_reporter_params(self, apparatus, reporter_specs, reporters_kwargs=None):
 
-    @classmethod
-    def make_configuration(cls,
+        if reporters_kwargs is not None:
+            raise NotImplementedError("Only the defaults are supported currently")
+
+        if reporter_specs is None:
+            # defaults to use
+            reporter_specs = [
+                'WepyHDF5Reporter',
+                'DashboardReporter',
+                # DEBUG: testing the dashboard
+                #'ResTreeReporter',
+                'WalkerReporter',
+            ]
+
+        # if we have a known resampler use the dashboard for it
+
+        # DEBUG: testing new dashboard
+        # if 'DashboardReporter' in reporter_specs:
+
+        #     dashboard_idx = reporter_specs.index('DashboardReporter')
+
+        #     if type(apparatus.resampler).__name__ == 'WExploreResampler':
+        #         reporter_specs[dashboard_idx] = 'WExploreDashboardReporter'
+
+        #     elif type(apparatus.resampler).__name__ == 'REVOResampler':
+        #         reporter_specs[dashboard_idx] = 'REVODashboardReporter'
+
+
+        # get the actual classes
+        reporter_classes = []
+        for reporter_spec in reporter_specs:
+            match = False
+            for reporter_class in REPORTERS:
+
+                if reporter_class.__name__ == reporter_spec:
+                    match = reporter_class
+                    break
+
+            if not match:
+                raise ValueError("Unkown reporter for spec {}".format(reporter_spec))
+
+            reporter_classes.append(match)
+
+
+        # then get the default params for them and commensurate them
+        # with the given kwargs
+        reporters_params = []
+        for reporter_spec in reporter_specs:
+            reporter_params = {}
+
+            if reporter_spec == 'WepyHDF5Reporter':
+
+                # always set these ones automatically
+                auto_params = {
+                    'topology' : self.json_top(),
+                    'resampler' : apparatus.resampler,
+                    'boundary_conditions' : apparatus.boundary_conditions,
+                }
+
+                reporter_params.update(auto_params)
+                reporter_params.update(deepcopy(DEFAULT_REPORTER_PARAMS[reporter_spec]))
+
+            elif reporter_spec == 'DashboardReporter':
+
+                # always set these ones automatically
+                auto_params = {
+                    # the 'getStepSize' method is an abstract one for
+                    # all integrators so we can rely on it being here.
+                    'step_time' : apparatus.runner.integrator.getStepSize(),
+                }
+
+                reporter_params.update(auto_params)
+                reporter_params.update(deepcopy(DEFAULT_REPORTER_PARAMS[reporter_spec]))
+
+            elif reporter_spec == 'WExploreDashboardReporter':
+
+                # always set these ones automatically
+                auto_params = {
+                    'step_time' : apparatus.runner.integrator.getStepSize(),
+
+                    # resampler stuff
+                    'max_n_regions' : apparatus.resampler.max_n_regions,
+                    'max_region_sizes' : apparatus.resampler.max_region_sizes,
+                }
+
+                reporter_params.update(auto_params)
+                reporter_params.update(deepcopy(DEFAULT_REPORTER_PARAMS[reporter_spec]))
+
+            elif reporter_spec == 'REVODashboardReporter':
+
+                # always set these ones automatically
+                auto_params = {
+                    'step_time' : apparatus.runner.integrator.getStepSize(),
+
+                    # resampler
+                    'dist_exponent' : apparatus.resampler.dist_exponent,
+                    'merge_dist' : apparatus.resampler.merge_dist,
+                    'char_dist' : apparatus.resampler.char_dist,
+                }
+
+                reporter_params.update(auto_params)
+                reporter_params.update(deepcopy(DEFAULT_REPORTER_PARAMS[reporter_spec]))
+
+            elif reporter_spec == 'WalkerReporter':
+
+                # always set these ones automatically
+                auto_params = {
+                    'json_topology' : self.json_top(),
+                    'init_state' : self.init_state,
+                }
+
+                reporter_params.update(auto_params)
+                reporter_params.update(deepcopy(DEFAULT_REPORTER_PARAMS[reporter_spec]))
+
+            elif reporter_spec == 'ResTreeReporter':
+
+                # always set these ones automatically
+                auto_params = {
+                    'resampler' : apparatus.resampler,
+                    'boundary_condition' : apparatus.boundary_conditions,
+                }
+
+                reporter_params.update(auto_params)
+                reporter_params.update(deepcopy(DEFAULT_REPORTER_PARAMS[reporter_spec]))
+
+            else:
+                reporter_params.update(deepcopy(DEFAULT_REPORTER_PARAMS[reporter_spec]))
+
+            # add them to the list for this reporter
+            reporters_params.append(reporter_params)
+
+        return reporter_classes, reporters_params
+
+
+    def make_configuration(self,
+                           apparatus,
                            work_mapper='TaskMapper',
                            work_mapper_params=None,
                            platform='Reference',
+                           reporters=None,
+                           reporter_kwargs=None,
+                           work_dir=None,
     ):
 
         # MAPPER
@@ -263,12 +445,21 @@ class OpenMMSimMaker():
         # depending on the platform and work mapper choose the worker
         # type and update the params in place
         work_mapper_params.update(
-            cls.choose_work_mapper_platform_params(platform, mapper_name))
+            self.choose_work_mapper_platform_params(platform, mapper_name))
+
+
+        # REPORTERS
+
+        reporter_classes, reporter_params = \
+                        self.resolve_reporter_params(apparatus, reporters, reporter_kwargs)
 
 
         config = Configuration(
             work_mapper_class=work_mapper_class,
             work_mapper_partial_kwargs=work_mapper_params,
+            reporter_classes=reporter_classes,
+            reporter_partial_kwargs=reporter_params,
+            work_dir=work_dir
         )
 
         return config

@@ -37,7 +37,7 @@ class ResTreeReporter(ProgressiveFileReporter):
 
     def __init__(self,
                  resampler=None,
-                 boundary_condition=None,
+                 boundary_conditions=None,
                  row_spacing=None,
                  step_spacing=None,
                  default_node_radius=None,
@@ -85,7 +85,7 @@ class ResTreeReporter(ProgressiveFileReporter):
             "Must provide a resampler, this is used to get the correct records "\
             "from resampling data and is not saved in this object"
 
-        assert boundary_condition is not None, "must give the boundary condition class"
+        assert boundary_conditions is not None, "must give the boundary condition class"
 
         # TODO: this should be made optional
         assert progress_key is not None, "Currently, a progress key must be given."
@@ -123,7 +123,7 @@ class ResTreeReporter(ProgressiveFileReporter):
 
         # we do the same for the bounadry condition class, although we
         # also need the class itself
-        self._bc = boundary_condition
+        self._bc = boundary_conditions
         self._warping_record_field_names = self._bc.warping_record_field_names()
 
         self._warping_field_names = self._bc.warping_field_names()
