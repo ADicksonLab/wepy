@@ -2,6 +2,7 @@ import numpy as np
 from scipy.spatial.distance import euclidean
 
 from wepy.resampling.distances.distance import Distance
+from wepy.boundary_conditions.receptor import UnbindingBC
 
 from openmmtools.testsystems import LennardJonesPair
 
@@ -25,7 +26,29 @@ class PairDistance(Distance):
 
         return np.abs(dist_a - dist_b)
 
+
+# class PairUnbinding(BoundaryCondition):
+
+#     pass
+
 class LennardJonesPairOpenMMSimMaker(OpenMMToolsTestSysSimMaker):
+    TEST_SYS = LennardJonesPair
+
+    LIGAND_RESNAME = 'TMP'
+    RECEPTOR_RES_IDXS = list(range(162))
+
+    BCS = OpenMMToolsTestSysSimMaker.BCS + [UnbindingBC]
+
+    UNBINDING_BC_DEFAULTS = {
+        'cutoff_distance' : 1.0, # nm
+    }
+
+    DEFAULT_BC_PARAMS = OpenMMToolsTestSysSimMaker.DEFAULT_BC_PARAMS
+    DEFAULT_BC_PARAMS.update(
+        {
+            'UnbindingBC' : UNBINDING_BC_DEFAULTS,
+        }
+    )
 
     def __init__(self):
 

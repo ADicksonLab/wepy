@@ -74,7 +74,8 @@ class ReceptorBC(BoundaryConditions):
     def __init__(self, initial_states=None,
                  initial_weights=None,
                  ligand_idxs=None,
-                 receptor_idxs=None):
+                 receptor_idxs=None,
+                 **kwargs):
         """Base constructor for ReceptorBC.
 
         This should be called immediately in the subclass `__init__`
@@ -435,7 +436,8 @@ class RebindingBC(ReceptorBC):
                  initial_states=None,
                  initial_weights=None,
                  ligand_idxs=None,
-                 binding_site_idxs=None):
+                 binding_site_idxs=None,
+                 **kwargs):
         """Constructor for RebindingBC.
 
         Arguments
@@ -476,7 +478,7 @@ class RebindingBC(ReceptorBC):
                          initial_weights=initial_weights,
                          ligand_idxs=ligand_idxs,
                          receptor_idxs=binding_site_idxs
-                         )
+                         **kwargs)
 
         # test inputs
         assert native_state is not None, "Must give a native state"
@@ -603,7 +605,8 @@ class UnbindingBC(ReceptorBC):
                  cutoff_distance=1.0,
                  topology=None,
                  ligand_idxs=None,
-                 receptor_idxs=None):
+                 receptor_idxs=None,
+                 **kwargs):
         """Constructor for UnbindingBC class.
 
         All the key-word arguments are necessary.
@@ -657,7 +660,8 @@ class UnbindingBC(ReceptorBC):
         # wrap the single initial state to a list.
         super().__init__(initial_states=[initial_state],
                          ligand_idxs=ligand_idxs,
-                         receptor_idxs=receptor_idxs)
+                         receptor_idxs=receptor_idxs,
+                         **kwargs)
 
         # test input
         assert topology is not None, "Must give a reference topology"

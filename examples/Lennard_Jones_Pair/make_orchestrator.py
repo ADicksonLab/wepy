@@ -125,10 +125,10 @@ distance = PairDistance()
 
 ## Resampler
 resampler = WExploreResampler(distance=distance,
-                               init_state=init_state,
-                               max_region_sizes=MAX_REGION_SIZES,
-                               max_n_regions=MAX_N_REGIONS,
-                               pmin=PMIN, pmax=PMAX)
+                              init_state=init_state,
+                              max_region_sizes=MAX_REGION_SIZES,
+                              max_n_regions=MAX_N_REGIONS,
+                              pmin=PMIN, pmax=PMAX)
 
 ## Boundary Conditions
 

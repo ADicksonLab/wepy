@@ -67,118 +67,122 @@ from wepy.runners.openmm import UNIT_NAMES
 
 # workers
 
-## Resamplers
-
-RESAMPLERS = [NoResampler, WExploreResampler, REVOResampler,]
-
-WEXPLORE_DEFAULTS = {
-    'pmax' : 0.5,
-    'pmin' : 1e-12,
-    'max_n_regions' : (10, 10, 10, 10),
-    'max_region_sizes' : (1, 0.5, 0.35, 0.25),
-}
-
-
-REVO_DEFAULTS = {
-    'pmax' : 0.5,
-    'pmin' : 1e-12,
-    'char_dist' : 1,
-    'merge_dist' : 2.5,
-    'dist_exponent' : 4,
-    'weights' : True,
-}
-
-DEFAULT_RESAMPLER_PARAMS = {
-    'NoResampler' : {},
-    'WExploreResampler' : WEXPLORE_DEFAULTS,
-    'REVOResampler' : REVO_DEFAULTS,
-}
-
-
-
-## BCs
-
-BCS = [NoBC, RandomBC,]
-
-DEFAULT_BC_PARAMS = {
-    'NoBC' : {},
-    'RandomBC' : {},
-}
-
-
-## Integrators
-
-INTEGRATORS = [LangevinIntegrator,]
-
-#(TEMPERATURE, FRICTION_COEFFICIENT, STEP_SIZE)
-LANGEVIN_DEFAULTS = (
-    300.0*unit.kelvin,
-    1/unit.picosecond,
-    0.002*unit.picoseconds,
-)
-
-DEFAULT_INTEGRATOR_PARAMS = {
-    'LangevinIntegrator' : LANGEVIN_DEFAULTS,
-}
-
-# these are used just to generate states
-INTEGRATOR_FIXTURE = omm.LangevinIntegrator
-INTEGRATOR_FIXTURE_PARAMS = DEFAULT_INTEGRATOR_PARAMS['LangevinIntegrator']
-
-## OpenMM platforms
-
-DEFAULT_PLATFORM_PARAMS = {
-    'Reference' : {},
-    'CPU' : {},
-    'OpenCL' : {},
-    'CUDA' : {},
-
-}
-
-
-## Work Mappers
-MAPPERS = [Mapper, WorkerMapper, TaskMapper]
-
-DEFAULT_MAPPER_PARAMS = {
-    'Mapper' : {},
-    'WorkerMapper' : {},
-    'TaskMapper' : {},
-}
-
-
-## Reporters
-REPORTERS = [
-    WepyHDF5Reporter,
-    DashboardReporter,
-    ResTreeReporter,
-    WalkerReporter,
-]
-
-WEPY_HDF5_REPORTER_DEFAULTS = {
-                    'main_rep_idxs' : None,
-                    'save_fields' : None,
-                    'units' : dict(UNIT_NAMES),
-                    'sparse_fields' : {'velocities' : 10},
-                    'all_atoms_rep_freqs' : 10,
-                    'alt_reps' : None,
-                    'swmr_mode' : True,
-                }
-
-RESTREE_REPORTER_DEFAULTS = {
-    'node_radius' : 3.0,
-    'row_spacing' : 5.0,
-    'step_spacing' : 20.0,
-    'colormap_name' : 'plasma',
-}
-
-DEFAULT_REPORTER_PARAMS = {
-    'WepyHDF5Reporter' : WEPY_HDF5_REPORTER_DEFAULTS,
-    'DashboardReporter' : {},
-    'ResTreeReporter' : RESTREE_REPORTER_DEFAULTS,
-    'WalkerReporter' : {},
-}
 
 class OpenMMSimMaker():
+
+    ### Default settings
+
+    ## Resamplers
+
+    RESAMPLERS = [NoResampler, WExploreResampler, REVOResampler,]
+
+    WEXPLORE_DEFAULTS = {
+        'pmax' : 0.5,
+        'pmin' : 1e-12,
+        'max_n_regions' : (10, 10, 10, 10),
+        'max_region_sizes' : (1, 0.5, 0.35, 0.25),
+    }
+
+
+    REVO_DEFAULTS = {
+        'pmax' : 0.5,
+        'pmin' : 1e-12,
+        'char_dist' : 1,
+        'merge_dist' : 2.5,
+        'dist_exponent' : 4,
+        'weights' : True,
+    }
+
+    DEFAULT_RESAMPLER_PARAMS = {
+        'NoResampler' : {},
+        'WExploreResampler' : WEXPLORE_DEFAULTS,
+        'REVOResampler' : REVO_DEFAULTS,
+    }
+
+
+
+    ## BCs
+
+    BCS = [NoBC, RandomBC,]
+
+    DEFAULT_BC_PARAMS = {
+        'NoBC' : {},
+        'RandomBC' : {},
+    }
+
+
+    ## Integrators
+
+    INTEGRATORS = [LangevinIntegrator,]
+
+    #(TEMPERATURE, FRICTION_COEFFICIENT, STEP_SIZE)
+    LANGEVIN_DEFAULTS = (
+        300.0*unit.kelvin,
+        1/unit.picosecond,
+        0.002*unit.picoseconds,
+    )
+
+    DEFAULT_INTEGRATOR_PARAMS = {
+        'LangevinIntegrator' : LANGEVIN_DEFAULTS,
+    }
+
+    # these are used just to generate states
+    INTEGRATOR_FIXTURE = omm.LangevinIntegrator
+    INTEGRATOR_FIXTURE_PARAMS = DEFAULT_INTEGRATOR_PARAMS['LangevinIntegrator']
+
+    ## OpenMM platforms
+
+    DEFAULT_PLATFORM_PARAMS = {
+        'Reference' : {},
+        'CPU' : {},
+        'OpenCL' : {},
+        'CUDA' : {},
+
+    }
+
+
+    ## Work Mappers
+    MAPPERS = [Mapper, WorkerMapper, TaskMapper]
+
+    DEFAULT_MAPPER_PARAMS = {
+        'Mapper' : {},
+        'WorkerMapper' : {},
+        'TaskMapper' : {},
+    }
+
+
+    ## Reporters
+    REPORTERS = [
+        WepyHDF5Reporter,
+        DashboardReporter,
+        ResTreeReporter,
+        WalkerReporter,
+    ]
+
+    WEPY_HDF5_REPORTER_DEFAULTS = {
+                        'main_rep_idxs' : None,
+                        'save_fields' : None,
+                        'units' : dict(UNIT_NAMES),
+                        'sparse_fields' : {'velocities' : 10},
+                        'all_atoms_rep_freqs' : 10,
+                        'alt_reps' : None,
+                        'swmr_mode' : True,
+                    }
+
+    RESTREE_REPORTER_DEFAULTS = {
+        'node_radius' : 3.0,
+        'row_spacing' : 5.0,
+        'step_spacing' : 20.0,
+        'colormap_name' : 'plasma',
+    }
+
+    DEFAULT_REPORTER_PARAMS = {
+        'WepyHDF5Reporter' : WEPY_HDF5_REPORTER_DEFAULTS,
+        'DashboardReporter' : {},
+        'ResTreeReporter' : RESTREE_REPORTER_DEFAULTS,
+        'WalkerReporter' : {},
+    }
+
 
     def __init__(self,
                  distance=None,
@@ -196,7 +200,7 @@ class OpenMMSimMaker():
     def make_state(cls, system, positions):
 
         # a temporary integrator just for this
-        integrator = INTEGRATOR_FIXTURE(*INTEGRATOR_FIXTURE_PARAMS)
+        integrator = cls.INTEGRATOR_FIXTURE(*cls.INTEGRATOR_FIXTURE_PARAMS)
 
         # make a context and set the positions
         _context = omm.Context(system, copy(integrator))
@@ -232,7 +236,7 @@ class OpenMMSimMaker():
         ## RUNNER
 
         # choose which integrator to use
-        integrator_class = [i for i in INTEGRATORS
+        integrator_class = [i for i in self.INTEGRATORS
                             if i.__name__ == integrator][0]
 
         integrator_name = integrator_class.__name__
@@ -240,13 +244,13 @@ class OpenMMSimMaker():
 
         # use either the default params or the user params
         if integrator_params is None:
-            integrator_params = DEFAULT_INTEGRATOR_PARAMS[integrator_name]
+            integrator_params = self.DEFAULT_INTEGRATOR_PARAMS[integrator_name]
 
         integrator = integrator_class(*integrator_params)
 
         # TODO: not handling the params here
         if platform_params is None:
-            platform_params = DEFAULT_PLATFORM_PARAMS[platform]
+            platform_params = self.DEFAULT_PLATFORM_PARAMS[platform]
 
         # make the runner for the test system
         runner = OpenMMRunner(self.system,
@@ -258,14 +262,14 @@ class OpenMMSimMaker():
         # RESAMPLER
 
         # choose which resampler to use
-        resampler_class = [res for res in RESAMPLERS
+        resampler_class = [res for res in self.RESAMPLERS
                            if res.__name__ == resampler][0]
 
         resampler_name = resampler_class.__name__
 
         # use either the default params or the user params
         if resampler_params is None:
-            resampler_params = DEFAULT_RESAMPLER_PARAMS[resampler_name]
+            resampler_params = self.DEFAULT_RESAMPLER_PARAMS[resampler_name]
 
 
         resampler = resampler_class(distance=self.distance,
@@ -279,19 +283,17 @@ class OpenMMSimMaker():
         if bc is not None:
 
             # choose which bc to use
-            bc_class = [res for res in BCS
+            bc_class = [res for res in self.BCS
                                if res.__name__ == bc][0]
 
             bc_name = bc_class.__name__
 
             # use either the default params or the user params
             if bc_params is None:
-                bc_params = DEFAULT_BC_PARAMS[bc_name]
+                bc_params = self.DEFAULT_BC_PARAMS[bc_name]
 
+            bc = self.make_bc(bc_class, bc_params)
 
-            bc = bc_class(distance=self.distance,
-                                       init_state=self.init_state,
-                                       **bc_params)
 
 
         # APPARATUS
@@ -301,6 +303,14 @@ class OpenMMSimMaker():
                                          boundary_conditions=bc)
 
         return sim_apparatus
+
+
+    def make_bc(self, bc_class, bc_params):
+
+        bc = bc_class(**bc_params)
+
+        return bc
+
 
     @classmethod
     def choose_work_mapper_platform_params(cls, platform, mapper_name):
@@ -334,6 +344,44 @@ class OpenMMSimMaker():
 
         return work_mapper_params
 
+    def choose_dashboard_sections(self, apparatus):
+
+        # defaults for the dashboard sections
+        dashboard_sections = {'resampler' : ResamplerDashboardSection(apparatus.resampler),
+                              'runner' : RunnerDashboardSection(apparatus.runner),
+                              'bc' : BCDashboardSection(apparatus.boundary_conditions),
+        }
+
+        # the choices here should be fairly portable between different
+        # systems as they are not specific to any system details
+
+        ## resampler
+
+        # WExplore
+        if type(apparatus.resampler).__name__ == 'WExploreResampler':
+            dashboard_sections['resampler'] = WExploreDashboardSection(apparatus.resampler)
+        # REVO
+        elif type(apparatus.resampler).__name__ == 'REVOResampler':
+            dashboard_sections['resampler'] = REVODashboardSection(apparatus.resampler)
+
+        ## BC
+        # NoBC
+        if type(apparatus.boundary_conditions).__name__ == 'NoBC':
+            dashboard_sections['bc'] = BCDashboardSection(apparatus.boundary_conditions)
+        # Random
+        elif type(apparatus.boundary_conditions).__name__ == 'RandomBC':
+            dashboard_sections['bc'] = BCDashboardSection(apparatus.boundary_conditions)
+
+        ## Runner
+
+        # OpenMM
+        if type(apparatus.runner).__name__ == 'OpenMMRunner':
+            dashboard_sections['runner'] = OpenMMRunnerDashboardSection(
+                apparatus.runner)
+
+        return dashboard_sections
+
+
     def resolve_reporter_params(self, apparatus, reporter_specs, reporters_kwargs=None):
 
         if reporters_kwargs is not None:
@@ -349,45 +397,19 @@ class OpenMMSimMaker():
                 'WalkerReporter',
             ]
 
-
-        # augment the dashboard with the sections relevant to our components
-        dashboard_sections = {'resampler' : ResamplerDashboardSection(apparatus.resampler),
-                              'runner' : RunnerDashboardSection(apparatus.runner),
-                              'bc' : BCDashboardSection(apparatus.boundary_conditions),
-        }
-
+        # augment the dashboard with the sections relevant to our
+        # components
         if 'DashboardReporter' in reporter_specs:
 
-            ## resampler
-            # WExplore
-            if type(apparatus.resampler).__name__ == 'WExploreResampler':
-                dashboard_sections['resampler'] = WExploreDashboardSection(apparatus.resampler)
-            # REVO
-            elif type(apparatus.resampler).__name__ == 'REVOResampler':
-                dashboard_sections['resampler'] = REVODashboardSection(apparatus.resampler)
-
-            ## BC
-            # NoBC
-            if type(apparatus.boundary_conditions).__name__ == 'NoBC':
-                dashboard_sections['bc'] = BCDashboardSection(apparatus.boundary_conditions)
-            # Random
-            elif type(apparatus.boundary_conditions).__name__ == 'RandomBC':
-                dashboard_sections['bc'] = BCDashboardSection(apparatus.boundary_conditions)
-
-            ## Runner
-
-            #OpenMM
-            if type(apparatus.runner).__name__ == 'OpenMMRunner':
-                dashboard_sections['runner'] = OpenMMRunnerDashboardSection(
-                    apparatus.runner)
-
-
+            # customize the dashboard based on what components are in
+            # the apparatus or what a subclass has customized this for
+            dashboard_sections = self.choose_dashboard_sections(apparatus)
 
         # get the actual classes
         reporter_classes = []
         for reporter_spec in reporter_specs:
             match = False
-            for reporter_class in REPORTERS:
+            for reporter_class in self.REPORTERS:
 
                 if reporter_class.__name__ == reporter_spec:
                     match = reporter_class
@@ -415,7 +437,7 @@ class OpenMMSimMaker():
                 }
 
                 reporter_params.update(auto_params)
-                reporter_params.update(deepcopy(DEFAULT_REPORTER_PARAMS[reporter_spec]))
+                reporter_params.update(deepcopy(self.DEFAULT_REPORTER_PARAMS[reporter_spec]))
 
             elif reporter_spec == 'DashboardReporter':
 
@@ -432,7 +454,7 @@ class OpenMMSimMaker():
                 }
 
                 reporter_params.update(auto_params)
-                reporter_params.update(deepcopy(DEFAULT_REPORTER_PARAMS[reporter_spec]))
+                reporter_params.update(deepcopy(self.DEFAULT_REPORTER_PARAMS[reporter_spec]))
 
             elif reporter_spec == 'WalkerReporter':
 
@@ -443,7 +465,7 @@ class OpenMMSimMaker():
                 }
 
                 reporter_params.update(auto_params)
-                reporter_params.update(deepcopy(DEFAULT_REPORTER_PARAMS[reporter_spec]))
+                reporter_params.update(deepcopy(self.DEFAULT_REPORTER_PARAMS[reporter_spec]))
 
             elif reporter_spec == 'ResTreeReporter':
 
@@ -454,10 +476,10 @@ class OpenMMSimMaker():
                 }
 
                 reporter_params.update(auto_params)
-                reporter_params.update(deepcopy(DEFAULT_REPORTER_PARAMS[reporter_spec]))
+                reporter_params.update(deepcopy(self.DEFAULT_REPORTER_PARAMS[reporter_spec]))
 
             else:
-                reporter_params.update(deepcopy(DEFAULT_REPORTER_PARAMS[reporter_spec]))
+                reporter_params.update(deepcopy(self.DEFAULT_REPORTER_PARAMS[reporter_spec]))
 
             # add them to the list for this reporter
             reporters_params.append(reporter_params)
@@ -478,14 +500,14 @@ class OpenMMSimMaker():
         # MAPPER
 
         # choose which mapper to use
-        work_mapper_class = [mapper for mapper in MAPPERS
+        work_mapper_class = [mapper for mapper in self.MAPPERS
                            if mapper.__name__ == work_mapper][0]
 
         mapper_name = work_mapper_class.__name__
 
         # use either the default params or the user params
         if work_mapper_params is None:
-            work_mapper_params = DEFAULT_MAPPER_PARAMS[mapper_name]
+            work_mapper_params = self.DEFAULT_MAPPER_PARAMS[mapper_name]
 
         # depending on the platform and work mapper choose the worker
         # type and update the params in place

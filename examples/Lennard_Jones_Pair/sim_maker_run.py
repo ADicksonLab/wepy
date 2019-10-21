@@ -7,7 +7,7 @@ if __name__ == "__main__":
     import logging
     from multiprocessing_logging import install_mp_handler
 
-    from wepy_tools.sim_makers.openmm.lysozyme import LysozymeImplicitOpenMMSimMaker
+    from wepy_tools.sim_makers.openmm.lennard_jones import LennardJonesPairOpenMMSimMaker
 
     logging.getLogger().setLevel(logging.DEBUG)
     install_mp_handler()
@@ -33,7 +33,7 @@ if __name__ == "__main__":
 
     os.makedirs('result', exist_ok=True)
 
-    sim_maker = LysozymeImplicitOpenMMSimMaker()
+    sim_maker = LennardJonesPairOpenMMSimMaker()
 
     apparatus = sim_maker.make_apparatus(
         integrator='LangevinIntegrator',
@@ -42,8 +42,8 @@ if __name__ == "__main__":
         platform='OpenCL'
     )
     config = sim_maker.make_configuration(apparatus,
-                                          work_mapper='TaskMapper',
-                                          platform='OpenCL',
+                                          work_mapper='Mapper',
+                                          platform='CPU',
                                           work_dir='result')
 
     sim_manager = sim_maker.make_sim_manager(n_walkers, apparatus, config)

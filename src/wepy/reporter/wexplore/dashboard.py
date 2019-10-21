@@ -14,7 +14,7 @@ class WExploreDashboardSection(ResamplerDashboardSection):
     RESAMPLER_SECTION_TEMPLATE = \
 """
 
-Resampling Algorithm: WExplore
+Resampling Algorithm: {{ name }}
 
 Parameters:
 - Max Number of Regions: {{ max_n_regions }}
@@ -168,6 +168,8 @@ Defined Regions with the number of child regions per parent region:
 
     def gen_fields(self, **kwargs):
 
+        fields = super().gen_fields(**kwargs)
+
         regions = self._leaf_regions_to_all_regions(self.region_ids)
         region_children = [self.children_per_region[region] for region in regions]
         region_children_pairs = it.chain(*zip(regions, region_children))
@@ -212,7 +214,7 @@ Defined Regions with the number of child regions per parent region:
                                     tablefmt='orgtbl')
 
 
-        fields = {
+        new_fields = {
             'max_n_regions' : self.max_n_regions,
             'max_region_sizes' : self.max_region_sizes,
             'regions_per_level' : self.regions_per_level,
@@ -221,6 +223,8 @@ Defined Regions with the number of child regions per parent region:
             'wexplore_log' : branching_table_str,
             'walker_table' : walker_table_str
         }
+
+        fields.update(new_fields)
 
         return fields
 
