@@ -347,10 +347,17 @@ class OpenMMSimMaker():
     def choose_dashboard_sections(self, apparatus):
 
         # defaults for the dashboard sections
-        dashboard_sections = {'resampler' : ResamplerDashboardSection(apparatus.resampler),
-                              'runner' : RunnerDashboardSection(apparatus.runner),
-                              'bc' : BCDashboardSection(apparatus.boundary_conditions),
-        }
+        if apparatus.boundary_conditions is not None:
+            dashboard_sections = {'resampler' : ResamplerDashboardSection(apparatus.resampler),
+                                  'runner' : RunnerDashboardSection(apparatus.runner),
+                                  'bc' : BCDashboardSection(apparatus.boundary_conditions),
+            }
+
+        else:
+            dashboard_sections = {'resampler' : ResamplerDashboardSection(apparatus.resampler),
+                                  'runner' : RunnerDashboardSection(apparatus.runner),
+                                  'bc' : None,
+            }
 
         # the choices here should be fairly portable between different
         # systems as they are not specific to any system details
