@@ -467,7 +467,16 @@ Boundary Condition: {{ name }}
             target_idx = warp_record['target_idx'][0]
 
             # determine if it was discontinuous
-            discont = True if target_idx in self.bc_discontinuities else False
+
+            # all targets are discontinuous
+            if self.bc_discontinuities is Ellipsis:
+                discont = True
+            # none of them are discontinuous
+            elif self.bc_discontinuities is None:
+                discont = False
+            # then it is a list of the discontinuous targets
+            else:
+                discont = True if target_idx in self.bc_discontinuities else False
 
             record = (cycle_idx, walker_idx, weight, target_idx, discont)
             self.warp_records.append(record)

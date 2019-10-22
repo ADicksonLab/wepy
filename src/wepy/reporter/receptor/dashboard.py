@@ -54,7 +54,7 @@ Parameters:
 
             # make a record for a table that includes the time in
             # walkers sampling time
-            record = (walker_idx, weight, cycle_idx)
+            record = (walker_idx, weight, kwargs['cycle_idx'])
             self.warp_records.append(record)
 
             # also add them to the individual records
