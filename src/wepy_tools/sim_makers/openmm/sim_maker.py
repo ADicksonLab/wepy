@@ -394,7 +394,8 @@ class OpenMMSimMaker():
         if reporters_kwargs is not None:
             raise NotImplementedError("Only the defaults are supported currently")
 
-        if reporter_specs is None:
+        # ellipsis means use all of the defaults
+        if reporter_specs is Ellipsis:
             # defaults to use
             reporter_specs = [
                 'WepyHDF5Reporter',
@@ -403,6 +404,10 @@ class OpenMMSimMaker():
                 #'ResTreeReporter',
                 'WalkerReporter',
             ]
+
+        # if it is None, we use no reporters
+        elif reporter_specs is None:
+            return [], []
 
         # augment the dashboard with the sections relevant to our
         # components
@@ -499,7 +504,8 @@ class OpenMMSimMaker():
                            work_mapper='TaskMapper',
                            work_mapper_params=None,
                            platform='Reference',
-                           reporters=None,
+                           # defaults to using all of the defaults
+                           reporters=Ellipsis,
                            reporter_kwargs=None,
                            work_dir=None,
     ):
