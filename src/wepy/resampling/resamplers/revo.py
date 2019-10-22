@@ -347,7 +347,7 @@ class REVOResampler(CloneMergeResampler):
         variations.append(variation)
 
         # maximize the variance through cloning and merging
-        logging.info("Starting variance optimization:", variation)
+        logging.info("Starting variance optimization: {}".format(variation))
 
         productive = True
         while productive:
@@ -430,7 +430,7 @@ class REVOResampler(CloneMergeResampler):
                 if new_variation > variation:
                     variations.append(new_variation)
 
-                    logging.info("Variance move to", new_variation, "accepted")
+                    logging.info("Variance move to {} accepted".format(new_variation))
 
                     productive = True
                     variation = new_variation
@@ -479,7 +479,7 @@ class REVOResampler(CloneMergeResampler):
                                                                           distance_matrix)
                     variations.append(new_variation)
 
-                    logging.info("variance after selection:", new_variation)
+                    logging.info("variance after selection: {}".format(new_variation))
 
                 # if not productive
                 else:
@@ -566,7 +566,7 @@ class REVOResampler(CloneMergeResampler):
         distance_matrix, images = self._all_to_all_distance(walkers)
 
         logging.info("distance_matrix")
-        logging.info(np.array(distance_matrix))
+        logging.info("\n{}".format(str(np.array(distance_matrix))))
 
         # determine cloning and merging actions to be performed, by
         # maximizing the variation, i.e. the Decider

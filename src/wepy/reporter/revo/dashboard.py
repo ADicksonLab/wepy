@@ -83,7 +83,7 @@ Variation value = {{ variation }}
 
     def gen_fields(self, **kwargs):
 
-        fields = super().__init__(**kwargs)
+        fields = super().gen_fields(**kwargs)
 
         new_fields = {
             'dist_exponent' : self.dist_exponent,

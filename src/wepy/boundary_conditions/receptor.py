@@ -62,7 +62,7 @@ class ReceptorBC(BoundaryConditions):
 
     PROGRESS_RECORD_FIELDS = ()
 
-    DISCONTINUITY_TARGET_IDXS = (Ellipsis)
+    DISCONTINUITY_TARGET_IDXS = Ellipsis
     """Specifies which 'target_idxs' values are considered discontinuous targets.
 
     Values are either integer indices, Ellipsis (indicating all
