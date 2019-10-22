@@ -10,3 +10,4 @@ matplotlib
 tabulate
 jinja2
 pint
+multiprocessing_logging

@@ -23,6 +23,7 @@ abstract_requirements = [
     'tabulate',
     'jinja2',
     'pint',
+    'multiprocessing_logging',
 ]
 
 # extras requirements list

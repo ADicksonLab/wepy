@@ -21,6 +21,7 @@ if __name__ == "__main__":
         n_walkers = int(sys.argv[3])
         n_workers = int(sys.argv[4])
         platform = sys.argv[5]
+        resampler = sys.argv[6]
 
         print("Number of steps: {}".format(n_steps))
         print("Number of cycles: {}".format(n_cycles))
@@ -37,13 +38,13 @@ if __name__ == "__main__":
 
     apparatus = sim_maker.make_apparatus(
         integrator='LangevinIntegrator',
-        resampler='WExploreResampler',
+        resampler=resampler,
         bc='UnbindingBC',
-        platform='OpenCL'
+        platform=platform,
     )
     config = sim_maker.make_configuration(apparatus,
                                           work_mapper='TaskMapper',
-                                          platform='OpenCL',
+                                          platform=platform,
                                           work_dir='result')
 
     sim_manager = sim_maker.make_sim_manager(n_walkers, apparatus, config)
