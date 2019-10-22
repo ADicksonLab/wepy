@@ -42,6 +42,8 @@ to be determined adaptively (e.g. according to some time limit).
 
 """
 
+import numpy as np
+
 import sys
 import time
 from copy import deepcopy
@@ -304,10 +306,19 @@ class Manager(object):
         end = time.time()
         runner_time = end - start
 
+        # DEBUG
+        for walker in new_walkers:
+            if (walker.state['positions'] > 10).any():
+                logging.warning("bad positions!!!")
+                import pdb; pdb.set_trace()
+
+            elif np.isnan(walker.state['positions']).any():
+                logging.warning("nan positions!!!")
+                import pdb; pdb.set_trace()
+
         logging.info("Starting post cycle")
         # run post-cycle hook
         self.runner.post_cycle()
-
 
         logging.info("End cycle {}".format(cycle_idx))
 

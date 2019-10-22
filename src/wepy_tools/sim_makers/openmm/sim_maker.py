@@ -20,7 +20,7 @@ from wepy.util.json_top import (json_top_residue_fields,
 # OpenMM helpers
 from wepy.runners.openmm import OpenMMRunner, OpenMMState
 from wepy.walker import Walker
-from wepy.runners.openmm import UNIT_NAMES, GET_STATE_KWARG_DEFAULTS
+from wepy.runners.openmm import gen_walker_state, UNIT_NAMES, GET_STATE_KWARG_DEFAULTS
 from wepy.orchestration.snapshot import WepySimApparatus, SimSnapshot
 from wepy.orchestration.configuration import Configuration
 from wepy.orchestration.orchestrator import Orchestrator
@@ -140,6 +140,8 @@ class OpenMMSimMaker():
 
     }
 
+    ## other runner options
+    GET_STATE_KWARGS = {}
 
     ## Work Mappers
     MAPPERS = [Mapper, WorkerMapper, TaskMapper]
@@ -196,21 +198,17 @@ class OpenMMSimMaker():
         self.system = system
         self.topology = topology
 
-    @classmethod
-    def make_state(cls, system, positions):
+        self.getState_kwargs = dict(GET_STATE_KWARG_DEFAULTS)
+        if self.GET_STATE_KWARGS is not None:
+            self.getState_kwargs.update(self.GET_STATE_KWARGS)
+
+    def make_state(self, system, positions):
 
         # a temporary integrator just for this
-        integrator = cls.INTEGRATOR_FIXTURE(*cls.INTEGRATOR_FIXTURE_PARAMS)
+        integrator = self.INTEGRATOR_FIXTURE(*self.INTEGRATOR_FIXTURE_PARAMS)
 
-        # make a context and set the positions
-        _context = omm.Context(system, copy(integrator))
-        _context.setPositions(positions)
-
-        # get the data from this context so we have a state to start the
-        # simulation with
-        _get_state_kwargs = dict(GET_STATE_KWARG_DEFAULTS)
-        init_sim_state = _context.getState(**_get_state_kwargs)
-        init_state = OpenMMState(init_sim_state)
+        init_state = gen_walker_state(positions, system, integrator,
+                                      getState_kwargs=self.getState_kwargs)
 
         return init_state
 
@@ -225,6 +223,7 @@ class OpenMMSimMaker():
     def make_apparatus(self,
                        platform='Reference',
                        platform_params=None,
+                       runner_params=None,
                        integrator='LangevinIntegrator',
                        integrator_params=None,
                        resampler='WExploreResampler',
@@ -252,11 +251,16 @@ class OpenMMSimMaker():
         if platform_params is None:
             platform_params = self.DEFAULT_PLATFORM_PARAMS[platform]
 
+        # handle additional runner options
+        if runner_params is None:
+            runner_params = {}
+
         # make the runner for the test system
         runner = OpenMMRunner(self.system,
                               self.topology,
                               integrator,
-                              platform=platform)
+                              platform=platform,
+                              **runner_params)
 
 
         # RESAMPLER

@@ -4,6 +4,7 @@ from wepy_tools.sim_makers.openmm import OpenMMToolsTestSysSimMaker
 
 from wepy_tools.systems import receptor as receptor_tools
 
+from wepy.runners.openmm import GET_STATE_KWARG_DEFAULTS
 from wepy.resampling.distances.receptor import UnbindingDistance
 from wepy.boundary_conditions.receptor import UnbindingBC
 
@@ -30,6 +31,8 @@ class LysozymeImplicitOpenMMSimMaker(OpenMMToolsTestSysSimMaker):
     LIGAND_RESNAME = 'TMP'
     RECEPTOR_RES_IDXS = list(range(162))
 
+    GET_STATE_KWARGS = {'enforcePeriodicBox' : False}
+
     BCS = OpenMMToolsTestSysSimMaker.BCS + [UnbindingBC]
 
     UNBINDING_BC_DEFAULTS = {
@@ -45,9 +48,16 @@ class LysozymeImplicitOpenMMSimMaker(OpenMMToolsTestSysSimMaker):
 
     def __init__(self, bs_cutoff=0.8*unit.nanometer):
 
+        # must set this here since we need it to generate the state,
+        # will get called again in the superclass method
+        self.getState_kwargs = dict(GET_STATE_KWARG_DEFAULTS)
+        if self.GET_STATE_KWARGS is not None:
+            self.getState_kwargs.update(self.GET_STATE_KWARGS)
+
         test_sys = LysozymeImplicit()
 
         init_state = self.make_state(test_sys.system, test_sys.positions)
+
 
         lig_idxs = self.ligand_idxs()
         bs_idxs = self.binding_site_idxs(bs_cutoff)
@@ -63,6 +73,16 @@ class LysozymeImplicitOpenMMSimMaker(OpenMMToolsTestSysSimMaker):
             system=test_sys.system,
             topology=test_sys.topology,
         )
+
+    def make_apparatus(self, **kwargs):
+
+        # just customize an option to the runner to not enforce
+        # periodic box
+        runner_params = {'enforce_box' : False}
+        apparatus = super().make_apparatus(runner_params=runner_params,
+                                           **kwargs)
+
+        return apparatus
 
     @classmethod
     def ligand_idxs(cls):

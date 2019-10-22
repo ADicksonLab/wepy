@@ -104,7 +104,9 @@ UNIT_NAMES = (('positions_unit', unit.nanometer.get_name()),
 class OpenMMRunner(Runner):
     """Runner for OpenMM simulations."""
 
-    def __init__(self, system, topology, integrator, platform=None):
+    def __init__(self, system, topology, integrator,
+                 platform=None,
+                 enforce_box=True):
         """Constructor for OpenMMRunner.
 
         Parameters
@@ -125,6 +127,35 @@ class OpenMMRunner(Runner):
             Reference, CUDA, OpenCL. If value is None the automatic
             platform determining mechanism in OpenMM will be used.
 
+        enforce_box : bool
+            Calls 'context.getState' with 'enforcePeriodicBox' set to
+            'True'.
+             (Default value = True)
+
+        Warnings
+        --------
+
+        Regarding the 'enforce_box' option.
+
+        When retrieving states from an OpenMM simulation Context, you
+        have the option to enforce periodic boundary conditions in the
+        resulting atomic positions in a topology aware way that
+        doesn't break bonds through boundaries. This is convenient for
+        post-processing as this can be a complex task and is not
+        readily exposed in the OpenMM API as a standalone function.
+
+        However, in some types of simulations the periodic box vectors
+        are ignored (such as implicit solvent ones) despite there
+        being no option to not have periodic boundaries in the context
+        itself. Likely if you are running one of these kinds of
+        simulations you will not pay attention to the box vectors at
+        all and the random defaults that exist will be very wrong but
+        this incorrectness will not show in a non-wepy simulation with
+        openmm unless you are handling the context states
+        yourself. Then when you run in wepy the default of True to
+        enforce the boxes will be applied and confusingly wrong
+        answers will result that are difficult to find root cause of.
+
         """
 
         # we save the different components. However, if we are to make
@@ -136,6 +167,12 @@ class OpenMMRunner(Runner):
         # these are not SWIG objects
         self.topology = topology
         self.platform_name = platform
+
+        self.enforce_box = enforce_box
+
+        self.getState_kwargs = dict(GET_STATE_KWARG_DEFAULTS)
+        # update with the user based enforce_box
+        self.getState_kwargs['enforcePeriodicBox'] = self.enforce_box
 
     #TODO: deprecate?
     def _openmm_swig_objects(self):
@@ -166,9 +203,7 @@ class OpenMMRunner(Runner):
         getState_kwargs : dict of str : bool, optional
             Specify the key-word arguments to pass to
             simulation.context.getState when getting simulation
-            states. If None defaults to the values in the
-            GET_STATE_KWARG_DEFAULTS module constant.
-
+            states. If None defaults object values.
 
         Returns
         -------
@@ -181,7 +216,9 @@ class OpenMMRunner(Runner):
 
         # set the kwargs that will be passed to getState
         tmp_getState_kwargs = getState_kwargs
-        getState_kwargs = dict(GET_STATE_KWARG_DEFAULTS)
+
+        # start with the object value
+        getState_kwargs = copy(self.getState_kwargs)
         if tmp_getState_kwargs is not None:
             getState_kwargs.update(tmp_getState_kwargs)
 
@@ -278,11 +315,10 @@ class OpenMMRunner(Runner):
         starting_walker : wepy.walker.Walker subclass object
             The walker that was the beginning of this segment of simyulation.
 
-        getState_kwargs : dict of str : bool, optional
+        getState_kwargs : dict of str : bool
             Specify the key-word arguments to pass to
             simulation.context.getState when getting simulation
-            states. If None defaults to the values in the
-            GET_STATE_KWARG_DEFAULTS module constant.
+            states.
 
         Returns
         -------
@@ -922,7 +958,8 @@ class OpenMMState(WalkerState):
                               unitcell_angles=[unitcell_angles],
                               topology=topology)
 
-def gen_sim_state(positions, system, integrator):
+def gen_sim_state(positions, system, integrator,
+                  getState_kwargs=None):
     """Convenience function for generating an omm.State object.
 
     Parameters
@@ -942,17 +979,28 @@ def gen_sim_state(positions, system, integrator):
 
     """
 
+    # handle the getState_kwargs
+    tmp_getState_kwargs = getState_kwargs
+
+    # start with the defaults
+    getState_kwargs = dict(GET_STATE_KWARG_DEFAULTS)
+
+    # if there were customizations use them
+    if tmp_getState_kwargs is not None:
+        getState_kwargs.update(tmp_getState_kwargs)
+
     # generate a throwaway context
     context = omm.Context(system, copy(integrator))
     # set the positions
     context.setPositions(positions)
 
     # then just retrieve it as a state using the default kwargs
-    sim_state = context.getState(**dict(GET_STATE_KWARG_DEFAULTS))
+    sim_state = context.getState(**getState_kwargs)
 
     return sim_state
 
-def gen_walker_state(positions, system, integrator):
+def gen_walker_state(positions, system, integrator,
+                     getState_kwargs=None):
     """Convenience function for generating a wepy walker State object for
     an openmm simulation state.
 
@@ -973,7 +1021,8 @@ def gen_walker_state(positions, system, integrator):
 
     """
 
-    state = OpenMMState(gen_sim_state(positions, system, integrator))
+    state = OpenMMState(gen_sim_state(positions, system, integrator,
+                                      getState_kwargs=getState_kwargs))
 
     return state
 
