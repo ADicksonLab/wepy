@@ -989,8 +989,11 @@ def gen_sim_state(positions, system, integrator,
     if tmp_getState_kwargs is not None:
         getState_kwargs.update(tmp_getState_kwargs)
 
-    # generate a throwaway context
-    context = omm.Context(system, copy(integrator))
+    # generate a throwaway context, using the reference platform so we
+    # don't screw up other platform stuff later in the same process
+    platform = omm.Platform.getPlatformByName('Reference')
+    context = omm.Context(system, copy(integrator), platform)
+
     # set the positions
     context.setPositions(positions)
 
