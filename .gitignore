@@ -30,3 +30,4 @@ dist
 *.sqlite
 /sphinx/tutorials/seh_prep.rst
 /examples/Lysozyme/result
+/examples/Lennard_Jones_Pair/result/
