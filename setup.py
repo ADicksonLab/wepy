@@ -13,7 +13,7 @@ import itertools as it
 abstract_requirements = [
     'numpy',
     'h5py',
-    'networkx>=2',
+    'networkx==2.3',
     'pandas',
     'dill',
     'click',
