@@ -13,7 +13,7 @@ if __name__ == "__main__":
     install_mp_handler()
 
     if sys.argv[1] == "-h" or sys.argv[1] == "--help":
-        print("arguments: n_cycles, n_steps, n_walkers, n_workers, platform")
+        print("arguments: n_cycles, n_steps, n_walkers, n_workers, platform, resampler")
         exit()
     else:
         n_cycles = int(sys.argv[1])
@@ -43,7 +43,7 @@ if __name__ == "__main__":
         platform=platform,
     )
     config = sim_maker.make_configuration(apparatus,
-                                          work_mapper='Mapper',
+                                          work_mapper='TaskMapper',
                                           platform=platform,
                                           work_dir='result')
 
