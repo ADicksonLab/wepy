@@ -33,14 +33,15 @@ tox
 coverage
 # code quality metrics
 lizard
-# need this for using multiprocessing logging in the tests
-multiprocessing_logging
+
 
 pytest-datadir
 pytest-cov
 pytest-benchmark
 pytest-profiling
 
+# need this for using multiprocessing logging in the tests
+multiprocessing_logging
 
 # this is a customized datadir module I made since the off the shelf
 # one wasn't doing what i needed. Only need this when I need to share
@@ -48,9 +49,6 @@ pytest-profiling
 #git+https://github.com/salotz/pytest-datadir.git
 
 # modules just for tests
-
-# openmmtools for setting up the mock systems, should be installed with anaconda
-# conda install -c omnia openmm
 
 mdtraj
 
@@ -62,3 +60,7 @@ cython
 
 # OR just the latest
 git+https://github.com/ADicksonLab/geomm.git
+
+
+# for the test systems we use openmmtools
+git+https://github.com/choderalab/openmmtools.git
