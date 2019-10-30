@@ -1201,17 +1201,23 @@ class Orchestrator():
                                             checkpoint_mode=orch_mode)
 
         logging.debug("Finished running snapshot by time")
+        # if the last cycle in the run was a checkpoint skip this step
+        # of saving a checkpoint
+        if checkpoint_freq % last_cycle_idx == 0:
+            logging.debug("Last cycle saved a checkpoint, no need to save one")
 
-        logging.debug("Saving a final checkpoint for the end of the run")
-        # now that it is finished we save the final snapshot to the
-        # checkpoint file. This is done transactionally using the
-        # SQLite transaction functionality (either succeeds or doesn't
-        # happen) that way we don't have worry about data integrity
-        # loss. Here we also don't have to worry about other processes
-        # interacting with the checkpoint which makes it isolated.
-        self._save_checkpoint(end_snapshot, configuration_hash,
-                              checkpoint_db_path, last_cycle_idx)
-        logging.debug("Finished saving the final checkpoint for the run")
+        elif:
+
+            logging.debug("Saving a final checkpoint for the end of the run")
+            # now that it is finished we save the final snapshot to the
+            # checkpoint file. This is done transactionally using the
+            # SQLite transaction functionality (either succeeds or doesn't
+            # happen) that way we don't have worry about data integrity
+            # loss. Here we also don't have to worry about other processes
+            # interacting with the checkpoint which makes it isolated.
+            self._save_checkpoint(end_snapshot, configuration_hash,
+                                  checkpoint_db_path, last_cycle_idx)
+            logging.debug("Finished saving the final checkpoint for the run")
 
         # then return the final orchestrator
         logging.debug("Getting a connection to that orch to retun")
