@@ -1206,7 +1206,7 @@ class Orchestrator():
         if checkpoint_freq % last_cycle_idx == 0:
             logging.debug("Last cycle saved a checkpoint, no need to save one")
 
-        elif:
+        else:
 
             logging.debug("Saving a final checkpoint for the end of the run")
             # now that it is finished we save the final snapshot to the
