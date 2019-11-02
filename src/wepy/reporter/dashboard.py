@@ -371,7 +371,9 @@ class ResamplerDashboardSection():
 Resampler: {{ name }}
 """
 
-    def __init__(self, resampler=None):
+    def __init__(self, resampler=None,
+                 name=None,
+                 **kwargs):
 
         if resampler is not None:
             self.resampler_name = type(resampler).__name__
@@ -462,7 +464,9 @@ Boundary Condition: {{ name }}
 """
 
     def __init__(self, bc=None,
-                 discontinuities=None):
+                 discontinuities=None,
+                 name=None,
+                 **kwargs):
 
         if bc is not None:
             self.bc_name = type(bc).__name__

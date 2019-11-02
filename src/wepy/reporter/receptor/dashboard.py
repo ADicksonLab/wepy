@@ -31,9 +31,9 @@ Parameters:
 """
 
 
-    def __init__(self, bc):
+    def __init__(self, **kwargs):
 
-        super().__init__(bc)
+        super().__init__(**kwargs)
 
         # updatables
         self.warp_records = []

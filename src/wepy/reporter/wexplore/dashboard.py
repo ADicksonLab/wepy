@@ -55,7 +55,7 @@ Defined Regions with the number of child regions per parent region:
 
         super().__init__(resampler=resampler,
                          max_n_regions=max_n_regions,
-                         max_region_sizes,
+                         max_region_sizes=max_region_sizes,
                          **kwargs
         )
 
@@ -63,8 +63,10 @@ Defined Regions with the number of child regions per parent region:
             self.max_n_regions = resampler.max_n_regions
             self.max_region_sizes = resampler.max_region_sizes
         else:
-            assert max_n_regions is not None, "If a resampler is not given must give parameters: max_n_regions"
-            assert max_region_sizes is not None, "If a resampler is not given must give parameters: max_n_regions"
+            assert max_n_regions is not None, \
+                "If a resampler is not given must give parameters: max_n_regions"
+            assert max_region_sizes is not None, \
+                "If a resampler is not given must give parameters: max_n_regions"
 
             self.max_n_regions = max_n_regions
             self.max_region_sizes = max_region_sizes
