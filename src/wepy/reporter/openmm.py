@@ -20,17 +20,33 @@ Single Walker Sampling Time: {{ walker_total_sampling_time }}
 Total Sampling Time: {{ total_sampling_time }}
 """
 
-    def __init__(self, runner):
+    def __init__(self, runner=None,
+                 step_time=None,
+                 **kwargs
+    ):
 
-        super().__init__(runner)
+        if 'name' not in kwargs:
+            kwargs['name'] = 'OpenMMRunner'
 
-        simtk_step_time = runner.integrator.getStepSize()
-        simtk_val = simtk_step_time.value_in_unit(simtk_step_time.unit)
+        super().__init__(runner=runner,
+                         step_time=step_time,
+                         **kwargs)
 
-        # convert to a more general purpose pint unit, which will be
-        # used for the dashboards so we don't have the simtk
-        # dependency
-        self.step_time = simtk_val * units(simtk_step_time.unit.get_name())
+        if runner is None:
+            assert step_time is not None, "If no complete runner is given must give parameters: step_time"
+
+            # assume it has units
+            self.step_time = step_time
+
+        else:
+
+            simtk_step_time = runner.integrator.getStepSize()
+            simtk_val = simtk_step_time.value_in_unit(simtk_step_time.unit)
+
+            # convert to a more general purpose pint unit, which will be
+            # used for the dashboards so we don't have the simtk
+            # dependency
+            self.step_time = simtk_val * units(simtk_step_time.unit.get_name())
 
 
         # TODO
@@ -39,8 +55,6 @@ Total Sampling Time: {{ total_sampling_time }}
 
 
         # FF and params
-
-
 
         # updatables
         self.walker_total_sampling_time = 0.0 * units('microsecond')

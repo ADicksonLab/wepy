@@ -44,12 +44,32 @@ Defined Regions with the number of child regions per parent region:
 
 """
 
-    def __init__(self, resampler):
+    def __init__(self, resampler=None,
+                 max_n_regions=None,
+                 max_region_sizes=None,
+                 **kwargs
+    ):
 
-        super().__init__(resampler)
+        if 'name' not in kwargs:
+            kwargs['name'] = 'WExploreResampler'
 
-        self.max_n_regions = resampler.max_n_regions
-        self.max_region_sizes = resampler.max_region_sizes
+        super().__init__(resampler=resampler,
+                         max_n_regions=max_n_regions,
+                         max_region_sizes,
+                         **kwargs
+        )
+
+        if resampler is not None:
+            self.max_n_regions = resampler.max_n_regions
+            self.max_region_sizes = resampler.max_region_sizes
+        else:
+            assert max_n_regions is not None, "If a resampler is not given must give parameters: max_n_regions"
+            assert max_region_sizes is not None, "If a resampler is not given must give parameters: max_n_regions"
+
+            self.max_n_regions = max_n_regions
+            self.max_region_sizes = max_region_sizes
+
+
         self.n_levels = len(self.max_n_regions)
 
         # updatables

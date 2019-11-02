@@ -32,16 +32,55 @@ Maximum All to All Distance: {{ max_distance }}
 Variation value = {{ variation }}
 """
 
-    def __init__(self, resampler):
+    def __init__(self, resampler=None,
+                 dist_exponent=None,
+                 merge_dist=None,
+                 lpmin=None,
+                 char_dist=None,
+                 seed=None,
+                 decision=None,
+                 **kwargs):
 
-        super().__init__(resampler)
+        if 'name' not in kwargs:
+            kwargs['name'] = 'REVOResampler'
 
-        self.dist_exponent = resampler.dist_exponent
-        self.merge_dist = resampler.merge_dist
-        self.lpmin = resampler.lpmin
-        self.char_dist = resampler.char_dist
-        self.seed = resampler.seed
-        self.decision = resampler.DECISION
+        super().__init__(resampler=resampler,
+                 dist_exponent=dist_exponent,
+                 merge_dist=merge_dist,
+                 lpmin=lpmin,
+                 char_dist=char_dist,
+                 seed=seed,
+                 decision=decision,
+        )
+
+        if resampler is not None:
+            self.dist_exponent = resampler.dist_exponent
+            self.merge_dist = resampler.merge_dist
+            self.lpmin = resampler.lpmin
+            self.char_dist = resampler.char_dist
+            self.seed = resampler.seed
+            self.decision = resampler.DECISION
+
+        else:
+            assert dist_exponent is not None, \
+                "if no resampler given must give parameters: dist_exponent"
+            assert merge_dist is not None, \
+                "if no resampler given must give parameters: merge_dist"
+            assert lpmin is not None, \
+                "if no resampler given must give parameters: lpmin"
+            assert char_dist is not None, \
+                "if no resampler given must give parameters: char_dist"
+            assert seed is not None, \
+                "if no resampler given must give parameters: seed"
+            assert decision is not None, \
+                "if no resampler given must give parameters: decision"
+
+            self.dist_exponent = dist_exponent
+            self.merge_dist = merge_dist
+            self.lpmin = lpmin
+            self.char_dist = char_dist
+            self.seed = seed
+            self.decision = decision
 
         # updatables
         self.percentage_cloned_walkers = 0

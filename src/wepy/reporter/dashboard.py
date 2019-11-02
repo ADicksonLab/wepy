@@ -371,9 +371,16 @@ class ResamplerDashboardSection():
 Resampler: {{ name }}
 """
 
-    def __init__(self, resampler):
+    def __init__(self, resampler=None):
 
-        self.resampler_name = type(resampler).__name__
+        if resampler is not None:
+            self.resampler_name = type(resampler).__name__
+
+        elif name is not None:
+            self.resampler_name = name
+
+        else:
+            self.resampler_name = "Unknown"
 
     def update_values(self, **kwargs):
         pass
@@ -404,9 +411,18 @@ class RunnerDashboardSection():
 Runner: {{ name }}
 """
 
-    def __init__(self, runner):
+    def __init__(self, runner=None,
+                 name=None,
+                 **kwargs):
 
-        self.runner_name = type(runner).__name__
+        if runner is not None:
+            self.runner_name = type(runner).__name__
+
+        elif name is not None:
+            self.runner_name = name
+
+        else:
+            self.runner_name = "Unknown"
 
     def update_values(self, **kwargs):
         pass
@@ -445,11 +461,27 @@ Boundary Condition: {{ name }}
 
 """
 
-    def __init__(self, bc):
+    def __init__(self, bc=None,
+                 discontinuities=None):
 
-        self.bc_name = type(bc).__name__
+        if bc is not None:
+            self.bc_name = type(bc).__name__
+
+        elif name is not None:
+            self.bc_name = name
+
+        else:
+            self.bc_name = "Unknown"
+
+
+        if bc is not None:
+            self.bc_discontinuities = copy(bc.DISCONTINUITY_TARGET_IDXS)
+
+        else:
+            assert discontinuities is not None, "If the bc is not given must give parameter: discontinuities"
+            self.bc_discontinuities = discontinuities
+
         self.warp_records = []
-        self.bc_discontinuities = copy(bc.DISCONTINUITY_TARGET_IDXS)
 
     def update_values(self, **kwargs):
 
