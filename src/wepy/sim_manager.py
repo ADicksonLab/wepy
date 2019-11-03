@@ -306,16 +306,6 @@ class Manager(object):
         end = time.time()
         runner_time = end - start
 
-        # DEBUG
-        for walker in new_walkers:
-            if (walker.state['positions'] > 10).any():
-                logging.warning("bad positions!!!")
-                import pdb; pdb.set_trace()
-
-            elif np.isnan(walker.state['positions']).any():
-                logging.warning("nan positions!!!")
-                import pdb; pdb.set_trace()
-
         logging.info("Starting post cycle")
         # run post-cycle hook
         self.runner.post_cycle()
