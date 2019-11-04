@@ -81,6 +81,44 @@ interface for working with orchestration available:
   wepy --help
 #+END_SRC
 
+*** Using automation tool
+
+You can also try some of the scripting and automation tools the wepy
+repo uses.
+
+For this you will need the invoke package (which we use kind of like
+the make tool).
+
+So either install invoke via pip how you normally would on your system:
+
+#+begin_src bash
+  pip3 install invoke
+#+end_src
+
+Or source the bootstraph.sh file which will infer the directory you
+have installed anaconda in and install invoke to the base environment
+there:
+
+#+begin_src bash
+  . tooling.sh
+#+end_src
+
+Note if you don't use the bootstrap config here you will have to set
+the 'ANACONDA_DIR' environmental variable in your shell for the
+automation to work properly. This can be done temporarily like in the
+bootstrap.sh configuration file, but probably you should be doing this
+in your shell configs.
+
+Then you can run tasks via the invoke command line 'inv'. To list the
+available tasks and their descriptions run:
+
+#+begin_src bash
+  inv -l
+#+end_src
+
+
+# TODO: install the package using the automation tooling
+
 ** Getting Started
 
 ATTENTION: these parts of the documentation are under construction
@@ -115,3 +153,9 @@ Lotz and Dickson. 2018. JACS 140 (2) pp. 618-628 (DOI: 10.1021/jacs.7b08572)
 
 If you plan developing wepy read the [[https://github.com/ADicksonLab/wepy/blob/master/sphinx/source/dev_guide.org][Dev Guide]].
 
+
+
+If you have installed the tooling then you can get started with the
+examples a little quicker:
+
+# TODO: show which inv commands to use here

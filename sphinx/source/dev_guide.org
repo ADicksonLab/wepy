@@ -154,7 +154,13 @@ chmod u+x deploy.sh
 popd
 #+END_SRC
 
-Currently this only is pushing to the server in our lab.
+Currently we are using github pages, and to avoid putting the build
+artifacts of the website into the master development branch we are
+using the gh-pages branch.
+
+To make this work you need to pull the gh-pages branch:
+
+
 
 
 ** Testing

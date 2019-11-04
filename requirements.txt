@@ -11,3 +11,4 @@ tabulate
 jinja2
 pint
 multiprocessing_logging
+dask[bag]
