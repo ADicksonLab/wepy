@@ -14,11 +14,11 @@ git merge master
 
 # then remove the modules so we can actually build the docs without gh
 # pages complaining
-rm .gitmodules
-rm -rf wepy-tests
+rm ../.gitmodules
+rm -rf ../wepy-tests
 
 # copy over the build products
-mv ./_build/html/* ../
+mv -f ./_build/html/* ../
 
 # add the files in the docs folder
 git add ../* --force
