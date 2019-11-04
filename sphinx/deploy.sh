@@ -9,6 +9,9 @@ git checkout --track github/gh-pages
 
 git checkout gh-pages
 
+# merge the new changes from master
+git merge master
+
 # copy over the build products
 cp -r ./_build/html/* ../docs/
 
