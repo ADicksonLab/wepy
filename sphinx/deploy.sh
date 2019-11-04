@@ -13,7 +13,7 @@ git checkout gh-pages
 cp -r ./_build/html/* ../docs/
 
 # add the files in the docs folder
-git add docs/* --force
+git add ../docs/* --force
 
 # commit
 git commit -m "Automated commit from deploy.sh"
