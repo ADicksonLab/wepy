@@ -1,0 +1,1603 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+  
+  <!-- Licensed under the Apache 2.0 License -->
+  <link rel="stylesheet" type="text/css" href="../_static/fonts/open-sans/stylesheet.css" />
+  <!-- Licensed under the SIL Open Font License -->
+  <link rel="stylesheet" type="text/css" href="../_static/fonts/source-serif-pro/source-serif-pro.css" />
+  <link rel="stylesheet" type="text/css" href="../_static/css/bootstrap.min.css" />
+  <link rel="stylesheet" type="text/css" href="../_static/css/bootstrap-theme.min.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+    <title>User’s Guide &#8212; wepy  documentation</title>
+    <link rel="stylesheet" href="../_static/guzzle.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/language_data.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Tutorials" href="../tutorials/index.html" />
+    <link rel="prev" title="Quick Start" href="quick_start.html" />
+  
+   
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="../tutorials/index.html" title="Tutorials"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="quick_start.html" title="Quick Start"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">wepy  documentation</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="container-wrapper">
+
+      <div id="mobile-toggle">
+        <a href="#"><span class="glyphicon glyphicon-align-justify" aria-hidden="true"></span></a>
+      </div>
+  <div id="left-column">
+    <div class="sphinxsidebar">
+<div class="sidebar-block">
+  <div class="sidebar-wrapper">
+    <h2>Contents</h2>
+    <div class="sidebar-localtoc">
+      <ul>
+<li><a class="reference internal" href="#">User’s Guide</a><ul>
+<li><a class="reference internal" href="#how-to-approach-learning-and-using-wepy">How to approach learning and using wepy</a><ul>
+<li><a class="reference internal" href="#the-software-configuration-trap">The software configuration trap</a></li>
+<li><a class="reference internal" href="#framework-or-library">Framework or library?</a></li>
+<li><a class="reference internal" href="#what-kind-of-wepy-user-are-you">What kind of wepy user are you?</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#overview-of-frameworks">Overview of frameworks</a><ul>
+<li><a class="reference internal" href="#simulation-manager">Simulation manager</a></li>
+<li><a class="reference internal" href="#resampling-framework">Resampling Framework</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#simulation-data-persistence-wepyhdf5-and-analysis">Simulation Data Persistence (WepyHDF5) and Analysis</a></li>
+<li><a class="reference internal" href="#json-topology-and-converting-to-other-file-formats">JSON Topology and Converting to Other File Formats</a></li>
+</ul>
+</li>
+</ul>
+
+    </div>
+  </div>
+</div>
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="quick_start.html"
+                        title="previous chapter">Quick Start</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="../tutorials/index.html"
+                        title="next chapter">Tutorials</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/source/users_guide.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div class="sidebar-block">
+  <div class="sidebar-wrapper">
+    <div id="main-search">
+      <form class="form-inline" action="../search.html" method="GET" role="form">
+        <div class="input-group">
+          <input name="q" type="text" class="form-control" placeholder="Search...">
+        </div>
+        <input type="hidden" name="check_keywords" value="yes" />
+        <input type="hidden" name="area" value="default" />
+      </form>
+    </div>
+  </div>
+</div>
+      
+    </div>
+  </div>
+        <div id="right-column">
+          
+          <div role="navigation" aria-label="breadcrumbs navigation">
+            <ol class="breadcrumb">
+              <li><a href="../index.html">Docs</a></li>
+              
+              <li>User’s Guide</li>
+            </ol>
+          </div>
+          
+          <div class="document clearer body">
+            
+  <div class="section" id="user-s-guide">
+<h1>User’s Guide<a class="headerlink" href="#user-s-guide" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="how-to-approach-learning-and-using-wepy">
+<h2>How to approach learning and using wepy<a class="headerlink" href="#how-to-approach-learning-and-using-wepy" title="Permalink to this headline">¶</a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">wepy</span></code> project is a framework and library written in python for
+performing <abbr title="weighted ensemble">WE</abbr> simulations.</p>
+<p>That means there is no special language to learn and use other than
+python itself. This also means you are able to harness the power of the
+entire language and ecosystem in prototyping methods and analyzing data.</p>
+<p>To use prebuilt components all it takes is some basic knowledge of
+python.</p>
+<p>With a little knowledge of object-oriented programming (OOP) you can
+utilize a collection of functionality to help you focus prototype your
+complex algorithms rather than worrying about how to save data etc.</p>
+<p>The first question is what exactly do you need to write to be able to
+run a wepy simulation and how to run it.</p>
+<div class="section" id="the-software-configuration-trap">
+<h3>The software configuration trap<a class="headerlink" href="#the-software-configuration-trap" title="Permalink to this headline">¶</a></h3>
+<p>Some people may not understand (or agree with) the approach to the
+design of <code class="docutils literal notranslate"><span class="pre">wepy</span></code> as it diverges from many packages in the field. So we
+will provide a summary of the issues leading to the deliberately made
+choices.</p>
+<p>Many other tools utilize some sort of separate “configuration” file that
+is used to specify in a declarative manner what the simulation is
+supposed to do. Typically, these kinds of configurations are supposed to
+cater to beginners that have no experience in programming. Inevitably
+the features of the program start to expand and the complexity of
+configuration files grow until the developers have accidentally created
+an entire programming language, which invariably is very clumsy to
+program. Moreover, this language is a completely isolated ecosystem.</p>
+<p><code class="docutils literal notranslate"><span class="pre">wepy</span></code> was designed to avoid this issue and from the start and
+embraces a well-designed and highly popular programming language with a
+huge standard library and massive collection of highle-trusted third
+party libraries; Python (version 3 specifically). So while in <code class="docutils literal notranslate"><span class="pre">wepy</span></code>
+you are still “configuring” your simulations by building components
+there is no need to limit yourself to a small insular ecosystem in a
+sub-par programming language designed by a chemist when punch cards were
+still cutting edge.</p>
+<p>Many older simulation engines fall into the traps described above simply
+because there were no obviously dominant high-level languages like
+python at the time. The implementers of these engines were pioneers and
+we admire them for the intrepid and forthright spirit that drove them to
+accomplish there scientific goals given the available infrastructure at
+the time. However, we try not to mistake particular implementations for
+the important traditions. As the success of a particular tradition in
+scientific modelling gains popularity, as molecular dynamics has, the
+requirements on implementation grows as many more diverse and previously
+unthunk use cases emerge for the better. We endeavour to highlight these
+successes as best and as honestly as we can.</p>
+<p>As equally as we respect the scientific traditions we should also look
+to other disciplines such as computer science which have worked just as
+industriously to provide tools that enable us to actualize our ideas.</p>
+<p>Python is the <em>lingua franca</em> of the scientific community as of the time
+of writing this, and the developers feel this is for the better.</p>
+<p>The insular ecosystem problem is essentially solved by the use of a
+general-purpose programming language such as Python. For example, a
+massive collection of numerical algorithms and linear algebra can be
+used in your component as easily as <code class="docutils literal notranslate"><span class="pre">import</span> <span class="pre">numpy</span></code>. Furthermore,
+anyone can use or incorporate wepy into their project with a simple
+<code class="docutils literal notranslate"><span class="pre">import</span> <span class="pre">wepy</span></code>.</p>
+<p>Furthermore, <code class="docutils literal notranslate"><span class="pre">wepy</span></code> is only as system dependent as far as python is
+(and consequently C). It doesn’t rely on any environmental variables for
+its functioning or other special operating specific details, (excepting
+performance optimizations). Everything is contained within python files.
+Some basic know-how of environments is assumed to be able to even
+install and configure python, but is completely orthogonal to wepy
+itself.</p>
+<p>If you wish to use some OS-specific or legacy programs, there is the
+python <code class="docutils literal notranslate"><span class="pre">subprocess</span></code> module that allows for doing just that, and
+perhaps a wrapper package ready to be imported.</p>
+<p>To run wepy you simply write a file that runs a simulation and then run
+it on the command line:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python run_wepy.py
+</pre></div>
+</div>
+<p>The use of pure python files for configuring may seem complicated to
+someone that doesn’t know python, but when you are running complex
+simulations it is comforting to know that there is no magic involved.</p>
+<p>If you are dissappointed that wepy does not follow the “Unix”
+philosophy, there is a simple explanation. The so-called “universal”
+textual interface is wholly unsuited to storing any kind of molecular
+simulation data (much less snapshots of simulations) and so right at the
+start you are stuck with the decision of what your binary format is.</p>
+<ol class="arabic">
+<li><p>Intended audience and some suggestions</p>
+<p>With all of this in mind <code class="docutils literal notranslate"><span class="pre">wepy</span></code> is meant to be a tool for a fairly
+expert user that is willing to write python code and understand some
+basic software patterns; that is the primary users of <code class="docutils literal notranslate"><span class="pre">wepy</span></code> are
+the developers. We want to make “complex things possible” first and
+secondarily “simple things simple”. As of the <code class="docutils literal notranslate"><span class="pre">1.0</span></code> release we
+believe that “complex things possible” has largely been achieved and
+now the focus is making particular use-cases more streamlined as well
+as broadening the number of domains addressed.</p>
+<p>That said there is no reason that specific applications of wepy could
+not eventually be provided with some sort of easy-to-use
+configuration file format, command-line or web application.</p>
+<p>We warn anyone that wants to do this to have a very clear idea of the
+scope of this application and keep the above comments in mind. Some
+suggestions on tools for such application/configurations are:</p>
+<ul class="simple">
+<li><p>using the orchestration sub-packages Snapshot and Configuration
+objects for setting up and serializing (storage via python
+pickles) specific simulation initial conditions for short term (as
+updates to the code may break these objects).</p></li>
+<li><p>A very simple, well-specified, and human-writable format such as
+<a class="reference external" href="https://github.com/toml-lang/toml">TOML</a> that has simple
+translations to all programming languages.</p></li>
+<li><p>A simple and popular template engine such as
+<a class="reference external" href="https://github.com/pallets/jinja">Jinja</a> for generating python
+scripts.</p></li>
+</ul>
+<p>Some anti-examples would be:</p>
+<ul class="simple">
+<li><p>ad hoc unspecified configuration files</p></li>
+<li><p>human written XML files</p></li>
+<li><p>operating system specific environmental variables</p></li>
+<li><p>metaprogramming: such as python metaclasses</p></li>
+</ul>
+</li>
+<li><p>Snapshot and Configuration files</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">orchestration</span></code> sub-package, as mentioned, does come with a
+serialization format for simulation snapshots and configurations.
+This is an advanced general purpose tool that is primarily meant for
+managing large numbers of interconnected simulations and for adding
+in checkpointing capabilities for hardware that tends to crash.</p>
+<p>The snapshot and configuration files use python pickling to be able
+easily serialize them which should be used with caution. Pickle files
+should be read with the exact same version of the software that wrote
+them, otherwise complete and utter loss of data should be expected.
+It is possible that updates to the code will not effect the
+readability, but should never be assumed. So this is a very short
+term solution to storage.</p>
+<p>This sub-package will be discussed later as an advanced topic in
+depth.</p>
+</li>
+</ol>
+</div>
+<div class="section" id="framework-or-library">
+<h3>Framework or library?<a class="headerlink" href="#framework-or-library" title="Permalink to this headline">¶</a></h3>
+<p>At first a pedantic distinction, but understanding which parts of wepy
+are the “framework” and which parts are the “library” (and which parts
+are both) should eliminate some confusion (and hopefully lead to a
+sympathizing elightenment).</p>
+<p>It helps to understand that wepy fulfills a few roles:</p>
+<ul class="simple">
+<li><p>wepy provides components that can be used together</p></li>
+<li><p>wepy defines <strong>interfaces</strong> that new components may implement so that
+they can be used with existing components</p></li>
+</ul>
+<p>Because python is dynamically typed (AKA duck typing) interfaces and
+object identities (types) are not explicitly enforced. In fact the
+interfaces cannot even be expressed in python syntax. Instead we rely on
+the following sources to determine interfaces in order of precedence:</p>
+<ul class="simple">
+<li><p>the original developers intention</p></li>
+<li><p>the source code</p></li>
+<li><p>the source code docstrings</p></li>
+<li><p>the source code comments</p></li>
+<li><p>the written documentation</p></li>
+<li><p>…</p></li>
+<li><p>a person on the internet</p></li>
+</ul>
+<p>The developers ultimately have the final say because there will always
+be bugs in implementation and mistakes in documentation.</p>
+<p>Developers make mistakes and are willing to fix them, if you think they
+have made a mistake and there is a bug or problem in an interface please
+reach out for clarification before assuming it was not already though
+of. If you are still convinced of the issue, prepare an argument to be
+made for your case for a change in an interface and prepare for it to be
+questioned and critiqued in an objective manner.</p>
+<ol class="arabic">
+<li><p>wepy: the framework</p>
+<p><code class="docutils literal notranslate"><span class="pre">wepy</span></code> is a framework, in that, you execute it by configuring an
+“engine” that then takes your configurations and uses them on your
+behalf. So your goal as a wepy user is to obtain the necessary
+components and give them to the engine (the simulation manager) which
+will run the entire workflow.</p>
+<p>For the learned software engineers out there <code class="docutils literal notranslate"><span class="pre">wepy</span></code> uses dependency
+injection (AKA inversion of control).</p>
+<p>First we assemble our components by whatever means necessary:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">some.sim.engine</span> <span class="kn">import</span> <span class="n">SimRunner</span>
+<span class="kn">from</span> <span class="nn">some.resampler</span> <span class="kn">import</span> <span class="n">SomeResampler</span>
+
+<span class="n">runner</span> <span class="o">=</span> <span class="n">SimRunner</span><span class="p">()</span>
+<span class="n">resampler</span> <span class="o">=</span> <span class="n">SomeResampler</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Then we configure the engine by passing it the things it needs
+(injecting the runner and resampler dependencies):</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">wepy.sim_manager</span> <span class="kn">import</span> <span class="n">Manager</span>
+
+<span class="c1"># create initial walkers...</span>
+<span class="n">init_walkers</span> <span class="o">=</span> <span class="n">make_walkers</span><span class="p">()</span>
+
+<span class="n">sim_manager</span> <span class="o">=</span> <span class="n">Manager</span><span class="p">(</span><span class="n">init_walkers</span><span class="p">,</span>
+                      <span class="n">runner</span><span class="o">=</span><span class="n">runner</span><span class="p">,</span>
+                      <span class="n">resampler</span><span class="o">=</span><span class="n">resampler</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>This gives the <code class="docutils literal notranslate"><span class="pre">sim_manager</span></code> object control of our components. It
+expects them to have methods for running simulations and resampling.
+We instruct the <code class="docutils literal notranslate"><span class="pre">sim_manager</span></code> to run a simulation:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">results</span> <span class="o">=</span> <span class="n">sim_manager</span><span class="o">.</span><span class="n">run_simulation</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>And we get back our results.</p>
+<p>In the future examples we will also give the simulation manager a
+collection “reporters” which will produce rich datasets as
+“side-effects” of the simulation. In practice, running simulations
+isn’t very useful without them, but for simplicity we leave them out
+for now.</p>
+<p>So we see that the core framework of wepy is actually very simple and
+really only consists of the <code class="docutils literal notranslate"><span class="pre">Manager</span></code> object and the interface it
+defines (by calling specific methods of the components you gave it).
+The simplicity of this makes it very flexible to use with other
+components.</p>
+</li>
+<li><p>wepy: the library</p>
+<p>It is a library in the sense some of these components come freely
+available and off the shelf for you to use, perhaps with the tweaking
+of a few simple parameters.</p>
+<p>For example you can import the WExplore resampler simply by writing:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">wepy.resampling.resamplers.wexplore</span> <span class="kn">import</span> <span class="n">WExploreResampler</span>
+</pre></div>
+</div>
+<p>The nonsense example above does this to retrieve some components from
+some library not included in wepy.</p>
+<p>Thus, wepy also includes a library of generally useful components
+that can be used to configure the simulation manager.</p>
+<p>The main categories of library components used by the sim manager
+are:</p>
+<ul class="simple">
+<li><p>runners</p></li>
+<li><p>resamplers</p></li>
+<li><p>distance metrics</p></li>
+<li><p>boundary conditions</p></li>
+<li><p>reporters</p></li>
+<li><p>work mappers</p></li>
+</ul>
+<p>There is also some libraries related to storage and analysis of WE
+simulation data that are not used as injected dependencies of the sim
+manager:</p>
+<ul class="simple">
+<li><p>HDF5 storage</p></li>
+<li><p>analysis</p></li>
+</ul>
+<p>Some examples of off-the-shelf components are:</p>
+<ul class="simple">
+<li><p><code class="xref py py-class docutils literal notranslate"><span class="pre">wepy.runners.openmm.OpenMMRunner</span></code></p></li>
+<li><p><code class="xref py py-class docutils literal notranslate"><span class="pre">wepy.runners.openmm.OpenMMRunner</span></code></p></li>
+<li><p><a class="reference internal" href="../api/wepy.resampling.resamplers.revo.html#wepy.resampling.resamplers.revo.REVOResampler" title="wepy.resampling.resamplers.revo.REVOResampler"><code class="xref py py-class docutils literal notranslate"><span class="pre">wepy.resampling.resamplers.revo.REVOResampler</span></code></a></p></li>
+<li><p><a class="reference internal" href="../api/wepy.resampling.distances.receptor.html#wepy.resampling.distances.receptor.UnbindingDistance" title="wepy.resampling.distances.receptor.UnbindingDistance"><code class="xref py py-class docutils literal notranslate"><span class="pre">wepy.resampling.distances.receptor.UnbindingDistance</span></code></a></p></li>
+<li><p><a class="reference internal" href="../api/wepy.boundary_conditions.receptor.html#wepy.boundary_conditions.receptor.UnbindingBC" title="wepy.boundary_conditions.receptor.UnbindingBC"><code class="xref py py-class docutils literal notranslate"><span class="pre">wepy.boundary_conditions.receptor.UnbindingBC</span></code></a></p></li>
+<li><p><a class="reference internal" href="../api/wepy.reporter.hdf5.html#wepy.reporter.hdf5.WepyHDF5Reporter" title="wepy.reporter.hdf5.WepyHDF5Reporter"><code class="xref py py-class docutils literal notranslate"><span class="pre">wepy.reporter.hdf5.WepyHDF5Reporter</span></code></a></p></li>
+<li><p><a class="reference internal" href="../api/wepy.reporter.dashboard.html#wepy.reporter.dashboard.DashboardReporter" title="wepy.reporter.dashboard.DashboardReporter"><code class="xref py py-class docutils literal notranslate"><span class="pre">wepy.reporter.dashboard.DashboardReporter</span></code></a></p></li>
+</ul>
+<p>These only need to be imported and constructed, e.g.:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">wepy.runners.openmm</span> <span class="kn">import</span> <span class="n">OpenMMRunner</span>
+
+<span class="n">runner</span> <span class="o">=</span> <span class="n">OpenMMRunner</span><span class="p">(</span><span class="n">system</span><span class="p">,</span> <span class="n">topology</span><span class="p">,</span> <span class="n">integrator</span><span class="p">,</span>
+                       <span class="n">platform</span><span class="o">=</span><span class="s1">&#39;Reference&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</li>
+<li><p>wepy: the library of frameworks</p>
+<p>As a reminder classes in OOP define a type of object, similar to how
+the type <code class="docutils literal notranslate"><span class="pre">Int</span></code> or <code class="docutils literal notranslate"><span class="pre">str</span></code> defines a <em>class</em> of possible values. To
+create an object from class you are said to <strong>construct</strong> it.</p>
+<p>Objects (and classes) are essentially containers for both code and
+data. The code of an object or class is a method, and the data is an
+attribute.</p>
+<p>Classes can be created in two ways. The developer writes it defining
+how to construct it and what the methods and attributes are. The
+second way is to make a class out of another class. Classes made from
+other classes in OOP is called <strong>inheritance</strong> and all functionality
+of a super-class is shared by the sub-class.</p>
+<p><strong>Abstract base classes (ABC)</strong> are classes that are available for
+the sole purpose of making other classes from. Sub-classes of ABCs in
+turn can either be abstract again, or concrete.</p>
+<p>A subclass that inherits from an abstract class only becomes concrete
+(and thus usable like the OpenMMRunner component) when it is
+<strong>customized</strong> which are additional code written by the developer.</p>
+<p>Customizations can either add orthogonal functionality, such as new
+methods or attributes, or they can <strong>override</strong> functionality from a
+super-class, changing the behavior or type of an existing method or
+attribute.</p>
+<p>The goal of all this is ultimately is two-fold:</p>
+<ul class="simple">
+<li><p>reduce the amount of code you need to write</p></li>
+<li><p>fix problems only once</p></li>
+</ul>
+<p>Lets look at a real example in the
+<code class="docutils literal notranslate"><span class="pre">wepy.resampling.distances.receptor</span></code> module.</p>
+<p>First there is the definition of the class <code class="docutils literal notranslate"><span class="pre">ReceptorDistance</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">wepy.resampling.distances.distance</span> <span class="kn">import</span> <span class="n">Distance</span>
+<span class="k">class</span> <span class="nc">ReceptorDistance</span><span class="p">(</span><span class="n">Distance</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Common abstract class for receptor-ligand molecular systems.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">_unaligned_image</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
+        <span class="n">box_lengths</span><span class="p">,</span> <span class="n">box_angles</span> <span class="o">=</span> <span class="n">box_vectors_to_lengths_angles</span><span class="p">(</span><span class="n">state</span><span class="p">[</span><span class="s1">&#39;box_vectors&#39;</span><span class="p">])</span>
+        <span class="n">grouped_positions</span> <span class="o">=</span> <span class="n">group_pair</span><span class="p">(</span><span class="n">state</span><span class="p">[</span><span class="s1">&#39;positions&#39;</span><span class="p">],</span> <span class="n">box_lengths</span><span class="p">,</span>
+                                    <span class="bp">self</span><span class="o">.</span><span class="n">_bs_idxs</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lig_idxs</span><span class="p">)</span>
+        <span class="c1"># then center them around the binding site</span>
+        <span class="n">centered_positions</span> <span class="o">=</span> <span class="n">center_around</span><span class="p">(</span><span class="n">grouped_positions</span><span class="p">,</span>
+                                           <span class="bp">self</span><span class="o">.</span><span class="n">_bs_idxs</span><span class="p">)</span>
+        <span class="n">state_image</span> <span class="o">=</span> <span class="n">centered_positions</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_image_idxs</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">state_image</span>
+
+
+    <span class="k">def</span> <span class="nf">image</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
+        <span class="n">state_image</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_unaligned_image</span><span class="p">(</span><span class="n">state</span><span class="p">)</span>
+        <span class="n">sup_image</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">superimpose</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ref_image</span><span class="p">,</span>
+                                      <span class="n">state_image</span><span class="p">,</span>
+                                      <span class="n">idxs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_image_bs_idxs</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">sup_image</span>
+</pre></div>
+</div>
+<p>We see that ReceptorDistance is inheriting from the <code class="docutils literal notranslate"><span class="pre">Distance</span></code>
+class, which is defined as such:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Distance</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Abstract Base class for Distance classes.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Constructor for Distance class.&quot;&quot;&quot;</span>
+        <span class="k">pass</span>
+
+    <span class="o">...</span>
+</pre></div>
+</div>
+<p>All classes ultimately inherit from <code class="docutils literal notranslate"><span class="pre">object</span></code>.</p>
+<p>Also ignore the <code class="docutils literal notranslate"><span class="pre">self</span></code> keyword for now, except to note that all
+object methods must have them.</p>
+<p>The method <code class="docutils literal notranslate"><span class="pre">__init__</span></code> is how this class constructs an object. You
+can think of this:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">dist</span> <span class="o">=</span> <span class="n">Distance</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>as being equivalent to:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">dist</span> <span class="o">=</span> <span class="n">Distance</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>We notice that the <code class="docutils literal notranslate"><span class="pre">Distance</span></code> class defines this method
+<code class="docutils literal notranslate"><span class="pre">distance</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Distance</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="o">...</span>
+
+    <span class="k">def</span> <span class="nf">distance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state_a</span><span class="p">,</span> <span class="n">state_b</span><span class="p">):</span>
+
+        <span class="o">...</span>
+</pre></div>
+</div>
+<p>But this is not written under <code class="docutils literal notranslate"><span class="pre">ReceptorDistance</span></code>. Because
+<code class="docutils literal notranslate"><span class="pre">ReceptorDistance</span></code> inherits from <code class="docutils literal notranslate"><span class="pre">Distance</span></code> it also inherits the
+<code class="docutils literal notranslate"><span class="pre">distance</span></code> method. So while it is not written under
+<code class="docutils literal notranslate"><span class="pre">ReceptorDistance</span></code> it still has access to it.</p>
+<p>We notice that <code class="docutils literal notranslate"><span class="pre">Distance</span></code> also defines the method
+<code class="docutils literal notranslate"><span class="pre">image_distance</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Distance</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+    <span class="o">...</span>
+
+    <span class="k">def</span> <span class="nf">image_distance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image_a</span><span class="p">,</span> <span class="n">image_b</span><span class="p">):</span>
+
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+</pre></div>
+</div>
+<p>But this will always raise the <code class="docutils literal notranslate"><span class="pre">NotImplementedError</span></code> exception,
+which makes it an unusable function. This is because the method is
+defined merely as an example of what an <code class="docutils literal notranslate"><span class="pre">image_distance</span></code> method
+should look like; it is an interface definition.</p>
+<p>Because only the <code class="docutils literal notranslate"><span class="pre">image_distance</span></code> interface is defined and not its
+implementation the whole <code class="docutils literal notranslate"><span class="pre">Distance</span></code> class is labelled abstract.
+Despite it having some functioning methods like <code class="docutils literal notranslate"><span class="pre">distance</span></code>.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">ReceptorDistance</span></code> class customizes <code class="docutils literal notranslate"><span class="pre">Distance</span></code> in a couple
+ways. It re-implements the <code class="docutils literal notranslate"><span class="pre">__init__</span></code> and <code class="docutils literal notranslate"><span class="pre">image</span></code> methods
+(overriding), adds the <code class="docutils literal notranslate"><span class="pre">_unaligned_image</span></code> method, and inherits the
+abstract <code class="docutils literal notranslate"><span class="pre">image_distance</span></code>. So it has added some valuable methods
+but is still abstract because <code class="docutils literal notranslate"><span class="pre">image_distance</span></code> still raises the
+<code class="docutils literal notranslate"><span class="pre">NotImplementedError</span></code>.</p>
+<p>Concrete sub-classes of <code class="docutils literal notranslate"><span class="pre">ReceptorDistance</span></code> are defined by
+<code class="docutils literal notranslate"><span class="pre">UnbindingDistance</span></code> and <code class="docutils literal notranslate"><span class="pre">RebindingDistance</span></code>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">UnbindingDistance</span><span class="p">(</span><span class="n">ReceptorDistance</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">image_distance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image_a</span><span class="p">,</span> <span class="n">image_b</span><span class="p">):</span>
+        <span class="n">lig_rmsd</span> <span class="o">=</span> <span class="n">calc_rmsd</span><span class="p">(</span><span class="n">image_a</span><span class="p">,</span> <span class="n">image_b</span><span class="p">,</span> <span class="n">idxs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_image_lig_idxs</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">lig_rmsd</span>
+
+
+<span class="k">class</span> <span class="nc">RebindingDistance</span><span class="p">(</span><span class="n">ReceptorDistance</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">image_distance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image_a</span><span class="p">,</span> <span class="n">image_b</span><span class="p">):</span>
+        <span class="n">state_a_rmsd</span> <span class="o">=</span> <span class="n">calc_rmsd</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ref_image</span><span class="p">,</span> <span class="n">image_a</span><span class="p">,</span> <span class="n">idxs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_image_lig_idxs</span><span class="p">)</span>
+        <span class="n">state_b_rmsd</span> <span class="o">=</span> <span class="n">calc_rmsd</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ref_image</span><span class="p">,</span> <span class="n">image_b</span><span class="p">,</span> <span class="n">idxs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_image_lig_idxs</span><span class="p">)</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="mf">1.</span><span class="o">/</span><span class="n">state_a_rmsd</span> <span class="o">-</span> <span class="mf">1.</span><span class="o">/</span><span class="n">state_b_rmsd</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">d</span>
+</pre></div>
+</div>
+<p>In both of these only the <code class="docutils literal notranslate"><span class="pre">image_distance</span></code> method is implemented.</p>
+<p>Whats important to notice is that both <code class="docutils literal notranslate"><span class="pre">UnbindingDistance</span></code> and
+<code class="docutils literal notranslate"><span class="pre">RebindingDistance</span></code> have the capabilities to run the <code class="docutils literal notranslate"><span class="pre">distance</span></code>,
+<code class="docutils literal notranslate"><span class="pre">image</span></code>, etc. methods that were defined in their common
+superclasses.</p>
+<p>So not only is the amount of code written for these classes small and
+focused on the task at hand (calculating the distance between two
+walker images), but if there are any bugs in the shared code, say in
+<code class="docutils literal notranslate"><span class="pre">_unaligned_image</span></code>, then when it is fixed they both will be fixed.
+They both will also break when something in a superclass breaks, but
+this can be seen as a good thing because bugs will be found faster.</p>
+<p>So when you import an abstract base class to use as the foundation to
+build other classes you are importing a framework from a library.</p>
+<p>For example, when we imported <code class="docutils literal notranslate"><span class="pre">Distance</span></code> above for the
+<code class="docutils literal notranslate"><span class="pre">ReceptorDistance</span></code> we wanted to build something that looks, talks,
+and quacks the same as a <code class="docutils literal notranslate"><span class="pre">Distance</span></code> class but that adds some new
+and interesting functionality to it. The methods that are inherited
+may be expected by other components in a framework or they may be
+only for internal use only. In any case, inheritance is easy, easily
+overriden, and can make interfacing more seamless.</p>
+<p>So in this sense the <code class="docutils literal notranslate"><span class="pre">wepy</span></code> project contains not only the main
+<code class="docutils literal notranslate"><span class="pre">sim_manager</span></code> framework but a number of sub-frameworks that aid in
+constructing the main components.</p>
+</li>
+</ol>
+</div>
+<div class="section" id="what-kind-of-wepy-user-are-you">
+<h3>What kind of wepy user are you?<a class="headerlink" href="#what-kind-of-wepy-user-are-you" title="Permalink to this headline">¶</a></h3>
+<p>Understanding what you want to accomplish with wepy can help you
+understand which parts to pay attention to and which to ignore.</p>
+<p>I’ve outlined some possible goals a user might have with wepy in order
+of least to most expertise needed:</p>
+<ol class="arabic simple">
+<li><p>Recreate results found in a paper published using wepy.</p></li>
+<li><p>Evaluate the utility of WE to enhance the sampling of my equilibrium
+OpenMM MD simulations of biomolecules on a small scale.</p></li>
+<li><p>Run MD-WE simulations on a large scale.</p></li>
+<li><p>Run a more complex MD simulation involving non-OpenMM
+dynamics/sampling engines, non-equilibrium simulations, or research,
+development, and prototyping of novel resampling algorithms.</p></li>
+<li><p>Change, fix, or contribute a major feature to <code class="docutils literal notranslate"><span class="pre">wepy</span></code> itself.</p></li>
+</ol>
+<p>In order:</p>
+<ol class="arabic">
+<li><p>Recreate results found in a paper published using wepy</p>
+<p>If you are looking at wepy for the first time and just want to see
+what WE is all about and maybe play with the output to try and
+understand the kind of data that is produced, you should start with
+an example that recreates a published result. For that we provide
+examples and tutorials for you to run and perform some standard
+analysis with. Getting hands-on experience with the resulting data
+structures (walker resampling family trees etc.) is a great way to
+understand WE as it is quite different from normal, linear MD
+simulations.</p>
+</li>
+<li><p>Evaluating WE for your system</p>
+<p>If you are interested in a WE algorithm (WExplore, REVO, etc.)
+because you read a paper and thought it could be applied to your
+system of interest you will want to run it to evaluate if it looks
+promising. For this you will want to follow a tutorial to get your
+system set up. For now <code class="docutils literal notranslate"><span class="pre">wepy</span></code> only comes with built-in support for
+OpenMM MD simulations so the first step is to follow the Openmm
+<a class="reference external" href="http://openmm.org">documentation</a> to set up an MD simulation.
+OpenMM has support for most force fields. This is easily the most
+difficult part of the process. Once you have working MD simulations
+you will only need create a distance metric that characterizes the
+type of behavior you want to enhance in your simulations, if there is
+not already one available in a wepy or
+<a class="reference internal" href="introduction.html#resources"><span class="std std-ref">contributed library</span></a> .</p>
+</li>
+<li><p>Running wepy on a large scale</p>
+<p>If you have been succesful at running <code class="docutils literal notranslate"><span class="pre">wepy</span></code> but find yourself:</p>
+<ul class="simple">
+<li><p>overloaded with managing too many simulation results</p></li>
+<li><p>an excess of copy-pasted and tweaked scripts with increasingly
+complex filenames or directory structures</p></li>
+<li><p>want to run multiple simulations that are continuations of each
+other</p></li>
+<li><p>find you jobs failing and losing all your progress</p></li>
+</ul>
+<p>You will probably want to start using some more advanced
+<strong>orchestration</strong> features of wepy and data aggregation methods in
+the <code class="docutils literal notranslate"><span class="pre">WepyHDF5</span></code>.</p>
+</li>
+<li><p>Advanced or custom simulation requirements</p>
+<p>If you need to:</p>
+<ul class="simple">
+<li><p>run simulations with another kind of dynamics engine</p></li>
+<li><p>implement boundary conditions for non-equilibrium simulations</p></li>
+<li><p>implement or prototype a new resampler</p></li>
+<li><p>implement a new reporter</p></li>
+<li><p>implement a new work mapper for distributed or parallel computing</p></li>
+</ul>
+<p>All of this can (ideally) be done without having modify the core
+<code class="docutils literal notranslate"><span class="pre">wepy</span></code> code base.</p>
+<p>First check if there is a similar contributed project that you could
+use, or contribute to yourself. Otherwise you are free to implement
+your component however you please; as a standalone importable module
+or directly in your run script.</p>
+<p>If you think think the feature is general-purpose enough to request
+the devs to implement it you can make a feature request on the issue
+tracker.</p>
+<p>If you need help implementing the feature, read on, or contact the
+devs for some advice.</p>
+<p>If you think that there is something missing in the core library that
+is necessary for implementing the feature you can make a feature
+request, although we may end up just pointing you to an existing
+mechanism.</p>
+<p>If you want other people to know about your creation we can add it to
+the contributed packages list if it is a proper module. If it is a
+bit rougher but still useful we can add it to the developers
+resources page.</p>
+</li>
+<li><p>Contribute to wepy itself</p>
+<p>As mentioned in the last section if you need to have some changes
+made to core <code class="docutils literal notranslate"><span class="pre">wepy</span></code> to implement your new component you can make a
+feature request or you can submit the merge/pull request yourself!</p>
+<p>We are also open to the eventual inclusion of popular and mature
+contributed modules to the wepy core library if you want to fold in
+the maintenance of those modules to core.</p>
+</li>
+</ol>
+</div>
+</div>
+<div class="section" id="overview-of-frameworks">
+<h2>Overview of frameworks<a class="headerlink" href="#overview-of-frameworks" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="simulation-manager">
+<h3>Simulation manager<a class="headerlink" href="#simulation-manager" title="Permalink to this headline">¶</a></h3>
+<p>The simulation manager framework can be configured with the following
+components:</p>
+<ul class="simple">
+<li><p><strong>initial walkers</strong>: the initial walkers (weights and states) to
+start a simulation with, can be from a single starting point or the
+final walkers from a previous simulation.</p></li>
+<li><p><strong>runner</strong>: the dynamics (or sampling) engine, which acts on the
+initial walkers</p></li>
+<li><p><strong>boundary conditions</strong>: specify walker modifications (warping) based
+on rules which is outside of the runner dynamics</p></li>
+<li><p><strong>resampler</strong>: performs the resampling through cloning and merging</p></li>
+<li><p><strong>reporters</strong>: generate data as side effects based on the behavior of
+the other components.</p></li>
+<li><p><strong>work mappers</strong>: the mechanism by which the work of the runner is
+achieved, i.e. achieving parallelism.</p></li>
+</ul>
+<p>The simulation manager can also be made to run simulations by different
+methods which can be seen in the API documentation.</p>
+<p>Here we discuss how the simulation manager actually achieves the work of
+running a simulation and how the components are actually used.</p>
+<p>In your simulation script you will configure a <code class="docutils literal notranslate"><span class="pre">Manager</span></code> object which
+contains the components for running the simulation, by constructing a
+<code class="docutils literal notranslate"><span class="pre">Manager</span></code> object.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">wepy.sim_manager</span> <span class="kn">import</span> <span class="n">Manager</span>
+
+<span class="kn">from</span> <span class="nn">my_wepy_components</span> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">sim_manager</span> <span class="o">=</span> <span class="n">Manager</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Once the <code class="docutils literal notranslate"><span class="pre">Manager</span></code> has been constructed we run a simulation by
+repeatedly calling the <code class="docutils literal notranslate"><span class="pre">run_cycle</span></code> method. Before doing this though we
+must initialize the contexts for a single “run” of a simulation. This is
+achieved through the <code class="docutils literal notranslate"><span class="pre">init</span></code> method, which triggers the components
+which have runtime setup routines to do that. This is primarily for
+reporters to open file handles and initialize run data and for the work
+mapper to start worker processes.</p>
+<p>Once, the <strong>run</strong> has been initialized we can call <code class="docutils literal notranslate"><span class="pre">run_cycle</span></code> how we
+like:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># for the first cycle we use the initial walkers</span>
+<span class="n">start_walkers</span> <span class="o">=</span> <span class="n">sim_manager</span><span class="o">.</span><span class="n">init_walkers</span>
+
+<span class="n">n_steps</span> <span class="o">=</span> <span class="mi">1000</span>
+
+<span class="n">sim_manager</span><span class="o">.</span><span class="n">init</span><span class="p">()</span>
+
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span> <span class="p">(</span><span class="mi">10</span><span class="p">):</span>
+
+    <span class="c1"># run a full cycle</span>
+    <span class="n">end_walkers</span><span class="p">,</span> <span class="n">components</span> <span class="o">=</span> <span class="n">sim_manager</span><span class="o">.</span><span class="n">run_cycle</span><span class="p">(</span><span class="n">start_walkers</span><span class="p">,</span> <span class="n">n_steps</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
+
+    <span class="n">start_walkers</span> <span class="o">=</span> <span class="n">end_walkers</span>
+
+<span class="n">sim_manager</span><span class="o">.</span><span class="n">cleanup</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>In this example we run 10 cycles of 1000 steps each. We also call the
+<code class="docutils literal notranslate"><span class="pre">cleanup</span></code> method which allows components to gracefully teardown, such
+as closing files, flushing buffers, and stopping processes.</p>
+<p>There are a couple of builtin methods to do this for you, but its worth
+showing that the <code class="docutils literal notranslate"><span class="pre">run_cycle</span></code> method is where the real magic happens.</p>
+<p>For example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">n_cycles</span> <span class="o">=</span> <span class="mi">10</span>
+<span class="n">steps</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1000</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_cycles</span><span class="p">)]</span>
+
+<span class="n">walkers</span><span class="p">,</span> <span class="n">components</span> <span class="o">=</span> <span class="n">sim_manager</span><span class="o">.</span><span class="n">run_simulation</span><span class="p">(</span><span class="n">n_cycles</span><span class="p">,</span> <span class="n">steps</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Achieves the same as the example above.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">walkers</span></code> output of the <code class="docutils literal notranslate"><span class="pre">run_cycle</span></code> is what you expect it to be.
+The <code class="docutils literal notranslate"><span class="pre">components</span></code> output is a collection of the various components that
+may have been mutated as well during the simulation.</p>
+<p>For example resamplers like WExplore are history dependent and stores
+copies of walker states (as compressed images) in a tree of regions
+which is stored in the resampler object.</p>
+<p>These components are modified in place when called in <code class="docutils literal notranslate"><span class="pre">run_cycle</span></code>
+(this is not a purely functional process as their is no input of
+components to <code class="docutils literal notranslate"><span class="pre">run_cycle</span></code>) but we return a reference of them each
+cycle so you don’t need to introspect the <code class="docutils literal notranslate"><span class="pre">Manager</span></code> object.</p>
+<p>Utilizing the components at this level is beyond the scope here and is
+primarily for supporting orchestration facilities.</p>
+<p>Another example is running timed simulations:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">end_walkers</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">sim_manager</span><span class="o">.</span><span class="n">run_simulation_by_time</span><span class="p">(</span><span class="mi">3600</span><span class="p">,</span> <span class="mi">1000</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>This runs simulations for <strong>roughly</strong> one hour with 1000 steps per
+cycle. Currently, this is implemented by checking the total runtime at
+the beginning of a cycle and if the runtime has exceeded this time then
+the run loop is exited. If you use this option understand that you will
+need to give yourself enough time over this time to run 1 whole cycle
+(if you have only 1 second left on the clock the cycle will run and no
+guessing is done) plus the teardown routines.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">run_cycle</span></code> method has several steps and it is very important to
+understand the order in which the components are executed to be able to
+reason about your simulation results, even if you are not implementing
+any components.</p>
+<p>Secondarily, understanding which methods of which components are called
+and with what arguments is the <em>de facto</em> interface definition for those
+components.</p>
+<p>It is also helpful to know what your options are for storing state
+during a simulation.</p>
+<p>For example, should we write data out with a reporter or save it in the
+resampler object? Should a piece of state be carried in the runner,
+boundary condition (BC), resampler, or sim manager?</p>
+<p>The execution of <code class="docutils literal notranslate"><span class="pre">run_cycle</span></code> is as follows:</p>
+<ol class="arabic simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">runner.pre_cycle(walkers,</span> <span class="pre">n_segment_steps,</span> <span class="pre">cycle_idx)</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">run_segment(walkers,</span> <span class="pre">n_segment_steps)</span></code> -&gt;
+<code class="docutils literal notranslate"><span class="pre">work_mapper.map(runner.run_segment)</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">runner.post_cycle()</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">boundary_conditions.warp_walkers(walkers,</span> <span class="pre">cycle_idx)</span></code> (if present)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">resampler.resample(walkers)</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">reporter.report(**report)</span></code> for all reporters</p></li>
+</ol>
+<p>At a high level there are two categories of components: <strong>apparatus</strong>
+and <strong>configuration</strong>.</p>
+<p>The runner, BC, and resampler are part of the apparatus. The work mapper
+and reporter are part of the configuration.</p>
+<p>The apparatus represents state that is meaningful in relation to the
+content of the simulation (e.g. accumulated region definitions in
+WExplore). The configuration is only related to <em>how</em> the simulation is
+run in a particular situation.</p>
+<p>For example, if you want to restart a simulation and do another run
+startng at the end another, it is not enough to only copy over the
+walkers at the end of the simulation (unless your components are
+stateless). If you have defined a thousand regions with WExplore then
+you need to have that information at the start of a run.</p>
+<p>The configuration only deals with the reporters and work mappers; and
+because neither of these can effect the actual content there is no need
+to keep a copy of them at the end of a simulation in order to be able to
+restart it. In fact, for reporters it is likely that you will want to
+avoid this since if paths are the same then you could potentially
+overwrite data.</p>
+<p>Separating apparatus and configuration allows for the snapshotting of
+simulation state separate from details about how the simulation was
+actually run. For instance lets say you run one segment of a simulation
+on a node with 4 GPUs and then some time later you want to continue that
+run, but you only have access to a node with 2 GPUs, then you only need
+to reparametrize the configuration to handle that. Another use case is
+that you can add or remove reporters between runs without effecting the
+apparatus.</p>
+<p>These topics are discussed in more detail in the documentation on
+orchestration since it uses these concepts for actually producing
+artifacts for snapshots and configurations. The distinction, however, is
+still useful here because we clearly see which components effect
+simulations.</p>
+<p>Lets start with the apparatus components since without these you won’t
+be needing the configuration.</p>
+<ol class="arabic">
+<li><p>Walkers and WalkerStates</p>
+<p>The topic of what a <code class="docutils literal notranslate"><span class="pre">Walker</span></code> object is, is very simple. It is
+simply a container which holds a state and a weight. The weight is a
+simple float value, which is assumed to be normalized with the rest
+of the weights of walkers in an ensemble (a simple list container).</p>
+<p>The implementation is very simple:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Walker</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">weight</span><span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="n">state</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">weight</span> <span class="o">=</span> <span class="n">weight</span>
+</pre></div>
+</div>
+<p>You can see that there is really just those two attributes.</p>
+<p>The state part of the walker however is a bit trickier to define.
+This partially stems from the fact that representation of simulation
+state in various dynamics engine is wildly different and impossible
+for the simulation manager itself to handle all the variants.</p>
+<p>Furthermore, the number of possible applications that require
+distinct kinds of states is not possible to specify up front in any
+case. For instance molecular dynamics is fairly uniform in that you
+typically only have to worry about atomic positions and velocities in
+the state and cubic box vectors. However, modern enhanced simulations
+use a wide variety of techniques that add all kinds of additional
+state such as alchemical lambda variables.</p>
+<p>This required the definition of a common general purpose and
+extensible specification of how to represent them for use in
+<code class="docutils literal notranslate"><span class="pre">wepy</span></code>.</p>
+<p>For this simple key-value store semantics was chosen, where keys are
+strings. With the addition of one method <code class="docutils literal notranslate"><span class="pre">dict()</span></code> which transforms
+the object into pure python dictionary, and a constructor which takes
+values as key-word arguments. Anything that provides python like
+dictionary syntax and the <code class="docutils literal notranslate"><span class="pre">dict()</span></code> method can be considered to
+implement the <code class="docutils literal notranslate"><span class="pre">WalkerState</span></code> interface and will be called such even
+if it doesn’t directly inherit from the actual <code class="docutils literal notranslate"><span class="pre">WalkerState</span></code> class.</p>
+<p>The implementation is very simple:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">WalkerState</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_data</span> <span class="o">=</span> <span class="n">kwargs</span>
+
+    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return all key-value pairs as a dictionary.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span>
+</pre></div>
+</div>
+<p>Where the <code class="docutils literal notranslate"><span class="pre">__getitem__</span></code> magic method implements the behavior for
+the square bracket access:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">state</span> <span class="o">=</span> <span class="n">WalkerState</span><span class="p">(</span><span class="n">thing</span><span class="o">=</span><span class="s1">&#39;hello&#39;</span><span class="p">,</span> <span class="n">other_thing</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">]))</span>
+
+<span class="n">arr</span> <span class="o">=</span> <span class="n">state</span><span class="p">[</span><span class="s1">&#39;other_thing&#39;</span><span class="p">]</span>
+<span class="n">state_dict</span> <span class="o">=</span> <span class="n">state</span><span class="o">.</span><span class="n">dict</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>You can always just dump your state from whatever simulation engine
+into a <code class="docutils literal notranslate"><span class="pre">WalkerState</span></code> and be on your merry way:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">state_dict</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;positions&#39;</span> <span class="p">:</span> <span class="o">...</span><span class="p">,</span>
+              <span class="s1">&#39;velocities&#39;</span> <span class="p">:</span> <span class="o">...</span><span class="p">}</span>
+
+<span class="n">state</span> <span class="o">=</span> <span class="n">WalkerState</span><span class="p">(</span><span class="o">**</span><span class="n">state_dict</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The sim manager takes care of copying walkers when it needs to copy
+them so you don’t have to worry about returning copies or references
+to internal data such as the <code class="docutils literal notranslate"><span class="pre">_data</span></code> attribute in the
+<code class="docutils literal notranslate"><span class="pre">WalkerState</span></code> class.</p>
+<p>This interface also supports wrapping state objects from other
+engines. This may just be a constructor with a positional argument
+for one of these states:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">MDEngineWalkerState</span><span class="p">():</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">md_state</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_state</span> <span class="o">=</span> <span class="n">md_state</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_data</span> <span class="o">=</span> <span class="n">kwargs</span>
+
+    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;positions&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_state</span><span class="o">.</span><span class="n">getPositions</span><span class="p">()</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>This approach requires no copying of the original state and makes the
+state actually accessible and retrievable is some other tool or
+library specifically needs that class.</p>
+<p>From the simulation managers point of view this is all that matters
+for it to work properly. However, all the other components will
+expect certain properties to be present. For example, the
+<code class="docutils literal notranslate"><span class="pre">WepyHDF5</span></code> reporter will expect there to be a ‘positions’ attribute
+as in the above example.</p>
+<p>Probably you should have walker states specialize in terms of the
+class definition for the runner they are being used by rather than
+the “schema” of which attributes it will contain. This allows you to
+couple the runner and the state so that you can get some performance
+optimizations by carrying around the state without having to
+transform it every time you go between them. For instance, in the
+<code class="docutils literal notranslate"><span class="pre">OpenMMRunner</span></code> we get the state from the <code class="docutils literal notranslate"><span class="pre">OpenMMState</span></code> roughly
+by:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">sim</span> <span class="o">=</span> <span class="n">openmm</span><span class="o">.</span><span class="n">Simulation</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+<span class="n">sim</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">setState</span><span class="p">(</span><span class="n">walker</span><span class="o">.</span><span class="n">sim_state</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Instead of:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">sim</span> <span class="o">=</span> <span class="n">openmm</span><span class="o">.</span><span class="n">Simulation</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+<span class="n">sim</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">setPositions</span><span class="p">(</span><span class="n">walker</span><span class="p">[</span><span class="s1">&#39;positions&#39;</span><span class="p">])</span>
+<span class="n">sim</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">setVelocities</span><span class="p">(</span><span class="n">walker</span><span class="p">[</span><span class="s1">&#39;velocities&#39;</span><span class="p">])</span>
+<span class="n">sim</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">setBoxVectors</span><span class="p">(</span><span class="n">walker</span><span class="p">[</span><span class="s1">&#39;box_vectors&#39;</span><span class="p">])</span>
+<span class="o">...</span>
+</pre></div>
+</div>
+</li>
+<li><p>Runners</p>
+<p>The Runner is the component that actually runs the sampling that the
+weighted ensemble algorithm will be enhancing, via resampling.</p>
+<p>As such this can be any type of stochastic dynamics or sampling
+algorithm such as Monte Carlo. Dynamics should be stochastic because
+trajectories need to be able to diverge following cloning events.</p>
+<p>That is if you take deterministic dynamics and make a copy of one of
+those simulations, you will perform the same exact work in duplicate
+of which there is no point to do in parallell. Furthermore, it will
+be impossible to enhance sampling from resampling because we need to
+be able to capitalize on differences that arise between those cloned
+simulations.</p>
+<p>A Runner in wepy is typically a wrapper around some other dynamics
+engine as they can be of considerable complexity and highly domain
+specific.</p>
+<p>The principle method a Runner must implement is <code class="docutils literal notranslate"><span class="pre">run_segment</span></code> which
+takes a walker, a definition of how long to run that segment, called
+the <code class="docutils literal notranslate"><span class="pre">segment_length</span></code>, and possibly a set of key-value based
+arguments.</p>
+<p>This function should then return a single walker which has had it’s
+state updated according to those input parameters.</p>
+<p>The principle runner in <code class="docutils literal notranslate"><span class="pre">wepy</span></code> is the OpenMM runner which
+essentially just does some initialization and then calls:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">simulation</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">segment_length</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>to run the simulation segment.</p>
+<p>Within the <code class="docutils literal notranslate"><span class="pre">Manager.run_cycle</span></code> method there is a call to a
+simulation manager method, also called, <code class="docutils literal notranslate"><span class="pre">run_segment</span></code>. This,
+<code class="docutils literal notranslate"><span class="pre">Manager.run_segment</span></code> method in turns calls the
+<code class="docutils literal notranslate"><span class="pre">runner.run_segment</span></code> once for each walker in the current ensemble.
+This is simply the common semantics of <code class="docutils literal notranslate"><span class="pre">map</span></code> function which takes a
+single function and applies it to multiple pieces of data.</p>
+<p>The behavior of how this is achieved is encapsulated within the
+<code class="docutils literal notranslate"><span class="pre">work_mapper</span></code> object. For <code class="docutils literal notranslate"><span class="pre">wepy</span></code> a <code class="docutils literal notranslate"><span class="pre">work_mapper</span></code> must simply
+have a method called <code class="docutils literal notranslate"><span class="pre">map</span></code> that has the same function signature as
+the python built-in <code class="xref std std-keyword docutils literal notranslate"><span class="pre">map</span></code>, except that the function to be
+called is an attribute of the object.</p>
+<p>Basically, the work mapper is called as such:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">new_walkers</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">work_mapper</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">walkers</span><span class="p">,</span>
+                                        <span class="p">(</span><span class="n">segment_length</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_walkers</span><span class="p">)),</span>
+                                       <span class="p">)</span>
+</pre></div>
+</div>
+<p>See the section on work mappers for more details on implementing
+them.</p>
+<p>Two additional methods are also called for the runner in order to get
+a single call to the runner per cycle which are: <code class="docutils literal notranslate"><span class="pre">pre_cycle</span></code> and
+<code class="docutils literal notranslate"><span class="pre">post_cycle</span></code>. Call these if you have some state in the runner that
+needs to be updated outside of the <code class="docutils literal notranslate"><span class="pre">run_segment</span></code> calls.</p>
+</li>
+<li><p>Boundary Conditions</p>
+<p>Boundary conditions (often abbreviated as BC) are extra conditions
+that are placed in the simulation that allow for executing extra
+rules about the transformation of walker states.</p>
+<p>This is very useful for doing non-equilibrium simulations where once
+walkers have reached some predetermined condition or region the
+simulation is restarted in some original location. This allows for
+the calculation of rates from simulations.</p>
+<p>BCs are strictly optional and conceptually could be implemented
+within the Runner itself. However, having them separate makes them
+more composable with different simulations. Furthermore, BCs are
+useful for reporting information on walkers as a simulation
+progresses that are not computed in the runner engine.</p>
+<p>BCs are applied after runner steps are completed and is called
+basically as so:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">warped_walkers</span><span class="p">,</span> <span class="n">warp_data</span><span class="p">,</span> <span class="n">bc_data</span><span class="p">,</span> <span class="n">progress_data</span>  <span class="o">=</span> \
+                                    <span class="bp">self</span><span class="o">.</span><span class="n">boundary_conditions</span><span class="o">.</span><span class="n">warp_walkers</span><span class="p">(</span><span class="n">walkers</span><span class="p">,</span>
+                                                                          <span class="n">cycle_idx</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The name <code class="docutils literal notranslate"><span class="pre">warp_walkers</span></code> is meant to evoke the sense in which
+walkers are getting transformed according to something outside of the
+normal laws of physics the simulations implement. A typical example
+is non-equilibrium unbinding simulations (see the <code class="docutils literal notranslate"><span class="pre">UnBindingBC</span></code>
+class) where walkers start with a state where a small ligand molecule
+is bound to a binding site in a protein and sampling proceeds until
+the molecule has left the binding site and moved away from the
+protein. At that point the boundary conditions recognize this and
+“warp” the walker so that it’s state is replaced with the original
+starting state.</p>
+<p>These events are recorded in the return <code class="docutils literal notranslate"><span class="pre">warp_data</span></code> object. Which
+is the first example of a record data type. So lets take a moment to
+describe those.</p>
+<p>In addition to the walkers there are a number of different pieces of
+data that are produced by the BCs and resampler components. These are
+documented fully in the developer’s architecture guide in terms of
+their formats. But suffice to say now that they all have a key-value
+or record oriented data definition that makes it much more convienent
+to implement storage layers, since they can all be essentially
+treated the same way except for their names. These records are
+vitally important to interpreting <code class="docutils literal notranslate"><span class="pre">wepy</span></code> simulation data because
+walker trajectories are no longer straightforward linear simulations,
+and may have various warping and merging events that destroy old
+states.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">warp_data</span></code> warping records are especially important because
+they tell you where and when simulations were respawned in
+non-equilibrium simulations which tells you how to reconstruct
+contiguous trajectories as well as how to calculate rates.</p>
+<p>One other possibility for warp records is that they do not actually
+“warp” the walker in the sense that they may mutate walker state
+attributes which are orthogonal to the dynamics engine. This can be
+used to implement “colored” dynamics where when a walker reaches some
+boundary an enumerated value (called the color) is changed to
+indicate the last boundary it crossed was. This color has no effect
+on MD propogation but is useful for calculating kinetics of the
+process while running what are essentially equilibrium simulations.
+Warping events that effect the same variables as the dynamics engine
+are often called “discontinuities”.</p>
+<p>An optional interface a <code class="docutils literal notranslate"><span class="pre">BoundaryConditions</span></code> class can implement to
+determine whether a record indicates a discontinuity is
+<code class="docutils literal notranslate"><span class="pre">warping_discontinuity(warp_record)</span></code> which returns a boolean. This
+is used by some of the analysis routines to automatically obtain
+continuous trajectories or to show in tree graphs where exactly
+warping events occured.</p>
+<p>The other two record types are fairly accessory: BC records and
+progress records. The BC records are meant to allow for reporting on
+the changes in state of the boundary conditions as a simulation
+progresses. I am not aware of any practical use of this, but one
+could imagine changing the value of a cutoff as a function of
+simulation time.</p>
+<p>The progress records are not critical to the functioning of the
+simulation but are a way to not waste values which are computed when
+checking for boundary conditions. Unlike warping and BC records
+progress records are produced every cycle once for every walker. For
+example, in <code class="docutils literal notranslate"><span class="pre">UnbindingBC</span></code> the minimum distance of a ligand to the
+protein is calculated every cycle to check whether any ligand has
+unbound. Instead of dropping these numbers on the floor we pass them
+through with the progress data and any reporter that is interested in
+them can report them.</p>
+<p>One can also imagine calculating values which are not necessary for
+making a decision to warp or not here, but we would caution that from
+a performance perspective that this is not wise since the
+<code class="docutils literal notranslate"><span class="pre">warp_walkers</span></code> call is blocking the progression of the simulation
+and creating overhead. The real bottleneck in terms of time is
+usually the dynamics (especially in the case of MD) and an
+implementer of any Runner, BC, or Resampler component should aim to
+make them efficient so as to be able to run as much dynamics as
+possible. Of course there is a tradeoff here and should be approached
+from the perspective of improving the performance of the metric you
+are looking for rather then raw MD throughput. Presumably, the reason
+you are using WE is that brute-force sampling is not fast enough to
+begin with.</p>
+<p>Calculating observables on WE data is very convient using the
+analysis tools in <code class="docutils literal notranslate"><span class="pre">wepy</span></code>. If you do want to calculate quantities
+on-the-fly for some reason this should be done in a reporter. This
+might want to be done if you aren’t storing the entire state on disk
+because it is too large but you still want to monitor some value that
+is a funtion of it. E.g. computing the average kinetic energy
+temperature from the velocities. Typically you don’t store every
+frame of velocities because it uses too much disk space, but you
+could compute the temperature in a reporter and just write that
+single number. Furthermore, while it currently is not the case now,
+it is possible to completely move reporting out of the critical path
+of the simulation so they do not block. This is possible because
+reporting is a pure side-effect of the simulation, but just requires
+a more complex concurrency architecture and fault tolerance.</p>
+</li>
+<li><p>Resamplers</p>
+<p>Resamplers are the heart and soul of <code class="docutils literal notranslate"><span class="pre">wepy</span></code> and are the loci of the
+actually complex and interesting algorithms.</p>
+<p>I will eschew a description of what purpose a resampler serves at
+this point as this is better described in a somewhat formal context.
+For more information see the resources in the introduction.</p>
+<p>In terms of what a resampler component looks like and does can be
+quite distinct from some of the theoretical formulations. This
+freedom is the key to the flexibility of using <code class="docutils literal notranslate"><span class="pre">wepy</span></code> for
+prototyping new resampling algorithms.</p>
+<p>Minimally all a resampler must do is implement the <code class="docutils literal notranslate"><span class="pre">resample</span></code>
+method, e.g. the trivial <code class="docutils literal notranslate"><span class="pre">NoResampler</span></code> is implemented like this:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">wepy.resampling.resamplers.resampler</span> <span class="kn">import</span> <span class="n">Resampler</span>
+
+<span class="k">class</span> <span class="nc">NoResampler</span><span class="p">(</span><span class="n">Resampler</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">resample</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">walkers</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="o">...</span>
+        <span class="n">resampling_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_init_walker_actions</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">walkers</span><span class="p">))</span>
+        <span class="o">...</span>
+        <span class="k">return</span> <span class="n">walkers</span><span class="p">,</span> <span class="n">resampling_data</span><span class="p">,</span> <span class="p">[{}]</span>
+</pre></div>
+</div>
+<p>where we just return the original walkers we were given. The
+additional return values are records related to the resampling
+records which report on how the cloning and merging took place
+(<code class="docutils literal notranslate"><span class="pre">resampling_data</span></code>) and the resampler records which report on state
+changes of the resampler itself.</p>
+<p>The resampling records here are just the default ones produced by the
+<code class="docutils literal notranslate"><span class="pre">_init_walker_actions</span></code> and there is not state for this resampler so
+we just produe a single empty record for that.</p>
+<p>The more important record types are the resampling records as they
+are what lets us reconstruct a family tree of walkers from cloning
+and merging. The resampler records on the other hand are just for
+monitoring of the resampler during the simulation and very specific
+to each resampler. The discussion of the field types and format of
+the resampling records is a bit involved and largely unnecessary to
+understand unless you are implementing a very specialized resampler.</p>
+<p>If you are just using a resampler off of the shelf just know that
+these are saved in the <code class="docutils literal notranslate"><span class="pre">WepyHDF5</span></code> format and the various analysis
+tools will take care of all the mundane details of utilizing them.</p>
+</li>
+<li><p>Reporters</p>
+<p>Reporters are the primary mechanism for saving data about
+simulations.</p>
+<p>As shown above you could just run a cycle on your own and introspect
+the objects and get the information you want. However, this would be
+specific to the implementation of each component. All reporters that
+are called from <code class="docutils literal notranslate"><span class="pre">run_cycle</span></code> can expect the same structure of data
+no matter the component that produced them.</p>
+<p>Besides the <code class="docutils literal notranslate"><span class="pre">init()</span></code> and <code class="docutils literal notranslate"><span class="pre">cleanup()</span></code> methods each reporter must
+implement the <code class="docutils literal notranslate"><span class="pre">report</span></code> method which takes some key-word arguments.
+The key-value pairs that the manager passes to the reporters is the
+same, but each reporter chooses which ones it cares about.</p>
+<p>This dictionary collectively is called the report. Currently, it has
+these keys in it:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">cycle_idx</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">n_segment_steps</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">new_walkers</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">warp_data</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">bc_data</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">progress_data</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">resampling_data</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">resampler_data</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">resampled_walkers</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">worker_segment_times</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cycle_runner_time</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cycle_bc_time</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cycle_resampling_time</span></code></p></li>
+</ul>
+<p>The ‘time’ fields are various timings that are made of the components
+for some performance reporting, and the rest have been discussed
+already.</p>
+<p>This listing might change more frequently so if you are unsure check
+the source code.</p>
+<p>Also when writing a <code class="docutils literal notranslate"><span class="pre">report</span></code> method always accept extra kwargs to
+handle new ones, e.g.:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">wepy.reporter.reporter</span> <span class="kn">import</span> <span class="n">Reporter</span>
+
+<span class="k">class</span> <span class="nc">MyReporter</span><span class="p">(</span><span class="n">Reporter</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">report</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cycle_idx</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+               <span class="n">n_segment_steps</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+               <span class="n">cycle_resampling_time</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+               <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="o">...</span>
+</pre></div>
+</div>
+<p>In addition to the ABC <code class="docutils literal notranslate"><span class="pre">Reporter</span></code> class the <code class="docutils literal notranslate"><span class="pre">FileReporter</span></code> and
+<code class="docutils literal notranslate"><span class="pre">ProgressiveFileReporter</span></code> are very useful to inherit from as they
+handle some file path and file mode logic, the latter updates modes
+to allow for repeated writes to the same file for each cycle of a
+simulation.</p>
+<p>For example the <code class="docutils literal notranslate"><span class="pre">DashboardReporter</span></code> need only handle parameters
+specific to its own function and all the handling of filenames is
+done by a call to the superclass constructor:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">wepy.reporter.reporter</span> <span class="kn">import</span> <span class="n">ProgressiveFileReporter</span>
+
+<span class="k">class</span> <span class="nc">DashboardReporter</span><span class="p">(</span><span class="n">ProgressiveFileReporter</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                 <span class="n">step_time</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+                 <span class="n">bc_cutoff_distance</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+                 <span class="o">**</span><span class="n">kwargs</span>
+                <span class="p">):</span>
+
+        <span class="c1"># handle filename(s) and mode(s) in the superclass</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="c1"># Dashboard logic</span>
+        <span class="o">...</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">step_time</span> <span class="o">=</span> <span class="n">step_time</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bc_cutoff_distance</span> <span class="o">=</span> <span class="n">bc_cutoff_distance</span>
+</pre></div>
+</div>
+</li>
+<li><p>Work Mappers</p>
+<p>The final component is the work mapper. As mentioned in the section
+on runners this is what actually achieves task parallelism over the
+walker’s dynamics segments.</p>
+<p>The simplest and default mapper is the simple <code class="docutils literal notranslate"><span class="pre">Mapper</span></code> class.
+Basically, it works by first constructing it with the function you
+want to map (in the case of the simulation manager it automatically
+does this with the <code class="docutils literal notranslate"><span class="pre">runner.run_segment</span></code> function) and then using a
+simple for-loop to sequentially compute the segments:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Mapper</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">init</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">segment_func</span><span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_func</span> <span class="o">=</span> <span class="n">segment_func</span>
+
+    <span class="k">def</span> <span class="nf">map</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+        <span class="n">args</span> <span class="o">=</span> <span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span> <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="n">args</span><span class="p">]</span>
+
+        <span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">arg_idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">])):</span>
+
+            <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_func</span><span class="p">(</span><span class="o">*</span><span class="p">[</span><span class="n">arg</span><span class="p">[</span><span class="n">arg_idx</span><span class="p">]</span> <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="n">args</span><span class="p">])</span>
+            <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">results</span>
+</pre></div>
+</div>
+<p>This is okay for test systems but for real simulations that take a
+long time we will need to use some sort of parallelism.</p>
+<p>Currently, we provide a work mapper that uses a queue to put tasks on
+(the <code class="docutils literal notranslate"><span class="pre">run_cycle</span></code> plus the arguments) and worker processes fetch
+tasks off of the queue to perform whenever they are able and done
+with the next task. This is the <code class="docutils literal notranslate"><span class="pre">WorkerMapper</span></code> class, which starts
+<code class="docutils literal notranslate"><span class="pre">Worker</span></code> object processes using the python multiprocessing library.</p>
+<p>Because, we are using OS processes instead of “threads” it is truly
+parallel when using the CPython runtime, which uses the infamous
+Global Interpreter Lock (GIL). The GIL effectively makes it so that a
+single python process can never be multi-threaded or parallel, but
+will still let you program with thread semantics and maybe make you
+believe you are multi-threaded. It may be possible to use another
+python runtime like PyPy to get around this but this has not been
+tested.</p>
+<p>Another note when using OS threads is that you will need to make sure
+you are creating processes in a way which is compatible with the
+dynamics engine runtime. For example, in linux systems you can make
+processes with a cheap <code class="docutils literal notranslate"><span class="pre">fork</span></code> syscall, or the more robust but more
+expensive <code class="docutils literal notranslate"><span class="pre">spawn</span></code> syscall. When creating processes when a CUDA
+context has been defined, you must use the <code class="docutils literal notranslate"><span class="pre">spawn</span></code> option (at least
+with OpenMM). This can be set in your run script like so:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">multiprocessing</span> <span class="kn">as</span> <span class="nn">mp</span>
+
+<span class="c1"># set the process creation method</span>
+<span class="n">mp</span><span class="o">.</span><span class="n">set_start_method</span><span class="p">(</span><span class="s1">&#39;spawn&#39;</span><span class="p">)</span>
+
+<span class="c1"># useful tip for logging in multiprocessing:</span>
+<span class="n">mp</span><span class="o">.</span><span class="n">log_to_stderr</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">WARNING</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>For different environments and runners you can use different worker
+types for customization if necessary. This is one case where
+inheritance is very important since inheriting from the <code class="docutils literal notranslate"><span class="pre">Process</span></code>
+base class is very important.</p>
+<p>For example, the OpenMM module defines two workers for either CPU
+(<code class="docutils literal notranslate"><span class="pre">OpenMMCPUWorker</span></code>) or GPU based workers (<code class="docutils literal notranslate"><span class="pre">OpenMMGPUWorker</span></code>). The
+former allows you to specify the number of threads to use per CPU and
+the GPU worker just specifies which GPU device index to use.</p>
+<p>In the simulation managers call to <code class="docutils literal notranslate"><span class="pre">init</span></code> a worker process is
+created for each device that is present (CPU or GPU) and two queues
+are initialized, the work queue and the results queue. The worker
+processes then begin polling the queue for items. At the beginning of
+a cycle one <code class="docutils literal notranslate"><span class="pre">Task</span></code> object per walker is placed on the work queue
+and immediately the workers begin popping of tasks. Each worker then
+computes the walker-task and places the result onto the result queue
+then polls the queue again for new tasks, until they reach the end of
+the tasks. At the end of the cycle the main simulation manager
+process pops off the results from the result queue and structures
+them as walker states. At the end of a simulation a special “poison
+pill” is placed on the work queue for each worker which is a signal
+to shut down.</p>
+</li>
+</ol>
+</div>
+<div class="section" id="resampling-framework">
+<h3>Resampling Framework<a class="headerlink" href="#resampling-framework" title="Permalink to this headline">¶</a></h3>
+<p>See the sub-package documentation: <code class="docutils literal notranslate"><span class="pre">wepy/resampling/__init__.py</span></code></p>
+</div>
+</div>
+<div class="section" id="simulation-data-persistence-wepyhdf5-and-analysis">
+<h2>Simulation Data Persistence (WepyHDF5) and Analysis<a class="headerlink" href="#simulation-data-persistence-wepyhdf5-and-analysis" title="Permalink to this headline">¶</a></h2>
+<p>We have discussed the components that are necessary to run a simulation
+using the simulation manager and the interfaces these components must
+implement.</p>
+<p>The other half of the equation is to store the data associated with the
+simulation and be able to analyze and transform that data. This is where
+the <code class="docutils literal notranslate"><span class="pre">WepyHDF5</span></code> format comes into play.</p>
+<p>The module <code class="docutils literal notranslate"><span class="pre">wepy.hdf5</span></code> has a class <code class="docutils literal notranslate"><span class="pre">WepyHDF5</span></code> which defines an
+interface for creating, accessing, and adding data to a single HDF5
+format file which can be used for any <code class="docutils literal notranslate"><span class="pre">wepy</span></code> simulation.</p>
+<p>If you are not familiar with HDF5, it is a general purpose binary format
+that is used for large amounts of structured numerical data. While
+in-depth knowledge of how HDF5 works is not necessary to use the
+<code class="docutils literal notranslate"><span class="pre">WepyHDF5</span></code> class, it definitely makes sense to at least get an
+overview of the performance and memory behaviors. For this I suggest
+just going through the documentation for the
+<a class="reference external" href="https://github.com/h5py/h5py">h5py</a> library and the book <a class="reference external" href="https://www.amazon.com/Python-HDF5-Andrew-Collette/dp/1449367836">“Python
+and HDF5: Unlocking Scientific Data” by Andrew
+Collette</a>
+who is also the original <code class="docutils literal notranslate"><span class="pre">h5py</span></code> author.</p>
+<p><code class="docutils literal notranslate"><span class="pre">WepyHDF5</span></code> uses <code class="docutils literal notranslate"><span class="pre">h5py</span></code> under the hood and so if there is ever a
+functionality that one of it’s methods doesn’t provide you can always
+drop down and use it.</p>
+<p>The main features of HDF5 are the existence are groups and datasets,
+which are roughly equivalent to directories and files in common
+hierarchical filesystems. The difference between datasets and files
+being that HDF5 datasets must have explicit data shapes and types
+(integers, floats, stings, etc.). Groups contain other groups and
+datasets, and datasets make up the leaves of the tree. In <code class="docutils literal notranslate"><span class="pre">h5py</span></code>
+groups and datasets also have string paths like files in order to access
+them.</p>
+<p>The core HDF5 library simply gives these building blocks to the
+structure, while the <code class="docutils literal notranslate"><span class="pre">WepyHDF5</span></code> class specifies and implements a
+“schema” using these building blocks. So a <code class="docutils literal notranslate"><span class="pre">WepyHDF5</span></code> is just any file
+that has the same structure as one that would be constructed or read by
+the <code class="docutils literal notranslate"><span class="pre">WepyHDF5</span></code> class. An more in depth (but not formal) description of
+this “schema” is given in the module API documentation.</p>
+<p>Briefly though, the file is primarily organized by the concept of a run.
+Each “run” contains all the data and metadata for a single <code class="docutils literal notranslate"><span class="pre">wepy</span></code>
+simulation, that is after the call to <code class="docutils literal notranslate"><span class="pre">Manager.init()</span></code> every
+<code class="docutils literal notranslate"><span class="pre">Manager.run_cycle</span></code> writes to the same run until we call
+<code class="docutils literal notranslate"><span class="pre">Manager.cleanup()</span></code>. Or a call to <code class="docutils literal notranslate"><span class="pre">Manager.run_simulation</span></code> etc.</p>
+<p>A run contains essentially two types of datasets: trajectories and
+records. Trajectories (including the initial walkers) are the results of
+the sampling step produced by the runner. A single trajectory is a group
+containing any number of “fields” which are just a single attribute of a
+frame of a trajectory. This typically includes the positions, box
+vectors, velocities (if given) and the temperature, volume, etc. for a
+typical molecular dynamics simulation. The records are the data produced
+by the various components like the resampler and boundary conditions
+(BCs). The meaning of these different record groups is discussed in the
+documentation for these components. Their storage in the HDF5 is the
+same however, and works again using any number of fields like the
+trajectories.</p>
+<p>So the basic outline of an HDF5 file is:</p>
+<ul class="simple">
+<li><p>runs</p>
+<ul>
+<li><p>run: 0</p>
+<ul>
+<li><p>trajectories</p>
+<ul>
+<li><p>traj: 0</p>
+<ul>
+<li><p>field: <code class="docutils literal notranslate"><span class="pre">positions</span></code></p></li>
+<li><p>field: <code class="docutils literal notranslate"><span class="pre">box_vectors</span></code></p></li>
+<li><p>…</p></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>resampling records</p>
+<ul>
+<li><p>field: <code class="docutils literal notranslate"><span class="pre">decision</span></code></p></li>
+<li><p>field: <code class="docutils literal notranslate"><span class="pre">target_idxs</span></code></p></li>
+<li><p>…</p></li>
+</ul>
+</li>
+<li><p>warping records</p></li>
+<li><p>…</p></li>
+</ul>
+</li>
+<li><p>run: 1</p>
+<ul>
+<li><p>…</p></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p>The primary way in which this file is created is by using the
+<code class="docutils literal notranslate"><span class="pre">WepyHDF5Reporter</span></code>. If there is only one reporter you should ever use
+it is this one! Please see the tutorials and documentation for how to
+fully make use of this reporter.</p>
+<p>Once you have generated a <code class="docutils literal notranslate"><span class="pre">WepyHDF5</span></code> file from a run (or many runs)
+you will want to analyze the data. For this the <code class="docutils literal notranslate"><span class="pre">wepy.analysis</span></code>
+sub-package is available along with some basic functions in the
+<code class="docutils literal notranslate"><span class="pre">WepyHDF5</span></code> API. The analysis package is intended to be limited to
+functionality which works directly on the <code class="docutils literal notranslate"><span class="pre">WepyHDF5</span></code> file or from a
+set of records from a component. This is in order to not bloat <code class="docutils literal notranslate"><span class="pre">wepy</span></code>
+with all manner of domain specific analysis tools that get overly
+integrated to our own peculiar data structures. These tools provide a
+way to transform a subset of your data into other formats like numpy,
+pandas, networkx, and mdtraj. They also provide utilities for giving
+different views onto the data so that excessive copying of the
+trajectory data is not needed.</p>
+<p>The most useful method is the <code class="docutils literal notranslate"><span class="pre">WepyHDF5.compute_observable</span></code> method,
+which you pass a function to compute some sort of value over all of the
+frames of your trajectories. These computed values can either be
+returned to be used in some other context or written directly to the
+file as a trajectory field. Writing it to the file has the advantage
+that later transformation views on the file will always have direct
+access to these “observables” fields without having to deal with complex
+indexing schemes to use with external data.</p>
+<p>The three primary “views” provided by the analysis modules are in the
+<code class="docutils literal notranslate"><span class="pre">contig_tree</span></code>, <code class="docutils literal notranslate"><span class="pre">network</span></code>, and <code class="docutils literal notranslate"><span class="pre">parents</span></code> modules.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">contig_tree</span></code> module introduces the notion of a <strong>contig</strong> (a term
+borrowed from the genomic assembly community, but totally distinct
+here). A contig in this sense is simply the concatenation of multiple
+<code class="docutils literal notranslate"><span class="pre">wepy</span></code> runs to form a single /contig/uous whole. The <strong>contig tree</strong>
+is a more general expression of this and represents the actual tree (or
+forest) of runs that are started from each other. For instance you could
+do one run and then restart it in two distinct simulations, in which
+case you now have a tree. This tree-like structure makes it difficult to
+more difficult to peform sliding window calculations and other things
+and so provides this special functionality.</p>
+<p>But why add this extra layer of abstraction over top of runs? I don’t
+have bifurcating simulations so couldn’t we just keep concatenating
+frames to a single run and just analyze that?</p>
+<p>The answer is yes I suppose you could do that if you want. However, this
+use-case is not explicitly provided for in <code class="docutils literal notranslate"><span class="pre">wepy</span></code> because we see the
+unit of “run” as both the data produced and the time, place, and
+machine(s) that it was computed on. A run should be produced by the
+execution of a single script or job on a timesharing system like SLURM
+or Torque. This allows for provenance of the units of execution,
+otherwise you would need to keep an index of when which cycles of the
+run were executed from which jobs. Furthermore, it supports immutability
+of already completed work. Instead of modifying the chunks of data
+inside the runs and potentially corrupting them, just keep adding new
+runs which don’t touch the other ones. Our typical workflow is to
+produce a single run in a single file per job, and to never fiddle with
+that file until it has been properly aggregated and archived. There are
+tools in <code class="docutils literal notranslate"><span class="pre">wepy</span></code> that aid in linking between files and aggregating
+files so that a single <code class="docutils literal notranslate"><span class="pre">WepyHDF5</span></code> object has access to data to many
+other files.</p>
+<p>The contig and contig tree are the conceptually complete unit of a
+“simulation”.</p>
+<p>See the tutorials on how to make use of them.</p>
+<p>The next data “view” is the <code class="docutils literal notranslate"><span class="pre">wepy.analysis.network.MacroStateNetwork</span></code>.
+Outside of resampling type enhanced sampling algorithms simulations are
+very linear and so you always had one canonical way to go through the
+data that makes sense. Of course when trajectories became very long the
+practicality of this is challenged and so various techniques for
+reducing the dimensions are used such as clustering and things like
+Markov State Models (MSMs). These representations are what we call
+Conformation State Networks (CSNs) or Macrostate Networks. They are
+essentially networks in which the nodes are some sort of “macro-state”
+that represents a collection of “micro-states”, and the edges represent
+the observed transitions between the macrostates as determined from the
+transitions between microstates seen from dynamics. The various names
+indicate certain mathematical properties of the values of the edges and
+nodes including rates and probabilities, but the structure is the same.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">MacroStateNetwork</span></code> class wraps a <code class="docutils literal notranslate"><span class="pre">WepyHDF5</span></code> object and holds a
+mapping of trajectory frame indices for each “macro-state” in a network.
+This mapping can be automatically made by providing a field name from
+the trajectories and each unique value will become it’s own macrostate.
+Probably this field should be some sort of enumerated type like an
+integer or string which can be calculated using the
+<code class="docutils literal notranslate"><span class="pre">compute_observable</span></code> method. Typically, this will be the result of
+some clustering or MSM algorithm (supported by sliding window methods of
+the <code class="docutils literal notranslate"><span class="pre">ContigTree</span></code>).</p>
+<p>The network is implemented as a <code class="docutils literal notranslate"><span class="pre">networkx</span></code> directed graph and any of
+the multitude of network and graph theory algorithms there can be
+leveraged for analyzing your state network. Furthermore, using the
+<code class="docutils literal notranslate"><span class="pre">MacroStateNetwork</span></code> allows very easy introspection of the microstates
+from any single macrostate. Finally, using the <code class="docutils literal notranslate"><span class="pre">MacroStateNetwork</span></code> it
+is trivial to produce transition probability matrices (edge matrices)
+which can be used to calculate committor probabilities etc. from a
+network. See the <code class="docutils literal notranslate"><span class="pre">wepy.analysis.transitions</span></code> module for relevant
+functions.</p>
+<p>The network representation of WE data is particularly important because
+there really is no canonical ordering of frames within the walker
+cloning &amp; merging family tree and so the natural representation is the
+state network. However, if you run a simulation with boundary conditions
+there is one meaningful linear representation which is the trajectory of
+walker that has crossed a boundary.</p>
+<p>We call these linear representations of trajectory data from the entire
+contig <strong>traces</strong>. In order to be able to obtain traces we first have to
+use the resampling records to determine which walkers give rise to
+walkers in later cycles. Secondarily, we use the wapring records to
+determine if there were any discontinuous warping events that occur
+along these traces.</p>
+<p>The primary object that abstracts the walker family tree is the
+<code class="docutils literal notranslate"><span class="pre">ParentForest</span></code> class (in <code class="docutils literal notranslate"><span class="pre">wepy.analysis.parents</span></code>) and the <code class="docutils literal notranslate"><span class="pre">Contig</span></code>
+class. See the tutorials for a complete example of how to use this. Some
+of the more useful functions here are the
+<code class="docutils literal notranslate"><span class="pre">Contig.exit_point_trajectories</span></code> which generates a full lineage of
+each walker that crosses a boundary. The <code class="docutils literal notranslate"><span class="pre">ParentForest</span></code> provides a
+<code class="docutils literal notranslate"><span class="pre">networkx</span></code> directed graph of the tree which makes it amenable to the
+algorithms available there. The <code class="docutils literal notranslate"><span class="pre">parents.ancestors</span></code> gives a complete
+lineage from any walker.</p>
+<p>In addition to these basic views onto the underlying HDF5 dataset there
+are also a few analysis routines for calculating rates and free energy
+profiles which are a very common use case for simulations.</p>
+<p>First using boundary conditions is often for the purpose of calculating
+rates. The <code class="docutils literal notranslate"><span class="pre">wepy.analysis.rates</span></code> module covers this.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">wepy.analysis.profiles</span></code> module covers generating free-energy
+profiles and probability distributions for both the entire simulation
+and as a series so you can easily see the convergence of a simulation
+with relation to a given projection.</p>
+</div>
+<div class="section" id="json-topology-and-converting-to-other-file-formats">
+<h2>JSON Topology and Converting to Other File Formats<a class="headerlink" href="#json-topology-and-converting-to-other-file-formats" title="Permalink to this headline">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">wepy</span></code> is not a molecular data file reader/writer of which there are
+great many of. This topic can cause considerable headaches if not done
+properly. For writing to file formats such as PDB, DCD, XTC, and all the
+rest we rely on the <code class="docutils literal notranslate"><span class="pre">mdtraj</span></code> library to satisfy this need. It probably
+wouldn’t be too difficult to make a connector to another library if you
+really need it so don’t think this is the only way.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">WepyHDF5</span></code> object, and analysis wrappers thereof, provide a number
+of methods for generating <code class="docutils literal notranslate"><span class="pre">mdtraj.Trajectory</span></code> and <code class="docutils literal notranslate"><span class="pre">mdtraj.Topology</span></code>
+objects from stored data in various ways. See the API reference for a
+full listing of options.</p>
+<p>Read the <code class="docutils literal notranslate"><span class="pre">mdtraj</span></code> documentation to get all of the options, but know
+that it is as really simple as:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">traj</span> <span class="o">=</span> <span class="n">wepy_hdf5</span><span class="o">.</span><span class="n">to_mdtraj</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+<span class="n">traj</span><span class="o">.</span><span class="n">save_pdb</span><span class="p">(</span><span class="s1">&#39;mymolecule.pdb&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>It is worth noting that the JSON topology format that is used in
+<code class="docutils literal notranslate"><span class="pre">WepyHDF5</span></code> was actually taken from the HDF5 file format defined and
+implemented in <code class="docutils literal notranslate"><span class="pre">mdtraj</span></code>. The actual function for converting
+<code class="docutils literal notranslate"><span class="pre">mdtraj.Topology</span></code> objects to JSON and back again was a bit hidden so
+we extracted it and provide them as utilities in <code class="docutils literal notranslate"><span class="pre">wepy.util.mdtraj</span></code>:
+<code class="docutils literal notranslate"><span class="pre">json_to_mdtraj_topology</span></code> and <code class="docutils literal notranslate"><span class="pre">mdtraj_to_json_topology</span></code>.</p>
+<p>Another useful trick is that <code class="docutils literal notranslate"><span class="pre">mdtraj</span></code> also has a converter to the
+OpenMM topology object: <code class="docutils literal notranslate"><span class="pre">mdtraj.Topology.to_openmm</span></code> and
+<code class="docutils literal notranslate"><span class="pre">mdtraj.Topology.from_openmm</span></code>. This comes in handy for serializing
+your topologies to JSON after you create them in OpenMM.</p>
+<p>There are several shortcomings in this JSON topology format in the
+opinions of this author, however after surveying all available topology
+format we have found it to be the most unambiguous and “programmable”
+format and so rely on it.</p>
+<p>Of course different applications will different types “topologies”, no
+topologies, or altogether different system specifications and so the
+HDF5 format should not be seen as being tied to this format for
+molecular systems. It primarily provides a good substrate for generating
+other files which are needed by other programs.</p>
+<p>That said there are no extensive libraries supporting it. However, there
+really isn’t any need since the parser is in the python standard
+library:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">json</span>
+<span class="n">top</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">json_top_str</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>where the <code class="docutils literal notranslate"><span class="pre">top</span></code> object is just native python types making it easy to
+do basic selections of atoms based on their atom or residue names and
+types or the bond connectivity. If you want to do more complex things
+like chemoinformatics or structural informatics you will want to cast
+this to a purpose built representation. There are JSON parsers in just
+about every language and so it is pretty portable in that sense.</p>
+<p>We do provide a few useful functions that make working with it a tad
+easier which are contained in the <code class="docutils literal notranslate"><span class="pre">wepy.util.json_top</span></code> module. The
+highlights there are functions for generating <code class="docutils literal notranslate"><span class="pre">pandas.DataFrame</span></code>
+tables for either: atoms, residues, or chains; e.g.
+<code class="docutils literal notranslate"><span class="pre">json_top_atom_df</span></code>. The other being a function for getting a new
+topology from a subset of atoms from the original <code class="docutils literal notranslate"><span class="pre">json_top_subset</span></code>.
+This is extremely useful for generating files for subsets of your entire
+MD system and excluding things like waters.</p>
+</div>
+</div>
+
+
+          </div>
+            
+  <div class="footer-relations">
+    
+      <div class="pull-left">
+        <a class="btn btn-default" href="quick_start.html" title="previous chapter (use the left arrow)">Quick Start</a>
+      </div>
+    
+      <div class="pull-right">
+        <a class="btn btn-default" href="../tutorials/index.html" title="next chapter (use the right arrow)">Tutorials</a>
+      </div>
+    </div>
+    <div class="clearer"></div>
+  
+        </div>
+        <div class="clearfix"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="../tutorials/index.html" title="Tutorials"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="quick_start.html" title="Quick Start"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">wepy  documentation</a> &#187;</li> 
+      </ul>
+    </div>
+<script type="text/javascript">
+  $("#mobile-toggle a").click(function () {
+    $("#left-column").toggle();
+  });
+</script>
+<script type="text/javascript" src="../_static/js/bootstrap.js"></script>
+  <div class="footer">
+    &copy; Copyright 2018, Samuel D. Lotz. Created using <a href="http://sphinx.pocoo.org/">Sphinx</a>.
+  </div>
+  </body>
+</html>

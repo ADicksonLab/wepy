@@ -1,0 +1,560 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+  
+  <!-- Licensed under the Apache 2.0 License -->
+  <link rel="stylesheet" type="text/css" href="../_static/fonts/open-sans/stylesheet.css" />
+  <!-- Licensed under the SIL Open Font License -->
+  <link rel="stylesheet" type="text/css" href="../_static/fonts/source-serif-pro/source-serif-pro.css" />
+  <link rel="stylesheet" type="text/css" href="../_static/css/bootstrap.min.css" />
+  <link rel="stylesheet" type="text/css" href="../_static/css/bootstrap-theme.min.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+    <title>wepy.resampling.resamplers.revo module &#8212; wepy  documentation</title>
+    <link rel="stylesheet" href="../_static/guzzle.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/language_data.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="wepy.resampling.resamplers.wexplore module" href="wepy.resampling.resamplers.wexplore.html" />
+    <link rel="prev" title="wepy.resampling.resamplers.resampler module" href="wepy.resampling.resamplers.resampler.html" />
+  
+   
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="wepy.resampling.resamplers.wexplore.html" title="wepy.resampling.resamplers.wexplore module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="wepy.resampling.resamplers.resampler.html" title="wepy.resampling.resamplers.resampler module"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">wepy  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >wepy</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="wepy.html" >wepy package</a> &#187;</li>
+          <li class="nav-item nav-item-3"><a href="wepy.resampling.html" >wepy.resampling package</a> &#187;</li>
+          <li class="nav-item nav-item-4"><a href="wepy.resampling.resamplers.html" accesskey="U">wepy.resampling.resamplers package</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="container-wrapper">
+
+      <div id="mobile-toggle">
+        <a href="#"><span class="glyphicon glyphicon-align-justify" aria-hidden="true"></span></a>
+      </div>
+  <div id="left-column">
+    <div class="sphinxsidebar">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="wepy.resampling.resamplers.resampler.html"
+                        title="previous chapter">wepy.resampling.resamplers.resampler module</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="wepy.resampling.resamplers.wexplore.html"
+                        title="next chapter">wepy.resampling.resamplers.wexplore module</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/api/wepy.resampling.resamplers.revo.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div class="sidebar-block">
+  <div class="sidebar-wrapper">
+    <div id="main-search">
+      <form class="form-inline" action="../search.html" method="GET" role="form">
+        <div class="input-group">
+          <input name="q" type="text" class="form-control" placeholder="Search...">
+        </div>
+        <input type="hidden" name="check_keywords" value="yes" />
+        <input type="hidden" name="area" value="default" />
+      </form>
+    </div>
+  </div>
+</div>
+      
+    </div>
+  </div>
+        <div id="right-column">
+          
+          <div role="navigation" aria-label="breadcrumbs navigation">
+            <ol class="breadcrumb">
+              <li><a href="../index.html">Docs</a></li>
+              
+                <li><a href="modules.html">wepy</a></li>
+              
+                <li><a href="wepy.html">wepy package</a></li>
+              
+                <li><a href="wepy.resampling.html">wepy.resampling package</a></li>
+              
+                <li><a href="wepy.resampling.resamplers.html">wepy.resampling.resamplers package</a></li>
+              
+              <li>wepy.resampling.resamplers.revo module</li>
+            </ol>
+          </div>
+          
+          <div class="document clearer body">
+            
+  <div class="section" id="module-wepy.resampling.resamplers.revo">
+<span id="wepy-resampling-resamplers-revo-module"></span><h1>wepy.resampling.resamplers.revo module<a class="headerlink" href="#module-wepy.resampling.resamplers.revo" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="wepy.resampling.resamplers.revo.REVOResampler">
+<em class="property">class </em><code class="sig-prename descclassname">wepy.resampling.resamplers.revo.</code><code class="sig-name descname">REVOResampler</code><span class="sig-paren">(</span><em class="sig-param">seed=None</em>, <em class="sig-param">pmin=1e-12</em>, <em class="sig-param">pmax=0.1</em>, <em class="sig-param">dist_exponent=4</em>, <em class="sig-param">merge_dist=None</em>, <em class="sig-param">char_dist=None</em>, <em class="sig-param">distance=None</em>, <em class="sig-param">init_state=None</em>, <em class="sig-param">weights=True</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/resampling/resamplers/revo.html#REVOResampler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.resampling.resamplers.revo.REVOResampler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="wepy.resampling.resamplers.clone_merge.html#wepy.resampling.resamplers.clone_merge.CloneMergeResampler" title="wepy.resampling.resamplers.clone_merge.CloneMergeResampler"><code class="xref py py-class docutils literal notranslate"><span class="pre">wepy.resampling.resamplers.clone_merge.CloneMergeResampler</span></code></a></p>
+<p>Resampler implementing the REVO algorithm.</p>
+<p>You can find more detailed information in the paper “REVO:
+Resampling of ensembles by variation optimization” but
+briefly:</p>
+<p>REVO is a Weighted Ensemble based enhanced sampling algorithm
+which uses cloning and merging to create ensembles of diverse
+trajectories without defining any regions. It instead optimizes a
+measure of “variation” that depends on the pairwise distances
+between the walkers and their weights.</p>
+<p>REVO solves this optimization problem using a greedy algorithm
+which at each step selects best walkers for resampling operations
+(cloning and merging) in order to maximize the “trajectory
+variation”.</p>
+<p>The trajectory variation is defined as</p>
+<div class="math notranslate nohighlight">
+\[V = \sum_{i} V_i = \sum_i \sum_{j}(\frac{d_{ij}}{d_0})
+^{\alpha}\phi_i\phi_j\]</div>
+<p>where</p>
+<p><span class="math notranslate nohighlight">\(V_i\)</span> : the trajectory variation value of walker <cite>i</cite></p>
+<p><span class="math notranslate nohighlight">\(d_{ij}\)</span> : the distance between walker i and j
+according the distance metric</p>
+<p><span class="math notranslate nohighlight">\(\alpha\)</span> : modulates the influence of the distances in the
+variation calculation</p>
+<p><span class="math notranslate nohighlight">\(d_0\)</span> : the characteristic distance and is used to make the
+equation unitless.</p>
+<p><span class="math notranslate nohighlight">\(\phi\)</span> : is a non-negative function which is a measure of
+the relative importance of the walker and is referred to as a
+“novelty function”.  Here it is a function of a walker’s weight.</p>
+<p>Furthermore REVO needs the following parameters:</p>
+<blockquote>
+<div><p>pmin: the minimum statistical weight. REVO does not clone
+walkers with a weight less than pmin.</p>
+<p>pmax: The maximum statistical weight. It prevents the
+accumulation of too much weight in one walker.</p>
+<dl class="simple">
+<dt>merge_dist: This is the merge-distance threshold. The distance</dt><dd><p>between merged walkers should be less than this value.</p>
+</dd>
+</dl>
+</div></blockquote>
+<p>The resample function, called during every cycle, takes the
+ensemble of walkers and performs the follow steps:</p>
+<blockquote>
+<div><ul>
+<li><p>Calculate the pairwise all-to-all distance matrix using the distance metric</p></li>
+<li><p>Decides which walkers should be merged or cloned</p></li>
+<li><p>Applies the cloning and merging decisions to get the resampled walkers</p></li>
+<li><p>Creates the resampling data that includes</p></li>
+<li><p>distance_matrix : the calculated all-to-all distance matrix</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>n_walkers : the number of walkers. number of walkers is
+kept constant thought the resampling.</p></li>
+<li><p>variation : the final value of trajectory variation</p></li>
+<li><p>images : the images of walkers that is defined by the distance object</p></li>
+<li><p>image_shape : the shape of the image</p></li>
+</ul>
+</div></blockquote>
+</li>
+</ul>
+</div></blockquote>
+<p>The algorithm saves the records of cloning and merging
+information in resampling data.</p>
+<p>Only the net clones and merges are recorded in the resampling records.</p>
+<p>Constructor for the REVO Resampler.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>seed</strong> (<a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.8)"><em>None</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – The random seed. If None, the system (random) one will be used.</p></li>
+<li><p><strong>dist_exponent</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – The distance exponent that modifies distance and weight novelty
+relative to each other in the variation equation.</p></li>
+<li><p><strong>merge_dist</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a>) – The merge distance threshold. Its value depends on the system
+of interest. A value of 2.5 is recommended.</p></li>
+<li><p><strong>char_dist</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a>) – The characteristic distance value. It is calculated by running
+a single dynamic cycle and then calculating the average distance
+between all walkers.</p></li>
+<li><p><strong>distance</strong> (<em>object implementing Distance</em>) – The distance metric to compare walkers.</p></li>
+<li><p><strong>init_state</strong> (<em>WalkerState object</em>) – The state that seeds the first region in the region hierarchy.</p></li>
+<li><p><strong>weights</strong> (<em>True</em><em> or </em><em>False</em>) – Turns off or on the weight novelty in
+calculating the variation equation. When weight is
+False, the value of the novelty function is set to 1 for all
+walkers. Weight on is recomended.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="attribute">
+<dt id="wepy.resampling.resamplers.revo.REVOResampler.RESAMPLING_FIELDS">
+<code class="sig-name descname">RESAMPLING_FIELDS</code><em class="property"> = ('decision_id', 'target_idxs', 'step_idx', 'walker_idx')</em><a class="headerlink" href="#wepy.resampling.resamplers.revo.REVOResampler.RESAMPLING_FIELDS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.resampling.resamplers.revo.REVOResampler.RESAMPLING_SHAPES">
+<code class="sig-name descname">RESAMPLING_SHAPES</code><em class="property"> = ((1,), Ellipsis, (1,), (1,))</em><a class="headerlink" href="#wepy.resampling.resamplers.revo.REVOResampler.RESAMPLING_SHAPES" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.resampling.resamplers.revo.REVOResampler.RESAMPLING_DTYPES">
+<code class="sig-name descname">RESAMPLING_DTYPES</code><em class="property"> = (&lt;class 'int'&gt;, &lt;class 'int'&gt;, &lt;class 'int'&gt;, &lt;class 'int'&gt;)</em><a class="headerlink" href="#wepy.resampling.resamplers.revo.REVOResampler.RESAMPLING_DTYPES" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.resampling.resamplers.revo.REVOResampler.RESAMPLING_RECORD_FIELDS">
+<code class="sig-name descname">RESAMPLING_RECORD_FIELDS</code><em class="property"> = ('decision_id', 'target_idxs', 'step_idx', 'walker_idx')</em><a class="headerlink" href="#wepy.resampling.resamplers.revo.REVOResampler.RESAMPLING_RECORD_FIELDS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.resampling.resamplers.revo.REVOResampler.RESAMPLER_FIELDS">
+<code class="sig-name descname">RESAMPLER_FIELDS</code><em class="property"> = ('num_walkers', 'distance_matrix', 'variation', 'image_shape', 'images')</em><a class="headerlink" href="#wepy.resampling.resamplers.revo.REVOResampler.RESAMPLER_FIELDS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.resampling.resamplers.revo.REVOResampler.RESAMPLER_SHAPES">
+<code class="sig-name descname">RESAMPLER_SHAPES</code><em class="property"> = ((1,), Ellipsis, (1,), Ellipsis, Ellipsis)</em><a class="headerlink" href="#wepy.resampling.resamplers.revo.REVOResampler.RESAMPLER_SHAPES" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.resampling.resamplers.revo.REVOResampler.RESAMPLER_DTYPES">
+<code class="sig-name descname">RESAMPLER_DTYPES</code><em class="property"> = (&lt;class 'int'&gt;, &lt;class 'float'&gt;, &lt;class 'float'&gt;, &lt;class 'int'&gt;, None)</em><a class="headerlink" href="#wepy.resampling.resamplers.revo.REVOResampler.RESAMPLER_DTYPES" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.resampling.resamplers.revo.REVOResampler.RESAMPLER_RECORD_FIELDS">
+<code class="sig-name descname">RESAMPLER_RECORD_FIELDS</code><em class="property"> = ('variation',)</em><a class="headerlink" href="#wepy.resampling.resamplers.revo.REVOResampler.RESAMPLER_RECORD_FIELDS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wepy.resampling.resamplers.revo.REVOResampler.resampler_field_dtypes">
+<code class="sig-name descname">resampler_field_dtypes</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/resampling/resamplers/revo.html#REVOResampler.resampler_field_dtypes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.resampling.resamplers.revo.REVOResampler.resampler_field_dtypes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Finds out the datatype of the image.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><ul class="simple">
+<li><p><strong>datatypes</strong> (<em>tuple of datatype</em>)</p></li>
+<li><p><em>The type of reasampler image.</em></p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.resampling.resamplers.revo.REVOResampler.decide">
+<code class="sig-name descname">decide</code><span class="sig-paren">(</span><em class="sig-param">walker_weights</em>, <em class="sig-param">num_walker_copies</em>, <em class="sig-param">distance_matrix</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/resampling/resamplers/revo.html#REVOResampler.decide"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.resampling.resamplers.revo.REVOResampler.decide" title="Permalink to this definition">¶</a></dt>
+<dd><p>Optimize the trajectory variation by making decisions for resampling.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>walker_weights</strong> (<em>list of flaot</em>) – The weights of all walkers. The sum of all weights should be 1.0.</p></li>
+<li><p><strong>num_walker_copies</strong> (<em>list of int</em>) – The number of copies of each walker.
+0 means the walker is not exists anymore.
+1 means there is one of the this walker.
+&gt;1 means it should be cloned to this number of walkers.</p></li>
+<li><p><strong>distance_matrix</strong> (<em>list of arraylike of shape</em><em> (</em><em>num_walkers</em><em>)</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>variation</strong> (<em>float</em>) – The optimized value of the trajectory variation.</p></li>
+<li><p><strong>resampling_data</strong> (<em>list of dict of str: value</em>) – The resampling records resulting from the decisions.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.resampling.resamplers.revo.REVOResampler.CYCLE_DTYPES">
+<code class="sig-name descname">CYCLE_DTYPES</code><em class="property"> = (&lt;class 'int'&gt;, &lt;class 'int'&gt;)</em><a class="headerlink" href="#wepy.resampling.resamplers.revo.REVOResampler.CYCLE_DTYPES" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.resampling.resamplers.revo.REVOResampler.CYCLE_FIELDS">
+<code class="sig-name descname">CYCLE_FIELDS</code><em class="property"> = ('step_idx', 'walker_idx')</em><a class="headerlink" href="#wepy.resampling.resamplers.revo.REVOResampler.CYCLE_FIELDS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.resampling.resamplers.revo.REVOResampler.CYCLE_RECORD_FIELDS">
+<code class="sig-name descname">CYCLE_RECORD_FIELDS</code><em class="property"> = ('step_idx', 'walker_idx')</em><a class="headerlink" href="#wepy.resampling.resamplers.revo.REVOResampler.CYCLE_RECORD_FIELDS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.resampling.resamplers.revo.REVOResampler.CYCLE_SHAPES">
+<code class="sig-name descname">CYCLE_SHAPES</code><em class="property"> = ((1,), (1,))</em><a class="headerlink" href="#wepy.resampling.resamplers.revo.REVOResampler.CYCLE_SHAPES" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.resampling.resamplers.revo.REVOResampler.DEBUG_MODES">
+<code class="sig-name descname">DEBUG_MODES</code><em class="property"> = (True, False)</em><a class="headerlink" href="#wepy.resampling.resamplers.revo.REVOResampler.DEBUG_MODES" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.resampling.resamplers.revo.REVOResampler.DECISION">
+<code class="sig-name descname">DECISION</code><a class="headerlink" href="#wepy.resampling.resamplers.revo.REVOResampler.DECISION" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="wepy.resampling.decisions.clone_merge.html#wepy.resampling.decisions.clone_merge.MultiCloneMergeDecision" title="wepy.resampling.decisions.clone_merge.MultiCloneMergeDecision"><code class="xref py py-class docutils literal notranslate"><span class="pre">wepy.resampling.decisions.clone_merge.MultiCloneMergeDecision</span></code></a></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.resampling.resamplers.revo.REVOResampler.assign_clones">
+<code class="sig-name descname">assign_clones</code><span class="sig-paren">(</span><em class="sig-param">merge_groups</em>, <em class="sig-param">walker_clone_nums</em><span class="sig-paren">)</span><a class="headerlink" href="#wepy.resampling.resamplers.revo.REVOResampler.assign_clones" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert two convenient data structures to a list of almost
+normalized resampling records.</p>
+<p>The two data structures are merge_groups and walker_clone_nums
+and are convenient to make.</p>
+<p>Each is a list with number of elements equal to the number of
+walkers that resampling will act on.</p>
+<p>Each element of the merge_groups is a list-like of integers
+indicating the indices of the walkers that will be merged into
+this one (i.e. squashed). A non-empty collection indicates a
+KEEP_MERGE decision.</p>
+<p>Each element of the walker_clone_nums is simply an integer
+specifying how many clones to make of this walker.</p>
+<p>These data structures simply declare requirements on what the
+actual decision records must achieve. The actual placement of
+walkers in slots (indices) is unspecified and immaterial.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>merge_groups</strong> (<em>list of list of int</em>) – The specification of which walkers will be squashed and merged.</p></li>
+<li><p><strong>walker_clone_nums</strong> (<em>list of int</em>) – The number of clones to make for each walker.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>walker_actions</strong> – List of resampling record like dictionaries. These are not
+completely normalized for consumption by reporters, since
+they don’t have the right list-like wrappers.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list of dict of str: values</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.resampling.resamplers.revo.REVOResampler.debug_off">
+<code class="sig-name descname">debug_off</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.resampling.resamplers.revo.REVOResampler.debug_off" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wepy.resampling.resamplers.revo.REVOResampler.debug_on">
+<code class="sig-name descname">debug_on</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.resampling.resamplers.revo.REVOResampler.debug_on" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wepy.resampling.resamplers.revo.REVOResampler.decision">
+<em class="property">property </em><code class="sig-name descname">decision</code><a class="headerlink" href="#wepy.resampling.resamplers.revo.REVOResampler.decision" title="Permalink to this definition">¶</a></dt>
+<dd><p>The decision class for this resampler.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.resampling.resamplers.revo.REVOResampler.is_debug_on">
+<em class="property">property </em><code class="sig-name descname">is_debug_on</code><a class="headerlink" href="#wepy.resampling.resamplers.revo.REVOResampler.is_debug_on" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wepy.resampling.resamplers.revo.REVOResampler.max_num_walkers">
+<code class="sig-name descname">max_num_walkers</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.resampling.resamplers.revo.REVOResampler.max_num_walkers" title="Permalink to this definition">¶</a></dt>
+<dd><p>” Get the max number of walkers allowed currently</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.resampling.resamplers.revo.REVOResampler.max_num_walkers_setting">
+<em class="property">property </em><code class="sig-name descname">max_num_walkers_setting</code><a class="headerlink" href="#wepy.resampling.resamplers.revo.REVOResampler.max_num_walkers_setting" title="Permalink to this definition">¶</a></dt>
+<dd><p>The specification for the maximum number of walkers for the resampler.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.resampling.resamplers.revo.REVOResampler.min_num_walkers">
+<code class="sig-name descname">min_num_walkers</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.resampling.resamplers.revo.REVOResampler.min_num_walkers" title="Permalink to this definition">¶</a></dt>
+<dd><p>” Get the min number of walkers allowed currently</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.resampling.resamplers.revo.REVOResampler.min_num_walkers_setting">
+<em class="property">property </em><code class="sig-name descname">min_num_walkers_setting</code><a class="headerlink" href="#wepy.resampling.resamplers.revo.REVOResampler.min_num_walkers_setting" title="Permalink to this definition">¶</a></dt>
+<dd><p>The specification for the minimum number of walkers for the resampler.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.resampling.resamplers.revo.REVOResampler.pmax">
+<em class="property">property </em><code class="sig-name descname">pmax</code><a class="headerlink" href="#wepy.resampling.resamplers.revo.REVOResampler.pmax" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wepy.resampling.resamplers.revo.REVOResampler.pmin">
+<em class="property">property </em><code class="sig-name descname">pmin</code><a class="headerlink" href="#wepy.resampling.resamplers.revo.REVOResampler.pmin" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wepy.resampling.resamplers.revo.REVOResampler.resample">
+<code class="sig-name descname">resample</code><span class="sig-paren">(</span><em class="sig-param">walkers</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/resampling/resamplers/revo.html#REVOResampler.resample"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.resampling.resamplers.revo.REVOResampler.resample" title="Permalink to this definition">¶</a></dt>
+<dd><p>Resamples walkers based on REVO algorithm</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>walkers</strong> (<em>list of walkers</em>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>resampled_walkers</strong> (<em>list of resampled_walkers</em>)</p></li>
+<li><p><strong>resampling_data</strong> (<em>list of dict of str: value</em>) – The resampling records resulting from the decisions.</p></li>
+<li><p><strong>resampler_data</strong> (<em>list of dict of str: value</em>) – The resampler records resulting from the resampler actions.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.resampling.resamplers.revo.REVOResampler.resampler_field_names">
+<code class="sig-name descname">resampler_field_names</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.resampling.resamplers.revo.REVOResampler.resampler_field_names" title="Permalink to this definition">¶</a></dt>
+<dd><p>Access the class level FIELDS constant for this record group.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.resampling.resamplers.revo.REVOResampler.resampler_field_shapes">
+<code class="sig-name descname">resampler_field_shapes</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.resampling.resamplers.revo.REVOResampler.resampler_field_shapes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Access the class level SHAPES constant for this record group.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.resampling.resamplers.revo.REVOResampler.resampler_fields">
+<code class="sig-name descname">resampler_fields</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.resampling.resamplers.revo.REVOResampler.resampler_fields" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a list of zipped field specs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>record_specs</strong> – A list of the specs for each field, a spec is a tuple of
+type (field_name, shape_spec, dtype_spec)</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>list of tuple</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.resampling.resamplers.revo.REVOResampler.resampler_record_field_names">
+<code class="sig-name descname">resampler_record_field_names</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.resampling.resamplers.revo.REVOResampler.resampler_record_field_names" title="Permalink to this definition">¶</a></dt>
+<dd><p>Access the class level RECORD_FIELDS constant for this record group.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.resampling.resamplers.revo.REVOResampler.resampling_field_dtypes">
+<code class="sig-name descname">resampling_field_dtypes</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.resampling.resamplers.revo.REVOResampler.resampling_field_dtypes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Access the class level DTYPES constant for this record group.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.resampling.resamplers.revo.REVOResampler.resampling_field_names">
+<code class="sig-name descname">resampling_field_names</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.resampling.resamplers.revo.REVOResampler.resampling_field_names" title="Permalink to this definition">¶</a></dt>
+<dd><p>Access the class level FIELDS constant for this record group.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.resampling.resamplers.revo.REVOResampler.resampling_field_shapes">
+<code class="sig-name descname">resampling_field_shapes</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.resampling.resamplers.revo.REVOResampler.resampling_field_shapes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Access the class level SHAPES constant for this record group.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.resampling.resamplers.revo.REVOResampler.resampling_fields">
+<code class="sig-name descname">resampling_fields</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.resampling.resamplers.revo.REVOResampler.resampling_fields" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a list of zipped field specs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>record_specs</strong> – A list of the specs for each field, a spec is a tuple of
+type (field_name, shape_spec, dtype_spec)</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>list of tuple</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.resampling.resamplers.revo.REVOResampler.resampling_record_field_names">
+<code class="sig-name descname">resampling_record_field_names</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.resampling.resamplers.revo.REVOResampler.resampling_record_field_names" title="Permalink to this definition">¶</a></dt>
+<dd><p>Access the class level RECORD_FIELDS constant for this record group.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.resampling.resamplers.revo.REVOResampler.set_debug_mode">
+<code class="sig-name descname">set_debug_mode</code><span class="sig-paren">(</span><em class="sig-param">mode</em><span class="sig-paren">)</span><a class="headerlink" href="#wepy.resampling.resamplers.revo.REVOResampler.set_debug_mode" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>mode</strong> – </p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+            
+  <div class="footer-relations">
+    
+      <div class="pull-left">
+        <a class="btn btn-default" href="wepy.resampling.resamplers.resampler.html" title="previous chapter (use the left arrow)">wepy.resampling.resamplers.resampler module</a>
+      </div>
+    
+      <div class="pull-right">
+        <a class="btn btn-default" href="wepy.resampling.resamplers.wexplore.html" title="next chapter (use the right arrow)">wepy.resampling.resamplers.wexplore module</a>
+      </div>
+    </div>
+    <div class="clearer"></div>
+  
+        </div>
+        <div class="clearfix"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="wepy.resampling.resamplers.wexplore.html" title="wepy.resampling.resamplers.wexplore module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="wepy.resampling.resamplers.resampler.html" title="wepy.resampling.resamplers.resampler module"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">wepy  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >wepy</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="wepy.html" >wepy package</a> &#187;</li>
+          <li class="nav-item nav-item-3"><a href="wepy.resampling.html" >wepy.resampling package</a> &#187;</li>
+          <li class="nav-item nav-item-4"><a href="wepy.resampling.resamplers.html" >wepy.resampling.resamplers package</a> &#187;</li> 
+      </ul>
+    </div>
+<script type="text/javascript">
+  $("#mobile-toggle a").click(function () {
+    $("#left-column").toggle();
+  });
+</script>
+<script type="text/javascript" src="../_static/js/bootstrap.js"></script>
+  <div class="footer">
+    &copy; Copyright 2018, Samuel D. Lotz. Created using <a href="http://sphinx.pocoo.org/">Sphinx</a>.
+  </div>
+  </body>
+</html>

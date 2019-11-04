@@ -1,0 +1,327 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+  
+  <!-- Licensed under the Apache 2.0 License -->
+  <link rel="stylesheet" type="text/css" href="../_static/fonts/open-sans/stylesheet.css" />
+  <!-- Licensed under the SIL Open Font License -->
+  <link rel="stylesheet" type="text/css" href="../_static/fonts/source-serif-pro/source-serif-pro.css" />
+  <link rel="stylesheet" type="text/css" href="../_static/css/bootstrap.min.css" />
+  <link rel="stylesheet" type="text/css" href="../_static/css/bootstrap-theme.min.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+    <title>wepy.resampling.distances.distance module &#8212; wepy  documentation</title>
+    <link rel="stylesheet" href="../_static/guzzle.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/language_data.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="wepy.resampling.distances.randomwalk module" href="wepy.resampling.distances.randomwalk.html" />
+    <link rel="prev" title="wepy.resampling.distances package" href="wepy.resampling.distances.html" />
+  
+   
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="wepy.resampling.distances.randomwalk.html" title="wepy.resampling.distances.randomwalk module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="wepy.resampling.distances.html" title="wepy.resampling.distances package"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">wepy  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >wepy</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="wepy.html" >wepy package</a> &#187;</li>
+          <li class="nav-item nav-item-3"><a href="wepy.resampling.html" >wepy.resampling package</a> &#187;</li>
+          <li class="nav-item nav-item-4"><a href="wepy.resampling.distances.html" accesskey="U">wepy.resampling.distances package</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="container-wrapper">
+
+      <div id="mobile-toggle">
+        <a href="#"><span class="glyphicon glyphicon-align-justify" aria-hidden="true"></span></a>
+      </div>
+  <div id="left-column">
+    <div class="sphinxsidebar">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="wepy.resampling.distances.html"
+                        title="previous chapter">wepy.resampling.distances package</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="wepy.resampling.distances.randomwalk.html"
+                        title="next chapter">wepy.resampling.distances.randomwalk module</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/api/wepy.resampling.distances.distance.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div class="sidebar-block">
+  <div class="sidebar-wrapper">
+    <div id="main-search">
+      <form class="form-inline" action="../search.html" method="GET" role="form">
+        <div class="input-group">
+          <input name="q" type="text" class="form-control" placeholder="Search...">
+        </div>
+        <input type="hidden" name="check_keywords" value="yes" />
+        <input type="hidden" name="area" value="default" />
+      </form>
+    </div>
+  </div>
+</div>
+      
+    </div>
+  </div>
+        <div id="right-column">
+          
+          <div role="navigation" aria-label="breadcrumbs navigation">
+            <ol class="breadcrumb">
+              <li><a href="../index.html">Docs</a></li>
+              
+                <li><a href="modules.html">wepy</a></li>
+              
+                <li><a href="wepy.html">wepy package</a></li>
+              
+                <li><a href="wepy.resampling.html">wepy.resampling package</a></li>
+              
+                <li><a href="wepy.resampling.distances.html">wepy.resampling.distances package</a></li>
+              
+              <li>wepy.resampling.distances.distance module</li>
+            </ol>
+          </div>
+          
+          <div class="document clearer body">
+            
+  <div class="section" id="module-wepy.resampling.distances.distance">
+<span id="wepy-resampling-distances-distance-module"></span><h1>wepy.resampling.distances.distance module<a class="headerlink" href="#module-wepy.resampling.distances.distance" title="Permalink to this headline">¶</a></h1>
+<p>Modular component for defining distance metrics usable within many
+different resamplers.</p>
+<p>This module contains an abstract base class for Distance classes.</p>
+<p>The suggested implementation method is to leave the ‘distance’ method
+as is, and override the ‘image’ and ‘image_distance’ methods
+instead. Because the default ‘distance’ method calls these
+transparently. The resamplers will use the ‘image’ and
+‘image_distance’ calls because this allows performance optimizations.</p>
+<p>For example in WExplore the images for some walkers end up being
+stored as the definitions of Voronoi regions, and if the whole walker
+state was stored it would not only use much more space in memory but
+require that common transformations be repeated every time a distance
+is to be calculated to that image (which is many times). In REVO all
+to all distances between walkers are computed which would also incur a
+high cost.</p>
+<p>So use the ‘image’ to do precomputations on raw walker states and use
+the ‘image_distance’ to compute distances using only those images.</p>
+<dl class="class">
+<dt id="wepy.resampling.distances.distance.Distance">
+<em class="property">class </em><code class="sig-prename descclassname">wepy.resampling.distances.distance.</code><code class="sig-name descname">Distance</code><a class="reference internal" href="../_modules/wepy/resampling/distances/distance.html#Distance"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.resampling.distances.distance.Distance" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Abstract Base class for Distance classes.</p>
+<p>Constructor for Distance class.</p>
+<dl class="method">
+<dt id="wepy.resampling.distances.distance.Distance.image">
+<code class="sig-name descname">image</code><span class="sig-paren">(</span><em class="sig-param">state</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/resampling/distances/distance.html#Distance.image"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.resampling.distances.distance.Distance.image" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the ‘image’ of a walker state which should be some
+transformation of the walker state that is more
+convenient. E.g. for precomputation of expensive operations or
+for saving as resampler state.</p>
+<p>The abstract implementation is naive and just returns the
+state itself, thus it is the identity function.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>state</strong> (<em>object implementing WalkerState</em>) – The state which will be transformed to an image</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>image</strong> – The same state that was given as an argument.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>object implementing WalkerState</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.resampling.distances.distance.Distance.image_distance">
+<code class="sig-name descname">image_distance</code><span class="sig-paren">(</span><em class="sig-param">image_a</em>, <em class="sig-param">image_b</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/resampling/distances/distance.html#Distance.image_distance"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.resampling.distances.distance.Distance.image_distance" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the distance between two images of walker states.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>image_a</strong> (<em>object produced by Distance.image</em>) – </p></li>
+<li><p><strong>image_b</strong> (<em>object produced by Distance.image</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>distance</strong> – The distance between the two images</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a></p>
+</dd>
+</dl>
+<p>:raises NotImplementedError : always because this is abstract:</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.resampling.distances.distance.Distance.distance">
+<code class="sig-name descname">distance</code><span class="sig-paren">(</span><em class="sig-param">state_a</em>, <em class="sig-param">state_b</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/resampling/distances/distance.html#Distance.distance"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.resampling.distances.distance.Distance.distance" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the distance between two states.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>state_a</strong> (<em>object implementing WalkerState</em>) – </p></li>
+<li><p><strong>state_b</strong> (<em>object implementing WalkerState</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>distance</strong> – The distance between the two walker states</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="wepy.resampling.distances.distance.XYEuclideanDistance">
+<em class="property">class </em><code class="sig-prename descclassname">wepy.resampling.distances.distance.</code><code class="sig-name descname">XYEuclideanDistance</code><a class="reference internal" href="../_modules/wepy/resampling/distances/distance.html#XYEuclideanDistance"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.resampling.distances.distance.XYEuclideanDistance" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#wepy.resampling.distances.distance.Distance" title="wepy.resampling.distances.distance.Distance"><code class="xref py py-class docutils literal notranslate"><span class="pre">wepy.resampling.distances.distance.Distance</span></code></a></p>
+<p>2 dimensional euclidean distance between points.</p>
+<p>States have the attributes ‘x’ and ‘y’.</p>
+<p>Constructor for Distance class.</p>
+<dl class="method">
+<dt id="wepy.resampling.distances.distance.XYEuclideanDistance.image">
+<code class="sig-name descname">image</code><span class="sig-paren">(</span><em class="sig-param">state</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/resampling/distances/distance.html#XYEuclideanDistance.image"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.resampling.distances.distance.XYEuclideanDistance.image" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the ‘image’ of a walker state which should be some
+transformation of the walker state that is more
+convenient. E.g. for precomputation of expensive operations or
+for saving as resampler state.</p>
+<p>The abstract implementation is naive and just returns the
+state itself, thus it is the identity function.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>state</strong> (<em>object implementing WalkerState</em>) – The state which will be transformed to an image</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>image</strong> – The same state that was given as an argument.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>object implementing WalkerState</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.resampling.distances.distance.XYEuclideanDistance.image_distance">
+<code class="sig-name descname">image_distance</code><span class="sig-paren">(</span><em class="sig-param">image_a</em>, <em class="sig-param">image_b</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/resampling/distances/distance.html#XYEuclideanDistance.image_distance"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.resampling.distances.distance.XYEuclideanDistance.image_distance" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the distance between two images of walker states.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>image_a</strong> (<em>object produced by Distance.image</em>) – </p></li>
+<li><p><strong>image_b</strong> (<em>object produced by Distance.image</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>distance</strong> – The distance between the two images</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a></p>
+</dd>
+</dl>
+<p>:raises NotImplementedError : always because this is abstract:</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.resampling.distances.distance.XYEuclideanDistance.distance">
+<code class="sig-name descname">distance</code><span class="sig-paren">(</span><em class="sig-param">state_a</em>, <em class="sig-param">state_b</em><span class="sig-paren">)</span><a class="headerlink" href="#wepy.resampling.distances.distance.XYEuclideanDistance.distance" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the distance between two states.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>state_a</strong> (<em>object implementing WalkerState</em>) – </p></li>
+<li><p><strong>state_b</strong> (<em>object implementing WalkerState</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>distance</strong> – The distance between the two walker states</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+            
+  <div class="footer-relations">
+    
+      <div class="pull-left">
+        <a class="btn btn-default" href="wepy.resampling.distances.html" title="previous chapter (use the left arrow)">wepy.resampling.distances package</a>
+      </div>
+    
+      <div class="pull-right">
+        <a class="btn btn-default" href="wepy.resampling.distances.randomwalk.html" title="next chapter (use the right arrow)">wepy.resampling.distances.randomwalk module</a>
+      </div>
+    </div>
+    <div class="clearer"></div>
+  
+        </div>
+        <div class="clearfix"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="wepy.resampling.distances.randomwalk.html" title="wepy.resampling.distances.randomwalk module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="wepy.resampling.distances.html" title="wepy.resampling.distances package"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">wepy  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >wepy</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="wepy.html" >wepy package</a> &#187;</li>
+          <li class="nav-item nav-item-3"><a href="wepy.resampling.html" >wepy.resampling package</a> &#187;</li>
+          <li class="nav-item nav-item-4"><a href="wepy.resampling.distances.html" >wepy.resampling.distances package</a> &#187;</li> 
+      </ul>
+    </div>
+<script type="text/javascript">
+  $("#mobile-toggle a").click(function () {
+    $("#left-column").toggle();
+  });
+</script>
+<script type="text/javascript" src="../_static/js/bootstrap.js"></script>
+  <div class="footer">
+    &copy; Copyright 2018, Samuel D. Lotz. Created using <a href="http://sphinx.pocoo.org/">Sphinx</a>.
+  </div>
+  </body>
+</html>

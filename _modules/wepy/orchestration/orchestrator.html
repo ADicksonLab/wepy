@@ -1,0 +1,1478 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+  
+  <!-- Licensed under the Apache 2.0 License -->
+  <link rel="stylesheet" type="text/css" href="../../../_static/fonts/open-sans/stylesheet.css" />
+  <!-- Licensed under the SIL Open Font License -->
+  <link rel="stylesheet" type="text/css" href="../../../_static/fonts/source-serif-pro/source-serif-pro.css" />
+  <link rel="stylesheet" type="text/css" href="../../../_static/css/bootstrap.min.css" />
+  <link rel="stylesheet" type="text/css" href="../../../_static/css/bootstrap-theme.min.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+    <title>wepy.orchestration.orchestrator &#8212; wepy  documentation</title>
+    <link rel="stylesheet" href="../../../_static/guzzle.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../../_static/language_data.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+  
+   
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">wepy  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="container-wrapper">
+
+      <div id="mobile-toggle">
+        <a href="#"><span class="glyphicon glyphicon-align-justify" aria-hidden="true"></span></a>
+      </div>
+  <div id="left-column">
+    <div class="sphinxsidebar">
+<div class="sidebar-block">
+  <div class="sidebar-wrapper">
+    <div id="main-search">
+      <form class="form-inline" action="../../../search.html" method="GET" role="form">
+        <div class="input-group">
+          <input name="q" type="text" class="form-control" placeholder="Search...">
+        </div>
+        <input type="hidden" name="check_keywords" value="yes" />
+        <input type="hidden" name="area" value="default" />
+      </form>
+    </div>
+  </div>
+</div>
+      
+    </div>
+  </div>
+        <div id="right-column">
+          
+          <div role="navigation" aria-label="breadcrumbs navigation">
+            <ol class="breadcrumb">
+              <li><a href="../../../index.html">Docs</a></li>
+              
+                <li><a href="../../index.html">Module code</a></li>
+              
+              <li>wepy.orchestration.orchestrator</li>
+            </ol>
+          </div>
+          
+          <div class="document clearer body">
+            
+  <h1>Source code for wepy.orchestration.orchestrator</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">copy</span> <span class="k">import</span> <span class="n">copy</span><span class="p">,</span> <span class="n">deepcopy</span>
+<span class="kn">import</span> <span class="nn">sqlite3</span>
+<span class="kn">from</span> <span class="nn">hashlib</span> <span class="k">import</span> <span class="n">md5</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">os.path</span> <span class="k">as</span> <span class="nn">osp</span>
+<span class="kn">from</span> <span class="nn">base64</span> <span class="k">import</span> <span class="n">b64encode</span><span class="p">,</span> <span class="n">b64decode</span>
+<span class="kn">from</span> <span class="nn">zlib</span> <span class="k">import</span> <span class="n">compress</span><span class="p">,</span> <span class="n">decompress</span>
+<span class="kn">import</span> <span class="nn">itertools</span> <span class="k">as</span> <span class="nn">it</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+
+<span class="c1"># instead of pickle we use dill, so we can save dynamically defined</span>
+<span class="c1"># classes</span>
+<span class="kn">import</span> <span class="nn">dill</span>
+
+<span class="kn">from</span> <span class="nn">wepy.sim_manager</span> <span class="k">import</span> <span class="n">Manager</span>
+<span class="kn">from</span> <span class="nn">wepy.orchestration.configuration</span> <span class="k">import</span> <span class="n">Configuration</span>
+<span class="kn">from</span> <span class="nn">wepy.orchestration.snapshot</span> <span class="k">import</span> <span class="n">SimApparatus</span><span class="p">,</span> <span class="n">SimSnapshot</span>
+
+<span class="kn">from</span> <span class="nn">wepy.util.kv</span> <span class="k">import</span> <span class="n">KV</span><span class="p">,</span> <span class="n">SQLITE3_INMEMORY_URI</span><span class="p">,</span> <span class="n">gen_uri</span>
+
+
+<div class="viewcode-block" id="OrchestratorError"><a class="viewcode-back" href="../../../api/wepy.orchestration.orchestrator.html#wepy.orchestration.orchestrator.OrchestratorError">[docs]</a><span class="k">class</span> <span class="nc">OrchestratorError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
+    <span class="k">pass</span></div>
+
+
+
+<div class="viewcode-block" id="Orchestrator"><a class="viewcode-back" href="../../../api/wepy.orchestration.orchestrator.html#wepy.orchestration.orchestrator.Orchestrator">[docs]</a><span class="k">class</span> <span class="nc">Orchestrator</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
+
+    <span class="c1"># we freeze the pickle protocol for making hashes, because we care</span>
+    <span class="c1"># more about stability than efficiency of newer versions</span>
+    <span class="n">HASH_PICKLE_PROTOCOL</span> <span class="o">=</span> <span class="mi">3</span>
+
+    <span class="n">DEFAULT_WORKDIR</span> <span class="o">=</span> <span class="n">Configuration</span><span class="o">.</span><span class="n">DEFAULT_WORKDIR</span>
+    <span class="n">DEFAULT_CONFIG_NAME</span> <span class="o">=</span> <span class="n">Configuration</span><span class="o">.</span><span class="n">DEFAULT_CONFIG_NAME</span>
+    <span class="n">DEFAULT_NARRATION</span> <span class="o">=</span> <span class="n">Configuration</span><span class="o">.</span><span class="n">DEFAULT_NARRATION</span>
+    <span class="n">DEFAULT_MODE</span> <span class="o">=</span> <span class="n">Configuration</span><span class="o">.</span><span class="n">DEFAULT_MODE</span>
+
+    <span class="n">DEFAULT_CHECKPOINT_FILENAME</span> <span class="o">=</span> <span class="s2">&quot;checkpoint.orch.sqlite&quot;</span>
+    <span class="n">ORCH_FILENAME_TEMPLATE</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{config}{narration}</span><span class="s2">.orch.sqlite&quot;</span>
+
+    <span class="c1"># the default way to oepn up the whole parent database</span>
+    <span class="n">DEFAULT_ORCHESTRATION_MODE</span> <span class="o">=</span> <span class="s1">&#39;x&#39;</span>
+
+    <span class="c1"># mode to open the individual kv stores on the parent database</span>
+    <span class="n">KV_MODE</span> <span class="o">=</span> <span class="s1">&#39;r+&#39;</span>
+
+    <span class="c1"># default timeout for connecting to a database</span>
+    <span class="n">SQLITE3_DEFAULT_TIMEOUT</span> <span class="o">=</span> <span class="mi">5</span>
+
+    <span class="c1"># the fields to return (and their order) as a record for a run</span>
+    <span class="c1"># query</span>
+    <span class="n">RUN_SELECT_FIELDS</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;last_cycle_idx&#39;</span><span class="p">,</span> <span class="s1">&#39;config_hash&#39;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">orch_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;x&#39;</span><span class="p">,</span>
+                 <span class="n">append_only</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_mode</span> <span class="o">=</span> <span class="n">mode</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_append_only</span> <span class="o">=</span> <span class="n">append_only</span>
+
+        <span class="c1"># handle the path and convert to a proper URI for the database</span>
+        <span class="c1"># given the path and the mode</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_db_uri</span> <span class="o">=</span> <span class="n">gen_uri</span><span class="p">(</span><span class="n">orch_path</span><span class="p">,</span> <span class="n">mode</span><span class="p">)</span>
+
+        <span class="c1"># run table: start_hash, end_hash, num_cycles, configuration_id</span>
+
+        <span class="c1"># get a raw connection to the database</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_db</span> <span class="o">=</span> <span class="n">sqlite3</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">db_uri</span><span class="p">,</span> <span class="n">uri</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                                   <span class="n">timeout</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">SQLITE3_DEFAULT_TIMEOUT</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_closed</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="c1"># set isolation level to autocommit</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">isolation_level</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="c1"># we can use read_uncommited only in append_only mode (no</span>
+        <span class="c1"># updates) because you never have to worry about dirty reads</span>
+        <span class="c1"># since you can&#39;t update</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">append_only</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;PRAGMA read_uncommited=1&quot;</span><span class="p">)</span>
+
+        <span class="c1"># we make a table for the run data, if it doesn&#39;t already</span>
+        <span class="c1"># exist</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">create_run_table_query</span><span class="p">)</span>
+
+
+        <span class="c1"># initialize or open each of the separate KV-stores (tables in</span>
+        <span class="c1"># the same SQLite3 database)</span>
+
+        <span class="c1"># change the mode for the KV stores since we already created the database</span>
+
+        <span class="c1"># metadata: default init walkers, default apparatus, default</span>
+        <span class="c1"># configuration</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">metadata_kv</span> <span class="o">=</span> <span class="n">KV</span><span class="p">(</span><span class="n">db_url</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">db_uri</span><span class="p">,</span>
+                              <span class="n">table</span><span class="o">=</span><span class="s1">&#39;meta&#39;</span><span class="p">,</span>
+                              <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;a&#39;</span><span class="p">,</span>
+                              <span class="n">value_types</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                              <span class="n">append_only</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">append_only</span><span class="p">)</span>
+
+
+
+        <span class="c1"># snapshots</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">snapshot_kv</span> <span class="o">=</span> <span class="n">KV</span><span class="p">(</span><span class="n">db_url</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">db_uri</span><span class="p">,</span>
+                              <span class="n">table</span><span class="o">=</span><span class="s1">&#39;snapshots&#39;</span><span class="p">,</span>
+                              <span class="n">primary_key</span><span class="o">=</span><span class="s1">&#39;snaphash&#39;</span><span class="p">,</span>
+                              <span class="n">value_name</span><span class="o">=</span><span class="s1">&#39;snapshot&#39;</span><span class="p">,</span>
+                              <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;a&#39;</span><span class="p">,</span>
+                              <span class="n">append_only</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">append_only</span><span class="p">)</span>
+
+        <span class="c1"># configurations</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">configuration_kv</span> <span class="o">=</span> <span class="n">KV</span><span class="p">(</span><span class="n">db_url</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">db_uri</span><span class="p">,</span>
+                                   <span class="n">table</span><span class="o">=</span><span class="s1">&#39;configurations&#39;</span><span class="p">,</span>
+                                   <span class="n">primary_key</span><span class="o">=</span><span class="s1">&#39;config_hash&#39;</span><span class="p">,</span>
+                                   <span class="n">value_name</span><span class="o">=</span><span class="s1">&#39;config&#39;</span><span class="p">,</span>
+                                   <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;a&#39;</span><span class="p">,</span>
+                                   <span class="n">append_only</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">append_only</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">mode</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mode</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">append_only</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_append_only</span>
+
+<div class="viewcode-block" id="Orchestrator.close"><a class="viewcode-back" href="../../../api/wepy.orchestration.orchestrator.html#wepy.orchestration.orchestrator.Orchestrator.close">[docs]</a>    <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_closed</span> <span class="o">==</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span><span class="s2">&quot;The database connection is already closed&quot;</span><span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># close all the connections</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">metadata_kv</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">configuration_kv</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">snapshot_kv</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_closed</span> <span class="o">=</span> <span class="kc">True</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">db_uri</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db_uri</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">orch_path</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="c1"># if it is not an in-memory database we parse off the path and</span>
+        <span class="c1"># return that</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">db_uri</span> <span class="o">==</span> <span class="n">SQLITE3_INMEMORY_URI</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+
+            <span class="c1"># URIs have the following form: protocol:url?query</span>
+            <span class="c1"># destructure the URI</span>
+            <span class="n">_</span><span class="p">,</span> <span class="n">tail</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">db_uri</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;:&#39;</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">tail</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;?&#39;</span><span class="p">))</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">url</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">tail</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;?&#39;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">url</span> <span class="o">=</span> <span class="n">tail</span>
+
+            <span class="k">return</span> <span class="n">url</span>
+
+
+<div class="viewcode-block" id="Orchestrator.serialize"><a class="viewcode-back" href="../../../api/wepy.orchestration.orchestrator.html#wepy.orchestration.orchestrator.Orchestrator.serialize">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">serialize</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">snapshot</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Serialize a snapshot to a compressed, encoded, pickle string</span>
+<span class="sd">        representation.</span>
+
+<span class="sd">        Currently uses the dill module for pickling because the base</span>
+<span class="sd">        pickle module is inadequate. However, it is mostly compatible</span>
+<span class="sd">        and can be read natively with pickle but this usage is</span>
+<span class="sd">        officially not supported. Instead use the deserialize_snapshot.</span>
+
+<span class="sd">        Also compresses with default zlib compression and is encoded</span>
+<span class="sd">        in base64.</span>
+
+<span class="sd">        The object will always have a deepcopy performed on it so that</span>
+<span class="sd">        all of the extraneous references to it are avoided since there</span>
+<span class="sd">        is no (AFAIK) way to make sure all references to an object are</span>
+<span class="sd">        deleted.</span>
+
+<span class="sd">        NOTE: Perhaps there is a way and that should be done (and</span>
+<span class="sd">        tested) to see if it provides stable pickles (i.e. pickles</span>
+<span class="sd">        that always hash to the same value). To avoid the overhead of</span>
+<span class="sd">        copying large objects.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        snapshot : SimSnapshot object</span>
+<span class="sd">            The snapshot of the simulation you want to serialize.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        serial_str : str</span>
+<span class="sd">            Serialized string of the snapshot object</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">serial_str</span> <span class="o">=</span> <span class="n">b64encode</span><span class="p">(</span>
+                        <span class="n">compress</span><span class="p">(</span>
+                            <span class="n">dill</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span>
+                                <span class="n">deepcopy</span><span class="p">(</span><span class="n">snapshot</span><span class="p">),</span>
+                                <span class="n">protocol</span><span class="o">=</span><span class="bp">cls</span><span class="o">.</span><span class="n">HASH_PICKLE_PROTOCOL</span><span class="p">,</span>
+                                <span class="n">recurse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                        <span class="p">)</span>
+                     <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">serial_str</span></div>
+
+
+    <span class="c1"># core methods for serializing python objects, used for snapshots,</span>
+    <span class="c1"># apparatuses, configurations, and the initial walker list</span>
+
+<div class="viewcode-block" id="Orchestrator.deserialize"><a class="viewcode-back" href="../../../api/wepy.orchestration.orchestrator.html#wepy.orchestration.orchestrator.Orchestrator.deserialize">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">deserialize</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">serial_str</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Deserialize an unencoded string snapshot to an object.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        serial_str : str</span>
+<span class="sd">            Serialized string of the snapshot object</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        snapshot : SimSnapshot object</span>
+<span class="sd">            Simulation snapshot object</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="n">dill</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">decompress</span><span class="p">(</span><span class="n">b64decode</span><span class="p">(</span><span class="n">serial_str</span><span class="p">)))</span></div>
+
+
+    <span class="c1"># defaults getters and setters</span>
+<div class="viewcode-block" id="Orchestrator.set_default_sim_apparatus"><a class="viewcode-back" href="../../../api/wepy.orchestration.orchestrator.html#wepy.orchestration.orchestrator.Orchestrator.set_default_sim_apparatus">[docs]</a>    <span class="k">def</span> <span class="nf">set_default_sim_apparatus</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sim_apparatus</span><span class="p">):</span>
+
+        <span class="c1"># serialize the apparatus and then set it</span>
+        <span class="n">serial_app</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">serialize</span><span class="p">(</span><span class="n">sim_apparatus</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">metadata_kv</span><span class="p">[</span><span class="s1">&#39;default_sim_apparatus&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">serial_app</span></div>
+
+<div class="viewcode-block" id="Orchestrator.set_default_init_walkers"><a class="viewcode-back" href="../../../api/wepy.orchestration.orchestrator.html#wepy.orchestration.orchestrator.Orchestrator.set_default_init_walkers">[docs]</a>    <span class="k">def</span> <span class="nf">set_default_init_walkers</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">init_walkers</span><span class="p">):</span>
+
+        <span class="c1"># serialize the apparatus and then set it</span>
+        <span class="n">serial_walkers</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">serialize</span><span class="p">(</span><span class="n">init_walkers</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">metadata_kv</span><span class="p">[</span><span class="s1">&#39;default_init_walkers&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">serial_walkers</span></div>
+
+<div class="viewcode-block" id="Orchestrator.set_default_configuration"><a class="viewcode-back" href="../../../api/wepy.orchestration.orchestrator.html#wepy.orchestration.orchestrator.Orchestrator.set_default_configuration">[docs]</a>    <span class="k">def</span> <span class="nf">set_default_configuration</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">configuration</span><span class="p">):</span>
+
+        <span class="c1"># serialize the apparatus and then set it</span>
+        <span class="n">serial_config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">serialize</span><span class="p">(</span><span class="n">configuration</span><span class="p">)</span>
+
+        <span class="n">config_hash</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">hash_snapshot</span><span class="p">(</span><span class="n">serial_config</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">metadata_kv</span><span class="p">[</span><span class="s1">&#39;default_configuration_hash&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">config_hash</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">configuration_kv</span><span class="p">[</span><span class="n">config_hash</span><span class="p">]</span> <span class="o">=</span> <span class="n">serial_config</span></div>
+
+<div class="viewcode-block" id="Orchestrator.set_default_snapshot"><a class="viewcode-back" href="../../../api/wepy.orchestration.orchestrator.html#wepy.orchestration.orchestrator.Orchestrator.set_default_snapshot">[docs]</a>    <span class="k">def</span> <span class="nf">set_default_snapshot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">snapshot</span><span class="p">):</span>
+
+        <span class="n">snaphash</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">add_snapshot</span><span class="p">(</span><span class="n">snapshot</span><span class="p">)</span>
+
+        <span class="c1"># then save the hash in the metadata</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">metadata_kv</span><span class="p">[</span><span class="s1">&#39;default_snapshot_hash&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">snaphash</span>
+
+        <span class="k">return</span> <span class="n">snaphash</span></div>
+
+<div class="viewcode-block" id="Orchestrator.gen_default_snapshot"><a class="viewcode-back" href="../../../api/wepy.orchestration.orchestrator.html#wepy.orchestration.orchestrator.Orchestrator.gen_default_snapshot">[docs]</a>    <span class="k">def</span> <span class="nf">gen_default_snapshot</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="c1"># generate the snapshot</span>
+        <span class="n">sim_start_hash</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gen_start_snapshot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_default_init_walkers</span><span class="p">())</span>
+
+        <span class="c1"># then save the hash in the metadata</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">metadata_kv</span><span class="p">[</span><span class="s1">&#39;default_snapshot_hash&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">sim_start_hash</span>
+
+        <span class="k">return</span> <span class="n">sim_start_hash</span></div>
+
+
+<div class="viewcode-block" id="Orchestrator.get_default_sim_apparatus"><a class="viewcode-back" href="../../../api/wepy.orchestration.orchestrator.html#wepy.orchestration.orchestrator.Orchestrator.get_default_sim_apparatus">[docs]</a>    <span class="k">def</span> <span class="nf">get_default_sim_apparatus</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">deserialize</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">metadata_kv</span><span class="p">[</span><span class="s1">&#39;default_sim_apparatus&#39;</span><span class="p">])</span></div>
+
+<div class="viewcode-block" id="Orchestrator.get_default_init_walkers"><a class="viewcode-back" href="../../../api/wepy.orchestration.orchestrator.html#wepy.orchestration.orchestrator.Orchestrator.get_default_init_walkers">[docs]</a>    <span class="k">def</span> <span class="nf">get_default_init_walkers</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">deserialize</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">metadata_kv</span><span class="p">[</span><span class="s1">&#39;default_init_walkers&#39;</span><span class="p">])</span></div>
+
+<div class="viewcode-block" id="Orchestrator.get_default_configuration"><a class="viewcode-back" href="../../../api/wepy.orchestration.orchestrator.html#wepy.orchestration.orchestrator.Orchestrator.get_default_configuration">[docs]</a>    <span class="k">def</span> <span class="nf">get_default_configuration</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="n">config_hash</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata_kv</span><span class="p">[</span><span class="s1">&#39;default_configuration_hash&#39;</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_configuration</span><span class="p">(</span><span class="n">config_hash</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Orchestrator.get_default_configuration_hash"><a class="viewcode-back" href="../../../api/wepy.orchestration.orchestrator.html#wepy.orchestration.orchestrator.Orchestrator.get_default_configuration_hash">[docs]</a>    <span class="k">def</span> <span class="nf">get_default_configuration_hash</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata_kv</span><span class="p">[</span><span class="s1">&#39;default_configuration_hash&#39;</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="Orchestrator.get_default_snapshot"><a class="viewcode-back" href="../../../api/wepy.orchestration.orchestrator.html#wepy.orchestration.orchestrator.Orchestrator.get_default_snapshot">[docs]</a>    <span class="k">def</span> <span class="nf">get_default_snapshot</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="n">start_hash</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata_kv</span><span class="p">[</span><span class="s1">&#39;default_snapshot_hash&#39;</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_snapshot</span><span class="p">(</span><span class="n">start_hash</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Orchestrator.get_default_snapshot_hash"><a class="viewcode-back" href="../../../api/wepy.orchestration.orchestrator.html#wepy.orchestration.orchestrator.Orchestrator.get_default_snapshot_hash">[docs]</a>    <span class="k">def</span> <span class="nf">get_default_snapshot_hash</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata_kv</span><span class="p">[</span><span class="s1">&#39;default_snapshot_hash&#39;</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="Orchestrator.hash_snapshot"><a class="viewcode-back" href="../../../api/wepy.orchestration.orchestrator.html#wepy.orchestration.orchestrator.Orchestrator.hash_snapshot">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">hash_snapshot</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">serial_str</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        serial_str :</span>
+<span class="sd">            </span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">md5</span><span class="p">(</span><span class="n">serial_str</span><span class="p">)</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="Orchestrator.get_snapshot"><a class="viewcode-back" href="../../../api/wepy.orchestration.orchestrator.html#wepy.orchestration.orchestrator.Orchestrator.get_snapshot">[docs]</a>    <span class="k">def</span> <span class="nf">get_snapshot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">snapshot_hash</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns a copy of a snapshot.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        snapshot_hash :</span>
+<span class="sd">            </span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">deserialize</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">snapshot_kv</span><span class="p">[</span><span class="n">snapshot_hash</span><span class="p">])</span></div>
+
+
+<div class="viewcode-block" id="Orchestrator.get_configuration"><a class="viewcode-back" href="../../../api/wepy.orchestration.orchestrator.html#wepy.orchestration.orchestrator.Orchestrator.get_configuration">[docs]</a>    <span class="k">def</span> <span class="nf">get_configuration</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config_hash</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns a copy of a snapshot.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        config_hash :</span>
+<span class="sd">            </span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">deserialize</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">configuration_kv</span><span class="p">[</span><span class="n">config_hash</span><span class="p">])</span></div>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">snapshot_hashes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
+
+        <span class="c1"># iterate over the snapshot kv</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">snapshot_kv</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">configuration_hashes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
+
+        <span class="c1"># iterate over the snapshot kv</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">configuration_kv</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+
+
+<div class="viewcode-block" id="Orchestrator.add_snapshot"><a class="viewcode-back" href="../../../api/wepy.orchestration.orchestrator.html#wepy.orchestration.orchestrator.Orchestrator.add_snapshot">[docs]</a>    <span class="k">def</span> <span class="nf">add_snapshot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">snapshot</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        snapshot :</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># serialize the snapshot using the protocol for doing so</span>
+        <span class="n">serialized_snapshot</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">serialize</span><span class="p">(</span><span class="n">snapshot</span><span class="p">)</span>
+
+        <span class="c1"># get the hash of the snapshot</span>
+        <span class="n">snaphash</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">hash_snapshot</span><span class="p">(</span><span class="n">serialized_snapshot</span><span class="p">)</span>
+
+        <span class="c1"># check that the hash is not already in the snapshots</span>
+        <span class="k">if</span> <span class="nb">any</span><span class="p">([</span><span class="kc">True</span> <span class="k">if</span> <span class="n">snaphash</span> <span class="o">==</span> <span class="n">md5</span> <span class="k">else</span> <span class="kc">False</span> <span class="k">for</span> <span class="n">md5</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">snapshot_hashes</span><span class="p">]):</span>
+
+            <span class="c1"># just skip the rest of the function and return the hash</span>
+            <span class="k">return</span> <span class="n">snaphash</span>
+
+        <span class="c1"># save the snapshot in the KV store</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">snapshot_kv</span><span class="p">[</span><span class="n">snaphash</span><span class="p">]</span> <span class="o">=</span> <span class="n">serialized_snapshot</span>
+
+        <span class="k">return</span> <span class="n">snaphash</span></div>
+
+<div class="viewcode-block" id="Orchestrator.add_serial_snapshot"><a class="viewcode-back" href="../../../api/wepy.orchestration.orchestrator.html#wepy.orchestration.orchestrator.Orchestrator.add_serial_snapshot">[docs]</a>    <span class="k">def</span> <span class="nf">add_serial_snapshot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">serial_snapshot</span><span class="p">):</span>
+
+        <span class="c1"># get the hash of the snapshot</span>
+        <span class="n">snaphash</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">hash_snapshot</span><span class="p">(</span><span class="n">serial_snapshot</span><span class="p">)</span>
+
+        <span class="c1"># check that the hash is not already in the snapshots</span>
+        <span class="k">if</span> <span class="nb">any</span><span class="p">([</span><span class="kc">True</span> <span class="k">if</span> <span class="n">snaphash</span> <span class="o">==</span> <span class="n">md5</span> <span class="k">else</span> <span class="kc">False</span> <span class="k">for</span> <span class="n">md5</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">snapshot_hashes</span><span class="p">]):</span>
+
+            <span class="c1"># just skip the rest of the function and return the hash</span>
+            <span class="k">return</span> <span class="n">snaphash</span>
+
+        <span class="c1"># save the snapshot in the KV store</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">snapshot_kv</span><span class="p">[</span><span class="n">snaphash</span><span class="p">]</span> <span class="o">=</span> <span class="n">serial_snapshot</span>
+
+        <span class="k">return</span> <span class="n">snaphash</span></div>
+
+<div class="viewcode-block" id="Orchestrator.gen_start_snapshot"><a class="viewcode-back" href="../../../api/wepy.orchestration.orchestrator.html#wepy.orchestration.orchestrator.Orchestrator.gen_start_snapshot">[docs]</a>    <span class="k">def</span> <span class="nf">gen_start_snapshot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">init_walkers</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        init_walkers :</span>
+<span class="sd">            </span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># make a SimSnapshot object using the initial walkers and</span>
+        <span class="n">start_snapshot</span> <span class="o">=</span> <span class="n">SimSnapshot</span><span class="p">(</span><span class="n">init_walkers</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_default_sim_apparatus</span><span class="p">())</span>
+
+        <span class="c1"># save the snapshot, and generate its hash</span>
+        <span class="n">sim_start_md5</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">add_snapshot</span><span class="p">(</span><span class="n">start_snapshot</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">sim_start_md5</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">default_snapshot_hash</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata_kv</span><span class="p">[</span><span class="s1">&#39;default_snapshot_hash&#39;</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">default_snapshot</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_snapshot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">default_snapshot_hash</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Orchestrator.snapshot_registered"><a class="viewcode-back" href="../../../api/wepy.orchestration.orchestrator.html#wepy.orchestration.orchestrator.Orchestrator.snapshot_registered">[docs]</a>    <span class="k">def</span> <span class="nf">snapshot_registered</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">snapshot</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Check whether a snapshot is already in the database, based on the</span>
+<span class="sd">        hash of it.</span>
+
+<span class="sd">        This serializes the snapshot so may be slow.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        snapshot : SimSnapshot object</span>
+<span class="sd">            The snapshot object you want to query for.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># serialize and hash the snapshot</span>
+        <span class="n">snaphash</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">hash_snapshot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">serialize</span><span class="p">(</span><span class="n">snapshot</span><span class="p">))</span>
+
+        <span class="c1"># then check it</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">snapshot_hash_registered</span><span class="p">(</span><span class="n">snaphash</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Orchestrator.snapshot_hash_registered"><a class="viewcode-back" href="../../../api/wepy.orchestration.orchestrator.html#wepy.orchestration.orchestrator.Orchestrator.snapshot_hash_registered">[docs]</a>    <span class="k">def</span> <span class="nf">snapshot_hash_registered</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">snapshot_hash</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Check whether a snapshot hash is already in the database.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        snapshot_hash : str</span>
+<span class="sd">            The string hash of the snapshot.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="nb">any</span><span class="p">([</span><span class="kc">True</span> <span class="k">if</span> <span class="n">snapshot_hash</span> <span class="o">==</span> <span class="n">h</span> <span class="k">else</span> <span class="kc">False</span> <span class="k">for</span> <span class="n">h</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">snapshot_hashes</span><span class="p">]):</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span></div>
+
+
+<div class="viewcode-block" id="Orchestrator.configuration_hash_registered"><a class="viewcode-back" href="../../../api/wepy.orchestration.orchestrator.html#wepy.orchestration.orchestrator.Orchestrator.configuration_hash_registered">[docs]</a>    <span class="k">def</span> <span class="nf">configuration_hash_registered</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config_hash</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Check whether a snapshot hash is already in the database.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        snapshot_hash : str</span>
+<span class="sd">            The string hash of the snapshot.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="nb">any</span><span class="p">([</span><span class="kc">True</span> <span class="k">if</span> <span class="n">config_hash</span> <span class="o">==</span> <span class="n">h</span> <span class="k">else</span> <span class="kc">False</span> <span class="k">for</span> <span class="n">h</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">configuration_hashes</span><span class="p">]):</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span></div>
+
+
+    <span class="c1">### run methods</span>
+
+<div class="viewcode-block" id="Orchestrator.add_configuration"><a class="viewcode-back" href="../../../api/wepy.orchestration.orchestrator.html#wepy.orchestration.orchestrator.Orchestrator.add_configuration">[docs]</a>    <span class="k">def</span> <span class="nf">add_configuration</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">configuration</span><span class="p">):</span>
+
+        <span class="n">serialized_config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">serialize</span><span class="p">(</span><span class="n">configuration</span><span class="p">)</span>
+
+        <span class="n">config_hash</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">hash_snapshot</span><span class="p">(</span><span class="n">serialized_config</span><span class="p">)</span>
+
+        <span class="c1"># check that the hash is not already in the snapshots</span>
+        <span class="k">if</span> <span class="nb">any</span><span class="p">([</span><span class="kc">True</span> <span class="k">if</span> <span class="n">config_hash</span> <span class="o">==</span> <span class="n">md5</span> <span class="k">else</span> <span class="kc">False</span> <span class="k">for</span> <span class="n">md5</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">configuration_hashes</span><span class="p">]):</span>
+
+            <span class="c1"># just skip the rest of the function and return the hash</span>
+            <span class="k">return</span> <span class="n">config_hash</span>
+
+        <span class="c1"># save the snapshot in the KV store</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">configuration_kv</span><span class="p">[</span><span class="n">config_hash</span><span class="p">]</span> <span class="o">=</span> <span class="n">serialized_config</span>
+
+        <span class="k">return</span> <span class="n">config_hash</span></div>
+
+<div class="viewcode-block" id="Orchestrator.add_serial_configuration"><a class="viewcode-back" href="../../../api/wepy.orchestration.orchestrator.html#wepy.orchestration.orchestrator.Orchestrator.add_serial_configuration">[docs]</a>    <span class="k">def</span> <span class="nf">add_serial_configuration</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">serial_configuration</span><span class="p">):</span>
+
+        <span class="c1"># get the hash of the configuration</span>
+        <span class="n">snaphash</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">hash_snapshot</span><span class="p">(</span><span class="n">serial_configuration</span><span class="p">)</span>
+
+        <span class="c1"># check that the hash is not already in the configurations</span>
+        <span class="k">if</span> <span class="nb">any</span><span class="p">([</span><span class="kc">True</span> <span class="k">if</span> <span class="n">snaphash</span> <span class="o">==</span> <span class="n">md5</span> <span class="k">else</span> <span class="kc">False</span> <span class="k">for</span> <span class="n">md5</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">configuration_hashes</span><span class="p">]):</span>
+
+            <span class="c1"># just skip the rest of the function and return the hash</span>
+            <span class="k">return</span> <span class="n">snaphash</span>
+
+        <span class="c1"># save the configuration in the KV store</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">configuration_kv</span><span class="p">[</span><span class="n">snaphash</span><span class="p">]</span> <span class="o">=</span> <span class="n">serial_configuration</span>
+
+        <span class="k">return</span> <span class="n">snaphash</span></div>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">create_run_table_query</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">create_run_table_query</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">            CREATE TABLE IF NOT EXISTS runs</span>
+<span class="s2">             (start_hash TEXT NOT NULL,</span>
+<span class="s2">             end_hash TEXT NOT NULL,</span>
+<span class="s2">             config_hash NOT NULL,</span>
+<span class="s2">             last_cycle_idx INTEGER NOT NULL,</span>
+<span class="s2">             PRIMARY KEY (start_hash, end_hash))</span>
+
+<span class="s2">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="n">create_run_table_query</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">add_run_record_query</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="n">add_run_row_query</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        INSERT INTO runs (start_hash, end_hash, config_hash, last_cycle_idx)</span>
+<span class="s2">        VALUES (?, ?, ?, ?)</span>
+<span class="s2">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="n">add_run_row_query</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">update_run_record_query</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="n">q</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        UPDATE runs</span>
+<span class="s2">        SET config_hash = ?,</span>
+<span class="s2">            last_cycle_idx = ?</span>
+<span class="s2">        WHERE start_hash=? AND end_hash=?</span>
+<span class="s2">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="n">q</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">delete_run_record_query</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="n">q</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        DELETE FROM runs</span>
+<span class="s2">        WHERE start_hash=? AND end_hash=?</span>
+<span class="s2">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="n">q</span>
+
+
+    <span class="k">def</span> <span class="nf">_add_run_record</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start_hash</span><span class="p">,</span> <span class="n">end_hash</span><span class="p">,</span> <span class="n">configuration_hash</span><span class="p">,</span> <span class="n">cycle_idx</span><span class="p">):</span>
+
+        <span class="n">params</span> <span class="o">=</span> <span class="p">(</span><span class="n">start_hash</span><span class="p">,</span> <span class="n">end_hash</span><span class="p">,</span> <span class="n">configuration_hash</span><span class="p">,</span> <span class="n">cycle_idx</span><span class="p">)</span>
+
+        <span class="c1"># do it as a transaction</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+
+        <span class="c1"># run the insert</span>
+        <span class="n">c</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">add_run_record_query</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_delete_run_record</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start_hash</span><span class="p">,</span> <span class="n">end_hash</span><span class="p">):</span>
+
+        <span class="n">params</span> <span class="o">=</span> <span class="p">(</span><span class="n">start_hash</span><span class="p">,</span> <span class="n">end_hash</span><span class="p">)</span>
+
+        <span class="n">cursor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+
+        <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">delete_run_record_query</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_update_run_record</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start_hash</span><span class="p">,</span> <span class="n">end_hash</span><span class="p">,</span> <span class="n">new_config_hash</span><span class="p">,</span> <span class="n">new_last_cycle_idx</span><span class="p">):</span>
+
+        <span class="n">params</span> <span class="o">=</span> <span class="p">(</span><span class="n">new_config_hash</span><span class="p">,</span> <span class="n">new_last_cycle_idx</span><span class="p">,</span> <span class="n">start_hash</span><span class="p">,</span> <span class="n">end_hash</span><span class="p">)</span>
+
+        <span class="c1"># do it as a transaction</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+
+        <span class="c1"># run the update</span>
+        <span class="n">c</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">update_run_record_query</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span>
+
+
+
+<div class="viewcode-block" id="Orchestrator.register_run"><a class="viewcode-back" href="../../../api/wepy.orchestration.orchestrator.html#wepy.orchestration.orchestrator.Orchestrator.register_run">[docs]</a>    <span class="k">def</span> <span class="nf">register_run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start_hash</span><span class="p">,</span> <span class="n">end_hash</span><span class="p">,</span> <span class="n">config_hash</span><span class="p">,</span> <span class="n">cycle_idx</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        start_hash :</span>
+<span class="sd">            </span>
+<span class="sd">        end_hash :</span>
+<span class="sd">            </span>
+<span class="sd">        config_hash :</span>
+<span class="sd">            </span>
+<span class="sd">        cycle_idx : int</span>
+<span class="sd">            The cycle of the simulation run the checkpoint was generated for.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># check that the hashes are for snapshots in the orchestrator</span>
+        <span class="c1"># if one is not registered raise an error</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">snapshot_hash_registered</span><span class="p">(</span><span class="n">start_hash</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">OrchestratorError</span><span class="p">(</span>
+                <span class="s2">&quot;snapshot start_hash </span><span class="si">{}</span><span class="s2"> is not registered with the orchestrator&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">start_hash</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">snapshot_hash_registered</span><span class="p">(</span><span class="n">end_hash</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">OrchestratorError</span><span class="p">(</span>
+                <span class="s2">&quot;snapshot end_hash </span><span class="si">{}</span><span class="s2"> is not registered with the orchestrator&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">end_hash</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">configuration_hash_registered</span><span class="p">(</span><span class="n">config_hash</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">OrchestratorError</span><span class="p">(</span>
+                <span class="s2">&quot;config hash </span><span class="si">{}</span><span class="s2"> is not registered with the orchestrator&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">config_hash</span><span class="p">))</span>
+
+
+        <span class="c1"># save the configuration and get it&#39;s id</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_add_run_record</span><span class="p">(</span><span class="n">start_hash</span><span class="p">,</span> <span class="n">end_hash</span><span class="p">,</span> <span class="n">config_hash</span><span class="p">,</span> <span class="n">cycle_idx</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Orchestrator.get_run_records"><a class="viewcode-back" href="../../../api/wepy.orchestration.orchestrator.html#wepy.orchestration.orchestrator.Orchestrator.get_run_records">[docs]</a>    <span class="k">def</span> <span class="nf">get_run_records</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="n">get_run_record_query</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        SELECT *</span>
+<span class="s2">        FROM runs</span>
+<span class="s2">        &quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">fields</span><span class="o">=</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">RUN_SELECT_FIELDS</span><span class="p">))</span>
+
+        <span class="n">cursor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+        <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">get_run_record_query</span><span class="p">)</span>
+        <span class="n">records</span> <span class="o">=</span> <span class="n">cursor</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="n">records</span></div>
+
+<div class="viewcode-block" id="Orchestrator.get_run_record"><a class="viewcode-back" href="../../../api/wepy.orchestration.orchestrator.html#wepy.orchestration.orchestrator.Orchestrator.get_run_record">[docs]</a>    <span class="k">def</span> <span class="nf">get_run_record</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start_hash</span><span class="p">,</span> <span class="n">end_hash</span><span class="p">):</span>
+
+        <span class="n">get_run_record_query</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        SELECT </span><span class="si">{fields}</span><span class="s2"></span>
+<span class="s2">        FROM runs</span>
+<span class="s2">        WHERE start_hash=? AND end_hash=?</span>
+<span class="s2">        &quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">fields</span><span class="o">=</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">RUN_SELECT_FIELDS</span><span class="p">))</span>
+
+        <span class="n">params</span> <span class="o">=</span> <span class="p">(</span><span class="n">start_hash</span><span class="p">,</span> <span class="n">end_hash</span><span class="p">)</span>
+
+        <span class="n">cursor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+        <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">get_run_record_query</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span>
+        <span class="n">record</span> <span class="o">=</span> <span class="n">cursor</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="n">record</span></div>
+
+<div class="viewcode-block" id="Orchestrator.run_last_cycle_idx"><a class="viewcode-back" href="../../../api/wepy.orchestration.orchestrator.html#wepy.orchestration.orchestrator.Orchestrator.run_last_cycle_idx">[docs]</a>    <span class="k">def</span> <span class="nf">run_last_cycle_idx</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start_hash</span><span class="p">,</span> <span class="n">end_hash</span><span class="p">):</span>
+
+        <span class="n">record</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_run_record</span><span class="p">(</span><span class="n">start_hash</span><span class="p">,</span> <span class="n">end_hash</span><span class="p">)</span>
+
+        <span class="n">last_cycle_idx</span> <span class="o">=</span> <span class="n">record</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">RUN_SELECT_FIELDS</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s1">&#39;last_cycle_idx&#39;</span><span class="p">)]</span>
+
+        <span class="k">return</span> <span class="n">last_cycle_idx</span></div>
+
+
+<div class="viewcode-block" id="Orchestrator.run_configuration"><a class="viewcode-back" href="../../../api/wepy.orchestration.orchestrator.html#wepy.orchestration.orchestrator.Orchestrator.run_configuration">[docs]</a>    <span class="k">def</span> <span class="nf">run_configuration</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start_hash</span><span class="p">,</span> <span class="n">end_hash</span><span class="p">):</span>
+
+        <span class="n">record</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_run_record</span><span class="p">(</span><span class="n">start_hash</span><span class="p">,</span> <span class="n">end_hash</span><span class="p">)</span>
+
+        <span class="n">config_hash</span> <span class="o">=</span> <span class="n">record</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">RUN_SELECT_FIELDS</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s1">&#39;config_hash&#39;</span><span class="p">)]</span>
+
+        <span class="c1"># get the configuration object and deserialize it</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">deserialize</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">configuration_kv</span><span class="p">[</span><span class="n">config_hash</span><span class="p">])</span></div>
+
+<div class="viewcode-block" id="Orchestrator.run_configuration_hash"><a class="viewcode-back" href="../../../api/wepy.orchestration.orchestrator.html#wepy.orchestration.orchestrator.Orchestrator.run_configuration_hash">[docs]</a>    <span class="k">def</span> <span class="nf">run_configuration_hash</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start_hash</span><span class="p">,</span> <span class="n">end_hash</span><span class="p">):</span>
+
+        <span class="n">record</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_run_record</span><span class="p">(</span><span class="n">start_hash</span><span class="p">,</span> <span class="n">end_hash</span><span class="p">)</span>
+
+        <span class="n">config_hash</span> <span class="o">=</span> <span class="n">record</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">RUN_SELECT_FIELDS</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s1">&#39;config_hash&#39;</span><span class="p">)]</span>
+
+        <span class="k">return</span> <span class="n">config_hash</span></div>
+
+<div class="viewcode-block" id="Orchestrator.run_hashes"><a class="viewcode-back" href="../../../api/wepy.orchestration.orchestrator.html#wepy.orchestration.orchestrator.Orchestrator.run_hashes">[docs]</a>    <span class="k">def</span> <span class="nf">run_hashes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="k">return</span> <span class="p">[(</span><span class="n">rec</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">rec</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="k">for</span> <span class="n">rec</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_run_records</span><span class="p">()]</span></div>
+
+<div class="viewcode-block" id="Orchestrator.run_continues"><a class="viewcode-back" href="../../../api/wepy.orchestration.orchestrator.html#wepy.orchestration.orchestrator.Orchestrator.run_continues">[docs]</a>    <span class="k">def</span> <span class="nf">run_continues</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start_hash</span><span class="p">,</span> <span class="n">end_hash</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Given a start hash and end hash for a run, find the run that this</span>
+<span class="sd">        continues.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        start_hash :</span>
+<span class="sd">            </span>
+<span class="sd">        end_hash :</span>
+<span class="sd">            </span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        run_id</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># loop through the runs in this orchestrator until we find one</span>
+        <span class="c1"># where the start_hash matches the end hash</span>
+        <span class="n">runs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">run_hashes</span><span class="p">()</span>
+        <span class="n">run_idx</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+
+            <span class="n">run_start_hash</span><span class="p">,</span> <span class="n">run_end_hash</span> <span class="o">=</span> <span class="n">runs</span><span class="p">[</span><span class="n">run_idx</span><span class="p">]</span>
+
+            <span class="c1"># if the start hash of the queried run is the same as the</span>
+            <span class="c1"># end hash for this run we have found it</span>
+            <span class="k">if</span> <span class="n">start_hash</span> <span class="o">==</span> <span class="n">run_end_hash</span><span class="p">:</span>
+
+                <span class="k">return</span> <span class="p">(</span><span class="n">run_start_hash</span><span class="p">,</span> <span class="n">run_end_hash</span><span class="p">)</span>
+
+            <span class="n">run_idx</span> <span class="o">+=</span> <span class="mi">1</span>
+
+            <span class="c1"># if the index is over the number of runs we quit and</span>
+            <span class="c1"># return None as no match</span>
+            <span class="k">if</span> <span class="n">run_idx</span> <span class="o">&gt;=</span> <span class="nb">len</span><span class="p">(</span><span class="n">runs</span><span class="p">):</span>
+                <span class="k">return</span> <span class="kc">None</span></div>
+
+
+    <span class="k">def</span> <span class="nf">_init_checkpoint_db</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start_hash</span><span class="p">,</span> <span class="n">configuration</span><span class="p">,</span> <span class="n">checkpoint_dir</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;x&#39;</span><span class="p">):</span>
+
+        <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Initializing checkpoint orch database&quot;</span><span class="p">)</span>
+
+        <span class="c1"># make the checkpoint with the default filename at the checkpoint directory</span>
+        <span class="n">checkpoint_path</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">checkpoint_dir</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">DEFAULT_CHECKPOINT_FILENAME</span><span class="p">)</span>
+
+        <span class="c1"># create a new database in the mode specified</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Creating checkpoint database&quot;</span><span class="p">)</span>
+        <span class="n">checkpoint_orch</span> <span class="o">=</span> <span class="n">Orchestrator</span><span class="p">(</span><span class="n">checkpoint_path</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="n">mode</span><span class="p">)</span>
+
+        <span class="c1"># add the starting snapshot, bypassing the serialization stuff</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Setting the starting snapshot&quot;</span><span class="p">)</span>
+        <span class="n">checkpoint_orch</span><span class="o">.</span><span class="n">snapshot_kv</span><span class="p">[</span><span class="n">start_hash</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">snapshot_kv</span><span class="p">[</span><span class="n">start_hash</span><span class="p">]</span>
+
+        <span class="c1"># if we have a new configuration at runtime serialize and</span>
+        <span class="c1"># hash it</span>
+        <span class="n">serialized_config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">serialize</span><span class="p">(</span><span class="n">configuration</span><span class="p">)</span>
+        <span class="n">config_hash</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">hash_snapshot</span><span class="p">(</span><span class="n">serialized_config</span><span class="p">)</span>
+
+        <span class="c1"># save the configuration as well</span>
+        <span class="n">checkpoint_orch</span><span class="o">.</span><span class="n">configuration_kv</span><span class="p">[</span><span class="n">config_hash</span><span class="p">]</span> <span class="o">=</span> <span class="n">serialized_config</span>
+
+        <span class="n">checkpoint_orch</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;closing connection to checkpoint database&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">checkpoint_path</span><span class="p">,</span> <span class="n">config_hash</span>
+
+
+    <span class="k">def</span> <span class="nf">_save_checkpoint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">checkpoint_snapshot</span><span class="p">,</span> <span class="n">config_hash</span><span class="p">,</span>
+                         <span class="n">checkpoint_db_path</span><span class="p">,</span> <span class="n">cycle_idx</span><span class="p">,</span>
+                         <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        checkpoint_snapshot :</span>
+<span class="sd">            </span>
+<span class="sd">        config_hash :</span>
+<span class="sd">            </span>
+<span class="sd">        checkpoint_db_path :</span>
+<span class="sd">            </span>
+<span class="sd">        mode :</span>
+<span class="sd">             (Default value = &#39;wb&#39;)</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># orchestrator wrapper to the db</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Opening the checkpoint orch database&quot;</span><span class="p">)</span>
+        <span class="n">checkpoint_orch</span> <span class="o">=</span> <span class="n">Orchestrator</span><span class="p">(</span><span class="n">checkpoint_db_path</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;r+&#39;</span><span class="p">)</span>
+
+        <span class="c1"># connection to the db</span>
+        <span class="n">cursor</span> <span class="o">=</span> <span class="n">checkpoint_orch</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+
+        <span class="c1"># we replicate the code for adding the snapshot here because</span>
+        <span class="c1"># we want it to occur transactionally the delete and add</span>
+
+        <span class="c1"># serialize the snapshot using the protocol for doing so</span>
+        <span class="n">serialized_snapshot</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">serialize</span><span class="p">(</span><span class="n">checkpoint_snapshot</span><span class="p">)</span>
+
+        <span class="c1"># get the hash of the snapshot</span>
+        <span class="n">snaphash</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">hash_snapshot</span><span class="p">(</span><span class="n">serialized_snapshot</span><span class="p">)</span>
+
+        <span class="c1"># the queries for deleting and inserting the new run record</span>
+        <span class="n">delete_query</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        DELETE FROM runs</span>
+<span class="s2">        WHERE start_hash=?</span>
+<span class="s2">          AND end_hash=?</span>
+<span class="s2">        &quot;&quot;&quot;</span>
+
+        <span class="n">insert_query</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        INSERT INTO runs (start_hash, end_hash, config_hash, last_cycle_idx)</span>
+<span class="s2">        VALUES (?, ?, ?, ?)</span>
+<span class="s2">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># if there are any runs in the checkpoint orch remove the</span>
+        <span class="c1"># final snapshot</span>
+        <span class="n">delete_params</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">checkpoint_orch</span><span class="o">.</span><span class="n">run_hashes</span><span class="p">())</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">start_hash</span><span class="p">,</span> <span class="n">old_checkpoint_hash</span> <span class="o">=</span> <span class="n">checkpoint_orch</span><span class="o">.</span><span class="n">run_hashes</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+
+            <span class="n">delete_params</span> <span class="o">=</span> <span class="p">(</span><span class="n">start_hash</span><span class="p">,</span> <span class="n">old_checkpoint_hash</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">start_hash</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">checkpoint_orch</span><span class="o">.</span><span class="n">snapshot_kv</span><span class="o">.</span><span class="n">keys</span><span class="p">())[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="c1"># the config should already be in the orchestrator db</span>
+        <span class="n">insert_params</span> <span class="o">=</span> <span class="p">(</span><span class="n">start_hash</span><span class="p">,</span> <span class="n">snaphash</span><span class="p">,</span> <span class="n">config_hash</span><span class="p">,</span> <span class="n">cycle_idx</span><span class="p">)</span>
+
+
+        <span class="c1"># start this whole process as a transaction so we don&#39;t get</span>
+        <span class="c1"># something weird in between</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Starting transaction for updating run table in checkpoint&quot;</span><span class="p">)</span>
+        <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;BEGIN TRANSACTION&quot;</span><span class="p">)</span>
+
+        <span class="c1"># add the new one, using a special method for setting inside</span>
+        <span class="c1"># of a transaction</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;setting the new checkpoint snapshot into the KV&quot;</span><span class="p">)</span>
+        <span class="n">cursor</span> <span class="o">=</span> <span class="n">checkpoint_orch</span><span class="o">.</span><span class="n">snapshot_kv</span><span class="o">.</span><span class="n">set_in_tx</span><span class="p">(</span><span class="n">cursor</span><span class="p">,</span> <span class="n">snaphash</span><span class="p">,</span> <span class="n">serialized_snapshot</span><span class="p">)</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;finished&quot;</span><span class="p">)</span>
+
+        <span class="c1"># if we need to delete the old end of the run snapshot and the</span>
+        <span class="c1"># run record for it</span>
+        <span class="k">if</span> <span class="n">delete_params</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+
+            <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Old run record needs to be removed&quot;</span><span class="p">)</span>
+
+            <span class="c1"># remove the old run from the run table</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Deleting the old run record&quot;</span><span class="p">)</span>
+            <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">delete_query</span><span class="p">,</span> <span class="n">delete_params</span><span class="p">)</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;finished&quot;</span><span class="p">)</span>
+
+        <span class="c1"># register the new run in the run table</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Inserting the new run record&quot;</span><span class="p">)</span>
+        <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">insert_query</span><span class="p">,</span> <span class="n">insert_params</span><span class="p">)</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;finished&quot;</span><span class="p">)</span>
+
+        <span class="c1"># end the transaction</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Finishing transaction&quot;</span><span class="p">)</span>
+        <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;COMMIT&quot;</span><span class="p">)</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Transaction committed&quot;</span><span class="p">)</span>
+
+        <span class="c1"># we do the removal of the old snapshot outside of the</span>
+        <span class="c1"># transaction since it is slow and can cause timeouts to</span>
+        <span class="c1"># occur. Furthermore, it is okay if it is in the checkpoint as</span>
+        <span class="c1"># the run record is what matters as long as the new checkpoint</span>
+        <span class="c1"># is there.</span>
+
+        <span class="c1"># delete the old snapshot if we need to</span>
+        <span class="k">if</span> <span class="n">delete_params</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Deleting the old snapshot&quot;</span><span class="p">)</span>
+            <span class="k">del</span> <span class="n">checkpoint_orch</span><span class="o">.</span><span class="n">snapshot_kv</span><span class="p">[</span><span class="n">old_checkpoint_hash</span><span class="p">]</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;finished&quot;</span><span class="p">)</span>
+
+
+        <span class="n">checkpoint_orch</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;closed the checkpoint orch connection&quot;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="Orchestrator.gen_sim_manager"><a class="viewcode-back" href="../../../api/wepy.orchestration.orchestrator.html#wepy.orchestration.orchestrator.Orchestrator.gen_sim_manager">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">gen_sim_manager</span><span class="p">(</span><span class="n">start_snapshot</span><span class="p">,</span> <span class="n">configuration</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        start_snapshot :</span>
+<span class="sd">            </span>
+<span class="sd">        configuration :</span>
+<span class="sd">            </span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># construct the sim manager, in a wepy specific way</span>
+        <span class="n">sim_manager</span> <span class="o">=</span> <span class="n">Manager</span><span class="p">(</span><span class="n">start_snapshot</span><span class="o">.</span><span class="n">walkers</span><span class="p">,</span>
+                              <span class="n">runner</span><span class="o">=</span><span class="n">start_snapshot</span><span class="o">.</span><span class="n">apparatus</span><span class="o">.</span><span class="n">filters</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                              <span class="n">boundary_conditions</span><span class="o">=</span><span class="n">start_snapshot</span><span class="o">.</span><span class="n">apparatus</span><span class="o">.</span><span class="n">filters</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+                              <span class="n">resampler</span><span class="o">=</span><span class="n">start_snapshot</span><span class="o">.</span><span class="n">apparatus</span><span class="o">.</span><span class="n">filters</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span>
+                              <span class="c1"># configuration options</span>
+                              <span class="n">work_mapper</span><span class="o">=</span><span class="n">configuration</span><span class="o">.</span><span class="n">work_mapper</span><span class="p">,</span>
+                              <span class="n">reporters</span><span class="o">=</span><span class="n">configuration</span><span class="o">.</span><span class="n">reporters</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">sim_manager</span></div>
+
+
+<div class="viewcode-block" id="Orchestrator.run_snapshot_by_time"><a class="viewcode-back" href="../../../api/wepy.orchestration.orchestrator.html#wepy.orchestration.orchestrator.Orchestrator.run_snapshot_by_time">[docs]</a>    <span class="k">def</span> <span class="nf">run_snapshot_by_time</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start_hash</span><span class="p">,</span> <span class="n">run_time</span><span class="p">,</span> <span class="n">n_steps</span><span class="p">,</span>
+                             <span class="n">checkpoint_freq</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                             <span class="n">checkpoint_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                             <span class="n">configuration</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                             <span class="n">configuration_hash</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                             <span class="n">checkpoint_mode</span><span class="o">=</span><span class="s1">&#39;x&#39;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;For a finished run continue it but resetting all the state of the</span>
+<span class="sd">        resampler and boundary conditions</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        start_hash :</span>
+<span class="sd">            </span>
+<span class="sd">        run_time :</span>
+<span class="sd">            </span>
+<span class="sd">        n_steps :</span>
+<span class="sd">            </span>
+<span class="sd">        checkpoint_freq :</span>
+<span class="sd">             (Default value = None)</span>
+<span class="sd">        checkpoint_dir :</span>
+<span class="sd">             (Default value = None)</span>
+<span class="sd">        configuration :</span>
+<span class="sd">             (Default value = None)</span>
+<span class="sd">        configuration_hash :</span>
+<span class="sd">             (Default value = None)</span>
+<span class="sd">        checkpoint_mode :</span>
+<span class="sd">             (Default value = None)</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+
+        <span class="c1"># you must have a checkpoint dir if you ask for a checkpoint</span>
+        <span class="c1"># frequency</span>
+        <span class="k">if</span> <span class="n">checkpoint_freq</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">checkpoint_dir</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Must provide a directory for the checkpoint file &quot;</span>
+                             <span class="s2">&quot;is a frequency is specified&quot;</span><span class="p">)</span>
+
+
+        <span class="k">if</span> <span class="n">configuration_hash</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">configuration</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Cannot specify both a hash of an existing configuration&quot;</span>
+                             <span class="s2">&quot;and provide a runtime configuration&quot;</span><span class="p">)</span>
+
+        <span class="c1"># if no configuration was specified we use the default one, oth</span>
+        <span class="k">elif</span> <span class="p">(</span><span class="n">configuration</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">configuration_hash</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">):</span>
+            <span class="n">configuration</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_default_configuration</span><span class="p">()</span>
+
+        <span class="c1"># if a configuration hash was given only then we retrieve that</span>
+        <span class="c1"># configuration since we must pass configurations to the</span>
+        <span class="c1"># checkpoint DB initialization</span>
+        <span class="k">elif</span> <span class="n">configuration_hash</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">configuration</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">configuration_kv</span><span class="p">[</span><span class="n">configuration_hash</span><span class="p">]</span>
+
+
+        <span class="c1"># check that the directory for checkpoints exists, and create</span>
+        <span class="c1"># it if it doesn&#39;t and isn&#39;t already created</span>
+        <span class="k">if</span> <span class="n">checkpoint_dir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">checkpoint_dir</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">realpath</span><span class="p">(</span><span class="n">checkpoint_dir</span><span class="p">)</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">checkpoint_dir</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+
+        <span class="c1"># if the checkpoint dir is not specified don&#39;t create a</span>
+        <span class="c1"># checkpoint db orch</span>
+        <span class="n">checkpoint_db_path</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">checkpoint_dir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Initialization of checkpoint database is requested&quot;</span><span class="p">)</span>
+            <span class="n">checkpoint_db_path</span><span class="p">,</span> <span class="n">configuration_hash</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_init_checkpoint_db</span><span class="p">(</span><span class="n">start_hash</span><span class="p">,</span>
+                                                                              <span class="n">configuration</span><span class="p">,</span>
+                                                                              <span class="n">checkpoint_dir</span><span class="p">,</span>
+                                                                              <span class="n">mode</span><span class="o">=</span><span class="n">checkpoint_mode</span><span class="p">)</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;finished initializing checkpoint database&quot;</span><span class="p">)</span>
+
+        <span class="c1"># get the snapshot and the configuration to use for the sim_manager</span>
+        <span class="n">start_snapshot</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_snapshot</span><span class="p">(</span><span class="n">start_hash</span><span class="p">)</span>
+
+        <span class="c1"># generate the simulation manager given the snapshot and the</span>
+        <span class="c1"># configuration</span>
+        <span class="n">sim_manager</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gen_sim_manager</span><span class="p">(</span><span class="n">start_snapshot</span><span class="p">,</span> <span class="n">configuration</span><span class="p">)</span>
+
+        <span class="c1"># run the init subroutine for the simulation manager</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Running sim_manager.init&quot;</span><span class="p">)</span>
+        <span class="n">sim_manager</span><span class="o">.</span><span class="n">init</span><span class="p">()</span>
+
+        <span class="c1"># run each cycle manually creating checkpoints when necessary</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Starting run loop&quot;</span><span class="p">)</span>
+        <span class="n">walkers</span> <span class="o">=</span> <span class="n">sim_manager</span><span class="o">.</span><span class="n">init_walkers</span>
+        <span class="n">cycle_idx</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="k">while</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start_time</span> <span class="o">&lt;</span> <span class="n">run_time</span><span class="p">:</span>
+
+            <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Running cycle </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cycle_idx</span><span class="p">))</span>
+            <span class="c1"># run the cycle</span>
+            <span class="n">walkers</span><span class="p">,</span> <span class="n">filters</span> <span class="o">=</span> <span class="n">sim_manager</span><span class="o">.</span><span class="n">run_cycle</span><span class="p">(</span><span class="n">walkers</span><span class="p">,</span> <span class="n">n_steps</span><span class="p">,</span> <span class="n">cycle_idx</span><span class="p">)</span>
+
+            <span class="c1"># check to see if a checkpoint is necessary</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">checkpoint_freq</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">):</span>
+                <span class="k">if</span> <span class="p">(</span><span class="n">cycle_idx</span> <span class="o">%</span> <span class="n">checkpoint_freq</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>
+                    <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Checkpoint is required for this cycle&quot;</span><span class="p">)</span>
+
+                    <span class="c1"># make the checkpoint snapshot</span>
+                    <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Generating the simulation snapshot&quot;</span><span class="p">)</span>
+                    <span class="n">checkpoint_snapshot</span> <span class="o">=</span> <span class="n">SimSnapshot</span><span class="p">(</span><span class="n">walkers</span><span class="p">,</span> <span class="n">SimApparatus</span><span class="p">(</span><span class="n">filters</span><span class="p">))</span>
+
+                    <span class="c1"># save the checkpoint (however that is implemented)</span>
+                    <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;saving the checkpoint to the database&quot;</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_save_checkpoint</span><span class="p">(</span><span class="n">checkpoint_snapshot</span><span class="p">,</span>
+                                          <span class="n">configuration_hash</span><span class="p">,</span>
+                                          <span class="n">checkpoint_db_path</span><span class="p">,</span>
+                                          <span class="n">cycle_idx</span><span class="p">)</span>
+                    <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;finished saving the checkpoint to the database&quot;</span><span class="p">)</span>
+
+            <span class="c1"># increase the cycle index for the next cycle</span>
+            <span class="n">cycle_idx</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Finished the run cycle&quot;</span><span class="p">)</span>
+
+        <span class="c1"># the cycle index was set for the next cycle which didn&#39;t run</span>
+        <span class="c1"># so we decrement it</span>
+        <span class="n">last_cycle_idx</span> <span class="o">=</span> <span class="n">cycle_idx</span> <span class="o">-</span> <span class="mi">1</span>
+
+        <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Running sim_manager.cleanup&quot;</span><span class="p">)</span>
+        <span class="c1"># run the cleanup subroutine</span>
+        <span class="n">sim_manager</span><span class="o">.</span><span class="n">cleanup</span><span class="p">()</span>
+
+        <span class="c1"># run the segment given the sim manager and run parameters</span>
+        <span class="n">end_snapshot</span> <span class="o">=</span> <span class="n">SimSnapshot</span><span class="p">(</span><span class="n">walkers</span><span class="p">,</span> <span class="n">SimApparatus</span><span class="p">(</span><span class="n">filters</span><span class="p">))</span>
+
+        <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Run finished&quot;</span><span class="p">)</span>
+        <span class="c1"># return the things necessary for saving to the checkpoint if</span>
+        <span class="c1"># that is what is wanted later on</span>
+        <span class="k">return</span> <span class="n">end_snapshot</span><span class="p">,</span> <span class="n">configuration_hash</span><span class="p">,</span> <span class="n">checkpoint_db_path</span><span class="p">,</span> <span class="n">last_cycle_idx</span></div>
+
+<div class="viewcode-block" id="Orchestrator.orchestrate_snapshot_run_by_time"><a class="viewcode-back" href="../../../api/wepy.orchestration.orchestrator.html#wepy.orchestration.orchestrator.Orchestrator.orchestrate_snapshot_run_by_time">[docs]</a>    <span class="k">def</span> <span class="nf">orchestrate_snapshot_run_by_time</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">snapshot_hash</span><span class="p">,</span> <span class="n">run_time</span><span class="p">,</span> <span class="n">n_steps</span><span class="p">,</span>
+                                         <span class="n">checkpoint_freq</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                                         <span class="n">checkpoint_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                                         <span class="n">orchestrator_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                                         <span class="n">configuration</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                                         <span class="c1"># these can reparametrize the paths</span>
+                                         <span class="c1"># for both the orchestrator produced</span>
+                                         <span class="c1"># files as well as the configuration</span>
+                                         <span class="n">work_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                                         <span class="n">config_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                                         <span class="n">narration</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                                         <span class="n">mode</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                                         <span class="c1"># extra kwargs will be passed to the</span>
+                                         <span class="c1"># configuration.reparametrize method</span>
+                                         <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        snapshot_hash :</span>
+<span class="sd">            </span>
+<span class="sd">        run_time :</span>
+<span class="sd">            </span>
+<span class="sd">        n_steps :</span>
+<span class="sd">            </span>
+<span class="sd">        checkpoint_freq :</span>
+<span class="sd">             (Default value = None)</span>
+<span class="sd">        checkpoint_dir :</span>
+<span class="sd">             (Default value = None)</span>
+<span class="sd">        orchestrator_path :</span>
+<span class="sd">             (Default value = None)</span>
+<span class="sd">        configuration :</span>
+<span class="sd">             (Default value = None)</span>
+<span class="sd">        # these can reparametrize the paths# for both the orchestrator produced# files as well as the configurationwork_dir :</span>
+<span class="sd">             (Default value = None)</span>
+<span class="sd">        config_name :</span>
+<span class="sd">             (Default value = None)</span>
+<span class="sd">        narration :</span>
+<span class="sd">             (Default value = None)</span>
+<span class="sd">        mode :</span>
+<span class="sd">             (Default value = None)</span>
+<span class="sd">        # extra kwargs will be passed to the# configuration.reparametrize method**kwargs :</span>
+<span class="sd">            </span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+
+        <span class="c1"># for writing the orchestration files we set the default mode</span>
+        <span class="c1"># if mode is not given</span>
+        <span class="k">if</span> <span class="n">mode</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># the orchestrator mode is used for pickling the</span>
+            <span class="c1"># orchestrator and so must be in bytes mode</span>
+            <span class="n">orch_mode</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">DEFAULT_ORCHESTRATION_MODE</span>
+
+        <span class="c1"># there are two possible uses for the path reparametrizations:</span>
+        <span class="c1"># the configuration and the orchestrator file paths. If both</span>
+        <span class="c1"># of those are explicitly specified by passing in the whole</span>
+        <span class="c1"># configuration object or both of checkpoint_dir,</span>
+        <span class="c1"># orchestrator_path then those reparametrization kwargs will</span>
+        <span class="c1"># not be used. As this is likely not the intention of the user</span>
+        <span class="c1"># we will raise an error. If there is even one use for them no</span>
+        <span class="c1"># error will be raised.</span>
+
+        <span class="c1"># first check if any reparametrizations were even requested</span>
+        <span class="n">parametrizations_requested</span> <span class="o">=</span> <span class="p">(</span><span class="kc">True</span> <span class="k">if</span> <span class="n">work_dir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">False</span><span class="p">,</span>
+                                      <span class="kc">True</span> <span class="k">if</span> <span class="n">config_name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">False</span><span class="p">,</span>
+                                      <span class="kc">True</span> <span class="k">if</span> <span class="n">narration</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">False</span><span class="p">,</span>
+                                      <span class="kc">True</span> <span class="k">if</span> <span class="n">mode</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">False</span><span class="p">,)</span>
+
+        <span class="c1"># check if there are any available targets for reparametrization</span>
+        <span class="n">reparametrization_targets</span> <span class="o">=</span> <span class="p">(</span><span class="kc">True</span> <span class="k">if</span> <span class="n">configuration</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">False</span><span class="p">,</span>
+                                     <span class="kc">True</span> <span class="k">if</span> <span class="n">checkpoint_dir</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">False</span><span class="p">,</span>
+                                     <span class="kc">True</span> <span class="k">if</span> <span class="n">orchestrator_path</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">False</span><span class="p">)</span>
+
+        <span class="c1"># if paramatrizations were requested and there are no targets</span>
+        <span class="c1"># we need to raise an error</span>
+        <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">parametrizations_requested</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="n">reparametrization_targets</span><span class="p">):</span>
+
+            <span class="k">raise</span> <span class="n">OrchestratorError</span><span class="p">(</span><span class="s2">&quot;Reparametrizations were requested but none are possible,&quot;</span>
+                                    <span class="s2">&quot; due to all possible targets being already explicitly given&quot;</span><span class="p">)</span>
+
+
+        <span class="c1"># if any paths were not given and no defaults for path</span>
+        <span class="c1"># parameters we want to fill in the defaults for them. This</span>
+        <span class="c1"># will also fill in any missing parametrizations with defaults</span>
+
+        <span class="c1"># we do this by just setting the path parameters if they</span>
+        <span class="c1"># aren&#39;t set, then later the parametrization targets will be</span>
+        <span class="c1"># tested for if they have been set or not, and if they haven&#39;t</span>
+        <span class="c1"># then these will be used to generate paths for them.</span>
+        <span class="k">if</span> <span class="n">work_dir</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">work_dir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">DEFAULT_WORKDIR</span>
+        <span class="k">if</span> <span class="n">config_name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">config_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">DEFAULT_CONFIG_NAME</span>
+        <span class="k">if</span> <span class="n">narration</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">narration</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">DEFAULT_NARRATION</span>
+        <span class="k">if</span> <span class="n">mode</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+           <span class="n">mode</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">DEFAULT_MODE</span>
+
+        <span class="c1"># if no configuration was specified use the default one</span>
+        <span class="k">if</span> <span class="n">configuration</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">configuration</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_default_configuration</span><span class="p">()</span>
+
+            <span class="c1"># reparametrize the configuration with the given path</span>
+            <span class="c1"># parameters and anything else in kwargs. If they are none</span>
+            <span class="c1"># this will have no effect anyhow</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Reparametrizing the configuration&quot;</span><span class="p">)</span>
+            <span class="n">configuration</span> <span class="o">=</span> <span class="n">configuration</span><span class="o">.</span><span class="n">reparametrize</span><span class="p">(</span><span class="n">work_dir</span><span class="o">=</span><span class="n">work_dir</span><span class="p">,</span>
+                                                        <span class="n">config_name</span><span class="o">=</span><span class="n">config_name</span><span class="p">,</span>
+                                                        <span class="n">narration</span><span class="o">=</span><span class="n">narration</span><span class="p">,</span>
+                                                        <span class="n">mode</span><span class="o">=</span><span class="n">mode</span><span class="p">,</span>
+                                                        <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="c1"># make parametric paths for the checkpoint directory and the</span>
+        <span class="c1"># orchestrator pickle to be made, unless they are explicitly given</span>
+
+        <span class="k">if</span> <span class="n">checkpoint_dir</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+
+            <span class="c1"># the checkpoint directory will be in the work dir</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;checkpoint directory defaulted to the work_dir&quot;</span><span class="p">)</span>
+            <span class="n">checkpoint_dir</span> <span class="o">=</span> <span class="n">work_dir</span>
+
+
+        <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;In the orchestrate run, calling to run_snapshot by time&quot;</span><span class="p">)</span>
+        <span class="c1"># then actually run the simulation with checkpointing. This</span>
+        <span class="c1"># returns the end snapshot and doesn&#39;t write out anything to</span>
+        <span class="c1"># orchestrators other than the checkpointing</span>
+        <span class="p">(</span><span class="n">end_snapshot</span><span class="p">,</span> <span class="n">configuration_hash</span><span class="p">,</span> <span class="n">checkpoint_db_path</span><span class="p">,</span> <span class="n">last_cycle_idx</span><span class="p">)</span> <span class="o">=</span>\
+            <span class="bp">self</span><span class="o">.</span><span class="n">run_snapshot_by_time</span><span class="p">(</span><span class="n">snapshot_hash</span><span class="p">,</span> <span class="n">run_time</span><span class="p">,</span> <span class="n">n_steps</span><span class="p">,</span>
+                                            <span class="n">checkpoint_freq</span><span class="o">=</span><span class="n">checkpoint_freq</span><span class="p">,</span>
+                                            <span class="n">checkpoint_dir</span><span class="o">=</span><span class="n">checkpoint_dir</span><span class="p">,</span>
+                                            <span class="n">configuration</span><span class="o">=</span><span class="n">configuration</span><span class="p">,</span>
+                                            <span class="n">checkpoint_mode</span><span class="o">=</span><span class="n">orch_mode</span><span class="p">)</span>
+
+        <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Finished running snapshot by time&quot;</span><span class="p">)</span>
+        <span class="c1"># if the last cycle in the run was a checkpoint skip this step</span>
+        <span class="c1"># of saving a checkpoint</span>
+        <span class="k">if</span> <span class="n">checkpoint_freq</span> <span class="o">%</span> <span class="n">last_cycle_idx</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Last cycle saved a checkpoint, no need to save one&quot;</span><span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+
+            <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Saving a final checkpoint for the end of the run&quot;</span><span class="p">)</span>
+            <span class="c1"># now that it is finished we save the final snapshot to the</span>
+            <span class="c1"># checkpoint file. This is done transactionally using the</span>
+            <span class="c1"># SQLite transaction functionality (either succeeds or doesn&#39;t</span>
+            <span class="c1"># happen) that way we don&#39;t have worry about data integrity</span>
+            <span class="c1"># loss. Here we also don&#39;t have to worry about other processes</span>
+            <span class="c1"># interacting with the checkpoint which makes it isolated.</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_save_checkpoint</span><span class="p">(</span><span class="n">end_snapshot</span><span class="p">,</span> <span class="n">configuration_hash</span><span class="p">,</span>
+                                  <span class="n">checkpoint_db_path</span><span class="p">,</span> <span class="n">last_cycle_idx</span><span class="p">)</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Finished saving the final checkpoint for the run&quot;</span><span class="p">)</span>
+
+        <span class="c1"># then return the final orchestrator</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Getting a connection to that orch to retun&quot;</span><span class="p">)</span>
+        <span class="n">checkpoint_orch</span> <span class="o">=</span> <span class="n">Orchestrator</span><span class="p">(</span><span class="n">checkpoint_db_path</span><span class="p">,</span>
+                                       <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;r+&#39;</span><span class="p">,</span>
+                                       <span class="n">append_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">checkpoint_orch</span></div></div>
+
+
+
+
+<div class="viewcode-block" id="reconcile_orchestrators"><a class="viewcode-back" href="../../../api/wepy.orchestration.orchestrator.html#wepy.orchestration.orchestrator.reconcile_orchestrators">[docs]</a><span class="k">def</span> <span class="nf">reconcile_orchestrators</span><span class="p">(</span><span class="n">host_path</span><span class="p">,</span> <span class="o">*</span><span class="n">orchestrator_paths</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    template_orchestrator :</span>
+<span class="sd">        </span>
+<span class="sd">    *orchestrators :</span>
+<span class="sd">        </span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">osp</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">host_path</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">orchestrator_paths</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">,</span> \
+            <span class="s2">&quot;If the host path is a new orchestrator, must give at least 2 orchestrators to merge.&quot;</span>
+
+    <span class="c1"># open the host orchestrator at the location which will have all</span>
+    <span class="c1"># of the new things put into it from the other orchestrators. If</span>
+    <span class="c1"># it doesn&#39;t already exist it will be created otherwise open</span>
+    <span class="c1"># read-write.</span>
+    <span class="n">new_orch</span> <span class="o">=</span> <span class="n">Orchestrator</span><span class="p">(</span><span class="n">orch_path</span><span class="o">=</span><span class="n">host_path</span><span class="p">,</span>
+                            <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;a&#39;</span><span class="p">,</span>
+                            <span class="n">append_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="c1"># TODO deprecate, if there is no defaults we can&#39;t set them since</span>
+    <span class="c1"># the mode is append only, we don&#39;t really care about these so</span>
+    <span class="c1"># don&#39;t set them, otherwise do some mode logic to figure this out</span>
+    <span class="c1"># and open in write mode and set defaults, then change to append</span>
+    <span class="c1"># only</span>
+
+    <span class="c1"># # if this is an existing orchestrator copy the default</span>
+    <span class="c1"># # sim_apparatus and init_walkers</span>
+    <span class="c1"># try:</span>
+    <span class="c1">#     default_app = new_orch.get_default_sim_apparatus()</span>
+    <span class="c1"># except KeyError:</span>
+    <span class="c1">#     # no default apparatus, that is okay</span>
+    <span class="c1">#     pass</span>
+    <span class="c1"># else:</span>
+    <span class="c1">#     # set it</span>
+    <span class="c1">#     new_orch.set_default_sim_apparatus(default_app)</span>
+
+    <span class="c1"># # same for the initial walkers</span>
+    <span class="c1"># try:</span>
+    <span class="c1">#     default_walkers = new_orch.get_default_init_walkers()</span>
+    <span class="c1"># except KeyError:</span>
+    <span class="c1">#     # no default apparatus, that is okay</span>
+    <span class="c1">#     pass</span>
+    <span class="c1"># else:</span>
+    <span class="c1">#     # set it</span>
+    <span class="c1">#     new_orch.set_default_sim_apparatus(default_walkers)</span>
+
+
+    <span class="k">for</span> <span class="n">orch_path</span> <span class="ow">in</span> <span class="n">orchestrator_paths</span><span class="p">:</span>
+
+        <span class="c1"># open it in read-write fail if doesn&#39;t exist</span>
+        <span class="n">orch</span> <span class="o">=</span> <span class="n">Orchestrator</span><span class="p">(</span><span class="n">orch_path</span><span class="o">=</span><span class="n">orch_path</span><span class="p">,</span>
+                            <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;r+&#39;</span><span class="p">,</span>
+                            <span class="n">append_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="c1"># add in all snapshots from each orchestrator, by the hash not the</span>
+        <span class="c1"># snapshots themselves, we trust they are correct</span>
+        <span class="k">for</span> <span class="n">snaphash</span> <span class="ow">in</span> <span class="n">orch</span><span class="o">.</span><span class="n">snapshot_hashes</span><span class="p">:</span>
+
+            <span class="c1"># check that the hash is not already in the snapshots</span>
+            <span class="k">if</span> <span class="nb">any</span><span class="p">([</span><span class="kc">True</span> <span class="k">if</span> <span class="n">snaphash</span> <span class="o">==</span> <span class="n">md5</span> <span class="k">else</span> <span class="kc">False</span> <span class="k">for</span> <span class="n">md5</span> <span class="ow">in</span> <span class="n">new_orch</span><span class="o">.</span><span class="n">snapshot_hashes</span><span class="p">]):</span>
+
+                <span class="c1"># skip it and move on</span>
+                <span class="k">continue</span>
+
+            <span class="c1"># if it is not copy it over without deserializing</span>
+            <span class="n">new_orch</span><span class="o">.</span><span class="n">snapshot_kv</span><span class="p">[</span><span class="n">snaphash</span><span class="p">]</span> <span class="o">=</span> <span class="n">orch</span><span class="o">.</span><span class="n">snapshot_kv</span><span class="p">[</span><span class="n">snaphash</span><span class="p">]</span>
+
+        <span class="c1"># add in the configurations for the runs from each</span>
+        <span class="c1"># orchestrator, by the hash not the snapshots themselves, we</span>
+        <span class="c1"># trust they are correct</span>
+        <span class="k">for</span> <span class="n">run_id</span> <span class="ow">in</span> <span class="n">orch</span><span class="o">.</span><span class="n">run_hashes</span><span class="p">():</span>
+
+            <span class="n">config_hash</span> <span class="o">=</span> <span class="n">orch</span><span class="o">.</span><span class="n">run_configuration_hash</span><span class="p">(</span><span class="o">*</span><span class="n">run_id</span><span class="p">)</span>
+
+            <span class="c1"># check that the hash is not already in the snapshots</span>
+            <span class="k">if</span> <span class="nb">any</span><span class="p">([</span><span class="kc">True</span> <span class="k">if</span> <span class="n">config_hash</span> <span class="o">==</span> <span class="n">md5</span> <span class="k">else</span> <span class="kc">False</span> <span class="k">for</span> <span class="n">md5</span> <span class="ow">in</span> <span class="n">new_orch</span><span class="o">.</span><span class="n">configuration_hashes</span><span class="p">]):</span>
+
+                <span class="c1"># skip it and move on</span>
+                <span class="k">continue</span>
+
+            <span class="c1"># if it is not set it</span>
+            <span class="n">new_orch</span><span class="o">.</span><span class="n">configuration_kv</span><span class="p">[</span><span class="n">config_hash</span><span class="p">]</span> <span class="o">=</span> <span class="n">orch</span><span class="o">.</span><span class="n">configuration_kv</span><span class="p">[</span><span class="n">config_hash</span><span class="p">]</span>
+
+        <span class="c1"># concatenate the run table with an SQL union from an attached</span>
+        <span class="c1"># database</span>
+
+        <span class="n">attached_table_name</span> <span class="o">=</span> <span class="s2">&quot;other&quot;</span>
+
+        <span class="c1"># query to attach the foreign database</span>
+        <span class="n">attach_query</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        ATTACH &#39;</span><span class="si">{}</span><span class="s2">&#39; AS </span><span class="si">{}</span><span class="s2"></span>
+<span class="s2">        &quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">orch_path</span><span class="p">,</span> <span class="n">attached_table_name</span><span class="p">)</span>
+
+        <span class="c1"># query to update the runs tabel with new unique runs</span>
+        <span class="n">union_query</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        INSERT INTO runs</span>
+<span class="s2">        SELECT * FROM (</span>
+<span class="s2">        SELECT * FROM </span><span class="si">{}</span><span class="s2">.runs</span>
+<span class="s2">        EXCEPT</span>
+<span class="s2">        SELECT * FROM runs</span>
+<span class="s2">        )</span>
+<span class="s2">        &quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">attached_table_name</span><span class="p">)</span>
+
+        <span class="c1"># query to detach the table</span>
+        <span class="n">detach_query</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        DETACH </span><span class="si">{}</span><span class="s2"></span>
+<span class="s2">        &quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">attached_table_name</span><span class="p">)</span>
+
+        <span class="c1"># then run the queries</span>
+
+        <span class="n">cursor</span> <span class="o">=</span> <span class="n">new_orch</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s1">&#39;BEGIN TRANSACTION&#39;</span><span class="p">)</span>
+            <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">attach_query</span><span class="p">)</span>
+            <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">union_query</span><span class="p">)</span>
+            <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s1">&#39;COMMIT&#39;</span><span class="p">)</span>
+            <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">detach_query</span><span class="p">)</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s1">&#39;COMMIT&#39;</span><span class="p">)</span>
+            <span class="kn">import</span> <span class="nn">pdb</span><span class="p">;</span> <span class="n">pdb</span><span class="o">.</span><span class="n">set_trace</span><span class="p">()</span>
+            <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;SELECT * FROM (SELECT * FROM other.runs EXCEPT SELECT * FROM runs)&quot;</span><span class="p">)</span>
+            <span class="n">recs</span> <span class="o">=</span> <span class="n">cursor</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="n">new_orch</span></div>
+</pre></div>
+
+          </div>
+            
+        </div>
+        <div class="clearfix"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">wepy  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+<script type="text/javascript">
+  $("#mobile-toggle a").click(function () {
+    $("#left-column").toggle();
+  });
+</script>
+<script type="text/javascript" src="../../../_static/js/bootstrap.js"></script>
+  <div class="footer">
+    &copy; Copyright 2018, Samuel D. Lotz. Created using <a href="http://sphinx.pocoo.org/">Sphinx</a>.
+  </div>
+  </body>
+</html>

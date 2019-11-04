@@ -1,0 +1,270 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+  
+  <!-- Licensed under the Apache 2.0 License -->
+  <link rel="stylesheet" type="text/css" href="../_static/fonts/open-sans/stylesheet.css" />
+  <!-- Licensed under the SIL Open Font License -->
+  <link rel="stylesheet" type="text/css" href="../_static/fonts/source-serif-pro/source-serif-pro.css" />
+  <link rel="stylesheet" type="text/css" href="../_static/css/bootstrap.min.css" />
+  <link rel="stylesheet" type="text/css" href="../_static/css/bootstrap-theme.min.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+    <title>wepy.boundary_conditions package &#8212; wepy  documentation</title>
+    <link rel="stylesheet" href="../_static/guzzle.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/language_data.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="wepy.boundary_conditions.boundary module" href="wepy.boundary_conditions.boundary.html" />
+    <link rel="prev" title="wepy.analysis.transitions module" href="wepy.analysis.transitions.html" />
+  
+   
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="wepy.boundary_conditions.boundary.html" title="wepy.boundary_conditions.boundary module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="wepy.analysis.transitions.html" title="wepy.analysis.transitions module"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">wepy  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >wepy</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="wepy.html" accesskey="U">wepy package</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="container-wrapper">
+
+      <div id="mobile-toggle">
+        <a href="#"><span class="glyphicon glyphicon-align-justify" aria-hidden="true"></span></a>
+      </div>
+  <div id="left-column">
+    <div class="sphinxsidebar">
+<div class="sidebar-block">
+  <div class="sidebar-wrapper">
+    <h2>Contents</h2>
+    <div class="sidebar-localtoc">
+      <ul>
+<li><a class="reference internal" href="#">wepy.boundary_conditions package</a><ul>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+
+    </div>
+  </div>
+</div>
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="wepy.analysis.transitions.html"
+                        title="previous chapter">wepy.analysis.transitions module</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="wepy.boundary_conditions.boundary.html"
+                        title="next chapter">wepy.boundary_conditions.boundary module</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/api/wepy.boundary_conditions.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div class="sidebar-block">
+  <div class="sidebar-wrapper">
+    <div id="main-search">
+      <form class="form-inline" action="../search.html" method="GET" role="form">
+        <div class="input-group">
+          <input name="q" type="text" class="form-control" placeholder="Search...">
+        </div>
+        <input type="hidden" name="check_keywords" value="yes" />
+        <input type="hidden" name="area" value="default" />
+      </form>
+    </div>
+  </div>
+</div>
+      
+    </div>
+  </div>
+        <div id="right-column">
+          
+          <div role="navigation" aria-label="breadcrumbs navigation">
+            <ol class="breadcrumb">
+              <li><a href="../index.html">Docs</a></li>
+              
+                <li><a href="modules.html">wepy</a></li>
+              
+                <li><a href="wepy.html">wepy package</a></li>
+              
+              <li>wepy.boundary_conditions package</li>
+            </ol>
+          </div>
+          
+          <div class="document clearer body">
+            
+  <div class="section" id="module-wepy.boundary_conditions">
+<span id="wepy-boundary-conditions-package"></span><h1>wepy.boundary_conditions package<a class="headerlink" href="#module-wepy.boundary_conditions" title="Permalink to this headline">¶</a></h1>
+<p>Library of and framework for making boundary conditions in wepy simulations.</p>
+<p>In many simulations you would like to apply external constraints upon
+the dynamics of a simulation. For example in ligand unbinding
+simulations you may want to recognize and act on the fact that a
+ligand has reached some sort of threshold distance away from it’s
+originally bound protein. The <cite>LigandUnbinding</cite> boundary condition
+class does exactly this and modifies the walker state to restart it in
+the original starting position instead of continuing the dynamics of
+the runner. Another possible way to implement this would be to only
+change a single data field in the walker state that tells you the
+“color” of the walker which indicates the last boundary it crossed,
+without interrupting the dynamical continuity of the
+simulation. However, the analysis routines in <cite>wepy</cite> are adapted to
+deal with such discontinuities if you desire such non-equilibrium
+simulations.</p>
+<p>Use of boundary conditions is so common that the <cite>wepy</cite> simulation
+manager and <cite>WepyHDF5</cite> storage backend provide an interface for
+applying and saving results of boundary conditions.</p>
+<p>Boundary conditions need not be used in a simulation at all however
+and are strictly optional.</p>
+<p>This module provides a small library of common boundary conditions and
+a reference for the implementation of your own boundary
+conditions. The approach to have a microframework for making boundary
+conditions was chosen because the actual details of them are highly
+domain dependent and it is unlikely that <cite>wepy</cite> could begin to cover
+all of them.</p>
+<p>A boundary condition is simply a duck typed object that follows the
+interface called by the simulation manager. This means that you need
+not use this microframework at all and can implement one from the
+ground up. I.e. no explicit class inheritance checks are done at any
+point.</p>
+<p>However, to make things easy just inherit from the <cite>BoundaryCondition</cite>
+base class and override the necessary functions.</p>
+<p>These methods must be implemented to work correctly in the reference
+simulation manager:
+- warp_walkers
+- progress
+- update_bc</p>
+<p>A non-trivial boundary condition (BC for short) will override at least
+the <cite>warp_walkers</cite> method. “Warping” in <cite>wepy</cite> terminology means for a
+walker to have met the constraints of the BC and have it’s state be
+modified in response (think warping through space via a wormhole like
+in star trek). Warps can be ‘continuous’ or ‘discontinuous’ depending
+on whether the continuity of dynamics is broken due to this
+effect. For example, resetting the positions of a molecular dynamics
+to its starting point is discontinuous, and the change of a string
+label or some other field not used by the runner to compute dynamics
+is continuous.</p>
+<p>For each warping event a single warping record is generated, that
+should detail the event.</p>
+<p>The simulation manager will also make calls to <cite>progress</cite> and
+<cite>update_bc</cite>, but these are accessory to the <cite>warp_walkers</cite> method.</p>
+<p>The <cite>progress</cite> call returns a continual record (one per cycle) and is
+intended to report on some metrics of progress the walkers have
+achieved. For example in the ligand unbinding example this can be the
+minimum distance to the protein. The progress record can contain
+multiple features per walker. It can also be used to make economical
+use of calculations used in the BC when determining the warpings of
+the walkers.</p>
+<p>Additionally for routines in <cite>wepy.analysis</cite> to work properly the
+<cite>warping_discontinuity</cite> classmethod (can be called from the class
+without an object instance) must be implemented correctly.</p>
+<p>The <cite>update_bc</cite> call is used to get changes to the BC object
+itself. To use the ligand unbinding example one might lower the
+threshold for unbinding if so many cycles go by without an event
+occuring with perhaps introspection on the progress values.</p>
+<p>Any changes in the state of the BC object should be happen in the call
+stack of <cite>update_bc</cite> and reflected in the ‘bc_record’ returned to the
+simulation manager.</p>
+<p>Record groups generated by a BC class are:
+- warping
+- boundary_conditions
+- progress</p>
+<p>It is recommended (but optional) to have all the field names, shapes,
+and dtypes for the records in the class definition for these
+where possible.</p>
+<p class="rubric">Notes</p>
+<p>Boundary conditions in wepy simulations are optional.</p>
+<p>Inherit from the
+<cite>wepy.boundary_conditions.boundary.BoundaryConditions</cite> class to get
+started developing your own boundary conditions.</p>
+<p>Boundary conditions must implement methods: <cite>warp_walkers</cite>,
+<cite>progress</cite>, and <cite>update_bc</cite> for simulation.</p>
+<p>It is the programmers responsibility to handle discontinuous warping
+events by implementing the <cite>warping_discontinuity</cite> class method.</p>
+<p class="rubric">References</p>
+<p class="rubric">Examples</p>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="wepy.boundary_conditions.boundary.html">wepy.boundary_conditions.boundary module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="wepy.boundary_conditions.receptor.html">wepy.boundary_conditions.receptor module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="wepy.boundary_conditions.unbinding.html">wepy.boundary_conditions.unbinding module</a></li>
+</ul>
+</div>
+</div>
+</div>
+
+
+          </div>
+            
+  <div class="footer-relations">
+    
+      <div class="pull-left">
+        <a class="btn btn-default" href="wepy.analysis.transitions.html" title="previous chapter (use the left arrow)">wepy.analysis.transitions module</a>
+      </div>
+    
+      <div class="pull-right">
+        <a class="btn btn-default" href="wepy.boundary_conditions.boundary.html" title="next chapter (use the right arrow)">wepy.boundary_conditions.boundary module</a>
+      </div>
+    </div>
+    <div class="clearer"></div>
+  
+        </div>
+        <div class="clearfix"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="wepy.boundary_conditions.boundary.html" title="wepy.boundary_conditions.boundary module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="wepy.analysis.transitions.html" title="wepy.analysis.transitions module"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">wepy  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >wepy</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="wepy.html" >wepy package</a> &#187;</li> 
+      </ul>
+    </div>
+<script type="text/javascript">
+  $("#mobile-toggle a").click(function () {
+    $("#left-column").toggle();
+  });
+</script>
+<script type="text/javascript" src="../_static/js/bootstrap.js"></script>
+  <div class="footer">
+    &copy; Copyright 2018, Samuel D. Lotz. Created using <a href="http://sphinx.pocoo.org/">Sphinx</a>.
+  </div>
+  </body>
+</html>

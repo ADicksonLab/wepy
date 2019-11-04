@@ -1,0 +1,854 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+  
+  <!-- Licensed under the Apache 2.0 License -->
+  <link rel="stylesheet" type="text/css" href="../../../_static/fonts/open-sans/stylesheet.css" />
+  <!-- Licensed under the SIL Open Font License -->
+  <link rel="stylesheet" type="text/css" href="../../../_static/fonts/source-serif-pro/source-serif-pro.css" />
+  <link rel="stylesheet" type="text/css" href="../../../_static/css/bootstrap.min.css" />
+  <link rel="stylesheet" type="text/css" href="../../../_static/css/bootstrap-theme.min.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+    <title>wepy.analysis.parents &#8212; wepy  documentation</title>
+    <link rel="stylesheet" href="../../../_static/guzzle.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../../_static/language_data.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+  
+   
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">wepy  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="container-wrapper">
+
+      <div id="mobile-toggle">
+        <a href="#"><span class="glyphicon glyphicon-align-justify" aria-hidden="true"></span></a>
+      </div>
+  <div id="left-column">
+    <div class="sphinxsidebar">
+<div class="sidebar-block">
+  <div class="sidebar-wrapper">
+    <div id="main-search">
+      <form class="form-inline" action="../../../search.html" method="GET" role="form">
+        <div class="input-group">
+          <input name="q" type="text" class="form-control" placeholder="Search...">
+        </div>
+        <input type="hidden" name="check_keywords" value="yes" />
+        <input type="hidden" name="area" value="default" />
+      </form>
+    </div>
+  </div>
+</div>
+      
+    </div>
+  </div>
+        <div id="right-column">
+          
+          <div role="navigation" aria-label="breadcrumbs navigation">
+            <ol class="breadcrumb">
+              <li><a href="../../../index.html">Docs</a></li>
+              
+                <li><a href="../../index.html">Module code</a></li>
+              
+              <li>wepy.analysis.parents</li>
+            </ol>
+          </div>
+          
+          <div class="document clearer body">
+            
+  <h1>Source code for wepy.analysis.parents</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Routines for converting resampling data to parental lineages.</span>
+
+<span class="sd">The core mechanism of weighted ensemble (WE) is to resample cohorts of</span>
+<span class="sd">parallel simulations. Principally this means &#39;cloning&#39; and &#39;merging&#39;</span>
+<span class="sd">different walkers which gives rise to branching &#39;family&#39; tree</span>
+<span class="sd">structures.</span>
+
+<span class="sd">The routines in this module are concerned with utilizing raw</span>
+<span class="sd">resampling records data from a resampler and extracting these lineages</span>
+<span class="sd">in useful easy to query structures.</span>
+
+<span class="sd">Cloning and merging is performed on a cohort of walkers at every</span>
+<span class="sd">cycle. A walker has both a state and weight. The state is related to</span>
+<span class="sd">the dynamical state such as the positions, velocities, etc. that</span>
+<span class="sd">describe the state of a simulation. The weight corresponds to the</span>
+<span class="sd">probability normalized with the other walkers of the cohort.</span>
+
+<span class="sd">An n-clone constitutes copying a state n times to n walkers with w/n</span>
+<span class="sd">weights where w is the weight of the cloned walker. The cloned walker</span>
+<span class="sd">is said to be the parent of the new child walkers.</span>
+
+<span class="sd">An k-merge constitutes combining k walkers into a single walker with a</span>
+<span class="sd">weight that is the sum of all k walkers. The state of this walker is</span>
+<span class="sd">chosen by sampling from the discrete distribution of the k</span>
+<span class="sd">walkers. The walker that has it&#39;s state chosen to persist is referred</span>
+<span class="sd">to as the &#39;kept&#39; walker and the other walkers are said to be</span>
+<span class="sd">&#39;squashed&#39;, as they are compressed into a single walker, preserving</span>
+<span class="sd">their weight but not their state. Squashed walkers are leaves of the</span>
+<span class="sd">tree and leave no children. The kept walker and walkers for which no</span>
+<span class="sd">cloning or merging was performed will have a single child.</span>
+
+<span class="sd">Routines</span>
+<span class="sd">--------</span>
+
+<span class="sd">resampling_panel : Compiles an unordered collection of resampling records</span>
+<span class="sd">    into a structured array of records.</span>
+
+<span class="sd">parent_panel : Using a parental relationship reduce the records in a</span>
+<span class="sd">    resampling panel to a structured array of parent indices.</span>
+
+<span class="sd">net_parent_table : Reduce the full parent panel (with multiple steps</span>
+<span class="sd">    per cycle) to the net results of resampling per cycle.</span>
+
+<span class="sd">parent_table_discontinuties : Using an interpretation of warping</span>
+<span class="sd">    records assigns a special value in a parent table for</span>
+<span class="sd">    discontinuous warping events.</span>
+
+<span class="sd">ancestors : Generate the lineage trace of a given walker back through</span>
+<span class="sd">    history. This is used to get logically contiguous trajectories from</span>
+<span class="sd">    walker slot trajectories (not necessarily contiguous in storage).</span>
+
+<span class="sd">sliding_window : Generate non-redundant sliding window traces over the</span>
+<span class="sd">    parent forest (tree) imposed over a parent table.</span>
+
+<span class="sd">ParentForest : Class that imposes the forest (tree) structure over the</span>
+<span class="sd">    parent table. Valid for a single contig in the contig tree (forest).</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+
+<span class="kn">from</span> <span class="nn">copy</span> <span class="k">import</span> <span class="n">copy</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">networkx</span> <span class="k">as</span> <span class="nn">nx</span>
+
+<span class="n">DISCONTINUITY_VALUE</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+<span class="sd">&quot;&quot;&quot;Special value used to determine if a parent-child relationship has</span>
+<span class="sd">discontinuous dynamical continuity. Functions in this module uses this</span>
+<span class="sd">to set this value.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="resampling_panel"><a class="viewcode-back" href="../../../api/wepy.analysis.parents.html#wepy.analysis.parents.resampling_panel">[docs]</a><span class="k">def</span> <span class="nf">resampling_panel</span><span class="p">(</span><span class="n">resampling_records</span><span class="p">,</span> <span class="n">is_sorted</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Converts an unordered collection of resampling records into a</span>
+<span class="sd">    structured array (lists) corresponding to cycles and resampling</span>
+<span class="sd">    steps within cycles.</span>
+
+<span class="sd">    It is like doing a pivot on the step indices into an extra</span>
+<span class="sd">    dimension. Hence it can be thought of as a list of tables indexed</span>
+<span class="sd">    by the cycle, hence the name panel.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    resampling_records : list of nametuple records</span>
+<span class="sd">        A list of resampling records.</span>
+
+<span class="sd">    is_sorted : bool</span>
+<span class="sd">        If this is True it will be assumed that the resampling_records</span>
+<span class="sd">        are presorted, otherwise they will be sorted.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    resampling_panel : list of list of list of namedtuple records</span>
+<span class="sd">        The panel (list of tables) of resampling records in order</span>
+<span class="sd">        (cycle, step, walker)</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">res_panel</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="c1"># if the records are not sorted this must be done:</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">is_sorted</span><span class="p">:</span>
+        <span class="n">resampling_records</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+
+    <span class="c1"># iterate through the resampling records</span>
+    <span class="n">rec_it</span> <span class="o">=</span> <span class="nb">iter</span><span class="p">(</span><span class="n">resampling_records</span><span class="p">)</span>
+    <span class="n">last_cycle_idx</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">cycle_recs</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">stop</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="k">while</span> <span class="ow">not</span> <span class="n">stop</span><span class="p">:</span>
+
+        <span class="c1"># iterate through records until either there is none left or</span>
+        <span class="c1"># until you get to the next cycle</span>
+        <span class="n">cycle_stop</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">while</span> <span class="ow">not</span> <span class="n">cycle_stop</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">rec</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">rec_it</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">StopIteration</span><span class="p">:</span>
+                <span class="c1"># this is the last record of all the records</span>
+                <span class="n">stop</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="c1"># this is the last record for the last cycle as well</span>
+                <span class="n">cycle_stop</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="c1"># alias for the current cycle</span>
+                <span class="n">curr_cycle_recs</span> <span class="o">=</span> <span class="n">cycle_recs</span>
+            <span class="k">else</span><span class="p">:</span>
+
+                <span class="c1"># the cycles in the records may not start at 0, but</span>
+                <span class="c1"># they are in order so we initialize the last</span>
+                <span class="c1"># cycle_idx so we know when in the records we have</span>
+                <span class="c1"># gotten to the next cycle of records</span>
+                <span class="k">if</span> <span class="n">last_cycle_idx</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">last_cycle_idx</span> <span class="o">=</span> <span class="n">rec</span><span class="o">.</span><span class="n">cycle_idx</span>
+
+                <span class="c1"># if the resampling record retrieved is from the next</span>
+                <span class="c1"># cycle we finish the last cycle</span>
+                <span class="k">if</span> <span class="n">rec</span><span class="o">.</span><span class="n">cycle_idx</span> <span class="o">&gt;</span> <span class="n">last_cycle_idx</span><span class="p">:</span>
+                    <span class="n">cycle_stop</span> <span class="o">=</span> <span class="kc">True</span>
+                    <span class="c1"># save the current cycle as a special</span>
+                    <span class="c1"># list which we will iterate through</span>
+                    <span class="c1"># to reduce down to the bare</span>
+                    <span class="c1"># resampling record</span>
+                    <span class="n">curr_cycle_recs</span> <span class="o">=</span> <span class="n">cycle_recs</span>
+
+                    <span class="c1"># start a new cycle_recs for the record</span>
+                    <span class="c1"># we just got</span>
+                    <span class="n">cycle_recs</span> <span class="o">=</span> <span class="p">[</span><span class="n">rec</span><span class="p">]</span>
+                    <span class="n">last_cycle_idx</span> <span class="o">+=</span> <span class="mi">1</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">cycle_stop</span><span class="p">:</span>
+                <span class="n">cycle_recs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">rec</span><span class="p">)</span>
+
+            <span class="k">else</span><span class="p">:</span>
+
+                <span class="c1"># we need to break up the records in the cycle into steps</span>
+                <span class="n">cycle_table</span> <span class="o">=</span> <span class="p">[]</span>
+
+                <span class="c1"># temporary container for the step we are working on</span>
+                <span class="n">step_recs</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="n">step_idx</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="n">step_stop</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="n">cycle_it</span> <span class="o">=</span> <span class="nb">iter</span><span class="p">(</span><span class="n">curr_cycle_recs</span><span class="p">)</span>
+                <span class="k">while</span> <span class="ow">not</span> <span class="n">step_stop</span><span class="p">:</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="n">cycle_rec</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">cycle_it</span><span class="p">)</span>
+                    <span class="c1"># stop the step if this is the last record for the cycle</span>
+                    <span class="k">except</span> <span class="ne">StopIteration</span><span class="p">:</span>
+                        <span class="n">step_stop</span> <span class="o">=</span> <span class="kc">True</span>
+                        <span class="c1"># alias for the current step</span>
+                        <span class="n">curr_step_recs</span> <span class="o">=</span> <span class="n">step_recs</span>
+
+                    <span class="c1"># or if the next stop index has been obtained</span>
+                    <span class="k">else</span><span class="p">:</span>
+
+                        <span class="k">if</span> <span class="n">cycle_rec</span><span class="o">.</span><span class="n">step_idx</span> <span class="o">&gt;</span> <span class="n">step_idx</span><span class="p">:</span>
+                            <span class="n">step_stop</span> <span class="o">=</span> <span class="kc">True</span>
+                            <span class="c1"># save the current step as a special</span>
+                            <span class="c1"># list which we will iterate through</span>
+                            <span class="c1"># to reduce down to the bare</span>
+                            <span class="c1"># resampling record</span>
+                            <span class="n">curr_step_recs</span> <span class="o">=</span> <span class="n">step_recs</span>
+
+                            <span class="c1"># start a new step_recs for the record</span>
+                            <span class="c1"># we just got</span>
+                            <span class="n">step_recs</span> <span class="o">=</span> <span class="p">[</span><span class="n">cycle_rec</span><span class="p">]</span>
+                            <span class="n">step_idx</span> <span class="o">+=</span> <span class="mi">1</span>
+
+
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">step_stop</span><span class="p">:</span>
+                        <span class="n">step_recs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cycle_rec</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="c1"># go through the walkers for this step since it is completed</span>
+                        <span class="n">step_row</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">curr_step_recs</span><span class="p">))]</span>
+                        <span class="k">for</span> <span class="n">walker_rec</span> <span class="ow">in</span> <span class="n">curr_step_recs</span><span class="p">:</span>
+
+                            <span class="c1"># collect data from the record</span>
+                            <span class="n">walker_idx</span> <span class="o">=</span> <span class="n">walker_rec</span><span class="o">.</span><span class="n">walker_idx</span>
+                            <span class="n">decision_id</span> <span class="o">=</span> <span class="n">walker_rec</span><span class="o">.</span><span class="n">decision_id</span>
+                            <span class="n">instruction</span> <span class="o">=</span> <span class="n">walker_rec</span><span class="o">.</span><span class="n">target_idxs</span>
+
+                            <span class="c1"># set the resampling record for the walker in the step records</span>
+                            <span class="n">step_row</span><span class="p">[</span><span class="n">walker_idx</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">decision_id</span><span class="p">,</span> <span class="n">instruction</span><span class="p">)</span>
+
+
+                        <span class="c1"># add the records for this step to the cycle table</span>
+                        <span class="n">cycle_table</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">step_row</span><span class="p">)</span>
+
+        <span class="c1"># add the table for this cycles records to the parent panel</span>
+        <span class="n">res_panel</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cycle_table</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">res_panel</span></div>
+
+
+<div class="viewcode-block" id="parent_panel"><a class="viewcode-back" href="../../../api/wepy.analysis.parents.html#wepy.analysis.parents.parent_panel">[docs]</a><span class="k">def</span> <span class="nf">parent_panel</span><span class="p">(</span><span class="n">decision_class</span><span class="p">,</span> <span class="n">resampling_panel</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Using the parental interpretation of resampling records given by</span>
+<span class="sd">    the decision_class, convert resampling records in a resampling</span>
+<span class="sd">    panel to parent indices.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    decision_class : class implementing Decision interface</span>
+<span class="sd">        The class that interprets resampling records for parental relationships.</span>
+<span class="sd">    resampling_panel : list of list of list of namedtuple records</span>
+<span class="sd">        Panel of resampling records.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    parent_panel : list of list of list of int</span>
+<span class="sd">        A structured list of the same for as the resampling panel,</span>
+<span class="sd">        with parent indices swapped for resampling records.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">parent_panel_in</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">cycle</span> <span class="ow">in</span> <span class="n">resampling_panel</span><span class="p">:</span>
+
+        <span class="c1"># each stage in the resampling for that cycle</span>
+        <span class="c1"># make a stage parent table</span>
+        <span class="n">parent_table</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="c1"># now iterate through the rest of the stages</span>
+        <span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="n">cycle</span><span class="p">:</span>
+
+            <span class="c1"># get the parents idxs for the children of this step</span>
+            <span class="n">step_parents</span> <span class="o">=</span> <span class="n">decision_class</span><span class="o">.</span><span class="n">parents</span><span class="p">(</span><span class="n">step</span><span class="p">)</span>
+
+            <span class="c1"># for the full stage table save all the intermediate parents</span>
+            <span class="n">parent_table</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">step_parents</span><span class="p">)</span>
+
+        <span class="c1"># for the full parent panel</span>
+        <span class="n">parent_panel_in</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">parent_table</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">parent_panel_in</span></div>
+
+<div class="viewcode-block" id="net_parent_table"><a class="viewcode-back" href="../../../api/wepy.analysis.parents.html#wepy.analysis.parents.net_parent_table">[docs]</a><span class="k">def</span> <span class="nf">net_parent_table</span><span class="p">(</span><span class="n">parent_panel</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Reduces a full parent panel to get parent indices on a cycle basis.</span>
+
+<span class="sd">    The full parent panel has parent indices for every step in each</span>
+<span class="sd">    cycle. This computes the net parent relationships for each cycle,</span>
+<span class="sd">    thus reducing the list of tables (panel) to a single table. A</span>
+<span class="sd">    table need not have the same length rows, i.e. a ragged array,</span>
+<span class="sd">    since there can be different numbers of walkers each cycle.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    parent_panel : list of list of list of int</span>
+<span class="sd">        The full panel of parent relationships.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    parent_table : list of list of int</span>
+<span class="sd">        Net parent relationships for each cycle.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">net_parent_table_in</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="c1"># each cycle</span>
+    <span class="k">for</span> <span class="n">cycle_idx</span><span class="p">,</span> <span class="n">step_parent_table</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">parent_panel</span><span class="p">):</span>
+        <span class="c1"># for the net table we only want the end results,</span>
+        <span class="c1"># we start at the last cycle and look at its parent</span>
+        <span class="n">step_net_parents</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">n_steps</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">step_parent_table</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">walker_idx</span><span class="p">,</span> <span class="n">parent_idx</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">step_parent_table</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]):</span>
+            <span class="c1"># initialize the root_parent_idx which will be updated</span>
+            <span class="n">root_parent_idx</span> <span class="o">=</span> <span class="n">parent_idx</span>
+
+            <span class="c1"># if no resampling skip the loop and just return the idx</span>
+            <span class="k">if</span> <span class="n">n_steps</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="c1"># go back through the steps getting the parent at each step</span>
+                <span class="k">for</span> <span class="n">prev_step_idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_steps</span><span class="p">):</span>
+                    <span class="n">prev_step_parents</span> <span class="o">=</span> <span class="n">step_parent_table</span><span class="p">[</span><span class="o">-</span><span class="p">(</span><span class="n">prev_step_idx</span><span class="o">+</span><span class="mi">1</span><span class="p">)]</span>
+                    <span class="n">root_parent_idx</span> <span class="o">=</span> <span class="n">prev_step_parents</span><span class="p">[</span><span class="n">root_parent_idx</span><span class="p">]</span>
+
+            <span class="c1"># when this is done we should have the index of the root parent,</span>
+            <span class="c1"># save this as the net parent index</span>
+            <span class="n">step_net_parents</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">root_parent_idx</span><span class="p">)</span>
+
+        <span class="c1"># for this step save the net parents</span>
+        <span class="n">net_parent_table_in</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">step_net_parents</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">net_parent_table_in</span></div>
+
+<div class="viewcode-block" id="parent_table_discontinuities"><a class="viewcode-back" href="../../../api/wepy.analysis.parents.html#wepy.analysis.parents.parent_table_discontinuities">[docs]</a><span class="k">def</span> <span class="nf">parent_table_discontinuities</span><span class="p">(</span><span class="n">boundary_condition_class</span><span class="p">,</span> <span class="n">parent_table</span><span class="p">,</span> <span class="n">warping_records</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Given a parent table and warping records returns a new parent table</span>
+<span class="sd">    with the discontinuous warping events for parents set to a special</span>
+<span class="sd">    value (-1).</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    boundary_condition_class : class implementing BoundaryCondition interface</span>
+<span class="sd">        The boundary condition class that interprets warping</span>
+<span class="sd">        records for if they are discontinuous or not.</span>
+<span class="sd">    parent_table : list of list of int</span>
+
+<span class="sd">    warping_records : list of namedtuple records</span>
+<span class="sd">        The unordered collection of warping events from the simulation.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    parent_table : list of list of int</span>
+<span class="sd">        Same shape as input parent_table but with discontinuous</span>
+<span class="sd">        relationships inserted as -1.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Make a copy of the parent table</span>
+    <span class="n">new_parent_table</span> <span class="o">=</span> <span class="n">copy</span><span class="p">(</span><span class="n">parent_table</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">warp_record</span> <span class="ow">in</span> <span class="n">warping_records</span><span class="p">:</span>
+
+        <span class="n">cycle_idx</span> <span class="o">=</span> <span class="n">warp_record</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">parent_idx</span> <span class="o">=</span> <span class="n">warp_record</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="n">n_walkers</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">parent_table</span><span class="p">[</span><span class="n">cycle_idx</span><span class="p">])</span>
+
+
+        <span class="n">discs</span> <span class="o">=</span> <span class="p">[</span><span class="kc">False</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_walkers</span><span class="p">)]</span>
+        <span class="c1"># Check to see if any walkers in the current step</span>
+        <span class="c1"># originated from this warped walker</span>
+        <span class="k">for</span> <span class="n">walker_idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_walkers</span><span class="p">):</span>
+
+            <span class="c1"># this walker was warped discontinuously make a record true for itq</span>
+            <span class="k">if</span> <span class="n">boundary_condition_class</span><span class="o">.</span><span class="n">warping_discontinuity</span><span class="p">(</span><span class="n">warp_record</span><span class="p">):</span>
+                <span class="n">discs</span><span class="p">[</span><span class="n">walker_idx</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="n">disc_parent_row</span> <span class="o">=</span> <span class="n">parent_cycle_discontinuities</span><span class="p">(</span><span class="n">parent_table</span><span class="p">[</span><span class="n">cycle_idx</span><span class="p">],</span>
+                                                       <span class="n">discs</span><span class="p">)</span>
+
+        <span class="n">new_parent_table</span><span class="p">[</span><span class="n">cycle_idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">disc_parent_row</span>
+
+
+    <span class="k">return</span> <span class="n">new_parent_table</span></div>
+
+
+<div class="viewcode-block" id="parent_cycle_discontinuities"><a class="viewcode-back" href="../../../api/wepy.analysis.parents.html#wepy.analysis.parents.parent_cycle_discontinuities">[docs]</a><span class="k">def</span> <span class="nf">parent_cycle_discontinuities</span><span class="p">(</span><span class="n">parent_idxs</span><span class="p">,</span> <span class="n">discontinuities</span><span class="p">):</span>
+
+    <span class="n">parent_row</span> <span class="o">=</span> <span class="n">copy</span><span class="p">(</span><span class="n">parent_idxs</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">walker_idx</span><span class="p">,</span> <span class="n">disc</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">discontinuities</span><span class="p">):</span>
+
+        <span class="c1"># if there was a discontinuity in this walker, we need to</span>
+        <span class="c1"># check for which children it had and apply the discontinuity</span>
+        <span class="c1"># to them</span>
+        <span class="k">if</span> <span class="n">disc</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">child_idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">parent_idxs</span><span class="p">)):</span>
+
+                <span class="n">parent_idx</span> <span class="o">=</span> <span class="n">parent_idxs</span><span class="p">[</span><span class="n">child_idx</span><span class="p">]</span>
+
+                <span class="k">if</span> <span class="n">parent_idx</span> <span class="o">==</span> <span class="n">walker_idx</span><span class="p">:</span>
+                    <span class="n">parent_row</span><span class="p">[</span><span class="n">child_idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">DISCONTINUITY_VALUE</span>
+
+    <span class="k">return</span> <span class="n">parent_row</span></div>
+
+<div class="viewcode-block" id="ancestors"><a class="viewcode-back" href="../../../api/wepy.analysis.parents.html#wepy.analysis.parents.ancestors">[docs]</a><span class="k">def</span> <span class="nf">ancestors</span><span class="p">(</span><span class="n">parent_table</span><span class="p">,</span> <span class="n">cycle_idx</span><span class="p">,</span> <span class="n">walker_idx</span><span class="p">,</span> <span class="n">ancestor_cycle</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Returns the lineage of ancestors as walker indices leading up to</span>
+<span class="sd">    the given walker.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    parent_table : list of list of int</span>
+<span class="sd">    cycle_idx : int</span>
+<span class="sd">        Cycle of walker to query.</span>
+<span class="sd">    walker_idx : int</span>
+<span class="sd">        Walker index in to query along with cycle_idx.</span>
+<span class="sd">    ancestor_cycle : int</span>
+<span class="sd">        Index of cycle in history to go back to. Must be less than cycle_idx.</span>
+<span class="sd">         (Default value = 0)</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    ancestor_trace : list of tuples of ints (traj_idx, cycle_idx)</span>
+<span class="sd">        Contig walker trace of the ancestors leading up to the queried walker.</span>
+<span class="sd">        The contig is sequence of cycles in the parent table.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">lineage</span> <span class="o">=</span> <span class="p">[(</span><span class="n">walker_idx</span><span class="p">,</span> <span class="n">cycle_idx</span><span class="p">)]</span>
+
+    <span class="n">previous_walker</span> <span class="o">=</span> <span class="n">walker_idx</span>
+
+    <span class="k">for</span> <span class="n">curr_cycle_idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">cycle_idx</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">ancestor_cycle</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+            <span class="n">previous_walker</span> <span class="o">=</span> <span class="n">parent_table</span><span class="p">[</span><span class="n">curr_cycle_idx</span><span class="p">][</span><span class="n">previous_walker</span><span class="p">]</span>
+
+            <span class="c1"># check for discontinuities, e.g. warping events</span>
+            <span class="k">if</span> <span class="n">previous_walker</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+                <span class="c1"># there are no more continuous ancestors for this</span>
+                <span class="c1"># walker so we cannot return ancestors back to the</span>
+                <span class="c1"># requested cycle just return the ancestors to this</span>
+                <span class="c1"># point</span>
+                <span class="k">break</span>
+
+            <span class="n">previous_point</span> <span class="o">=</span> <span class="p">(</span><span class="n">previous_walker</span><span class="p">,</span> <span class="n">curr_cycle_idx</span><span class="p">)</span>
+            <span class="n">lineage</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">previous_point</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">lineage</span></div>
+
+<div class="viewcode-block" id="sliding_window"><a class="viewcode-back" href="../../../api/wepy.analysis.parents.html#wepy.analysis.parents.sliding_window">[docs]</a><span class="k">def</span> <span class="nf">sliding_window</span><span class="p">(</span><span class="n">parent_table</span><span class="p">,</span> <span class="n">window_length</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Return contig walker traces of sliding windows of given length over</span>
+<span class="sd">    the parent forest imposed over the contig given by the parent table.</span>
+
+<span class="sd">    Windows are given in no particular order and are nonredundant for</span>
+<span class="sd">    trees.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    parent_table : list of list of int</span>
+<span class="sd">        Parent table defining parent relationships and contig.</span>
+<span class="sd">    window_length : int</span>
+<span class="sd">        Length of window to use. Must be greater than 1.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    windows : list of list of tuples of ints (traj_idx, cycle_idx)</span>
+<span class="sd">        List of contig walker traces.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># assert parent_table.dtype == np.int, \</span>
+    <span class="c1">#     &quot;parent table values must be integers, not {}&quot;.format(parent_table.dtype)</span>
+
+    <span class="k">assert</span> <span class="n">window_length</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;window length must be greater than one&quot;</span>
+
+    <span class="n">windows</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="c1"># we make a range iterator which goes from the last cycle to the</span>
+    <span class="c1"># cycle which would be the end of the first possible sliding window</span>
+    <span class="k">for</span> <span class="n">cycle_idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">parent_table</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">window_length</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+
+        <span class="c1"># then iterate for each walker at this cycle</span>
+        <span class="k">for</span> <span class="n">walker_idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">parent_table</span><span class="p">[</span><span class="mi">0</span><span class="p">])):</span>
+
+            <span class="c1"># then get the ancestors according to the sliding window</span>
+            <span class="n">window</span> <span class="o">=</span> <span class="n">ancestors</span><span class="p">(</span><span class="n">parent_table</span><span class="p">,</span> <span class="n">cycle_idx</span><span class="p">,</span> <span class="n">walker_idx</span><span class="p">,</span>
+                               <span class="n">ancestor_cycle</span><span class="o">=</span><span class="n">cycle_idx</span><span class="o">-</span><span class="p">(</span><span class="n">window_length</span><span class="o">-</span><span class="mi">1</span><span class="p">))</span>
+
+            <span class="c1"># if the window is too short because the lineage has a</span>
+            <span class="c1"># discontinuity in it skip to the next window</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">window</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">window_length</span><span class="p">:</span>
+                <span class="k">continue</span>
+
+            <span class="n">windows</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">window</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">windows</span></div>
+
+
+<div class="viewcode-block" id="ParentForest"><a class="viewcode-back" href="../../../api/wepy.analysis.parents.html#wepy.analysis.parents.ParentForest">[docs]</a><span class="k">class</span> <span class="nc">ParentForest</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;A tree abstraction to a contig representing the family trees of walkers.</span>
+
+<span class="sd">    Uses a directed graph (networkx.DiGraph) to represent parent-child</span>
+<span class="sd">    relationships; i.e. for edge (A, B) node A is a parent of node B.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+
+    <span class="n">WEIGHT</span> <span class="o">=</span> <span class="s1">&#39;weight&#39;</span>
+    <span class="sd">&quot;&quot;&quot;Key for weight node attribute.&quot;&quot;&quot;</span>
+    <span class="n">FREE_ENERGY</span> <span class="o">=</span> <span class="s1">&#39;free_energy&#39;</span>
+    <span class="sd">&quot;&quot;&quot;Key for free energy node attribute.&quot;&quot;&quot;</span>
+
+    <span class="n">ROOT_CYCLE_IDX</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+    <span class="sd">&quot;&quot;&quot;Special value for the root nodes cycle indices which the initial</span>
+<span class="sd">     conditions of the simulation</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">DISCONTINUITY_VALUE</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+    <span class="sd">&quot;&quot;&quot;Special value used to determine if a parent-child relationship has</span>
+<span class="sd">    discontinuous dynamical continuity. This class tests for this</span>
+<span class="sd">    value in the parent table.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">contig</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">parent_table</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Constructs a parent forest from either a Contig object or parent table.</span>
+
+<span class="sd">        Either a contig or parent_table must be given but not both.</span>
+
+<span class="sd">        The underlying data structure used is a parent table. However,</span>
+<span class="sd">        if a contig is given a reference to it will be kept.</span>
+
+<span class="sd">        Arguments</span>
+<span class="sd">        ---------</span>
+<span class="sd">        contig : Conting object, optional conditional on parent_table</span>
+
+<span class="sd">        parent_table : list of list of int, optional conditional on contig</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If neither parent_table nor contig is given, or if both are given.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+
+        <span class="k">if</span> <span class="p">(</span><span class="n">contig</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">parent_table</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Pass in either a contig or a parent table but not both&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="p">(</span><span class="n">contig</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">parent_table</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Must provide either a contig or a parent table&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_contig</span> <span class="o">=</span> <span class="n">contig</span>
+
+        <span class="c1"># if the contig was given, generate a parent table</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_contig</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+
+            <span class="c1"># from that contig make a parent table</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_parent_table</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">contig</span><span class="o">.</span><span class="n">parent_table</span><span class="p">()</span>
+
+        <span class="c1"># otherwise use the one given</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_parent_table</span> <span class="o">=</span> <span class="n">parent_table</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_graph</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">DiGraph</span><span class="p">()</span>
+
+        <span class="c1"># make the roots of each tree in the parent graph, because</span>
+        <span class="c1"># this is outside the indexing of the steps we use a special</span>
+        <span class="c1"># index</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_roots</span> <span class="o">=</span> <span class="p">[(</span><span class="bp">self</span><span class="o">.</span><span class="n">ROOT_CYCLE_IDX</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parent_table</span><span class="p">[</span><span class="mi">0</span><span class="p">]))]</span>
+
+        <span class="c1"># set these as nodes</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">add_nodes_from</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">roots</span><span class="p">)</span>
+
+        <span class="c1"># go through the parent matrix and make edges from the parents</span>
+        <span class="c1"># to children nodes</span>
+        <span class="k">for</span> <span class="n">step_idx</span><span class="p">,</span> <span class="n">parent_idxs</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parent_table</span><span class="p">):</span>
+
+            <span class="c1"># make edge between each walker of this step to the previous step</span>
+            <span class="n">edges</span><span class="p">,</span> <span class="n">edges_attrs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_make_child_parent_edges</span><span class="p">(</span><span class="n">step_idx</span><span class="p">,</span> <span class="n">parent_idxs</span><span class="p">)</span>
+
+            <span class="c1"># then put them into this graph</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">edge</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">edges</span><span class="p">):</span>
+
+                <span class="k">if</span> <span class="n">edge</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+
+                    <span class="c1"># if there is a discontinuity in the edge we only</span>
+                    <span class="c1"># add the node</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">DISCONTINUITY_VALUE</span> <span class="o">==</span> <span class="n">edge</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="n">edge</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="o">*</span><span class="n">edge</span><span class="p">,</span> <span class="o">**</span><span class="n">edges_attrs</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+
+    <span class="k">def</span> <span class="nf">_make_child_parent_edges</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">step_idx</span><span class="p">,</span> <span class="n">parent_idxs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Generate edge_ids and edge attributes for an array of parent indices.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        step_idx : int</span>
+<span class="sd">            Index of step, just sets the value to put into the node_ids</span>
+<span class="sd">        parent_idxs : list of int</span>
+<span class="sd">            For element i in this list, the value j is the index of</span>
+<span class="sd">            the child in slot i in step_idx+1. Thus j must be</span>
+<span class="sd">            between 0 and len(parent_idxs)-1.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        edges : list of 2-tuple of node_id</span>
+<span class="sd">        edge_attributes : list of dict</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">edges</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">edges_attrs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">curr_walker_idx</span><span class="p">,</span> <span class="n">parent_idx</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">parent_idxs</span><span class="p">):</span>
+
+            <span class="c1"># if the parent is the discontinuity value we set the</span>
+            <span class="c1"># parent node in the edge as the discontinuity value</span>
+            <span class="k">if</span> <span class="n">parent_idx</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">DISCONTINUITY_VALUE</span><span class="p">:</span>
+                <span class="n">parent_node</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">DISCONTINUITY_VALUE</span>
+                <span class="n">child_node</span> <span class="o">=</span> <span class="p">(</span><span class="n">step_idx</span><span class="p">,</span> <span class="n">curr_walker_idx</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># otherwise we make the edge with the parent and child as</span>
+                <span class="c1"># normal</span>
+                <span class="n">parent_node</span> <span class="o">=</span> <span class="p">(</span><span class="n">step_idx</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">parent_idx</span><span class="p">)</span>
+                <span class="n">child_node</span> <span class="o">=</span> <span class="p">(</span><span class="n">step_idx</span><span class="p">,</span> <span class="n">curr_walker_idx</span><span class="p">)</span>
+
+            <span class="c1"># make an edge between the parent of this walker and this walker</span>
+            <span class="n">edge</span> <span class="o">=</span> <span class="p">(</span><span class="n">parent_node</span><span class="p">,</span> <span class="n">child_node</span><span class="p">)</span>
+
+            <span class="n">edges</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">edge</span><span class="p">)</span>
+
+            <span class="c1"># nothing to do but I already wrote it this way and may be</span>
+            <span class="c1"># useful later</span>
+            <span class="n">edge_attrs</span> <span class="o">=</span> <span class="p">{}</span>
+
+            <span class="n">edges_attrs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">edge_attrs</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">edges</span><span class="p">,</span> <span class="n">edges_attrs</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">contig</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Underlying contig if given during construction.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_contig</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="s2">&quot;No contig set.&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_contig</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">parent_table</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Underlying parent table data structure.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent_table</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">graph</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Underlying networkx.DiGraph object.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_graph</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">roots</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns the roots of all the trees in this forest.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_roots</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">trees</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns a list of the subtrees from each root in this forest. In no particular order&quot;&quot;&quot;</span>
+        <span class="n">trees_by_size</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">subgraph</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">nx</span><span class="o">.</span><span class="n">weakly_connected_components</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="p">)]</span>
+        <span class="n">trees</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">root</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">roots</span><span class="p">:</span>
+            <span class="n">root_tree</span> <span class="o">=</span> <span class="p">[</span><span class="n">tree</span> <span class="k">for</span> <span class="n">tree</span> <span class="ow">in</span> <span class="n">trees_by_size</span> <span class="k">if</span> <span class="n">root</span> <span class="ow">in</span> <span class="n">tree</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">trees</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">root_tree</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">trees</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">n_steps</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Number of steps of resampling in the parent forest.&quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parent_table</span><span class="p">)</span>
+
+<div class="viewcode-block" id="ParentForest.step"><a class="viewcode-back" href="../../../api/wepy.analysis.parents.html#wepy.analysis.parents.ParentForest.step">[docs]</a>    <span class="k">def</span> <span class="nf">step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">step_idx</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get the nodes at the step (level of the tree).</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        step_idx : int</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        nodes : list of node_id</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">step_nodes</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">node</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">step_idx</span><span class="p">:</span>
+                <span class="n">step_nodes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
+
+        <span class="n">step_nodes</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">step_nodes</span></div>
+
+<div class="viewcode-block" id="ParentForest.steps"><a class="viewcode-back" href="../../../api/wepy.analysis.parents.html#wepy.analysis.parents.ParentForest.steps">[docs]</a>    <span class="k">def</span> <span class="nf">steps</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns the nodes ordered by the step and walker indices.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        node_steps : list of list of node_id</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">node_steps</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">step_idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_steps</span><span class="p">):</span>
+            <span class="n">node_steps</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">step_idx</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">node_steps</span></div>
+
+<div class="viewcode-block" id="ParentForest.walker"><a class="viewcode-back" href="../../../api/wepy.analysis.parents.html#wepy.analysis.parents.ParentForest.walker">[docs]</a>    <span class="k">def</span> <span class="nf">walker</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">walker_idx</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get the nodes for this walker for the whole tree.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        walker_idx : int</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        nodes : list of node_id</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">walker_nodes</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">node</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="n">walker_idx</span><span class="p">:</span>
+                <span class="n">walker_nodes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
+
+        <span class="n">walker_nodes</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">walker_nodes</span></div>
+
+    <span class="c1"># TODO DEPRECATE: we shouldn&#39;t assume constant number of walkers</span>
+    <span class="c1"># def walkers(self):</span>
+    <span class="c1">#     &quot;&quot;&quot; &quot;&quot;&quot;</span>
+    <span class="c1">#     node_walkers = []</span>
+    <span class="c1">#     for walker_idx in range(self.n_walkers):</span>
+    <span class="c1">#         node_walkers.append(self.walker(walker_idx))</span>
+
+    <span class="c1">#     return node_walkers</span>
+
+<div class="viewcode-block" id="ParentForest.set_node_attributes"><a class="viewcode-back" href="../../../api/wepy.analysis.parents.html#wepy.analysis.parents.ParentForest.set_node_attributes">[docs]</a>    <span class="k">def</span> <span class="nf">set_node_attributes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attribute_key</span><span class="p">,</span> <span class="n">node_attribute_dict</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set attributes for all nodes for a single key.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        attribute_key : str</span>
+<span class="sd">            Key to set for a node attribute.</span>
+<span class="sd">        node_attribute_dict : dict of node_id: value</span>
+<span class="sd">            Dictionary mapping nodes to the values that will be set</span>
+<span class="sd">            for the attribute_key.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">for</span> <span class="n">node_id</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">node_attribute_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">node_id</span><span class="p">][</span><span class="n">attribute_key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span></div>
+
+<div class="viewcode-block" id="ParentForest.set_attrs_by_array"><a class="viewcode-back" href="../../../api/wepy.analysis.parents.html#wepy.analysis.parents.ParentForest.set_attrs_by_array">[docs]</a>    <span class="k">def</span> <span class="nf">set_attrs_by_array</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attribute_key</span><span class="p">,</span> <span class="n">values</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set node attributes on a stepwise basis using structural indices.</span>
+
+<span class="sd">        Expects a array/list that is n_steps long and has the</span>
+<span class="sd">        appropriate number of values for the number of walkers at each</span>
+<span class="sd">        step.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        attribute_key : str</span>
+<span class="sd">            Key to set for a node attribute.</span>
+<span class="sd">        values : array_like of dim (n_steps, n_walkers) or list of</span>
+<span class="sd">                 list of values.</span>
+<span class="sd">            Either an array_like if there is a constant number of</span>
+<span class="sd">            walkers or a list of lists of the values.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">steps</span><span class="p">():</span>
+            <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">step</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">node</span><span class="p">][</span><span class="n">attribute_key</span><span class="p">]</span> <span class="o">=</span> <span class="n">values</span><span class="p">[</span><span class="n">node</span><span class="p">[</span><span class="mi">0</span><span class="p">]][</span><span class="n">node</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span></div></div>
+</pre></div>
+
+          </div>
+            
+        </div>
+        <div class="clearfix"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">wepy  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+<script type="text/javascript">
+  $("#mobile-toggle a").click(function () {
+    $("#left-column").toggle();
+  });
+</script>
+<script type="text/javascript" src="../../../_static/js/bootstrap.js"></script>
+  <div class="footer">
+    &copy; Copyright 2018, Samuel D. Lotz. Created using <a href="http://sphinx.pocoo.org/">Sphinx</a>.
+  </div>
+  </body>
+</html>

@@ -1,0 +1,348 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+  
+  <!-- Licensed under the Apache 2.0 License -->
+  <link rel="stylesheet" type="text/css" href="../../../../_static/fonts/open-sans/stylesheet.css" />
+  <!-- Licensed under the SIL Open Font License -->
+  <link rel="stylesheet" type="text/css" href="../../../../_static/fonts/source-serif-pro/source-serif-pro.css" />
+  <link rel="stylesheet" type="text/css" href="../../../../_static/css/bootstrap.min.css" />
+  <link rel="stylesheet" type="text/css" href="../../../../_static/css/bootstrap-theme.min.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+    <title>wepy.resampling.resamplers.clone_merge &#8212; wepy  documentation</title>
+    <link rel="stylesheet" href="../../../../_static/guzzle.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../../../_static/language_data.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+  
+   
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">wepy  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="container-wrapper">
+
+      <div id="mobile-toggle">
+        <a href="#"><span class="glyphicon glyphicon-align-justify" aria-hidden="true"></span></a>
+      </div>
+  <div id="left-column">
+    <div class="sphinxsidebar">
+<div class="sidebar-block">
+  <div class="sidebar-wrapper">
+    <div id="main-search">
+      <form class="form-inline" action="../../../../search.html" method="GET" role="form">
+        <div class="input-group">
+          <input name="q" type="text" class="form-control" placeholder="Search...">
+        </div>
+        <input type="hidden" name="check_keywords" value="yes" />
+        <input type="hidden" name="area" value="default" />
+      </form>
+    </div>
+  </div>
+</div>
+      
+    </div>
+  </div>
+        <div id="right-column">
+          
+          <div role="navigation" aria-label="breadcrumbs navigation">
+            <ol class="breadcrumb">
+              <li><a href="../../../../index.html">Docs</a></li>
+              
+                <li><a href="../../../index.html">Module code</a></li>
+              
+              <li>wepy.resampling.resamplers.clone_merge</li>
+            </ol>
+          </div>
+          
+          <div class="document clearer body">
+            
+  <h1>Source code for wepy.resampling.resamplers.clone_merge</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">wepy.resampling.resamplers.resampler</span> <span class="k">import</span> <span class="n">Resampler</span><span class="p">,</span> <span class="n">ResamplerError</span>
+<span class="kn">from</span> <span class="nn">wepy.resampling.decisions.clone_merge</span> <span class="k">import</span> <span class="n">MultiCloneMergeDecision</span>
+
+
+<div class="viewcode-block" id="CloneMergeResampler"><a class="viewcode-back" href="../../../../api/wepy.resampling.resamplers.clone_merge.html#wepy.resampling.resamplers.clone_merge.CloneMergeResampler">[docs]</a><span class="k">class</span> <span class="nc">CloneMergeResampler</span><span class="p">(</span><span class="n">Resampler</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Abstract base class for resamplers using the clone-merge decision</span>
+<span class="sd">    class.</span>
+
+<span class="sd">    Provides some common functionality including handling minimum and</span>
+<span class="sd">    maximum numbers of walkers and checking constraints on that.</span>
+
+<span class="sd">    The &#39;assign_clones&#39; method is a convenience method for generating</span>
+<span class="sd">    decision records from two intermediate representation data</span>
+<span class="sd">    structures which are convenient to produce: merge_groups and</span>
+<span class="sd">    walker_clone_nums. See the docstring for more details on the</span>
+<span class="sd">    format of these.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">DECISION</span> <span class="o">=</span> <span class="n">MultiCloneMergeDecision</span>
+
+    <span class="n">RESAMPLING_FIELDS</span> <span class="o">=</span> <span class="n">DECISION</span><span class="o">.</span><span class="n">FIELDS</span> <span class="o">+</span> <span class="n">Resampler</span><span class="o">.</span><span class="n">CYCLE_FIELDS</span>
+    <span class="n">RESAMPLING_SHAPES</span> <span class="o">=</span> <span class="n">DECISION</span><span class="o">.</span><span class="n">SHAPES</span> <span class="o">+</span> <span class="n">Resampler</span><span class="o">.</span><span class="n">CYCLE_SHAPES</span>
+    <span class="n">RESAMPLING_DTYPES</span> <span class="o">=</span> <span class="n">DECISION</span><span class="o">.</span><span class="n">DTYPES</span> <span class="o">+</span> <span class="n">Resampler</span><span class="o">.</span><span class="n">CYCLE_DTYPES</span>
+
+    <span class="n">RESAMPLING_RECORD_FIELDS</span> <span class="o">=</span> <span class="n">DECISION</span><span class="o">.</span><span class="n">RECORD_FIELDS</span> <span class="o">+</span> <span class="n">Resampler</span><span class="o">.</span><span class="n">CYCLE_RECORD_FIELDS</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pmin</span><span class="o">=</span><span class="mf">1e-12</span><span class="p">,</span> <span class="n">pmax</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
+                 <span class="n">min_num_walkers</span><span class="o">=</span><span class="bp">Ellipsis</span><span class="p">,</span>
+                 <span class="n">max_num_walkers</span><span class="o">=</span><span class="bp">Ellipsis</span><span class="p">,</span>
+                 <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Constructor for CloneMegerResampler class.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        pmin : float</span>
+<span class="sd">            The minimum probability any walker is allowed to have.</span>
+
+<span class="sd">        pmax : float</span>
+<span class="sd">            The maximum probability any walker is allowed to have.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">min_num_walkers</span><span class="o">=</span><span class="n">min_num_walkers</span><span class="p">,</span>
+                         <span class="n">max_num_walkers</span><span class="o">=</span><span class="n">max_num_walkers</span><span class="p">,</span>
+                         <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_pmin</span><span class="o">=</span><span class="n">pmin</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_pmax</span><span class="o">=</span><span class="n">pmax</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">pmin</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pmin</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">pmax</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pmax</span>
+
+
+    <span class="k">def</span> <span class="nf">_init_walker_actions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n_walkers</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns a list of default resampling records for a single</span>
+<span class="sd">        resampling step.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        n_walkers : int</span>
+<span class="sd">            The number of walkers to generate records for</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
+<span class="sd">        decision_records : list of dict of str: value</span>
+<span class="sd">            A list of default decision records for one step of</span>
+<span class="sd">            resampling.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># determine resampling actions</span>
+        <span class="n">walker_actions</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">decision</span><span class="o">.</span><span class="n">record</span><span class="p">(</span>
+                                <span class="n">enum_value</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">decision</span><span class="o">.</span><span class="n">default_decision</span><span class="p">()</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
+                                <span class="n">target_idxs</span><span class="o">=</span><span class="p">(</span><span class="n">i</span><span class="p">,))</span>
+                    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_walkers</span><span class="p">)]</span>
+
+        <span class="k">return</span> <span class="n">walker_actions</span>
+
+    <span class="k">def</span> <span class="nf">_check_resampled_walkers</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">resampled_walkers</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Check constraints on resampled walkers.</span>
+
+<span class="sd">        Raises errors when constraints are violated.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        resampled_walkers : list of Walker objects</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">walker_weights</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">walker</span><span class="o">.</span><span class="n">weight</span> <span class="k">for</span> <span class="n">walker</span> <span class="ow">in</span> <span class="n">resampled_walkers</span><span class="p">])</span>
+
+        <span class="c1"># check that all of the weights are less than or equal to the pmax</span>
+        <span class="n">overweight_walker_idxs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">walker_weights</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">pmax</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">overweight_walker_idxs</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+
+            <span class="k">raise</span> <span class="n">ResamplerError</span><span class="p">(</span><span class="s2">&quot;All walker weights must be less than the pmax, &quot;</span>
+                                 <span class="s2">&quot;walkers </span><span class="si">{}</span><span class="s2"> are all overweight&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                                     <span class="s1">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">overweight_walker_idxs</span><span class="p">])))</span>
+
+        <span class="c1"># check that all walkers are greater than or equal to the pmin</span>
+        <span class="n">underweight_walker_idxs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">walker_weights</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">pmin</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">underweight_walker_idxs</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+
+            <span class="k">raise</span> <span class="n">ResamplerError</span><span class="p">(</span><span class="s2">&quot;All walker weights must be greater than the pmin, &quot;</span>
+                                 <span class="s2">&quot;walkers </span><span class="si">{}</span><span class="s2"> are all underweight&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                                     <span class="s1">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">underweight_walker_idxs</span><span class="p">])))</span>
+
+
+
+<div class="viewcode-block" id="CloneMergeResampler.assign_clones"><a class="viewcode-back" href="../../../../api/wepy.resampling.resamplers.clone_merge.html#wepy.resampling.resamplers.clone_merge.CloneMergeResampler.assign_clones">[docs]</a>    <span class="k">def</span> <span class="nf">assign_clones</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">merge_groups</span><span class="p">,</span> <span class="n">walker_clone_nums</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Convert two convenient data structures to a list of almost</span>
+<span class="sd">        normalized resampling records.</span>
+
+<span class="sd">        The two data structures are merge_groups and walker_clone_nums</span>
+<span class="sd">        and are convenient to make.</span>
+
+<span class="sd">        Each is a list with number of elements equal to the number of</span>
+<span class="sd">        walkers that resampling will act on.</span>
+
+<span class="sd">        Each element of the merge_groups is a list-like of integers</span>
+<span class="sd">        indicating the indices of the walkers that will be merged into</span>
+<span class="sd">        this one (i.e. squashed). A non-empty collection indicates a</span>
+<span class="sd">        KEEP_MERGE decision.</span>
+
+<span class="sd">        Each element of the walker_clone_nums is simply an integer</span>
+<span class="sd">        specifying how many clones to make of this walker.</span>
+
+<span class="sd">        These data structures simply declare requirements on what the</span>
+<span class="sd">        actual decision records must achieve. The actual placement of</span>
+<span class="sd">        walkers in slots (indices) is unspecified and immaterial.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        merge_groups : list of list of int</span>
+<span class="sd">            The specification of which walkers will be squashed and merged.</span>
+
+<span class="sd">        walker_clone_nums : list of int</span>
+<span class="sd">            The number of clones to make for each walker.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
+<span class="sd">        walker_actions : list of dict of str: values</span>
+<span class="sd">            List of resampling record like dictionaries. These are not</span>
+<span class="sd">            completely normalized for consumption by reporters, since</span>
+<span class="sd">            they don&#39;t have the right list-like wrappers.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">n_walkers</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">walker_clone_nums</span><span class="p">)</span>
+
+        <span class="n">walker_actions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_init_walker_actions</span><span class="p">(</span><span class="n">n_walkers</span><span class="p">)</span>
+
+        <span class="c1"># keep track of which slots will be free due to squashing</span>
+        <span class="n">free_slots</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="c1"># go through the merge groups and write the records for them,</span>
+        <span class="c1"># the index of a merge group determines the KEEP_MERGE walker</span>
+        <span class="c1"># and the indices in the merge group are the walkers that will</span>
+        <span class="c1"># be squashed</span>
+        <span class="k">for</span> <span class="n">walker_idx</span><span class="p">,</span> <span class="n">merge_group</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">merge_groups</span><span class="p">):</span>
+
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">merge_group</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="c1"># add the squashed walker idxs to the list of open</span>
+                <span class="c1"># slots</span>
+                <span class="n">free_slots</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">merge_group</span><span class="p">)</span>
+
+                <span class="c1"># for each squashed walker write a record and save it</span>
+                <span class="c1"># in the walker actions</span>
+                <span class="k">for</span> <span class="n">squash_idx</span> <span class="ow">in</span> <span class="n">merge_group</span><span class="p">:</span>
+                    <span class="n">walker_actions</span><span class="p">[</span><span class="n">squash_idx</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">decision</span><span class="o">.</span><span class="n">record</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">decision</span><span class="o">.</span><span class="n">ENUM</span><span class="o">.</span><span class="n">SQUASH</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
+                                                                      <span class="n">target_idxs</span><span class="o">=</span><span class="p">(</span><span class="n">walker_idx</span><span class="p">,))</span>
+
+                <span class="c1"># make the record for the keep merge walker</span>
+                <span class="n">walker_actions</span><span class="p">[</span><span class="n">walker_idx</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">decision</span><span class="o">.</span><span class="n">record</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">decision</span><span class="o">.</span><span class="n">ENUM</span><span class="o">.</span><span class="n">KEEP_MERGE</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
+                                                         <span class="n">target_idxs</span><span class="o">=</span><span class="p">(</span><span class="n">walker_idx</span><span class="p">,))</span>
+
+        <span class="c1"># for each walker, if it is to be cloned assign open slots for it</span>
+        <span class="k">for</span> <span class="n">walker_idx</span><span class="p">,</span> <span class="n">num_clones</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">walker_clone_nums</span><span class="p">):</span>
+
+            <span class="k">if</span> <span class="n">num_clones</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">merge_groups</span><span class="p">[</span><span class="n">walker_idx</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">ResamplerError</span><span class="p">(</span><span class="s2">&quot;Error! cloning and merging occuring with the same walker&quot;</span><span class="p">)</span>
+
+            <span class="c1"># if this walker is to be cloned do so and consume the free</span>
+            <span class="c1"># slot</span>
+            <span class="k">if</span> <span class="n">num_clones</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+
+                <span class="c1"># we first check to see if there are any free &quot;slots&quot;</span>
+                <span class="c1"># for cloned walkers to go. If there are not we can</span>
+                <span class="c1"># make room. The number of extra slots needed should</span>
+                <span class="c1"># be default 0</span>
+
+
+                <span class="c1"># we choose the targets for this cloning, we start</span>
+                <span class="c1"># with the walker initiating the cloning</span>
+                <span class="n">clone_targets</span> <span class="o">=</span> <span class="p">[</span><span class="n">walker_idx</span><span class="p">]</span>
+
+                <span class="c1"># if there are any free slots, then we use those first</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">free_slots</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">clone_targets</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="n">free_slots</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span> <span class="k">for</span> <span class="n">clone</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_clones</span><span class="p">)])</span>
+
+                <span class="c1"># if there are more slots needed then we will have to</span>
+                <span class="c1"># create them</span>
+                <span class="n">num_slots_needed</span> <span class="o">=</span> <span class="n">num_clones</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">clone_targets</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">num_slots_needed</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+
+                    <span class="c1"># initialize the lists of open slots</span>
+                    <span class="n">new_slots</span> <span class="o">=</span> <span class="p">[]</span>
+
+                    <span class="c1"># and make a list of the new slots</span>
+                    <span class="n">new_slots</span> <span class="o">=</span> <span class="p">[</span><span class="n">n_walkers</span> <span class="o">+</span> <span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_slots_needed</span><span class="p">)]</span>
+
+                    <span class="c1"># then increase the number of walkers to match</span>
+                    <span class="n">n_walkers</span> <span class="o">+=</span> <span class="n">num_slots_needed</span>
+
+                    <span class="c1"># then add these to the clone targets</span>
+                    <span class="n">clone_targets</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">new_slots</span><span class="p">)</span>
+
+                <span class="c1"># make a record for this clone</span>
+                <span class="n">walker_actions</span><span class="p">[</span><span class="n">walker_idx</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">decision</span><span class="o">.</span><span class="n">record</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">decision</span><span class="o">.</span><span class="n">ENUM</span><span class="o">.</span><span class="n">CLONE</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
+                                                         <span class="n">target_idxs</span><span class="o">=</span><span class="nb">tuple</span><span class="p">(</span><span class="n">clone_targets</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">walker_actions</span></div></div>
+</pre></div>
+
+          </div>
+            
+        </div>
+        <div class="clearfix"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">wepy  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+<script type="text/javascript">
+  $("#mobile-toggle a").click(function () {
+    $("#left-column").toggle();
+  });
+</script>
+<script type="text/javascript" src="../../../../_static/js/bootstrap.js"></script>
+  <div class="footer">
+    &copy; Copyright 2018, Samuel D. Lotz. Created using <a href="http://sphinx.pocoo.org/">Sphinx</a>.
+  </div>
+  </body>
+</html>

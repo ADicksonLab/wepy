@@ -1,0 +1,273 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+  
+  <!-- Licensed under the Apache 2.0 License -->
+  <link rel="stylesheet" type="text/css" href="../_static/fonts/open-sans/stylesheet.css" />
+  <!-- Licensed under the SIL Open Font License -->
+  <link rel="stylesheet" type="text/css" href="../_static/fonts/source-serif-pro/source-serif-pro.css" />
+  <link rel="stylesheet" type="text/css" href="../_static/css/bootstrap.min.css" />
+  <link rel="stylesheet" type="text/css" href="../_static/css/bootstrap-theme.min.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+    <title>API Reference &#8212; wepy  documentation</title>
+    <link rel="stylesheet" href="../_static/guzzle.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/language_data.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Common Troubleshooting" href="troubleshooting.html" />
+    <link rel="prev" title="sEH ligand unbinding: A real use-case" href="../tutorials/seh_prep.html" />
+  
+   
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="troubleshooting.html" title="Common Troubleshooting"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="../tutorials/seh_prep.html" title="sEH ligand unbinding: A real use-case"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">wepy  documentation</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="container-wrapper">
+
+      <div id="mobile-toggle">
+        <a href="#"><span class="glyphicon glyphicon-align-justify" aria-hidden="true"></span></a>
+      </div>
+  <div id="left-column">
+    <div class="sphinxsidebar">
+<div class="sidebar-block">
+  <div class="sidebar-wrapper">
+    <h2>Contents</h2>
+    <div class="sidebar-localtoc">
+      <ul>
+<li><a class="reference internal" href="#">API Reference</a><ul>
+<li><a class="reference internal" href="#analysis">Analysis</a></li>
+<li><a class="reference internal" href="#data-storage">Data Storage</a></li>
+<li><a class="reference internal" href="#orchestration">Orchestration</a></li>
+<li><a class="reference internal" href="#wepy-core">Wepy Core</a></li>
+<li><a class="reference internal" href="#utilities">Utilities</a></li>
+<li><a class="reference internal" href="#application-components">Application Components</a><ul>
+<li><a class="reference internal" href="#reporting-on-simulations">Reporting on Simulations</a></li>
+<li><a class="reference internal" href="#resamplers">Resamplers</a></li>
+<li><a class="reference internal" href="#distance-metrics">Distance Metrics</a></li>
+<li><a class="reference internal" href="#runners">Runners</a></li>
+<li><a class="reference internal" href="#work-mapper">Work Mapper</a></li>
+<li><a class="reference internal" href="#boundary-conditions">Boundary Conditions</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+    </div>
+  </div>
+</div>
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="../tutorials/seh_prep.html"
+                        title="previous chapter">sEH ligand unbinding: A real use-case</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="troubleshooting.html"
+                        title="next chapter">Common Troubleshooting</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/source/api.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div class="sidebar-block">
+  <div class="sidebar-wrapper">
+    <div id="main-search">
+      <form class="form-inline" action="../search.html" method="GET" role="form">
+        <div class="input-group">
+          <input name="q" type="text" class="form-control" placeholder="Search...">
+        </div>
+        <input type="hidden" name="check_keywords" value="yes" />
+        <input type="hidden" name="area" value="default" />
+      </form>
+    </div>
+  </div>
+</div>
+      
+    </div>
+  </div>
+        <div id="right-column">
+          
+          <div role="navigation" aria-label="breadcrumbs navigation">
+            <ol class="breadcrumb">
+              <li><a href="../index.html">Docs</a></li>
+              
+              <li>API Reference</li>
+            </ol>
+          </div>
+          
+          <div class="document clearer body">
+            
+  <div class="section" id="api-reference">
+<h1>API Reference<a class="headerlink" href="#api-reference" title="Permalink to this headline">¶</a></h1>
+<p>This is a listing of the important and most used for an exhaustive
+(and potentially exhausting) listing see the module index:</p>
+<div class="section" id="analysis">
+<h2>Analysis<a class="headerlink" href="#analysis" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="../api/wepy.analysis.profiles.html"><span class="doc">Free Energy Profiles of Observables</span></a></p></li>
+<li><p><a class="reference internal" href="../api/wepy.analysis.network.html"><span class="doc">Macro-State Network</span></a></p></li>
+<li><p><a class="reference internal" href="../api/wepy.analysis.transitions.html"><span class="doc">Network Transition Probabilities</span></a></p></li>
+<li><p><a class="reference internal" href="../api/wepy.analysis.contig_tree.html"><span class="doc">Contigs and Contig Tree/Forest</span></a></p></li>
+</ul>
+</div>
+<div class="section" id="data-storage">
+<h2>Data Storage<a class="headerlink" href="#data-storage" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="../api/wepy.hdf5.html"><span class="doc">WepyHDF5</span></a></p></li>
+</ul>
+</div>
+<div class="section" id="orchestration">
+<h2>Orchestration<a class="headerlink" href="#orchestration" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="../api/wepy.orchestration.orchestrator.html"><span class="doc">Orchestrator</span></a></p></li>
+<li><p><a class="reference internal" href="../api/wepy.orchestration.configuration.html"><span class="doc">Configuration</span></a></p></li>
+</ul>
+</div>
+<div class="section" id="wepy-core">
+<h2>Wepy Core<a class="headerlink" href="#wepy-core" title="Permalink to this headline">¶</a></h2>
+<ul>
+<li><p><a class="reference internal" href="../api/wepy.sim_manager.html"><span class="doc">Simulation Manager</span></a></p></li>
+<li><p><a class="reference internal" href="../api/wepy.walker.html"><span class="doc">Walker</span></a></p>
+<p>Orchestration CLI</p>
+</li>
+</ul>
+<hr class="docutils" />
+<p>TODO</p>
+</div>
+<div class="section" id="utilities">
+<h2>Utilities<a class="headerlink" href="#utilities" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="../api/wepy.util.util.html"><span class="doc">Miscellaneous</span></a></p></li>
+<li><p><a class="reference internal" href="../api/wepy.util.mdtraj.html"><span class="doc">MDTraj Interface</span></a></p></li>
+</ul>
+</div>
+<div class="section" id="application-components">
+<h2>Application Components<a class="headerlink" href="#application-components" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="reporting-on-simulations">
+<h3>Reporting on Simulations<a class="headerlink" href="#reporting-on-simulations" title="Permalink to this headline">¶</a></h3>
+<p>General Purpose:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="../api/wepy.reporter.dashboard.html"><span class="doc">Text Dashboard</span></a></p></li>
+<li><p><a class="reference internal" href="../api/wepy.reporter.hdf5.html"><span class="doc">WepyHDF5</span></a></p></li>
+<li><p><a class="reference internal" href="../api/wepy.reporter.restree.html"><span class="doc">Resampling Tree</span></a></p></li>
+<li><p><a class="reference internal" href="../api/wepy.reporter.walker.html"><span class="doc">Last Walkers</span></a></p></li>
+<li><p><a class="reference internal" href="../api/wepy.reporter.reporter.html"><span class="doc">Abstract Base Classes</span></a></p></li>
+</ul>
+<p>WExplore and Image Based Resamplers:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="../api/wepy.reporter.wexplore.image.html"><span class="doc">Images</span></a></p></li>
+<li><p><a class="reference internal" href="../api/wepy.reporter.wexplore.dashboard.html"><span class="doc">Dashboard</span></a></p></li>
+</ul>
+</div>
+<div class="section" id="resamplers">
+<h3>Resamplers<a class="headerlink" href="#resamplers" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p><a class="reference internal" href="../api/wepy.resampling.resamplers.wexplore.html"><span class="doc">WExplore</span></a></p></li>
+<li><p><a class="reference internal" href="../api/wepy.resampling.resamplers.revo.html"><span class="doc">REVO</span></a></p></li>
+<li><p><a class="reference internal" href="../api/wepy.resampling.resamplers.resampler.html"><span class="doc">Abstract Base Classes</span></a></p></li>
+</ul>
+</div>
+<div class="section" id="distance-metrics">
+<h3>Distance Metrics<a class="headerlink" href="#distance-metrics" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p><a class="reference internal" href="../api/wepy.resampling.distances.receptor.html"><span class="doc">Ligand Unbinding and Rebinding</span></a></p></li>
+</ul>
+</div>
+<div class="section" id="runners">
+<h3>Runners<a class="headerlink" href="#runners" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p><a class="reference internal" href="../api/wepy.runners.openmm.html"><span class="doc">OpenMM</span></a></p></li>
+<li><p><a class="reference internal" href="../api/wepy.runners.runner.html"><span class="doc">Abstract Base Class</span></a></p></li>
+</ul>
+</div>
+<div class="section" id="work-mapper">
+<h3>Work Mapper<a class="headerlink" href="#work-mapper" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p><a class="reference internal" href="../api/wepy.work_mapper.mapper.html"><span class="doc">Single Process and Worker Processes</span></a></p></li>
+</ul>
+</div>
+<div class="section" id="boundary-conditions">
+<h3>Boundary Conditions<a class="headerlink" href="#boundary-conditions" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p><a class="reference internal" href="../api/wepy.boundary_conditions.receptor.html"><span class="doc">Receptor-Ligand (Un)Binding</span></a></p></li>
+<li><p><a class="reference internal" href="../api/wepy.boundary_conditions.boundary.html"><span class="doc">Abstract Base Classes</span></a></p></li>
+</ul>
+</div>
+</div>
+</div>
+
+
+          </div>
+            
+  <div class="footer-relations">
+    
+      <div class="pull-left">
+        <a class="btn btn-default" href="../tutorials/seh_prep.html" title="previous chapter (use the left arrow)">sEH ligand unbinding: A real use-case</a>
+      </div>
+    
+      <div class="pull-right">
+        <a class="btn btn-default" href="troubleshooting.html" title="next chapter (use the right arrow)">Common Troubleshooting</a>
+      </div>
+    </div>
+    <div class="clearer"></div>
+  
+        </div>
+        <div class="clearfix"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="troubleshooting.html" title="Common Troubleshooting"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="../tutorials/seh_prep.html" title="sEH ligand unbinding: A real use-case"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">wepy  documentation</a> &#187;</li> 
+      </ul>
+    </div>
+<script type="text/javascript">
+  $("#mobile-toggle a").click(function () {
+    $("#left-column").toggle();
+  });
+</script>
+<script type="text/javascript" src="../_static/js/bootstrap.js"></script>
+  <div class="footer">
+    &copy; Copyright 2018, Samuel D. Lotz. Created using <a href="http://sphinx.pocoo.org/">Sphinx</a>.
+  </div>
+  </body>
+</html>

@@ -1,0 +1,242 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+  
+  <!-- Licensed under the Apache 2.0 License -->
+  <link rel="stylesheet" type="text/css" href="../_static/fonts/open-sans/stylesheet.css" />
+  <!-- Licensed under the SIL Open Font License -->
+  <link rel="stylesheet" type="text/css" href="../_static/fonts/source-serif-pro/source-serif-pro.css" />
+  <link rel="stylesheet" type="text/css" href="../_static/css/bootstrap.min.css" />
+  <link rel="stylesheet" type="text/css" href="../_static/css/bootstrap-theme.min.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+    <title>wepy.analysis.rates module &#8212; wepy  documentation</title>
+    <link rel="stylesheet" href="../_static/guzzle.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/language_data.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="wepy.analysis.transitions module" href="wepy.analysis.transitions.html" />
+    <link rel="prev" title="wepy.analysis.profiles module" href="wepy.analysis.profiles.html" />
+  
+   
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="wepy.analysis.transitions.html" title="wepy.analysis.transitions module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="wepy.analysis.profiles.html" title="wepy.analysis.profiles module"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">wepy  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >wepy</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="wepy.html" >wepy package</a> &#187;</li>
+          <li class="nav-item nav-item-3"><a href="wepy.analysis.html" accesskey="U">wepy.analysis package</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="container-wrapper">
+
+      <div id="mobile-toggle">
+        <a href="#"><span class="glyphicon glyphicon-align-justify" aria-hidden="true"></span></a>
+      </div>
+  <div id="left-column">
+    <div class="sphinxsidebar">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="wepy.analysis.profiles.html"
+                        title="previous chapter">wepy.analysis.profiles module</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="wepy.analysis.transitions.html"
+                        title="next chapter">wepy.analysis.transitions module</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/api/wepy.analysis.rates.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div class="sidebar-block">
+  <div class="sidebar-wrapper">
+    <div id="main-search">
+      <form class="form-inline" action="../search.html" method="GET" role="form">
+        <div class="input-group">
+          <input name="q" type="text" class="form-control" placeholder="Search...">
+        </div>
+        <input type="hidden" name="check_keywords" value="yes" />
+        <input type="hidden" name="area" value="default" />
+      </form>
+    </div>
+  </div>
+</div>
+      
+    </div>
+  </div>
+        <div id="right-column">
+          
+          <div role="navigation" aria-label="breadcrumbs navigation">
+            <ol class="breadcrumb">
+              <li><a href="../index.html">Docs</a></li>
+              
+                <li><a href="modules.html">wepy</a></li>
+              
+                <li><a href="wepy.html">wepy package</a></li>
+              
+                <li><a href="wepy.analysis.html">wepy.analysis package</a></li>
+              
+              <li>wepy.analysis.rates module</li>
+            </ol>
+          </div>
+          
+          <div class="document clearer body">
+            
+  <div class="section" id="module-wepy.analysis.rates">
+<span id="wepy-analysis-rates-module"></span><h1>wepy.analysis.rates module<a class="headerlink" href="#module-wepy.analysis.rates" title="Permalink to this headline">¶</a></h1>
+<p>Compute rates for warping events.</p>
+<dl class="function">
+<dt id="wepy.analysis.rates.calc_warp_rate">
+<code class="sig-prename descclassname">wepy.analysis.rates.</code><code class="sig-name descname">calc_warp_rate</code><span class="sig-paren">(</span><em class="sig-param">warping_records</em>, <em class="sig-param">total_sampling_time</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/rates.html#calc_warp_rate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.rates.calc_warp_rate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the warping rates for each target in these records.</p>
+<p>Takes a set of warping records which are named tuples that have
+the fields set in the Abstract Base Class for boundary conditions
+(wepy.boundary_conditions.boundary.Boundary).</p>
+<p>Namely these are: weight, target_idx, cycle_idx</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>warping_records</strong> (<em>list of namedtuples implementing the warping interface</em>) – The list of warping records for which events will be used to
+calculate the rates.</p></li>
+<li><p><strong>total_sampling_time</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a>) – The total amount of sampling time that was run to generate
+these warping records.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>target_weights_rates</strong> – A dictionary where each key is for a target present in the
+warping records and each value is a tuple giving the total
+accumulated weight in that target boundary, the total flux of
+probability across the boundary (rate), and the total sampling
+time it was calculated with,respectively.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict of int : tuple of (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a>, <a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a>, <a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a>)</p>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><code class="xref py py-func docutils literal notranslate"><span class="pre">wepy.boundary_conditions.boundary.Boundary()</span></code></dt><dd><p>for specs on fields necessary for warping_records</p>
+</dd>
+</dl>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="wepy.analysis.rates.contig_warp_rates">
+<code class="sig-prename descclassname">wepy.analysis.rates.</code><code class="sig-name descname">contig_warp_rates</code><span class="sig-paren">(</span><em class="sig-param">contig</em>, <em class="sig-param">cycle_time</em>, <em class="sig-param">time_points=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/rates.html#contig_warp_rates"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.rates.contig_warp_rates" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the warping rates for a contig.</p>
+<p>Automatically figures out the total sampling time for two options
+which is set by the ‘time_points’ kwarg.</p>
+<p>If ‘time_points’ is None then a rate will only be computed for the
+end of the simulation.</p>
+<p>If ‘time_points’ is Ellipsis then a rate will be computed for each
+cycle in the entire run.</p>
+<p>Will work with runs that used boundary conditions deriving from
+and preserving the warping record fields from the abstract base
+class (wepy.boundary_conditions.boundary.Boundary).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>contig</strong> (<a class="reference internal" href="wepy.analysis.contig_tree.html#wepy.analysis.contig_tree.Contig" title="wepy.analysis.contig_tree.Contig"><em>analysis.contig_tree.Contig</em></a>) – Underlying WepyHDF5 must be open for reading.</p></li>
+<li><p><strong>cycle_time</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a>) – The sampling time for each cycle.</p></li>
+<li><p><strong>time_points</strong> (<a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.8)"><em>None</em></a><em> or </em><em>Ellipsis</em>) – Determines how many and which time points are computed for the
+rates of each run. None, only the end; Ellipsis, all cycles.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>run_target_weights_rates</strong> – List where each value of a run is a list of outputs from
+calc_warping_rate. The number and meaning of the elements of
+the list depend on the value of the ‘time_points’ kwarg.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list of dict of int : tuple of (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a>, <a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a>, <a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a>)</p>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="#wepy.analysis.rates.calc_warp_rate" title="wepy.analysis.rates.calc_warp_rate"><code class="xref py py-func docutils literal notranslate"><span class="pre">wepy.analysis.rates.calc_warp_rate()</span></code></a></p>
+<dl class="simple">
+<dt><code class="xref py py-func docutils literal notranslate"><span class="pre">wepy.boundary_conditions.boundary.Boundary()</span></code></dt><dd><p>for specs on fields necessary for warping_records</p>
+</dd>
+</dl>
+</div>
+</dd></dl>
+
+</div>
+
+
+          </div>
+            
+  <div class="footer-relations">
+    
+      <div class="pull-left">
+        <a class="btn btn-default" href="wepy.analysis.profiles.html" title="previous chapter (use the left arrow)">wepy.analysis.profiles module</a>
+      </div>
+    
+      <div class="pull-right">
+        <a class="btn btn-default" href="wepy.analysis.transitions.html" title="next chapter (use the right arrow)">wepy.analysis.transitions module</a>
+      </div>
+    </div>
+    <div class="clearer"></div>
+  
+        </div>
+        <div class="clearfix"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="wepy.analysis.transitions.html" title="wepy.analysis.transitions module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="wepy.analysis.profiles.html" title="wepy.analysis.profiles module"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">wepy  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >wepy</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="wepy.html" >wepy package</a> &#187;</li>
+          <li class="nav-item nav-item-3"><a href="wepy.analysis.html" >wepy.analysis package</a> &#187;</li> 
+      </ul>
+    </div>
+<script type="text/javascript">
+  $("#mobile-toggle a").click(function () {
+    $("#left-column").toggle();
+  });
+</script>
+<script type="text/javascript" src="../_static/js/bootstrap.js"></script>
+  <div class="footer">
+    &copy; Copyright 2018, Samuel D. Lotz. Created using <a href="http://sphinx.pocoo.org/">Sphinx</a>.
+  </div>
+  </body>
+</html>

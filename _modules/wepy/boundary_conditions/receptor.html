@@ -1,0 +1,895 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+  
+  <!-- Licensed under the Apache 2.0 License -->
+  <link rel="stylesheet" type="text/css" href="../../../_static/fonts/open-sans/stylesheet.css" />
+  <!-- Licensed under the SIL Open Font License -->
+  <link rel="stylesheet" type="text/css" href="../../../_static/fonts/source-serif-pro/source-serif-pro.css" />
+  <link rel="stylesheet" type="text/css" href="../../../_static/css/bootstrap.min.css" />
+  <link rel="stylesheet" type="text/css" href="../../../_static/css/bootstrap-theme.min.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+    <title>wepy.boundary_conditions.receptor &#8212; wepy  documentation</title>
+    <link rel="stylesheet" href="../../../_static/guzzle.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../../_static/language_data.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+  
+   
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">wepy  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="container-wrapper">
+
+      <div id="mobile-toggle">
+        <a href="#"><span class="glyphicon glyphicon-align-justify" aria-hidden="true"></span></a>
+      </div>
+  <div id="left-column">
+    <div class="sphinxsidebar">
+<div class="sidebar-block">
+  <div class="sidebar-wrapper">
+    <div id="main-search">
+      <form class="form-inline" action="../../../search.html" method="GET" role="form">
+        <div class="input-group">
+          <input name="q" type="text" class="form-control" placeholder="Search...">
+        </div>
+        <input type="hidden" name="check_keywords" value="yes" />
+        <input type="hidden" name="area" value="default" />
+      </form>
+    </div>
+  </div>
+</div>
+      
+    </div>
+  </div>
+        <div id="right-column">
+          
+          <div role="navigation" aria-label="breadcrumbs navigation">
+            <ol class="breadcrumb">
+              <li><a href="../../../index.html">Docs</a></li>
+              
+                <li><a href="../../index.html">Module code</a></li>
+              
+              <li>wepy.boundary_conditions.receptor</li>
+            </ol>
+          </div>
+          
+          <div class="document clearer body">
+            
+  <h1>Source code for wepy.boundary_conditions.receptor</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Boundary conditions for receptor based boundary conditions</span>
+<span class="sd">including unbinding and rebinding.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">defaultdict</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">itertools</span> <span class="k">as</span> <span class="nn">it</span>
+<span class="kn">import</span> <span class="nn">time</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">geomm.grouping</span> <span class="k">import</span> <span class="n">group_pair</span>
+<span class="kn">from</span> <span class="nn">geomm.superimpose</span> <span class="k">import</span> <span class="n">superimpose</span>
+<span class="kn">from</span> <span class="nn">geomm.rmsd</span> <span class="k">import</span> <span class="n">calc_rmsd</span>
+<span class="kn">from</span> <span class="nn">geomm.centering</span> <span class="k">import</span> <span class="n">center_around</span>
+
+<span class="kn">import</span> <span class="nn">mdtraj</span> <span class="k">as</span> <span class="nn">mdj</span>
+
+<span class="kn">from</span> <span class="nn">wepy.walker</span> <span class="k">import</span> <span class="n">WalkerState</span>
+<span class="kn">from</span> <span class="nn">wepy.util.util</span> <span class="k">import</span> <span class="n">box_vectors_to_lengths_angles</span>
+<span class="kn">from</span> <span class="nn">wepy.util.mdtraj</span> <span class="k">import</span> <span class="n">json_to_mdtraj_topology</span>
+
+<span class="kn">from</span> <span class="nn">wepy.boundary_conditions.boundary</span> <span class="k">import</span> <span class="n">BoundaryConditions</span>
+
+<div class="viewcode-block" id="ReceptorBC"><a class="viewcode-back" href="../../../api/wepy.boundary_conditions.receptor.html#wepy.boundary_conditions.receptor.ReceptorBC">[docs]</a><span class="k">class</span> <span class="nc">ReceptorBC</span><span class="p">(</span><span class="n">BoundaryConditions</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Abstract base class for ligand-receptor based boundary conditions.</span>
+
+<span class="sd">    Provides shared utilities for warping walkers to any number of</span>
+<span class="sd">    optionally weighted initial structures through a shared</span>
+<span class="sd">    `warp_walkers` method.</span>
+
+<span class="sd">    Non-abstract implementations of this class need only implement the</span>
+<span class="sd">    `_progress` method which should return a boolean signalling a</span>
+<span class="sd">    warping event and the dictionary-style warping record of the</span>
+<span class="sd">    progress for only a single walker. These records will be collated</span>
+<span class="sd">    into a single progress record across all walkers.</span>
+
+<span class="sd">    Additionally, the `_update_bc` method can be overriden to return</span>
+<span class="sd">    &#39;BC&#39; group records. That method should accept the arguments shown</span>
+<span class="sd">    in this ABC and return a list of dictionary-style &#39;BC&#39; records.</span>
+
+<span class="sd">    Warping of walkers with multiple initial states will be done</span>
+<span class="sd">    according to a choice of initial states weighted on their weights,</span>
+<span class="sd">    if given.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># records of boundary condition changes (sporadic)</span>
+    <span class="n">BC_FIELDS</span> <span class="o">=</span> <span class="p">()</span>
+    <span class="n">BC_SHAPES</span> <span class="o">=</span> <span class="p">()</span>
+    <span class="n">BC_DTYPES</span> <span class="o">=</span> <span class="p">()</span>
+
+    <span class="n">BC_RECORD_FIELDS</span> <span class="o">=</span> <span class="p">()</span>
+
+    <span class="c1"># warping fields are directly inherited</span>
+
+    <span class="c1"># progress towards the boundary conditions (continual)</span>
+    <span class="n">PROGRESS_FIELDS</span> <span class="o">=</span> <span class="p">()</span>
+    <span class="n">PROGRESS_SHAPES</span> <span class="o">=</span> <span class="p">()</span>
+    <span class="n">PROGRESS_DTYPES</span> <span class="o">=</span> <span class="p">()</span>
+
+    <span class="n">PROGRESS_RECORD_FIELDS</span> <span class="o">=</span> <span class="p">()</span>
+
+    <span class="n">DISCONTINUITY_TARGET_IDXS</span> <span class="o">=</span> <span class="bp">Ellipsis</span>
+    <span class="sd">&quot;&quot;&quot;Specifies which &#39;target_idxs&#39; values are considered discontinuous targets.</span>
+
+<span class="sd">    Values are either integer indices, Ellipsis (indicating all</span>
+<span class="sd">    possible values are discontinuous), or None indicating no possible</span>
+<span class="sd">    value is discontinuous.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">initial_states</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">initial_weights</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">ligand_idxs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">receptor_idxs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Base constructor for ReceptorBC.</span>
+
+<span class="sd">        This should be called immediately in the subclass `__init__`</span>
+<span class="sd">        method.</span>
+
+<span class="sd">        If the initial weights for each initial state are not given</span>
+<span class="sd">        uniform weights are assigned to them.</span>
+
+<span class="sd">        Arguments</span>
+<span class="sd">        ---------</span>
+<span class="sd">        initial_states : list of objects implementing the State interface</span>
+<span class="sd">            The list of possible states that warped walkers will assume.</span>
+
+<span class="sd">        initial_weights : list of float, optional</span>
+<span class="sd">            List of normalized probabilities of the initial_states</span>
+<span class="sd">            provided. If not given, uniform probabilities will be</span>
+<span class="sd">            used.</span>
+
+<span class="sd">        ligand_idxs : arraylike of int</span>
+<span class="sd">            The indices of the atom positions in the state considered</span>
+<span class="sd">            the ligand.</span>
+
+<span class="sd">        receptor_idxs : arraylike of int</span>
+<span class="sd">            The indices of the atom positions in the state considered</span>
+<span class="sd">            the receptor.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        AssertionError</span>
+<span class="sd">            If any of the following kwargs are not given:</span>
+<span class="sd">            initial_states, ligand_idxs, receptor_idxs.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># make sure necessary inputs are given</span>
+        <span class="k">assert</span> <span class="n">initial_states</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;Must give a set of initial states&quot;</span>
+        <span class="k">assert</span> <span class="n">ligand_idxs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;Must give ligand indices&quot;</span>
+        <span class="k">assert</span> <span class="n">receptor_idxs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;Must give binding site indices&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_initial_states</span> <span class="o">=</span> <span class="n">initial_states</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ligand_idxs</span> <span class="o">=</span> <span class="n">ligand_idxs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_receptor_idxs</span> <span class="o">=</span> <span class="n">receptor_idxs</span>
+
+        <span class="c1"># we want to choose initial states conditional on their</span>
+        <span class="c1"># initial probability if specified. If not specified assume</span>
+        <span class="c1"># assume uniform probabilities.</span>
+        <span class="k">if</span> <span class="n">initial_weights</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_initial_weights</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="o">/</span><span class="nb">len</span><span class="p">(</span><span class="n">initial_states</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">initial_states</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_initial_weights</span> <span class="o">=</span> <span class="n">initial_weights</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">initial_states</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The possible initial states warped walkers may assume.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_initial_states</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">initial_weights</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The probabilities of each initial state being chosen during a warping.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_initial_weights</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">ligand_idxs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The indices of the atom positions in the state considered the ligand.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ligand_idxs</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">receptor_idxs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The indices of the atom positions in the state considered the receptor.&quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_receptor_idxs</span>
+
+
+    <span class="k">def</span> <span class="nf">_progress</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">walker</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The method that must be implemented in non-abstract subclasses.</span>
+
+<span class="sd">        Should decide if a walker should be warped or not and what its</span>
+<span class="sd">        progress is regardless.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        walker : object implementing the Walker interface</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        to_warp : bool</span>
+<span class="sd">           Whether the walker should be warped or not.</span>
+
+<span class="sd">        progress_data : dict of str : value</span>
+<span class="sd">           Dictionary of the progress record group fields</span>
+<span class="sd">           for this walker alone.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+
+    <span class="k">def</span> <span class="nf">_warp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">walker</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Perform the warping of a walker.</span>
+
+<span class="sd">        Chooses an initial state to replace the walker&#39;s state with</span>
+<span class="sd">        according to it&#39;s given weight.</span>
+
+<span class="sd">        Returns a walker of the same type and weight.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        walker : object implementing the Walker interface</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        warped_walker : object implementing the Walker interface</span>
+<span class="sd">            The walker with the state after the warping. Weight should</span>
+<span class="sd">            be the same.</span>
+
+<span class="sd">        warping_data : dict of str : value</span>
+<span class="sd">           The dictionary-style &#39;WARPING&#39; record for this</span>
+<span class="sd">           event. Excluding the walker index which is done in the main</span>
+<span class="sd">           `warp_walkers` method.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+
+        <span class="c1"># choose a state randomly from the set of initial states</span>
+        <span class="n">target_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">initial_states</span><span class="p">)),</span> <span class="mi">1</span><span class="p">,</span>
+                                  <span class="n">p</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">initial_weights</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">initial_weights</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="n">warped_state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">initial_states</span><span class="p">[</span><span class="n">target_idx</span><span class="p">]</span>
+
+        <span class="c1"># set the initial state into a new walker object with the same weight</span>
+        <span class="n">warped_walker</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="n">walker</span><span class="p">)(</span><span class="n">state</span><span class="o">=</span><span class="n">warped_state</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="n">walker</span><span class="o">.</span><span class="n">weight</span><span class="p">)</span>
+
+        <span class="c1"># the data for the warp</span>
+        <span class="n">warp_data</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;target_idx&#39;</span> <span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">target_idx</span><span class="p">]),</span>
+                     <span class="s1">&#39;weight&#39;</span> <span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">walker</span><span class="o">.</span><span class="n">weight</span><span class="p">])}</span>
+
+        <span class="k">return</span> <span class="n">warped_walker</span><span class="p">,</span> <span class="n">warp_data</span>
+
+
+    <span class="k">def</span> <span class="nf">_update_bc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_walkers</span><span class="p">,</span> <span class="n">warp_data</span><span class="p">,</span> <span class="n">progress_data</span><span class="p">,</span> <span class="n">cycle</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Perform an update to the boundary conditions.</span>
+
+<span class="sd">        No updates to the bc are ever done in this null</span>
+<span class="sd">        implementation.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        new_walkers : list of walkers</span>
+<span class="sd">            The walkers after warping.</span>
+
+<span class="sd">        warp_data : list of dict</span>
+
+<span class="sd">        progress_data : dict</span>
+
+<span class="sd">        cycle : int</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bc_data : list of dict</span>
+<span class="sd">            The dictionary-style records for BC update events</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># do nothing by default</span>
+        <span class="k">return</span> <span class="p">[]</span>
+
+
+<div class="viewcode-block" id="ReceptorBC.warp_walkers"><a class="viewcode-back" href="../../../api/wepy.boundary_conditions.receptor.html#wepy.boundary_conditions.receptor.ReceptorBC.warp_walkers">[docs]</a>    <span class="k">def</span> <span class="nf">warp_walkers</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">walkers</span><span class="p">,</span> <span class="n">cycle</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Test the progress of all the walkers, warp if required, and update</span>
+<span class="sd">        the boundary conditions.</span>
+
+<span class="sd">        Arguments</span>
+<span class="sd">        ---------</span>
+
+<span class="sd">        walkers : list of objects implementing the Walker interface</span>
+
+<span class="sd">        cycle : int</span>
+<span class="sd">            The index of the cycle.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
+<span class="sd">        new_walkers : list of objects implementing the Walker interface</span>
+<span class="sd">            The new set of walkers that may have been warped.</span>
+
+<span class="sd">        warp_data : list of dict of str : value</span>
+<span class="sd">            The dictionary-style records for WARPING update events</span>
+
+
+<span class="sd">        bc_data : list of dict of str : value</span>
+<span class="sd">            The dictionary-style records for BC update events</span>
+
+<span class="sd">        progress_data : dict of str : arraylike</span>
+<span class="sd">            The dictionary-style records for PROGRESS update events</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">new_walkers</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="c1"># sporadic, zero or many records per call</span>
+        <span class="n">warp_data</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">bc_data</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="c1"># continual, one record per call</span>
+        <span class="n">progress_data</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
+
+        <span class="c1"># calculate progress data</span>
+        <span class="n">all_progress_data</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_progress</span><span class="p">(</span><span class="n">w</span><span class="p">)</span> <span class="k">for</span> <span class="n">w</span> <span class="ow">in</span> <span class="n">walkers</span><span class="p">]</span>
+
+        <span class="k">for</span> <span class="n">walker_idx</span><span class="p">,</span> <span class="n">walker</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">walkers</span><span class="p">):</span>
+
+            <span class="c1"># unpack progress data</span>
+            <span class="n">to_warp</span><span class="p">,</span> <span class="n">walker_progress_data</span> <span class="o">=</span> <span class="n">all_progress_data</span><span class="p">[</span><span class="n">walker_idx</span><span class="p">]</span>
+
+            <span class="c1"># add that to the progress data record</span>
+            <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">walker_progress_data</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">progress_data</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+            <span class="c1"># if the walker is meets the requirements for warping warp</span>
+            <span class="c1"># it</span>
+            <span class="k">if</span> <span class="n">to_warp</span><span class="p">:</span>
+                <span class="c1"># warp the walker</span>
+                <span class="n">warped_walker</span><span class="p">,</span> <span class="n">walker_warp_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_warp</span><span class="p">(</span><span class="n">walker</span><span class="p">)</span>
+
+                <span class="c1"># add the walker idx to the walker warp record</span>
+                <span class="n">walker_warp_data</span><span class="p">[</span><span class="s1">&#39;walker_idx&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">walker_idx</span><span class="p">])</span>
+
+                <span class="c1"># save warped_walker in the list of new walkers to return</span>
+                <span class="n">new_walkers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">warped_walker</span><span class="p">)</span>
+
+                <span class="c1"># save the instruction record of the walker</span>
+                <span class="n">warp_data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">walker_warp_data</span><span class="p">)</span>
+
+                <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;WARP EVENT observed at </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cycle</span><span class="p">))</span>
+                <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Warped Walker Weight = </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="n">walker_warp_data</span><span class="p">[</span><span class="s1">&#39;weight&#39;</span><span class="p">]))</span>
+
+            <span class="c1"># no warping so just return the original walker</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">new_walkers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">walker</span><span class="p">)</span>
+
+        <span class="c1"># consolidate the progress data to an array of a single</span>
+        <span class="c1"># feature vectors for the cycle</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">progress_data</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">progress_data</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+
+        <span class="c1"># if the boundary conditions need to be updated given the</span>
+        <span class="c1"># cycle and state from warping perform that now and return any</span>
+        <span class="c1"># record data for that</span>
+        <span class="n">bc_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_update_bc</span><span class="p">(</span><span class="n">new_walkers</span><span class="p">,</span> <span class="n">warp_data</span><span class="p">,</span> <span class="n">progress_data</span><span class="p">,</span> <span class="n">cycle</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">new_walkers</span><span class="p">,</span> <span class="n">warp_data</span><span class="p">,</span> <span class="n">bc_data</span><span class="p">,</span> <span class="n">progress_data</span></div>
+
+<div class="viewcode-block" id="ReceptorBC.warping_discontinuity"><a class="viewcode-back" href="../../../api/wepy.boundary_conditions.receptor.html#wepy.boundary_conditions.receptor.ReceptorBC.warping_discontinuity">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">warping_discontinuity</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">warping_record</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Tests whether a warping record generated by this class is</span>
+<span class="sd">        discontinuous or not.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        warping_record : tuple</span>
+<span class="sd">            The WARPING type record.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
+<span class="sd">        is_discontinuous : bool</span>
+<span class="sd">            True if a discontinuous warp False if continuous.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># if it is Ellipsis then all possible values are discontinuous</span>
+        <span class="k">if</span> <span class="bp">cls</span><span class="o">.</span><span class="n">DISCONTINUITY_TARGET_IDXS</span> <span class="ow">is</span> <span class="bp">Ellipsis</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span>
+
+        <span class="c1"># if it is None then all possible values are continuous</span>
+        <span class="k">elif</span> <span class="bp">cls</span><span class="o">.</span><span class="n">DISCONTINUITY_TARGET_IDXS</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="c1"># otherwise it will have a tuple of indices for the</span>
+        <span class="c1"># target_idxs that are discontinuous targets</span>
+        <span class="k">elif</span> <span class="n">warping_record</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="ow">in</span> <span class="bp">cls</span><span class="o">.</span><span class="n">DISCONTINUITY_TARGET_IDXS</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span>
+
+        <span class="c1"># otherwise it wasn&#39;t a discontinuous target</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span></div></div>
+
+
+<div class="viewcode-block" id="RebindingBC"><a class="viewcode-back" href="../../../api/wepy.boundary_conditions.receptor.html#wepy.boundary_conditions.receptor.RebindingBC">[docs]</a><span class="k">class</span> <span class="nc">RebindingBC</span><span class="p">(</span><span class="n">ReceptorBC</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Boundary condition for doing re-binding simulations of ligands to a</span>
+<span class="sd">    receptor.</span>
+
+<span class="sd">    Implements the ReceptorBC superclass.</span>
+
+<span class="sd">    This boundary condition will warp walkers to a number of initial</span>
+<span class="sd">    states whenever a walker becomes very close to the native (bound)</span>
+<span class="sd">    state.</span>
+
+<span class="sd">    Thus the choice of the &#39;initial_states&#39; argument should be walkers</span>
+<span class="sd">    which are completely unbound (the choice of which are weighted by</span>
+<span class="sd">    &#39;initial_weight&#39;) and the choice of &#39;native_state&#39; should be of a</span>
+<span class="sd">    ligand bound to the receptor, e.g. X-ray crystallography or docked</span>
+<span class="sd">    structure.</span>
+
+<span class="sd">    The cutoff for the boundary is an RMSD of the walker to the native</span>
+<span class="sd">    state which is calculated by first aligning and superimposing the</span>
+<span class="sd">    entire structure according the atom indices specified in</span>
+<span class="sd">    &#39;binding_site_idxs&#39;, and as the name suggests should correspond to</span>
+<span class="sd">    some approximation of the binding site of the ligand that occurs</span>
+<span class="sd">    in the native state. Then the raw RMSD of the native and walker</span>
+<span class="sd">    ligands is calculated. If this RMSD is less than the &#39;cutoff_rmsd&#39;</span>
+<span class="sd">    argument the walker is warped.</span>
+
+<span class="sd">    PROGRESS is reported for each walker from this rmsd.</span>
+
+<span class="sd">    The BC records are never updated.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Records of boundary condition changes (sporadic)</span>
+    <span class="n">BC_FIELDS</span> <span class="o">=</span> <span class="n">ReceptorBC</span><span class="o">.</span><span class="n">BC_FIELDS</span> <span class="o">+</span> <span class="p">(</span><span class="s1">&#39;native_rmsd_cutoff&#39;</span><span class="p">,</span> <span class="p">)</span>
+    <span class="sd">&quot;&quot;&quot;The &#39;native_rmsd_cutoff&#39; is the cutoff used to determine when</span>
+<span class="sd">    walkers have re-bound to the receptor, which is defined as the</span>
+<span class="sd">    RMSD of the ligand to the native ligand bound state, when the</span>
+<span class="sd">    binding sites are aligned and superimposed.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">BC_SHAPES</span> <span class="o">=</span> <span class="n">ReceptorBC</span><span class="o">.</span><span class="n">BC_SHAPES</span> <span class="o">+</span> <span class="p">((</span><span class="mi">1</span><span class="p">,),</span> <span class="p">)</span>
+    <span class="n">BC_DTYPES</span> <span class="o">=</span> <span class="n">ReceptorBC</span><span class="o">.</span><span class="n">BC_DTYPES</span> <span class="o">+</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">,</span> <span class="p">)</span>
+
+    <span class="n">BC_RECORD_FIELDS</span> <span class="o">=</span> <span class="n">ReceptorBC</span><span class="o">.</span><span class="n">BC_RECORD_FIELDS</span> <span class="o">+</span> <span class="p">(</span><span class="s1">&#39;native_rmsd_cutoff&#39;</span><span class="p">,</span> <span class="p">)</span>
+
+    <span class="c1"># warping (sporadic)</span>
+    <span class="n">WARPING_FIELDS</span> <span class="o">=</span> <span class="n">ReceptorBC</span><span class="o">.</span><span class="n">WARPING_FIELDS</span> <span class="o">+</span> <span class="p">()</span>
+    <span class="n">WARPING_SHAPES</span> <span class="o">=</span> <span class="n">ReceptorBC</span><span class="o">.</span><span class="n">WARPING_SHAPES</span> <span class="o">+</span> <span class="p">()</span>
+    <span class="n">WARPING_DTYPES</span> <span class="o">=</span> <span class="n">ReceptorBC</span><span class="o">.</span><span class="n">WARPING_DTYPES</span> <span class="o">+</span> <span class="p">()</span>
+
+    <span class="n">WARPING_RECORD_FIELDS</span> <span class="o">=</span> <span class="n">ReceptorBC</span><span class="o">.</span><span class="n">WARPING_RECORD_FIELDS</span> <span class="o">+</span> <span class="p">()</span>
+
+    <span class="c1"># progress towards the boundary conditions (continual)</span>
+    <span class="n">PROGRESS_FIELDS</span> <span class="o">=</span> <span class="n">ReceptorBC</span><span class="o">.</span><span class="n">PROGRESS_FIELDS</span> <span class="o">+</span> <span class="p">(</span><span class="s1">&#39;native_rmsd&#39;</span><span class="p">,)</span>
+    <span class="n">PROGRESS_SHAPES</span> <span class="o">=</span> <span class="n">ReceptorBC</span><span class="o">.</span><span class="n">PROGRESS_SHAPES</span> <span class="o">+</span> <span class="p">(</span><span class="bp">Ellipsis</span><span class="p">,)</span>
+    <span class="n">PROGRESS_DTYPES</span> <span class="o">=</span> <span class="n">ReceptorBC</span><span class="o">.</span><span class="n">PROGRESS_DTYPES</span> <span class="o">+</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">,)</span>
+
+    <span class="n">PROGRESS_RECORD_FIELDS</span> <span class="o">=</span> <span class="n">ReceptorBC</span><span class="o">.</span><span class="n">PROGRESS_RECORD_FIELDS</span> <span class="o">+</span> <span class="p">(</span><span class="s1">&#39;native_rmsd&#39;</span><span class="p">,</span> <span class="p">)</span>
+    <span class="sd">&quot;&quot;&quot;Records for the state of this record group.</span>
+
+<span class="sd">    The &#39;native_rmsd&#39; is the is the RMSD of the ligand to the native</span>
+<span class="sd">    ligand bound state, when the binding sites are aligned and</span>
+<span class="sd">    superimposed.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">native_state</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">cutoff_rmsd</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span>
+                 <span class="n">initial_states</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">initial_weights</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">ligand_idxs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">binding_site_idxs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Constructor for RebindingBC.</span>
+
+<span class="sd">        Arguments</span>
+<span class="sd">        ---------</span>
+
+<span class="sd">        native_state : object implementing the State interface</span>
+<span class="sd">            The reference bound state. Will be automatically centered.</span>
+
+<span class="sd">        cutoff_rmsd : float</span>
+<span class="sd">            The cutoff RMSD for considering a walker bound.</span>
+
+<span class="sd">        initial_states : list of objects implementing the State interface</span>
+<span class="sd">            The list of possible states that warped walkers will assume.</span>
+
+<span class="sd">        initial_weights : list of float, optional</span>
+<span class="sd">            List of normalized probabilities of the initial_states</span>
+<span class="sd">            provided. If not given, uniform probabilities will be</span>
+<span class="sd">            used.</span>
+
+<span class="sd">        ligand_idxs : arraylike of int</span>
+<span class="sd">            The indices of the atom positions in the state considered</span>
+<span class="sd">            the ligand.</span>
+
+<span class="sd">        binding_site_idxs : arraylike of int</span>
+<span class="sd">            The indices of the atom positions in the state considered</span>
+<span class="sd">            the binding site.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        AssertionError</span>
+<span class="sd">            If any of the following kwargs are not given:</span>
+<span class="sd">            native_state, initial_states, ligand_idxs, receptor_idxs.</span>
+
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">initial_states</span><span class="o">=</span><span class="n">initial_states</span><span class="p">,</span>
+                         <span class="n">initial_weights</span><span class="o">=</span><span class="n">initial_weights</span><span class="p">,</span>
+                         <span class="n">ligand_idxs</span><span class="o">=</span><span class="n">ligand_idxs</span><span class="p">,</span>
+                         <span class="n">receptor_idxs</span><span class="o">=</span><span class="n">binding_site_idxs</span>
+                         <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="c1"># test inputs</span>
+        <span class="k">assert</span> <span class="n">native_state</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;Must give a native state&quot;</span>
+        <span class="k">assert</span> <span class="nb">type</span><span class="p">(</span><span class="n">cutoff_rmsd</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">float</span>
+
+        <span class="n">native_state_d</span> <span class="o">=</span> <span class="n">native_state</span><span class="o">.</span><span class="n">dict</span><span class="p">()</span>
+
+        <span class="c1"># save the native state and center it around it&#39;s binding site</span>
+        <span class="n">native_state_d</span><span class="p">[</span><span class="s1">&#39;positions&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">center_around</span><span class="p">(</span><span class="n">native_state</span><span class="p">[</span><span class="s1">&#39;positions&#39;</span><span class="p">],</span> <span class="n">binding_site_idxs</span><span class="p">)</span>
+
+        <span class="n">native_state</span> <span class="o">=</span> <span class="n">WalkerState</span><span class="p">(</span><span class="o">**</span><span class="n">native_state_d</span><span class="p">)</span>
+
+        <span class="c1"># save attributes</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_native_state</span> <span class="o">=</span> <span class="n">native_state</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cutoff_rmsd</span> <span class="o">=</span> <span class="n">cutoff_rmsd</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">native_state</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The reference bound state to which walkers are compared.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_native_state</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">cutoff_rmsd</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The cutoff RMSD for considering a walker bound.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cutoff_rmsd</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">binding_site_idxs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The indices of the atom positions in the state considered the binding site.&quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_receptor_idxs</span>
+
+    <span class="k">def</span> <span class="nf">_progress</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">walker</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Calculate if the walker has bound and provide progress record.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        walker : object implementing the Walker interface</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        is_bound : bool</span>
+<span class="sd">           Whether the walker is unbound (warped) or not</span>
+
+<span class="sd">        progress_data : dict of str : value</span>
+<span class="sd">           Dictionary of the progress record group fields</span>
+<span class="sd">           for this walker alone.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># first recenter the ligand and the receptor in the walker</span>
+        <span class="n">box_lengths</span><span class="p">,</span> <span class="n">box_angles</span> <span class="o">=</span> <span class="n">box_vectors_to_lengths_angles</span><span class="p">(</span><span class="n">walker</span><span class="o">.</span><span class="n">state</span><span class="p">[</span><span class="s1">&#39;box_vectors&#39;</span><span class="p">])</span>
+        <span class="n">grouped_walker_pos</span> <span class="o">=</span> <span class="n">group_pair</span><span class="p">(</span><span class="n">walker</span><span class="o">.</span><span class="n">state</span><span class="p">[</span><span class="s1">&#39;positions&#39;</span><span class="p">],</span> <span class="n">box_lengths</span><span class="p">,</span>
+                                     <span class="bp">self</span><span class="o">.</span><span class="n">binding_site_idxs</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ligand_idxs</span><span class="p">)</span>
+
+        <span class="c1"># center the positions around the center of the binding site</span>
+        <span class="n">centered_walker_pos</span> <span class="o">=</span> <span class="n">center_around</span><span class="p">(</span><span class="n">grouped_walker_pos</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">binding_site_idxs</span><span class="p">)</span>
+
+        <span class="c1"># superimpose the walker state positions over the native state</span>
+        <span class="c1"># matching the binding site indices only</span>
+        <span class="n">sup_walker_pos</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">superimpose</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">native_state</span><span class="p">[</span><span class="s1">&#39;positions&#39;</span><span class="p">],</span> <span class="n">centered_walker_pos</span><span class="p">,</span>
+                                 <span class="n">idxs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">binding_site_idxs</span><span class="p">)</span>
+
+        <span class="c1"># calculate the rmsd of the walker ligand (superimposed</span>
+        <span class="c1"># according to the binding sites) to the native state ligand</span>
+        <span class="n">native_rmsd</span> <span class="o">=</span> <span class="n">calc_rmsd</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">native_state</span><span class="p">[</span><span class="s1">&#39;positions&#39;</span><span class="p">],</span> <span class="n">sup_walker_pos</span><span class="p">,</span>
+                                <span class="n">idxs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ligand_idxs</span><span class="p">)</span>
+
+        <span class="c1"># test to see if the ligand is re-bound</span>
+        <span class="n">rebound</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="n">native_rmsd</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cutoff_rmsd</span><span class="p">:</span>
+            <span class="n">rebound</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="n">progress_data</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;native_rmsd&#39;</span> <span class="p">:</span> <span class="n">native_rmsd</span><span class="p">}</span>
+
+        <span class="k">return</span> <span class="n">rebound</span><span class="p">,</span> <span class="n">progress_data</span></div>
+
+
+<div class="viewcode-block" id="UnbindingBC"><a class="viewcode-back" href="../../../api/wepy.boundary_conditions.receptor.html#wepy.boundary_conditions.receptor.UnbindingBC">[docs]</a><span class="k">class</span> <span class="nc">UnbindingBC</span><span class="p">(</span><span class="n">ReceptorBC</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Boundary condition for ligand unbinding.</span>
+
+<span class="sd">    Walkers will be warped (discontinuously) if all atoms in the</span>
+<span class="sd">    ligand are at least a certain distance away from the atoms in the</span>
+<span class="sd">    receptor (i.e. the min-min of ligand-receptor distances &gt; cutoff).</span>
+
+<span class="sd">    Warping will replace the walker state with the initial state given</span>
+<span class="sd">    as a parameter to this class.</span>
+
+<span class="sd">    Also reports on the progress of that min-min for each walker.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># records of boundary condition changes (sporadic)</span>
+    <span class="n">BC_FIELDS</span> <span class="o">=</span> <span class="n">ReceptorBC</span><span class="o">.</span><span class="n">BC_FIELDS</span> <span class="o">+</span> <span class="p">(</span><span class="s1">&#39;boundary_distance&#39;</span><span class="p">,</span> <span class="p">)</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Only occurs at the start of the simulation and just reports on the</span>
+<span class="sd">    min-min cutoff distance.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">BC_SHAPES</span> <span class="o">=</span> <span class="n">ReceptorBC</span><span class="o">.</span><span class="n">BC_SHAPES</span> <span class="o">+</span> <span class="p">((</span><span class="mi">1</span><span class="p">,),</span> <span class="p">)</span>
+    <span class="n">BC_DTYPES</span> <span class="o">=</span> <span class="n">ReceptorBC</span><span class="o">.</span><span class="n">BC_DTYPES</span> <span class="o">+</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">,</span> <span class="p">)</span>
+    <span class="n">BC_RECORD_FIELDS</span> <span class="o">=</span> <span class="n">ReceptorBC</span><span class="o">.</span><span class="n">BC_RECORD_FIELDS</span> <span class="o">+</span> <span class="p">(</span><span class="s1">&#39;boundary_distance&#39;</span><span class="p">,</span> <span class="p">)</span>
+
+    <span class="c1"># warping (sporadic)</span>
+    <span class="n">WARPING_FIELDS</span> <span class="o">=</span> <span class="n">ReceptorBC</span><span class="o">.</span><span class="n">WARPING_FIELDS</span> <span class="o">+</span> <span class="p">()</span>
+    <span class="n">WARPING_SHAPES</span> <span class="o">=</span> <span class="n">ReceptorBC</span><span class="o">.</span><span class="n">WARPING_SHAPES</span> <span class="o">+</span> <span class="p">()</span>
+    <span class="n">WARPING_DTYPES</span> <span class="o">=</span> <span class="n">ReceptorBC</span><span class="o">.</span><span class="n">WARPING_DTYPES</span> <span class="o">+</span> <span class="p">()</span>
+
+    <span class="n">WARPING_RECORD_FIELDS</span> <span class="o">=</span> <span class="n">ReceptorBC</span><span class="o">.</span><span class="n">WARPING_RECORD_FIELDS</span> <span class="o">+</span> <span class="p">()</span>
+
+    <span class="c1"># progress record group</span>
+    <span class="n">PROGRESS_FIELDS</span> <span class="o">=</span> <span class="n">ReceptorBC</span><span class="o">.</span><span class="n">PROGRESS_FIELDS</span> <span class="o">+</span> <span class="p">(</span><span class="s1">&#39;min_distances&#39;</span><span class="p">,)</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    The &#39;min_distances&#39; field reports on the min-min ligand-receptor</span>
+<span class="sd">    distance for each walker.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">PROGRESS_SHAPES</span> <span class="o">=</span> <span class="n">ReceptorBC</span><span class="o">.</span><span class="n">PROGRESS_SHAPES</span> <span class="o">+</span> <span class="p">(</span><span class="bp">Ellipsis</span><span class="p">,)</span>
+    <span class="n">PROGRESS_DTYPES</span> <span class="o">=</span> <span class="n">ReceptorBC</span><span class="o">.</span><span class="n">PROGRESS_DTYPES</span> <span class="o">+</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">,)</span>
+    <span class="n">PROGRESS_RECORD_FIELDS</span> <span class="o">=</span> <span class="n">ReceptorBC</span><span class="o">.</span><span class="n">PROGRESS_RECORD_FIELDS</span> <span class="o">+</span> <span class="p">(</span><span class="s1">&#39;min_distances&#39;</span><span class="p">,</span> <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">initial_state</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">cutoff_distance</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
+                 <span class="n">topology</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">ligand_idxs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">receptor_idxs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Constructor for UnbindingBC class.</span>
+
+<span class="sd">        All the key-word arguments are necessary.</span>
+
+<span class="sd">        The &#39;initial_state&#39; should be the initial state of your</span>
+<span class="sd">        simulation for proper non-equilibrium simulations.</span>
+
+<span class="sd">        Arguments</span>
+<span class="sd">        ---------</span>
+<span class="sd">        initial_state : object implementing State interface</span>
+<span class="sd">            The state walkers will take on after unbinding.</span>
+
+<span class="sd">        cutoff_distance : float</span>
+<span class="sd">            The distance that specifies the boundary condition. When</span>
+<span class="sd">            the min-min ligand-receptor distance is less than this it</span>
+<span class="sd">            will be warped.</span>
+
+<span class="sd">        topology : str</span>
+<span class="sd">            A JSON string of topology.</span>
+
+<span class="sd">        ligand_idxs : list of int</span>
+<span class="sd">           Indices of the atoms in the topology that correspond to the ligands.</span>
+
+<span class="sd">        receptor_idxs : list of int</span>
+<span class="sd">           Indices of the atoms in the topology that correspond to the</span>
+<span class="sd">           receptor for the ligand.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        AssertionError</span>
+<span class="sd">            If any of the following are not provided: initial_state, topology,</span>
+<span class="sd">            ligand_idxs, receptor_idxs</span>
+
+<span class="sd">        AssertionError</span>
+<span class="sd">            If the cutoff distance is not a float.</span>
+
+<span class="sd">        Warnings</span>
+<span class="sd">        --------</span>
+<span class="sd">        The &#39;initial_state&#39; should be the initial state of your</span>
+<span class="sd">        simulation for proper non-equilibrium simulations.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+
+<span class="sd">        The topology argument is necessary due to an implementation</span>
+<span class="sd">        detail that uses mdtraj and may not be required in the future.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># since the super class can handle multiple initial states we</span>
+        <span class="c1"># wrap the single initial state to a list.</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">initial_states</span><span class="o">=</span><span class="p">[</span><span class="n">initial_state</span><span class="p">],</span>
+                         <span class="n">ligand_idxs</span><span class="o">=</span><span class="n">ligand_idxs</span><span class="p">,</span>
+                         <span class="n">receptor_idxs</span><span class="o">=</span><span class="n">receptor_idxs</span><span class="p">,</span>
+                         <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="c1"># test input</span>
+        <span class="k">assert</span> <span class="n">topology</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;Must give a reference topology&quot;</span>
+        <span class="k">assert</span> <span class="nb">type</span><span class="p">(</span><span class="n">cutoff_distance</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">float</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cutoff_distance</span> <span class="o">=</span> <span class="n">cutoff_distance</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_topology</span> <span class="o">=</span> <span class="n">topology</span>
+
+        <span class="c1"># convert the json topology to an mdtraj one</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_mdj_top</span> <span class="o">=</span> <span class="n">json_to_mdtraj_topology</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_topology</span><span class="p">)</span>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">cutoff_distance</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The distance a ligand must be to be unbound.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cutoff_distance</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">topology</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;JSON string topology of the system.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_topology</span>
+
+    <span class="k">def</span> <span class="nf">_calc_min_distance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">walker</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Min-min distance for a walker.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        walker : object implementing the Walker interface</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        min_distance : float</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">cell_lengths</span><span class="p">,</span> <span class="n">cell_angles</span> <span class="o">=</span> <span class="n">box_vectors_to_lengths_angles</span><span class="p">(</span><span class="n">walker</span><span class="o">.</span><span class="n">state</span><span class="p">[</span><span class="s1">&#39;box_vectors&#39;</span><span class="p">])</span>
+
+        <span class="n">t2</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="c1"># make a traj out of it so we can calculate distances through</span>
+        <span class="c1"># the periodic boundary conditions</span>
+        <span class="n">walker_traj</span> <span class="o">=</span> <span class="n">mdj</span><span class="o">.</span><span class="n">Trajectory</span><span class="p">(</span><span class="n">walker</span><span class="o">.</span><span class="n">state</span><span class="p">[</span><span class="s1">&#39;positions&#39;</span><span class="p">],</span>
+                                     <span class="n">topology</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_mdj_top</span><span class="p">,</span>
+                                     <span class="n">unitcell_lengths</span><span class="o">=</span><span class="n">cell_lengths</span><span class="p">,</span>
+                                     <span class="n">unitcell_angles</span><span class="o">=</span><span class="n">cell_angles</span><span class="p">)</span>
+
+        <span class="n">t3</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="c1"># calculate the distances through periodic boundary conditions</span>
+        <span class="c1"># and get hte minimum distance</span>
+        <span class="n">min_distance</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">mdj</span><span class="o">.</span><span class="n">compute_distances</span><span class="p">(</span><span class="n">walker_traj</span><span class="p">,</span>
+                                                    <span class="n">it</span><span class="o">.</span><span class="n">product</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ligand_idxs</span><span class="p">,</span>
+                                                               <span class="bp">self</span><span class="o">.</span><span class="n">receptor_idxs</span><span class="p">)))</span>
+        <span class="n">t4</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Make a traj: </span><span class="si">{0}</span><span class="s2">; Calc dists: </span><span class="si">{1}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">t3</span><span class="o">-</span><span class="n">t2</span><span class="p">,</span><span class="n">t4</span><span class="o">-</span><span class="n">t3</span><span class="p">))</span>
+        
+        <span class="k">return</span> <span class="n">min_distance</span>
+
+    <span class="k">def</span> <span class="nf">_progress</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">walker</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Calculate whether a walker has unbound and also provide a</span>
+<span class="sd">        dictionary for a single walker in the progress records.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        walker : object implementing the Walker interface</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        is_unbound : bool</span>
+<span class="sd">           Whether the walker is unbound (warped) or not</span>
+
+<span class="sd">        progress_data : dict of str : value</span>
+<span class="sd">           Dictionary of the progress record group fields</span>
+<span class="sd">           for this walker alone.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">min_distance</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_calc_min_distance</span><span class="p">(</span><span class="n">walker</span><span class="p">)</span>
+
+        <span class="c1"># test to see if the ligand is unbound</span>
+        <span class="n">unbound</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="n">min_distance</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cutoff_distance</span><span class="p">:</span>
+            <span class="n">unbound</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="n">progress_data</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;min_distances&#39;</span> <span class="p">:</span> <span class="n">min_distance</span><span class="p">}</span>
+
+        <span class="k">return</span> <span class="n">unbound</span><span class="p">,</span> <span class="n">progress_data</span>
+
+    <span class="k">def</span> <span class="nf">_update_bc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_walkers</span><span class="p">,</span> <span class="n">warp_data</span><span class="p">,</span> <span class="n">progress_data</span><span class="p">,</span> <span class="n">cycle</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Perform an update to the boundary conditions.</span>
+
+<span class="sd">        This is only used on the first cycle to keep a record of the</span>
+<span class="sd">        cutoff parameter.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        new_walkers : list of walkers</span>
+<span class="sd">            The walkers after warping.</span>
+
+<span class="sd">        warp_data : list of dict</span>
+
+<span class="sd">        progress_data : dict</span>
+
+<span class="sd">        cycle : int</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bc_data : list of dict</span>
+<span class="sd">            The dictionary-style records for BC update events</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># Only report a record on</span>
+        <span class="c1"># the first cycle which gives the distance at which walkers</span>
+        <span class="c1"># are warped</span>
+        <span class="k">if</span> <span class="n">cycle</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[{</span><span class="s1">&#39;boundary_distance&#39;</span> <span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">_cutoff_distance</span><span class="p">]),},]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[]</span></div>
+</pre></div>
+
+          </div>
+            
+        </div>
+        <div class="clearfix"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">wepy  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+<script type="text/javascript">
+  $("#mobile-toggle a").click(function () {
+    $("#left-column").toggle();
+  });
+</script>
+<script type="text/javascript" src="../../../_static/js/bootstrap.js"></script>
+  <div class="footer">
+    &copy; Copyright 2018, Samuel D. Lotz. Created using <a href="http://sphinx.pocoo.org/">Sphinx</a>.
+  </div>
+  </body>
+</html>

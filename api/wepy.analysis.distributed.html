@@ -1,0 +1,345 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+  
+  <!-- Licensed under the Apache 2.0 License -->
+  <link rel="stylesheet" type="text/css" href="../_static/fonts/open-sans/stylesheet.css" />
+  <!-- Licensed under the SIL Open Font License -->
+  <link rel="stylesheet" type="text/css" href="../_static/fonts/source-serif-pro/source-serif-pro.css" />
+  <link rel="stylesheet" type="text/css" href="../_static/css/bootstrap.min.css" />
+  <link rel="stylesheet" type="text/css" href="../_static/css/bootstrap-theme.min.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+    <title>wepy.analysis.distributed module &#8212; wepy  documentation</title>
+    <link rel="stylesheet" href="../_static/guzzle.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/language_data.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="wepy.analysis.network module" href="wepy.analysis.network.html" />
+    <link rel="prev" title="wepy.analysis.contig_tree module" href="wepy.analysis.contig_tree.html" />
+  
+   
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="wepy.analysis.network.html" title="wepy.analysis.network module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="wepy.analysis.contig_tree.html" title="wepy.analysis.contig_tree module"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">wepy  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >wepy</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="wepy.html" >wepy package</a> &#187;</li>
+          <li class="nav-item nav-item-3"><a href="wepy.analysis.html" accesskey="U">wepy.analysis package</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="container-wrapper">
+
+      <div id="mobile-toggle">
+        <a href="#"><span class="glyphicon glyphicon-align-justify" aria-hidden="true"></span></a>
+      </div>
+  <div id="left-column">
+    <div class="sphinxsidebar">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="wepy.analysis.contig_tree.html"
+                        title="previous chapter">wepy.analysis.contig_tree module</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="wepy.analysis.network.html"
+                        title="next chapter">wepy.analysis.network module</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/api/wepy.analysis.distributed.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div class="sidebar-block">
+  <div class="sidebar-wrapper">
+    <div id="main-search">
+      <form class="form-inline" action="../search.html" method="GET" role="form">
+        <div class="input-group">
+          <input name="q" type="text" class="form-control" placeholder="Search...">
+        </div>
+        <input type="hidden" name="check_keywords" value="yes" />
+        <input type="hidden" name="area" value="default" />
+      </form>
+    </div>
+  </div>
+</div>
+      
+    </div>
+  </div>
+        <div id="right-column">
+          
+          <div role="navigation" aria-label="breadcrumbs navigation">
+            <ol class="breadcrumb">
+              <li><a href="../index.html">Docs</a></li>
+              
+                <li><a href="modules.html">wepy</a></li>
+              
+                <li><a href="wepy.html">wepy package</a></li>
+              
+                <li><a href="wepy.analysis.html">wepy.analysis package</a></li>
+              
+              <li>wepy.analysis.distributed module</li>
+            </ol>
+          </div>
+          
+          <div class="document clearer body">
+            
+  <div class="section" id="module-wepy.analysis.distributed">
+<span id="wepy-analysis-distributed-module"></span><h1>wepy.analysis.distributed module<a class="headerlink" href="#module-wepy.analysis.distributed" title="Permalink to this headline">¶</a></h1>
+<p>Module that provides functionality for performing parallel
+distributed calculations using the dask suite of tools.</p>
+<p>Because these tools are to be used in tandem with each other here is an overview of how they fit together:</p>
+<p>Dask provides parallelism over arbitrary (serializable) python
+objects through the bag object. Because WepyHDF5 objects (or any
+HDF5 dataset reference) are not serializable (because they contain
+file handles to an underlying HDF5 file) we instead provide a
+simple datastructure that provides the specifications for which
+dataset to read from and what piece of the data is to be read
+in. These the ‘items’ (which are returned by this function) are a
+simple tuple containing:</p>
+<ul class="simple">
+<li><p>file path to WepyHDF5 file</p></li>
+<li><p>run index</p></li>
+<li><p>trajectory index</p></li>
+<li><p>frame indices</p></li>
+<li><p>field names/paths</p></li>
+</ul>
+<p>This is everything we need to call the <cite>get_traj_field</cite> method and
+generate a traj fields, which can then be operated on by various
+other functions, e.g. <cite>traj_fields_to_mdtraj</cite> or any function that
+could be passed to <cite>WepyHDF5.compute_observable</cite>.</p>
+<p>This function does not directly create a dask bag object, but can
+easily be done, via
+<cite>dask.bag.from_sequence(traj_fields_bag_items(*args))</cite>. After
+which we only need to actually load the data into memory using the
+other helper function <cite>load_frames_fields</cite> which takes as a single
+argument a single ‘item’ from this functions output.</p>
+<p>I.e.:
+<cite>dask.bag.from_sequence(traj_fields_bag_items(*args)).map(load_frames_fields)</cite></p>
+<p>This will create a dask bag which can then be used to perform
+various distributed, parallel operations on it, such as
+<cite>dask.bag.map</cite>. Think of it as a distributed version of
+<cite>WepyHDF5.compute_observable</cite> (except we can’t save directly to
+the WepyHDF5 in the same invocation).</p>
+<p>For example:</p>
+<p><a href="#id1"><span class="problematic" id="id2">``</span></a>`
+import dask
+from wepy.util.mdtraj import traj_fields_to_mdtraj
+from wepy.analysis.distributed import traj_fields_chunk_items, load_traj_chunks</p>
+<dl>
+<dt>bag = dask.bag.from_sequence(</dt><dd><dl>
+<dt>traj_fields_bag_items(</dt><dd><p>‘results.wepy.h5’,
+[‘positions’, ‘box_vectors’],
+chunk_size=500</p>
+<blockquote>
+<div><blockquote>
+<div><p>)</p>
+</div></blockquote>
+<p>)</p>
+</div></blockquote>
+</dd>
+</dl>
+</dd>
+</dl>
+<p># load the trajectory fields “chunks” into distributed memory
+a = bag.map(load_traj_chunks)
+# convert our “trajectory fields” chunks to an mdtraj Trajectory object
+b = bag.map(traj_fields_to_mdtraj)
+# compute the solvent accessible surface area of the trajectory chunks
+c = bag.map(mdj.shrake_rupley)
+results = b.compute()</p>
+<p><a href="#id3"><span class="problematic" id="id4">``</span></a><a href="#id5"><span class="problematic" id="id6">`</span></a></p>
+<p>The intermediate values a, b, and c are just place holders for
+delayed operations since, dask is ‘lazy’ in the sense that it
+doesn’t actually do any of the work in the ‘map’ calls until you
+call ‘compute’.</p>
+<p>The choice of the chunk size is also of high importance for getting
+efficient calculations. To choose the chunk size appropriately
+consider the resources and parallelism available to each of your
+workers and the amount of data that you have.</p>
+<p>The smaller the chunk, the more tasks that will be generated for
+dask. Each task has an intrinsic overhead associated with it, may
+require serialization and communication if operating in separate
+processes or hosts, and furthermore needs to be scheduled for
+execution by dask. An excessively large number of tasks will cause the
+scheduler to grind to a halt so we want to increase the chunk size to
+large enough that the scheduler can handle it and that communication
+doesn’t become more expensive than actual calculation. However, we are limited in a few ways to the size of the chunks:</p>
+<ol class="arabic simple">
+<li><p>length of individual trajectories in a run</p></li>
+<li><p>memory of a worker process</p></li>
+<li><p>throughput of a worker process</p></li>
+</ol>
+<p>Firstly we are limited in a strong sense by the fact that the largest
+possible chunk for a single trajectory is the whole trajectory. Even
+if larger chunks would be theoretically, possible. Probably there are
+advanced optimizations that could be made if our trajectories happened
+to be very numerous and very short, we assume that trajectories are
+reasonably long and not numbering in the hundreds of thousands or
+millions. This is also dependent on the actual size of a single frame,
+which may vary greatly in size for different domains. In any case you
+should very likely do some dimensionality reduction before performing
+calculations (i.e. stripping out waters in molecular dynamics
+simulations).</p>
+<p>Secondly, a chunk must be able to fit into the memory of a worker
+process. This is a straightforward and intuitive limitation.
+Thirdly, we must not make the chunks so large that the degree of
+parallelism is diminished.</p>
+<p>We leave off here because optimizing parallel calculation is a huge
+topic and will change from problem to problem. Thus we encourage trial
+and error. In our experience however, a nonresponsive (but non-error
+producing calculation) is probably due to the scheduler being
+inundated with too many tasks (chunk sizes too small, say of only 1
+frame).</p>
+<dl class="function">
+<dt id="wepy.analysis.distributed.traj_fields_chunk_items">
+<code class="sig-prename descclassname">wepy.analysis.distributed.</code><code class="sig-name descname">traj_fields_chunk_items</code><span class="sig-paren">(</span><em class="sig-param">wepy_h5_path</em>, <em class="sig-param">fields</em>, <em class="sig-param">run_idxs=Ellipsis</em>, <em class="sig-param">chunk_size=Ellipsis</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/distributed.html#traj_fields_chunk_items"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.distributed.traj_fields_chunk_items" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate items that can be used to create a dask.bag object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>wepy_h5_path</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – The file path to the WepyHDF5 file that will be read from.</p></li>
+<li><p><strong>fields</strong> (<em>list of str</em>) – The field names/paths for the data to be retrieved.</p></li>
+<li><p><strong>chunk_size</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – This is the size of the chunk (i.e. number of frames) that
+will be retrieved from each trajectory. This is the unit of
+data for which a single task will work on. Dask will also
+partition these chunks as it sees fit.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>chunk_specs</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list of dict of str : value</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="wepy.analysis.distributed.load_chunk">
+<code class="sig-prename descclassname">wepy.analysis.distributed.</code><code class="sig-name descname">load_chunk</code><span class="sig-paren">(</span><em class="sig-param">chunk_spec</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/distributed.html#load_chunk"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.distributed.load_chunk" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="wepy.analysis.distributed.chunk_func_funcgen">
+<code class="sig-prename descclassname">wepy.analysis.distributed.</code><code class="sig-name descname">chunk_func_funcgen</code><span class="sig-paren">(</span><em class="sig-param">func, input_keys=['traj_fields'], result_name=None, keep_inputs=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/distributed.html#chunk_func_funcgen"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.distributed.chunk_func_funcgen" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="wepy.analysis.distributed.unwrap_chunk_funcgen">
+<code class="sig-prename descclassname">wepy.analysis.distributed.</code><code class="sig-name descname">unwrap_chunk_funcgen</code><span class="sig-paren">(</span><em class="sig-param">keys=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/distributed.html#unwrap_chunk_funcgen"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.distributed.unwrap_chunk_funcgen" title="Permalink to this definition">¶</a></dt>
+<dd><p>Consider first using the bag.pluck method</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="wepy.analysis.distributed.chunk_key_func">
+<code class="sig-prename descclassname">wepy.analysis.distributed.</code><code class="sig-name descname">chunk_key_func</code><span class="sig-paren">(</span><em class="sig-param">chunk_spec</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/distributed.html#chunk_key_func"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.distributed.chunk_key_func" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="wepy.analysis.distributed.init_chunk">
+<code class="sig-prename descclassname">wepy.analysis.distributed.</code><code class="sig-name descname">init_chunk</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/distributed.html#init_chunk"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.distributed.init_chunk" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="wepy.analysis.distributed.chunk_concat_funcgen">
+<code class="sig-prename descclassname">wepy.analysis.distributed.</code><code class="sig-name descname">chunk_concat_funcgen</code><span class="sig-paren">(</span><em class="sig-param">*concat_funcs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/distributed.html#chunk_concat_funcgen"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.distributed.chunk_concat_funcgen" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="wepy.analysis.distributed.chunk_array_concat_funcgen">
+<code class="sig-prename descclassname">wepy.analysis.distributed.</code><code class="sig-name descname">chunk_array_concat_funcgen</code><span class="sig-paren">(</span><em class="sig-param">field</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/distributed.html#chunk_array_concat_funcgen"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.distributed.chunk_array_concat_funcgen" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="wepy.analysis.distributed.chunk_traj_fields_concat">
+<code class="sig-prename descclassname">wepy.analysis.distributed.</code><code class="sig-name descname">chunk_traj_fields_concat</code><span class="sig-paren">(</span><em class="sig-param">cum_chunk_spec</em>, <em class="sig-param">new_chunk_spec</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/distributed.html#chunk_traj_fields_concat"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.distributed.chunk_traj_fields_concat" title="Permalink to this definition">¶</a></dt>
+<dd><p>Binary operation for dask foldby reductions for concatenating chunk
+specs with a traj_fields payload</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="wepy.analysis.distributed.compute_observable">
+<code class="sig-prename descclassname">wepy.analysis.distributed.</code><code class="sig-name descname">compute_observable</code><span class="sig-paren">(</span><em class="sig-param">func</em>, <em class="sig-param">wepy_h5_path</em>, <em class="sig-param">dask_client</em>, <em class="sig-param">fields</em>, <em class="sig-param">chunk_size=Ellipsis</em>, <em class="sig-param">num_partitions=100</em>, <em class="sig-param">run_idxs=Ellipsis</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/distributed.html#compute_observable"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.distributed.compute_observable" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="wepy.analysis.distributed.compute_observable_graph">
+<code class="sig-prename descclassname">wepy.analysis.distributed.</code><code class="sig-name descname">compute_observable_graph</code><span class="sig-paren">(</span><em class="sig-param">func</em>, <em class="sig-param">chunk_bag</em>, <em class="sig-param">chunk_size</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/distributed.html#compute_observable_graph"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.distributed.compute_observable_graph" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+
+
+          </div>
+            
+  <div class="footer-relations">
+    
+      <div class="pull-left">
+        <a class="btn btn-default" href="wepy.analysis.contig_tree.html" title="previous chapter (use the left arrow)">wepy.analysis.contig_tree module</a>
+      </div>
+    
+      <div class="pull-right">
+        <a class="btn btn-default" href="wepy.analysis.network.html" title="next chapter (use the right arrow)">wepy.analysis.network module</a>
+      </div>
+    </div>
+    <div class="clearer"></div>
+  
+        </div>
+        <div class="clearfix"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="wepy.analysis.network.html" title="wepy.analysis.network module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="wepy.analysis.contig_tree.html" title="wepy.analysis.contig_tree module"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">wepy  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >wepy</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="wepy.html" >wepy package</a> &#187;</li>
+          <li class="nav-item nav-item-3"><a href="wepy.analysis.html" >wepy.analysis package</a> &#187;</li> 
+      </ul>
+    </div>
+<script type="text/javascript">
+  $("#mobile-toggle a").click(function () {
+    $("#left-column").toggle();
+  });
+</script>
+<script type="text/javascript" src="../_static/js/bootstrap.js"></script>
+  <div class="footer">
+    &copy; Copyright 2018, Samuel D. Lotz. Created using <a href="http://sphinx.pocoo.org/">Sphinx</a>.
+  </div>
+  </body>
+</html>

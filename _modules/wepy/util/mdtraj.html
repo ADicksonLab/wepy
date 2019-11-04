@@ -1,0 +1,413 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+  
+  <!-- Licensed under the Apache 2.0 License -->
+  <link rel="stylesheet" type="text/css" href="../../../_static/fonts/open-sans/stylesheet.css" />
+  <!-- Licensed under the SIL Open Font License -->
+  <link rel="stylesheet" type="text/css" href="../../../_static/fonts/source-serif-pro/source-serif-pro.css" />
+  <link rel="stylesheet" type="text/css" href="../../../_static/css/bootstrap.min.css" />
+  <link rel="stylesheet" type="text/css" href="../../../_static/css/bootstrap-theme.min.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+    <title>wepy.util.mdtraj &#8212; wepy  documentation</title>
+    <link rel="stylesheet" href="../../../_static/guzzle.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../../_static/language_data.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+  
+   
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">wepy  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="container-wrapper">
+
+      <div id="mobile-toggle">
+        <a href="#"><span class="glyphicon glyphicon-align-justify" aria-hidden="true"></span></a>
+      </div>
+  <div id="left-column">
+    <div class="sphinxsidebar">
+<div class="sidebar-block">
+  <div class="sidebar-wrapper">
+    <div id="main-search">
+      <form class="form-inline" action="../../../search.html" method="GET" role="form">
+        <div class="input-group">
+          <input name="q" type="text" class="form-control" placeholder="Search...">
+        </div>
+        <input type="hidden" name="check_keywords" value="yes" />
+        <input type="hidden" name="area" value="default" />
+      </form>
+    </div>
+  </div>
+</div>
+      
+    </div>
+  </div>
+        <div id="right-column">
+          
+          <div role="navigation" aria-label="breadcrumbs navigation">
+            <ol class="breadcrumb">
+              <li><a href="../../../index.html">Docs</a></li>
+              
+                <li><a href="../../index.html">Module code</a></li>
+              
+              <li>wepy.util.mdtraj</li>
+            </ol>
+          </div>
+          
+          <div class="document clearer body">
+            
+  <h1>Source code for wepy.util.mdtraj</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Utilities for converting formats used in wepy to mdtraj objects.</span>
+
+<span class="sd">Requires mdtraj be installed.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">from</span> <span class="nn">warnings</span> <span class="k">import</span> <span class="n">warn</span>
+<span class="kn">import</span> <span class="nn">operator</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">import</span> <span class="nn">mdtraj</span> <span class="k">as</span> <span class="nn">mdj</span>
+<span class="kn">import</span> <span class="nn">mdtraj.core.element</span> <span class="k">as</span> <span class="nn">elem</span>
+
+<span class="kn">from</span> <span class="nn">wepy.util.util</span> <span class="k">import</span> <span class="n">traj_box_vectors_to_lengths_angles</span>
+
+<span class="c1"># the following method contains portions of the software mdtraj which</span>
+<span class="c1"># is distributed under the following license</span>
+<span class="c1">##############################################################################</span>
+<span class="c1"># MDTraj: A Python Library for Loading, Saving, and Manipulating</span>
+<span class="c1">#         Molecular Dynamics Trajectories.</span>
+<span class="c1"># Copyright 2012-2014 Stanford University and the Authors</span>
+<span class="c1">#</span>
+<span class="c1"># Authors: Peter Eastman, Robert McGibbon</span>
+<span class="c1"># Contributors: Kyle A. Beauchamp, Matthew Harrigan, Carlos Xavier Hernandez</span>
+<span class="c1">#</span>
+<span class="c1"># MDTraj is free software: you can redistribute it and/or modify</span>
+<span class="c1"># it under the terms of the GNU Lesser General Public License as</span>
+<span class="c1"># published by the Free Software Foundation, either version 2.1</span>
+<span class="c1"># of the License, or (at your option) any later version.</span>
+<span class="c1">#</span>
+<span class="c1"># This library is distributed in the hope that it will be useful,</span>
+<span class="c1"># but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c1"># MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="c1"># GNU Lesser General Public License for more details.</span>
+<span class="c1">#</span>
+<span class="c1"># You should have received a copy of the GNU Lesser General Public</span>
+<span class="c1"># License along with MDTraj. If not, see &lt;http://www.gnu.org/licenses/&gt;.</span>
+<span class="c1">#</span>
+<span class="c1"># Portions of this code originate from the OpenMM molecular simulation</span>
+<span class="c1"># toolkit, copyright (c) 2012 Stanford University and Peter Eastman. Those</span>
+<span class="c1"># portions are distributed under the following terms:</span>
+<span class="c1">#</span>
+<span class="c1"># Permission is hereby granted, free of charge, to any person obtaining a</span>
+<span class="c1"># copy of this software and associated documentation files (the &quot;Software&quot;),</span>
+<span class="c1"># to deal in the Software without restriction, including without limitation</span>
+<span class="c1"># the rights to use, copy, modify, merge, publish, distribute, sublicense,</span>
+<span class="c1"># and/or sell copies of the Software, and to permit persons to whom the</span>
+<span class="c1"># Software is furnished to do so, subject to the following conditions:</span>
+<span class="c1">#</span>
+<span class="c1"># The above copyright notice and this permission notice shall be included in</span>
+<span class="c1"># all copies or substantial portions of the Software.</span>
+<span class="c1">#</span>
+<span class="c1"># THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR</span>
+<span class="c1"># IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,</span>
+<span class="c1"># FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL</span>
+<span class="c1"># THE AUTHORS, CONTRIBUTORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,</span>
+<span class="c1"># DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR</span>
+<span class="c1"># OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE</span>
+<span class="c1"># USE OR OTHER DEALINGS IN THE SOFTWARE.</span>
+<span class="c1">##############################################################################</span>
+
+<div class="viewcode-block" id="mdtraj_to_json_topology"><a class="viewcode-back" href="../../../api/wepy.util.mdtraj.html#wepy.util.mdtraj.mdtraj_to_json_topology">[docs]</a><span class="k">def</span> <span class="nf">mdtraj_to_json_topology</span><span class="p">(</span><span class="n">mdj_top</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Generate a JSON string topology from an mdtraj.Topology object.</span>
+
+<span class="sd">    This is the primary way in which JSON toplogies can be</span>
+<span class="sd">    generated.</span>
+
+<span class="sd">    This format was created for use in the HDF5 format generated by</span>
+<span class="sd">    the mdtraj library.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    mdj_top : mdtraj.Topology object</span>
+<span class="sd">        The topology you want to serialize to a JSON string.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    json_top : str</span>
+<span class="sd">        JSON string of the topology.</span>
+
+<span class="sd">    Warnings</span>
+<span class="sd">    --------</span>
+<span class="sd">    The topology format for wepy is subject to change in the future!</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    Copied in part from MDTraj.formats.hdf5.topology setter.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">topology_dict</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;chains&#39;</span><span class="p">:</span> <span class="p">[],</span>
+        <span class="s1">&#39;bonds&#39;</span><span class="p">:</span> <span class="p">[]</span>
+    <span class="p">}</span>
+
+    <span class="k">for</span> <span class="n">chain</span> <span class="ow">in</span> <span class="n">mdj_top</span><span class="o">.</span><span class="n">chains</span><span class="p">:</span>
+        <span class="n">chain_dict</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;residues&#39;</span><span class="p">:</span> <span class="p">[],</span>
+            <span class="s1">&#39;index&#39;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">chain</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+        <span class="p">}</span>
+        <span class="k">for</span> <span class="n">residue</span> <span class="ow">in</span> <span class="n">chain</span><span class="o">.</span><span class="n">residues</span><span class="p">:</span>
+            <span class="n">residue_dict</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s1">&#39;index&#39;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">residue</span><span class="o">.</span><span class="n">index</span><span class="p">),</span>
+                <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">residue</span><span class="o">.</span><span class="n">name</span><span class="p">),</span>
+                <span class="s1">&#39;atoms&#39;</span><span class="p">:</span> <span class="p">[],</span>
+                <span class="s2">&quot;resSeq&quot;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">residue</span><span class="o">.</span><span class="n">resSeq</span><span class="p">),</span>
+                <span class="s1">&#39;segmentID&#39;</span> <span class="p">:</span> <span class="n">residue</span><span class="o">.</span><span class="n">segment_id</span>
+            <span class="p">}</span>
+
+            <span class="k">for</span> <span class="n">atom</span> <span class="ow">in</span> <span class="n">residue</span><span class="o">.</span><span class="n">atoms</span><span class="p">:</span>
+
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">element_symbol_string</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">atom</span><span class="o">.</span><span class="n">element</span><span class="o">.</span><span class="n">symbol</span><span class="p">)</span>
+                <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+                    <span class="n">element_symbol_string</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+
+                <span class="n">residue_dict</span><span class="p">[</span><span class="s1">&#39;atoms&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+                    <span class="s1">&#39;index&#39;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">atom</span><span class="o">.</span><span class="n">index</span><span class="p">),</span>
+                    <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">atom</span><span class="o">.</span><span class="n">name</span><span class="p">),</span>
+                    <span class="s1">&#39;element&#39;</span><span class="p">:</span> <span class="n">element_symbol_string</span>
+                <span class="p">})</span>
+            <span class="n">chain_dict</span><span class="p">[</span><span class="s1">&#39;residues&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">residue_dict</span><span class="p">)</span>
+        <span class="n">topology_dict</span><span class="p">[</span><span class="s1">&#39;chains&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">chain_dict</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">atom1</span><span class="p">,</span> <span class="n">atom2</span> <span class="ow">in</span> <span class="n">mdj_top</span><span class="o">.</span><span class="n">bonds</span><span class="p">:</span>
+        <span class="n">topology_dict</span><span class="p">[</span><span class="s1">&#39;bonds&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">([</span>
+            <span class="nb">int</span><span class="p">(</span><span class="n">atom1</span><span class="o">.</span><span class="n">index</span><span class="p">),</span>
+            <span class="nb">int</span><span class="p">(</span><span class="n">atom2</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+        <span class="p">])</span>
+
+    <span class="n">top_json_str</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">topology_dict</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">top_json_str</span></div>
+
+<div class="viewcode-block" id="json_to_mdtraj_topology"><a class="viewcode-back" href="../../../api/wepy.util.mdtraj.html#wepy.util.mdtraj.json_to_mdtraj_topology">[docs]</a><span class="k">def</span> <span class="nf">json_to_mdtraj_topology</span><span class="p">(</span><span class="n">json_string</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Convert a JSON string topology to an mdtraj.Toplogy object.</span>
+
+<span class="sd">    This can be used to write out different topology formats from</span>
+<span class="sd">    mdtraj.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    json_string : str</span>
+<span class="sd">        JSON string of the topology.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    topology : mdtraj.Topology object</span>
+
+<span class="sd">    Warnings</span>
+<span class="sd">    --------</span>
+<span class="sd">    The topology format for wepy is subject to change in the future!</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    Copied in part from MDTraj.formats.hdf5 topology property.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">topology_dict</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">json_string</span><span class="p">)</span>
+
+    <span class="n">topology</span> <span class="o">=</span> <span class="n">mdj</span><span class="o">.</span><span class="n">Topology</span><span class="p">()</span>
+
+    <span class="k">for</span> <span class="n">chain_dict</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">topology_dict</span><span class="p">[</span><span class="s1">&#39;chains&#39;</span><span class="p">],</span> <span class="n">key</span><span class="o">=</span><span class="n">operator</span><span class="o">.</span><span class="n">itemgetter</span><span class="p">(</span><span class="s1">&#39;index&#39;</span><span class="p">)):</span>
+        <span class="n">chain</span> <span class="o">=</span> <span class="n">topology</span><span class="o">.</span><span class="n">add_chain</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">residue_dict</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">chain_dict</span><span class="p">[</span><span class="s1">&#39;residues&#39;</span><span class="p">],</span> <span class="n">key</span><span class="o">=</span><span class="n">operator</span><span class="o">.</span><span class="n">itemgetter</span><span class="p">(</span><span class="s1">&#39;index&#39;</span><span class="p">)):</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">resSeq</span> <span class="o">=</span> <span class="n">residue_dict</span><span class="p">[</span><span class="s2">&quot;resSeq&quot;</span><span class="p">]</span>
+            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                <span class="n">resSeq</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="n">warn</span><span class="p">(</span><span class="s1">&#39;No resSeq information found in HDF file, defaulting to zero-based indices&#39;</span><span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">segment_id</span> <span class="o">=</span> <span class="n">residue_dict</span><span class="p">[</span><span class="s2">&quot;segmentID&quot;</span><span class="p">]</span>
+            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                <span class="n">segment_id</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+            <span class="n">residue</span> <span class="o">=</span> <span class="n">topology</span><span class="o">.</span><span class="n">add_residue</span><span class="p">(</span><span class="n">residue_dict</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">],</span> <span class="n">chain</span><span class="p">,</span>
+                                           <span class="n">resSeq</span><span class="o">=</span><span class="n">resSeq</span><span class="p">,</span> <span class="n">segment_id</span><span class="o">=</span><span class="n">segment_id</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">atom_dict</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">residue_dict</span><span class="p">[</span><span class="s1">&#39;atoms&#39;</span><span class="p">],</span> <span class="n">key</span><span class="o">=</span><span class="n">operator</span><span class="o">.</span><span class="n">itemgetter</span><span class="p">(</span><span class="s1">&#39;index&#39;</span><span class="p">)):</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">element</span> <span class="o">=</span> <span class="n">elem</span><span class="o">.</span><span class="n">get_by_symbol</span><span class="p">(</span><span class="n">atom_dict</span><span class="p">[</span><span class="s1">&#39;element&#39;</span><span class="p">])</span>
+                <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                    <span class="n">element</span> <span class="o">=</span> <span class="n">elem</span><span class="o">.</span><span class="n">virtual</span>
+                <span class="n">topology</span><span class="o">.</span><span class="n">add_atom</span><span class="p">(</span><span class="n">atom_dict</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">],</span> <span class="n">element</span><span class="p">,</span> <span class="n">residue</span><span class="p">)</span>
+
+    <span class="n">atoms</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">topology</span><span class="o">.</span><span class="n">atoms</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">index1</span><span class="p">,</span> <span class="n">index2</span> <span class="ow">in</span> <span class="n">topology_dict</span><span class="p">[</span><span class="s1">&#39;bonds&#39;</span><span class="p">]:</span>
+        <span class="n">topology</span><span class="o">.</span><span class="n">add_bond</span><span class="p">(</span><span class="n">atoms</span><span class="p">[</span><span class="n">index1</span><span class="p">],</span> <span class="n">atoms</span><span class="p">[</span><span class="n">index2</span><span class="p">])</span>
+
+    <span class="k">return</span> <span class="n">topology</span></div>
+
+
+<span class="k">def</span> <span class="nf">_new_json_to_mdtraj_topology</span><span class="p">(</span><span class="n">json_string</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Another implementation of converting JSON to mdtraj.</span>
+
+<span class="sd">    TODO what is the difference between this and the other one?</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    json_string : str</span>
+<span class="sd">        JSON string of the topology.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    topology : mdtraj.Topology object</span>
+
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">topology_dict</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">json_string</span><span class="p">)</span>
+
+    <span class="c1"># start a new topology</span>
+    <span class="n">topology</span> <span class="o">=</span> <span class="n">mdj</span><span class="o">.</span><span class="n">Topology</span><span class="p">()</span>
+
+    <span class="c1"># to not destroy the indexing in this file we will first go</span>
+    <span class="c1"># through the topology and get all the atom dictionaries (adding</span>
+    <span class="c1"># attributes for the residue indices), then loop through them and</span>
+    <span class="c1"># make residues and chains when needed.</span>
+
+    <span class="n">atoms</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">residues</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="c1"># the chains will just be collections of residues</span>
+    <span class="n">chains</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="c1"># loop through all the chains</span>
+    <span class="k">for</span> <span class="n">chain_dict</span> <span class="ow">in</span> <span class="n">topology_dict</span><span class="p">[</span><span class="s1">&#39;chains&#39;</span><span class="p">]:</span>
+
+        <span class="c1"># get the index and add the chain then save it</span>
+        <span class="n">chain_idx</span> <span class="o">=</span> <span class="n">chain_dict</span><span class="p">[</span><span class="s1">&#39;index&#39;</span><span class="p">]</span>
+        <span class="n">chain</span> <span class="o">=</span> <span class="n">topology</span><span class="o">.</span><span class="n">add_chain</span><span class="p">()</span>
+        <span class="n">chains</span><span class="p">[</span><span class="n">chain_idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">chain</span>
+
+        <span class="c1"># then go through the residues here</span>
+        <span class="k">for</span> <span class="n">residue_dict</span> <span class="ow">in</span> <span class="n">chain_dict</span><span class="p">[</span><span class="s1">&#39;residues&#39;</span><span class="p">]:</span>
+
+            <span class="n">residue_idx</span> <span class="o">=</span> <span class="n">residue_dict</span><span class="p">[</span><span class="s1">&#39;index&#39;</span><span class="p">]</span>
+
+            <span class="n">resSeq</span> <span class="o">=</span> <span class="n">residue_dict</span><span class="p">[</span><span class="s2">&quot;resSeq&quot;</span><span class="p">]</span>
+            <span class="n">segment_id</span> <span class="o">=</span> <span class="n">residue_dict</span><span class="p">[</span><span class="s2">&quot;segmentID&quot;</span><span class="p">]</span>
+
+
+            <span class="n">residue</span> <span class="o">=</span> <span class="n">topology</span><span class="o">.</span><span class="n">add_residue</span><span class="p">(</span><span class="n">residue_dict</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">],</span>
+                                           <span class="n">chain</span><span class="p">,</span>
+                                           <span class="n">resSeq</span><span class="o">=</span><span class="n">residue_dict</span><span class="p">[</span><span class="s1">&#39;resSeq&#39;</span><span class="p">],</span>
+                                           <span class="n">segment_id</span><span class="o">=</span><span class="n">residue_dict</span><span class="p">[</span><span class="s1">&#39;segmentID&#39;</span><span class="p">])</span>
+
+            <span class="k">for</span> <span class="n">atom_dict</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">residue_dict</span><span class="p">[</span><span class="s1">&#39;atoms&#39;</span><span class="p">],</span> <span class="n">key</span><span class="o">=</span><span class="n">operator</span><span class="o">.</span><span class="n">itemgetter</span><span class="p">(</span><span class="s1">&#39;index&#39;</span><span class="p">)):</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">element</span> <span class="o">=</span> <span class="n">elem</span><span class="o">.</span><span class="n">get_by_symbol</span><span class="p">(</span><span class="n">atom_dict</span><span class="p">[</span><span class="s1">&#39;element&#39;</span><span class="p">])</span>
+                <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                    <span class="n">element</span> <span class="o">=</span> <span class="n">elem</span><span class="o">.</span><span class="n">virtual</span>
+                <span class="n">topology</span><span class="o">.</span><span class="n">add_atom</span><span class="p">(</span><span class="n">atom_dict</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">],</span> <span class="n">element</span><span class="p">,</span> <span class="n">residue</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">index1</span><span class="p">,</span> <span class="n">index2</span> <span class="ow">in</span> <span class="n">topology_dict</span><span class="p">[</span><span class="s1">&#39;bonds&#39;</span><span class="p">]:</span>
+        <span class="n">topology</span><span class="o">.</span><span class="n">add_bond</span><span class="p">(</span><span class="n">atoms</span><span class="p">[</span><span class="n">index1</span><span class="p">],</span> <span class="n">atoms</span><span class="p">[</span><span class="n">index2</span><span class="p">])</span>
+
+    <span class="k">return</span> <span class="n">topology</span>
+
+<div class="viewcode-block" id="traj_fields_to_mdtraj"><a class="viewcode-back" href="../../../api/wepy.util.mdtraj.html#wepy.util.mdtraj.traj_fields_to_mdtraj">[docs]</a><span class="k">def</span> <span class="nf">traj_fields_to_mdtraj</span><span class="p">(</span><span class="n">traj_fields</span><span class="p">,</span> <span class="n">json_topology</span><span class="p">,</span> <span class="n">rep_key</span><span class="o">=</span><span class="s1">&#39;positions&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Create an mdtraj.Trajectory object directly from a dictionary of</span>
+<span class="sd">    fields values.</span>
+
+<span class="sd">    The time value in the trajectory will just be the frame indices</span>
+<span class="sd">    for the positions.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+
+<span class="sd">    traj_fields : dict of str: values</span>
+<span class="sd">        The values for the trajectory, must have a positions field</span>
+<span class="sd">        specified by the `rep_key` kwarg, and a &#39;box_vectors&#39; field.</span>
+
+<span class="sd">    json_topology : str</span>
+<span class="sd">        JSON format topology of the positions.</span>
+
+<span class="sd">    rep_key : str</span>
+<span class="sd">        The key that will be used to access the field that will be</span>
+<span class="sd">        used as the positions in the trajectory, and must match the</span>
+<span class="sd">        topology.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">topology</span> <span class="o">=</span> <span class="n">json_to_mdtraj_topology</span><span class="p">(</span><span class="n">json_topology</span><span class="p">)</span>
+
+    <span class="n">req_fields</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;box_vectors&#39;</span><span class="p">,</span> <span class="n">rep_key</span><span class="p">]</span>
+    <span class="k">assert</span> <span class="p">[</span><span class="n">field</span> <span class="ow">in</span> <span class="n">traj_fields</span> <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">req_fields</span><span class="p">],</span> \
+        <span class="s2">&quot;Fields must have the fields: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">req_fields</span><span class="p">))</span>
+
+    <span class="n">unitcell_lengths</span><span class="p">,</span> <span class="n">unitcell_angles</span> <span class="o">=</span> <span class="n">traj_box_vectors_to_lengths_angles</span><span class="p">(</span>
+                                           <span class="n">traj_fields</span><span class="p">[</span><span class="s1">&#39;box_vectors&#39;</span><span class="p">])</span>
+
+    <span class="n">cycles</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">traj_fields</span><span class="p">[</span><span class="s1">&#39;box_vectors&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+    <span class="n">traj</span> <span class="o">=</span> <span class="n">mdj</span><span class="o">.</span><span class="n">Trajectory</span><span class="p">(</span><span class="n">traj_fields</span><span class="p">[</span><span class="n">rep_key</span><span class="p">],</span> <span class="n">topology</span><span class="p">,</span>
+                   <span class="n">time</span><span class="o">=</span><span class="n">cycles</span><span class="p">,</span>
+                   <span class="n">unitcell_lengths</span><span class="o">=</span><span class="n">unitcell_lengths</span><span class="p">,</span> <span class="n">unitcell_angles</span><span class="o">=</span><span class="n">unitcell_angles</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">traj</span></div>
+
+</pre></div>
+
+          </div>
+            
+        </div>
+        <div class="clearfix"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">wepy  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+<script type="text/javascript">
+  $("#mobile-toggle a").click(function () {
+    $("#left-column").toggle();
+  });
+</script>
+<script type="text/javascript" src="../../../_static/js/bootstrap.js"></script>
+  <div class="footer">
+    &copy; Copyright 2018, Samuel D. Lotz. Created using <a href="http://sphinx.pocoo.org/">Sphinx</a>.
+  </div>
+  </body>
+</html>

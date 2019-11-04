@@ -1,0 +1,744 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+  
+  <!-- Licensed under the Apache 2.0 License -->
+  <link rel="stylesheet" type="text/css" href="../_static/fonts/open-sans/stylesheet.css" />
+  <!-- Licensed under the SIL Open Font License -->
+  <link rel="stylesheet" type="text/css" href="../_static/fonts/source-serif-pro/source-serif-pro.css" />
+  <link rel="stylesheet" type="text/css" href="../_static/css/bootstrap.min.css" />
+  <link rel="stylesheet" type="text/css" href="../_static/css/bootstrap-theme.min.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+    <title>wepy.analysis.network module &#8212; wepy  documentation</title>
+    <link rel="stylesheet" href="../_static/guzzle.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/language_data.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="wepy.analysis.parents module" href="wepy.analysis.parents.html" />
+    <link rel="prev" title="wepy.analysis.distributed module" href="wepy.analysis.distributed.html" />
+  
+   
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="wepy.analysis.parents.html" title="wepy.analysis.parents module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="wepy.analysis.distributed.html" title="wepy.analysis.distributed module"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">wepy  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >wepy</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="wepy.html" >wepy package</a> &#187;</li>
+          <li class="nav-item nav-item-3"><a href="wepy.analysis.html" accesskey="U">wepy.analysis package</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="container-wrapper">
+
+      <div id="mobile-toggle">
+        <a href="#"><span class="glyphicon glyphicon-align-justify" aria-hidden="true"></span></a>
+      </div>
+  <div id="left-column">
+    <div class="sphinxsidebar">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="wepy.analysis.distributed.html"
+                        title="previous chapter">wepy.analysis.distributed module</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="wepy.analysis.parents.html"
+                        title="next chapter">wepy.analysis.parents module</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/api/wepy.analysis.network.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div class="sidebar-block">
+  <div class="sidebar-wrapper">
+    <div id="main-search">
+      <form class="form-inline" action="../search.html" method="GET" role="form">
+        <div class="input-group">
+          <input name="q" type="text" class="form-control" placeholder="Search...">
+        </div>
+        <input type="hidden" name="check_keywords" value="yes" />
+        <input type="hidden" name="area" value="default" />
+      </form>
+    </div>
+  </div>
+</div>
+      
+    </div>
+  </div>
+        <div id="right-column">
+          
+          <div role="navigation" aria-label="breadcrumbs navigation">
+            <ol class="breadcrumb">
+              <li><a href="../index.html">Docs</a></li>
+              
+                <li><a href="modules.html">wepy</a></li>
+              
+                <li><a href="wepy.html">wepy package</a></li>
+              
+                <li><a href="wepy.analysis.html">wepy.analysis package</a></li>
+              
+              <li>wepy.analysis.network module</li>
+            </ol>
+          </div>
+          
+          <div class="document clearer body">
+            
+  <div class="section" id="module-wepy.analysis.network">
+<span id="wepy-analysis-network-module"></span><h1>wepy.analysis.network module<a class="headerlink" href="#module-wepy.analysis.network" title="Permalink to this headline">¶</a></h1>
+<p>Module that allows for imposing a kinetically connected network
+structure of weighted ensemble simulation data.</p>
+<dl class="exception">
+<dt id="wepy.analysis.network.MacroStateNetworkError">
+<em class="property">exception </em><code class="sig-prename descclassname">wepy.analysis.network.</code><code class="sig-name descname">MacroStateNetworkError</code><a class="reference internal" href="../_modules/wepy/analysis/network.html#MacroStateNetworkError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.network.MacroStateNetworkError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#Exception" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></a></p>
+<p>Errors specific to MacroStateNetwork requirements.</p>
+<dl class="attribute">
+<dt id="wepy.analysis.network.MacroStateNetworkError.args">
+<code class="sig-name descname">args</code><a class="headerlink" href="#wepy.analysis.network.MacroStateNetworkError.args" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.network.MacroStateNetworkError.with_traceback">
+<code class="sig-name descname">with_traceback</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.analysis.network.MacroStateNetworkError.with_traceback" title="Permalink to this definition">¶</a></dt>
+<dd><p>Exception.with_traceback(tb) –
+set self.__traceback__ to tb and return self.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="wepy.analysis.network.BaseMacroStateNetwork">
+<em class="property">class </em><code class="sig-prename descclassname">wepy.analysis.network.</code><code class="sig-name descname">BaseMacroStateNetwork</code><span class="sig-paren">(</span><em class="sig-param">contig_tree</em>, <em class="sig-param">assg_field_key=None</em>, <em class="sig-param">assignments=None</em>, <em class="sig-param">transition_lag_time=2</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/network.html#BaseMacroStateNetwork"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.network.BaseMacroStateNetwork" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>A base class for the MacroStateNetwork which doesn’t contain a
+WepyHDF5 object. Useful for serialization of the object and can
+then be reattached later to a WepyHDF5.</p>
+<p>Create a network of macrostates from the simulation microstates
+using a field in the trajectory data or precomputed assignments.</p>
+<p>Either ‘assg_field_key’ or ‘assignments’ must be given, but not
+both.</p>
+<p>The lag time is default set to 2, which is the natural connection
+between microstates. The lag time can be increased to vary the
+kinetic accuracy of transition probabilities generated through
+Markov State Modelling.</p>
+<p>Alternatively the MacroStateNetwork can also be though of as just
+a way of mapping macrostate properties to the underlying
+microstate data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>contig_tree</strong> (<em>ContigTree object</em>) – </p></li>
+<li><p><strong>assg_field_key</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>, </em><em>conditionally optional on 'assignments'</em>) – The field in the WepyHDF5 dataset you want to generate macrostates for.</p></li>
+<li><p><strong>assignments</strong> (<em>list of list of array_like of dim</em><em> (</em><em>n_traj_frames</em><em>, </em><em>observable_shape</em><em>[</em><em>0</em><em>]</em><em>, </em><em>..</em><em>)</em><em>,</em>) – <p>conditionally optional on ‘assg_field_key’</p>
+<p>List of assignments for all frames in each run, where each
+element of the outer list is for a run, the elements of
+these lists are lists for each trajectory which are
+arraylikes of shape (n_traj, observable_shape[0], …).</p>
+</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="attribute">
+<dt id="wepy.analysis.network.BaseMacroStateNetwork.ASSIGNMENTS">
+<code class="sig-name descname">ASSIGNMENTS</code><em class="property"> = 'assignments'</em><a class="headerlink" href="#wepy.analysis.network.BaseMacroStateNetwork.ASSIGNMENTS" title="Permalink to this definition">¶</a></dt>
+<dd><p>Key for the microstates that are assigned to a macrostate.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.network.BaseMacroStateNetwork.node_id_to_idx">
+<code class="sig-name descname">node_id_to_idx</code><span class="sig-paren">(</span><em class="sig-param">assg_key</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/network.html#BaseMacroStateNetwork.node_id_to_idx"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.network.BaseMacroStateNetwork.node_id_to_idx" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert a node_id (which is the assignment value) to a canonical index.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>assg_key</strong> (<em>node_id</em>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>node_idx</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.network.BaseMacroStateNetwork.node_idx_to_id">
+<code class="sig-name descname">node_idx_to_id</code><span class="sig-paren">(</span><em class="sig-param">node_idx</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/network.html#BaseMacroStateNetwork.node_idx_to_id"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.network.BaseMacroStateNetwork.node_idx_to_id" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert a node index to its node id.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>node_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>node_id</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>node_id</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.network.BaseMacroStateNetwork.node_id_to_idx_dict">
+<code class="sig-name descname">node_id_to_idx_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/network.html#BaseMacroStateNetwork.node_id_to_idx_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.network.BaseMacroStateNetwork.node_id_to_idx_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate a full mapping of node_ids to node_idxs.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.network.BaseMacroStateNetwork.node_idx_to_id_dict">
+<code class="sig-name descname">node_idx_to_id_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/network.html#BaseMacroStateNetwork.node_idx_to_id_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.network.BaseMacroStateNetwork.node_idx_to_id_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate a full mapping of node_idxs to node_ids.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.network.BaseMacroStateNetwork.graph">
+<em class="property">property </em><code class="sig-name descname">graph</code><a class="headerlink" href="#wepy.analysis.network.BaseMacroStateNetwork.graph" title="Permalink to this definition">¶</a></dt>
+<dd><p>The networkx.DiGraph of the macrostate network.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.network.BaseMacroStateNetwork.num_states">
+<em class="property">property </em><code class="sig-name descname">num_states</code><a class="headerlink" href="#wepy.analysis.network.BaseMacroStateNetwork.num_states" title="Permalink to this definition">¶</a></dt>
+<dd><p>The number of states in the network.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.network.BaseMacroStateNetwork.node_ids">
+<em class="property">property </em><code class="sig-name descname">node_ids</code><a class="headerlink" href="#wepy.analysis.network.BaseMacroStateNetwork.node_ids" title="Permalink to this definition">¶</a></dt>
+<dd><p>A list of the node_ids.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.network.BaseMacroStateNetwork.contig_tree">
+<em class="property">property </em><code class="sig-name descname">contig_tree</code><a class="headerlink" href="#wepy.analysis.network.BaseMacroStateNetwork.contig_tree" title="Permalink to this definition">¶</a></dt>
+<dd><p>The underlying ContigTree</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.network.BaseMacroStateNetwork.assg_field_key">
+<em class="property">property </em><code class="sig-name descname">assg_field_key</code><a class="headerlink" href="#wepy.analysis.network.BaseMacroStateNetwork.assg_field_key" title="Permalink to this definition">¶</a></dt>
+<dd><p>The string key of the field used to make macro states from the WepyHDF5 dataset.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#wepy.analysis.network.MacroStateNetworkError" title="wepy.analysis.network.MacroStateNetworkError"><strong>MacroStateNetworkError</strong></a> – If this wasn’t used to construct the MacroStateNetwork.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.network.BaseMacroStateNetwork.countsmat">
+<em class="property">property </em><code class="sig-name descname">countsmat</code><a class="headerlink" href="#wepy.analysis.network.BaseMacroStateNetwork.countsmat" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the transition counts matrix of the network.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#wepy.analysis.network.MacroStateNetworkError" title="wepy.analysis.network.MacroStateNetworkError"><strong>MacroStateNetworkError</strong></a> – If no lag time was given.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.network.BaseMacroStateNetwork.probmat">
+<em class="property">property </em><code class="sig-name descname">probmat</code><a class="headerlink" href="#wepy.analysis.network.BaseMacroStateNetwork.probmat" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the transition probability matrix of the network.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#wepy.analysis.network.MacroStateNetworkError" title="wepy.analysis.network.MacroStateNetworkError"><strong>MacroStateNetworkError</strong></a> – If no lag time was given.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.network.BaseMacroStateNetwork.get_node_attributes">
+<code class="sig-name descname">get_node_attributes</code><span class="sig-paren">(</span><em class="sig-param">node_id</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/network.html#BaseMacroStateNetwork.get_node_attributes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.network.BaseMacroStateNetwork.get_node_attributes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the node attributes of the macrostate.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>node_id</strong> (<em>node_id</em>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>macrostate_attrs</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)">dict</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.network.BaseMacroStateNetwork.get_node_attribute">
+<code class="sig-name descname">get_node_attribute</code><span class="sig-paren">(</span><em class="sig-param">node_id</em>, <em class="sig-param">attribute_key</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/network.html#BaseMacroStateNetwork.get_node_attribute"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.network.BaseMacroStateNetwork.get_node_attribute" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the value for a specific node and attribute.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>node_id</strong> (<em>node_id</em>) – </p></li>
+<li><p><strong>attribute_key</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>node_attribute</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.network.BaseMacroStateNetwork.get_nodes_attribute">
+<code class="sig-name descname">get_nodes_attribute</code><span class="sig-paren">(</span><em class="sig-param">attribute_key</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/network.html#BaseMacroStateNetwork.get_nodes_attribute"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.network.BaseMacroStateNetwork.get_nodes_attribute" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a dictionary mapping nodes to a specific attribute.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.network.BaseMacroStateNetwork.node_assignments">
+<code class="sig-name descname">node_assignments</code><span class="sig-paren">(</span><em class="sig-param">node_id</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/network.html#BaseMacroStateNetwork.node_assignments"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.network.BaseMacroStateNetwork.node_assignments" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the microstates assigned to this macrostate as a run trace.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>node_id</strong> (<em>node_id</em>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>node_assignments</strong> – Run trace of the nodes assigned to this macrostate.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list of tuples of ints (run_idx, traj_idx, cycle_idx)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.network.BaseMacroStateNetwork.set_nodes_attribute">
+<code class="sig-name descname">set_nodes_attribute</code><span class="sig-paren">(</span><em class="sig-param">key</em>, <em class="sig-param">values_dict</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/network.html#BaseMacroStateNetwork.set_nodes_attribute"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.network.BaseMacroStateNetwork.set_nodes_attribute" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set node attributes for the key and values for each node.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>key</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – </p></li>
+<li><p><strong>values_dict</strong> (<em>dict of node_id: values</em>) – </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.network.BaseMacroStateNetwork.node_groups">
+<em class="property">property </em><code class="sig-name descname">node_groups</code><a class="headerlink" href="#wepy.analysis.network.BaseMacroStateNetwork.node_groups" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.network.BaseMacroStateNetwork.set_node_group">
+<code class="sig-name descname">set_node_group</code><span class="sig-paren">(</span><em class="sig-param">group_name</em>, <em class="sig-param">node_ids</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/network.html#BaseMacroStateNetwork.set_node_group"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.network.BaseMacroStateNetwork.set_node_group" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.network.BaseMacroStateNetwork.observables">
+<em class="property">property </em><code class="sig-name descname">observables</code><a class="headerlink" href="#wepy.analysis.network.BaseMacroStateNetwork.observables" title="Permalink to this definition">¶</a></dt>
+<dd><p>The list of available observables.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.network.BaseMacroStateNetwork.node_observables">
+<code class="sig-name descname">node_observables</code><span class="sig-paren">(</span><em class="sig-param">node_id</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/network.html#BaseMacroStateNetwork.node_observables"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.network.BaseMacroStateNetwork.node_observables" title="Permalink to this definition">¶</a></dt>
+<dd><p>Dictionary of observables for each node_id.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.network.BaseMacroStateNetwork.set_nodes_observable">
+<code class="sig-name descname">set_nodes_observable</code><span class="sig-paren">(</span><em class="sig-param">observable_name</em>, <em class="sig-param">node_values</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/network.html#BaseMacroStateNetwork.set_nodes_observable"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.network.BaseMacroStateNetwork.set_nodes_observable" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.network.BaseMacroStateNetwork.layouts">
+<em class="property">property </em><code class="sig-name descname">layouts</code><a class="headerlink" href="#wepy.analysis.network.BaseMacroStateNetwork.layouts" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.network.BaseMacroStateNetwork.node_layouts">
+<code class="sig-name descname">node_layouts</code><span class="sig-paren">(</span><em class="sig-param">node_id</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/network.html#BaseMacroStateNetwork.node_layouts"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.network.BaseMacroStateNetwork.node_layouts" title="Permalink to this definition">¶</a></dt>
+<dd><p>Dictionary of layouts for each node_id.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.network.BaseMacroStateNetwork.set_nodes_layout">
+<code class="sig-name descname">set_nodes_layout</code><span class="sig-paren">(</span><em class="sig-param">layout_name</em>, <em class="sig-param">node_values</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/network.html#BaseMacroStateNetwork.set_nodes_layout"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.network.BaseMacroStateNetwork.set_nodes_layout" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.network.BaseMacroStateNetwork.write_gexf">
+<code class="sig-name descname">write_gexf</code><span class="sig-paren">(</span><em class="sig-param">filepath</em>, <em class="sig-param">exclude_fields=None</em>, <em class="sig-param">layout='main'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/network.html#BaseMacroStateNetwork.write_gexf"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.network.BaseMacroStateNetwork.write_gexf" title="Permalink to this definition">¶</a></dt>
+<dd><p>Writes a graph file in the gexf format of the network.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>filepath</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.network.BaseMacroStateNetwork.nodes_to_records">
+<code class="sig-name descname">nodes_to_records</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/network.html#BaseMacroStateNetwork.nodes_to_records"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.network.BaseMacroStateNetwork.nodes_to_records" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.network.BaseMacroStateNetwork.nodes_to_dataframe">
+<code class="sig-name descname">nodes_to_dataframe</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/network.html#BaseMacroStateNetwork.nodes_to_dataframe"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.network.BaseMacroStateNetwork.nodes_to_dataframe" title="Permalink to this definition">¶</a></dt>
+<dd><p>Make a dataframe of the nodes and their attributes.</p>
+<p>Not all attributes will be added as they are not relevant to a
+table style representation anyhow.</p>
+<p>The columns will be:</p>
+<ul class="simple">
+<li><p>node_id</p></li>
+<li><p>node_idx</p></li>
+<li><p>num samples</p></li>
+<li><p>Weight (if available)</p></li>
+<li><p>groups (as booleans) which is anything in the ‘_groups’ namespace</p></li>
+<li><p>observables : anything in the ‘_observables’ namespace and
+will assume to be scalars</p></li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.network.BaseMacroStateNetwork.edges_to_records">
+<code class="sig-name descname">edges_to_records</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/network.html#BaseMacroStateNetwork.edges_to_records"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.network.BaseMacroStateNetwork.edges_to_records" title="Permalink to this definition">¶</a></dt>
+<dd><p>Make a dataframe of the nodes and their attributes.</p>
+<p>Not all attributes will be added as they are not relevant to a
+table style representation anyhow.</p>
+<p>The columns will be:</p>
+<ul class="simple">
+<li><p>edge_id</p></li>
+<li><p>source</p></li>
+<li><p>target</p></li>
+<li><p>type (directed or undirected)</p></li>
+<li><p>transition counts (if available)</p></li>
+<li><p>transition probability (if available)</p></li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.network.BaseMacroStateNetwork.edges_to_dataframe">
+<code class="sig-name descname">edges_to_dataframe</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/network.html#BaseMacroStateNetwork.edges_to_dataframe"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.network.BaseMacroStateNetwork.edges_to_dataframe" title="Permalink to this definition">¶</a></dt>
+<dd><p>Make a dataframe of the nodes and their attributes.</p>
+<p>Not all attributes will be added as they are not relevant to a
+table style representation anyhow.</p>
+<p>The columns will be:</p>
+<ul class="simple">
+<li><p>transition counts (if available)</p></li>
+<li><p>transition probability (if available)</p></li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.network.BaseMacroStateNetwork.node_map">
+<code class="sig-name descname">node_map</code><span class="sig-paren">(</span><em class="sig-param">func</em>, <em class="sig-param">map_func=&lt;class 'map'&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/network.html#BaseMacroStateNetwork.node_map"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.network.BaseMacroStateNetwork.node_map" title="Permalink to this definition">¶</a></dt>
+<dd><p>Map a function over the nodes.</p>
+<p>The function should take as its first argument a node_id and
+the second argument a dictionary of the node attributes. This
+will not give access to the underlying trajectory data in the
+HDF5, to do this use the ‘node_fields_map’ function.</p>
+<p>Extra args not supported use ‘functools.partial’ to make
+functions with arguments for all data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>func</strong> – </p></li>
+<li><p><strong>map_func</strong> – </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="wepy.analysis.network.MacroStateNetwork">
+<em class="property">class </em><code class="sig-prename descclassname">wepy.analysis.network.</code><code class="sig-name descname">MacroStateNetwork</code><span class="sig-paren">(</span><em class="sig-param">contig_tree</em>, <em class="sig-param">base_network=None</em>, <em class="sig-param">assg_field_key=None</em>, <em class="sig-param">assignments=None</em>, <em class="sig-param">transition_lag_time=2</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/network.html#MacroStateNetwork"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.network.MacroStateNetwork" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Provides an abstraction over weighted ensemble data in the form of
+a kinetically connected network.</p>
+<p>The MacroStateNetwork refers to any grouping of the so called
+“micro” states that were observed during simulation,
+i.e. trajectory frames, and not necessarily in the usual sense
+used in statistical mechanics. Although it is the perfect vehicle
+for working with such macrostates.</p>
+<p>Because walker trajectories in weighted ensemble there is a
+natural way to generate the edges between the macrostate nodes in
+the network. These edges are determined automatically and a lag
+time can also be specified, which is useful in the creation of
+Markov State Models.</p>
+<dl class="method">
+<dt id="wepy.analysis.network.MacroStateNetwork.open">
+<code class="sig-name descname">open</code><span class="sig-paren">(</span><em class="sig-param">mode=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/network.html#MacroStateNetwork.open"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.network.MacroStateNetwork.open" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.network.MacroStateNetwork.close">
+<code class="sig-name descname">close</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/network.html#MacroStateNetwork.close"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.network.MacroStateNetwork.close" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.network.MacroStateNetwork.graph">
+<em class="property">property </em><code class="sig-name descname">graph</code><a class="headerlink" href="#wepy.analysis.network.MacroStateNetwork.graph" title="Permalink to this definition">¶</a></dt>
+<dd><p>The networkx.DiGraph of the macrostate network.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.network.MacroStateNetwork.num_states">
+<em class="property">property </em><code class="sig-name descname">num_states</code><a class="headerlink" href="#wepy.analysis.network.MacroStateNetwork.num_states" title="Permalink to this definition">¶</a></dt>
+<dd><p>The number of states in the network.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.network.MacroStateNetwork.node_ids">
+<em class="property">property </em><code class="sig-name descname">node_ids</code><a class="headerlink" href="#wepy.analysis.network.MacroStateNetwork.node_ids" title="Permalink to this definition">¶</a></dt>
+<dd><p>A list of the node_ids.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.network.MacroStateNetwork.assg_field_key">
+<em class="property">property </em><code class="sig-name descname">assg_field_key</code><a class="headerlink" href="#wepy.analysis.network.MacroStateNetwork.assg_field_key" title="Permalink to this definition">¶</a></dt>
+<dd><p>The string key of the field used to make macro states from the WepyHDF5 dataset.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#wepy.analysis.network.MacroStateNetworkError" title="wepy.analysis.network.MacroStateNetworkError"><strong>MacroStateNetworkError</strong></a> – If this wasn’t used to construct the MacroStateNetwork.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.network.MacroStateNetwork.countsmat">
+<em class="property">property </em><code class="sig-name descname">countsmat</code><a class="headerlink" href="#wepy.analysis.network.MacroStateNetwork.countsmat" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the transition counts matrix of the network.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#wepy.analysis.network.MacroStateNetworkError" title="wepy.analysis.network.MacroStateNetworkError"><strong>MacroStateNetworkError</strong></a> – If no lag time was given.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.network.MacroStateNetwork.probmat">
+<em class="property">property </em><code class="sig-name descname">probmat</code><a class="headerlink" href="#wepy.analysis.network.MacroStateNetwork.probmat" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the transition probability matrix of the network.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#wepy.analysis.network.MacroStateNetworkError" title="wepy.analysis.network.MacroStateNetworkError"><strong>MacroStateNetworkError</strong></a> – If no lag time was given.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.network.MacroStateNetwork.base_network">
+<em class="property">property </em><code class="sig-name descname">base_network</code><a class="headerlink" href="#wepy.analysis.network.MacroStateNetwork.base_network" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.network.MacroStateNetwork.wepy_h5">
+<em class="property">property </em><code class="sig-name descname">wepy_h5</code><a class="headerlink" href="#wepy.analysis.network.MacroStateNetwork.wepy_h5" title="Permalink to this definition">¶</a></dt>
+<dd><p>The WepyHDF5 source object for which the contig tree is being constructed.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.network.MacroStateNetwork.state_to_mdtraj">
+<code class="sig-name descname">state_to_mdtraj</code><span class="sig-paren">(</span><em class="sig-param">node_id</em>, <em class="sig-param">alt_rep=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/network.html#MacroStateNetwork.state_to_mdtraj"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.network.MacroStateNetwork.state_to_mdtraj" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate an mdtraj.Trajectory object from a macrostate.</p>
+<p>By default uses the “main_rep” in the WepyHDF5
+object. Alternative representations of the topology can be
+specified.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>node_id</strong> (<em>node_id</em>) – </p></li>
+<li><p><strong>alt_rep</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – (Default value = None)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>traj</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>mdtraj.Trajectory</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.network.MacroStateNetwork.state_to_traj_fields">
+<code class="sig-name descname">state_to_traj_fields</code><span class="sig-paren">(</span><em class="sig-param">node_id</em>, <em class="sig-param">alt_rep=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/network.html#MacroStateNetwork.state_to_traj_fields"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.network.MacroStateNetwork.state_to_traj_fields" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.network.MacroStateNetwork.states_to_traj_fields">
+<code class="sig-name descname">states_to_traj_fields</code><span class="sig-paren">(</span><em class="sig-param">node_ids</em>, <em class="sig-param">alt_rep=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/network.html#MacroStateNetwork.states_to_traj_fields"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.network.MacroStateNetwork.states_to_traj_fields" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.network.MacroStateNetwork.get_node_fields">
+<code class="sig-name descname">get_node_fields</code><span class="sig-paren">(</span><em class="sig-param">node_id</em>, <em class="sig-param">fields</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/network.html#MacroStateNetwork.get_node_fields"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.network.MacroStateNetwork.get_node_fields" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the trajectory fields for all the microstates in the
+specified macrostate.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>node_id</strong> (<em>node_id</em>) – </p></li>
+<li><p><strong>fields</strong> (<em>list of str</em>) – Field name to retrieve.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>fields</strong> – A dictionary mapping the names of the fields to an array of the field.
+Like fields of a trace.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict of str: array_like</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.network.MacroStateNetwork.iter_nodes_fields">
+<code class="sig-name descname">iter_nodes_fields</code><span class="sig-paren">(</span><em class="sig-param">fields</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/network.html#MacroStateNetwork.iter_nodes_fields"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.network.MacroStateNetwork.iter_nodes_fields" title="Permalink to this definition">¶</a></dt>
+<dd><p>Iterate over all nodes and return the field values for all the
+microstates for each.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>fields</strong> (<em>list of str</em>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>nodes_fields</strong> – A dictionary with an entry for each node.
+Each node has it’s own dictionary of node fields for each microstate.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict of node_id: (dict of field: array_like)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.network.MacroStateNetwork.microstate_weights">
+<code class="sig-name descname">microstate_weights</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/network.html#MacroStateNetwork.microstate_weights"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.network.MacroStateNetwork.microstate_weights" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the weights of each microstate on the basis of macrostates.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>microstate_weights</strong></p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>dict of node_id: ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.network.MacroStateNetwork.macrostate_weights">
+<code class="sig-name descname">macrostate_weights</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/network.html#MacroStateNetwork.macrostate_weights"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.network.MacroStateNetwork.macrostate_weights" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the total weight of each macrostate.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>macrostate_weights</strong></p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>dict of node_id: float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.network.MacroStateNetwork.set_macrostate_weights">
+<code class="sig-name descname">set_macrostate_weights</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/network.html#MacroStateNetwork.set_macrostate_weights"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.network.MacroStateNetwork.set_macrostate_weights" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the macrostate weights and set them as node attributes
+‘Weight’.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.network.MacroStateNetwork.node_fields_map">
+<code class="sig-name descname">node_fields_map</code><span class="sig-paren">(</span><em class="sig-param">func</em>, <em class="sig-param">fields</em>, <em class="sig-param">map_func=&lt;class 'map'&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/network.html#MacroStateNetwork.node_fields_map"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.network.MacroStateNetwork.node_fields_map" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>func</strong> – </p></li>
+<li><p><strong>fields</strong> – </p></li>
+<li><p><strong>*args</strong> – </p></li>
+<li><p><strong>map_func</strong> – (Default value = map)</p></li>
+<li><p><strong>idxs</strong> – (Default value = False)</p></li>
+<li><p><strong>node_sel</strong> – (Default value = None)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+            
+  <div class="footer-relations">
+    
+      <div class="pull-left">
+        <a class="btn btn-default" href="wepy.analysis.distributed.html" title="previous chapter (use the left arrow)">wepy.analysis.distributed module</a>
+      </div>
+    
+      <div class="pull-right">
+        <a class="btn btn-default" href="wepy.analysis.parents.html" title="next chapter (use the right arrow)">wepy.analysis.parents module</a>
+      </div>
+    </div>
+    <div class="clearer"></div>
+  
+        </div>
+        <div class="clearfix"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="wepy.analysis.parents.html" title="wepy.analysis.parents module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="wepy.analysis.distributed.html" title="wepy.analysis.distributed module"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">wepy  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >wepy</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="wepy.html" >wepy package</a> &#187;</li>
+          <li class="nav-item nav-item-3"><a href="wepy.analysis.html" >wepy.analysis package</a> &#187;</li> 
+      </ul>
+    </div>
+<script type="text/javascript">
+  $("#mobile-toggle a").click(function () {
+    $("#left-column").toggle();
+  });
+</script>
+<script type="text/javascript" src="../_static/js/bootstrap.js"></script>
+  <div class="footer">
+    &copy; Copyright 2018, Samuel D. Lotz. Created using <a href="http://sphinx.pocoo.org/">Sphinx</a>.
+  </div>
+  </body>
+</html>

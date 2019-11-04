@@ -1,0 +1,667 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+  
+  <!-- Licensed under the Apache 2.0 License -->
+  <link rel="stylesheet" type="text/css" href="../../../_static/fonts/open-sans/stylesheet.css" />
+  <!-- Licensed under the SIL Open Font License -->
+  <link rel="stylesheet" type="text/css" href="../../../_static/fonts/source-serif-pro/source-serif-pro.css" />
+  <link rel="stylesheet" type="text/css" href="../../../_static/css/bootstrap.min.css" />
+  <link rel="stylesheet" type="text/css" href="../../../_static/css/bootstrap-theme.min.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+    <title>wepy.reporter.dashboard &#8212; wepy  documentation</title>
+    <link rel="stylesheet" href="../../../_static/guzzle.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../../_static/language_data.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+  
+   
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">wepy  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="container-wrapper">
+
+      <div id="mobile-toggle">
+        <a href="#"><span class="glyphicon glyphicon-align-justify" aria-hidden="true"></span></a>
+      </div>
+  <div id="left-column">
+    <div class="sphinxsidebar">
+<div class="sidebar-block">
+  <div class="sidebar-wrapper">
+    <div id="main-search">
+      <form class="form-inline" action="../../../search.html" method="GET" role="form">
+        <div class="input-group">
+          <input name="q" type="text" class="form-control" placeholder="Search...">
+        </div>
+        <input type="hidden" name="check_keywords" value="yes" />
+        <input type="hidden" name="area" value="default" />
+      </form>
+    </div>
+  </div>
+</div>
+      
+    </div>
+  </div>
+        <div id="right-column">
+          
+          <div role="navigation" aria-label="breadcrumbs navigation">
+            <ol class="breadcrumb">
+              <li><a href="../../../index.html">Docs</a></li>
+              
+                <li><a href="../../index.html">Module code</a></li>
+              
+              <li>wepy.reporter.dashboard</li>
+            </ol>
+          </div>
+          
+          <div class="document clearer body">
+            
+  <h1>Source code for wepy.reporter.dashboard</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;WIP: Reporter that produces a text file that gives high level</span>
+<span class="sd">information on the progress of a simulation.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">defaultdict</span>
+<span class="kn">import</span> <span class="nn">itertools</span> <span class="k">as</span> <span class="nn">it</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="k">import</span> <span class="n">datetime</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">from</span> <span class="nn">copy</span> <span class="k">import</span> <span class="n">copy</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">from</span> <span class="nn">tabulate</span> <span class="k">import</span> <span class="n">tabulate</span>
+<span class="kn">from</span> <span class="nn">jinja2</span> <span class="k">import</span> <span class="n">Template</span>
+
+<span class="kn">import</span> <span class="nn">logging</span>
+
+<span class="kn">from</span> <span class="nn">wepy.reporter.reporter</span> <span class="k">import</span> <span class="n">ProgressiveFileReporter</span>
+
+<div class="viewcode-block" id="DashboardReporter"><a class="viewcode-back" href="../../../api/wepy.reporter.dashboard.html#wepy.reporter.dashboard.DashboardReporter">[docs]</a><span class="k">class</span> <span class="nc">DashboardReporter</span><span class="p">(</span><span class="n">ProgressiveFileReporter</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;A text based report of the status of a wepy simulation.</span>
+
+<span class="sd">    This serves as a container for different dashboard components to</span>
+<span class="sd">    go inside.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">FILE_ORDER</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;dashboard_path&quot;</span><span class="p">,)</span>
+    <span class="n">SUGGESTED_EXTENSIONS</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;dash.org&quot;</span><span class="p">,)</span>
+
+    <span class="c1"># TODO: add in a section for showing the number of walkers in each</span>
+    <span class="c1"># cycle. This isn&#39;t relevant for our constant walker number</span>
+    <span class="c1"># simulations though so I have elided it following YAGNI</span>
+
+    <span class="n">SIMULATION_SECTION_TEMPLATE</span> <span class="o">=</span> \
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Init Datetime: {{ init_date_time }}</span>
+<span class="sd">Last write Datetime: {{ curr_date_time }}</span>
+
+<span class="sd">Total Run time: {{ total_run_time }} s</span>
+
+<span class="sd">Last Cycle Index: {{ last_cycle_idx }}</span>
+<span class="sd">Number of Cycles: {{ n_cycles }}</span>
+
+<span class="sd">** Walkers Summary</span>
+
+<span class="sd">{{ walker_cycle_summary_table }}</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+    <span class="n">PERFORMANCE_SECTION_TEMPLATE</span> <span class="o">=</span>\
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Average Cycle Time: {{ avg_cycle_time }}</span>
+
+<span class="sd">{% if avg_runner_time %}Average Runner Time: {{ avg_runner_time }}{% else %}{% endif %}</span>
+<span class="sd">{% if avg_bc_time %}Average Boundary Conditions Time: {{ avg_bc_time }}{% else %}{% endif %}</span>
+<span class="sd">{% if avg_resampling_time %}Average Resampling Time: {{ avg_resampling_time }}{% else %}{% endif %}</span>
+
+
+<span class="sd">Worker Avg. Segment Times:</span>
+
+<span class="sd">{{ worker_avg_segment_time }}</span>
+
+<span class="sd">** Cycle Performance Log</span>
+
+<span class="sd">{{ cycle_log }}</span>
+
+<span class="sd">** Worker Performance Log</span>
+
+<span class="sd">{{ performance_log }}</span>
+
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+    <span class="n">DASHBOARD_TEMPLATE</span> <span class="o">=</span> \
+<span class="sd">&quot;&quot;&quot;* Simulation</span>
+
+<span class="sd">{{ simulation }}</span>
+
+<span class="sd">{% if resampler %}* Resampler{% else %}{% endif %}</span>
+<span class="sd">{% if resampler %}{{ resampler }}{% else %}{% endif %}</span>
+
+<span class="sd">{% if boundary_condition %}* Boundary Condition{% else %}{% endif %}</span>
+<span class="sd">{% if boundary_condition %}{{ boundary_condition }}{% else %}{% endif %}</span>
+
+<span class="sd">{% if runner %}* Runner{% else %}{% endif %}</span>
+<span class="sd">{% if runner %}{{ runner }}{% else %}{% endif %}</span>
+
+<span class="sd">* Performance</span>
+
+<span class="sd">{{ performance }}</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                 <span class="n">resampler_dash</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">runner_dash</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">bc_dash</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        resampler_dash</span>
+
+<span class="sd">        runner_dash</span>
+
+<span class="sd">        bc_dash</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">resampler_dash</span> <span class="o">=</span> <span class="n">resampler_dash</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">runner_dash</span> <span class="o">=</span> <span class="n">runner_dash</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bc_dash</span> <span class="o">=</span> <span class="n">bc_dash</span>
+
+        <span class="c1"># recalculated values</span>
+
+        <span class="c1"># general simulation</span>
+
+        <span class="c1"># total number of cycles run</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_cycles</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="c1"># start date and time</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">init_date_time</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">init_sys_time</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="c1"># the total run time</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">total_run_time</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="c1"># walker probabilities statistics</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">walker_prob_summaries</span> <span class="o">=</span> <span class="p">[]</span>
+
+
+        <span class="c1"># performance</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cycle_compute_times</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cycle_runner_times</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cycle_bc_times</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cycle_resampling_times</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">worker_records</span> <span class="o">=</span> <span class="p">[]</span>
+
+
+<div class="viewcode-block" id="DashboardReporter.init"><a class="viewcode-back" href="../../../api/wepy.reporter.dashboard.html#wepy.reporter.dashboard.DashboardReporter.init">[docs]</a>    <span class="k">def</span> <span class="nf">init</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">init</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">init_date_time</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">today</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">total_run_time</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">init_date_time</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">init_sys_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="DashboardReporter.calc_walker_summary"><a class="viewcode-back" href="../../../api/wepy.reporter.dashboard.html#wepy.reporter.dashboard.DashboardReporter.calc_walker_summary">[docs]</a>    <span class="k">def</span> <span class="nf">calc_walker_summary</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+        <span class="n">walker_weights</span> <span class="o">=</span> <span class="p">[</span><span class="n">walker</span><span class="o">.</span><span class="n">weight</span> <span class="k">for</span> <span class="n">walker</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;new_walkers&#39;</span><span class="p">]]</span>
+
+        <span class="n">summary</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;total&#39;</span> <span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">walker_weights</span><span class="p">),</span>
+            <span class="s1">&#39;min&#39;</span> <span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">walker_weights</span><span class="p">),</span>
+            <span class="s1">&#39;max&#39;</span> <span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">walker_weights</span><span class="p">),</span>
+        <span class="p">}</span>
+
+        <span class="k">return</span> <span class="n">summary</span></div>
+
+<div class="viewcode-block" id="DashboardReporter.update_values"><a class="viewcode-back" href="../../../api/wepy.reporter.dashboard.html#wepy.reporter.dashboard.DashboardReporter.update_values">[docs]</a>    <span class="k">def</span> <span class="nf">update_values</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+        <span class="c1">### simulation</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_cycles</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">walker_prob_summaries</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">calc_walker_summary</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_performance_values</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="c1"># update all the sections values</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">resampler_dash</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">resampler_dash</span><span class="o">.</span><span class="n">update_values</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">runner_dash</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">runner_dash</span><span class="o">.</span><span class="n">update_values</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">bc_dash</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">bc_dash</span><span class="o">.</span><span class="n">update_values</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="DashboardReporter.update_performance_values"><a class="viewcode-back" href="../../../api/wepy.reporter.dashboard.html#wepy.reporter.dashboard.DashboardReporter.update_performance_values">[docs]</a>    <span class="k">def</span> <span class="nf">update_performance_values</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+        <span class="c1">## worker specific performance</span>
+
+        <span class="c1"># only do this part if there were any workers</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;worker_segment_times&#39;</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+
+            <span class="c1"># log of segment times for workers</span>
+            <span class="k">for</span> <span class="n">worker_idx</span><span class="p">,</span> <span class="n">segment_times</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;worker_segment_times&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="k">for</span> <span class="n">segment_time</span> <span class="ow">in</span> <span class="n">segment_times</span><span class="p">:</span>
+                    <span class="n">record</span> <span class="o">=</span> <span class="p">(</span>
+                        <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;cycle_idx&#39;</span><span class="p">],</span>
+                        <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;n_segment_steps&#39;</span><span class="p">],</span>
+                        <span class="n">worker_idx</span><span class="p">,</span>
+                        <span class="n">segment_time</span><span class="p">,</span>
+                    <span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">worker_records</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">record</span><span class="p">)</span>
+
+            <span class="c1"># make a table out of these and compute the averages for each</span>
+            <span class="c1"># worker</span>
+            <span class="n">worker_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">worker_records</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;cycle_idx&#39;</span><span class="p">,</span> <span class="s1">&#39;n_steps&#39;</span><span class="p">,</span>
+                                                                   <span class="s1">&#39;worker_idx&#39;</span><span class="p">,</span> <span class="s1">&#39;segment_time&#39;</span><span class="p">))</span>
+            <span class="c1"># the aggregated table for the workers</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">worker_agg_table</span> <span class="o">=</span> <span class="n">worker_df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;worker_idx&#39;</span><span class="p">)</span>\
+                                    <span class="p">[[</span><span class="s1">&#39;segment_time&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">aggregate</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">worker_agg_table</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;segment_time&#39;</span> <span class="p">:</span> <span class="s1">&#39;avg_segment_time (s)&#39;</span><span class="p">},</span>
+                                         <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">worker_records</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">worker_agg_table</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s1">&#39;avg_segment_time (s)&#39;</span> <span class="p">:</span> <span class="p">[]})</span>
+
+
+        <span class="c1">## cycle times</span>
+
+        <span class="c1"># log of the components times</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cycle_runner_times</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;cycle_runner_time&#39;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cycle_bc_times</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;cycle_bc_time&#39;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cycle_resampling_times</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;cycle_resampling_time&#39;</span><span class="p">])</span>
+
+        <span class="c1"># TODO: produces nan if one of them is not given</span>
+        <span class="c1"># add up the three components to get the overall cycle time</span>
+        <span class="n">cycle_time</span> <span class="o">=</span> <span class="p">(</span><span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;cycle_runner_time&#39;</span><span class="p">]</span> <span class="o">+</span>
+                      <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;cycle_bc_time&#39;</span><span class="p">]</span> <span class="o">+</span>
+                      <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;cycle_resampling_time&#39;</span><span class="p">])</span>
+
+        <span class="c1"># log of cycle times</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cycle_compute_times</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cycle_time</span><span class="p">)</span>
+
+        <span class="c1"># average of cycle components times</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">avg_runner_time</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cycle_runner_times</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">avg_bc_time</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cycle_bc_times</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">avg_resampling_time</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cycle_resampling_times</span><span class="p">)</span>
+
+        <span class="c1"># average cycle time</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">avg_cycle_time</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cycle_compute_times</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="DashboardReporter.write_dashboard"><a class="viewcode-back" href="../../../api/wepy.reporter.dashboard.html#wepy.reporter.dashboard.DashboardReporter.write_dashboard">[docs]</a>    <span class="k">def</span> <span class="nf">write_dashboard</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">report_str</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Write the dashboard to the file.&quot;&quot;&quot;</span>
+
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">file_path</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mode</span><span class="p">)</span> <span class="k">as</span> <span class="n">dashboard_file</span><span class="p">:</span>
+            <span class="n">dashboard_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">report_str</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="DashboardReporter.gen_sim_section"><a class="viewcode-back" href="../../../api/wepy.reporter.dashboard.html#wepy.reporter.dashboard.DashboardReporter.gen_sim_section">[docs]</a>    <span class="k">def</span> <span class="nf">gen_sim_section</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;&quot;&quot;&quot;</span>
+
+        <span class="n">walker_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">walker_prob_summaries</span><span class="p">)</span>
+        <span class="n">walker_summary_tbl_str</span> <span class="o">=</span> <span class="n">tabulate</span><span class="p">(</span><span class="n">walker_df</span><span class="p">,</span>
+                                          <span class="n">headers</span><span class="o">=</span><span class="n">walker_df</span><span class="o">.</span><span class="n">columns</span><span class="p">,</span>
+                                          <span class="n">tablefmt</span><span class="o">=</span><span class="s1">&#39;orgtbl&#39;</span><span class="p">)</span>
+
+        <span class="c1"># render the simulation section</span>
+        <span class="n">sim_section_d</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;init_date_time&#39;</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">init_date_time</span><span class="p">,</span>
+            <span class="s1">&#39;curr_date_time&#39;</span> <span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">today</span><span class="p">()</span><span class="o">.</span><span class="n">isoformat</span><span class="p">(),</span>
+            <span class="s1">&#39;total_run_time&#39;</span> <span class="p">:</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">init_sys_time</span><span class="p">,</span>
+            <span class="s1">&#39;last_cycle_idx&#39;</span> <span class="p">:</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;cycle_idx&#39;</span><span class="p">],</span>
+            <span class="s1">&#39;n_cycles&#39;</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_cycles</span><span class="p">,</span>
+            <span class="s1">&#39;walker_cycle_summary_table&#39;</span> <span class="p">:</span> <span class="n">walker_summary_tbl_str</span><span class="p">,</span>
+        <span class="p">}</span>
+
+        <span class="n">sim_section_str</span> <span class="o">=</span> <span class="n">Template</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">SIMULATION_SECTION_TEMPLATE</span><span class="p">)</span><span class="o">.</span><span class="n">render</span><span class="p">(</span>
+            <span class="o">**</span><span class="n">sim_section_d</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">sim_section_str</span></div>
+
+<div class="viewcode-block" id="DashboardReporter.gen_performance_section"><a class="viewcode-back" href="../../../api/wepy.reporter.dashboard.html#wepy.reporter.dashboard.DashboardReporter.gen_performance_section">[docs]</a>    <span class="k">def</span> <span class="nf">gen_performance_section</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+        <span class="c1"># log of cycle times</span>
+        <span class="n">cycle_table_colnames</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;cycle_time (s)&#39;</span><span class="p">,</span>
+                                <span class="s1">&#39;runner_time (s)&#39;</span><span class="p">,</span>
+                                <span class="s1">&#39;boundary_conditions_time (s)&#39;</span><span class="p">,</span>
+                                <span class="s1">&#39;resampling_time (s)&#39;</span><span class="p">)</span>
+
+        <span class="n">cycle_table_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s1">&#39;cycle_times (s)&#39;</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">cycle_compute_times</span><span class="p">,</span>
+                                       <span class="s1">&#39;runner_time (s)&#39;</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">cycle_runner_times</span><span class="p">,</span>
+                                       <span class="s1">&#39;boundary_conditions_time (s)&#39;</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">cycle_bc_times</span><span class="p">,</span>
+                                       <span class="s1">&#39;resampling_time (s)&#39;</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">cycle_resampling_times</span><span class="p">},</span>
+                                      <span class="n">columns</span><span class="o">=</span><span class="n">cycle_table_colnames</span><span class="p">)</span>
+
+        <span class="n">cycle_table_str</span> <span class="o">=</span> <span class="n">tabulate</span><span class="p">(</span><span class="n">cycle_table_df</span><span class="p">,</span>
+                                   <span class="n">headers</span><span class="o">=</span><span class="n">cycle_table_df</span><span class="o">.</span><span class="n">columns</span><span class="p">,</span>
+                                   <span class="n">tablefmt</span><span class="o">=</span><span class="s1">&#39;orgtbl&#39;</span><span class="p">)</span>
+
+        <span class="c1"># log of workers performance</span>
+        <span class="n">worker_table_colnames</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;cycle_idx&#39;</span><span class="p">,</span> <span class="s1">&#39;n_steps&#39;</span><span class="p">,</span> <span class="s1">&#39;worker_idx&#39;</span><span class="p">,</span> <span class="s1">&#39;segment_time (s)&#39;</span><span class="p">,)</span>
+        <span class="n">worker_table_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">worker_records</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">worker_table_colnames</span><span class="p">)</span>
+        <span class="n">worker_table_str</span> <span class="o">=</span> <span class="n">tabulate</span><span class="p">(</span><span class="n">worker_table_df</span><span class="p">,</span>
+                                    <span class="n">headers</span><span class="o">=</span><span class="n">worker_table_df</span><span class="o">.</span><span class="n">columns</span><span class="p">,</span>
+                                    <span class="n">tablefmt</span><span class="o">=</span><span class="s1">&#39;orgtbl&#39;</span><span class="p">,</span>
+                                    <span class="n">showindex</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+
+        <span class="c1"># table for aggregeated worker stats</span>
+        <span class="n">worker_agg_table_str</span> <span class="o">=</span> <span class="n">tabulate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">worker_agg_table</span><span class="p">,</span>
+                                        <span class="n">headers</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">worker_agg_table</span><span class="o">.</span><span class="n">columns</span><span class="p">,</span>
+                                        <span class="n">tablefmt</span><span class="o">=</span><span class="s1">&#39;orgtbl&#39;</span><span class="p">)</span>
+
+
+        <span class="n">performance_section_d</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;avg_cycle_time&#39;</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">avg_cycle_time</span><span class="p">,</span>
+            <span class="s1">&#39;worker_avg_segment_time&#39;</span> <span class="p">:</span> <span class="n">worker_agg_table_str</span><span class="p">,</span>
+            <span class="s1">&#39;cycle_log&#39;</span> <span class="p">:</span> <span class="n">cycle_table_str</span><span class="p">,</span>
+            <span class="s1">&#39;performance_log&#39;</span> <span class="p">:</span> <span class="n">worker_table_str</span><span class="p">,</span>
+
+            <span class="c1"># optionals</span>
+            <span class="s1">&#39;avg_runner_time&#39;</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">avg_runner_time</span><span class="p">,</span>
+            <span class="s1">&#39;avg_bc_time&#39;</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">avg_bc_time</span><span class="p">,</span>
+            <span class="s1">&#39;avg_resampling_time&#39;</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">avg_resampling_time</span><span class="p">,</span>
+        <span class="p">}</span>
+
+        <span class="n">performance_section_str</span> <span class="o">=</span> <span class="n">Template</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">PERFORMANCE_SECTION_TEMPLATE</span><span class="p">)</span><span class="o">.</span><span class="n">render</span><span class="p">(</span>
+            <span class="o">**</span><span class="n">performance_section_d</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">performance_section_str</span></div>
+
+<div class="viewcode-block" id="DashboardReporter.report"><a class="viewcode-back" href="../../../api/wepy.reporter.dashboard.html#wepy.reporter.dashboard.DashboardReporter.report">[docs]</a>    <span class="k">def</span> <span class="nf">report</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+        <span class="c1"># update the values that update each call to report</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_values</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="c1"># the two sections that are always there</span>
+        <span class="n">sim_section_str</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gen_sim_section</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">performance_section_str</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gen_performance_section</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="c1"># the other optional sections</span>
+
+        <span class="c1"># resampler</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">resampler_dash</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">resampler_section_str</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">resampler_dash</span><span class="o">.</span><span class="n">gen_resampler_section</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">resampler_section_str</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="c1"># runner</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">runner_dash</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">runner_section_str</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">runner_dash</span><span class="o">.</span><span class="n">gen_runner_section</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">runner_section_str</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="c1"># boundary conditions</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">bc_dash</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">bc_section_str</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bc_dash</span><span class="o">.</span><span class="n">gen_bc_section</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">bc_section_str</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="c1"># render the whole template</span>
+        <span class="n">report_str</span> <span class="o">=</span> <span class="n">Template</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">DASHBOARD_TEMPLATE</span><span class="p">)</span><span class="o">.</span><span class="n">render</span><span class="p">(</span>
+            <span class="n">simulation</span><span class="o">=</span><span class="n">sim_section_str</span><span class="p">,</span>
+            <span class="n">resampler</span><span class="o">=</span><span class="n">resampler_section_str</span><span class="p">,</span>
+            <span class="n">boundary_condition</span><span class="o">=</span><span class="n">bc_section_str</span><span class="p">,</span>
+            <span class="n">runner</span><span class="o">=</span><span class="n">runner_section_str</span><span class="p">,</span>
+            <span class="n">performance</span><span class="o">=</span><span class="n">performance_section_str</span>
+        <span class="p">)</span>
+
+        <span class="c1"># write the thing</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">write_dashboard</span><span class="p">(</span><span class="n">report_str</span><span class="p">)</span></div></div>
+
+
+
+<div class="viewcode-block" id="ResamplerDashboardSection"><a class="viewcode-back" href="../../../api/wepy.reporter.dashboard.html#wepy.reporter.dashboard.ResamplerDashboardSection">[docs]</a><span class="k">class</span> <span class="nc">ResamplerDashboardSection</span><span class="p">():</span>
+
+    <span class="n">RESAMPLER_SECTION_TEMPLATE</span> <span class="o">=</span> \
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Resampler: {{ name }}</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">resampler</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="n">resampler</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">resampler_name</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="n">resampler</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span>
+
+        <span class="k">elif</span> <span class="n">name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">resampler_name</span> <span class="o">=</span> <span class="n">name</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">resampler_name</span> <span class="o">=</span> <span class="s2">&quot;Unknown&quot;</span>
+
+<div class="viewcode-block" id="ResamplerDashboardSection.update_values"><a class="viewcode-back" href="../../../api/wepy.reporter.dashboard.html#wepy.reporter.dashboard.ResamplerDashboardSection.update_values">[docs]</a>    <span class="k">def</span> <span class="nf">update_values</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="ResamplerDashboardSection.gen_fields"><a class="viewcode-back" href="../../../api/wepy.reporter.dashboard.html#wepy.reporter.dashboard.ResamplerDashboardSection.gen_fields">[docs]</a>    <span class="k">def</span> <span class="nf">gen_fields</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+        <span class="n">fields</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;name&#39;</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">resampler_name</span>
+        <span class="p">}</span>
+
+        <span class="k">return</span> <span class="n">fields</span></div>
+
+
+<div class="viewcode-block" id="ResamplerDashboardSection.gen_resampler_section"><a class="viewcode-back" href="../../../api/wepy.reporter.dashboard.html#wepy.reporter.dashboard.ResamplerDashboardSection.gen_resampler_section">[docs]</a>    <span class="k">def</span> <span class="nf">gen_resampler_section</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+        <span class="n">section_kwargs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gen_fields</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="n">section_str</span> <span class="o">=</span> <span class="n">Template</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">RESAMPLER_SECTION_TEMPLATE</span><span class="p">)</span><span class="o">.</span><span class="n">render</span><span class="p">(</span>
+            <span class="o">**</span><span class="n">section_kwargs</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">section_str</span></div></div>
+
+<div class="viewcode-block" id="RunnerDashboardSection"><a class="viewcode-back" href="../../../api/wepy.reporter.dashboard.html#wepy.reporter.dashboard.RunnerDashboardSection">[docs]</a><span class="k">class</span> <span class="nc">RunnerDashboardSection</span><span class="p">():</span>
+
+    <span class="n">RUNNER_SECTION_TEMPLATE</span> <span class="o">=</span> \
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Runner: {{ name }}</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">runner</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="n">runner</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">runner_name</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="n">runner</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span>
+
+        <span class="k">elif</span> <span class="n">name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">runner_name</span> <span class="o">=</span> <span class="n">name</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">runner_name</span> <span class="o">=</span> <span class="s2">&quot;Unknown&quot;</span>
+
+<div class="viewcode-block" id="RunnerDashboardSection.update_values"><a class="viewcode-back" href="../../../api/wepy.reporter.dashboard.html#wepy.reporter.dashboard.RunnerDashboardSection.update_values">[docs]</a>    <span class="k">def</span> <span class="nf">update_values</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="RunnerDashboardSection.gen_fields"><a class="viewcode-back" href="../../../api/wepy.reporter.dashboard.html#wepy.reporter.dashboard.RunnerDashboardSection.gen_fields">[docs]</a>    <span class="k">def</span> <span class="nf">gen_fields</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+        <span class="n">fields</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;name&#39;</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">runner_name</span>
+        <span class="p">}</span>
+
+        <span class="k">return</span> <span class="n">fields</span></div>
+
+
+<div class="viewcode-block" id="RunnerDashboardSection.gen_runner_section"><a class="viewcode-back" href="../../../api/wepy.reporter.dashboard.html#wepy.reporter.dashboard.RunnerDashboardSection.gen_runner_section">[docs]</a>    <span class="k">def</span> <span class="nf">gen_runner_section</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+        <span class="n">section_kwargs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gen_fields</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+
+        <span class="n">section_str</span> <span class="o">=</span> <span class="n">Template</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">RUNNER_SECTION_TEMPLATE</span><span class="p">)</span><span class="o">.</span><span class="n">render</span><span class="p">(</span>
+            <span class="o">**</span><span class="n">section_kwargs</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">section_str</span></div></div>
+
+
+<div class="viewcode-block" id="BCDashboardSection"><a class="viewcode-back" href="../../../api/wepy.reporter.dashboard.html#wepy.reporter.dashboard.BCDashboardSection">[docs]</a><span class="k">class</span> <span class="nc">BCDashboardSection</span><span class="p">():</span>
+
+    <span class="n">BC_SECTION_TEMPLATE</span> <span class="o">=</span> \
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">Boundary Condition: {{ name }}</span>
+
+<span class="sd">** Warping Log</span>
+
+<span class="sd">{{ warping_log }}</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bc</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">discontinuities</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="n">bc</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">bc_name</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="n">bc</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span>
+
+        <span class="k">elif</span> <span class="n">name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">bc_name</span> <span class="o">=</span> <span class="n">name</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">bc_name</span> <span class="o">=</span> <span class="s2">&quot;Unknown&quot;</span>
+
+
+        <span class="k">if</span> <span class="n">bc</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">bc_discontinuities</span> <span class="o">=</span> <span class="n">copy</span><span class="p">(</span><span class="n">bc</span><span class="o">.</span><span class="n">DISCONTINUITY_TARGET_IDXS</span><span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="n">discontinuities</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;If the bc is not given must give parameter: discontinuities&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">bc_discontinuities</span> <span class="o">=</span> <span class="n">discontinuities</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">warp_records</span> <span class="o">=</span> <span class="p">[]</span>
+
+<div class="viewcode-block" id="BCDashboardSection.update_values"><a class="viewcode-back" href="../../../api/wepy.reporter.dashboard.html#wepy.reporter.dashboard.BCDashboardSection.update_values">[docs]</a>    <span class="k">def</span> <span class="nf">update_values</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+        <span class="c1"># just create the bare warp records, since we know no more</span>
+        <span class="c1"># domain knowledge, feel free to override and add more data to</span>
+        <span class="c1"># this table</span>
+        <span class="k">for</span> <span class="n">warp_record</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;warp_data&#39;</span><span class="p">]:</span>
+
+            <span class="c1"># the cycle</span>
+            <span class="n">cycle_idx</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;cycle_idx&#39;</span><span class="p">]</span>
+
+            <span class="c1"># the individual values from the warp record</span>
+            <span class="n">weight</span> <span class="o">=</span> <span class="n">warp_record</span><span class="p">[</span><span class="s1">&#39;weight&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">walker_idx</span> <span class="o">=</span> <span class="n">warp_record</span><span class="p">[</span><span class="s1">&#39;walker_idx&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">target_idx</span> <span class="o">=</span> <span class="n">warp_record</span><span class="p">[</span><span class="s1">&#39;target_idx&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+
+            <span class="c1"># determine if it was discontinuous</span>
+
+            <span class="c1"># all targets are discontinuous</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">bc_discontinuities</span> <span class="ow">is</span> <span class="bp">Ellipsis</span><span class="p">:</span>
+                <span class="n">discont</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="c1"># none of them are discontinuous</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">bc_discontinuities</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">discont</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="c1"># then it is a list of the discontinuous targets</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">discont</span> <span class="o">=</span> <span class="kc">True</span> <span class="k">if</span> <span class="n">target_idx</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">bc_discontinuities</span> <span class="k">else</span> <span class="kc">False</span>
+
+            <span class="n">record</span> <span class="o">=</span> <span class="p">(</span><span class="n">cycle_idx</span><span class="p">,</span> <span class="n">walker_idx</span><span class="p">,</span> <span class="n">weight</span><span class="p">,</span> <span class="n">target_idx</span><span class="p">,</span> <span class="n">discont</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">warp_records</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">record</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="BCDashboardSection.gen_fields"><a class="viewcode-back" href="../../../api/wepy.reporter.dashboard.html#wepy.reporter.dashboard.BCDashboardSection.gen_fields">[docs]</a>    <span class="k">def</span> <span class="nf">gen_fields</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+        <span class="c1"># make the table for the collected warping records</span>
+        <span class="n">warp_table_colnames</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s1">&#39;cycle_idx&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;walker_idx&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;weight&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;target_idx&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;discontinuous&#39;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">warp_table_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">warp_records</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">warp_table_colnames</span><span class="p">)</span>
+        <span class="n">warp_table_str</span> <span class="o">=</span> <span class="n">tabulate</span><span class="p">(</span><span class="n">warp_table_df</span><span class="p">,</span>
+                                  <span class="n">headers</span><span class="o">=</span><span class="n">warp_table_df</span><span class="o">.</span><span class="n">columns</span><span class="p">,</span>
+                                  <span class="n">tablefmt</span><span class="o">=</span><span class="s1">&#39;orgtbl&#39;</span><span class="p">)</span>
+
+        <span class="n">fields</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;name&#39;</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">bc_name</span><span class="p">,</span>
+            <span class="s1">&#39;warping_log&#39;</span> <span class="p">:</span> <span class="n">warp_table_str</span><span class="p">,</span>
+        <span class="p">}</span>
+
+        <span class="k">return</span> <span class="n">fields</span></div>
+
+<div class="viewcode-block" id="BCDashboardSection.gen_bc_section"><a class="viewcode-back" href="../../../api/wepy.reporter.dashboard.html#wepy.reporter.dashboard.BCDashboardSection.gen_bc_section">[docs]</a>    <span class="k">def</span> <span class="nf">gen_bc_section</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+        <span class="n">section_kwargs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gen_fields</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="n">section_str</span> <span class="o">=</span> <span class="n">Template</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">BC_SECTION_TEMPLATE</span><span class="p">)</span><span class="o">.</span><span class="n">render</span><span class="p">(</span>
+            <span class="o">**</span><span class="n">section_kwargs</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">section_str</span></div></div>
+
+
+</pre></div>
+
+          </div>
+            
+        </div>
+        <div class="clearfix"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">wepy  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+<script type="text/javascript">
+  $("#mobile-toggle a").click(function () {
+    $("#left-column").toggle();
+  });
+</script>
+<script type="text/javascript" src="../../../_static/js/bootstrap.js"></script>
+  <div class="footer">
+    &copy; Copyright 2018, Samuel D. Lotz. Created using <a href="http://sphinx.pocoo.org/">Sphinx</a>.
+  </div>
+  </body>
+</html>

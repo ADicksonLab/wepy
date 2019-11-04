@@ -1,0 +1,346 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+  
+  <!-- Licensed under the Apache 2.0 License -->
+  <link rel="stylesheet" type="text/css" href="../../_static/fonts/open-sans/stylesheet.css" />
+  <!-- Licensed under the SIL Open Font License -->
+  <link rel="stylesheet" type="text/css" href="../../_static/fonts/source-serif-pro/source-serif-pro.css" />
+  <link rel="stylesheet" type="text/css" href="../../_static/css/bootstrap.min.css" />
+  <link rel="stylesheet" type="text/css" href="../../_static/css/bootstrap-theme.min.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+    <title>wepy.walker &#8212; wepy  documentation</title>
+    <link rel="stylesheet" href="../../_static/guzzle.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../_static/language_data.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+  
+   
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">wepy  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="container-wrapper">
+
+      <div id="mobile-toggle">
+        <a href="#"><span class="glyphicon glyphicon-align-justify" aria-hidden="true"></span></a>
+      </div>
+  <div id="left-column">
+    <div class="sphinxsidebar">
+<div class="sidebar-block">
+  <div class="sidebar-wrapper">
+    <div id="main-search">
+      <form class="form-inline" action="../../search.html" method="GET" role="form">
+        <div class="input-group">
+          <input name="q" type="text" class="form-control" placeholder="Search...">
+        </div>
+        <input type="hidden" name="check_keywords" value="yes" />
+        <input type="hidden" name="area" value="default" />
+      </form>
+    </div>
+  </div>
+</div>
+      
+    </div>
+  </div>
+        <div id="right-column">
+          
+          <div role="navigation" aria-label="breadcrumbs navigation">
+            <ol class="breadcrumb">
+              <li><a href="../../index.html">Docs</a></li>
+              
+                <li><a href="../index.html">Module code</a></li>
+              
+              <li>wepy.walker</li>
+            </ol>
+          </div>
+          
+          <div class="document clearer body">
+            
+  <h1>Source code for wepy.walker</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Reference implementations for a general walker and walker state</span>
+<span class="sd">with utilities for cloning and merging walkers.</span>
+
+<span class="sd">Wepy does not require that this or a subclass of this `Walker` or</span>
+<span class="sd">`WalkerState` is used and only that it is something that acts like it</span>
+<span class="sd">(duck typed).</span>
+
+<span class="sd">The required attributes for the Walker interface are:</span>
+
+<span class="sd">- `state` : object implementing the `WalkerState` interface</span>
+<span class="sd">- `weight` : float</span>
+
+<span class="sd">The weight attribute is simply a float and the proper normalization of</span>
+<span class="sd">weights among a weighted ensemble of walkers should be enforced by the</span>
+<span class="sd">resampler.</span>
+
+<span class="sd">The `clone`, `squash`, and `merge` methods can be accessed by Decision</span>
+<span class="sd">classes for implementing cloning and merging. As can the module level</span>
+<span class="sd">`split` and `keep_merge` functions.</span>
+
+<span class="sd">The WalkerState interface must have a method `dict` which returns a</span>
+<span class="sd">dictionary with string keys and arbitrary values.</span>
+
+<span class="sd">Additionally the WalkerState should provide its own `__getitem__`</span>
+<span class="sd">magic method for the accessor syntax, i.e. walker.state[&#39;positions&#39;].</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">random</span> <span class="k">as</span> <span class="nn">rand</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">from</span> <span class="nn">copy</span> <span class="k">import</span> <span class="n">deepcopy</span>
+
+<div class="viewcode-block" id="split"><a class="viewcode-back" href="../../api/wepy.walker.html#wepy.walker.split">[docs]</a><span class="k">def</span> <span class="nf">split</span><span class="p">(</span><span class="n">walker</span><span class="p">,</span> <span class="n">number</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Split (AKA make multiple clones) of a single walker.</span>
+
+<span class="sd">    Creates multiple new walkers that have the same state as the given</span>
+<span class="sd">    walker with weight evenly divided between them.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    walker : object implementing the Walker interface</span>
+<span class="sd">        The walker to split/clone</span>
+<span class="sd">    number : int</span>
+<span class="sd">        The number of clones to make of the walker</span>
+<span class="sd">         (Default value = 2)</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    cloned_walkers : list of objects implementing the Walker interface</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># calculate the weight of all child walkers split uniformly</span>
+    <span class="n">split_prob</span> <span class="o">=</span> <span class="n">walker</span><span class="o">.</span><span class="n">weight</span> <span class="o">/</span> <span class="p">(</span><span class="n">number</span><span class="p">)</span>
+    <span class="c1"># make the clones</span>
+    <span class="n">clones</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">number</span><span class="p">):</span>
+        <span class="n">clones</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">walker</span><span class="p">)(</span><span class="n">walker</span><span class="o">.</span><span class="n">state</span><span class="p">,</span> <span class="n">split_prob</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">clones</span></div>
+
+<div class="viewcode-block" id="keep_merge"><a class="viewcode-back" href="../../api/wepy.walker.html#wepy.walker.keep_merge">[docs]</a><span class="k">def</span> <span class="nf">keep_merge</span><span class="p">(</span><span class="n">walkers</span><span class="p">,</span> <span class="n">keep_idx</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Merge a set of walkers using the state of one of them.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    walkers : list of objects implementing the Walker interface</span>
+<span class="sd">        The walkers that will be merged together</span>
+<span class="sd">    keep_idx : int</span>
+<span class="sd">        The index of the walker in the walkers list that will be used</span>
+<span class="sd">        to set the state of the new merged walker.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    merged_walker : object implementing the Walker interface</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">weights</span> <span class="o">=</span> <span class="p">[</span><span class="n">walker</span><span class="o">.</span><span class="n">weight</span> <span class="k">for</span> <span class="n">walker</span> <span class="ow">in</span> <span class="n">walkers</span><span class="p">]</span>
+    <span class="c1"># but we add their weight to the new walker</span>
+    <span class="n">new_weight</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">weights</span><span class="p">)</span>
+    <span class="c1"># create a new walker with the keep_walker state</span>
+    <span class="n">new_walker</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="n">walkers</span><span class="p">[</span><span class="mi">0</span><span class="p">])(</span><span class="n">walkers</span><span class="p">[</span><span class="n">keep_idx</span><span class="p">]</span><span class="o">.</span><span class="n">state</span><span class="p">,</span> <span class="n">new_weight</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">new_walker</span></div>
+
+<div class="viewcode-block" id="merge"><a class="viewcode-back" href="../../api/wepy.walker.html#wepy.walker.merge">[docs]</a><span class="k">def</span> <span class="nf">merge</span><span class="p">(</span><span class="n">walkers</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Merge this walker with another keeping the state of one of them</span>
+<span class="sd">    and adding the weights.</span>
+
+<span class="sd">    The walker that has it&#39;s state kept is a random choice weighted by</span>
+<span class="sd">    the walkers weights.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    walkers : list of objects implementing the Walker interface</span>
+<span class="sd">        The walkers that will be merged together</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    merged_walker : object implementing the Walker interface</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">weights</span> <span class="o">=</span> <span class="p">[</span><span class="n">walker</span><span class="o">.</span><span class="n">weight</span> <span class="k">for</span> <span class="n">walker</span> <span class="ow">in</span> <span class="n">walkers</span><span class="p">]</span>
+    <span class="c1"># choose a walker according to their weights to keep its state</span>
+    <span class="n">keep_walker</span> <span class="o">=</span> <span class="n">rand</span><span class="o">.</span><span class="n">choices</span><span class="p">(</span><span class="n">walkers</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="n">weights</span><span class="p">)</span>
+    <span class="n">keep_idx</span> <span class="o">=</span> <span class="n">walkers</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">keep_walker</span><span class="p">)</span>
+
+    <span class="c1"># TODO do we need this?</span>
+    <span class="c1"># the others are &quot;squashed&quot; and we lose their state</span>
+    <span class="c1"># squashed_walkers = set(walkers).difference(keep_walker)</span>
+
+    <span class="c1"># but we add their weight to the new walker</span>
+    <span class="n">new_weight</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">weights</span><span class="p">)</span>
+    <span class="c1"># create a new walker with the keep_walker state</span>
+    <span class="n">new_walker</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="n">walkers</span><span class="p">[</span><span class="mi">0</span><span class="p">])(</span><span class="n">keep_walker</span><span class="o">.</span><span class="n">state</span><span class="p">,</span> <span class="n">new_weight</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">new_walker</span><span class="p">,</span> <span class="n">keep_idx</span></div>
+
+<div class="viewcode-block" id="Walker"><a class="viewcode-back" href="../../api/wepy.walker.html#wepy.walker.Walker">[docs]</a><span class="k">class</span> <span class="nc">Walker</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Reference implementation of the Walker interface.</span>
+
+<span class="sd">    A container for:</span>
+
+<span class="sd">    - state</span>
+<span class="sd">    - weight</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">weight</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Constructor for Walker.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        state : object implementing the WalkerState interface</span>
+
+<span class="sd">        weight : float</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="n">state</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">weight</span> <span class="o">=</span> <span class="n">weight</span>
+
+<div class="viewcode-block" id="Walker.clone"><a class="viewcode-back" href="../../api/wepy.walker.html#wepy.walker.Walker.clone">[docs]</a>    <span class="k">def</span> <span class="nf">clone</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">number</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Clone this walker by making a copy with the same state and split</span>
+<span class="sd">        the probability uniformly between clones.</span>
+
+<span class="sd">        The number is the increase in the number of walkers.</span>
+
+<span class="sd">        e.g. number=1 will return 2 walkers with the same state as</span>
+<span class="sd">        this object but with probability split 50/50 between them</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        number : int</span>
+<span class="sd">            Number of extra clones to make</span>
+<span class="sd">             (Default value = 1)</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        cloned_walkers : list of objects implementing the Walker interface</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># calculate the weight of all child walkers split uniformly</span>
+        <span class="n">split_prob</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">weight</span> <span class="o">/</span> <span class="p">(</span><span class="n">number</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+        <span class="c1"># make the clones</span>
+        <span class="n">clones</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">number</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>
+            <span class="n">clones</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)(</span><span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="p">,</span> <span class="n">split_prob</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">clones</span></div>
+
+<div class="viewcode-block" id="Walker.squash"><a class="viewcode-back" href="../../api/wepy.walker.html#wepy.walker.Walker.squash">[docs]</a>    <span class="k">def</span> <span class="nf">squash</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">merge_target</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Add the weight of this walker to another.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        merge_target : object implementing the Walker interface</span>
+<span class="sd">            The walker to add this one&#39;s weight to.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        merged_walker : object implementing the Walker interface</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">new_weight</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">weight</span> <span class="o">+</span> <span class="n">merge_target</span><span class="o">.</span><span class="n">weight</span>
+        <span class="k">return</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)(</span><span class="n">merge_target</span><span class="o">.</span><span class="n">state</span><span class="p">,</span> <span class="n">new_weight</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Walker.merge"><a class="viewcode-back" href="../../api/wepy.walker.html#wepy.walker.Walker.merge">[docs]</a>    <span class="k">def</span> <span class="nf">merge</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other_walkers</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Merge a set of other walkers into this one using the merge function.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        other_walkers : list of objects implementing the Walker interface</span>
+<span class="sd">            The walkers that will be merged together</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        merged_walker : object implementing the Walker interface</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">merge</span><span class="p">([</span><span class="bp">self</span><span class="p">]</span><span class="o">+</span><span class="n">other_walkers</span><span class="p">)</span></div></div>
+
+<div class="viewcode-block" id="WalkerState"><a class="viewcode-back" href="../../api/wepy.walker.html#wepy.walker.WalkerState">[docs]</a><span class="k">class</span> <span class="nc">WalkerState</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Reference implementation of the WalkerState interface.</span>
+
+<span class="sd">    Access all key-value pairs as a dictionary with the dict() method.</span>
+
+<span class="sd">    Access individual values using the accessor syntax similar to</span>
+<span class="sd">    dictionaries:</span>
+
+<span class="sd">    &gt;&gt;&gt; WalkerState(my_key=&#39;value&#39;)[&#39;my_key&#39;]</span>
+<span class="sd">    &#39;value&#39;</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Constructor for WalkerState.</span>
+
+<span class="sd">        All key-word arguments passed in will be set as the key-value</span>
+<span class="sd">        pairs for the state.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_data</span> <span class="o">=</span> <span class="n">kwargs</span>
+
+    <span class="k">def</span> <span class="nf">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+
+<div class="viewcode-block" id="WalkerState.dict"><a class="viewcode-back" href="../../api/wepy.walker.html#wepy.walker.WalkerState.dict">[docs]</a>    <span class="k">def</span> <span class="nf">dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return all key-value pairs as a dictionary.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">)</span></div></div>
+</pre></div>
+
+          </div>
+            
+        </div>
+        <div class="clearfix"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">wepy  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+<script type="text/javascript">
+  $("#mobile-toggle a").click(function () {
+    $("#left-column").toggle();
+  });
+</script>
+<script type="text/javascript" src="../../_static/js/bootstrap.js"></script>
+  <div class="footer">
+    &copy; Copyright 2018, Samuel D. Lotz. Created using <a href="http://sphinx.pocoo.org/">Sphinx</a>.
+  </div>
+  </body>
+</html>

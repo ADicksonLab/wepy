@@ -1,0 +1,366 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+  
+  <!-- Licensed under the Apache 2.0 License -->
+  <link rel="stylesheet" type="text/css" href="../../../../_static/fonts/open-sans/stylesheet.css" />
+  <!-- Licensed under the SIL Open Font License -->
+  <link rel="stylesheet" type="text/css" href="../../../../_static/fonts/source-serif-pro/source-serif-pro.css" />
+  <link rel="stylesheet" type="text/css" href="../../../../_static/css/bootstrap.min.css" />
+  <link rel="stylesheet" type="text/css" href="../../../../_static/css/bootstrap-theme.min.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+    <title>wepy.reporter.wexplore.dashboard &#8212; wepy  documentation</title>
+    <link rel="stylesheet" href="../../../../_static/guzzle.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../../../_static/language_data.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+  
+   
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">wepy  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="container-wrapper">
+
+      <div id="mobile-toggle">
+        <a href="#"><span class="glyphicon glyphicon-align-justify" aria-hidden="true"></span></a>
+      </div>
+  <div id="left-column">
+    <div class="sphinxsidebar">
+<div class="sidebar-block">
+  <div class="sidebar-wrapper">
+    <div id="main-search">
+      <form class="form-inline" action="../../../../search.html" method="GET" role="form">
+        <div class="input-group">
+          <input name="q" type="text" class="form-control" placeholder="Search...">
+        </div>
+        <input type="hidden" name="check_keywords" value="yes" />
+        <input type="hidden" name="area" value="default" />
+      </form>
+    </div>
+  </div>
+</div>
+      
+    </div>
+  </div>
+        <div id="right-column">
+          
+          <div role="navigation" aria-label="breadcrumbs navigation">
+            <ol class="breadcrumb">
+              <li><a href="../../../../index.html">Docs</a></li>
+              
+                <li><a href="../../../index.html">Module code</a></li>
+              
+              <li>wepy.reporter.wexplore.dashboard</li>
+            </ol>
+          </div>
+          
+          <div class="document clearer body">
+            
+  <h1>Source code for wepy.reporter.wexplore.dashboard</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">os.path</span> <span class="k">as</span> <span class="nn">osp</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">defaultdict</span>
+<span class="kn">import</span> <span class="nn">itertools</span> <span class="k">as</span> <span class="nn">it</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">from</span> <span class="nn">warnings</span> <span class="k">import</span> <span class="n">warn</span>
+
+<span class="kn">from</span> <span class="nn">wepy.reporter.dashboard</span> <span class="k">import</span> <span class="n">ResamplerDashboardSection</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">from</span> <span class="nn">tabulate</span> <span class="k">import</span> <span class="n">tabulate</span>
+
+<div class="viewcode-block" id="WExploreDashboardSection"><a class="viewcode-back" href="../../../../api/wepy.reporter.wexplore.dashboard.html#wepy.reporter.wexplore.dashboard.WExploreDashboardSection">[docs]</a><span class="k">class</span> <span class="nc">WExploreDashboardSection</span><span class="p">(</span><span class="n">ResamplerDashboardSection</span><span class="p">):</span>
+    <span class="n">RESAMPLER_SECTION_TEMPLATE</span> <span class="o">=</span> \
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">Resampling Algorithm: {{ name }}</span>
+
+<span class="sd">Parameters:</span>
+<span class="sd">- Max Number of Regions: {{ max_n_regions }}</span>
+<span class="sd">- Max Region Sizes: {{ max_region_sizes }}</span>
+
+<span class="sd">Number of Regions per level:</span>
+
+<span class="sd">{{ regions_per_level }}</span>
+
+<span class="sd">** Walker Assignments</span>
+
+<span class="sd">{{ walker_table }}</span>
+
+<span class="sd">** Region Hierarchy</span>
+
+<span class="sd">Defined Regions with the number of child regions per parent region:</span>
+
+<span class="sd">{{ region_hierarchy }}</span>
+
+<span class="sd">** Leaf Region Table</span>
+
+<span class="sd">{{ leaf_region_table }}</span>
+
+<span class="sd">** WExplore Log</span>
+
+<span class="sd">{{ wexplore_log }}</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">resampler</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">max_n_regions</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">max_region_sizes</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="o">**</span><span class="n">kwargs</span>
+    <span class="p">):</span>
+
+        <span class="k">if</span> <span class="s1">&#39;name&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+            <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;WExploreResampler&#39;</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">resampler</span><span class="o">=</span><span class="n">resampler</span><span class="p">,</span>
+                         <span class="n">max_n_regions</span><span class="o">=</span><span class="n">max_n_regions</span><span class="p">,</span>
+                         <span class="n">max_region_sizes</span><span class="o">=</span><span class="n">max_region_sizes</span><span class="p">,</span>
+                         <span class="o">**</span><span class="n">kwargs</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">resampler</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">max_n_regions</span> <span class="o">=</span> <span class="n">resampler</span><span class="o">.</span><span class="n">max_n_regions</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">max_region_sizes</span> <span class="o">=</span> <span class="n">resampler</span><span class="o">.</span><span class="n">max_region_sizes</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="n">max_n_regions</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> \
+                <span class="s2">&quot;If a resampler is not given must give parameters: max_n_regions&quot;</span>
+            <span class="k">assert</span> <span class="n">max_region_sizes</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> \
+                <span class="s2">&quot;If a resampler is not given must give parameters: max_n_regions&quot;</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">max_n_regions</span> <span class="o">=</span> <span class="n">max_n_regions</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">max_region_sizes</span> <span class="o">=</span> <span class="n">max_region_sizes</span>
+
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_levels</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">max_n_regions</span><span class="p">)</span>
+
+        <span class="c1"># updatables</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">root_region</span> <span class="o">=</span> <span class="p">()</span>
+        <span class="n">init_leaf_region</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">([</span><span class="mi">0</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_levels</span><span class="p">)])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">region_ids</span> <span class="o">=</span> <span class="p">[</span><span class="n">init_leaf_region</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">regions_per_level</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">children_per_region</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="c1"># resampling</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">walker_assignments</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">walker_image_distances</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">curr_region_probabilities</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">curr_region_counts</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+
+        <span class="c1">#wexplore</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">branch_records</span> <span class="o">=</span> <span class="p">[]</span>
+
+
+    <span class="k">def</span> <span class="nf">_leaf_regions_to_all_regions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">region_ids</span><span class="p">):</span>
+
+        <span class="c1"># make a set of all the regions starting with the root region</span>
+        <span class="n">regions</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">root_region</span><span class="p">])</span>
+        <span class="k">for</span> <span class="n">region_id</span> <span class="ow">in</span> <span class="n">region_ids</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">region_id</span><span class="p">)):</span>
+                <span class="n">regions</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">region_id</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">])</span>
+
+        <span class="n">regions</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">regions</span><span class="p">)</span>
+        <span class="n">regions</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="n">regions</span>
+
+
+<div class="viewcode-block" id="WExploreDashboardSection.update_values"><a class="viewcode-back" href="../../../../api/wepy.reporter.wexplore.dashboard.html#wepy.reporter.wexplore.dashboard.WExploreDashboardSection.update_values">[docs]</a>    <span class="k">def</span> <span class="nf">update_values</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+        <span class="c1"># the region assignments for walkers</span>
+        <span class="n">assignments</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">walker_weights</span> <span class="o">=</span> <span class="p">[</span><span class="n">walker</span><span class="o">.</span><span class="n">weight</span> <span class="k">for</span> <span class="n">walker</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;new_walkers&#39;</span><span class="p">]]</span>
+        <span class="c1"># re-initialize the current weights dictionary</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">curr_region_probabilities</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">curr_region_counts</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">walker_record</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;resampling_data&#39;</span><span class="p">]:</span>
+
+            <span class="n">assignment</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">walker_record</span><span class="p">[</span><span class="s1">&#39;region_assignment&#39;</span><span class="p">])</span>
+            <span class="n">walker_idx</span> <span class="o">=</span> <span class="n">walker_record</span><span class="p">[</span><span class="s1">&#39;walker_idx&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">assignments</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">walker_idx</span><span class="p">,</span> <span class="n">assignment</span><span class="p">))</span>
+
+            <span class="c1"># calculate the probabilities and counts of the regions</span>
+            <span class="c1"># given the current distribution of walkers</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">curr_region_probabilities</span><span class="p">[</span><span class="n">assignment</span><span class="p">]</span> <span class="o">+=</span> <span class="n">walker_weights</span><span class="p">[</span><span class="n">walker_idx</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">curr_region_counts</span><span class="p">[</span><span class="n">assignment</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="c1"># sort them to get the walker indices in the right order</span>
+        <span class="n">assignments</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+        <span class="c1"># then just get the assignment since it is sorted</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">walker_assignments</span> <span class="o">=</span> <span class="p">[</span><span class="n">assignment</span> <span class="k">for</span> <span class="n">walker</span><span class="p">,</span> <span class="n">assignment</span> <span class="ow">in</span> <span class="n">assignments</span><span class="p">]</span>
+
+        <span class="c1"># add to the records for region creation in WExplore</span>
+        <span class="k">for</span> <span class="n">resampler_record</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;resampler_data&#39;</span><span class="p">]:</span>
+
+            <span class="c1"># get the values</span>
+            <span class="n">new_leaf_id</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">resampler_record</span><span class="p">[</span><span class="s1">&#39;new_leaf_id&#39;</span><span class="p">])</span>
+            <span class="n">branching_level</span> <span class="o">=</span> <span class="n">resampler_record</span><span class="p">[</span><span class="s1">&#39;branching_level&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">walker_image_distance</span> <span class="o">=</span> <span class="n">resampler_record</span><span class="p">[</span><span class="s1">&#39;distance&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+
+            <span class="c1"># add the new leaf id to the list of regions in the order they were created</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">region_ids</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">new_leaf_id</span><span class="p">)</span>
+
+            <span class="c1"># make a new record for a branching event which is:</span>
+            <span class="c1"># (region_id, level branching occurred, distance of walker that triggered the branching)</span>
+            <span class="n">branch_record</span> <span class="o">=</span> <span class="p">(</span><span class="n">new_leaf_id</span><span class="p">,</span>
+                             <span class="n">branching_level</span><span class="p">,</span>
+                             <span class="n">walker_image_distance</span><span class="p">)</span>
+
+            <span class="c1"># save it in the records</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">branch_records</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">branch_record</span><span class="p">)</span>
+
+        <span class="c1"># count the number of child regions each region has</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">children_per_region</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">all_regions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_leaf_regions_to_all_regions</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">region_ids</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">region_id</span> <span class="ow">in</span> <span class="n">all_regions</span><span class="p">:</span>
+            <span class="c1"># if its a leaf region it has no children</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">region_id</span><span class="p">)</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_levels</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">children_per_region</span><span class="p">[</span><span class="n">region_id</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+
+            <span class="c1"># all others we cound how many children it has</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># get all regions that have this one as a root</span>
+                <span class="n">children_idxs</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+                <span class="k">for</span> <span class="n">poss_child_id</span> <span class="ow">in</span> <span class="n">all_regions</span><span class="p">:</span>
+
+                    <span class="c1"># get the root at the level of this region for the child</span>
+                    <span class="n">poss_child_root</span> <span class="o">=</span> <span class="n">poss_child_id</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="nb">len</span><span class="p">(</span><span class="n">region_id</span><span class="p">)]</span>
+                    <span class="c1"># if the root is the same we keep it without</span>
+                    <span class="c1"># counting children below the next level, but we skip the same region</span>
+                    <span class="k">if</span> <span class="p">(</span><span class="n">poss_child_root</span> <span class="o">==</span> <span class="n">region_id</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">poss_child_id</span> <span class="o">!=</span> <span class="n">region_id</span><span class="p">):</span>
+
+                        <span class="n">child_idx</span> <span class="o">=</span> <span class="n">poss_child_id</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">region_id</span><span class="p">)]</span>
+
+                        <span class="n">children_idxs</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">child_idx</span><span class="p">)</span>
+
+                <span class="c1"># count the children of this region</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">children_per_region</span><span class="p">[</span><span class="n">region_id</span><span class="p">]</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">children_idxs</span><span class="p">)</span>
+
+        <span class="c1"># count the number of regions at each level</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">regions_per_level</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_levels</span><span class="p">)]</span>
+        <span class="k">for</span> <span class="n">region_id</span><span class="p">,</span> <span class="n">n_children</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">children_per_region</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">level</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">region_id</span><span class="p">)</span>
+
+            <span class="c1"># skip the leaves</span>
+            <span class="k">if</span> <span class="n">level</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_levels</span><span class="p">:</span>
+                <span class="k">continue</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">regions_per_level</span><span class="p">[</span><span class="n">level</span><span class="p">]</span> <span class="o">+=</span> <span class="n">n_children</span></div>
+
+
+<div class="viewcode-block" id="WExploreDashboardSection.gen_fields"><a class="viewcode-back" href="../../../../api/wepy.reporter.wexplore.dashboard.html#wepy.reporter.wexplore.dashboard.WExploreDashboardSection.gen_fields">[docs]</a>    <span class="k">def</span> <span class="nf">gen_fields</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+        <span class="n">fields</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">gen_fields</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="n">regions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_leaf_regions_to_all_regions</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">region_ids</span><span class="p">)</span>
+        <span class="n">region_children</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">children_per_region</span><span class="p">[</span><span class="n">region</span><span class="p">]</span> <span class="k">for</span> <span class="n">region</span> <span class="ow">in</span> <span class="n">regions</span><span class="p">]</span>
+        <span class="n">region_children_pairs</span> <span class="o">=</span> <span class="n">it</span><span class="o">.</span><span class="n">chain</span><span class="p">(</span><span class="o">*</span><span class="nb">zip</span><span class="p">(</span><span class="n">regions</span><span class="p">,</span> <span class="n">region_children</span><span class="p">))</span>
+        <span class="n">region_hierarchy</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="p">[</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1">     </span><span class="si">{}</span><span class="s1">&#39;</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">regions</span><span class="p">))]</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">*</span><span class="n">region_children_pairs</span><span class="p">)</span>
+
+        <span class="c1"># make a table for the regions</span>
+        <span class="n">region_table_colnames</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;region&#39;</span><span class="p">,</span> <span class="s1">&#39;n_walkers&#39;</span><span class="p">,</span> <span class="s1">&#39;curr_weight&#39;</span><span class="p">)</span>
+        <span class="n">region_table_d</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">region_table_d</span><span class="p">[</span><span class="s1">&#39;region&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">region_ids</span>
+        <span class="n">region_table_d</span><span class="p">[</span><span class="s1">&#39;n_walkers&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">curr_region_counts</span><span class="p">[</span><span class="n">region</span><span class="p">]</span>
+                                       <span class="k">for</span> <span class="n">region</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">region_ids</span><span class="p">]</span>
+        <span class="n">region_table_d</span><span class="p">[</span><span class="s1">&#39;curr_weight&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">curr_region_probabilities</span><span class="p">[</span><span class="n">region</span><span class="p">]</span>
+                                         <span class="k">for</span> <span class="n">region</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">region_ids</span><span class="p">]</span>
+        <span class="n">leaf_region_table_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">region_table_d</span><span class="p">,</span>
+                                            <span class="n">columns</span><span class="o">=</span><span class="n">region_table_colnames</span><span class="p">)</span>
+        <span class="n">leaf_region_table_df</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s1">&#39;region&#39;</span><span class="p">,</span> <span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="n">leaf_region_table_str</span> <span class="o">=</span> <span class="n">tabulate</span><span class="p">(</span><span class="n">leaf_region_table_df</span><span class="p">,</span>
+                                         <span class="n">headers</span><span class="o">=</span><span class="n">leaf_region_table_df</span><span class="o">.</span><span class="n">columns</span><span class="p">,</span>
+                                         <span class="n">tablefmt</span><span class="o">=</span><span class="s1">&#39;orgtbl&#39;</span><span class="p">)</span>
+
+        <span class="c1"># log of branching events</span>
+        <span class="n">branching_table_colnames</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;new_leaf_id&#39;</span><span class="p">,</span> <span class="s1">&#39;branching_level&#39;</span><span class="p">,</span> <span class="s1">&#39;trigger_distance&#39;</span><span class="p">)</span>
+        <span class="n">branching_table_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">branch_records</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">branching_table_colnames</span><span class="p">)</span>
+        <span class="n">branching_table_str</span> <span class="o">=</span> <span class="n">tabulate</span><span class="p">(</span><span class="n">branching_table_df</span><span class="p">,</span>
+                                       <span class="n">headers</span><span class="o">=</span><span class="n">branching_table_df</span><span class="o">.</span><span class="n">columns</span><span class="p">,</span>
+                                       <span class="n">tablefmt</span><span class="o">=</span><span class="s1">&#39;orgtbl&#39;</span><span class="p">)</span>
+
+        <span class="c1">## walker weights</span>
+        <span class="n">walker_weights</span> <span class="o">=</span> <span class="p">[</span><span class="n">walker</span><span class="o">.</span><span class="n">weight</span> <span class="k">for</span> <span class="n">walker</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;new_walkers&#39;</span><span class="p">]]</span>
+        <span class="c1"># make the table of walkers using pandas, using the order here</span>
+        <span class="n">walker_table_colnames</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;weight&#39;</span><span class="p">,</span> <span class="s1">&#39;assignment&#39;</span><span class="p">)</span>
+        <span class="n">walker_table_d</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">walker_table_d</span><span class="p">[</span><span class="s1">&#39;weight&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">walker_weights</span>
+        <span class="n">walker_table_d</span><span class="p">[</span><span class="s1">&#39;assignment&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">walker_assignments</span>
+
+        <span class="n">walker_table_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">walker_table_d</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">walker_table_colnames</span><span class="p">)</span>
+        <span class="n">walker_table_str</span> <span class="o">=</span> <span class="n">tabulate</span><span class="p">(</span><span class="n">walker_table_df</span><span class="p">,</span>
+                                    <span class="n">headers</span><span class="o">=</span><span class="n">walker_table_df</span><span class="p">,</span>
+                                    <span class="n">tablefmt</span><span class="o">=</span><span class="s1">&#39;orgtbl&#39;</span><span class="p">)</span>
+
+
+        <span class="n">new_fields</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;max_n_regions&#39;</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_n_regions</span><span class="p">,</span>
+            <span class="s1">&#39;max_region_sizes&#39;</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_region_sizes</span><span class="p">,</span>
+            <span class="s1">&#39;regions_per_level&#39;</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">regions_per_level</span><span class="p">,</span>
+            <span class="s1">&#39;region_hierarchy&#39;</span> <span class="p">:</span> <span class="n">region_hierarchy</span><span class="p">,</span>
+            <span class="s1">&#39;leaf_region_table&#39;</span> <span class="p">:</span> <span class="n">leaf_region_table_str</span><span class="p">,</span>
+            <span class="s1">&#39;wexplore_log&#39;</span> <span class="p">:</span> <span class="n">branching_table_str</span><span class="p">,</span>
+            <span class="s1">&#39;walker_table&#39;</span> <span class="p">:</span> <span class="n">walker_table_str</span>
+        <span class="p">}</span>
+
+        <span class="n">fields</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">new_fields</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">fields</span></div></div>
+
+</pre></div>
+
+          </div>
+            
+        </div>
+        <div class="clearfix"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">wepy  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+<script type="text/javascript">
+  $("#mobile-toggle a").click(function () {
+    $("#left-column").toggle();
+  });
+</script>
+<script type="text/javascript" src="../../../../_static/js/bootstrap.js"></script>
+  <div class="footer">
+    &copy; Copyright 2018, Samuel D. Lotz. Created using <a href="http://sphinx.pocoo.org/">Sphinx</a>.
+  </div>
+  </body>
+</html>

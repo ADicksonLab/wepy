@@ -1,0 +1,838 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+  
+  <!-- Licensed under the Apache 2.0 License -->
+  <link rel="stylesheet" type="text/css" href="../_static/fonts/open-sans/stylesheet.css" />
+  <!-- Licensed under the SIL Open Font License -->
+  <link rel="stylesheet" type="text/css" href="../_static/fonts/source-serif-pro/source-serif-pro.css" />
+  <link rel="stylesheet" type="text/css" href="../_static/css/bootstrap.min.css" />
+  <link rel="stylesheet" type="text/css" href="../_static/css/bootstrap-theme.min.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+    <title>wepy.resampling.resamplers.resampler module &#8212; wepy  documentation</title>
+    <link rel="stylesheet" href="../_static/guzzle.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/language_data.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="wepy.resampling.resamplers.revo module" href="wepy.resampling.resamplers.revo.html" />
+    <link rel="prev" title="wepy.resampling.resamplers.clone_merge module" href="wepy.resampling.resamplers.clone_merge.html" />
+  
+   
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="wepy.resampling.resamplers.revo.html" title="wepy.resampling.resamplers.revo module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="wepy.resampling.resamplers.clone_merge.html" title="wepy.resampling.resamplers.clone_merge module"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">wepy  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >wepy</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="wepy.html" >wepy package</a> &#187;</li>
+          <li class="nav-item nav-item-3"><a href="wepy.resampling.html" >wepy.resampling package</a> &#187;</li>
+          <li class="nav-item nav-item-4"><a href="wepy.resampling.resamplers.html" accesskey="U">wepy.resampling.resamplers package</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="container-wrapper">
+
+      <div id="mobile-toggle">
+        <a href="#"><span class="glyphicon glyphicon-align-justify" aria-hidden="true"></span></a>
+      </div>
+  <div id="left-column">
+    <div class="sphinxsidebar">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="wepy.resampling.resamplers.clone_merge.html"
+                        title="previous chapter">wepy.resampling.resamplers.clone_merge module</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="wepy.resampling.resamplers.revo.html"
+                        title="next chapter">wepy.resampling.resamplers.revo module</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/api/wepy.resampling.resamplers.resampler.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div class="sidebar-block">
+  <div class="sidebar-wrapper">
+    <div id="main-search">
+      <form class="form-inline" action="../search.html" method="GET" role="form">
+        <div class="input-group">
+          <input name="q" type="text" class="form-control" placeholder="Search...">
+        </div>
+        <input type="hidden" name="check_keywords" value="yes" />
+        <input type="hidden" name="area" value="default" />
+      </form>
+    </div>
+  </div>
+</div>
+      
+    </div>
+  </div>
+        <div id="right-column">
+          
+          <div role="navigation" aria-label="breadcrumbs navigation">
+            <ol class="breadcrumb">
+              <li><a href="../index.html">Docs</a></li>
+              
+                <li><a href="modules.html">wepy</a></li>
+              
+                <li><a href="wepy.html">wepy package</a></li>
+              
+                <li><a href="wepy.resampling.html">wepy.resampling package</a></li>
+              
+                <li><a href="wepy.resampling.resamplers.html">wepy.resampling.resamplers package</a></li>
+              
+              <li>wepy.resampling.resamplers.resampler module</li>
+            </ol>
+          </div>
+          
+          <div class="document clearer body">
+            
+  <div class="section" id="module-wepy.resampling.resamplers.resampler">
+<span id="wepy-resampling-resamplers-resampler-module"></span><h1>wepy.resampling.resamplers.resampler module<a class="headerlink" href="#module-wepy.resampling.resamplers.resampler" title="Permalink to this headline">¶</a></h1>
+<dl class="exception">
+<dt id="wepy.resampling.resamplers.resampler.ResamplerError">
+<em class="property">exception </em><code class="sig-prename descclassname">wepy.resampling.resamplers.resampler.</code><code class="sig-name descname">ResamplerError</code><a class="reference internal" href="../_modules/wepy/resampling/resamplers/resampler.html#ResamplerError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.resampling.resamplers.resampler.ResamplerError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#Exception" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></a></p>
+<p>Error raised when some constraint on resampling properties is
+violated.</p>
+<dl class="attribute">
+<dt id="wepy.resampling.resamplers.resampler.ResamplerError.args">
+<code class="sig-name descname">args</code><a class="headerlink" href="#wepy.resampling.resamplers.resampler.ResamplerError.args" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wepy.resampling.resamplers.resampler.ResamplerError.with_traceback">
+<code class="sig-name descname">with_traceback</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.resampling.resamplers.resampler.ResamplerError.with_traceback" title="Permalink to this definition">¶</a></dt>
+<dd><p>Exception.with_traceback(tb) –
+set self.__traceback__ to tb and return self.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="wepy.resampling.resamplers.resampler.Resampler">
+<em class="property">class </em><code class="sig-prename descclassname">wepy.resampling.resamplers.resampler.</code><code class="sig-name descname">Resampler</code><span class="sig-paren">(</span><em class="sig-param">min_num_walkers=Ellipsis</em>, <em class="sig-param">max_num_walkers=Ellipsis</em>, <em class="sig-param">debug_mode=False</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/resampling/resamplers/resampler.html#Resampler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.resampling.resamplers.resampler.Resampler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Abstract base class for implementing resamplers.</p>
+<p>All subclasses of Resampler must implement the ‘resample’ method.</p>
+<p>If extra reporting on resampling and resampler updates desired
+subclassed resamplers should update the following class constants
+for specifying the decision class and the names, shapes, data
+types, and table-like records for each record group:</p>
+<ul class="simple">
+<li><p>DECISION</p></li>
+<li><p>RESAMPLING_FIELDS</p></li>
+<li><p>RESAMPLING_SHAPES</p></li>
+<li><p>RESAMPLING_DTYPES</p></li>
+<li><p>RESAMPLING_RECORD_FIELDS</p></li>
+<li><p>RESAMPLER_FIELDS</p></li>
+<li><p>RESAMPLER_SHAPES</p></li>
+<li><p>RESAMPLER_DTYPES</p></li>
+<li><p>RESAMPLER_RECORD_FIELDS</p></li>
+</ul>
+<p>The DECISION constant should be a
+wepy.resampling.decisions.decision.Decision subclass.</p>
+<p>This base class provides some hidden methods that are useful for
+various purposes.</p>
+<p>To help maintain constraints on the number of walkers in a
+simulation the constructor allows for setting of a minimum and/or
+maximum of walkers.</p>
+<p>These values are allowed to be either integers, None, or Ellipsis.</p>
+<p>Integers set hard values for the minimum and maximum values.</p>
+<p>None indicates that the min and max are unbounded. For the min
+this translates to a value of 1 since there must always be one
+walker.</p>
+<p>Ellipsis is an indicator to determine the minimum and maximum
+dependent on the number of walkers provided for resampling.</p>
+<p>If the max_num_walkers is Ellipsis and the number of walkers given
+is 10 then the maximum will be set to 10 for that
+resampling. Conversely, for if the minimum is Ellipsis.</p>
+<p>If both the min and max are set to Ellipsis then the number of
+walkers is always kept the same.</p>
+<p>Note that this does not implement any algorithm that actually
+decides how many walkers there will be but just checks that these
+constraints are met by those implementations in subclasses.</p>
+<p>To allow for this checking the ‘_resample_init’ method should be
+called at the beginning of the ‘resample’ method and the
+‘_resample_cleanup’ should be called at the end of the ‘resample’
+method.</p>
+<p>Constructor for Resampler class</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>min_num_walkers</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.8)"><em>None</em></a><em> or </em><em>Ellipsis</em>) – The minimum number of walkers allowed to have. None is
+unbounded, and Ellipsis preserves whatever number of
+walkers were given as input as the minimum.</p></li>
+<li><p><strong>max_num_walkers</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.8)"><em>None</em></a><em> or </em><em>Ellipsis</em>) – The maximum number of walkers allowed to have. None is
+unbounded, and Ellipsis preserves whatever number of
+walkers were given as input as the maximum.</p></li>
+<li><p><strong>debug_mode</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a>) – Expert mode stuff don’t use unless you know what you are doing.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="attribute">
+<dt id="wepy.resampling.resamplers.resampler.Resampler.DECISION">
+<code class="sig-name descname">DECISION</code><a class="headerlink" href="#wepy.resampling.resamplers.resampler.Resampler.DECISION" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="wepy.resampling.decisions.decision.html#wepy.resampling.decisions.decision.Decision" title="wepy.resampling.decisions.decision.Decision"><code class="xref py py-class docutils literal notranslate"><span class="pre">wepy.resampling.decisions.decision.Decision</span></code></a></p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.resampling.resamplers.resampler.Resampler.CYCLE_FIELDS">
+<code class="sig-name descname">CYCLE_FIELDS</code><em class="property"> = ('step_idx', 'walker_idx')</em><a class="headerlink" href="#wepy.resampling.resamplers.resampler.Resampler.CYCLE_FIELDS" title="Permalink to this definition">¶</a></dt>
+<dd><p>The fields that get added to the decision record for all resampling
+records. This places a record within a single destructured listing
+of records for a single cycle of resampling using the step and
+walker index.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.resampling.resamplers.resampler.Resampler.CYCLE_SHAPES">
+<code class="sig-name descname">CYCLE_SHAPES</code><em class="property"> = ((1,), (1,))</em><a class="headerlink" href="#wepy.resampling.resamplers.resampler.Resampler.CYCLE_SHAPES" title="Permalink to this definition">¶</a></dt>
+<dd><p>Data shapes of the cycle fields.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.resampling.resamplers.resampler.Resampler.CYCLE_DTYPES">
+<code class="sig-name descname">CYCLE_DTYPES</code><em class="property"> = (&lt;class 'int'&gt;, &lt;class 'int'&gt;)</em><a class="headerlink" href="#wepy.resampling.resamplers.resampler.Resampler.CYCLE_DTYPES" title="Permalink to this definition">¶</a></dt>
+<dd><p>Data types of the cycle fields</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.resampling.resamplers.resampler.Resampler.CYCLE_RECORD_FIELDS">
+<code class="sig-name descname">CYCLE_RECORD_FIELDS</code><em class="property"> = ('step_idx', 'walker_idx')</em><a class="headerlink" href="#wepy.resampling.resamplers.resampler.Resampler.CYCLE_RECORD_FIELDS" title="Permalink to this definition">¶</a></dt>
+<dd><p>Optional, names of fields to be selected for truncated
+representation of the record group.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.resampling.resamplers.resampler.Resampler.RESAMPLING_FIELDS">
+<code class="sig-name descname">RESAMPLING_FIELDS</code><em class="property"> = ('decision_id', 'step_idx', 'walker_idx')</em><a class="headerlink" href="#wepy.resampling.resamplers.resampler.Resampler.RESAMPLING_FIELDS" title="Permalink to this definition">¶</a></dt>
+<dd><p>String names of fields produced in this record group.</p>
+<p>Resampling records are typically used to report on the details of
+how walkers are resampled for a given resampling step.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>This is a critical function of many other components of the wepy
+framework and probably shouldn’t be altered by most developers.</p>
+<p>Thi is where the information about cloning and merging of walkers
+is given. Seeing as this is a most of the value proposition of
+wepy as a tool getting rid of it will render most of the framework
+useless.</p>
+<p>But sticking to the ‘loosely coupled, tightly integrated’ mantra
+you are free to modify these fields. This would be useful for
+implementing resampling strategies that do not follow basic
+cloning and merging. Just beware, that most of the lineage based
+analysis will be broken without implementing a new Decision class.</p>
+</div>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.resampling.resamplers.resampler.Resampler.RESAMPLING_SHAPES">
+<code class="sig-name descname">RESAMPLING_SHAPES</code><em class="property"> = ((1,), (1,), (1,))</em><a class="headerlink" href="#wepy.resampling.resamplers.resampler.Resampler.RESAMPLING_SHAPES" title="Permalink to this definition">¶</a></dt>
+<dd><p>Numpy-style shapes of all fields produced in records.</p>
+<p>There should be the same number of elements as there are in the
+corresponding ‘FIELDS’ class constant.</p>
+<p>Each entry should either be:</p>
+<ol class="upperalpha simple">
+<li><p>A tuple of ints that specify the shape of the field element
+array.</p></li>
+<li><p>Ellipsis, indicating that the field is variable length and
+limited to being a rank one array (e.g. (3,) or (1,)).</p></li>
+<li><p>None, indicating that the first instance of this field will not
+be known until runtime. Any field that is returned by a record
+producing method will automatically interpreted as None if not
+specified here.</p></li>
+</ol>
+<p>Note that the shapes must be tuple and not simple integers for rank-1
+arrays.</p>
+<p>Option B will result in the special h5py datatype ‘vlen’ and
+should not be used for large datasets for efficiency reasons.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.resampling.resamplers.resampler.Resampler.RESAMPLING_DTYPES">
+<code class="sig-name descname">RESAMPLING_DTYPES</code><em class="property"> = (&lt;class 'int'&gt;, &lt;class 'int'&gt;, &lt;class 'int'&gt;)</em><a class="headerlink" href="#wepy.resampling.resamplers.resampler.Resampler.RESAMPLING_DTYPES" title="Permalink to this definition">¶</a></dt>
+<dd><p>Specifies the numpy dtypes to be used for records.</p>
+<p>There should be the same number of elements as there are in the
+corresponding ‘FIELDS’ class constant.</p>
+<p>Each entry should either be:</p>
+<ol class="upperalpha simple">
+<li><p>A <cite>numpy.dtype</cite> object.</p></li>
+</ol>
+<ol class="upperalpha simple" start="4">
+<li><p>None, indicating that the first instance of this field will not
+be known until runtime. Any field that is returned by a record
+producing method will automatically interpreted as None if not
+specified here.</p></li>
+</ol>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.resampling.resamplers.resampler.Resampler.RESAMPLING_RECORD_FIELDS">
+<code class="sig-name descname">RESAMPLING_RECORD_FIELDS</code><em class="property"> = ('decision_id', 'step_idx', 'walker_idx')</em><a class="headerlink" href="#wepy.resampling.resamplers.resampler.Resampler.RESAMPLING_RECORD_FIELDS" title="Permalink to this definition">¶</a></dt>
+<dd><p>Optional, names of fields to be selected for truncated
+representation of the record group.</p>
+<p>These entries should be strings that are previously contained in
+the ‘FIELDS’ class constant.</p>
+<p>While strictly no constraints on to which fields can be added here
+you should only choose those fields whose features could fit into
+a plaintext csv or similar format.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.resampling.resamplers.resampler.Resampler.RESAMPLER_FIELDS">
+<code class="sig-name descname">RESAMPLER_FIELDS</code><em class="property"> = ()</em><a class="headerlink" href="#wepy.resampling.resamplers.resampler.Resampler.RESAMPLER_FIELDS" title="Permalink to this definition">¶</a></dt>
+<dd><p>String names of fields produced in this record group.</p>
+<p>Resampler records are typically used to report on changes in the
+state of the resampler.</p>
+<p class="rubric">Notes</p>
+<p>These fields are not critical to the proper functioning of the
+rest of the wepy framework and can be modified freely.</p>
+<p>However, reporters specific to this resampler probably will make
+use of these records.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.resampling.resamplers.resampler.Resampler.RESAMPLER_SHAPES">
+<code class="sig-name descname">RESAMPLER_SHAPES</code><em class="property"> = ()</em><a class="headerlink" href="#wepy.resampling.resamplers.resampler.Resampler.RESAMPLER_SHAPES" title="Permalink to this definition">¶</a></dt>
+<dd><p>Numpy-style shapes of all fields produced in records.</p>
+<p>There should be the same number of elements as there are in the
+corresponding ‘FIELDS’ class constant.</p>
+<p>Each entry should either be:</p>
+<ol class="upperalpha simple">
+<li><p>A tuple of ints that specify the shape of the field element
+array.</p></li>
+<li><p>Ellipsis, indicating that the field is variable length and
+limited to being a rank one array (e.g. (3,) or (1,)).</p></li>
+<li><p>None, indicating that the first instance of this field will not
+be known until runtime. Any field that is returned by a record
+producing method will automatically interpreted as None if not
+specified here.</p></li>
+</ol>
+<p>Note that the shapes must be tuple and not simple integers for rank-1
+arrays.</p>
+<p>Option B will result in the special h5py datatype ‘vlen’ and
+should not be used for large datasets for efficiency reasons.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.resampling.resamplers.resampler.Resampler.RESAMPLER_DTYPES">
+<code class="sig-name descname">RESAMPLER_DTYPES</code><em class="property"> = ()</em><a class="headerlink" href="#wepy.resampling.resamplers.resampler.Resampler.RESAMPLER_DTYPES" title="Permalink to this definition">¶</a></dt>
+<dd><p>Specifies the numpy dtypes to be used for records.</p>
+<p>There should be the same number of elements as there are in the
+corresponding ‘FIELDS’ class constant.</p>
+<p>Each entry should either be:</p>
+<ol class="upperalpha simple">
+<li><p>A <cite>numpy.dtype</cite> object.</p></li>
+</ol>
+<ol class="upperalpha simple" start="4">
+<li><p>None, indicating that the first instance of this field will not
+be known until runtime. Any field that is returned by a record
+producing method will automatically interpreted as None if not
+specified here.</p></li>
+</ol>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.resampling.resamplers.resampler.Resampler.RESAMPLER_RECORD_FIELDS">
+<code class="sig-name descname">RESAMPLER_RECORD_FIELDS</code><em class="property"> = ()</em><a class="headerlink" href="#wepy.resampling.resamplers.resampler.Resampler.RESAMPLER_RECORD_FIELDS" title="Permalink to this definition">¶</a></dt>
+<dd><p>Optional, names of fields to be selected for truncated
+representation of the record group.</p>
+<p>These entries should be strings that are previously contained in
+the ‘FIELDS’ class constant.</p>
+<p>While strictly no constraints on to which fields can be added here
+you should only choose those fields whose features could fit into
+a plaintext csv or similar format.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.resampling.resamplers.resampler.Resampler.DEBUG_MODES">
+<code class="sig-name descname">DEBUG_MODES</code><em class="property"> = (True, False)</em><a class="headerlink" href="#wepy.resampling.resamplers.resampler.Resampler.DEBUG_MODES" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wepy.resampling.resamplers.resampler.Resampler.decision">
+<em class="property">property </em><code class="sig-name descname">decision</code><a class="headerlink" href="#wepy.resampling.resamplers.resampler.Resampler.decision" title="Permalink to this definition">¶</a></dt>
+<dd><p>The decision class for this resampler.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.resampling.resamplers.resampler.Resampler.resampling_field_names">
+<code class="sig-name descname">resampling_field_names</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/resampling/resamplers/resampler.html#Resampler.resampling_field_names"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.resampling.resamplers.resampler.Resampler.resampling_field_names" title="Permalink to this definition">¶</a></dt>
+<dd><p>Access the class level FIELDS constant for this record group.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.resampling.resamplers.resampler.Resampler.resampling_field_shapes">
+<code class="sig-name descname">resampling_field_shapes</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/resampling/resamplers/resampler.html#Resampler.resampling_field_shapes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.resampling.resamplers.resampler.Resampler.resampling_field_shapes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Access the class level SHAPES constant for this record group.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.resampling.resamplers.resampler.Resampler.resampling_field_dtypes">
+<code class="sig-name descname">resampling_field_dtypes</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/resampling/resamplers/resampler.html#Resampler.resampling_field_dtypes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.resampling.resamplers.resampler.Resampler.resampling_field_dtypes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Access the class level DTYPES constant for this record group.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.resampling.resamplers.resampler.Resampler.resampling_fields">
+<code class="sig-name descname">resampling_fields</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/resampling/resamplers/resampler.html#Resampler.resampling_fields"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.resampling.resamplers.resampler.Resampler.resampling_fields" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a list of zipped field specs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>record_specs</strong> – A list of the specs for each field, a spec is a tuple of
+type (field_name, shape_spec, dtype_spec)</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>list of tuple</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.resampling.resamplers.resampler.Resampler.resampling_record_field_names">
+<code class="sig-name descname">resampling_record_field_names</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/resampling/resamplers/resampler.html#Resampler.resampling_record_field_names"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.resampling.resamplers.resampler.Resampler.resampling_record_field_names" title="Permalink to this definition">¶</a></dt>
+<dd><p>Access the class level RECORD_FIELDS constant for this record group.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.resampling.resamplers.resampler.Resampler.resampler_field_names">
+<code class="sig-name descname">resampler_field_names</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/resampling/resamplers/resampler.html#Resampler.resampler_field_names"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.resampling.resamplers.resampler.Resampler.resampler_field_names" title="Permalink to this definition">¶</a></dt>
+<dd><p>Access the class level FIELDS constant for this record group.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.resampling.resamplers.resampler.Resampler.resampler_field_shapes">
+<code class="sig-name descname">resampler_field_shapes</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/resampling/resamplers/resampler.html#Resampler.resampler_field_shapes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.resampling.resamplers.resampler.Resampler.resampler_field_shapes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Access the class level SHAPES constant for this record group.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.resampling.resamplers.resampler.Resampler.resampler_field_dtypes">
+<code class="sig-name descname">resampler_field_dtypes</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/resampling/resamplers/resampler.html#Resampler.resampler_field_dtypes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.resampling.resamplers.resampler.Resampler.resampler_field_dtypes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Access the class level DTYPES constant for this record group.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.resampling.resamplers.resampler.Resampler.resampler_fields">
+<code class="sig-name descname">resampler_fields</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/resampling/resamplers/resampler.html#Resampler.resampler_fields"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.resampling.resamplers.resampler.Resampler.resampler_fields" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a list of zipped field specs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>record_specs</strong> – A list of the specs for each field, a spec is a tuple of
+type (field_name, shape_spec, dtype_spec)</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>list of tuple</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.resampling.resamplers.resampler.Resampler.resampler_record_field_names">
+<code class="sig-name descname">resampler_record_field_names</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/resampling/resamplers/resampler.html#Resampler.resampler_record_field_names"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.resampling.resamplers.resampler.Resampler.resampler_record_field_names" title="Permalink to this definition">¶</a></dt>
+<dd><p>Access the class level RECORD_FIELDS constant for this record group.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.resampling.resamplers.resampler.Resampler.is_debug_on">
+<em class="property">property </em><code class="sig-name descname">is_debug_on</code><a class="headerlink" href="#wepy.resampling.resamplers.resampler.Resampler.is_debug_on" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wepy.resampling.resamplers.resampler.Resampler.set_debug_mode">
+<code class="sig-name descname">set_debug_mode</code><span class="sig-paren">(</span><em class="sig-param">mode</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/resampling/resamplers/resampler.html#Resampler.set_debug_mode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.resampling.resamplers.resampler.Resampler.set_debug_mode" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>mode</strong> – </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.resampling.resamplers.resampler.Resampler.debug_on">
+<code class="sig-name descname">debug_on</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/resampling/resamplers/resampler.html#Resampler.debug_on"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.resampling.resamplers.resampler.Resampler.debug_on" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wepy.resampling.resamplers.resampler.Resampler.debug_off">
+<code class="sig-name descname">debug_off</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/resampling/resamplers/resampler.html#Resampler.debug_off"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.resampling.resamplers.resampler.Resampler.debug_off" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wepy.resampling.resamplers.resampler.Resampler.max_num_walkers_setting">
+<em class="property">property </em><code class="sig-name descname">max_num_walkers_setting</code><a class="headerlink" href="#wepy.resampling.resamplers.resampler.Resampler.max_num_walkers_setting" title="Permalink to this definition">¶</a></dt>
+<dd><p>The specification for the maximum number of walkers for the resampler.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.resampling.resamplers.resampler.Resampler.min_num_walkers_setting">
+<em class="property">property </em><code class="sig-name descname">min_num_walkers_setting</code><a class="headerlink" href="#wepy.resampling.resamplers.resampler.Resampler.min_num_walkers_setting" title="Permalink to this definition">¶</a></dt>
+<dd><p>The specification for the minimum number of walkers for the resampler.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.resampling.resamplers.resampler.Resampler.max_num_walkers">
+<code class="sig-name descname">max_num_walkers</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/resampling/resamplers/resampler.html#Resampler.max_num_walkers"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.resampling.resamplers.resampler.Resampler.max_num_walkers" title="Permalink to this definition">¶</a></dt>
+<dd><p>” Get the max number of walkers allowed currently</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.resampling.resamplers.resampler.Resampler.min_num_walkers">
+<code class="sig-name descname">min_num_walkers</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/resampling/resamplers/resampler.html#Resampler.min_num_walkers"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.resampling.resamplers.resampler.Resampler.min_num_walkers" title="Permalink to this definition">¶</a></dt>
+<dd><p>” Get the min number of walkers allowed currently</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.resampling.resamplers.resampler.Resampler.resample">
+<code class="sig-name descname">resample</code><span class="sig-paren">(</span><em class="sig-param">walkers</em>, <em class="sig-param">debug_mode=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/resampling/resamplers/resampler.html#Resampler.resample"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.resampling.resamplers.resampler.Resampler.resample" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform resampling on the set of walkers.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>walkers</strong> (<em>list of Walker objects</em>) – The walkers that are to be resampled.</p></li>
+<li><p><strong>debug_mode</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a>) – Expert mode debugging setting, only forif you know exactly
+what you are doing.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>resampled_walkers</strong> (<em>list of Walker objects</em>) – The set of resampled walkers</p></li>
+<li><p><strong>resampling_data</strong> (<em>list of dict of str: value</em>) – A list of destructured resampling records from this round
+of resampling.</p></li>
+<li><p><strong>resampler_data</strong> (<em>list of dict of str: value</em>) – A list of records recording how the state of the resampler
+was updated.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="wepy.resampling.resamplers.resampler.NoResampler">
+<em class="property">class </em><code class="sig-prename descclassname">wepy.resampling.resamplers.resampler.</code><code class="sig-name descname">NoResampler</code><span class="sig-paren">(</span><em class="sig-param">min_num_walkers=Ellipsis</em>, <em class="sig-param">max_num_walkers=Ellipsis</em>, <em class="sig-param">debug_mode=False</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/resampling/resamplers/resampler.html#NoResampler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.resampling.resamplers.resampler.NoResampler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#wepy.resampling.resamplers.resampler.Resampler" title="wepy.resampling.resamplers.resampler.Resampler"><code class="xref py py-class docutils literal notranslate"><span class="pre">wepy.resampling.resamplers.resampler.Resampler</span></code></a></p>
+<p>The resampler which does nothing.</p>
+<p>Constructor for Resampler class</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>min_num_walkers</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.8)"><em>None</em></a><em> or </em><em>Ellipsis</em>) – The minimum number of walkers allowed to have. None is
+unbounded, and Ellipsis preserves whatever number of
+walkers were given as input as the minimum.</p></li>
+<li><p><strong>max_num_walkers</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.8)"><em>None</em></a><em> or </em><em>Ellipsis</em>) – The maximum number of walkers allowed to have. None is
+unbounded, and Ellipsis preserves whatever number of
+walkers were given as input as the maximum.</p></li>
+<li><p><strong>debug_mode</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a>) – Expert mode stuff don’t use unless you know what you are doing.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="attribute">
+<dt id="wepy.resampling.resamplers.resampler.NoResampler.CYCLE_DTYPES">
+<code class="sig-name descname">CYCLE_DTYPES</code><em class="property"> = (&lt;class 'int'&gt;, &lt;class 'int'&gt;)</em><a class="headerlink" href="#wepy.resampling.resamplers.resampler.NoResampler.CYCLE_DTYPES" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.resampling.resamplers.resampler.NoResampler.CYCLE_FIELDS">
+<code class="sig-name descname">CYCLE_FIELDS</code><em class="property"> = ('step_idx', 'walker_idx')</em><a class="headerlink" href="#wepy.resampling.resamplers.resampler.NoResampler.CYCLE_FIELDS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.resampling.resamplers.resampler.NoResampler.CYCLE_RECORD_FIELDS">
+<code class="sig-name descname">CYCLE_RECORD_FIELDS</code><em class="property"> = ('step_idx', 'walker_idx')</em><a class="headerlink" href="#wepy.resampling.resamplers.resampler.NoResampler.CYCLE_RECORD_FIELDS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.resampling.resamplers.resampler.NoResampler.CYCLE_SHAPES">
+<code class="sig-name descname">CYCLE_SHAPES</code><em class="property"> = ((1,), (1,))</em><a class="headerlink" href="#wepy.resampling.resamplers.resampler.NoResampler.CYCLE_SHAPES" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.resampling.resamplers.resampler.NoResampler.DEBUG_MODES">
+<code class="sig-name descname">DEBUG_MODES</code><em class="property"> = (True, False)</em><a class="headerlink" href="#wepy.resampling.resamplers.resampler.NoResampler.DEBUG_MODES" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.resampling.resamplers.resampler.NoResampler.RESAMPLER_DTYPES">
+<code class="sig-name descname">RESAMPLER_DTYPES</code><em class="property"> = ()</em><a class="headerlink" href="#wepy.resampling.resamplers.resampler.NoResampler.RESAMPLER_DTYPES" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.resampling.resamplers.resampler.NoResampler.RESAMPLER_FIELDS">
+<code class="sig-name descname">RESAMPLER_FIELDS</code><em class="property"> = ()</em><a class="headerlink" href="#wepy.resampling.resamplers.resampler.NoResampler.RESAMPLER_FIELDS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.resampling.resamplers.resampler.NoResampler.RESAMPLER_RECORD_FIELDS">
+<code class="sig-name descname">RESAMPLER_RECORD_FIELDS</code><em class="property"> = ()</em><a class="headerlink" href="#wepy.resampling.resamplers.resampler.NoResampler.RESAMPLER_RECORD_FIELDS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.resampling.resamplers.resampler.NoResampler.RESAMPLER_SHAPES">
+<code class="sig-name descname">RESAMPLER_SHAPES</code><em class="property"> = ()</em><a class="headerlink" href="#wepy.resampling.resamplers.resampler.NoResampler.RESAMPLER_SHAPES" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.resampling.resamplers.resampler.NoResampler.RESAMPLING_DTYPES">
+<code class="sig-name descname">RESAMPLING_DTYPES</code><em class="property"> = (&lt;class 'int'&gt;, &lt;class 'int'&gt;, &lt;class 'int'&gt;)</em><a class="headerlink" href="#wepy.resampling.resamplers.resampler.NoResampler.RESAMPLING_DTYPES" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.resampling.resamplers.resampler.NoResampler.RESAMPLING_FIELDS">
+<code class="sig-name descname">RESAMPLING_FIELDS</code><em class="property"> = ('decision_id', 'step_idx', 'walker_idx')</em><a class="headerlink" href="#wepy.resampling.resamplers.resampler.NoResampler.RESAMPLING_FIELDS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.resampling.resamplers.resampler.NoResampler.RESAMPLING_RECORD_FIELDS">
+<code class="sig-name descname">RESAMPLING_RECORD_FIELDS</code><em class="property"> = ('decision_id', 'step_idx', 'walker_idx')</em><a class="headerlink" href="#wepy.resampling.resamplers.resampler.NoResampler.RESAMPLING_RECORD_FIELDS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.resampling.resamplers.resampler.NoResampler.RESAMPLING_SHAPES">
+<code class="sig-name descname">RESAMPLING_SHAPES</code><em class="property"> = ((1,), (1,), (1,))</em><a class="headerlink" href="#wepy.resampling.resamplers.resampler.NoResampler.RESAMPLING_SHAPES" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wepy.resampling.resamplers.resampler.NoResampler.debug_off">
+<code class="sig-name descname">debug_off</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.resampling.resamplers.resampler.NoResampler.debug_off" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wepy.resampling.resamplers.resampler.NoResampler.debug_on">
+<code class="sig-name descname">debug_on</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.resampling.resamplers.resampler.NoResampler.debug_on" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wepy.resampling.resamplers.resampler.NoResampler.decision">
+<em class="property">property </em><code class="sig-name descname">decision</code><a class="headerlink" href="#wepy.resampling.resamplers.resampler.NoResampler.decision" title="Permalink to this definition">¶</a></dt>
+<dd><p>The decision class for this resampler.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.resampling.resamplers.resampler.NoResampler.is_debug_on">
+<em class="property">property </em><code class="sig-name descname">is_debug_on</code><a class="headerlink" href="#wepy.resampling.resamplers.resampler.NoResampler.is_debug_on" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wepy.resampling.resamplers.resampler.NoResampler.max_num_walkers">
+<code class="sig-name descname">max_num_walkers</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.resampling.resamplers.resampler.NoResampler.max_num_walkers" title="Permalink to this definition">¶</a></dt>
+<dd><p>” Get the max number of walkers allowed currently</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.resampling.resamplers.resampler.NoResampler.max_num_walkers_setting">
+<em class="property">property </em><code class="sig-name descname">max_num_walkers_setting</code><a class="headerlink" href="#wepy.resampling.resamplers.resampler.NoResampler.max_num_walkers_setting" title="Permalink to this definition">¶</a></dt>
+<dd><p>The specification for the maximum number of walkers for the resampler.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.resampling.resamplers.resampler.NoResampler.min_num_walkers">
+<code class="sig-name descname">min_num_walkers</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.resampling.resamplers.resampler.NoResampler.min_num_walkers" title="Permalink to this definition">¶</a></dt>
+<dd><p>” Get the min number of walkers allowed currently</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.resampling.resamplers.resampler.NoResampler.min_num_walkers_setting">
+<em class="property">property </em><code class="sig-name descname">min_num_walkers_setting</code><a class="headerlink" href="#wepy.resampling.resamplers.resampler.NoResampler.min_num_walkers_setting" title="Permalink to this definition">¶</a></dt>
+<dd><p>The specification for the minimum number of walkers for the resampler.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.resampling.resamplers.resampler.NoResampler.resampler_field_dtypes">
+<code class="sig-name descname">resampler_field_dtypes</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.resampling.resamplers.resampler.NoResampler.resampler_field_dtypes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Access the class level DTYPES constant for this record group.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.resampling.resamplers.resampler.NoResampler.resampler_field_names">
+<code class="sig-name descname">resampler_field_names</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.resampling.resamplers.resampler.NoResampler.resampler_field_names" title="Permalink to this definition">¶</a></dt>
+<dd><p>Access the class level FIELDS constant for this record group.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.resampling.resamplers.resampler.NoResampler.resampler_field_shapes">
+<code class="sig-name descname">resampler_field_shapes</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.resampling.resamplers.resampler.NoResampler.resampler_field_shapes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Access the class level SHAPES constant for this record group.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.resampling.resamplers.resampler.NoResampler.resampler_fields">
+<code class="sig-name descname">resampler_fields</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.resampling.resamplers.resampler.NoResampler.resampler_fields" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a list of zipped field specs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>record_specs</strong> – A list of the specs for each field, a spec is a tuple of
+type (field_name, shape_spec, dtype_spec)</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>list of tuple</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.resampling.resamplers.resampler.NoResampler.resampler_record_field_names">
+<code class="sig-name descname">resampler_record_field_names</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.resampling.resamplers.resampler.NoResampler.resampler_record_field_names" title="Permalink to this definition">¶</a></dt>
+<dd><p>Access the class level RECORD_FIELDS constant for this record group.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.resampling.resamplers.resampler.NoResampler.resampling_field_dtypes">
+<code class="sig-name descname">resampling_field_dtypes</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.resampling.resamplers.resampler.NoResampler.resampling_field_dtypes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Access the class level DTYPES constant for this record group.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.resampling.resamplers.resampler.NoResampler.resampling_field_names">
+<code class="sig-name descname">resampling_field_names</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.resampling.resamplers.resampler.NoResampler.resampling_field_names" title="Permalink to this definition">¶</a></dt>
+<dd><p>Access the class level FIELDS constant for this record group.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.resampling.resamplers.resampler.NoResampler.resampling_field_shapes">
+<code class="sig-name descname">resampling_field_shapes</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.resampling.resamplers.resampler.NoResampler.resampling_field_shapes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Access the class level SHAPES constant for this record group.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.resampling.resamplers.resampler.NoResampler.resampling_fields">
+<code class="sig-name descname">resampling_fields</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.resampling.resamplers.resampler.NoResampler.resampling_fields" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a list of zipped field specs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>record_specs</strong> – A list of the specs for each field, a spec is a tuple of
+type (field_name, shape_spec, dtype_spec)</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>list of tuple</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.resampling.resamplers.resampler.NoResampler.resampling_record_field_names">
+<code class="sig-name descname">resampling_record_field_names</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.resampling.resamplers.resampler.NoResampler.resampling_record_field_names" title="Permalink to this definition">¶</a></dt>
+<dd><p>Access the class level RECORD_FIELDS constant for this record group.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.resampling.resamplers.resampler.NoResampler.set_debug_mode">
+<code class="sig-name descname">set_debug_mode</code><span class="sig-paren">(</span><em class="sig-param">mode</em><span class="sig-paren">)</span><a class="headerlink" href="#wepy.resampling.resamplers.resampler.NoResampler.set_debug_mode" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>mode</strong> – </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.resampling.resamplers.resampler.NoResampler.DECISION">
+<code class="sig-name descname">DECISION</code><a class="headerlink" href="#wepy.resampling.resamplers.resampler.NoResampler.DECISION" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="wepy.resampling.decisions.decision.html#wepy.resampling.decisions.decision.NoDecision" title="wepy.resampling.decisions.decision.NoDecision"><code class="xref py py-class docutils literal notranslate"><span class="pre">wepy.resampling.decisions.decision.NoDecision</span></code></a></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.resampling.resamplers.resampler.NoResampler.resample">
+<code class="sig-name descname">resample</code><span class="sig-paren">(</span><em class="sig-param">walkers</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/resampling/resamplers/resampler.html#NoResampler.resample"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.resampling.resamplers.resampler.NoResampler.resample" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform resampling on the set of walkers.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>walkers</strong> (<em>list of Walker objects</em>) – The walkers that are to be resampled.</p></li>
+<li><p><strong>debug_mode</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a>) – Expert mode debugging setting, only forif you know exactly
+what you are doing.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>resampled_walkers</strong> (<em>list of Walker objects</em>) – The set of resampled walkers</p></li>
+<li><p><strong>resampling_data</strong> (<em>list of dict of str: value</em>) – A list of destructured resampling records from this round
+of resampling.</p></li>
+<li><p><strong>resampler_data</strong> (<em>list of dict of str: value</em>) – A list of records recording how the state of the resampler
+was updated.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+            
+  <div class="footer-relations">
+    
+      <div class="pull-left">
+        <a class="btn btn-default" href="wepy.resampling.resamplers.clone_merge.html" title="previous chapter (use the left arrow)">wepy.resampling.resamplers.clone_merge module</a>
+      </div>
+    
+      <div class="pull-right">
+        <a class="btn btn-default" href="wepy.resampling.resamplers.revo.html" title="next chapter (use the right arrow)">wepy.resampling.resamplers.revo module</a>
+      </div>
+    </div>
+    <div class="clearer"></div>
+  
+        </div>
+        <div class="clearfix"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="wepy.resampling.resamplers.revo.html" title="wepy.resampling.resamplers.revo module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="wepy.resampling.resamplers.clone_merge.html" title="wepy.resampling.resamplers.clone_merge module"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">wepy  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >wepy</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="wepy.html" >wepy package</a> &#187;</li>
+          <li class="nav-item nav-item-3"><a href="wepy.resampling.html" >wepy.resampling package</a> &#187;</li>
+          <li class="nav-item nav-item-4"><a href="wepy.resampling.resamplers.html" >wepy.resampling.resamplers package</a> &#187;</li> 
+      </ul>
+    </div>
+<script type="text/javascript">
+  $("#mobile-toggle a").click(function () {
+    $("#left-column").toggle();
+  });
+</script>
+<script type="text/javascript" src="../_static/js/bootstrap.js"></script>
+  <div class="footer">
+    &copy; Copyright 2018, Samuel D. Lotz. Created using <a href="http://sphinx.pocoo.org/">Sphinx</a>.
+  </div>
+  </body>
+</html>

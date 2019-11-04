@@ -1,0 +1,1105 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+  
+  <!-- Licensed under the Apache 2.0 License -->
+  <link rel="stylesheet" type="text/css" href="../_static/fonts/open-sans/stylesheet.css" />
+  <!-- Licensed under the SIL Open Font License -->
+  <link rel="stylesheet" type="text/css" href="../_static/fonts/source-serif-pro/source-serif-pro.css" />
+  <link rel="stylesheet" type="text/css" href="../_static/css/bootstrap.min.css" />
+  <link rel="stylesheet" type="text/css" href="../_static/css/bootstrap-theme.min.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+    <title>wepy.boundary_conditions.receptor module &#8212; wepy  documentation</title>
+    <link rel="stylesheet" href="../_static/guzzle.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/language_data.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="wepy.boundary_conditions.unbinding module" href="wepy.boundary_conditions.unbinding.html" />
+    <link rel="prev" title="wepy.boundary_conditions.boundary module" href="wepy.boundary_conditions.boundary.html" />
+  
+   
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="wepy.boundary_conditions.unbinding.html" title="wepy.boundary_conditions.unbinding module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="wepy.boundary_conditions.boundary.html" title="wepy.boundary_conditions.boundary module"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">wepy  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >wepy</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="wepy.html" >wepy package</a> &#187;</li>
+          <li class="nav-item nav-item-3"><a href="wepy.boundary_conditions.html" accesskey="U">wepy.boundary_conditions package</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="container-wrapper">
+
+      <div id="mobile-toggle">
+        <a href="#"><span class="glyphicon glyphicon-align-justify" aria-hidden="true"></span></a>
+      </div>
+  <div id="left-column">
+    <div class="sphinxsidebar">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="wepy.boundary_conditions.boundary.html"
+                        title="previous chapter">wepy.boundary_conditions.boundary module</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="wepy.boundary_conditions.unbinding.html"
+                        title="next chapter">wepy.boundary_conditions.unbinding module</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/api/wepy.boundary_conditions.receptor.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div class="sidebar-block">
+  <div class="sidebar-wrapper">
+    <div id="main-search">
+      <form class="form-inline" action="../search.html" method="GET" role="form">
+        <div class="input-group">
+          <input name="q" type="text" class="form-control" placeholder="Search...">
+        </div>
+        <input type="hidden" name="check_keywords" value="yes" />
+        <input type="hidden" name="area" value="default" />
+      </form>
+    </div>
+  </div>
+</div>
+      
+    </div>
+  </div>
+        <div id="right-column">
+          
+          <div role="navigation" aria-label="breadcrumbs navigation">
+            <ol class="breadcrumb">
+              <li><a href="../index.html">Docs</a></li>
+              
+                <li><a href="modules.html">wepy</a></li>
+              
+                <li><a href="wepy.html">wepy package</a></li>
+              
+                <li><a href="wepy.boundary_conditions.html">wepy.boundary_conditions package</a></li>
+              
+              <li>wepy.boundary_conditions.receptor module</li>
+            </ol>
+          </div>
+          
+          <div class="document clearer body">
+            
+  <div class="section" id="module-wepy.boundary_conditions.receptor">
+<span id="wepy-boundary-conditions-receptor-module"></span><h1>wepy.boundary_conditions.receptor module<a class="headerlink" href="#module-wepy.boundary_conditions.receptor" title="Permalink to this headline">¶</a></h1>
+<p>Boundary conditions for receptor based boundary conditions
+including unbinding and rebinding.</p>
+<dl class="class">
+<dt id="wepy.boundary_conditions.receptor.ReceptorBC">
+<em class="property">class </em><code class="sig-prename descclassname">wepy.boundary_conditions.receptor.</code><code class="sig-name descname">ReceptorBC</code><span class="sig-paren">(</span><em class="sig-param">initial_states=None</em>, <em class="sig-param">initial_weights=None</em>, <em class="sig-param">ligand_idxs=None</em>, <em class="sig-param">receptor_idxs=None</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/boundary_conditions/receptor.html#ReceptorBC"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.boundary_conditions.receptor.ReceptorBC" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="wepy.boundary_conditions.boundary.html#wepy.boundary_conditions.boundary.BoundaryConditions" title="wepy.boundary_conditions.boundary.BoundaryConditions"><code class="xref py py-class docutils literal notranslate"><span class="pre">wepy.boundary_conditions.boundary.BoundaryConditions</span></code></a></p>
+<p>Abstract base class for ligand-receptor based boundary conditions.</p>
+<p>Provides shared utilities for warping walkers to any number of
+optionally weighted initial structures through a shared
+<cite>warp_walkers</cite> method.</p>
+<p>Non-abstract implementations of this class need only implement the
+<cite>_progress</cite> method which should return a boolean signalling a
+warping event and the dictionary-style warping record of the
+progress for only a single walker. These records will be collated
+into a single progress record across all walkers.</p>
+<p>Additionally, the <cite>_update_bc</cite> method can be overriden to return
+‘BC’ group records. That method should accept the arguments shown
+in this ABC and return a list of dictionary-style ‘BC’ records.</p>
+<p>Warping of walkers with multiple initial states will be done
+according to a choice of initial states weighted on their weights,
+if given.</p>
+<p>Base constructor for ReceptorBC.</p>
+<p>This should be called immediately in the subclass <cite>__init__</cite>
+method.</p>
+<p>If the initial weights for each initial state are not given
+uniform weights are assigned to them.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>initial_states</strong> (<em>list of objects implementing the State interface</em>) – The list of possible states that warped walkers will assume.</p></li>
+<li><p><strong>initial_weights</strong> (<em>list of float</em><em>, </em><em>optional</em>) – List of normalized probabilities of the initial_states
+provided. If not given, uniform probabilities will be
+used.</p></li>
+<li><p><strong>ligand_idxs</strong> (<em>arraylike of int</em>) – The indices of the atom positions in the state considered
+the ligand.</p></li>
+<li><p><strong>receptor_idxs</strong> (<em>arraylike of int</em>) – The indices of the atom positions in the state considered
+the receptor.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#AssertionError" title="(in Python v3.8)"><strong>AssertionError</strong></a> – If any of the following kwargs are not given:
+    initial_states, ligand_idxs, receptor_idxs.</p>
+</dd>
+</dl>
+<dl class="attribute">
+<dt id="wepy.boundary_conditions.receptor.ReceptorBC.BC_FIELDS">
+<code class="sig-name descname">BC_FIELDS</code><em class="property"> = ()</em><a class="headerlink" href="#wepy.boundary_conditions.receptor.ReceptorBC.BC_FIELDS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.boundary_conditions.receptor.ReceptorBC.BC_SHAPES">
+<code class="sig-name descname">BC_SHAPES</code><em class="property"> = ()</em><a class="headerlink" href="#wepy.boundary_conditions.receptor.ReceptorBC.BC_SHAPES" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.boundary_conditions.receptor.ReceptorBC.BC_DTYPES">
+<code class="sig-name descname">BC_DTYPES</code><em class="property"> = ()</em><a class="headerlink" href="#wepy.boundary_conditions.receptor.ReceptorBC.BC_DTYPES" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.boundary_conditions.receptor.ReceptorBC.BC_RECORD_FIELDS">
+<code class="sig-name descname">BC_RECORD_FIELDS</code><em class="property"> = ()</em><a class="headerlink" href="#wepy.boundary_conditions.receptor.ReceptorBC.BC_RECORD_FIELDS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.boundary_conditions.receptor.ReceptorBC.PROGRESS_FIELDS">
+<code class="sig-name descname">PROGRESS_FIELDS</code><em class="property"> = ()</em><a class="headerlink" href="#wepy.boundary_conditions.receptor.ReceptorBC.PROGRESS_FIELDS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.boundary_conditions.receptor.ReceptorBC.PROGRESS_SHAPES">
+<code class="sig-name descname">PROGRESS_SHAPES</code><em class="property"> = ()</em><a class="headerlink" href="#wepy.boundary_conditions.receptor.ReceptorBC.PROGRESS_SHAPES" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.boundary_conditions.receptor.ReceptorBC.PROGRESS_DTYPES">
+<code class="sig-name descname">PROGRESS_DTYPES</code><em class="property"> = ()</em><a class="headerlink" href="#wepy.boundary_conditions.receptor.ReceptorBC.PROGRESS_DTYPES" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.boundary_conditions.receptor.ReceptorBC.PROGRESS_RECORD_FIELDS">
+<code class="sig-name descname">PROGRESS_RECORD_FIELDS</code><em class="property"> = ()</em><a class="headerlink" href="#wepy.boundary_conditions.receptor.ReceptorBC.PROGRESS_RECORD_FIELDS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.boundary_conditions.receptor.ReceptorBC.DISCONTINUITY_TARGET_IDXS">
+<code class="sig-name descname">DISCONTINUITY_TARGET_IDXS</code><em class="property"> = Ellipsis</em><a class="headerlink" href="#wepy.boundary_conditions.receptor.ReceptorBC.DISCONTINUITY_TARGET_IDXS" title="Permalink to this definition">¶</a></dt>
+<dd><p>Specifies which ‘target_idxs’ values are considered discontinuous targets.</p>
+<p>Values are either integer indices, Ellipsis (indicating all
+possible values are discontinuous), or None indicating no possible
+value is discontinuous.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.boundary_conditions.receptor.ReceptorBC.initial_states">
+<em class="property">property </em><code class="sig-name descname">initial_states</code><a class="headerlink" href="#wepy.boundary_conditions.receptor.ReceptorBC.initial_states" title="Permalink to this definition">¶</a></dt>
+<dd><p>The possible initial states warped walkers may assume.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.boundary_conditions.receptor.ReceptorBC.initial_weights">
+<em class="property">property </em><code class="sig-name descname">initial_weights</code><a class="headerlink" href="#wepy.boundary_conditions.receptor.ReceptorBC.initial_weights" title="Permalink to this definition">¶</a></dt>
+<dd><p>The probabilities of each initial state being chosen during a warping.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.boundary_conditions.receptor.ReceptorBC.ligand_idxs">
+<em class="property">property </em><code class="sig-name descname">ligand_idxs</code><a class="headerlink" href="#wepy.boundary_conditions.receptor.ReceptorBC.ligand_idxs" title="Permalink to this definition">¶</a></dt>
+<dd><p>The indices of the atom positions in the state considered the ligand.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.boundary_conditions.receptor.ReceptorBC.receptor_idxs">
+<em class="property">property </em><code class="sig-name descname">receptor_idxs</code><a class="headerlink" href="#wepy.boundary_conditions.receptor.ReceptorBC.receptor_idxs" title="Permalink to this definition">¶</a></dt>
+<dd><p>The indices of the atom positions in the state considered the receptor.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.boundary_conditions.receptor.ReceptorBC.warp_walkers">
+<code class="sig-name descname">warp_walkers</code><span class="sig-paren">(</span><em class="sig-param">walkers</em>, <em class="sig-param">cycle</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/boundary_conditions/receptor.html#ReceptorBC.warp_walkers"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.boundary_conditions.receptor.ReceptorBC.warp_walkers" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test the progress of all the walkers, warp if required, and update
+the boundary conditions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>walkers</strong> (<em>list of objects implementing the Walker interface</em>) – </p></li>
+<li><p><strong>cycle</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – The index of the cycle.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>new_walkers</strong> (<em>list of objects implementing the Walker interface</em>) – The new set of walkers that may have been warped.</p></li>
+<li><p><strong>warp_data</strong> (<em>list of dict of str : value</em>) – The dictionary-style records for WARPING update events</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>bc_data<span class="classifier">list of dict of str</span><span class="classifier">value</span></dt><dd><p>The dictionary-style records for BC update events</p>
+</dd>
+<dt>progress_data<span class="classifier">dict of str</span><span class="classifier">arraylike</span></dt><dd><p>The dictionary-style records for PROGRESS update events</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.boundary_conditions.receptor.ReceptorBC.warping_discontinuity">
+<em class="property">classmethod </em><code class="sig-name descname">warping_discontinuity</code><span class="sig-paren">(</span><em class="sig-param">warping_record</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/boundary_conditions/receptor.html#ReceptorBC.warping_discontinuity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.boundary_conditions.receptor.ReceptorBC.warping_discontinuity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Tests whether a warping record generated by this class is
+discontinuous or not.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>warping_record</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.8)"><em>tuple</em></a>) – The WARPING type record.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>is_discontinuous</strong> – True if a discontinuous warp False if continuous.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.boundary_conditions.receptor.ReceptorBC.WARPING_DTYPES">
+<code class="sig-name descname">WARPING_DTYPES</code><em class="property"> = (&lt;class 'int'&gt;, &lt;class 'int'&gt;, &lt;class 'float'&gt;)</em><a class="headerlink" href="#wepy.boundary_conditions.receptor.ReceptorBC.WARPING_DTYPES" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.boundary_conditions.receptor.ReceptorBC.WARPING_FIELDS">
+<code class="sig-name descname">WARPING_FIELDS</code><em class="property"> = ('walker_idx', 'target_idx', 'weight')</em><a class="headerlink" href="#wepy.boundary_conditions.receptor.ReceptorBC.WARPING_FIELDS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.boundary_conditions.receptor.ReceptorBC.WARPING_RECORD_FIELDS">
+<code class="sig-name descname">WARPING_RECORD_FIELDS</code><em class="property"> = ('walker_idx', 'target_idx', 'weight')</em><a class="headerlink" href="#wepy.boundary_conditions.receptor.ReceptorBC.WARPING_RECORD_FIELDS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.boundary_conditions.receptor.ReceptorBC.WARPING_SHAPES">
+<code class="sig-name descname">WARPING_SHAPES</code><em class="property"> = ((1,), (1,), (1,))</em><a class="headerlink" href="#wepy.boundary_conditions.receptor.ReceptorBC.WARPING_SHAPES" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wepy.boundary_conditions.receptor.ReceptorBC.bc_field_dtypes">
+<code class="sig-name descname">bc_field_dtypes</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.boundary_conditions.receptor.ReceptorBC.bc_field_dtypes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Access the class level DTYPES constant for this record group.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.boundary_conditions.receptor.ReceptorBC.bc_field_names">
+<code class="sig-name descname">bc_field_names</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.boundary_conditions.receptor.ReceptorBC.bc_field_names" title="Permalink to this definition">¶</a></dt>
+<dd><p>Access the class level FIELDS constant for this record group.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.boundary_conditions.receptor.ReceptorBC.bc_field_shapes">
+<code class="sig-name descname">bc_field_shapes</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.boundary_conditions.receptor.ReceptorBC.bc_field_shapes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Access the class level SHAPES constant for this record group.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.boundary_conditions.receptor.ReceptorBC.bc_fields">
+<code class="sig-name descname">bc_fields</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.boundary_conditions.receptor.ReceptorBC.bc_fields" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a list of zipped field specs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>record_specs</strong> – A list of the specs for each field, a spec is a tuple of
+type (field_name, shape_spec, dtype_spec)</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>list of tuple</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.boundary_conditions.receptor.ReceptorBC.bc_record_field_names">
+<code class="sig-name descname">bc_record_field_names</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.boundary_conditions.receptor.ReceptorBC.bc_record_field_names" title="Permalink to this definition">¶</a></dt>
+<dd><p>Access the class level RECORD_FIELDS constant for this record group.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.boundary_conditions.receptor.ReceptorBC.progress_field_dtypes">
+<code class="sig-name descname">progress_field_dtypes</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.boundary_conditions.receptor.ReceptorBC.progress_field_dtypes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Access the class level DTYPES constant for this record group.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.boundary_conditions.receptor.ReceptorBC.progress_field_names">
+<code class="sig-name descname">progress_field_names</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.boundary_conditions.receptor.ReceptorBC.progress_field_names" title="Permalink to this definition">¶</a></dt>
+<dd><p>Access the class level FIELDS constant for this record group.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.boundary_conditions.receptor.ReceptorBC.progress_field_shapes">
+<code class="sig-name descname">progress_field_shapes</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.boundary_conditions.receptor.ReceptorBC.progress_field_shapes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Access the class level SHAPES constant for this record group.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.boundary_conditions.receptor.ReceptorBC.progress_fields">
+<code class="sig-name descname">progress_fields</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.boundary_conditions.receptor.ReceptorBC.progress_fields" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a list of zipped field specs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>record_specs</strong> – A list of the specs for each field, a spec is a tuple of
+type (field_name, shape_spec, dtype_spec)</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>list of tuple</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.boundary_conditions.receptor.ReceptorBC.progress_record_field_names">
+<code class="sig-name descname">progress_record_field_names</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.boundary_conditions.receptor.ReceptorBC.progress_record_field_names" title="Permalink to this definition">¶</a></dt>
+<dd><p>Access the class level RECORD_FIELDS constant for this record group.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.boundary_conditions.receptor.ReceptorBC.warping_field_dtypes">
+<code class="sig-name descname">warping_field_dtypes</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.boundary_conditions.receptor.ReceptorBC.warping_field_dtypes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Access the class level DTYPES constant for this record group.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.boundary_conditions.receptor.ReceptorBC.warping_field_names">
+<code class="sig-name descname">warping_field_names</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.boundary_conditions.receptor.ReceptorBC.warping_field_names" title="Permalink to this definition">¶</a></dt>
+<dd><p>Access the class level FIELDS constant for this record group.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.boundary_conditions.receptor.ReceptorBC.warping_field_shapes">
+<code class="sig-name descname">warping_field_shapes</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.boundary_conditions.receptor.ReceptorBC.warping_field_shapes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Access the class level SHAPES constant for this record group.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.boundary_conditions.receptor.ReceptorBC.warping_fields">
+<code class="sig-name descname">warping_fields</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.boundary_conditions.receptor.ReceptorBC.warping_fields" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a list of zipped field specs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>record_specs</strong> – A list of the specs for each field, a spec is a tuple of
+type (field_name, shape_spec, dtype_spec)</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>list of tuple</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.boundary_conditions.receptor.ReceptorBC.warping_record_field_names">
+<code class="sig-name descname">warping_record_field_names</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.boundary_conditions.receptor.ReceptorBC.warping_record_field_names" title="Permalink to this definition">¶</a></dt>
+<dd><p>Access the class level RECORD_FIELDS constant for this record group.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="wepy.boundary_conditions.receptor.RebindingBC">
+<em class="property">class </em><code class="sig-prename descclassname">wepy.boundary_conditions.receptor.</code><code class="sig-name descname">RebindingBC</code><span class="sig-paren">(</span><em class="sig-param">native_state=None</em>, <em class="sig-param">cutoff_rmsd=0.2</em>, <em class="sig-param">initial_states=None</em>, <em class="sig-param">initial_weights=None</em>, <em class="sig-param">ligand_idxs=None</em>, <em class="sig-param">binding_site_idxs=None</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/boundary_conditions/receptor.html#RebindingBC"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.boundary_conditions.receptor.RebindingBC" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#wepy.boundary_conditions.receptor.ReceptorBC" title="wepy.boundary_conditions.receptor.ReceptorBC"><code class="xref py py-class docutils literal notranslate"><span class="pre">wepy.boundary_conditions.receptor.ReceptorBC</span></code></a></p>
+<p>Boundary condition for doing re-binding simulations of ligands to a
+receptor.</p>
+<p>Implements the ReceptorBC superclass.</p>
+<p>This boundary condition will warp walkers to a number of initial
+states whenever a walker becomes very close to the native (bound)
+state.</p>
+<p>Thus the choice of the ‘initial_states’ argument should be walkers
+which are completely unbound (the choice of which are weighted by
+‘initial_weight’) and the choice of ‘native_state’ should be of a
+ligand bound to the receptor, e.g. X-ray crystallography or docked
+structure.</p>
+<p>The cutoff for the boundary is an RMSD of the walker to the native
+state which is calculated by first aligning and superimposing the
+entire structure according the atom indices specified in
+‘binding_site_idxs’, and as the name suggests should correspond to
+some approximation of the binding site of the ligand that occurs
+in the native state. Then the raw RMSD of the native and walker
+ligands is calculated. If this RMSD is less than the ‘cutoff_rmsd’
+argument the walker is warped.</p>
+<p>PROGRESS is reported for each walker from this rmsd.</p>
+<p>The BC records are never updated.</p>
+<p>Constructor for RebindingBC.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>native_state</strong> (<em>object implementing the State interface</em>) – The reference bound state. Will be automatically centered.</p></li>
+<li><p><strong>cutoff_rmsd</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a>) – The cutoff RMSD for considering a walker bound.</p></li>
+<li><p><strong>initial_states</strong> (<em>list of objects implementing the State interface</em>) – The list of possible states that warped walkers will assume.</p></li>
+<li><p><strong>initial_weights</strong> (<em>list of float</em><em>, </em><em>optional</em>) – List of normalized probabilities of the initial_states
+provided. If not given, uniform probabilities will be
+used.</p></li>
+<li><p><strong>ligand_idxs</strong> (<em>arraylike of int</em>) – The indices of the atom positions in the state considered
+the ligand.</p></li>
+<li><p><strong>binding_site_idxs</strong> (<em>arraylike of int</em>) – The indices of the atom positions in the state considered
+the binding site.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#AssertionError" title="(in Python v3.8)"><strong>AssertionError</strong></a> – If any of the following kwargs are not given:
+    native_state, initial_states, ligand_idxs, receptor_idxs.</p>
+</dd>
+</dl>
+<dl class="attribute">
+<dt id="wepy.boundary_conditions.receptor.RebindingBC.BC_FIELDS">
+<code class="sig-name descname">BC_FIELDS</code><em class="property"> = ('native_rmsd_cutoff',)</em><a class="headerlink" href="#wepy.boundary_conditions.receptor.RebindingBC.BC_FIELDS" title="Permalink to this definition">¶</a></dt>
+<dd><p>The ‘native_rmsd_cutoff’ is the cutoff used to determine when
+walkers have re-bound to the receptor, which is defined as the
+RMSD of the ligand to the native ligand bound state, when the
+binding sites are aligned and superimposed.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.boundary_conditions.receptor.RebindingBC.BC_SHAPES">
+<code class="sig-name descname">BC_SHAPES</code><em class="property"> = ((1,),)</em><a class="headerlink" href="#wepy.boundary_conditions.receptor.RebindingBC.BC_SHAPES" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.boundary_conditions.receptor.RebindingBC.BC_DTYPES">
+<code class="sig-name descname">BC_DTYPES</code><em class="property"> = (&lt;class 'float'&gt;,)</em><a class="headerlink" href="#wepy.boundary_conditions.receptor.RebindingBC.BC_DTYPES" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.boundary_conditions.receptor.RebindingBC.BC_RECORD_FIELDS">
+<code class="sig-name descname">BC_RECORD_FIELDS</code><em class="property"> = ('native_rmsd_cutoff',)</em><a class="headerlink" href="#wepy.boundary_conditions.receptor.RebindingBC.BC_RECORD_FIELDS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.boundary_conditions.receptor.RebindingBC.WARPING_FIELDS">
+<code class="sig-name descname">WARPING_FIELDS</code><em class="property"> = ('walker_idx', 'target_idx', 'weight')</em><a class="headerlink" href="#wepy.boundary_conditions.receptor.RebindingBC.WARPING_FIELDS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.boundary_conditions.receptor.RebindingBC.WARPING_SHAPES">
+<code class="sig-name descname">WARPING_SHAPES</code><em class="property"> = ((1,), (1,), (1,))</em><a class="headerlink" href="#wepy.boundary_conditions.receptor.RebindingBC.WARPING_SHAPES" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.boundary_conditions.receptor.RebindingBC.WARPING_DTYPES">
+<code class="sig-name descname">WARPING_DTYPES</code><em class="property"> = (&lt;class 'int'&gt;, &lt;class 'int'&gt;, &lt;class 'float'&gt;)</em><a class="headerlink" href="#wepy.boundary_conditions.receptor.RebindingBC.WARPING_DTYPES" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.boundary_conditions.receptor.RebindingBC.WARPING_RECORD_FIELDS">
+<code class="sig-name descname">WARPING_RECORD_FIELDS</code><em class="property"> = ('walker_idx', 'target_idx', 'weight')</em><a class="headerlink" href="#wepy.boundary_conditions.receptor.RebindingBC.WARPING_RECORD_FIELDS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.boundary_conditions.receptor.RebindingBC.PROGRESS_FIELDS">
+<code class="sig-name descname">PROGRESS_FIELDS</code><em class="property"> = ('native_rmsd',)</em><a class="headerlink" href="#wepy.boundary_conditions.receptor.RebindingBC.PROGRESS_FIELDS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.boundary_conditions.receptor.RebindingBC.PROGRESS_SHAPES">
+<code class="sig-name descname">PROGRESS_SHAPES</code><em class="property"> = (Ellipsis,)</em><a class="headerlink" href="#wepy.boundary_conditions.receptor.RebindingBC.PROGRESS_SHAPES" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.boundary_conditions.receptor.RebindingBC.PROGRESS_DTYPES">
+<code class="sig-name descname">PROGRESS_DTYPES</code><em class="property"> = (&lt;class 'float'&gt;,)</em><a class="headerlink" href="#wepy.boundary_conditions.receptor.RebindingBC.PROGRESS_DTYPES" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.boundary_conditions.receptor.RebindingBC.PROGRESS_RECORD_FIELDS">
+<code class="sig-name descname">PROGRESS_RECORD_FIELDS</code><em class="property"> = ('native_rmsd',)</em><a class="headerlink" href="#wepy.boundary_conditions.receptor.RebindingBC.PROGRESS_RECORD_FIELDS" title="Permalink to this definition">¶</a></dt>
+<dd><p>Records for the state of this record group.</p>
+<p>The ‘native_rmsd’ is the is the RMSD of the ligand to the native
+ligand bound state, when the binding sites are aligned and
+superimposed.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.boundary_conditions.receptor.RebindingBC.native_state">
+<em class="property">property </em><code class="sig-name descname">native_state</code><a class="headerlink" href="#wepy.boundary_conditions.receptor.RebindingBC.native_state" title="Permalink to this definition">¶</a></dt>
+<dd><p>The reference bound state to which walkers are compared.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.boundary_conditions.receptor.RebindingBC.cutoff_rmsd">
+<em class="property">property </em><code class="sig-name descname">cutoff_rmsd</code><a class="headerlink" href="#wepy.boundary_conditions.receptor.RebindingBC.cutoff_rmsd" title="Permalink to this definition">¶</a></dt>
+<dd><p>The cutoff RMSD for considering a walker bound.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.boundary_conditions.receptor.RebindingBC.binding_site_idxs">
+<em class="property">property </em><code class="sig-name descname">binding_site_idxs</code><a class="headerlink" href="#wepy.boundary_conditions.receptor.RebindingBC.binding_site_idxs" title="Permalink to this definition">¶</a></dt>
+<dd><p>The indices of the atom positions in the state considered the binding site.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.boundary_conditions.receptor.RebindingBC.DISCONTINUITY_TARGET_IDXS">
+<code class="sig-name descname">DISCONTINUITY_TARGET_IDXS</code><em class="property"> = Ellipsis</em><a class="headerlink" href="#wepy.boundary_conditions.receptor.RebindingBC.DISCONTINUITY_TARGET_IDXS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wepy.boundary_conditions.receptor.RebindingBC.bc_field_dtypes">
+<code class="sig-name descname">bc_field_dtypes</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.boundary_conditions.receptor.RebindingBC.bc_field_dtypes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Access the class level DTYPES constant for this record group.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.boundary_conditions.receptor.RebindingBC.bc_field_names">
+<code class="sig-name descname">bc_field_names</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.boundary_conditions.receptor.RebindingBC.bc_field_names" title="Permalink to this definition">¶</a></dt>
+<dd><p>Access the class level FIELDS constant for this record group.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.boundary_conditions.receptor.RebindingBC.bc_field_shapes">
+<code class="sig-name descname">bc_field_shapes</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.boundary_conditions.receptor.RebindingBC.bc_field_shapes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Access the class level SHAPES constant for this record group.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.boundary_conditions.receptor.RebindingBC.bc_fields">
+<code class="sig-name descname">bc_fields</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.boundary_conditions.receptor.RebindingBC.bc_fields" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a list of zipped field specs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>record_specs</strong> – A list of the specs for each field, a spec is a tuple of
+type (field_name, shape_spec, dtype_spec)</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>list of tuple</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.boundary_conditions.receptor.RebindingBC.bc_record_field_names">
+<code class="sig-name descname">bc_record_field_names</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.boundary_conditions.receptor.RebindingBC.bc_record_field_names" title="Permalink to this definition">¶</a></dt>
+<dd><p>Access the class level RECORD_FIELDS constant for this record group.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.boundary_conditions.receptor.RebindingBC.initial_states">
+<em class="property">property </em><code class="sig-name descname">initial_states</code><a class="headerlink" href="#wepy.boundary_conditions.receptor.RebindingBC.initial_states" title="Permalink to this definition">¶</a></dt>
+<dd><p>The possible initial states warped walkers may assume.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.boundary_conditions.receptor.RebindingBC.initial_weights">
+<em class="property">property </em><code class="sig-name descname">initial_weights</code><a class="headerlink" href="#wepy.boundary_conditions.receptor.RebindingBC.initial_weights" title="Permalink to this definition">¶</a></dt>
+<dd><p>The probabilities of each initial state being chosen during a warping.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.boundary_conditions.receptor.RebindingBC.ligand_idxs">
+<em class="property">property </em><code class="sig-name descname">ligand_idxs</code><a class="headerlink" href="#wepy.boundary_conditions.receptor.RebindingBC.ligand_idxs" title="Permalink to this definition">¶</a></dt>
+<dd><p>The indices of the atom positions in the state considered the ligand.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.boundary_conditions.receptor.RebindingBC.progress_field_dtypes">
+<code class="sig-name descname">progress_field_dtypes</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.boundary_conditions.receptor.RebindingBC.progress_field_dtypes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Access the class level DTYPES constant for this record group.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.boundary_conditions.receptor.RebindingBC.progress_field_names">
+<code class="sig-name descname">progress_field_names</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.boundary_conditions.receptor.RebindingBC.progress_field_names" title="Permalink to this definition">¶</a></dt>
+<dd><p>Access the class level FIELDS constant for this record group.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.boundary_conditions.receptor.RebindingBC.progress_field_shapes">
+<code class="sig-name descname">progress_field_shapes</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.boundary_conditions.receptor.RebindingBC.progress_field_shapes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Access the class level SHAPES constant for this record group.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.boundary_conditions.receptor.RebindingBC.progress_fields">
+<code class="sig-name descname">progress_fields</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.boundary_conditions.receptor.RebindingBC.progress_fields" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a list of zipped field specs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>record_specs</strong> – A list of the specs for each field, a spec is a tuple of
+type (field_name, shape_spec, dtype_spec)</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>list of tuple</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.boundary_conditions.receptor.RebindingBC.progress_record_field_names">
+<code class="sig-name descname">progress_record_field_names</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.boundary_conditions.receptor.RebindingBC.progress_record_field_names" title="Permalink to this definition">¶</a></dt>
+<dd><p>Access the class level RECORD_FIELDS constant for this record group.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.boundary_conditions.receptor.RebindingBC.receptor_idxs">
+<em class="property">property </em><code class="sig-name descname">receptor_idxs</code><a class="headerlink" href="#wepy.boundary_conditions.receptor.RebindingBC.receptor_idxs" title="Permalink to this definition">¶</a></dt>
+<dd><p>The indices of the atom positions in the state considered the receptor.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.boundary_conditions.receptor.RebindingBC.warp_walkers">
+<code class="sig-name descname">warp_walkers</code><span class="sig-paren">(</span><em class="sig-param">walkers</em>, <em class="sig-param">cycle</em><span class="sig-paren">)</span><a class="headerlink" href="#wepy.boundary_conditions.receptor.RebindingBC.warp_walkers" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test the progress of all the walkers, warp if required, and update
+the boundary conditions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>walkers</strong> (<em>list of objects implementing the Walker interface</em>) – </p></li>
+<li><p><strong>cycle</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – The index of the cycle.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>new_walkers</strong> (<em>list of objects implementing the Walker interface</em>) – The new set of walkers that may have been warped.</p></li>
+<li><p><strong>warp_data</strong> (<em>list of dict of str : value</em>) – The dictionary-style records for WARPING update events</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>bc_data<span class="classifier">list of dict of str</span><span class="classifier">value</span></dt><dd><p>The dictionary-style records for BC update events</p>
+</dd>
+<dt>progress_data<span class="classifier">dict of str</span><span class="classifier">arraylike</span></dt><dd><p>The dictionary-style records for PROGRESS update events</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.boundary_conditions.receptor.RebindingBC.warping_discontinuity">
+<em class="property">classmethod </em><code class="sig-name descname">warping_discontinuity</code><span class="sig-paren">(</span><em class="sig-param">warping_record</em><span class="sig-paren">)</span><a class="headerlink" href="#wepy.boundary_conditions.receptor.RebindingBC.warping_discontinuity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Tests whether a warping record generated by this class is
+discontinuous or not.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>warping_record</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.8)"><em>tuple</em></a>) – The WARPING type record.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>is_discontinuous</strong> – True if a discontinuous warp False if continuous.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.boundary_conditions.receptor.RebindingBC.warping_field_dtypes">
+<code class="sig-name descname">warping_field_dtypes</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.boundary_conditions.receptor.RebindingBC.warping_field_dtypes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Access the class level DTYPES constant for this record group.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.boundary_conditions.receptor.RebindingBC.warping_field_names">
+<code class="sig-name descname">warping_field_names</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.boundary_conditions.receptor.RebindingBC.warping_field_names" title="Permalink to this definition">¶</a></dt>
+<dd><p>Access the class level FIELDS constant for this record group.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.boundary_conditions.receptor.RebindingBC.warping_field_shapes">
+<code class="sig-name descname">warping_field_shapes</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.boundary_conditions.receptor.RebindingBC.warping_field_shapes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Access the class level SHAPES constant for this record group.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.boundary_conditions.receptor.RebindingBC.warping_fields">
+<code class="sig-name descname">warping_fields</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.boundary_conditions.receptor.RebindingBC.warping_fields" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a list of zipped field specs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>record_specs</strong> – A list of the specs for each field, a spec is a tuple of
+type (field_name, shape_spec, dtype_spec)</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>list of tuple</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.boundary_conditions.receptor.RebindingBC.warping_record_field_names">
+<code class="sig-name descname">warping_record_field_names</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.boundary_conditions.receptor.RebindingBC.warping_record_field_names" title="Permalink to this definition">¶</a></dt>
+<dd><p>Access the class level RECORD_FIELDS constant for this record group.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="wepy.boundary_conditions.receptor.UnbindingBC">
+<em class="property">class </em><code class="sig-prename descclassname">wepy.boundary_conditions.receptor.</code><code class="sig-name descname">UnbindingBC</code><span class="sig-paren">(</span><em class="sig-param">initial_state=None</em>, <em class="sig-param">cutoff_distance=1.0</em>, <em class="sig-param">topology=None</em>, <em class="sig-param">ligand_idxs=None</em>, <em class="sig-param">receptor_idxs=None</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/boundary_conditions/receptor.html#UnbindingBC"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.boundary_conditions.receptor.UnbindingBC" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#wepy.boundary_conditions.receptor.ReceptorBC" title="wepy.boundary_conditions.receptor.ReceptorBC"><code class="xref py py-class docutils literal notranslate"><span class="pre">wepy.boundary_conditions.receptor.ReceptorBC</span></code></a></p>
+<p>Boundary condition for ligand unbinding.</p>
+<p>Walkers will be warped (discontinuously) if all atoms in the
+ligand are at least a certain distance away from the atoms in the
+receptor (i.e. the min-min of ligand-receptor distances &gt; cutoff).</p>
+<p>Warping will replace the walker state with the initial state given
+as a parameter to this class.</p>
+<p>Also reports on the progress of that min-min for each walker.</p>
+<p>Constructor for UnbindingBC class.</p>
+<p>All the key-word arguments are necessary.</p>
+<p>The ‘initial_state’ should be the initial state of your
+simulation for proper non-equilibrium simulations.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>initial_state</strong> (<em>object implementing State interface</em>) – The state walkers will take on after unbinding.</p></li>
+<li><p><strong>cutoff_distance</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a>) – The distance that specifies the boundary condition. When
+the min-min ligand-receptor distance is less than this it
+will be warped.</p></li>
+<li><p><strong>topology</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – A JSON string of topology.</p></li>
+<li><p><strong>ligand_idxs</strong> (<em>list of int</em>) – Indices of the atoms in the topology that correspond to the ligands.</p></li>
+<li><p><strong>receptor_idxs</strong> (<em>list of int</em>) – Indices of the atoms in the topology that correspond to the
+receptor for the ligand.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#AssertionError" title="(in Python v3.8)"><strong>AssertionError</strong></a> – If any of the following are not provided: initial_state, topology,
+    ligand_idxs, receptor_idxs</p></li>
+<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#AssertionError" title="(in Python v3.8)"><strong>AssertionError</strong></a> – If the cutoff distance is not a float.</p></li>
+</ul>
+</dd>
+</dl>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>The ‘initial_state’ should be the initial state of your
+simulation for proper non-equilibrium simulations.</p>
+</div>
+<p class="rubric">Notes</p>
+<p>The topology argument is necessary due to an implementation
+detail that uses mdtraj and may not be required in the future.</p>
+<dl class="attribute">
+<dt id="wepy.boundary_conditions.receptor.UnbindingBC.BC_FIELDS">
+<code class="sig-name descname">BC_FIELDS</code><em class="property"> = ('boundary_distance',)</em><a class="headerlink" href="#wepy.boundary_conditions.receptor.UnbindingBC.BC_FIELDS" title="Permalink to this definition">¶</a></dt>
+<dd><p>Only occurs at the start of the simulation and just reports on the
+min-min cutoff distance.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.boundary_conditions.receptor.UnbindingBC.BC_SHAPES">
+<code class="sig-name descname">BC_SHAPES</code><em class="property"> = ((1,),)</em><a class="headerlink" href="#wepy.boundary_conditions.receptor.UnbindingBC.BC_SHAPES" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.boundary_conditions.receptor.UnbindingBC.BC_DTYPES">
+<code class="sig-name descname">BC_DTYPES</code><em class="property"> = (&lt;class 'float'&gt;,)</em><a class="headerlink" href="#wepy.boundary_conditions.receptor.UnbindingBC.BC_DTYPES" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.boundary_conditions.receptor.UnbindingBC.BC_RECORD_FIELDS">
+<code class="sig-name descname">BC_RECORD_FIELDS</code><em class="property"> = ('boundary_distance',)</em><a class="headerlink" href="#wepy.boundary_conditions.receptor.UnbindingBC.BC_RECORD_FIELDS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.boundary_conditions.receptor.UnbindingBC.WARPING_FIELDS">
+<code class="sig-name descname">WARPING_FIELDS</code><em class="property"> = ('walker_idx', 'target_idx', 'weight')</em><a class="headerlink" href="#wepy.boundary_conditions.receptor.UnbindingBC.WARPING_FIELDS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.boundary_conditions.receptor.UnbindingBC.WARPING_SHAPES">
+<code class="sig-name descname">WARPING_SHAPES</code><em class="property"> = ((1,), (1,), (1,))</em><a class="headerlink" href="#wepy.boundary_conditions.receptor.UnbindingBC.WARPING_SHAPES" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.boundary_conditions.receptor.UnbindingBC.WARPING_DTYPES">
+<code class="sig-name descname">WARPING_DTYPES</code><em class="property"> = (&lt;class 'int'&gt;, &lt;class 'int'&gt;, &lt;class 'float'&gt;)</em><a class="headerlink" href="#wepy.boundary_conditions.receptor.UnbindingBC.WARPING_DTYPES" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.boundary_conditions.receptor.UnbindingBC.WARPING_RECORD_FIELDS">
+<code class="sig-name descname">WARPING_RECORD_FIELDS</code><em class="property"> = ('walker_idx', 'target_idx', 'weight')</em><a class="headerlink" href="#wepy.boundary_conditions.receptor.UnbindingBC.WARPING_RECORD_FIELDS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.boundary_conditions.receptor.UnbindingBC.PROGRESS_FIELDS">
+<code class="sig-name descname">PROGRESS_FIELDS</code><em class="property"> = ('min_distances',)</em><a class="headerlink" href="#wepy.boundary_conditions.receptor.UnbindingBC.PROGRESS_FIELDS" title="Permalink to this definition">¶</a></dt>
+<dd><p>The ‘min_distances’ field reports on the min-min ligand-receptor
+distance for each walker.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.boundary_conditions.receptor.UnbindingBC.PROGRESS_SHAPES">
+<code class="sig-name descname">PROGRESS_SHAPES</code><em class="property"> = (Ellipsis,)</em><a class="headerlink" href="#wepy.boundary_conditions.receptor.UnbindingBC.PROGRESS_SHAPES" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.boundary_conditions.receptor.UnbindingBC.PROGRESS_DTYPES">
+<code class="sig-name descname">PROGRESS_DTYPES</code><em class="property"> = (&lt;class 'float'&gt;,)</em><a class="headerlink" href="#wepy.boundary_conditions.receptor.UnbindingBC.PROGRESS_DTYPES" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.boundary_conditions.receptor.UnbindingBC.PROGRESS_RECORD_FIELDS">
+<code class="sig-name descname">PROGRESS_RECORD_FIELDS</code><em class="property"> = ('min_distances',)</em><a class="headerlink" href="#wepy.boundary_conditions.receptor.UnbindingBC.PROGRESS_RECORD_FIELDS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.boundary_conditions.receptor.UnbindingBC.DISCONTINUITY_TARGET_IDXS">
+<code class="sig-name descname">DISCONTINUITY_TARGET_IDXS</code><em class="property"> = Ellipsis</em><a class="headerlink" href="#wepy.boundary_conditions.receptor.UnbindingBC.DISCONTINUITY_TARGET_IDXS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wepy.boundary_conditions.receptor.UnbindingBC.bc_field_dtypes">
+<code class="sig-name descname">bc_field_dtypes</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.boundary_conditions.receptor.UnbindingBC.bc_field_dtypes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Access the class level DTYPES constant for this record group.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.boundary_conditions.receptor.UnbindingBC.bc_field_names">
+<code class="sig-name descname">bc_field_names</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.boundary_conditions.receptor.UnbindingBC.bc_field_names" title="Permalink to this definition">¶</a></dt>
+<dd><p>Access the class level FIELDS constant for this record group.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.boundary_conditions.receptor.UnbindingBC.bc_field_shapes">
+<code class="sig-name descname">bc_field_shapes</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.boundary_conditions.receptor.UnbindingBC.bc_field_shapes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Access the class level SHAPES constant for this record group.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.boundary_conditions.receptor.UnbindingBC.bc_fields">
+<code class="sig-name descname">bc_fields</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.boundary_conditions.receptor.UnbindingBC.bc_fields" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a list of zipped field specs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>record_specs</strong> – A list of the specs for each field, a spec is a tuple of
+type (field_name, shape_spec, dtype_spec)</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>list of tuple</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.boundary_conditions.receptor.UnbindingBC.bc_record_field_names">
+<code class="sig-name descname">bc_record_field_names</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.boundary_conditions.receptor.UnbindingBC.bc_record_field_names" title="Permalink to this definition">¶</a></dt>
+<dd><p>Access the class level RECORD_FIELDS constant for this record group.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.boundary_conditions.receptor.UnbindingBC.initial_states">
+<em class="property">property </em><code class="sig-name descname">initial_states</code><a class="headerlink" href="#wepy.boundary_conditions.receptor.UnbindingBC.initial_states" title="Permalink to this definition">¶</a></dt>
+<dd><p>The possible initial states warped walkers may assume.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.boundary_conditions.receptor.UnbindingBC.initial_weights">
+<em class="property">property </em><code class="sig-name descname">initial_weights</code><a class="headerlink" href="#wepy.boundary_conditions.receptor.UnbindingBC.initial_weights" title="Permalink to this definition">¶</a></dt>
+<dd><p>The probabilities of each initial state being chosen during a warping.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.boundary_conditions.receptor.UnbindingBC.ligand_idxs">
+<em class="property">property </em><code class="sig-name descname">ligand_idxs</code><a class="headerlink" href="#wepy.boundary_conditions.receptor.UnbindingBC.ligand_idxs" title="Permalink to this definition">¶</a></dt>
+<dd><p>The indices of the atom positions in the state considered the ligand.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.boundary_conditions.receptor.UnbindingBC.progress_field_dtypes">
+<code class="sig-name descname">progress_field_dtypes</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.boundary_conditions.receptor.UnbindingBC.progress_field_dtypes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Access the class level DTYPES constant for this record group.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.boundary_conditions.receptor.UnbindingBC.progress_field_names">
+<code class="sig-name descname">progress_field_names</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.boundary_conditions.receptor.UnbindingBC.progress_field_names" title="Permalink to this definition">¶</a></dt>
+<dd><p>Access the class level FIELDS constant for this record group.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.boundary_conditions.receptor.UnbindingBC.progress_field_shapes">
+<code class="sig-name descname">progress_field_shapes</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.boundary_conditions.receptor.UnbindingBC.progress_field_shapes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Access the class level SHAPES constant for this record group.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.boundary_conditions.receptor.UnbindingBC.progress_fields">
+<code class="sig-name descname">progress_fields</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.boundary_conditions.receptor.UnbindingBC.progress_fields" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a list of zipped field specs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>record_specs</strong> – A list of the specs for each field, a spec is a tuple of
+type (field_name, shape_spec, dtype_spec)</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>list of tuple</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.boundary_conditions.receptor.UnbindingBC.progress_record_field_names">
+<code class="sig-name descname">progress_record_field_names</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.boundary_conditions.receptor.UnbindingBC.progress_record_field_names" title="Permalink to this definition">¶</a></dt>
+<dd><p>Access the class level RECORD_FIELDS constant for this record group.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.boundary_conditions.receptor.UnbindingBC.receptor_idxs">
+<em class="property">property </em><code class="sig-name descname">receptor_idxs</code><a class="headerlink" href="#wepy.boundary_conditions.receptor.UnbindingBC.receptor_idxs" title="Permalink to this definition">¶</a></dt>
+<dd><p>The indices of the atom positions in the state considered the receptor.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.boundary_conditions.receptor.UnbindingBC.warp_walkers">
+<code class="sig-name descname">warp_walkers</code><span class="sig-paren">(</span><em class="sig-param">walkers</em>, <em class="sig-param">cycle</em><span class="sig-paren">)</span><a class="headerlink" href="#wepy.boundary_conditions.receptor.UnbindingBC.warp_walkers" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test the progress of all the walkers, warp if required, and update
+the boundary conditions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>walkers</strong> (<em>list of objects implementing the Walker interface</em>) – </p></li>
+<li><p><strong>cycle</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – The index of the cycle.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>new_walkers</strong> (<em>list of objects implementing the Walker interface</em>) – The new set of walkers that may have been warped.</p></li>
+<li><p><strong>warp_data</strong> (<em>list of dict of str : value</em>) – The dictionary-style records for WARPING update events</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>bc_data<span class="classifier">list of dict of str</span><span class="classifier">value</span></dt><dd><p>The dictionary-style records for BC update events</p>
+</dd>
+<dt>progress_data<span class="classifier">dict of str</span><span class="classifier">arraylike</span></dt><dd><p>The dictionary-style records for PROGRESS update events</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.boundary_conditions.receptor.UnbindingBC.warping_discontinuity">
+<em class="property">classmethod </em><code class="sig-name descname">warping_discontinuity</code><span class="sig-paren">(</span><em class="sig-param">warping_record</em><span class="sig-paren">)</span><a class="headerlink" href="#wepy.boundary_conditions.receptor.UnbindingBC.warping_discontinuity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Tests whether a warping record generated by this class is
+discontinuous or not.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>warping_record</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.8)"><em>tuple</em></a>) – The WARPING type record.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>is_discontinuous</strong> – True if a discontinuous warp False if continuous.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.boundary_conditions.receptor.UnbindingBC.warping_field_dtypes">
+<code class="sig-name descname">warping_field_dtypes</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.boundary_conditions.receptor.UnbindingBC.warping_field_dtypes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Access the class level DTYPES constant for this record group.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.boundary_conditions.receptor.UnbindingBC.warping_field_names">
+<code class="sig-name descname">warping_field_names</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.boundary_conditions.receptor.UnbindingBC.warping_field_names" title="Permalink to this definition">¶</a></dt>
+<dd><p>Access the class level FIELDS constant for this record group.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.boundary_conditions.receptor.UnbindingBC.warping_field_shapes">
+<code class="sig-name descname">warping_field_shapes</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.boundary_conditions.receptor.UnbindingBC.warping_field_shapes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Access the class level SHAPES constant for this record group.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.boundary_conditions.receptor.UnbindingBC.warping_fields">
+<code class="sig-name descname">warping_fields</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.boundary_conditions.receptor.UnbindingBC.warping_fields" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a list of zipped field specs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>record_specs</strong> – A list of the specs for each field, a spec is a tuple of
+type (field_name, shape_spec, dtype_spec)</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>list of tuple</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.boundary_conditions.receptor.UnbindingBC.warping_record_field_names">
+<code class="sig-name descname">warping_record_field_names</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.boundary_conditions.receptor.UnbindingBC.warping_record_field_names" title="Permalink to this definition">¶</a></dt>
+<dd><p>Access the class level RECORD_FIELDS constant for this record group.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.boundary_conditions.receptor.UnbindingBC.cutoff_distance">
+<em class="property">property </em><code class="sig-name descname">cutoff_distance</code><a class="headerlink" href="#wepy.boundary_conditions.receptor.UnbindingBC.cutoff_distance" title="Permalink to this definition">¶</a></dt>
+<dd><p>The distance a ligand must be to be unbound.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.boundary_conditions.receptor.UnbindingBC.topology">
+<em class="property">property </em><code class="sig-name descname">topology</code><a class="headerlink" href="#wepy.boundary_conditions.receptor.UnbindingBC.topology" title="Permalink to this definition">¶</a></dt>
+<dd><p>JSON string topology of the system.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+            
+  <div class="footer-relations">
+    
+      <div class="pull-left">
+        <a class="btn btn-default" href="wepy.boundary_conditions.boundary.html" title="previous chapter (use the left arrow)">wepy.boundary_conditions.boundary module</a>
+      </div>
+    
+      <div class="pull-right">
+        <a class="btn btn-default" href="wepy.boundary_conditions.unbinding.html" title="next chapter (use the right arrow)">wepy.boundary_conditions.unbinding module</a>
+      </div>
+    </div>
+    <div class="clearer"></div>
+  
+        </div>
+        <div class="clearfix"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="wepy.boundary_conditions.unbinding.html" title="wepy.boundary_conditions.unbinding module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="wepy.boundary_conditions.boundary.html" title="wepy.boundary_conditions.boundary module"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">wepy  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >wepy</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="wepy.html" >wepy package</a> &#187;</li>
+          <li class="nav-item nav-item-3"><a href="wepy.boundary_conditions.html" >wepy.boundary_conditions package</a> &#187;</li> 
+      </ul>
+    </div>
+<script type="text/javascript">
+  $("#mobile-toggle a").click(function () {
+    $("#left-column").toggle();
+  });
+</script>
+<script type="text/javascript" src="../_static/js/bootstrap.js"></script>
+  <div class="footer">
+    &copy; Copyright 2018, Samuel D. Lotz. Created using <a href="http://sphinx.pocoo.org/">Sphinx</a>.
+  </div>
+  </body>
+</html>

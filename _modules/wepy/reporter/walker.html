@@ -1,0 +1,266 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+  
+  <!-- Licensed under the Apache 2.0 License -->
+  <link rel="stylesheet" type="text/css" href="../../../_static/fonts/open-sans/stylesheet.css" />
+  <!-- Licensed under the SIL Open Font License -->
+  <link rel="stylesheet" type="text/css" href="../../../_static/fonts/source-serif-pro/source-serif-pro.css" />
+  <link rel="stylesheet" type="text/css" href="../../../_static/css/bootstrap.min.css" />
+  <link rel="stylesheet" type="text/css" href="../../../_static/css/bootstrap-theme.min.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+    <title>wepy.reporter.walker &#8212; wepy  documentation</title>
+    <link rel="stylesheet" href="../../../_static/guzzle.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../../_static/language_data.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+  
+   
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">wepy  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="container-wrapper">
+
+      <div id="mobile-toggle">
+        <a href="#"><span class="glyphicon glyphicon-align-justify" aria-hidden="true"></span></a>
+      </div>
+  <div id="left-column">
+    <div class="sphinxsidebar">
+<div class="sidebar-block">
+  <div class="sidebar-wrapper">
+    <div id="main-search">
+      <form class="form-inline" action="../../../search.html" method="GET" role="form">
+        <div class="input-group">
+          <input name="q" type="text" class="form-control" placeholder="Search...">
+        </div>
+        <input type="hidden" name="check_keywords" value="yes" />
+        <input type="hidden" name="area" value="default" />
+      </form>
+    </div>
+  </div>
+</div>
+      
+    </div>
+  </div>
+        <div id="right-column">
+          
+          <div role="navigation" aria-label="breadcrumbs navigation">
+            <ol class="breadcrumb">
+              <li><a href="../../../index.html">Docs</a></li>
+              
+                <li><a href="../../index.html">Module code</a></li>
+              
+              <li>wepy.reporter.walker</li>
+            </ol>
+          </div>
+          
+          <div class="document clearer body">
+            
+  <h1>Source code for wepy.reporter.walker</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Provides a reporter for generating 3D molecular structure files for</span>
+<span class="sd">walkers.</span>
+
+<span class="sd">This is useful for getting a snapshot of what is happening in the</span>
+<span class="sd">simulation as it progresses.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">logging</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">wepy.reporter.reporter</span> <span class="k">import</span> <span class="n">ProgressiveFileReporter</span>
+<span class="kn">from</span> <span class="nn">wepy.util.util</span> <span class="k">import</span> <span class="n">box_vectors_to_lengths_angles</span><span class="p">,</span> <span class="n">traj_box_vectors_to_lengths_angles</span>
+<span class="kn">from</span> <span class="nn">wepy.util.json_top</span> <span class="k">import</span> <span class="n">json_top_subset</span>
+<span class="kn">from</span> <span class="nn">wepy.util.mdtraj</span> <span class="k">import</span> <span class="n">json_to_mdtraj_topology</span><span class="p">,</span> <span class="n">mdtraj_to_json_topology</span>
+
+<span class="kn">import</span> <span class="nn">mdtraj</span> <span class="k">as</span> <span class="nn">mdj</span>
+
+<div class="viewcode-block" id="WalkerReporter"><a class="viewcode-back" href="../../../api/wepy.reporter.walker.html#wepy.reporter.walker.WalkerReporter">[docs]</a><span class="k">class</span> <span class="nc">WalkerReporter</span><span class="p">(</span><span class="n">ProgressiveFileReporter</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Reporter for generating 3D molecular structure files of the walkers</span>
+<span class="sd">    produced by a cycle.</span>
+
+<span class="sd">    It generates two different files using the mdtraj library: a PDB</span>
+<span class="sd">    format and a DCD file.</span>
+
+<span class="sd">    The PDB is used as a &quot;topology&quot; that is only generated once at the</span>
+<span class="sd">    beginning of a simulation (in the call to the &#39;init&#39; method). This</span>
+<span class="sd">    defines the atom types and bonds for non-protein molecules. Most</span>
+<span class="sd">    molecular viewers have special algorithms that automatically</span>
+<span class="sd">    determine bond topologies from amino acid residue designations.</span>
+
+<span class="sd">    The DCD is a binary format that carries only information about the</span>
+<span class="sd">    positions of atoms (essentially a (N_frames, N_atoms, 3) array)</span>
+<span class="sd">    that is recognized by many different molecular viewer</span>
+<span class="sd">    software. This is generated every cycle and the number of frames</span>
+<span class="sd">    is the number of walkers.</span>
+
+<span class="sd">    Because this representation is meant to be amenable to visual</span>
+<span class="sd">    inspection, there is functionality for subsetting atoms from the</span>
+<span class="sd">    full simulation system (i.e. to remove solvent).</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+
+    <span class="c1"># the order the files are in</span>
+    <span class="n">FILE_ORDER</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;init_state_path&#39;</span><span class="p">,</span> <span class="s1">&#39;walker_path&#39;</span><span class="p">)</span>
+
+    <span class="c1"># the extnesions that will be used in orchestration</span>
+    <span class="n">SUGGESTED_EXTENSIONS</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;init_top.pdb&#39;</span><span class="p">,</span> <span class="s1">&#39;walkers.dcd&#39;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span>
+                 <span class="n">init_state</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">json_topology</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">main_rep_idxs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Constructor for the WalkerReporter.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        init_state : object implementing WalkerState</span>
+<span class="sd">            An initial state, only used for writing the PDB topology.</span>
+
+<span class="sd">        json_topology : str</span>
+<span class="sd">            A molecular topology in the common JSON format, that</span>
+<span class="sd">            matches the main_rep_idxs.</span>
+
+<span class="sd">        main_rep_idxs : listlike of int</span>
+<span class="sd">            The indices of the atoms to select from the full representation.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="k">assert</span> <span class="n">json_topology</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;must give a JSON format topology&quot;</span>
+        <span class="k">assert</span> <span class="n">init_state</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;must give an init state for the topology PDB&quot;</span>
+
+        <span class="c1"># if the main rep indices were not given infer them as all of the atoms</span>
+        <span class="k">if</span> <span class="n">main_rep_idxs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">main_rep_idxs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">init_state</span><span class="p">[</span><span class="s1">&#39;positions&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">main_rep_idxs</span> <span class="o">=</span> <span class="n">main_rep_idxs</span>
+
+        <span class="c1"># take a subset of the topology using the main rep atom idxs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">json_main_rep_top</span> <span class="o">=</span> <span class="n">json_top_subset</span><span class="p">(</span><span class="n">json_topology</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">main_rep_idxs</span><span class="p">)</span>
+
+        <span class="c1"># get the main rep idxs only</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">init_main_rep_positions</span> <span class="o">=</span> <span class="n">init_state</span><span class="p">[</span><span class="s1">&#39;positions&#39;</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">main_rep_idxs</span><span class="p">]</span>
+
+        <span class="c1"># convert the box vectors</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">init_unitcell_lengths</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">init_unitcell_angles</span> <span class="o">=</span> <span class="n">box_vectors_to_lengths_angles</span><span class="p">(</span>
+                                                                       <span class="n">init_state</span><span class="p">[</span><span class="s1">&#39;box_vectors&#39;</span><span class="p">])</span>
+
+
+<div class="viewcode-block" id="WalkerReporter.init"><a class="viewcode-back" href="../../../api/wepy.reporter.walker.html#wepy.reporter.walker.WalkerReporter.init">[docs]</a>    <span class="k">def</span> <span class="nf">init</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initialize the reporter at simulation time.</span>
+
+<span class="sd">        This will generate the initial state PDB file.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">init</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="c1"># load the json topology as an mdtraj one</span>
+        <span class="n">mdtraj_top</span> <span class="o">=</span> <span class="n">json_to_mdtraj_topology</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">json_main_rep_top</span><span class="p">)</span>
+
+        <span class="c1"># make a traj for the initial state to use as a topology for</span>
+        <span class="c1"># visualizing the walkers</span>
+        <span class="n">init_traj</span> <span class="o">=</span> <span class="n">mdj</span><span class="o">.</span><span class="n">Trajectory</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">init_main_rep_positions</span><span class="p">],</span>
+                                   <span class="n">unitcell_lengths</span><span class="o">=</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">init_unitcell_lengths</span><span class="p">],</span>
+                                   <span class="n">unitcell_angles</span><span class="o">=</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">init_unitcell_angles</span><span class="p">],</span>
+                                   <span class="n">topology</span><span class="o">=</span><span class="n">mdtraj_top</span><span class="p">)</span>
+
+        <span class="c1"># write out the init traj as a pdb</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Writing initial state to </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">init_state_path</span><span class="p">))</span>
+        <span class="n">init_traj</span><span class="o">.</span><span class="n">save_pdb</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">init_state_path</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="WalkerReporter.report"><a class="viewcode-back" href="../../../api/wepy.reporter.walker.html#wepy.reporter.walker.WalkerReporter.report">[docs]</a>    <span class="k">def</span> <span class="nf">report</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cycle_idx</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">new_walkers</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+               <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Report the current cycle&#39;s walker states as 3D molecular</span>
+<span class="sd">        structures.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        cycle_idx : int</span>
+
+<span class="sd">        new_walkers : list of Walker objects</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># load the json topology as an mdtraj one</span>
+        <span class="n">mdtraj_top</span> <span class="o">=</span> <span class="n">json_to_mdtraj_topology</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">json_main_rep_top</span><span class="p">)</span>
+
+        <span class="c1"># slice off the main_rep indices because that is all we want</span>
+        <span class="c1"># to write for these</span>
+        <span class="n">main_rep_positions</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">walker</span><span class="o">.</span><span class="n">state</span><span class="p">[</span><span class="s1">&#39;positions&#39;</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">main_rep_idxs</span><span class="p">]</span>
+                                       <span class="k">for</span> <span class="n">walker</span> <span class="ow">in</span> <span class="n">new_walkers</span><span class="p">])</span>
+
+        <span class="c1"># convert the box vectors</span>
+        <span class="n">unitcell_lengths</span><span class="p">,</span> <span class="n">unitcell_angles</span> <span class="o">=</span> <span class="n">traj_box_vectors_to_lengths_angles</span><span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">walker</span><span class="o">.</span><span class="n">state</span><span class="p">[</span><span class="s1">&#39;box_vectors&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">walker</span> <span class="ow">in</span> <span class="n">new_walkers</span><span class="p">]))</span>
+
+        <span class="c1"># make a trajectory from these walkers</span>
+        <span class="n">traj</span> <span class="o">=</span> <span class="n">mdj</span><span class="o">.</span><span class="n">Trajectory</span><span class="p">(</span><span class="n">main_rep_positions</span><span class="p">,</span>
+                              <span class="n">unitcell_lengths</span><span class="o">=</span><span class="n">unitcell_lengths</span><span class="p">,</span>
+                              <span class="n">unitcell_angles</span><span class="o">=</span><span class="n">unitcell_angles</span><span class="p">,</span>
+                              <span class="n">topology</span><span class="o">=</span><span class="n">mdtraj_top</span><span class="p">)</span>
+
+
+        <span class="c1"># write to the file for this trajectory</span>
+        <span class="n">traj</span><span class="o">.</span><span class="n">save_dcd</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">walker_path</span><span class="p">)</span></div></div>
+</pre></div>
+
+          </div>
+            
+        </div>
+        <div class="clearfix"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">wepy  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+<script type="text/javascript">
+  $("#mobile-toggle a").click(function () {
+    $("#left-column").toggle();
+  });
+</script>
+<script type="text/javascript" src="../../../_static/js/bootstrap.js"></script>
+  <div class="footer">
+    &copy; Copyright 2018, Samuel D. Lotz. Created using <a href="http://sphinx.pocoo.org/">Sphinx</a>.
+  </div>
+  </body>
+</html>

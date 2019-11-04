@@ -1,0 +1,705 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+  
+  <!-- Licensed under the Apache 2.0 License -->
+  <link rel="stylesheet" type="text/css" href="../../../../_static/fonts/open-sans/stylesheet.css" />
+  <!-- Licensed under the SIL Open Font License -->
+  <link rel="stylesheet" type="text/css" href="../../../../_static/fonts/source-serif-pro/source-serif-pro.css" />
+  <link rel="stylesheet" type="text/css" href="../../../../_static/css/bootstrap.min.css" />
+  <link rel="stylesheet" type="text/css" href="../../../../_static/css/bootstrap-theme.min.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+    <title>wepy.resampling.resamplers.revo &#8212; wepy  documentation</title>
+    <link rel="stylesheet" href="../../../../_static/guzzle.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../../../_static/language_data.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+  
+   
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">wepy  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="container-wrapper">
+
+      <div id="mobile-toggle">
+        <a href="#"><span class="glyphicon glyphicon-align-justify" aria-hidden="true"></span></a>
+      </div>
+  <div id="left-column">
+    <div class="sphinxsidebar">
+<div class="sidebar-block">
+  <div class="sidebar-wrapper">
+    <div id="main-search">
+      <form class="form-inline" action="../../../../search.html" method="GET" role="form">
+        <div class="input-group">
+          <input name="q" type="text" class="form-control" placeholder="Search...">
+        </div>
+        <input type="hidden" name="check_keywords" value="yes" />
+        <input type="hidden" name="area" value="default" />
+      </form>
+    </div>
+  </div>
+</div>
+      
+    </div>
+  </div>
+        <div id="right-column">
+          
+          <div role="navigation" aria-label="breadcrumbs navigation">
+            <ol class="breadcrumb">
+              <li><a href="../../../../index.html">Docs</a></li>
+              
+                <li><a href="../../../index.html">Module code</a></li>
+              
+              <li>wepy.resampling.resamplers.revo</li>
+            </ol>
+          </div>
+          
+          <div class="document clearer body">
+            
+  <h1>Source code for wepy.resampling.resamplers.revo</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">multiprocessing</span> <span class="k">as</span> <span class="nn">mulproc</span>
+<span class="kn">import</span> <span class="nn">random</span> <span class="k">as</span> <span class="nn">rand</span>
+<span class="kn">import</span> <span class="nn">itertools</span> <span class="k">as</span> <span class="nn">it</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">wepy.resampling.resamplers.resampler</span> <span class="k">import</span> <span class="n">Resampler</span>
+<span class="kn">from</span> <span class="nn">wepy.resampling.resamplers.clone_merge</span>  <span class="k">import</span> <span class="n">CloneMergeResampler</span>
+<span class="kn">from</span> <span class="nn">wepy.resampling.decisions.clone_merge</span> <span class="k">import</span> <span class="n">MultiCloneMergeDecision</span>
+
+<div class="viewcode-block" id="REVOResampler"><a class="viewcode-back" href="../../../../api/wepy.resampling.resamplers.revo.html#wepy.resampling.resamplers.revo.REVOResampler">[docs]</a><span class="k">class</span> <span class="nc">REVOResampler</span><span class="p">(</span><span class="n">CloneMergeResampler</span><span class="p">):</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Resampler implementing the REVO algorithm.</span>
+
+<span class="sd">    You can find more detailed information in the paper &quot;REVO:</span>
+<span class="sd">    Resampling of ensembles by variation optimization&quot; but</span>
+<span class="sd">    briefly:</span>
+
+<span class="sd">    REVO is a Weighted Ensemble based enhanced sampling algorithm</span>
+<span class="sd">    which uses cloning and merging to create ensembles of diverse</span>
+<span class="sd">    trajectories without defining any regions. It instead optimizes a</span>
+<span class="sd">    measure of “variation” that depends on the pairwise distances</span>
+<span class="sd">    between the walkers and their weights.</span>
+
+
+<span class="sd">    REVO solves this optimization problem using a greedy algorithm</span>
+<span class="sd">    which at each step selects best walkers for resampling operations</span>
+<span class="sd">    (cloning and merging) in order to maximize the &quot;trajectory</span>
+<span class="sd">    variation&quot;.</span>
+
+<span class="sd">    The trajectory variation is defined as</span>
+
+
+<span class="sd">    .. math::</span>
+<span class="sd">        V = \sum_{i} V_i = \sum_i \sum_{j}(\frac{d_{ij}}{d_0})</span>
+<span class="sd">        ^{\alpha}\phi_i\phi_j</span>
+
+<span class="sd">    where</span>
+
+<span class="sd">    :math:`V_i` : the trajectory variation value of walker `i`</span>
+
+<span class="sd">    :math:`d_{ij}` : the distance between walker i and j</span>
+<span class="sd">    according the distance metric</span>
+
+<span class="sd">    :math:`\alpha` : modulates the influence of the distances in the</span>
+<span class="sd">    variation calculation</span>
+
+<span class="sd">    :math:`d_0` : the characteristic distance and is used to make the</span>
+<span class="sd">    equation unitless.</span>
+
+<span class="sd">    :math:`\phi` : is a non-negative function which is a measure of</span>
+<span class="sd">    the relative importance of the walker and is referred to as a</span>
+<span class="sd">    &quot;novelty function&quot;.  Here it is a function of a walker&#39;s weight.</span>
+
+<span class="sd">    Furthermore REVO needs the following parameters:</span>
+
+<span class="sd">       pmin: the minimum statistical weight. REVO does not clone</span>
+<span class="sd">       walkers with a weight less than pmin.</span>
+
+<span class="sd">       pmax: The maximum statistical weight. It prevents the</span>
+<span class="sd">       accumulation of too much weight in one walker.</span>
+
+<span class="sd">       merge_dist: This is the merge-distance threshold. The distance</span>
+<span class="sd">        between merged walkers should be less than this value.</span>
+
+<span class="sd">    The resample function, called during every cycle, takes the</span>
+<span class="sd">    ensemble of walkers and performs the follow steps:</span>
+
+<span class="sd">       - Calculate the pairwise all-to-all distance matrix using the distance metric</span>
+<span class="sd">       - Decides which walkers should be merged or cloned</span>
+<span class="sd">       - Applies the cloning and merging decisions to get the resampled walkers</span>
+<span class="sd">       - Creates the resampling data that includes</span>
+<span class="sd">       - distance_matrix : the calculated all-to-all distance matrix</span>
+
+<span class="sd">           - n_walkers : the number of walkers. number of walkers is</span>
+<span class="sd">             kept constant thought the resampling.</span>
+
+<span class="sd">           - variation : the final value of trajectory variation</span>
+
+<span class="sd">           - images : the images of walkers that is defined by the distance object</span>
+
+<span class="sd">           - image_shape : the shape of the image</span>
+
+<span class="sd">    The algorithm saves the records of cloning and merging</span>
+<span class="sd">    information in resampling data.</span>
+
+<span class="sd">    Only the net clones and merges are recorded in the resampling records.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># fields for resampler data</span>
+    <span class="n">RESAMPLING_FIELDS</span> <span class="o">=</span> <span class="n">CloneMergeResampler</span><span class="o">.</span><span class="n">RESAMPLING_FIELDS</span>
+    <span class="n">RESAMPLING_SHAPES</span> <span class="o">=</span> <span class="n">CloneMergeResampler</span><span class="o">.</span><span class="n">RESAMPLING_SHAPES</span> <span class="c1">#+ (Ellipsis,)</span>
+    <span class="n">RESAMPLING_DTYPES</span> <span class="o">=</span> <span class="n">CloneMergeResampler</span><span class="o">.</span><span class="n">RESAMPLING_DTYPES</span> <span class="c1">#+ (np.int,)</span>
+
+
+    <span class="c1"># fields that can be used for a table like representation</span>
+    <span class="n">RESAMPLING_RECORD_FIELDS</span> <span class="o">=</span> <span class="n">CloneMergeResampler</span><span class="o">.</span><span class="n">RESAMPLING_RECORD_FIELDS</span>
+
+    <span class="c1"># fields for resampling data</span>
+    <span class="n">RESAMPLER_FIELDS</span> <span class="o">=</span> <span class="n">CloneMergeResampler</span><span class="o">.</span><span class="n">RESAMPLER_FIELDS</span> <span class="o">+</span> \
+                       <span class="p">(</span><span class="s1">&#39;num_walkers&#39;</span><span class="p">,</span> <span class="s1">&#39;distance_matrix&#39;</span><span class="p">,</span> <span class="s1">&#39;variation&#39;</span><span class="p">,</span> <span class="s1">&#39;image_shape&#39;</span><span class="p">,</span> <span class="s1">&#39;images&#39;</span><span class="p">)</span>
+    <span class="n">RESAMPLER_SHAPES</span> <span class="o">=</span> <span class="n">CloneMergeResampler</span><span class="o">.</span><span class="n">RESAMPLER_SHAPES</span> <span class="o">+</span> \
+                       <span class="p">((</span><span class="mi">1</span><span class="p">,),</span> <span class="bp">Ellipsis</span><span class="p">,</span> <span class="p">(</span><span class="mi">1</span><span class="p">,),</span> <span class="bp">Ellipsis</span><span class="p">,</span> <span class="bp">Ellipsis</span><span class="p">)</span>
+    <span class="n">RESAMPLER_DTYPES</span> <span class="o">=</span> <span class="n">CloneMergeResampler</span><span class="o">.</span><span class="n">RESAMPLER_DTYPES</span> <span class="o">+</span> \
+                       <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">int</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+    <span class="c1"># fields that can be used for a table like representation</span>
+    <span class="n">RESAMPLER_RECORD_FIELDS</span> <span class="o">=</span> <span class="n">CloneMergeResampler</span><span class="o">.</span><span class="n">RESAMPLER_RECORD_FIELDS</span> <span class="o">+</span> \
+                              <span class="p">(</span><span class="s1">&#39;variation&#39;</span><span class="p">,)</span>
+
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">pmin</span><span class="o">=</span><span class="mf">1e-12</span><span class="p">,</span> <span class="n">pmax</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">dist_exponent</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">merge_dist</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">char_dist</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">distance</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">init_state</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+        <span class="sd">&quot;&quot;&quot;Constructor for the REVO Resampler.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        seed : None or int</span>
+<span class="sd">            The random seed. If None, the system (random) one will be used.</span>
+
+<span class="sd">        dist_exponent : int</span>
+<span class="sd">          The distance exponent that modifies distance and weight novelty</span>
+<span class="sd">          relative to each other in the variation equation.</span>
+
+<span class="sd">        merge_dist : float</span>
+<span class="sd">            The merge distance threshold. Its value depends on the system</span>
+<span class="sd">            of interest. A value of 2.5 is recommended.</span>
+
+<span class="sd">        char_dist : float</span>
+<span class="sd">            The characteristic distance value. It is calculated by running</span>
+<span class="sd">            a single dynamic cycle and then calculating the average distance</span>
+<span class="sd">            between all walkers.</span>
+
+<span class="sd">        distance : object implementing Distance</span>
+<span class="sd">            The distance metric to compare walkers.</span>
+
+<span class="sd">        init_state : WalkerState object</span>
+<span class="sd">            The state that seeds the first region in the region hierarchy.</span>
+
+<span class="sd">        weights : True or False</span>
+<span class="sd">            Turns off or on the weight novelty in</span>
+<span class="sd">            calculating the variation equation. When weight is</span>
+<span class="sd">            False, the value of the novelty function is set to 1 for all</span>
+<span class="sd">            walkers. Weight on is recomended.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># call the init methods in the CloneMergeResampler</span>
+        <span class="c1"># superclass. We set the min and max number of walkers to be</span>
+        <span class="c1"># constant</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">pmin</span><span class="o">=</span><span class="n">pmin</span><span class="p">,</span> <span class="n">pmax</span><span class="o">=</span><span class="n">pmax</span><span class="p">,</span>
+                         <span class="n">min_num_walkers</span><span class="o">=</span><span class="bp">Ellipsis</span><span class="p">,</span>
+                         <span class="n">max_num_walkers</span><span class="o">=</span><span class="bp">Ellipsis</span><span class="p">,</span>
+                         <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="c1"># ln(probability_min)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lpmin</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pmin</span><span class="o">/</span><span class="mi">100</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dist_exponent</span> <span class="o">=</span> <span class="n">dist_exponent</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">merge_dist</span> <span class="o">=</span> <span class="n">merge_dist</span>
+
+        <span class="c1"># the distance metric</span>
+        <span class="k">assert</span> <span class="n">merge_dist</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;Merge distance must be given.&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">merge_dist</span> <span class="o">=</span> <span class="n">merge_dist</span>
+
+        <span class="c1"># the distance metric</span>
+        <span class="k">assert</span> <span class="n">distance</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span>  <span class="s2">&quot;Distance object must be given.&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">distance</span> <span class="o">=</span> <span class="n">distance</span>
+
+        <span class="c1"># the characteristic distance, char_dist</span>
+        <span class="k">assert</span> <span class="n">char_dist</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;Characteristic distance value (d0) must be given&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">char_dist</span> <span class="o">=</span> <span class="n">char_dist</span>
+
+        <span class="c1"># setting the random seed</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">seed</span> <span class="o">=</span> <span class="n">seed</span>
+        <span class="k">if</span> <span class="n">seed</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">rand</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
+
+        <span class="c1"># setting the weights parameter</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">weights</span> <span class="o">=</span> <span class="n">weights</span>
+
+        <span class="c1"># we do not know the shape and dtype of the images until</span>
+        <span class="c1"># runtime so we determine them here</span>
+        <span class="k">assert</span> <span class="n">init_state</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span>  <span class="s2">&quot;An initial state must be given.&quot;</span>
+        <span class="n">image</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">distance</span><span class="o">.</span><span class="n">image</span><span class="p">(</span><span class="n">init_state</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">image_dtype</span> <span class="o">=</span> <span class="n">image</span><span class="o">.</span><span class="n">dtype</span>
+
+<div class="viewcode-block" id="REVOResampler.resampler_field_dtypes"><a class="viewcode-back" href="../../../../api/wepy.resampling.resamplers.revo.html#wepy.resampling.resamplers.revo.REVOResampler.resampler_field_dtypes">[docs]</a>    <span class="k">def</span> <span class="nf">resampler_field_dtypes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Finds out the datatype of the image.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        datatypes : tuple of datatype</span>
+<span class="sd">        The type of reasampler image.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># index of the image idx</span>
+        <span class="n">image_idx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">resampler_field_names</span><span class="p">()</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s1">&#39;images&#39;</span><span class="p">)</span>
+
+        <span class="c1"># dtypes adding the image dtype</span>
+        <span class="n">dtypes</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">resampler_field_dtypes</span><span class="p">())</span>
+        <span class="n">dtypes</span><span class="p">[</span><span class="n">image_idx</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">image_dtype</span>
+
+        <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">dtypes</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">_novelty</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">walker_weight</span><span class="p">,</span> <span class="n">num_walker_copy</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Calculates the novelty fuction value.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        walker_weight : float</span>
+<span class="sd">            The weight of the walker.</span>
+
+<span class="sd">        num_walker_copy : int</span>
+<span class="sd">          The number of copies of the walker.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        novelty : float</span>
+<span class="sd">        The calcualted value of novelty for the given walker.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">novelty</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="k">if</span> <span class="n">walker_weight</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">num_walker_copy</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">weights</span><span class="p">:</span>
+
+                <span class="n">novelty</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">walker_weight</span><span class="o">/</span><span class="n">num_walker_copy</span><span class="p">)</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">lpmin</span>
+
+            <span class="k">else</span><span class="p">:</span>
+
+                <span class="n">novelty</span> <span class="o">=</span> <span class="mi">1</span>
+
+        <span class="k">if</span> <span class="n">novelty</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+
+            <span class="n">novelty</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="k">return</span> <span class="n">novelty</span>
+
+    <span class="k">def</span> <span class="nf">_calcvariation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">walker_weights</span><span class="p">,</span> <span class="n">num_walker_copies</span><span class="p">,</span> <span class="n">distance_matrix</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Calculates the variation value.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        walker_weights : list of float</span>
+<span class="sd">            The weights of all walkers. The sum of all weights should be 1.0.</span>
+
+<span class="sd">        num_walker_copies : list of int</span>
+<span class="sd">            The number of copies of each walker.</span>
+<span class="sd">            0 means the walker is not exists anymore.</span>
+<span class="sd">            1 means there is one of the this walker.</span>
+<span class="sd">            &gt;1 means it should be cloned to this number of walkers.</span>
+
+<span class="sd">        distance_matrix : list of arraylike of shape (num_walkers)</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        variation : float</span>
+<span class="sd">           The calculated variation value.</span>
+
+<span class="sd">        walker_variations : arraylike of shape (num_walkers)</span>
+<span class="sd">           The Vi value of each walker.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">num_walkers</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">walker_weights</span><span class="p">)</span>
+
+
+
+        <span class="c1"># set the novelty values</span>
+        <span class="n">walker_novelties</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">_novelty</span><span class="p">(</span><span class="n">walker_weights</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">num_walker_copies</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+                               <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_walkers</span><span class="p">)])</span>
+
+
+        <span class="c1"># the value to be optimized</span>
+        <span class="n">variation</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="c1"># the walker variation values (Vi values)</span>
+        <span class="n">walker_variations</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">num_walkers</span><span class="p">)</span>
+
+
+        <span class="c1"># calculate the variation and walker variation values</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_walkers</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
+
+            <span class="k">if</span> <span class="n">num_walker_copies</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">num_walkers</span><span class="p">):</span>
+
+                    <span class="k">if</span> <span class="n">num_walker_copies</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+
+                        <span class="n">partial_variation</span> <span class="o">=</span> <span class="p">((</span><span class="n">distance_matrix</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">char_dist</span><span class="p">)</span> <span class="o">**</span> <span class="bp">self</span><span class="o">.</span><span class="n">dist_exponent</span><span class="p">)</span> \
+                        <span class="o">*</span> <span class="n">walker_novelties</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="n">walker_novelties</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
+
+                        <span class="n">variation</span> <span class="o">+=</span> <span class="n">partial_variation</span> <span class="o">*</span> <span class="n">num_walker_copies</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="n">num_walker_copies</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
+                        <span class="n">walker_variations</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+=</span> <span class="n">partial_variation</span> <span class="o">*</span> <span class="n">num_walker_copies</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
+                        <span class="n">walker_variations</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">+=</span> <span class="n">partial_variation</span> <span class="o">*</span> <span class="n">num_walker_copies</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">variation</span><span class="p">,</span> <span class="n">walker_variations</span>
+
+<div class="viewcode-block" id="REVOResampler.decide"><a class="viewcode-back" href="../../../../api/wepy.resampling.resamplers.revo.html#wepy.resampling.resamplers.revo.REVOResampler.decide">[docs]</a>    <span class="k">def</span> <span class="nf">decide</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">walker_weights</span><span class="p">,</span> <span class="n">num_walker_copies</span><span class="p">,</span> <span class="n">distance_matrix</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Optimize the trajectory variation by making decisions for resampling.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        walker_weights : list of flaot</span>
+<span class="sd">            The weights of all walkers. The sum of all weights should be 1.0.</span>
+
+<span class="sd">        num_walker_copies : list of int</span>
+<span class="sd">            The number of copies of each walker.</span>
+<span class="sd">            0 means the walker is not exists anymore.</span>
+<span class="sd">            1 means there is one of the this walker.</span>
+<span class="sd">            &gt;1 means it should be cloned to this number of walkers.</span>
+
+<span class="sd">        distance_matrix : list of arraylike of shape (num_walkers)</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        variation : float</span>
+<span class="sd">            The optimized value of the trajectory variation.</span>
+
+<span class="sd">        resampling_data : list of dict of str: value</span>
+<span class="sd">            The resampling records resulting from the decisions.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">num_walkers</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">walker_weights</span><span class="p">)</span>
+
+        <span class="n">variations</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">merge_groups</span> <span class="o">=</span> <span class="p">[[]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_walkers</span><span class="p">)]</span>
+        <span class="n">walker_clone_nums</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_walkers</span><span class="p">)]</span>
+
+        <span class="c1"># make copy of walkers properties</span>
+        <span class="n">new_walker_weights</span> <span class="o">=</span> <span class="n">walker_weights</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">new_num_walker_copies</span> <span class="o">=</span> <span class="n">num_walker_copies</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+
+        <span class="c1"># calculate the initial variation which will be optimized</span>
+        <span class="n">variation</span><span class="p">,</span> <span class="n">walker_variations</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_calcvariation</span><span class="p">(</span><span class="n">walker_weights</span><span class="p">,</span>
+                                                           <span class="n">new_num_walker_copies</span><span class="p">,</span>
+                                                           <span class="n">distance_matrix</span><span class="p">)</span>
+        <span class="n">variations</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">variation</span><span class="p">)</span>
+
+        <span class="c1"># maximize the variance through cloning and merging</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Starting variance optimization: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">variation</span><span class="p">))</span>
+
+        <span class="n">productive</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">while</span> <span class="n">productive</span><span class="p">:</span>
+            <span class="n">productive</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="c1"># find min and max walker_variationss, alter new_amp</span>
+
+            <span class="c1"># initialize to None, we may not find one of each</span>
+            <span class="n">min_idx</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">max_idx</span> <span class="o">=</span> <span class="kc">None</span>
+
+            <span class="c1"># selects a walker with minimum walker_variations and a walker with</span>
+            <span class="c1"># maximum walker_variations walker (distance to other walkers) will be</span>
+            <span class="c1"># tagged for cloning (stored in maxwind), except if it is</span>
+            <span class="c1"># already a keep merge target</span>
+            <span class="n">max_tups</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">walker_variations</span><span class="p">):</span>
+                <span class="c1"># 1. must have an amp &gt;=1 which gives the number of clones to be made of it</span>
+                <span class="c1"># 2. clones for the given amplitude must not be smaller than the minimum probability</span>
+                <span class="c1"># 3. must not already be a keep merge target</span>
+                <span class="k">if</span> <span class="p">(</span><span class="n">new_num_walker_copies</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="p">)</span> <span class="ow">and</span> \
+                   <span class="p">(</span><span class="n">new_walker_weights</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">/</span><span class="p">(</span><span class="n">new_num_walker_copies</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">pmin</span><span class="p">)</span> <span class="ow">and</span> \
+                   <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">merge_groups</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>
+                    <span class="n">max_tups</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">value</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span>
+
+
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">max_tups</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">max_value</span><span class="p">,</span> <span class="n">max_idx</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">max_tups</span><span class="p">)</span>
+
+            <span class="c1"># walker with the lowest walker_variations (distance to other walkers)</span>
+            <span class="c1"># will be tagged for merging (stored in min_idx)</span>
+            <span class="n">min_tups</span> <span class="o">=</span> <span class="p">[(</span><span class="n">value</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">value</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">walker_variations</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="n">new_num_walker_copies</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="p">(</span><span class="n">new_walker_weights</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>  <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">pmax</span><span class="p">)]</span>
+
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">min_tups</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">min_value</span><span class="p">,</span> <span class="n">min_idx</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">min_tups</span><span class="p">)</span>
+
+            <span class="c1"># does min_idx have an eligible merging partner?</span>
+            <span class="c1"># closedist = self.merge_dist</span>
+            <span class="n">closewalk</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">condition_list</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">i</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="p">[</span><span class="n">min_idx</span><span class="p">,</span> <span class="n">max_idx</span><span class="p">]])</span>
+            <span class="k">if</span> <span class="n">condition_list</span><span class="o">.</span><span class="n">all</span><span class="p">()</span> <span class="ow">and</span> <span class="n">min_idx</span> <span class="o">!=</span> <span class="n">max_idx</span><span class="p">:</span>
+
+                <span class="c1"># get the walkers that aren&#39;t the minimum and the max</span>
+                <span class="c1"># walker_variations walkers, as candidates for merging</span>
+                <span class="n">closewalks</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">num_walkers</span><span class="p">))</span><span class="o">.</span><span class="n">difference</span><span class="p">([</span><span class="n">min_idx</span><span class="p">,</span> <span class="n">max_idx</span><span class="p">])</span>
+
+                <span class="c1"># remove those walkers that if they were merged with</span>
+                <span class="c1"># the min walker_variations walker would violate the pmax</span>
+                <span class="n">closewalks</span> <span class="o">=</span> <span class="p">[</span><span class="n">idx</span> <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="n">closewalks</span>
+                                      <span class="k">if</span> <span class="p">(</span><span class="n">new_num_walker_copies</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span><span class="o">==</span><span class="mi">1</span><span class="p">)</span> <span class="ow">and</span>
+                                       <span class="p">(</span><span class="n">new_walker_weights</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">+</span> <span class="n">new_walker_weights</span><span class="p">[</span><span class="n">min_idx</span><span class="p">]</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">pmax</span><span class="p">)</span>
+                                      <span class="p">]</span>
+
+                <span class="c1"># if there are any walkers left, get the distances of</span>
+                <span class="c1"># the close walkers to the min walker_variations walker if that</span>
+                <span class="c1"># distance is less than the maximum merge distance</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">closewalks</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">closewalks_dists</span> <span class="o">=</span> <span class="p">[(</span><span class="n">distance_matrix</span><span class="p">[</span><span class="n">min_idx</span><span class="p">][</span><span class="n">i</span><span class="p">],</span> <span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">closewalks</span>
+                                            <span class="k">if</span> <span class="n">distance_matrix</span><span class="p">[</span><span class="n">min_idx</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="o">&lt;</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">merge_dist</span><span class="p">)]</span>
+
+                    <span class="c1"># if any were found set this as the closewalk</span>
+                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">closewalks_dists</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                        <span class="n">closedist</span><span class="p">,</span> <span class="n">closewalk</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">closewalks_dists</span><span class="p">)</span>
+
+
+            <span class="c1"># did we find a closewalk?</span>
+            <span class="n">condition_list</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">i</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="p">[</span><span class="n">min_idx</span><span class="p">,</span> <span class="n">max_idx</span><span class="p">,</span> <span class="n">closewalk</span><span class="p">]])</span>
+            <span class="c1">#if we find a walker for cloning, a walker and its close neighbor for merging</span>
+            <span class="k">if</span> <span class="n">condition_list</span><span class="o">.</span><span class="n">all</span><span class="p">()</span> <span class="p">:</span>
+
+                <span class="c1"># change new_amp</span>
+                <span class="n">tempsum</span> <span class="o">=</span> <span class="n">new_walker_weights</span><span class="p">[</span><span class="n">min_idx</span><span class="p">]</span> <span class="o">+</span> <span class="n">new_walker_weights</span><span class="p">[</span><span class="n">closewalk</span><span class="p">]</span>
+                <span class="n">new_num_walker_copies</span><span class="p">[</span><span class="n">min_idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_walker_weights</span><span class="p">[</span><span class="n">min_idx</span><span class="p">]</span><span class="o">/</span><span class="n">tempsum</span>
+                <span class="n">new_num_walker_copies</span><span class="p">[</span><span class="n">closewalk</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_walker_weights</span><span class="p">[</span><span class="n">closewalk</span><span class="p">]</span><span class="o">/</span><span class="n">tempsum</span>
+                <span class="n">new_num_walker_copies</span><span class="p">[</span><span class="n">max_idx</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+
+                <span class="c1"># re-determine variation function, and walker_variations values</span>
+                <span class="n">new_variation</span><span class="p">,</span> <span class="n">walker_variations</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_calcvariation</span><span class="p">(</span><span class="n">new_walker_weights</span><span class="p">,</span> <span class="n">new_num_walker_copies</span><span class="p">,</span> <span class="n">distance_matrix</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="n">new_variation</span> <span class="o">&gt;</span> <span class="n">variation</span><span class="p">:</span>
+                    <span class="n">variations</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">new_variation</span><span class="p">)</span>
+
+                    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Variance move to </span><span class="si">{}</span><span class="s2"> accepted&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">new_variation</span><span class="p">))</span>
+
+                    <span class="n">productive</span> <span class="o">=</span> <span class="kc">True</span>
+                    <span class="n">variation</span> <span class="o">=</span> <span class="n">new_variation</span>
+
+                    <span class="c1"># make a decision on which walker to keep</span>
+                    <span class="c1"># (min_idx, or closewalk), equivalent to:</span>
+                    <span class="c1"># `random.choices([closewalk, min_idx],</span>
+                    <span class="c1">#                 weights=[new_walker_weights[closewalk], new_walker_weights[min_idx])`</span>
+                    <span class="n">r</span> <span class="o">=</span> <span class="n">rand</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">new_walker_weights</span><span class="p">[</span><span class="n">closewalk</span><span class="p">]</span> <span class="o">+</span> <span class="n">new_walker_weights</span><span class="p">[</span><span class="n">min_idx</span><span class="p">])</span>
+
+                     <span class="c1"># keeps closewalk and gets rid of min_idx</span>
+                    <span class="k">if</span> <span class="n">r</span> <span class="o">&lt;</span> <span class="n">new_walker_weights</span><span class="p">[</span><span class="n">closewalk</span><span class="p">]:</span>
+                        <span class="n">keep_idx</span> <span class="o">=</span> <span class="n">closewalk</span>
+                        <span class="n">squash_idx</span> <span class="o">=</span> <span class="n">min_idx</span>
+
+                    <span class="c1"># keep min_idx, get rid of closewalk</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">keep_idx</span> <span class="o">=</span> <span class="n">min_idx</span>
+                        <span class="n">squash_idx</span> <span class="o">=</span> <span class="n">closewalk</span>
+
+                    <span class="c1"># update weight</span>
+                    <span class="n">new_walker_weights</span><span class="p">[</span><span class="n">keep_idx</span><span class="p">]</span> <span class="o">+=</span> <span class="n">new_walker_weights</span><span class="p">[</span><span class="n">squash_idx</span><span class="p">]</span>
+                    <span class="n">new_walker_weights</span><span class="p">[</span><span class="n">squash_idx</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
+
+                    <span class="c1"># update new_num_walker_copies</span>
+                    <span class="n">new_num_walker_copies</span><span class="p">[</span><span class="n">squash_idx</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+                    <span class="n">new_num_walker_copies</span><span class="p">[</span><span class="n">keep_idx</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+
+                    <span class="c1"># add the squash index to the merge group</span>
+                    <span class="n">merge_groups</span><span class="p">[</span><span class="n">keep_idx</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">squash_idx</span><span class="p">)</span>
+
+                    <span class="c1"># add the indices of the walkers that were already</span>
+                    <span class="c1"># in the merge group that was just squashed</span>
+                    <span class="n">merge_groups</span><span class="p">[</span><span class="n">keep_idx</span><span class="p">]</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">merge_groups</span><span class="p">[</span><span class="n">squash_idx</span><span class="p">])</span>
+
+                    <span class="c1"># reset the merge group that was just squashed to empty</span>
+                    <span class="n">merge_groups</span><span class="p">[</span><span class="n">squash_idx</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+
+                    <span class="c1"># increase the number of clones that the cloned</span>
+                    <span class="c1"># walker has</span>
+                    <span class="n">walker_clone_nums</span><span class="p">[</span><span class="n">max_idx</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+
+                    <span class="c1"># new variation for starting new stage</span>
+                    <span class="n">new_variation</span><span class="p">,</span> <span class="n">walker_variations</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_calcvariation</span><span class="p">(</span><span class="n">new_walker_weights</span><span class="p">,</span>
+                                                                          <span class="n">new_num_walker_copies</span><span class="p">,</span>
+                                                                          <span class="n">distance_matrix</span><span class="p">)</span>
+                    <span class="n">variations</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">new_variation</span><span class="p">)</span>
+
+                    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;variance after selection: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">new_variation</span><span class="p">))</span>
+
+                <span class="c1"># if not productive</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">new_num_walker_copies</span><span class="p">[</span><span class="n">min_idx</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+                    <span class="n">new_num_walker_copies</span><span class="p">[</span><span class="n">closewalk</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+                    <span class="n">new_num_walker_copies</span><span class="p">[</span><span class="n">max_idx</span><span class="p">]</span> <span class="o">-=</span> <span class="mi">1</span>
+
+        <span class="c1"># given we know what we want to clone to specific slots</span>
+        <span class="c1"># (squashing other walkers) we need to determine where these</span>
+        <span class="c1"># squashed walkers will be merged</span>
+        <span class="n">walker_actions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">assign_clones</span><span class="p">(</span><span class="n">merge_groups</span><span class="p">,</span> <span class="n">walker_clone_nums</span><span class="p">)</span>
+
+        <span class="c1"># because there is only one step in resampling here we just</span>
+        <span class="c1"># add another field for the step as 0 and add the walker index</span>
+        <span class="c1"># to its record as well</span>
+        <span class="k">for</span> <span class="n">walker_idx</span><span class="p">,</span> <span class="n">walker_record</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">walker_actions</span><span class="p">):</span>
+            <span class="n">walker_record</span><span class="p">[</span><span class="s1">&#39;step_idx&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">walker_record</span><span class="p">[</span><span class="s1">&#39;walker_idx&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">walker_idx</span><span class="p">])</span>
+
+        <span class="k">return</span> <span class="n">walker_actions</span><span class="p">,</span> <span class="n">variations</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span></div>
+
+    <span class="k">def</span> <span class="nf">_all_to_all_distance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">walkers</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Calculate the pairwise all-to-all distances between walkers.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        walkers : list of walkers</span>
+
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        distance_matrix : list of arraylike of shape (num_walkers)</span>
+
+<span class="sd">        images : list of image obeject</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># initialize an all-to-all matrix, with 0.0 for self distances</span>
+        <span class="n">dist_mat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">walkers</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">walkers</span><span class="p">)))</span>
+
+        <span class="c1"># make images for all the walker states for us to compute distances on</span>
+        <span class="n">images</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">walker</span> <span class="ow">in</span> <span class="n">walkers</span><span class="p">:</span>
+            <span class="n">image</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">distance</span><span class="o">.</span><span class="n">image</span><span class="p">(</span><span class="n">walker</span><span class="o">.</span><span class="n">state</span><span class="p">)</span>
+            <span class="n">images</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">image</span><span class="p">)</span>
+
+        <span class="c1"># get the combinations of indices for all walker pairs</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">it</span><span class="o">.</span><span class="n">combinations</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">images</span><span class="p">)),</span> <span class="mi">2</span><span class="p">):</span>
+
+            <span class="c1"># calculate the distance between the two walkers</span>
+            <span class="n">dist</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">distance</span><span class="o">.</span><span class="n">image_distance</span><span class="p">(</span><span class="n">images</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">images</span><span class="p">[</span><span class="n">j</span><span class="p">])</span>
+
+            <span class="c1"># save this in the matrix in both spots</span>
+            <span class="n">dist_mat</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">dist</span>
+            <span class="n">dist_mat</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">dist</span>
+
+        <span class="k">return</span> <span class="p">[</span><span class="n">walker_dists</span> <span class="k">for</span> <span class="n">walker_dists</span> <span class="ow">in</span> <span class="n">dist_mat</span><span class="p">],</span> <span class="n">images</span>
+
+<div class="viewcode-block" id="REVOResampler.resample"><a class="viewcode-back" href="../../../../api/wepy.resampling.resamplers.revo.html#wepy.resampling.resamplers.revo.REVOResampler.resample">[docs]</a>    <span class="k">def</span> <span class="nf">resample</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">walkers</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Resamples walkers based on REVO algorithm</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        walkers : list of walkers</span>
+
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        resampled_walkers : list of resampled_walkers</span>
+
+<span class="sd">        resampling_data : list of dict of str: value</span>
+<span class="sd">            The resampling records resulting from the decisions.</span>
+
+<span class="sd">        resampler_data :list of dict of str: value</span>
+<span class="sd">            The resampler records resulting from the resampler actions.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1">#initialize the parameters</span>
+        <span class="n">num_walkers</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">walkers</span><span class="p">)</span>
+        <span class="n">walker_weights</span> <span class="o">=</span> <span class="p">[</span><span class="n">walker</span><span class="o">.</span><span class="n">weight</span> <span class="k">for</span> <span class="n">walker</span> <span class="ow">in</span> <span class="n">walkers</span><span class="p">]</span>
+        <span class="n">num_walker_copies</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_walkers</span><span class="p">)]</span>
+
+        <span class="c1"># calculate distance matrix</span>
+        <span class="n">distance_matrix</span><span class="p">,</span> <span class="n">images</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_all_to_all_distance</span><span class="p">(</span><span class="n">walkers</span><span class="p">)</span>
+
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;distance_matrix&quot;</span><span class="p">)</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">distance_matrix</span><span class="p">))))</span>
+
+        <span class="c1"># determine cloning and merging actions to be performed, by</span>
+        <span class="c1"># maximizing the variation, i.e. the Decider</span>
+        <span class="n">resampling_data</span><span class="p">,</span> <span class="n">variation</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">decide</span><span class="p">(</span><span class="n">walker_weights</span><span class="p">,</span> <span class="n">num_walker_copies</span><span class="p">,</span> <span class="n">distance_matrix</span><span class="p">)</span>
+
+        <span class="c1"># convert the target idxs and decision_id to feature vector arrays</span>
+        <span class="k">for</span> <span class="n">record</span> <span class="ow">in</span> <span class="n">resampling_data</span><span class="p">:</span>
+            <span class="n">record</span><span class="p">[</span><span class="s1">&#39;target_idxs&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">record</span><span class="p">[</span><span class="s1">&#39;target_idxs&#39;</span><span class="p">])</span>
+            <span class="n">record</span><span class="p">[</span><span class="s1">&#39;decision_id&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">record</span><span class="p">[</span><span class="s1">&#39;decision_id&#39;</span><span class="p">]])</span>
+
+        <span class="c1"># actually do the cloning and merging of the walkers</span>
+        <span class="n">resampled_walkers</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">DECISION</span><span class="o">.</span><span class="n">action</span><span class="p">(</span><span class="n">walkers</span><span class="p">,</span> <span class="p">[</span><span class="n">resampling_data</span><span class="p">])</span>
+
+       <span class="c1"># flatten the distance matrix and give the number of walkers</span>
+        <span class="c1"># as well for the resampler data, there is just one per cycle</span>
+        <span class="n">resampler_data</span> <span class="o">=</span> <span class="p">[{</span><span class="s1">&#39;distance_matrix&#39;</span> <span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ravel</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">distance_matrix</span><span class="p">)),</span>
+                           <span class="s1">&#39;num_walkers&#39;</span> <span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="nb">len</span><span class="p">(</span><span class="n">walkers</span><span class="p">)]),</span>
+                           <span class="s1">&#39;variation&#39;</span> <span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">variation</span><span class="p">]),</span>
+                           <span class="s1">&#39;images&#39;</span> <span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ravel</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">images</span><span class="p">)),</span>
+                           <span class="s1">&#39;image_shape&#39;</span> <span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">images</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">)}]</span>
+
+        <span class="k">return</span> <span class="n">resampled_walkers</span><span class="p">,</span> <span class="n">resampling_data</span><span class="p">,</span> <span class="n">resampler_data</span></div></div>
+</pre></div>
+
+          </div>
+            
+        </div>
+        <div class="clearfix"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">wepy  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+<script type="text/javascript">
+  $("#mobile-toggle a").click(function () {
+    $("#left-column").toggle();
+  });
+</script>
+<script type="text/javascript" src="../../../../_static/js/bootstrap.js"></script>
+  <div class="footer">
+    &copy; Copyright 2018, Samuel D. Lotz. Created using <a href="http://sphinx.pocoo.org/">Sphinx</a>.
+  </div>
+  </body>
+</html>

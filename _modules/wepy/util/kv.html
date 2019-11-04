@@ -1,0 +1,557 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+  
+  <!-- Licensed under the Apache 2.0 License -->
+  <link rel="stylesheet" type="text/css" href="../../../_static/fonts/open-sans/stylesheet.css" />
+  <!-- Licensed under the SIL Open Font License -->
+  <link rel="stylesheet" type="text/css" href="../../../_static/fonts/source-serif-pro/source-serif-pro.css" />
+  <link rel="stylesheet" type="text/css" href="../../../_static/css/bootstrap.min.css" />
+  <link rel="stylesheet" type="text/css" href="../../../_static/css/bootstrap-theme.min.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+    <title>wepy.util.kv &#8212; wepy  documentation</title>
+    <link rel="stylesheet" href="../../../_static/guzzle.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../../_static/language_data.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+  
+   
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">wepy  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="container-wrapper">
+
+      <div id="mobile-toggle">
+        <a href="#"><span class="glyphicon glyphicon-align-justify" aria-hidden="true"></span></a>
+      </div>
+  <div id="left-column">
+    <div class="sphinxsidebar">
+<div class="sidebar-block">
+  <div class="sidebar-wrapper">
+    <div id="main-search">
+      <form class="form-inline" action="../../../search.html" method="GET" role="form">
+        <div class="input-group">
+          <input name="q" type="text" class="form-control" placeholder="Search...">
+        </div>
+        <input type="hidden" name="check_keywords" value="yes" />
+        <input type="hidden" name="area" value="default" />
+      </form>
+    </div>
+  </div>
+</div>
+      
+    </div>
+  </div>
+        <div id="right-column">
+          
+          <div role="navigation" aria-label="breadcrumbs navigation">
+            <ol class="breadcrumb">
+              <li><a href="../../../index.html">Docs</a></li>
+              
+                <li><a href="../../index.html">Module code</a></li>
+              
+              <li>wepy.util.kv</li>
+            </ol>
+          </div>
+          
+          <div class="document clearer body">
+            
+  <h1>Source code for wepy.util.kv</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Implement a key-value store on top of sqlite3 database.&quot;&quot;&quot;</span>
+
+<span class="c1"># Copyright (c) 2012, Alex Morega</span>
+<span class="c1"># All rights reserved.</span>
+
+<span class="c1"># Redistribution and use in source and binary forms, with or without</span>
+<span class="c1"># modification, are permitted provided that the following conditions are</span>
+<span class="c1"># met:</span>
+
+<span class="c1"># * Redistributions of source code must retain the above copyright notice,</span>
+<span class="c1">#   this list of conditions and the following disclaimer.</span>
+
+<span class="c1"># * Redistributions in binary form must reproduce the above copyright</span>
+<span class="c1">#   notice, this list of conditions and the following disclaimer in the</span>
+<span class="c1">#   documentation and/or other materials provided with the distribution.</span>
+
+<span class="c1"># THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS &quot;AS</span>
+<span class="c1"># IS&quot; AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED</span>
+<span class="c1"># TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A</span>
+<span class="c1"># PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT</span>
+<span class="c1"># HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,</span>
+<span class="c1"># SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED</span>
+<span class="c1"># TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR</span>
+<span class="c1"># PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF</span>
+<span class="c1"># LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING</span>
+<span class="c1"># NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS</span>
+<span class="c1"># SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</span>
+
+<span class="c1"># Software copied and modified heavily from this source</span>
+
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">os.path</span> <span class="k">as</span> <span class="nn">osp</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">sqlite3</span>
+<span class="kn">from</span> <span class="nn">collections.abc</span> <span class="k">import</span> <span class="n">MutableMapping</span>
+<span class="kn">from</span> <span class="nn">contextlib</span> <span class="k">import</span> <span class="n">contextmanager</span>
+
+<span class="c1"># mapping of the modes we support and the modes that SQLite provides</span>
+<span class="c1"># KV mode -&gt; sqlite3 mode</span>
+<span class="n">MODE_MAPPING</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="p">(</span><span class="s1">&#39;r&#39;</span><span class="p">,</span> <span class="s1">&#39;ro&#39;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s1">&#39;r+&#39;</span><span class="p">,</span> <span class="s1">&#39;rw&#39;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s1">&#39;a&#39;</span><span class="p">,</span> <span class="s1">&#39;rwc&#39;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+    <span class="p">(</span><span class="s1">&#39;w&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+    <span class="p">(</span><span class="s1">&#39;w-&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+<span class="p">)</span>
+
+<span class="c1"># modes that sqlite3 itself doesn&#39;t support and have to manual</span>
+<span class="c1"># processing for</span>
+<span class="n">TRUNCATE_MODES</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;w&#39;</span><span class="p">,)</span>
+<span class="n">FAIL_IF_EXISTS_CREATE_MODES</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;w-&#39;</span><span class="p">,</span> <span class="s1">&#39;x&#39;</span><span class="p">)</span>
+
+<span class="n">SQLITE3_URI_TEMPLATE</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{protocol}</span><span class="s2">:</span><span class="si">{url}</span><span class="s2">&quot;</span>
+<span class="n">SQLITE3_QUERY_URI_TEMPLATE</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{protocol}</span><span class="s2">:</span><span class="si">{url}</span><span class="s2">?</span><span class="si">{query}</span><span class="s2">&quot;</span>
+
+<span class="n">SQLITE3_QUERY_JOIN_CHAR</span> <span class="o">=</span> <span class="s2">&quot;&amp;&quot;</span>
+
+<span class="n">SQLITE3_INMEMORY_URI</span> <span class="o">=</span> <span class="s2">&quot;file::memory:?cache=shared&quot;</span>
+
+
+<span class="c1"># the default types for the values that is checked, is bytes</span>
+<span class="n">DEFAULT_VALUE_TYPES</span> <span class="o">=</span> <span class="p">(</span><span class="nb">bytes</span><span class="p">,</span> <span class="nb">bytearray</span><span class="p">)</span>
+
+<div class="viewcode-block" id="gen_uri"><a class="viewcode-back" href="../../../api/wepy.util.kv.html#wepy.util.kv.gen_uri">[docs]</a><span class="k">def</span> <span class="nf">gen_uri</span><span class="p">(</span><span class="n">db_url</span><span class="p">,</span> <span class="n">mode_spec</span><span class="p">):</span>
+
+    <span class="c1"># if the db url is the in memory special string or None or the</span>
+    <span class="c1"># :memory: identifier, use the full in-memory URI</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">db_url</span> <span class="o">==</span> <span class="n">SQLITE3_INMEMORY_URI</span> <span class="ow">or</span>
+        <span class="n">db_url</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span>
+        <span class="n">db_url</span> <span class="o">==</span> <span class="s2">&quot;:memory:&quot;</span><span class="p">):</span>
+
+        <span class="n">db_uri</span> <span class="o">=</span> <span class="n">SQLITE3_INMEMORY_URI</span>
+
+        <span class="k">return</span> <span class="n">db_uri</span>
+
+    <span class="c1"># check for and split the URI into the components: protocol, URL, query</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">db_url</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;:&#39;</span><span class="p">))</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="c1"># for a query</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">db_url</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;?&#39;</span><span class="p">))</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+
+            <span class="c1"># protocol and queries</span>
+            <span class="p">((</span><span class="n">protocol</span><span class="p">,),</span> <span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">query</span><span class="p">))</span> <span class="o">=</span> <span class="p">[</span><span class="n">comp</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;?&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">comp</span> <span class="ow">in</span>
+                                           <span class="n">db_url</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;:&#39;</span><span class="p">)]</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># no query</span>
+            <span class="n">protocol</span><span class="p">,</span> <span class="n">url</span> <span class="o">=</span> <span class="n">db_url</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;:&#39;</span><span class="p">)</span>
+            <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">protocol</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">db_url</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;?&#39;</span><span class="p">))</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">url</span><span class="p">,</span> <span class="n">query</span> <span class="o">=</span> <span class="n">db_url</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;?&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+            <span class="n">url</span> <span class="o">=</span> <span class="n">db_url</span>
+
+    <span class="c1"># process and build the URI given this information</span>
+
+    <span class="c1"># if the protocol is not given set it to the default</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">protocol</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">protocol</span> <span class="o">=</span> <span class="s1">&#39;file&#39;</span>
+
+    <span class="c1"># split the query up into sections if it has them</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">query</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;?&#39;</span><span class="p">))</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">queries</span> <span class="o">=</span> <span class="n">query</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;?&#39;</span><span class="p">)</span>
+
+        <span class="c1"># split the &quot;key=value&quot; pairs in each query</span>
+        <span class="n">queries</span> <span class="o">=</span> <span class="p">{</span><span class="n">q</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;=&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="p">:</span> <span class="n">q</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;=&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+                   <span class="k">for</span> <span class="n">q</span> <span class="ow">in</span> <span class="n">queries</span><span class="p">}</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">queries</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="c1"># now handle the mode. If it was given as an argument then we have</span>
+    <span class="c1"># to set the appropriate query in the URI. If it was given in the</span>
+    <span class="c1"># URI that takes precedence however.</span>
+
+    <span class="c1"># check for a mode option in the given query section, if no mode</span>
+    <span class="c1"># is given then we set it depending on what mode_spec was given</span>
+    <span class="k">if</span> <span class="s1">&#39;mode&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">queries</span><span class="p">:</span>
+
+        <span class="c1"># default to rwc mode</span>
+        <span class="n">mode_query_value</span> <span class="o">=</span> <span class="s1">&#39;rwc&#39;</span>
+
+        <span class="k">if</span> <span class="n">mode_spec</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+
+            <span class="c1"># if the mode is one of the modes in the mode mapping use that to</span>
+            <span class="c1"># generate the URI, otherwise raise an error</span>
+            <span class="k">if</span> <span class="n">mode_spec</span> <span class="ow">not</span> <span class="ow">in</span> <span class="nb">dict</span><span class="p">(</span><span class="n">MODE_MAPPING</span><span class="p">):</span>
+
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;kv mode spec &#39;</span><span class="si">{}</span><span class="s2">&#39; not recognized&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">mode_spec</span><span class="p">))</span>
+
+            <span class="k">else</span><span class="p">:</span>
+
+                <span class="n">sqlite_mode</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">MODE_MAPPING</span><span class="p">)[</span><span class="n">mode_spec</span><span class="p">]</span>
+
+                <span class="c1"># if the sqlite_mode is recognized as a mode that can</span>
+                <span class="c1"># be given in the query section do that</span>
+                <span class="k">if</span> <span class="n">sqlite_mode</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">mode_query_value</span> <span class="o">=</span> <span class="n">sqlite_mode</span>
+
+                <span class="c1"># otherwise we handle these special modes ourselves</span>
+                <span class="c1"># here, checking file properties and raising errors as</span>
+                <span class="c1"># necessary</span>
+                <span class="k">else</span><span class="p">:</span>
+
+                    <span class="c1"># if the mode is either &#39;x&#39; or &#39;w-&#39; check to see if the db</span>
+                    <span class="c1"># already exists. If it does raise an error.</span>
+                    <span class="k">if</span> <span class="n">mode_spec</span> <span class="ow">in</span> <span class="n">FAIL_IF_EXISTS_CREATE_MODES</span><span class="p">:</span>
+
+                        <span class="k">if</span> <span class="n">osp</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">url</span><span class="p">):</span>
+                            <span class="k">raise</span> <span class="ne">OSError</span><span class="p">(</span><span class="s2">&quot;File exists&quot;</span><span class="p">)</span>
+
+                    <span class="c1"># if it is &#39;w&#39; we want to delete the old file</span>
+                    <span class="k">elif</span> <span class="n">mode_spec</span> <span class="ow">in</span> <span class="n">TRUNCATE_MODES</span><span class="p">:</span>
+
+                        <span class="c1"># if it exists remove it</span>
+                        <span class="k">if</span> <span class="n">osp</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">url</span><span class="p">):</span>
+                            <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+
+                    <span class="c1"># the sqlite_mode for these is rwc (a), since we</span>
+                    <span class="c1"># need to create it</span>
+                    <span class="n">mode_query_value</span> <span class="o">=</span> <span class="s2">&quot;rwc&quot;</span>
+
+        <span class="c1"># add the mode query to queries list</span>
+        <span class="n">queries</span><span class="p">[</span><span class="s1">&#39;mode&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">mode_query_value</span>
+
+    <span class="c1"># if thw queries are empty just use the protocol and URL</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">queries</span><span class="p">:</span>
+        <span class="n">db_uri</span> <span class="o">=</span> <span class="n">SQLITE3_URI_TEMPLATE</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">protocol</span><span class="o">=</span><span class="n">protocol</span><span class="p">,</span>
+                                             <span class="n">url</span><span class="o">=</span><span class="n">url</span><span class="p">)</span>
+    <span class="c1"># otherwise do the whole thing</span>
+    <span class="k">else</span><span class="p">:</span>
+
+        <span class="c1"># build the query substring</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="n">SQLITE3_QUERY_JOIN_CHAR</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">=</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+                                              <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">queries</span><span class="o">.</span><span class="n">items</span><span class="p">()])</span>
+
+        <span class="c1"># build the URI string</span>
+        <span class="n">db_uri</span> <span class="o">=</span> <span class="n">SQLITE3_QUERY_URI_TEMPLATE</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">protocol</span><span class="o">=</span><span class="n">protocol</span><span class="p">,</span>
+                                                   <span class="n">url</span><span class="o">=</span><span class="n">url</span><span class="p">,</span>
+                                                   <span class="n">query</span><span class="o">=</span><span class="n">query</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">db_uri</span></div>
+
+<div class="viewcode-block" id="KV"><a class="viewcode-back" href="../../../api/wepy.util.kv.html#wepy.util.kv.KV">[docs]</a><span class="k">class</span> <span class="nc">KV</span><span class="p">(</span><span class="n">MutableMapping</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">db_url</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">table</span><span class="o">=</span><span class="s1">&#39;data&#39;</span><span class="p">,</span>
+                 <span class="n">primary_key</span><span class="o">=</span><span class="s1">&#39;key&#39;</span><span class="p">,</span>
+                 <span class="n">value_name</span><span class="o">=</span><span class="s1">&#39;value&#39;</span><span class="p">,</span>
+                 <span class="n">timeout</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+                 <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;x&#39;</span><span class="p">,</span>
+                 <span class="n">append_only</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                 <span class="n">value_types</span><span class="o">=</span><span class="n">DEFAULT_VALUE_TYPES</span><span class="p">,</span>
+    <span class="p">):</span>
+
+        <span class="c1"># generate a good URI from the url and the mode</span>
+        <span class="n">db_uri</span> <span class="o">=</span> <span class="n">gen_uri</span><span class="p">(</span><span class="n">db_url</span><span class="p">,</span> <span class="n">mode</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_mode</span> <span class="o">=</span> <span class="n">mode</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_append_only</span> <span class="o">=</span> <span class="n">append_only</span>
+
+        <span class="c1"># set the value types for this kv</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_kv_types</span> <span class="o">=</span> <span class="n">value_types</span>
+
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_db_uri</span> <span class="o">=</span> <span class="n">db_uri</span>
+
+        <span class="c1"># connect to the db</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_db</span> <span class="o">=</span> <span class="n">sqlite3</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_db_uri</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">,</span> <span class="n">uri</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_closed</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="c1"># set the isolation level to autocommit</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">isolation_level</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="c1"># we can use read_uncommited only in append_only mode (no</span>
+        <span class="c1"># updates) because you never have to worry about dirty reads</span>
+        <span class="c1"># since you can&#39;t update</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">append_only</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_execute</span><span class="p">(</span><span class="s2">&quot;PRAGMA read_uncommited=1&quot;</span><span class="p">)</span>
+
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_table</span> <span class="o">=</span> <span class="n">table</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_primary_key</span> <span class="o">=</span> <span class="n">primary_key</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_value_name</span> <span class="o">=</span> <span class="n">value_name</span>
+
+        <span class="c1"># create the table if it doesn&#39;t exist and set the key names</span>
+        <span class="n">create_table_query</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">            CREATE TABLE IF NOT EXISTS </span><span class="si">{table_name}</span><span class="s2"></span>
+<span class="s2">            (</span><span class="si">{key_name}</span><span class="s2"> PRIMARY KEY, </span><span class="si">{value_name}</span><span class="s2">)</span>
+<span class="s2">        &quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">table_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">table</span><span class="p">,</span>
+                   <span class="n">key_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">primary_key</span><span class="p">,</span>
+                   <span class="n">value_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">value_name</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_execute</span><span class="p">(</span><span class="n">create_table_query</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_locks</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">mode</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mode</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">append_only</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_append_only</span>
+
+<div class="viewcode-block" id="KV.close"><a class="viewcode-back" href="../../../api/wepy.util.kv.html#wepy.util.kv.KV.close">[docs]</a>    <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_closed</span> <span class="o">==</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span><span class="s2">&quot;The database connection is already closed&quot;</span><span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_closed</span> <span class="o">=</span> <span class="kc">True</span></div>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">db_uri</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db_uri</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">db</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">table</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_table</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">primary_key</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_primary_key</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">value_name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_value_name</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">value_types</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_kv_types</span>
+
+
+    <span class="k">def</span> <span class="nf">_execute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="p">[[</span><span class="n">n</span><span class="p">]]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_execute</span><span class="p">(</span><span class="s1">&#39;SELECT COUNT(*) FROM </span><span class="si">{table}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">table</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">table</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">n</span>
+
+    <span class="k">def</span> <span class="nf">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="n">key</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">query</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;SELECT </span><span class="si">{value}</span><span class="s1"> FROM </span><span class="si">{table}</span><span class="s1"> WHERE </span><span class="si">{key}</span><span class="s1"> is NULL&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                     <span class="n">value</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">value_name</span><span class="p">,</span>
+                     <span class="n">table</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">table</span><span class="p">,</span>
+                     <span class="n">key</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">primary_key</span><span class="p">),</span> <span class="p">())</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">query</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;SELECT </span><span class="si">{value}</span><span class="s1"> FROM </span><span class="si">{table}</span><span class="s1"> WHERE </span><span class="si">{key}</span><span class="s1">=?&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                                                      <span class="n">value</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">value_name</span><span class="p">,</span>
+                                                      <span class="n">table</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">table</span><span class="p">,</span>
+                                                      <span class="n">key</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">primary_key</span><span class="p">),</span>
+                     <span class="p">(</span><span class="n">key</span><span class="p">,),)</span>
+
+        <span class="n">cursor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_execute</span><span class="p">(</span><span class="o">*</span><span class="n">query</span><span class="p">)</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">cursor</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">result</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">KeyError</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">result</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">key</span> <span class="k">for</span> <span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_execute</span><span class="p">(</span><span class="s1">&#39;SELECT </span><span class="si">{key}</span><span class="s1"> FROM </span><span class="si">{table}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                                               <span class="n">key</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">primary_key</span><span class="p">,</span>
+                                               <span class="n">table</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">table</span><span class="p">),</span>
+                                               <span class="p">()</span>
+                                              <span class="p">)</span>
+                <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__setitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set a value, must be in bytes format.&quot;&quot;&quot;</span>
+
+        <span class="c1"># check the type of the value to make sure it is what this KV</span>
+        <span class="c1"># supports, if it is None then it is the standard python type</span>
+        <span class="c1"># translation</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">value_types</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">value_types</span><span class="p">),</span> <span class="s2">&quot;Value must be a value supported by this kv&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">lockless_set</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+
+
+    <span class="k">def</span> <span class="nf">__delitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+
+        <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Deleting the snapshot </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">key</span><span class="p">))</span>
+
+        <span class="c1"># no deletions in append only mode</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">append_only</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">sqlite3</span><span class="o">.</span><span class="n">IntegrityError</span><span class="p">(</span><span class="s2">&quot;DB is opened in append only mode, &quot;</span>
+                                         <span class="s2">&quot;and </span><span class="si">{}</span><span class="s2"> has already been set&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">key</span><span class="p">))</span>
+
+        <span class="c1"># delete it if it exists</span>
+        <span class="k">elif</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;executing delete query&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_execute</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">del_query</span><span class="p">,</span>
+                          <span class="p">(</span><span class="n">key</span><span class="p">,))</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;finished&quot;</span><span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">KeyError</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">insert_query</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="s1">&#39;INSERT INTO </span><span class="si">{table}</span><span class="s1"> VALUES (?, ?)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">table</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">table</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">query</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">update_query</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="n">query</span> <span class="o">=</span> <span class="s1">&#39;UPDATE </span><span class="si">{table}</span><span class="s1"> SET </span><span class="si">{value}</span><span class="s1">=? WHERE </span><span class="si">{key}</span><span class="s1">=?&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="n">key</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">primary_key</span><span class="p">,</span>
+            <span class="n">value</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">value_name</span><span class="p">,</span>
+            <span class="n">table</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">table</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">query</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">del_query</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="n">query</span> <span class="o">=</span> <span class="s1">&#39;DELETE FROM </span><span class="si">{table}</span><span class="s1"> WHERE </span><span class="si">{key}</span><span class="s1">=?&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="n">key</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">primary_key</span><span class="p">,</span>
+            <span class="n">table</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">table</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">query</span>
+
+<div class="viewcode-block" id="KV.lockless_set"><a class="viewcode-back" href="../../../api/wepy.util.kv.html#wepy.util.kv.KV.lockless_set">[docs]</a>    <span class="k">def</span> <span class="nf">lockless_set</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;an implementation of the __setitem__ without the lock context</span>
+<span class="sd">        manager which turns on the DEFERRED isolation level. The</span>
+<span class="sd">        isolation level of the KV is set to autocommit so now lock is</span>
+<span class="sd">        needed anyhow.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># insert the key-value pair if the key isn&#39;t in the db</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_execute</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">insert_query</span><span class="p">,</span> <span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">))</span>
+
+        <span class="c1"># otherwise update the keys value</span>
+        <span class="k">except</span> <span class="n">sqlite3</span><span class="o">.</span><span class="n">IntegrityError</span><span class="p">:</span>
+
+            <span class="c1"># if we are in append only mode don&#39;t allow updates</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">append_only</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">sqlite3</span><span class="o">.</span><span class="n">IntegrityError</span><span class="p">(</span><span class="s2">&quot;DB is opened in append only mode, &quot;</span>
+                                             <span class="s2">&quot;and </span><span class="si">{}</span><span class="s2"> has already been set&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">key</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_execute</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">update_query</span><span class="p">,</span>
+                              <span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">key</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="KV.set_in_tx"><a class="viewcode-back" href="../../../api/wepy.util.kv.html#wepy.util.kv.KV.set_in_tx">[docs]</a>    <span class="k">def</span> <span class="nf">set_in_tx</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cursor</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Do a set with a cursor, this allows it to be done in a transaction.&quot;&quot;&quot;</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">insert_query</span><span class="p">,</span> <span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">))</span>
+        <span class="k">except</span> <span class="n">sqlite3</span><span class="o">.</span><span class="n">IntegrityError</span><span class="p">:</span>
+
+            <span class="c1"># if we are in append only mode don&#39;t allow updates</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">append_only</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">sqlite3</span><span class="o">.</span><span class="n">IntegrityError</span><span class="p">(</span><span class="s2">&quot;DB is opened in append only mode, &quot;</span>
+                                             <span class="s2">&quot;and </span><span class="si">{}</span><span class="s2"> has already been set&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">key</span><span class="p">))</span>
+
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">update_query</span><span class="p">,</span> <span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">cursor</span></div>
+
+<div class="viewcode-block" id="KV.del_in_tx"><a class="viewcode-back" href="../../../api/wepy.util.kv.html#wepy.util.kv.KV.del_in_tx">[docs]</a>    <span class="k">def</span> <span class="nf">del_in_tx</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cursor</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+
+        <span class="c1"># no deletions in append only mode</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">append_only</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">sqlite3</span><span class="o">.</span><span class="n">IntegrityError</span><span class="p">(</span><span class="s2">&quot;DB is opened in append only mode, &quot;</span>
+                                         <span class="s2">&quot;and </span><span class="si">{}</span><span class="s2"> has already been set&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">key</span><span class="p">))</span>
+
+        <span class="k">elif</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
+            <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">del_query</span><span class="p">,</span> <span class="p">(</span><span class="n">key</span><span class="p">,))</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">KeyError</span>
+
+        <span class="k">return</span> <span class="n">cursor</span></div>
+
+
+<div class="viewcode-block" id="KV.lock"><a class="viewcode-back" href="../../../api/wepy.util.kv.html#wepy.util.kv.KV.lock">[docs]</a>    <span class="nd">@contextmanager</span>
+    <span class="k">def</span> <span class="nf">lock</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_locks</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_execute</span><span class="p">(</span><span class="s1">&#39;BEGIN TRANSACTION&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_locks</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">yield</span>
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_locks</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_locks</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_execute</span><span class="p">(</span><span class="s1">&#39;COMMIT&#39;</span><span class="p">)</span></div></div>
+</pre></div>
+
+          </div>
+            
+        </div>
+        <div class="clearfix"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">wepy  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+<script type="text/javascript">
+  $("#mobile-toggle a").click(function () {
+    $("#left-column").toggle();
+  });
+</script>
+<script type="text/javascript" src="../../../_static/js/bootstrap.js"></script>
+  <div class="footer">
+    &copy; Copyright 2018, Samuel D. Lotz. Created using <a href="http://sphinx.pocoo.org/">Sphinx</a>.
+  </div>
+  </body>
+</html>

@@ -1,0 +1,845 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+  
+  <!-- Licensed under the Apache 2.0 License -->
+  <link rel="stylesheet" type="text/css" href="../../_static/fonts/open-sans/stylesheet.css" />
+  <!-- Licensed under the SIL Open Font License -->
+  <link rel="stylesheet" type="text/css" href="../../_static/fonts/source-serif-pro/source-serif-pro.css" />
+  <link rel="stylesheet" type="text/css" href="../../_static/css/bootstrap.min.css" />
+  <link rel="stylesheet" type="text/css" href="../../_static/css/bootstrap-theme.min.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+    <title>wepy.sim_manager &#8212; wepy  documentation</title>
+    <link rel="stylesheet" href="../../_static/guzzle.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../_static/language_data.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+  
+   
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">wepy  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="container-wrapper">
+
+      <div id="mobile-toggle">
+        <a href="#"><span class="glyphicon glyphicon-align-justify" aria-hidden="true"></span></a>
+      </div>
+  <div id="left-column">
+    <div class="sphinxsidebar">
+<div class="sidebar-block">
+  <div class="sidebar-wrapper">
+    <div id="main-search">
+      <form class="form-inline" action="../../search.html" method="GET" role="form">
+        <div class="input-group">
+          <input name="q" type="text" class="form-control" placeholder="Search...">
+        </div>
+        <input type="hidden" name="check_keywords" value="yes" />
+        <input type="hidden" name="area" value="default" />
+      </form>
+    </div>
+  </div>
+</div>
+      
+    </div>
+  </div>
+        <div id="right-column">
+          
+          <div role="navigation" aria-label="breadcrumbs navigation">
+            <ol class="breadcrumb">
+              <li><a href="../../index.html">Docs</a></li>
+              
+                <li><a href="../index.html">Module code</a></li>
+              
+              <li>wepy.sim_manager</li>
+            </ol>
+          </div>
+          
+          <div class="document clearer body">
+            
+  <h1>Source code for wepy.sim_manager</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Module for the main simulation management class.</span>
+
+<span class="sd">All component class interfaces are set by how the manager interacts</span>
+<span class="sd">with them.</span>
+
+<span class="sd">Managers should implement a three phase protocol for running</span>
+<span class="sd">simulations:</span>
+
+<span class="sd">- init</span>
+<span class="sd">- run_simulation</span>
+<span class="sd">- cleanup</span>
+
+<span class="sd">The separate `init` method is different than the constructor</span>
+<span class="sd">`__init__` method and instead calls the special `init` method on all</span>
+<span class="sd">wepy components (runner, resampler, boundary conditions, and</span>
+<span class="sd">reporters) at runtime.</span>
+
+<span class="sd">This allows for a things that need to be done at runtime before a</span>
+<span class="sd">simulation begins, e.g. opening files, that you don&#39;t want done at</span>
+<span class="sd">construction time.</span>
+
+<span class="sd">This is useful for orchestration because the complete simulation</span>
+<span class="sd">&#39;image&#39; can be made before runtime (and pickled or otherwise</span>
+<span class="sd">persisted) without producing external effects.</span>
+
+<span class="sd">This is used primarily for reporters, which perform I/O, and work</span>
+<span class="sd">mappers which may spawn processes.</span>
+
+<span class="sd">The `cleanup` method should be called either when the simulation ends</span>
+<span class="sd">normally as well as when the simulation ends abnormally.</span>
+
+<span class="sd">This allows file handles to be closed and processes to be killed at</span>
+<span class="sd">the end of a simulation and upon failure.</span>
+
+
+<span class="sd">The base methods for running simulations is `run_cycle` which runs</span>
+<span class="sd">a cycle of weighted ensemble given the state of all the components.</span>
+
+<span class="sd">The simulation manager should provide multiple ways of running</span>
+<span class="sd">simulations depending on if the number of cycles is known up front or</span>
+<span class="sd">to be determined adaptively (e.g. according to some time limit).</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">from</span> <span class="nn">copy</span> <span class="k">import</span> <span class="n">deepcopy</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+
+<span class="kn">from</span> <span class="nn">wepy.work_mapper.mapper</span> <span class="k">import</span> <span class="n">Mapper</span>
+
+<div class="viewcode-block" id="Manager"><a class="viewcode-back" href="../../api/wepy.sim_manager.html#wepy.sim_manager.Manager">[docs]</a><span class="k">class</span> <span class="nc">Manager</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;The class that coordinates wepy simulations.</span>
+
+<span class="sd">    The Manager class is the lynchpin of wepy simulations and is where</span>
+<span class="sd">    all the different components are composed.</span>
+
+<span class="sd">    Strictly speaking the Manager defines the interfaces each</span>
+<span class="sd">    component must provide to function.</span>
+
+<span class="sd">    Developers can call `run_cycle` directly but the following</span>
+<span class="sd">    convenience functions are provided to run many cycles in</span>
+<span class="sd">    succession as a single &#39;run&#39; with consecutive cycle idxs:</span>
+
+<span class="sd">    - run_simulation_by_time</span>
+<span class="sd">    - run_simulation</span>
+
+<span class="sd">    The corresponding &#39;continue&#39; run methods will simply pass a run</span>
+<span class="sd">    index to reporters indicating that the run continues another.</span>
+
+<span class="sd">    For these run methods the `init` method is called followed by</span>
+<span class="sd">    iterative calls to `run_cycle` and finally with a call to</span>
+<span class="sd">    `cleanup`.</span>
+
+<span class="sd">    The order of application of wepy components are:</span>
+
+<span class="sd">    - runner</span>
+<span class="sd">    - boundary_conditions</span>
+<span class="sd">    - resampler</span>
+<span class="sd">    - reporters</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+
+    <span class="n">REPORT_ITEM_KEYS</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;cycle_idx&#39;</span><span class="p">,</span> <span class="s1">&#39;n_segment_steps&#39;</span><span class="p">,</span>
+                        <span class="s1">&#39;new_walkers&#39;</span><span class="p">,</span> <span class="s1">&#39;resampled_walkers&#39;</span><span class="p">,</span>
+                        <span class="s1">&#39;warp_data&#39;</span><span class="p">,</span> <span class="s1">&#39;bc_data&#39;</span><span class="p">,</span> <span class="s1">&#39;progress_data&#39;</span><span class="p">,</span>
+                        <span class="s1">&#39;resampling_data&#39;</span><span class="p">,</span> <span class="s1">&#39;resampler_data&#39;</span><span class="p">,</span>
+                        <span class="s1">&#39;worker_segment_times&#39;</span><span class="p">,</span> <span class="s1">&#39;cycle_runner_time&#39;</span><span class="p">,</span>
+                        <span class="s1">&#39;cycle_bc_time&#39;</span><span class="p">,</span> <span class="s1">&#39;cycle_resampling_time&#39;</span><span class="p">,)</span>
+    <span class="sd">&quot;&quot;&quot;Keys of values that will be passed to reporters.</span>
+
+<span class="sd">    This indicates the values that the reporters will have access to.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">init_walkers</span><span class="p">,</span>
+                 <span class="n">runner</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                 <span class="n">work_mapper</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                 <span class="n">resampler</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                 <span class="n">boundary_conditions</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                 <span class="n">reporters</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Constructor for Manager.</span>
+
+<span class="sd">        Arguments</span>
+<span class="sd">        ---------</span>
+
+<span class="sd">        init_walkers : list of walkers</span>
+<span class="sd">            The list of the initial walkers that will be run.</span>
+
+<span class="sd">        runner : object implementing the Runner interface</span>
+<span class="sd">            The runner to be used for propagating sampling segments of walkers.</span>
+
+<span class="sd">        work_mapper : object implementing the WorkMapper interface</span>
+<span class="sd">            The object that will be used to perform a set of runner</span>
+<span class="sd">            segments in a cycle.</span>
+
+<span class="sd">        resampler : object implementing the Resampler interface</span>
+<span class="sd">            The resampler to be used in the simulation</span>
+
+<span class="sd">        boundary_conditions : object implementing BoundaryCondition interface, optional</span>
+<span class="sd">            The boundary conditions to apply to walkers</span>
+
+<span class="sd">        reporters : list of objects implenting the Reporter interface, optional</span>
+<span class="sd">            Reporters to be used. You should provide these if you want to keep data.</span>
+
+<span class="sd">        Warnings</span>
+<span class="sd">        --------</span>
+
+<span class="sd">        While reporters are strictly optional, you probably want to</span>
+<span class="sd">        provide some because the simulation manager provides no</span>
+<span class="sd">        utilities for saving data from the simulations except for the</span>
+<span class="sd">        walkers at the end of a cycle or simulation.</span>
+
+<span class="sd">        See Also</span>
+<span class="sd">        --------</span>
+<span class="sd">        wepy.reporter.hdf5 : The standard reporter for molecular simulations in wepy.</span>
+
+<span class="sd">        wepy.orchestration.orchestrator.Orchestrator : for running simulations with</span>
+<span class="sd">            checkpointing, restarting, reporter localization, and configuration hotswapping</span>
+<span class="sd">            with command line interface.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">init_walkers</span> <span class="o">=</span> <span class="n">init_walkers</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_init_walkers</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">init_walkers</span><span class="p">)</span>
+
+        <span class="c1"># the runner is the object that runs dynamics</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">runner</span> <span class="o">=</span> <span class="n">runner</span>
+        <span class="c1"># the resampler</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">resampler</span> <span class="o">=</span> <span class="n">resampler</span>
+        <span class="c1"># object for boundary conditions</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">boundary_conditions</span> <span class="o">=</span> <span class="n">boundary_conditions</span>
+
+        <span class="c1"># the method for writing output</span>
+        <span class="k">if</span> <span class="n">reporters</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">reporters</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">reporters</span> <span class="o">=</span> <span class="n">reporters</span>
+
+        <span class="k">if</span> <span class="n">work_mapper</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">work_mapper</span> <span class="o">=</span> <span class="n">Mapper</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">work_mapper</span> <span class="o">=</span> <span class="n">work_mapper</span>
+
+<div class="viewcode-block" id="Manager.run_segment"><a class="viewcode-back" href="../../api/wepy.sim_manager.html#wepy.sim_manager.Manager.run_segment">[docs]</a>    <span class="k">def</span> <span class="nf">run_segment</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">walkers</span><span class="p">,</span> <span class="n">segment_length</span><span class="p">,</span> <span class="n">cycle_idx</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Run a time segment for all walkers using the available workers.</span>
+
+<span class="sd">        Maps the work for running each segment for each walker using</span>
+<span class="sd">        the work mapper.</span>
+
+<span class="sd">        Walkers will have the same weights but different states.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        walkers : list of walkers</span>
+<span class="sd">        segment_length : int</span>
+<span class="sd">            Number of steps to run in each segment.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
+<span class="sd">        new_walkers : list of walkers</span>
+<span class="sd">           The walkers after the segment of sampling simulation.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">num_walkers</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">walkers</span><span class="p">)</span>
+
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Starting segment&quot;</span><span class="p">)</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">new_walkers</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">work_mapper</span><span class="o">.</span><span class="n">map</span><span class="p">(</span>
+                <span class="c1"># args, which must be supported by the map function</span>
+                <span class="n">walkers</span><span class="p">,</span>
+                <span class="p">(</span><span class="n">segment_length</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_walkers</span><span class="p">)),</span>
+
+                <span class="c1"># kwargs which are optionally recognized by the map function</span>
+                <span class="n">cycle_idx</span><span class="o">=</span><span class="p">(</span><span class="n">cycle_idx</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_walkers</span><span class="p">)),</span>
+                <span class="n">walker_idx</span><span class="o">=</span><span class="p">(</span><span class="n">walker_idx</span> <span class="k">for</span> <span class="n">walker_idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_walkers</span><span class="p">)),</span>
+            <span class="p">)</span>
+            <span class="p">)</span>
+
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exception</span><span class="p">:</span>
+
+            <span class="c1"># get the errors from the work mapper error queue</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cleanup</span><span class="p">()</span>
+
+            <span class="c1"># report on all of the errors that occured</span>
+            <span class="k">raise</span> <span class="n">exception</span>
+
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Ending segment&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">new_walkers</span></div>
+
+<div class="viewcode-block" id="Manager.run_cycle"><a class="viewcode-back" href="../../api/wepy.sim_manager.html#wepy.sim_manager.Manager.run_cycle">[docs]</a>    <span class="k">def</span> <span class="nf">run_cycle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">walkers</span><span class="p">,</span> <span class="n">n_segment_steps</span><span class="p">,</span> <span class="n">cycle_idx</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Run a full cycle of weighted ensemble simulation using each</span>
+<span class="sd">        component.</span>
+
+<span class="sd">        The order of application of wepy components are:</span>
+
+<span class="sd">        - runner</span>
+<span class="sd">        - boundary_conditions</span>
+<span class="sd">        - resampler</span>
+<span class="sd">        - reporters</span>
+
+<span class="sd">        The `init` method should have been called before this or</span>
+<span class="sd">        components may fail.</span>
+
+<span class="sd">        This method is not idempotent and will alter the state of wepy</span>
+<span class="sd">        components.</span>
+
+<span class="sd">        The cycle is not kept as a state variable of the simulation</span>
+<span class="sd">        manager and so myst be provided here. This motivation for this</span>
+<span class="sd">        is that a cycle index is really a property of a run and runs</span>
+<span class="sd">        can be composed in many ways and is then handled by</span>
+<span class="sd">        higher-level methods calling run_cycle.</span>
+
+<span class="sd">        Each component should implement its respective interface to be</span>
+<span class="sd">        called in this method, the order and names of the methods</span>
+<span class="sd">        called are as follows:</span>
+
+<span class="sd">        1. runner.pre_cycle</span>
+<span class="sd">        2. run_segment -&gt; work_mapper.map(runner.run_segment)</span>
+<span class="sd">        3. runner.post_cycle</span>
+<span class="sd">        4. boundary_conditions.warp_walkers (if present)</span>
+<span class="sd">        5. resampler.resample</span>
+<span class="sd">        6. reporter.report for all reporters</span>
+
+<span class="sd">        The pre and post cycle calls to the runner allow for a parity</span>
+<span class="sd">        of one call per cycle to the runner.</span>
+
+<span class="sd">        The boundary_conditions component is optional, as are the</span>
+<span class="sd">        reporters (although it won&#39;t be very useful to run this</span>
+<span class="sd">        without any).</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        walkers : list of walkers</span>
+
+<span class="sd">        n_segment_steps : int</span>
+<span class="sd">            Number of steps to run in each segment.</span>
+
+<span class="sd">        cycle_idx : int</span>
+<span class="sd">            The index of this cycle.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
+<span class="sd">        new_walkers : list of walkers</span>
+<span class="sd">            The resulting walkers of the cycle</span>
+
+<span class="sd">        sim_components : list</span>
+<span class="sd">            The runner, resampler, and boundary conditions</span>
+<span class="sd">            objects at the end of the cycle.</span>
+
+<span class="sd">        See Also</span>
+<span class="sd">        --------</span>
+<span class="sd">        run_simulation : To run a simulation by the number of cycles</span>
+<span class="sd">        run_simulation_by_time</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+
+        <span class="c1"># this one is called to just easily be able to catch all the</span>
+        <span class="c1"># errors from it so we can cleanup if an error is caught</span>
+
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_run_cycle</span><span class="p">(</span><span class="n">walkers</span><span class="p">,</span> <span class="n">n_segment_steps</span><span class="p">,</span> <span class="n">cycle_idx</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">_run_cycle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">walkers</span><span class="p">,</span> <span class="n">n_segment_steps</span><span class="p">,</span> <span class="n">cycle_idx</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;See run_cycle.&quot;&quot;&quot;</span>
+
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Begin cycle </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cycle_idx</span><span class="p">))</span>
+
+        <span class="c1"># run the pre-cycle hook</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">runner</span><span class="o">.</span><span class="n">pre_cycle</span><span class="p">(</span><span class="n">walkers</span><span class="o">=</span><span class="n">walkers</span><span class="p">,</span>
+                              <span class="n">n_segment_steps</span><span class="o">=</span><span class="n">n_segment_steps</span><span class="p">,</span>
+                              <span class="n">cycle_idx</span><span class="o">=</span><span class="n">cycle_idx</span><span class="p">)</span>
+
+        <span class="c1"># run the segment</span>
+        <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Entering run segment&quot;</span><span class="p">)</span>
+        <span class="n">new_walkers</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">run_segment</span><span class="p">(</span><span class="n">walkers</span><span class="p">,</span> <span class="n">n_segment_steps</span><span class="p">,</span> <span class="n">cycle_idx</span><span class="p">)</span>
+        <span class="n">end</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="n">runner_time</span> <span class="o">=</span> <span class="n">end</span> <span class="o">-</span> <span class="n">start</span>
+
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Starting post cycle&quot;</span><span class="p">)</span>
+        <span class="c1"># run post-cycle hook</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">runner</span><span class="o">.</span><span class="n">post_cycle</span><span class="p">()</span>
+
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;End cycle </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cycle_idx</span><span class="p">))</span>
+
+        <span class="c1"># boundary conditions should be optional;</span>
+
+        <span class="c1"># initialize the warped walkers to the new_walkers and</span>
+        <span class="c1"># change them later if need be</span>
+        <span class="n">warped_walkers</span> <span class="o">=</span> <span class="n">new_walkers</span>
+        <span class="n">warp_data</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">bc_data</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">progress_data</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">bc_time</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">boundary_conditions</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+
+            <span class="c1"># apply rules of boundary conditions and warp walkers through space</span>
+            <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Starting boundary conditions&quot;</span><span class="p">)</span>
+            <span class="n">bc_results</span>  <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">boundary_conditions</span><span class="o">.</span><span class="n">warp_walkers</span><span class="p">(</span><span class="n">new_walkers</span><span class="p">,</span>
+                                                                <span class="n">cycle_idx</span><span class="p">)</span>
+            <span class="n">end</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+            <span class="n">bc_time</span> <span class="o">=</span> <span class="n">end</span> <span class="o">-</span> <span class="n">start</span>
+
+            <span class="c1"># warping results</span>
+            <span class="n">warped_walkers</span> <span class="o">=</span> <span class="n">bc_results</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">warp_data</span> <span class="o">=</span> <span class="n">bc_results</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">bc_data</span> <span class="o">=</span> <span class="n">bc_results</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+            <span class="n">progress_data</span> <span class="o">=</span> <span class="n">bc_results</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
+
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">warp_data</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Returned warp record in cycle </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cycle_idx</span><span class="p">))</span>
+
+
+        <span class="c1"># resample walkers</span>
+        <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Starting resampler&quot;</span><span class="p">)</span>
+
+        <span class="n">resampling_results</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">resampler</span><span class="o">.</span><span class="n">resample</span><span class="p">(</span><span class="n">warped_walkers</span><span class="p">)</span>
+
+        <span class="n">end</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="n">resampling_time</span> <span class="o">=</span> <span class="n">end</span> <span class="o">-</span> <span class="n">start</span>
+
+        <span class="n">resampled_walkers</span> <span class="o">=</span> <span class="n">resampling_results</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">resampling_data</span> <span class="o">=</span> <span class="n">resampling_results</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">resampler_data</span> <span class="o">=</span> <span class="n">resampling_results</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+
+        <span class="c1"># log the weights of the walkers after resampling</span>
+        <span class="n">result_template_str</span> <span class="o">=</span> <span class="s2">&quot;|&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s2">&quot;</span><span class="si">{:^5}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_init_walkers</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)])</span>
+        <span class="n">walker_weight_str</span> <span class="o">=</span> <span class="n">result_template_str</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s2">&quot;weight&quot;</span><span class="p">,</span>
+            <span class="o">*</span><span class="p">[</span><span class="nb">round</span><span class="p">(</span><span class="n">walker</span><span class="o">.</span><span class="n">weight</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span> <span class="k">for</span> <span class="n">walker</span> <span class="ow">in</span> <span class="n">resampled_walkers</span><span class="p">])</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">walker_weight_str</span><span class="p">)</span>
+
+        <span class="c1"># make a dictionary of all the results that will be reported</span>
+        <span class="n">seg_times</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">sampling_time</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">overhead_time</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">work_mapper</span><span class="p">,</span> <span class="s1">&#39;worker_segment_times&#39;</span><span class="p">):</span>
+
+            <span class="n">seg_times</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">work_mapper</span><span class="o">.</span><span class="n">worker_segment_times</span>
+
+            <span class="c1"># count up the total sampling time from the segments</span>
+            <span class="n">sampling_time</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">for</span> <span class="n">worker_id</span><span class="p">,</span> <span class="n">segments_times</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">work_mapper</span><span class="o">.</span><span class="n">worker_segment_times</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="k">for</span> <span class="n">seg_time</span> <span class="ow">in</span> <span class="n">segments_times</span><span class="p">:</span>
+                    <span class="n">sampling_time</span> <span class="o">+=</span> <span class="n">seg_time</span>
+
+            <span class="c1"># calculate the overhead for logging</span>
+            <span class="n">overhead_time</span> <span class="o">=</span> <span class="n">runner_time</span> <span class="o">-</span> <span class="n">sampling_time</span>
+
+            <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                <span class="s2">&quot;Runner time = </span><span class="si">{}</span><span class="s2">; Sampling = (</span><span class="si">{}</span><span class="s2">); Overhead = (</span><span class="si">{}</span><span class="s2">)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="n">runner_time</span><span class="p">,</span> <span class="n">sampling_time</span><span class="p">,</span> <span class="n">overhead_time</span><span class="p">))</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;No worker segment times given&quot;</span><span class="p">)</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Runner time = </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">runner_time</span><span class="p">))</span>
+
+
+        <span class="n">report</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;cycle_idx&#39;</span> <span class="p">:</span> <span class="n">cycle_idx</span><span class="p">,</span>
+                  <span class="s1">&#39;new_walkers&#39;</span> <span class="p">:</span> <span class="n">new_walkers</span><span class="p">,</span>
+                  <span class="s1">&#39;warp_data&#39;</span> <span class="p">:</span> <span class="n">warp_data</span><span class="p">,</span>
+                  <span class="s1">&#39;bc_data&#39;</span> <span class="p">:</span> <span class="n">bc_data</span><span class="p">,</span>
+                  <span class="s1">&#39;progress_data&#39;</span> <span class="p">:</span> <span class="n">progress_data</span><span class="p">,</span>
+                  <span class="s1">&#39;resampling_data&#39;</span> <span class="p">:</span> <span class="n">resampling_data</span><span class="p">,</span>
+                  <span class="s1">&#39;resampler_data&#39;</span> <span class="p">:</span> <span class="n">resampler_data</span><span class="p">,</span>
+                  <span class="s1">&#39;n_segment_steps&#39;</span> <span class="p">:</span> <span class="n">n_segment_steps</span><span class="p">,</span>
+                  <span class="s1">&#39;worker_segment_times&#39;</span> <span class="p">:</span> <span class="n">seg_times</span><span class="p">,</span>
+                  <span class="s1">&#39;cycle_runner_time&#39;</span> <span class="p">:</span> <span class="n">runner_time</span><span class="p">,</span>
+                  <span class="s1">&#39;cycle_bc_time&#39;</span> <span class="p">:</span> <span class="n">bc_time</span><span class="p">,</span>
+                  <span class="s1">&#39;cycle_resampling_time&#39;</span> <span class="p">:</span> <span class="n">resampling_time</span><span class="p">,</span>
+                  <span class="s1">&#39;resampled_walkers&#39;</span> <span class="p">:</span> <span class="n">resampled_walkers</span><span class="p">}</span>
+
+        <span class="c1"># check that all of the keys that are specified for this sim</span>
+        <span class="c1"># manager are present</span>
+        <span class="k">assert</span> <span class="nb">all</span><span class="p">([</span><span class="kc">True</span> <span class="k">if</span> <span class="n">rep_key</span> <span class="ow">in</span> <span class="n">report</span> <span class="k">else</span> <span class="kc">False</span>
+                    <span class="k">for</span> <span class="n">rep_key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">REPORT_ITEM_KEYS</span><span class="p">])</span>
+
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Starting reporting&quot;</span><span class="p">)</span>
+        <span class="c1"># report results to the reporters</span>
+        <span class="k">for</span> <span class="n">reporter</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">reporters</span><span class="p">:</span>
+            <span class="n">reporter</span><span class="o">.</span><span class="n">report</span><span class="p">(</span><span class="o">**</span><span class="n">report</span><span class="p">)</span>
+
+        <span class="c1"># prepare resampled walkers for running new state changes</span>
+        <span class="n">walkers</span> <span class="o">=</span> <span class="n">resampled_walkers</span>
+
+
+        <span class="c1"># we also return a list of the &quot;filters&quot; which are the</span>
+        <span class="c1"># classes that are run on the initial walkers to produce</span>
+        <span class="c1"># the final walkers. THis is to satisfy a future looking</span>
+        <span class="c1"># interface in which the order and components of these</span>
+        <span class="c1"># filters are completely parametrizable. This may or may</span>
+        <span class="c1"># not be implemented in a future release of wepy but this</span>
+        <span class="c1"># interface is assumed by the orchestration classes for</span>
+        <span class="c1"># making snapshots of the simulations. The receiver of</span>
+        <span class="c1"># these should perform the copy to make sure they aren&#39;t</span>
+        <span class="c1"># mutated. We don&#39;t do this here for efficiency.</span>
+        <span class="n">filters</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">runner</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">boundary_conditions</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">resampler</span><span class="p">]</span>
+
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Done: returning walkers&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">walkers</span><span class="p">,</span> <span class="n">filters</span>
+
+<div class="viewcode-block" id="Manager.init"><a class="viewcode-back" href="../../api/wepy.sim_manager.html#wepy.sim_manager.Manager.init">[docs]</a>    <span class="k">def</span> <span class="nf">init</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num_workers</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">continue_run</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initialize wepy configuration components for use at runtime.</span>
+
+<span class="sd">        This `init` method is different than the constructor</span>
+<span class="sd">        `__init__` method and instead calls the special `init` method</span>
+<span class="sd">        on all wepy components (runner, resampler, boundary</span>
+<span class="sd">        conditions, and reporters) at runtime.</span>
+
+<span class="sd">        This allows for a things that need to be done at runtime before a</span>
+<span class="sd">        simulation begins, e.g. opening files, that you don&#39;t want done at</span>
+<span class="sd">        construction time.</span>
+
+<span class="sd">        It calls the `init` methods on:</span>
+
+<span class="sd">        - work_mapper</span>
+<span class="sd">        - reporters</span>
+
+<span class="sd">        Passes the segment_func of the runner and the number of</span>
+<span class="sd">        workers to the work_mapper.</span>
+
+<span class="sd">        Passes the following things to each reporter `init` method:</span>
+
+<span class="sd">        - init_walkers</span>
+<span class="sd">        - runner</span>
+<span class="sd">        - resampler</span>
+<span class="sd">        - boundary_conditions</span>
+<span class="sd">        - work_mapper</span>
+<span class="sd">        - reporters</span>
+<span class="sd">        - continue_run</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        num_workers : int</span>
+<span class="sd">            The number of workers to use in the work mapper.</span>
+<span class="sd">             (Default value = None)</span>
+<span class="sd">        continue_run : int</span>
+<span class="sd">            Index of a run this one is continuing.</span>
+<span class="sd">             (Default value = None)</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Starting simulation&quot;</span><span class="p">)</span>
+
+        <span class="c1"># initialize the work_mapper with the function it will be</span>
+        <span class="c1"># mapping and the number of workers, this may include things like starting processes</span>
+        <span class="c1"># etc.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">work_mapper</span><span class="o">.</span><span class="n">init</span><span class="p">(</span><span class="n">segment_func</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">runner</span><span class="o">.</span><span class="n">run_segment</span><span class="p">,</span>
+                              <span class="n">num_workers</span><span class="o">=</span><span class="n">num_workers</span><span class="p">)</span>
+
+        <span class="c1"># init the reporter</span>
+        <span class="k">for</span> <span class="n">reporter</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">reporters</span><span class="p">:</span>
+            <span class="n">reporter</span><span class="o">.</span><span class="n">init</span><span class="p">(</span><span class="n">init_walkers</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">init_walkers</span><span class="p">,</span>
+                          <span class="n">runner</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">runner</span><span class="p">,</span>
+                          <span class="n">resampler</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">resampler</span><span class="p">,</span>
+                          <span class="n">boundary_conditions</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">boundary_conditions</span><span class="p">,</span>
+                          <span class="n">work_mapper</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">work_mapper</span><span class="p">,</span>
+                          <span class="n">reporters</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">reporters</span><span class="p">,</span>
+                          <span class="n">continue_run</span><span class="o">=</span><span class="n">continue_run</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Manager.cleanup"><a class="viewcode-back" href="../../api/wepy.sim_manager.html#wepy.sim_manager.Manager.cleanup">[docs]</a>    <span class="k">def</span> <span class="nf">cleanup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Perform cleanup actions for wepy configuration components.</span>
+
+<span class="sd">        Allow components to perform actions before ending the main</span>
+<span class="sd">        simulation manager process.</span>
+
+<span class="sd">        Calls the `cleanup` method on:</span>
+
+<span class="sd">        - work_mapper</span>
+<span class="sd">        - reporters</span>
+
+<span class="sd">        Passes nothing to the work mapper.</span>
+
+<span class="sd">        Passes the following to each reporter:</span>
+
+<span class="sd">        - runner</span>
+<span class="sd">        - work_mapper</span>
+<span class="sd">        - resampler</span>
+<span class="sd">        - boundary_conditions</span>
+<span class="sd">        - reporters</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># cleanup the mapper</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">work_mapper</span><span class="o">.</span><span class="n">cleanup</span><span class="p">()</span>
+
+        <span class="c1"># cleanup things associated with the reporter</span>
+        <span class="k">for</span> <span class="n">reporter</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">reporters</span><span class="p">:</span>
+            <span class="n">reporter</span><span class="o">.</span><span class="n">cleanup</span><span class="p">(</span><span class="n">runner</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">runner</span><span class="p">,</span>
+                             <span class="n">work_mapper</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">work_mapper</span><span class="p">,</span>
+                             <span class="n">resampler</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">resampler</span><span class="p">,</span>
+                             <span class="n">boundary_conditions</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">boundary_conditions</span><span class="p">,</span>
+                             <span class="n">reporters</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">reporters</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Manager.run_simulation_by_time"><a class="viewcode-back" href="../../api/wepy.sim_manager.html#wepy.sim_manager.Manager.run_simulation_by_time">[docs]</a>    <span class="k">def</span> <span class="nf">run_simulation_by_time</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">run_time</span><span class="p">,</span> <span class="n">segments_length</span><span class="p">,</span> <span class="n">num_workers</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Run a simulation for a certain amount of time.</span>
+
+<span class="sd">        This starts timing as soon as this is called. If the time</span>
+<span class="sd">        before running a new cycle is greater than the runtime the run</span>
+<span class="sd">        will exit after cleaning up. Once a cycle is started it may</span>
+<span class="sd">        also run over the wall time.</span>
+
+<span class="sd">        All this does is provide a run idx to the reporters, which is</span>
+<span class="sd">        the run that is intended to be continued. This simulation</span>
+<span class="sd">        manager knows no details and is left up to the reporters to</span>
+<span class="sd">        handle this appropriately.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        run_time : float</span>
+<span class="sd">            The time to run in seconds.</span>
+
+<span class="sd">        segments_length : int</span>
+<span class="sd">            The number of steps for each runner segment.</span>
+
+<span class="sd">        num_workers : int</span>
+<span class="sd">            The number of workers to use for the work mapper.</span>
+<span class="sd">             (Default value = None)</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        new_walkers : list of walkers</span>
+<span class="sd">            The resulting walkers of the cycle</span>
+
+<span class="sd">        sim_components : list</span>
+<span class="sd">            Deep copies of the runner, resampler, and boundary</span>
+<span class="sd">            conditions objects at the end of the cycle.</span>
+
+<span class="sd">        See Also</span>
+<span class="sd">        --------</span>
+<span class="sd">        wepy.orchestration.orchestrator.Orchestrator : for running simulations with</span>
+<span class="sd">            checkpointing, restarting, reporter localization, and configuration hotswapping</span>
+<span class="sd">            with command line interface.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">init</span><span class="p">(</span><span class="n">num_workers</span><span class="o">=</span><span class="n">num_workers</span><span class="p">)</span>
+        <span class="n">cycle_idx</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">walkers</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">init_walkers</span>
+        <span class="k">while</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start_time</span> <span class="o">&lt;</span> <span class="n">run_time</span><span class="p">:</span>
+
+            <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;starting cycle </span><span class="si">{}</span><span class="s2"> at time </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cycle_idx</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start_time</span><span class="p">))</span>
+
+            <span class="n">walkers</span><span class="p">,</span> <span class="n">filters</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">run_cycle</span><span class="p">(</span><span class="n">walkers</span><span class="p">,</span> <span class="n">segments_length</span><span class="p">,</span> <span class="n">cycle_idx</span><span class="p">)</span>
+
+            <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;ending cycle </span><span class="si">{}</span><span class="s2"> at time </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cycle_idx</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start_time</span><span class="p">))</span>
+
+            <span class="n">cycle_idx</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">cleanup</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="n">walkers</span><span class="p">,</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">filters</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Manager.run_simulation"><a class="viewcode-back" href="../../api/wepy.sim_manager.html#wepy.sim_manager.Manager.run_simulation">[docs]</a>    <span class="k">def</span> <span class="nf">run_simulation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n_cycles</span><span class="p">,</span> <span class="n">segment_lengths</span><span class="p">,</span> <span class="n">num_workers</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Run a simulation for an explicit number of cycles.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        n_cycles : int</span>
+<span class="sd">            Number of cycles to perform.</span>
+
+<span class="sd">        segment_lengths : int</span>
+<span class="sd">            The number of steps for each runner segment.</span>
+
+<span class="sd">        num_workers : int</span>
+<span class="sd">            The number of workers to use for the work mapper.</span>
+<span class="sd">             (Default value = None)</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        new_walkers : list of walkers</span>
+<span class="sd">            The resulting walkers of the cycle</span>
+
+<span class="sd">        sim_components : list</span>
+<span class="sd">            Deep copies of the runner, resampler, and boundary</span>
+<span class="sd">            conditions objects at the end of the cycle.</span>
+
+<span class="sd">        See Also</span>
+<span class="sd">        --------</span>
+<span class="sd">        wepy.orchestration.orchestrator.Orchestrator : for running simulations with</span>
+<span class="sd">            checkpointing, restarting, reporter localization, and configuration hotswapping</span>
+<span class="sd">            with command line interface.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">init</span><span class="p">(</span><span class="n">num_workers</span><span class="o">=</span><span class="n">num_workers</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">segment_lengths</span><span class="p">)</span> <span class="o">==</span> <span class="nb">int</span><span class="p">:</span>
+            <span class="n">segment_lengths</span> <span class="o">=</span> <span class="p">[</span><span class="n">segment_lengths</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_cycles</span><span class="p">)]</span>
+
+        <span class="n">walkers</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">init_walkers</span>
+        <span class="c1"># the main cycle loop</span>
+        <span class="k">for</span> <span class="n">cycle_idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_cycles</span><span class="p">):</span>
+            <span class="n">walkers</span><span class="p">,</span> <span class="n">filters</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">run_cycle</span><span class="p">(</span><span class="n">walkers</span><span class="p">,</span> <span class="n">segment_lengths</span><span class="p">[</span><span class="n">cycle_idx</span><span class="p">],</span> <span class="n">cycle_idx</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">cleanup</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="n">walkers</span><span class="p">,</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">filters</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Manager.continue_run_simulation"><a class="viewcode-back" href="../../api/wepy.sim_manager.html#wepy.sim_manager.Manager.continue_run_simulation">[docs]</a>    <span class="k">def</span> <span class="nf">continue_run_simulation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">run_idx</span><span class="p">,</span> <span class="n">n_cycles</span><span class="p">,</span> <span class="n">segment_lengths</span><span class="p">,</span> <span class="n">num_workers</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Continue a simulation. All this does is provide a run idx to the</span>
+<span class="sd">        reporters, which is the run that is intended to be</span>
+<span class="sd">        continued. This simulation manager knows no details and is</span>
+<span class="sd">        left up to the reporters to handle this appropriately.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        run_idx : int</span>
+<span class="sd">            Index of the run you are continuing.</span>
+
+<span class="sd">        n_cycles : int</span>
+<span class="sd">            Number of cycles to perform.</span>
+
+<span class="sd">        segment_lengths : int</span>
+<span class="sd">            The number of steps for each runner segment.</span>
+
+<span class="sd">        num_workers : int</span>
+<span class="sd">            The number of workers to use for the work mapper.</span>
+<span class="sd">             (Default value = None)</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        new_walkers : list of walkers</span>
+<span class="sd">            The resulting walkers of the cycle</span>
+
+<span class="sd">        sim_components : list</span>
+<span class="sd">            Deep copies of the runner, resampler, and boundary</span>
+<span class="sd">            conditions objects at the end of the cycle.</span>
+
+<span class="sd">        See Also</span>
+<span class="sd">        --------</span>
+<span class="sd">        wepy.orchestration.orchestrator.Orchestrator : for running simulations with</span>
+<span class="sd">            checkpointing, restarting, reporter localization, and configuration hotswapping</span>
+<span class="sd">            with command line interface.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">init</span><span class="p">(</span><span class="n">num_workers</span><span class="o">=</span><span class="n">num_workers</span><span class="p">,</span>
+                  <span class="n">continue_run</span><span class="o">=</span><span class="n">run_idx</span><span class="p">)</span>
+
+        <span class="n">walkers</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">init_walkers</span>
+        <span class="c1"># the main cycle loop</span>
+        <span class="k">for</span> <span class="n">cycle_idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_cycles</span><span class="p">):</span>
+            <span class="n">walkers</span><span class="p">,</span> <span class="n">filters</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">run_cycle</span><span class="p">(</span><span class="n">walkers</span><span class="p">,</span> <span class="n">segment_lengths</span><span class="p">[</span><span class="n">cycle_idx</span><span class="p">],</span> <span class="n">cycle_idx</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">cleanup</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="n">walkers</span><span class="p">,</span> <span class="n">filters</span></div>
+
+
+<div class="viewcode-block" id="Manager.continue_run_simulation_by_time"><a class="viewcode-back" href="../../api/wepy.sim_manager.html#wepy.sim_manager.Manager.continue_run_simulation_by_time">[docs]</a>    <span class="k">def</span> <span class="nf">continue_run_simulation_by_time</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">run_idx</span><span class="p">,</span> <span class="n">run_time</span><span class="p">,</span> <span class="n">segments_length</span><span class="p">,</span> <span class="n">num_workers</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Continue a simulation with a separate run by time.</span>
+
+<span class="sd">        This starts timing as soon as this is called. If the time</span>
+<span class="sd">        before running a new cycle is greater than the runtime the run</span>
+<span class="sd">        will exit after cleaning up. Once a cycle is started it may</span>
+<span class="sd">        also run over the wall time.</span>
+
+<span class="sd">        All this does is provide a run idx to the reporters, which is</span>
+<span class="sd">        the run that is intended to be continued. This simulation</span>
+<span class="sd">        manager knows no details and is left up to the reporters to</span>
+<span class="sd">        handle this appropriately.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        run_idx : int</span>
+<span class="sd">            Deep copies of the runner, resampler, and boundary</span>
+<span class="sd">            conditions objects at the end of the cycle.</span>
+
+
+<span class="sd">        See Also</span>
+<span class="sd">        --------</span>
+<span class="sd">        wepy.orchestration.orchestrator.Orchestrator : for running simulations with</span>
+<span class="sd">            checkpointing, restarting, reporter localization, and configuration hotswapping</span>
+<span class="sd">            with command line interface.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">init</span><span class="p">(</span><span class="n">num_workers</span><span class="o">=</span><span class="n">num_workers</span><span class="p">,</span>
+                  <span class="n">continue_run</span><span class="o">=</span><span class="n">run_idx</span><span class="p">)</span>
+
+        <span class="n">cycle_idx</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">walkers</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">init_walkers</span>
+        <span class="k">while</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start_time</span> <span class="o">&lt;</span> <span class="n">run_time</span><span class="p">:</span>
+
+            <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;starting cycle </span><span class="si">{}</span><span class="s2"> at time </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cycle_idx</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start_time</span><span class="p">))</span>
+
+            <span class="n">walkers</span><span class="p">,</span> <span class="n">filters</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">run_cycle</span><span class="p">(</span><span class="n">walkers</span><span class="p">,</span> <span class="n">segments_length</span><span class="p">,</span> <span class="n">cycle_idx</span><span class="p">)</span>
+
+            <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;ending cycle </span><span class="si">{}</span><span class="s2"> at time </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cycle_idx</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start_time</span><span class="p">))</span>
+
+            <span class="n">cycle_idx</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">cleanup</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="n">walkers</span><span class="p">,</span> <span class="n">filters</span></div></div>
+</pre></div>
+
+          </div>
+            
+        </div>
+        <div class="clearfix"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">wepy  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+<script type="text/javascript">
+  $("#mobile-toggle a").click(function () {
+    $("#left-column").toggle();
+  });
+</script>
+<script type="text/javascript" src="../../_static/js/bootstrap.js"></script>
+  <div class="footer">
+    &copy; Copyright 2018, Samuel D. Lotz. Created using <a href="http://sphinx.pocoo.org/">Sphinx</a>.
+  </div>
+  </body>
+</html>

@@ -1,0 +1,694 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+  
+  <!-- Licensed under the Apache 2.0 License -->
+  <link rel="stylesheet" type="text/css" href="../../../_static/fonts/open-sans/stylesheet.css" />
+  <!-- Licensed under the SIL Open Font License -->
+  <link rel="stylesheet" type="text/css" href="../../../_static/fonts/source-serif-pro/source-serif-pro.css" />
+  <link rel="stylesheet" type="text/css" href="../../../_static/css/bootstrap.min.css" />
+  <link rel="stylesheet" type="text/css" href="../../../_static/css/bootstrap-theme.min.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+    <title>wepy.work_mapper.task_mapper &#8212; wepy  documentation</title>
+    <link rel="stylesheet" href="../../../_static/guzzle.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../../_static/language_data.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+  
+   
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">wepy  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="container-wrapper">
+
+      <div id="mobile-toggle">
+        <a href="#"><span class="glyphicon glyphicon-align-justify" aria-hidden="true"></span></a>
+      </div>
+  <div id="left-column">
+    <div class="sphinxsidebar">
+<div class="sidebar-block">
+  <div class="sidebar-wrapper">
+    <div id="main-search">
+      <form class="form-inline" action="../../../search.html" method="GET" role="form">
+        <div class="input-group">
+          <input name="q" type="text" class="form-control" placeholder="Search...">
+        </div>
+        <input type="hidden" name="check_keywords" value="yes" />
+        <input type="hidden" name="area" value="default" />
+      </form>
+    </div>
+  </div>
+</div>
+      
+    </div>
+  </div>
+        <div id="right-column">
+          
+          <div role="navigation" aria-label="breadcrumbs navigation">
+            <ol class="breadcrumb">
+              <li><a href="../../../index.html">Docs</a></li>
+              
+                <li><a href="../../index.html">Module code</a></li>
+              
+              <li>wepy.work_mapper.task_mapper</li>
+            </ol>
+          </div>
+          
+          <div class="document clearer body">
+            
+  <h1>Source code for wepy.work_mapper.task_mapper</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">multiprocessing</span> <span class="k">as</span> <span class="nn">mp</span>
+<span class="kn">import</span> <span class="nn">queue</span> <span class="k">as</span> <span class="nn">pyq</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">from</span> <span class="nn">warnings</span> <span class="k">import</span> <span class="n">warn</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">traceback</span>
+<span class="kn">import</span> <span class="nn">signal</span>
+<span class="kn">import</span> <span class="nn">pickle</span>
+
+<span class="kn">from</span> <span class="nn">wepy.work_mapper.mapper</span> <span class="k">import</span> <span class="n">ABCWorkerMapper</span><span class="p">,</span> <span class="n">WrapperException</span><span class="p">,</span> <span class="n">TaskException</span><span class="p">,</span> <span class="n">Task</span>
+
+<span class="kn">from</span> <span class="nn">wepy.walker</span> <span class="k">import</span> <span class="n">Walker</span>
+
+<div class="viewcode-block" id="TaskProcessException"><a class="viewcode-back" href="../../../api/wepy.work_mapper.task_mapper.html#wepy.work_mapper.task_mapper.TaskProcessException">[docs]</a><span class="k">class</span> <span class="nc">TaskProcessException</span><span class="p">(</span><span class="n">WrapperException</span><span class="p">):</span>
+    <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="TaskProcessKilledError"><a class="viewcode-back" href="../../../api/wepy.work_mapper.task_mapper.html#wepy.work_mapper.task_mapper.TaskProcessKilledError">[docs]</a><span class="k">class</span> <span class="nc">TaskProcessKilledError</span><span class="p">(</span><span class="ne">ChildProcessError</span><span class="p">):</span>
+    <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="TaskMapper"><a class="viewcode-back" href="../../../api/wepy.work_mapper.task_mapper.html#wepy.work_mapper.task_mapper.TaskMapper">[docs]</a><span class="k">class</span> <span class="nc">TaskMapper</span><span class="p">(</span><span class="n">ABCWorkerMapper</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Process-per-task mapper.</span>
+
+<span class="sd">    This method of work mapper starts new processes for each runner</span>
+<span class="sd">    segment task that needs to be run. This allows cheap copying of</span>
+<span class="sd">    shared state using the operating system primitives. On linux this</span>
+<span class="sd">    would be either &#39;fork&#39; (default) or &#39;spawn&#39;. Fork is cheap but</span>
+<span class="sd">    doesn&#39;t initialize certain process namespace things, whereas spawn</span>
+<span class="sd">    is much more expensive but properly cleans things up. Fork should</span>
+<span class="sd">    be sufficient in most cases, however spawn may be needed when you</span>
+<span class="sd">    have some special contexts in the parent process. This is the case</span>
+<span class="sd">    with starting CUDA contexts in the main parent process and then</span>
+<span class="sd">    forking new processes from it. We suggest using fork and avoiding</span>
+<span class="sd">    making these kinds of contexts in the main process.</span>
+
+<span class="sd">    This method avoids using shared memory or sending objects through</span>
+<span class="sd">    interprocess communication (that has a serialization and</span>
+<span class="sd">    deserialization cost associated with them) by using OS copying</span>
+<span class="sd">    mechanism. However, a new process will be created each cycle for</span>
+<span class="sd">    each walker in the simulation. So if you want a large number of</span>
+<span class="sd">    walkers you may experience a large overhead. If your walker states</span>
+<span class="sd">    are very small or a very fast serializer is available you may also</span>
+<span class="sd">    not benefit from full process address space copies. Instead the</span>
+<span class="sd">    WorkerMapper may be better suited.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                 <span class="n">walker_task_type</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">num_workers</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">segment_func</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">num_workers</span><span class="o">=</span><span class="n">num_workers</span><span class="p">,</span>
+                         <span class="n">segment_func</span><span class="o">=</span><span class="n">segment_func</span><span class="p">,</span>
+                         <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="c1"># choose the type of the worker</span>
+        <span class="k">if</span> <span class="n">walker_task_type</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_walker_task_type</span> <span class="o">=</span> <span class="n">WalkerTaskProcess</span>
+            <span class="n">warn</span><span class="p">(</span><span class="s2">&quot;walker_task_type not given using the default base class&quot;</span><span class="p">)</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;walker_task_type not given using the default base class&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_walker_task_type</span> <span class="o">=</span> <span class="n">walker_task_type</span>
+
+        <span class="c1"># initialize a list to put results in</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">results</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="c1"># this is meant to be a transient variable, will be initialized and deinitialized</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_walker_processes</span> <span class="o">=</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="TaskMapper.init"><a class="viewcode-back" href="../../../api/wepy.work_mapper.task_mapper.html#wepy.work_mapper.task_mapper.TaskMapper.init">[docs]</a>    <span class="k">def</span> <span class="nf">init</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">init</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="c1"># now that we have started the processes register the handler</span>
+        <span class="c1"># for SIGTERM signals that will clean up our children cleanly</span>
+        <span class="n">signal</span><span class="o">.</span><span class="n">signal</span><span class="p">(</span><span class="n">signal</span><span class="o">.</span><span class="n">SIGTERM</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sigterm_shutdown</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">_sigterm_shutdown</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">signum</span><span class="p">,</span> <span class="n">frame</span><span class="p">):</span>
+
+        <span class="n">logging</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span><span class="s2">&quot;Received external SIGTERM, forcing shutdown.&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">force_shutdown</span><span class="p">()</span>
+
+        <span class="n">logging</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span><span class="s2">&quot;Shutdown complete.&quot;</span><span class="p">)</span>
+
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">walker_task_type</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The callable that generates a worker object.</span>
+
+<span class="sd">        Typically this is just the type from the class definition of</span>
+<span class="sd">        the Worker where the constructor is called.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_walker_task_type</span>
+
+
+<div class="viewcode-block" id="TaskMapper.force_shutdown"><a class="viewcode-back" href="../../../api/wepy.work_mapper.task_mapper.html#wepy.work_mapper.task_mapper.TaskMapper.force_shutdown">[docs]</a>    <span class="k">def</span> <span class="nf">force_shutdown</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="c1"># TODO send sigterms to processes</span>
+
+        <span class="c1"># wait for the walkers to finish and handle errors in them</span>
+        <span class="c1"># appropriately</span>
+        <span class="n">alive_walkers</span> <span class="o">=</span> <span class="p">[</span><span class="n">walker</span><span class="o">.</span><span class="n">is_alive</span><span class="p">()</span> <span class="k">for</span> <span class="n">walker</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_walker_processes</span><span class="p">]</span>
+        <span class="n">walker_exitcodes</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">premature_exit</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">while</span> <span class="nb">any</span><span class="p">(</span><span class="n">alive_walkers</span><span class="p">):</span>
+
+            <span class="k">for</span> <span class="n">walker_idx</span><span class="p">,</span> <span class="n">walker</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_walker_processes</span><span class="p">):</span>
+
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">alive_walkers</span><span class="p">[</span><span class="n">walker_idx</span><span class="p">]:</span>
+                    <span class="k">continue</span>
+
+                <span class="k">if</span> <span class="n">walker</span><span class="o">.</span><span class="n">is_alive</span><span class="p">():</span>
+                    <span class="k">pass</span>
+
+                <span class="c1"># otherwise the walker is done</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">alive_walkers</span><span class="p">[</span><span class="n">walker_idx</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+                    <span class="n">walker_exitcodes</span><span class="p">[</span><span class="n">walker_idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">walker</span><span class="o">.</span><span class="n">exitcode</span></div>
+
+
+
+<div class="viewcode-block" id="TaskMapper.map"><a class="viewcode-back" href="../../../api/wepy.work_mapper.task_mapper.html#wepy.work_mapper.task_mapper.TaskMapper.map">[docs]</a>    <span class="k">def</span> <span class="nf">map</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+        <span class="c1"># run computations in a Manager context</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mp_ctx</span><span class="o">.</span><span class="n">Manager</span><span class="p">()</span> <span class="k">as</span> <span class="n">manager</span><span class="p">:</span>
+
+            <span class="n">num_walkers</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+            <span class="c1"># to manage access to worker resources we use a queue with</span>
+            <span class="c1"># the index of the worker</span>
+            <span class="n">worker_queue</span> <span class="o">=</span> <span class="n">manager</span><span class="o">.</span><span class="n">Queue</span><span class="p">()</span>
+
+            <span class="c1"># put the workers onto the queue</span>
+            <span class="k">for</span> <span class="n">worker_idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_workers</span><span class="p">):</span>
+                <span class="n">worker_queue</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">worker_idx</span><span class="p">)</span>
+
+            <span class="c1"># initialize segment times for workers to</span>
+            <span class="c1"># fill in</span>
+            <span class="n">worker_segment_times</span> <span class="o">=</span> <span class="n">manager</span><span class="o">.</span><span class="n">dict</span><span class="p">()</span>
+
+            <span class="c1"># initialize for the number of workers, since these will be</span>
+            <span class="c1"># the slots to put timing results in</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_workers</span><span class="p">):</span>
+                <span class="n">worker_segment_times</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+
+            <span class="c1"># make a shared list for the walker results</span>
+            <span class="n">results</span> <span class="o">=</span> <span class="n">manager</span><span class="o">.</span><span class="n">list</span><span class="p">()</span>
+
+            <span class="c1"># since this will be indexed by walker index initialize the</span>
+            <span class="c1"># length of the array</span>
+            <span class="k">for</span> <span class="n">walker</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_walkers</span><span class="p">):</span>
+                <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+
+
+            <span class="c1"># use pipes for communication channels between this parent</span>
+            <span class="c1"># process and the children for sending specific interrupts</span>
+            <span class="c1"># such as the signal to kill them. Note that the clean way to</span>
+            <span class="c1"># end the process is to send poison pills on the task queue,</span>
+            <span class="c1"># this is for other stuff. IRQ is a common abbreviation for</span>
+            <span class="c1"># interrupts</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_irq_parent_conns</span> <span class="o">=</span> <span class="p">[]</span>
+
+            <span class="c1"># unpack the generator for the kwargs</span>
+            <span class="n">kwargs</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span> <span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="n">kwarg</span><span class="p">)</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">kwarg</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+
+            <span class="c1"># create the task based processes</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_walker_processes</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">walker_idx</span><span class="p">,</span> <span class="n">task_args</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">)):</span>
+
+                <span class="n">task_kwargs</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span> <span class="p">:</span> <span class="n">value</span><span class="p">[</span><span class="n">walker_idx</span><span class="p">]</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+
+                <span class="c1"># make the interrupt pipe</span>
+                <span class="n">parent_conn</span><span class="p">,</span> <span class="n">child_conn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mp_ctx</span><span class="o">.</span><span class="n">Pipe</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_irq_parent_conns</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">parent_conn</span><span class="p">)</span>
+
+                <span class="c1"># start a process for this walker</span>
+                <span class="n">walker_process</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">walker_task_type</span><span class="p">(</span><span class="n">walker_idx</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_attributes</span><span class="p">,</span>
+                                                       <span class="bp">self</span><span class="o">.</span><span class="n">_func</span><span class="p">,</span>
+                                                       <span class="n">task_args</span><span class="p">,</span>
+                                                       <span class="n">task_kwargs</span><span class="p">,</span>
+                                                       <span class="n">worker_queue</span><span class="p">,</span>
+                                                       <span class="n">results</span><span class="p">,</span>
+                                                       <span class="n">worker_segment_times</span><span class="p">,</span>
+                                                       <span class="n">child_conn</span><span class="p">)</span>
+
+                <span class="n">walker_process</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+
+                <span class="bp">self</span><span class="o">.</span><span class="n">_walker_processes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">walker_process</span><span class="p">)</span>
+
+
+            <span class="n">new_walkers</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_walkers</span><span class="p">)]</span>
+            <span class="n">results_found</span> <span class="o">=</span> <span class="p">[</span><span class="kc">False</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_walkers</span><span class="p">)]</span>
+            <span class="k">while</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">(</span><span class="n">results_found</span><span class="p">):</span>
+
+                <span class="c1"># go through the results list and handle the values that may be there</span>
+                <span class="k">for</span> <span class="n">walker_idx</span><span class="p">,</span> <span class="n">result</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">results</span><span class="p">):</span>
+
+
+
+                    <span class="k">if</span> <span class="n">results_found</span><span class="p">[</span><span class="n">walker_idx</span><span class="p">]:</span>
+                        <span class="k">continue</span>
+
+                    <span class="c1"># logging.info(&quot;Checking for walker {}&quot;.format(walker_idx))</span>
+
+                    <span class="c1"># first check to see if any of the task processes were</span>
+                    <span class="c1"># terminated from the system</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_irq_parent_conns</span><span class="p">[</span><span class="n">walker_idx</span><span class="p">]</span><span class="o">.</span><span class="n">poll</span><span class="p">():</span>
+                        <span class="n">irq</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_irq_parent_conns</span><span class="p">[</span><span class="n">walker_idx</span><span class="p">]</span><span class="o">.</span><span class="n">recv</span><span class="p">()</span>
+
+                        <span class="k">if</span> <span class="nb">issubclass</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">irq</span><span class="p">),</span> <span class="n">TaskProcessKilledError</span><span class="p">):</span>
+
+                            <span class="c1"># just terminate if a worker goes down. We</span>
+                            <span class="c1"># could handle this better but it is not implemented now</span>
+                            <span class="n">logging</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span>
+                                <span class="s2">&quot;Process </span><span class="si">{}</span><span class="s2"> was killed by sigterm, shutting down.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                                <span class="n">walker_process</span><span class="p">[</span><span class="n">walker_idx</span><span class="p">]</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
+
+                            <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                                <span class="s2">&quot;Recovery is possible here, but is not implemented &quot;</span>
+                                <span class="s2">&quot;so we opt to fail fast and let you know a problem exists.&quot;</span>
+                                <span class="s2">&quot;Please use checkpointing to avoid lost data.&quot;</span><span class="p">)</span>
+
+                            <span class="bp">self</span><span class="o">.</span><span class="n">force_shutdown</span><span class="p">()</span>
+                            <span class="n">logging</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span><span class="s2">&quot;Shutdown complete.&quot;</span><span class="p">)</span>
+
+                        <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Received </span><span class="si">{}</span><span class="s2"> acknowledgement from </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ack</span><span class="p">,</span>
+                                                                                   <span class="n">worker</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
+
+                    <span class="c1"># if no interrupts were handled we continue</span>
+
+                    <span class="c1"># if it is None no response has been made at all</span>
+                    <span class="c1"># yet, this is the initialized value</span>
+                    <span class="k">if</span> <span class="n">result</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="k">pass</span>
+
+
+                    <span class="c1"># walker results are returned serialized as</span>
+                    <span class="c1"># pickles, they are packed into a tuple so that we</span>
+                    <span class="c1"># can associate them with an explicit marker, if</span>
+                    <span class="c1"># we have a tuple then we can handle that</span>
+                    <span class="c1"># appropriately</span>
+                    <span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">result</span><span class="p">)</span> <span class="o">==</span> <span class="nb">tuple</span><span class="p">:</span>
+
+                        <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Received a results tuple&quot;</span><span class="p">)</span>
+
+                        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">result</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;Result tuples should be only be (ID, pickle)&quot;</span>
+
+                        <span class="n">result_id</span><span class="p">,</span> <span class="n">payload</span> <span class="o">=</span> <span class="n">result</span>
+
+                        <span class="c1"># there was a walker successfully returned</span>
+                        <span class="k">if</span> <span class="n">result_id</span> <span class="o">==</span> <span class="s1">&#39;Walker&#39;</span><span class="p">:</span>
+
+                            <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Received a serialized results walker&quot;</span><span class="p">)</span>
+
+                            <span class="c1"># deserialize</span>
+                            <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;deserializing&quot;</span><span class="p">)</span>
+                            <span class="n">new_walker</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">payload</span><span class="p">)</span>
+
+                            <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Got result for walker </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">walker_idx</span><span class="p">))</span>
+
+                            <span class="n">new_walkers</span><span class="p">[</span><span class="n">walker_idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_walker</span>
+                            <span class="n">results_found</span><span class="p">[</span><span class="n">walker_idx</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Unkown result ID: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">result_id</span><span class="p">))</span>
+
+                    <span class="k">elif</span> <span class="nb">issubclass</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">result</span><span class="p">),</span> <span class="n">TaskException</span><span class="p">):</span>
+
+                        <span class="n">logging</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span>
+                            <span class="s2">&quot;Exception encountered in a task which is unrecoverable.&quot;</span>
+                            <span class="s2">&quot;You will need to reconfigure your components in a stable manner.&quot;</span><span class="p">)</span>
+
+                        <span class="bp">self</span><span class="o">.</span><span class="n">force_shutdown</span><span class="p">()</span>
+
+                        <span class="n">logging</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span><span class="s2">&quot;Shutdown complete.&quot;</span><span class="p">)</span>
+                        <span class="k">raise</span> <span class="n">result</span>
+
+                    <span class="k">elif</span> <span class="nb">issubclass</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">result</span><span class="p">),</span> <span class="n">TaskProcessException</span><span class="p">):</span>
+                        <span class="c1"># we make just an error message to say that errors</span>
+                        <span class="c1"># in the worker may be due to the network or</span>
+                        <span class="c1"># something and could recover</span>
+                        <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Exception encountered in the work mapper task process.&quot;</span>
+                                      <span class="s2">&quot;Recovery possible, see further messages.&quot;</span><span class="p">)</span>
+
+                        <span class="c1"># However, the current implementation doesn&#39;t</span>
+                        <span class="c1"># support retries or whatever so we issue a</span>
+                        <span class="c1"># critical log informing that it has been elevated</span>
+                        <span class="c1"># to critical and will force shutdown</span>
+                        <span class="n">logging</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span>
+                            <span class="s2">&quot;Task process error mode resiliency not supported at this time.&quot;</span>
+                            <span class="s2">&quot;Performing force shutdown and simulation ending.&quot;</span><span class="p">)</span>
+
+                        <span class="bp">self</span><span class="o">.</span><span class="n">force_shutdown</span><span class="p">()</span>
+
+                        <span class="n">logging</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span><span class="s2">&quot;Shutdown complete.&quot;</span><span class="p">)</span>
+                        <span class="k">raise</span> <span class="n">result</span>
+
+                    <span class="k">elif</span> <span class="nb">issubclass</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">result</span><span class="p">),</span> <span class="ne">Exception</span><span class="p">):</span>
+                        <span class="n">logging</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span><span class="s2">&quot;Unknown exception </span><span class="si">{}</span><span class="s2"> encountered.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">result</span><span class="p">))</span>
+
+                        <span class="bp">self</span><span class="o">.</span><span class="n">force_shutdown</span><span class="p">()</span>
+
+                        <span class="n">logging</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span><span class="s2">&quot;Shutdown complete.&quot;</span><span class="p">)</span>
+
+                        <span class="k">raise</span> <span class="n">result</span>
+
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">logging</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span><span class="s2">&quot;Unknown result value </span><span class="si">{}</span><span class="s2"> encountered.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">result</span><span class="p">))</span>
+
+                        <span class="bp">self</span><span class="o">.</span><span class="n">force_shutdown</span><span class="p">()</span>
+
+                        <span class="n">logging</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span><span class="s2">&quot;Shutdown complete.&quot;</span><span class="p">)</span>
+
+
+            <span class="c1"># save the managed list of the recorded worker times locally</span>
+            <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">worker_segment_times</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_worker_segment_times</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">val</span>
+
+            <span class="c1"># wait for the processes to end</span>
+            <span class="c1"># for walker in self._walker_processes:</span>
+            <span class="c1">#     walker.join()</span>
+            <span class="c1">#     logging.info(&quot;Joined {}&quot;.format(walker.name))</span>
+
+        <span class="c1"># deinitialize the current walker processes</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_walker_processes</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">return</span> <span class="n">new_walkers</span></div></div>
+
+
+<div class="viewcode-block" id="WalkerTaskProcess"><a class="viewcode-back" href="../../../api/wepy.work_mapper.task_mapper.html#wepy.work_mapper.task_mapper.WalkerTaskProcess">[docs]</a><span class="k">class</span> <span class="nc">WalkerTaskProcess</span><span class="p">(</span><span class="n">mp</span><span class="o">.</span><span class="n">Process</span><span class="p">):</span>
+
+    <span class="n">NAME_TEMPLATE</span> <span class="o">=</span> <span class="s2">&quot;Walker-</span><span class="si">{}</span><span class="s2">&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">walker_idx</span><span class="p">,</span> <span class="n">mapper_attributes</span><span class="p">,</span>
+                 <span class="n">func</span><span class="p">,</span> <span class="n">task_args</span><span class="p">,</span> <span class="n">task_kwargs</span><span class="p">,</span>
+                 <span class="n">worker_queue</span><span class="p">,</span> <span class="n">results_list</span><span class="p">,</span> <span class="n">worker_segment_times</span><span class="p">,</span> <span class="n">interrupt_connection</span><span class="p">,</span>
+                 <span class="o">**</span><span class="n">kwargs</span>
+                 <span class="p">):</span>
+
+        <span class="c1"># initialize the process customizing the name</span>
+        <span class="n">mp</span><span class="o">.</span><span class="n">Process</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">NAME_TEMPLATE</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">walker_idx</span><span class="p">),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="c1"># the idea with this TaskProcess thing is that we pass in all</span>
+        <span class="c1"># the data to the constructor to create a &quot;thunk&quot; (a closure</span>
+        <span class="c1"># that is ready to be run without arguments) and then when run</span>
+        <span class="c1"># is called there will be no arguments to be passed. This</span>
+        <span class="c1"># simplifies the flow of data and underscores that the task is</span>
+        <span class="c1"># the process.</span>
+
+        <span class="c1"># task arguments</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_func</span> <span class="o">=</span> <span class="n">func</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_task_args</span> <span class="o">=</span> <span class="n">task_args</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_task_kwargs</span> <span class="o">=</span> <span class="n">task_kwargs</span>
+
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">walker_idx</span> <span class="o">=</span> <span class="n">walker_idx</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mapper_attributes</span> <span class="o">=</span> <span class="n">mapper_attributes</span>
+
+        <span class="c1"># set the managed datastructure proxies as an attribute so we</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_worker_queue</span> <span class="o">=</span> <span class="n">worker_queue</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_results_list</span> <span class="o">=</span> <span class="n">results_list</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_worker_segment_times</span> <span class="o">=</span> <span class="n">worker_segment_times</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_irq_channel</span> <span class="o">=</span> <span class="n">interrupt_connection</span>
+
+        <span class="c1"># also register the SIGTERM signal handler for graceful</span>
+        <span class="c1"># shutdown with reporting to mapper</span>
+        <span class="n">signal</span><span class="o">.</span><span class="n">signal</span><span class="p">(</span><span class="n">signal</span><span class="o">.</span><span class="n">SIGTERM</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sigterm_shutdown</span><span class="p">)</span>
+
+
+    <span class="k">def</span> <span class="nf">_sigterm_shutdown</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">signum</span><span class="p">,</span> <span class="n">frame</span><span class="p">):</span>
+
+        <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Received external SIGTERM kill command.&quot;</span><span class="p">)</span>
+
+        <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Alerting mapper that this will be honored.&quot;</span><span class="p">)</span>
+
+        <span class="c1"># send an error to the mapper that the worker has been killed</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_irq_channel</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">TaskProcessKilledError</span><span class="p">(</span>
+            <span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> (pid: </span><span class="si">{}</span><span class="s2">) killed by external SIGTERM signal&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">pid</span><span class="p">)))</span>
+
+        <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Acknowledgment sent&quot;</span><span class="p">)</span>
+
+        <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Shutting down process&quot;</span><span class="p">)</span>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">attributes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_attributes</span>
+
+    <span class="nd">@attributes</span><span class="o">.</span><span class="n">getter</span>
+    <span class="k">def</span> <span class="nf">attributes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_attributes</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">_run_task</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task</span><span class="p">):</span>
+
+        <span class="c1"># run the task thunk</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">: Running task&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">task</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">task_exception</span><span class="p">:</span>
+
+            <span class="c1"># get the traceback for the exception</span>
+            <span class="n">tb</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">exc_info</span><span class="p">()[</span><span class="mi">2</span><span class="p">]</span>
+
+            <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;Exception &#39;</span><span class="si">{}</span><span class="s2">(</span><span class="si">{}</span><span class="s2">)&#39; caught in a task.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                                   <span class="nb">type</span><span class="p">(</span><span class="n">task_exception</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span> <span class="n">task_exception</span><span class="p">)</span>
+            <span class="n">traceback_log_msg</span> <span class="o">=</span> \
+                <span class="sd">&quot;&quot;&quot;Traceback:</span>
+<span class="sd">--------------------------------------------------------------------------------</span>
+<span class="sd">{}</span>
+<span class="sd">--------------------------------------------------------------------------------</span>
+<span class="sd">                &quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">traceback</span><span class="o">.</span><span class="n">format_exception</span><span class="p">(</span>
+                    <span class="nb">type</span><span class="p">(</span><span class="n">task_exception</span><span class="p">),</span> <span class="n">task_exception</span><span class="p">,</span> <span class="n">tb</span><span class="p">)),</span>
+                <span class="p">)</span>
+
+            <span class="n">logging</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">: &quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span> <span class="o">+</span> <span class="n">msg</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">+</span> <span class="n">traceback_log_msg</span><span class="p">)</span>
+
+            <span class="c1"># raise a TaskException to distinguish it from the worker</span>
+            <span class="c1"># errors with the metadata about the original exception</span>
+
+            <span class="k">raise</span> <span class="n">TaskException</span><span class="p">(</span><span class="s2">&quot;Error occured during task execution, recovery not possible.&quot;</span><span class="p">,</span>
+                            <span class="n">wrapped_exception</span><span class="o">=</span><span class="n">task_exception</span><span class="p">,</span>
+                            <span class="n">tb</span><span class="o">=</span><span class="n">tb</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">result</span>
+
+<div class="viewcode-block" id="WalkerTaskProcess.run"><a class="viewcode-back" href="../../../api/wepy.work_mapper.task_mapper.html#wepy.work_mapper.task_mapper.WalkerTaskProcess.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">: starting to run&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
+
+        <span class="c1"># try to run the worker and it&#39;s task, except either class of</span>
+        <span class="c1"># error that can come from it either from the worker</span>
+        <span class="c1"># (WorkerException) or the task (TaskException) and communicate it</span>
+        <span class="c1"># back to the main process</span>
+
+        <span class="c1"># if we get an exception there is some cleanup logic</span>
+        <span class="n">run_exception</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">try</span><span class="p">:</span>
+
+            <span class="c1"># run the worker, which will retrieve its task from the</span>
+            <span class="c1"># queue attempt to run the task, and if it succeeds will</span>
+            <span class="c1"># put the results on the result queue, if the task fails</span>
+            <span class="c1"># it will catch it and wrap it as a task exception</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_run_walker</span><span class="p">()</span>
+
+        <span class="k">except</span> <span class="n">TaskException</span> <span class="k">as</span> <span class="n">task_exception</span><span class="p">:</span>
+
+            <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">: TaskException caught&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
+
+            <span class="n">run_exception</span> <span class="o">=</span> <span class="n">task_exception</span>
+
+        <span class="c1"># anything else is considered a WorkerException so take the</span>
+        <span class="c1"># original exception and generate a worker exception from that</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exception</span><span class="p">:</span>
+
+            <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">: TaskProcessException Error caught&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
+
+
+            <span class="c1"># get the traceback</span>
+            <span class="n">tb</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">exc_info</span><span class="p">()[</span><span class="mi">2</span><span class="p">]</span>
+
+            <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;Exception &#39;</span><span class="si">{}</span><span class="s2">(</span><span class="si">{}</span><span class="s2">)&#39; caught in a task process.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                                   <span class="nb">type</span><span class="p">(</span><span class="n">exception</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span> <span class="n">exception</span><span class="p">)</span>
+            <span class="n">traceback_log_msg</span> <span class="o">=</span> \
+                <span class="sd">&quot;&quot;&quot;Traceback:</span>
+<span class="sd">--------------------------------------------------------------------------------</span>
+<span class="sd">{}</span>
+<span class="sd">--------------------------------------------------------------------------------</span>
+<span class="sd">                &quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">traceback</span><span class="o">.</span><span class="n">format_exception</span><span class="p">(</span>
+                    <span class="nb">type</span><span class="p">(</span><span class="n">exception</span><span class="p">),</span> <span class="n">exception</span><span class="p">,</span> <span class="n">tb</span><span class="p">)),</span>
+                <span class="p">)</span>
+
+            <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">msg</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">+</span> <span class="n">traceback_log_msg</span><span class="p">)</span>
+
+            <span class="c1"># raise a TaskError to distinguish it from the worker</span>
+            <span class="c1"># errors with the metadata about the original exception</span>
+
+            <span class="n">walker_exception</span> <span class="o">=</span> <span class="n">TaskProcessException</span><span class="p">(</span>
+                <span class="s2">&quot;Error occured during task process execution.&quot;</span><span class="p">,</span>
+                <span class="n">wrapped_exception</span><span class="o">=</span><span class="n">exception</span><span class="p">,</span>
+                <span class="n">tb</span><span class="o">=</span><span class="n">tb</span><span class="p">)</span>
+
+            <span class="n">run_exception</span> <span class="o">=</span> <span class="n">walker_exception</span>
+
+        <span class="c1"># raise worker_exception</span>
+        <span class="k">if</span> <span class="n">run_exception</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+
+            <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">: Putting exception in managed results list&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
+
+            <span class="c1"># then put the exception and the traceback onto the queue</span>
+            <span class="c1"># so we can communicate back to the parent process</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_results_list</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">walker_idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">run_exception</span>
+            <span class="k">except</span> <span class="ne">BrokenPipeError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+                <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                    <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">: Pipe is broken indicating the root process has already exited:</span><span class="se">\n</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">exc</span><span class="p">))</span></div>
+
+    <span class="k">def</span> <span class="nf">_run_walker</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Walker process started as name: </span><span class="si">{}</span><span class="s2">; PID: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                                                                          <span class="bp">self</span><span class="o">.</span><span class="n">pid</span><span class="p">))</span>
+
+        <span class="c1"># lock a worker, then pop it off the queue so no other process</span>
+        <span class="c1"># tries to use it</span>
+        <span class="n">worker_received</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">while</span> <span class="ow">not</span> <span class="n">worker_received</span><span class="p">:</span>
+            <span class="c1"># pop off a worker to use it, this will block until it</span>
+            <span class="c1"># receives a worker</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">worker_idx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_worker_queue</span><span class="o">.</span><span class="n">get_nowait</span><span class="p">()</span>
+            <span class="k">except</span> <span class="n">pyq</span><span class="o">.</span><span class="n">Empty</span><span class="p">:</span>
+                <span class="k">pass</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">worker_idx</span><span class="p">)</span> <span class="o">==</span> <span class="nb">int</span><span class="p">:</span>
+                    <span class="n">worker_received</span> <span class="o">=</span> <span class="kc">True</span>
+                    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">: acquired worker </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                                                                 <span class="n">worker_idx</span><span class="p">))</span>
+
+                <span class="c1"># if it is a shutdown signal we do so</span>
+                <span class="k">elif</span> <span class="n">worker_idx</span> <span class="ow">is</span> <span class="n">signal</span><span class="o">.</span><span class="n">SIGTERM</span><span class="p">:</span>
+                    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                        <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">: SIGTERM signal received from mapper. Shutting down.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
+
+                    <span class="k">return</span> <span class="kc">None</span>
+
+        <span class="c1"># generate the task thunk</span>
+        <span class="n">task</span> <span class="o">=</span> <span class="n">Task</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_func</span><span class="p">,</span> <span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">_task_args</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_task_kwargs</span><span class="p">)</span>
+
+        <span class="c1"># run the task</span>
+        <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">: running function. Time: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                                                      <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()))</span>
+
+        <span class="c1"># run the task doing the proper handling of the task</span>
+        <span class="c1"># exception, this can raise a task exception</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_run_task</span><span class="p">(</span><span class="n">task</span><span class="p">)</span>
+
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">: finished running function. Time </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                                                                     <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()))</span>
+        <span class="n">end</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+
+        <span class="c1"># we separately set the result to the results list. This is so</span>
+        <span class="c1"># we can debug performance problems, and dissect what is due</span>
+        <span class="c1"># to computation time and what is due to communication</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">: Setting value to results list. Time </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                                                                     <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()))</span>
+
+        <span class="c1"># DEBUG: testing new serialization thing here</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Serializing the result walker&quot;</span><span class="p">)</span>
+        <span class="n">serial_result</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Putting tagged serialized walker tuple on managed results list&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_results_list</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">walker_idx</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;Walker&#39;</span><span class="p">,</span> <span class="n">serial_result</span><span class="p">)</span>
+
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">: Finished setting value to results list. Time </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                                                                                  <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()))</span>
+
+        <span class="c1"># put the worker back onto the queue since we are done using it</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_worker_queue</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">worker_idx</span><span class="p">)</span>
+
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">: released worker </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                                                     <span class="n">worker_idx</span><span class="p">))</span>
+
+        <span class="c1"># add the time for this segment to the collection of the worker times</span>
+        <span class="n">segment_time</span> <span class="o">=</span> <span class="n">end</span> <span class="o">-</span> <span class="n">start</span>
+        <span class="n">seg_times</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_worker_segment_times</span><span class="p">[</span><span class="n">worker_idx</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="n">segment_time</span><span class="p">]</span>
+
+        <span class="c1"># we must explicitly set the new value in total to trigger an</span>
+        <span class="c1"># update of the real dictionary. In place modification of</span>
+        <span class="c1"># proxy objects has no effect</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_worker_segment_times</span><span class="p">[</span><span class="n">worker_idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">seg_times</span>
+
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">: Exiting normally having completed the task&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">))</span></div>
+
+</pre></div>
+
+          </div>
+            
+        </div>
+        <div class="clearfix"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">wepy  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+<script type="text/javascript">
+  $("#mobile-toggle a").click(function () {
+    $("#left-column").toggle();
+  });
+</script>
+<script type="text/javascript" src="../../../_static/js/bootstrap.js"></script>
+  <div class="footer">
+    &copy; Copyright 2018, Samuel D. Lotz. Created using <a href="http://sphinx.pocoo.org/">Sphinx</a>.
+  </div>
+  </body>
+</html>

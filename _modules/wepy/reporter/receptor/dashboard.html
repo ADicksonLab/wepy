@@ -1,0 +1,309 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+  
+  <!-- Licensed under the Apache 2.0 License -->
+  <link rel="stylesheet" type="text/css" href="../../../../_static/fonts/open-sans/stylesheet.css" />
+  <!-- Licensed under the SIL Open Font License -->
+  <link rel="stylesheet" type="text/css" href="../../../../_static/fonts/source-serif-pro/source-serif-pro.css" />
+  <link rel="stylesheet" type="text/css" href="../../../../_static/css/bootstrap.min.css" />
+  <link rel="stylesheet" type="text/css" href="../../../../_static/css/bootstrap-theme.min.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+    <title>wepy.reporter.receptor.dashboard &#8212; wepy  documentation</title>
+    <link rel="stylesheet" href="../../../../_static/guzzle.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../../../_static/language_data.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+  
+   
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">wepy  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="container-wrapper">
+
+      <div id="mobile-toggle">
+        <a href="#"><span class="glyphicon glyphicon-align-justify" aria-hidden="true"></span></a>
+      </div>
+  <div id="left-column">
+    <div class="sphinxsidebar">
+<div class="sidebar-block">
+  <div class="sidebar-wrapper">
+    <div id="main-search">
+      <form class="form-inline" action="../../../../search.html" method="GET" role="form">
+        <div class="input-group">
+          <input name="q" type="text" class="form-control" placeholder="Search...">
+        </div>
+        <input type="hidden" name="check_keywords" value="yes" />
+        <input type="hidden" name="area" value="default" />
+      </form>
+    </div>
+  </div>
+</div>
+      
+    </div>
+  </div>
+        <div id="right-column">
+          
+          <div role="navigation" aria-label="breadcrumbs navigation">
+            <ol class="breadcrumb">
+              <li><a href="../../../../index.html">Docs</a></li>
+              
+                <li><a href="../../../index.html">Module code</a></li>
+              
+              <li>wepy.reporter.receptor.dashboard</li>
+            </ol>
+          </div>
+          
+          <div class="document clearer body">
+            
+  <h1>Source code for wepy.reporter.receptor.dashboard</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">pint</span> <span class="k">import</span> <span class="n">UnitRegistry</span>
+<span class="kn">from</span> <span class="nn">jinja2</span> <span class="k">import</span> <span class="n">Template</span>
+
+<span class="kn">from</span> <span class="nn">wepy.reporter.dashboard</span> <span class="k">import</span> <span class="n">BCDashboardSection</span>
+
+<span class="c1"># initialize the unit registry</span>
+<span class="n">units</span> <span class="o">=</span> <span class="n">UnitRegistry</span><span class="p">()</span>
+
+
+<div class="viewcode-block" id="ReceptorBCDashboardSection"><a class="viewcode-back" href="../../../../api/wepy.reporter.receptor.dashboard.html#wepy.reporter.receptor.dashboard.ReceptorBCDashboardSection">[docs]</a><span class="k">class</span> <span class="nc">ReceptorBCDashboardSection</span><span class="p">(</span><span class="n">BCDashboardSection</span><span class="p">):</span>
+
+
+    <span class="n">BC_SECTION_TEMPLATE</span> <span class="o">=</span> \
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">Boundary Condition: {{ name }}</span>
+
+<span class="sd">Total Number of Warps: {{ n_exit_points }}</span>
+
+<span class="sd">Cumulative Boundary Crossed Weight {{ total_unbound_weight }}</span>
+
+<span class="sd">Parameters:</span>
+
+<span class="sd">{{ parameters }}</span>
+
+
+<span class="sd">** Warping Log</span>
+
+<span class="sd">{{ warping_log }}</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="c1"># updatables</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">warp_records</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">exit_point_weights</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">exit_point_times</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_exit_points</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">total_unbound_weight</span> <span class="o">=</span> <span class="mf">0.0</span>
+
+
+<div class="viewcode-block" id="ReceptorBCDashboardSection.update_values"><a class="viewcode-back" href="../../../../api/wepy.reporter.receptor.dashboard.html#wepy.reporter.receptor.dashboard.ReceptorBCDashboardSection.update_values">[docs]</a>    <span class="k">def</span> <span class="nf">update_values</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">update_values</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">warp_record</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;warp_data&#39;</span><span class="p">]:</span>
+
+            <span class="n">weight</span> <span class="o">=</span> <span class="n">warp_record</span><span class="p">[</span><span class="s1">&#39;weight&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">walker_idx</span> <span class="o">=</span> <span class="n">warp_record</span><span class="p">[</span><span class="s1">&#39;walker_idx&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+
+            <span class="c1"># make a record for a table that includes the time in</span>
+            <span class="c1"># walkers sampling time</span>
+            <span class="n">record</span> <span class="o">=</span> <span class="p">(</span><span class="n">walker_idx</span><span class="p">,</span> <span class="n">weight</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;cycle_idx&#39;</span><span class="p">])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">warp_records</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">record</span><span class="p">)</span>
+
+            <span class="c1"># also add them to the individual records</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">exit_point_weights</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">weight</span><span class="p">)</span>
+
+            <span class="c1"># STUB</span>
+            <span class="c1"># this is flawed since this is not the individual walker</span>
+            <span class="c1"># time, we aren&#39;t really that interested in it anyways.</span>
+            <span class="c1"># self.exit_point_times.append(self.walker_total_sampling_time)</span>
+
+            <span class="c1"># increase the number of exit points by 1</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">n_exit_points</span> <span class="o">+=</span> <span class="mi">1</span>
+
+
+            <span class="c1"># total accumulated unbound probability</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">total_unbound_weight</span> <span class="o">+=</span> <span class="n">weight</span></div>
+
+        <span class="c1"># STUB: see note above we don&#39;t have proper walker sampling</span>
+        <span class="c1"># times, and it isn&#39;t that interesting anyways. The exit rate</span>
+        <span class="c1"># is more useful</span>
+
+        <span class="c1"># # calculate the expected value of unbinding times</span>
+        <span class="c1"># self.expected_unbinding_time = np.sum([self.exit_point_weights[i] * self.exit_point_times[i]</span>
+        <span class="c1">#                                        for i in range(self.n_exit_points)])</span>
+
+        <span class="c1"># # expected rate of reactive trajectories</span>
+        <span class="c1"># self.reactive_traj_rate = 1 / self.expected_unbinding_time</span>
+
+
+<div class="viewcode-block" id="ReceptorBCDashboardSection.gen_fields"><a class="viewcode-back" href="../../../../api/wepy.reporter.receptor.dashboard.html#wepy.reporter.receptor.dashboard.ReceptorBCDashboardSection.gen_fields">[docs]</a>    <span class="k">def</span> <span class="nf">gen_fields</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+        <span class="n">fields</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">gen_fields</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="c1"># STUB: because the total sampling time is from a different</span>
+        <span class="c1"># section we have to remove this for now until we figure that</span>
+        <span class="c1"># out</span>
+
+        <span class="c1"># calculate the new rate using the Hill relation after taking</span>
+        <span class="c1"># into account all of these warps</span>
+        <span class="c1"># self.exit_rate = self.total_unbound_weight / self.total_sampling_time</span>
+
+        <span class="n">new_fields</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;parameters&#39;</span> <span class="p">:</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;cycle_n_exit_points&#39;</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_exit_points</span><span class="p">,</span>
+            <span class="s1">&#39;total_unbound_weight&#39;</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">total_unbound_weight</span><span class="p">,</span>
+        <span class="p">}</span>
+
+
+        <span class="c1"># combine the superclass fields with the fields here,</span>
+        <span class="c1"># overwriting them from the superclass if they were redefined</span>
+        <span class="c1"># explicitly</span>
+        <span class="n">fields</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">new_fields</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">fields</span></div></div>
+
+
+
+<div class="viewcode-block" id="UnbindingBCDashboardSection"><a class="viewcode-back" href="../../../../api/wepy.reporter.receptor.dashboard.html#wepy.reporter.receptor.dashboard.UnbindingBCDashboardSection">[docs]</a><span class="k">class</span> <span class="nc">UnbindingBCDashboardSection</span><span class="p">(</span><span class="n">ReceptorBCDashboardSection</span><span class="p">):</span>
+
+    <span class="n">RECEPTOR_PARAMETERS</span> <span class="o">=</span> \
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Cutoff Distance: {{ cutoff_distance }}</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bc</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">cutoff_distance</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="s1">&#39;name&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+            <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;UnbindingBC&#39;</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">bc</span><span class="o">=</span><span class="n">bc</span><span class="p">,</span>
+                         <span class="n">cutoff_distance</span><span class="o">=</span><span class="n">cutoff_distance</span><span class="p">,</span>
+                         <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+
+        <span class="k">if</span> <span class="n">bc</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cutoff_distance</span> <span class="o">=</span> <span class="n">bc</span><span class="o">.</span><span class="n">cutoff_distance</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="n">cutoff_distance</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> \
+                <span class="s2">&quot;If no bc is given must give parameters: cutoff_distance&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cutoff_distance</span> <span class="o">=</span> <span class="n">cutoff_distance</span>
+
+<div class="viewcode-block" id="UnbindingBCDashboardSection.gen_fields"><a class="viewcode-back" href="../../../../api/wepy.reporter.receptor.dashboard.html#wepy.reporter.receptor.dashboard.UnbindingBCDashboardSection.gen_fields">[docs]</a>    <span class="k">def</span> <span class="nf">gen_fields</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+        <span class="n">fields</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">gen_fields</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="n">parameters_str</span> <span class="o">=</span> <span class="n">Template</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">RECEPTOR_PARAMETERS</span><span class="p">)</span><span class="o">.</span><span class="n">render</span><span class="p">(</span>
+            <span class="n">cutoff_distance</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">cutoff_distance</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">new_fields</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;parameters&#39;</span> <span class="p">:</span> <span class="n">parameters_str</span><span class="p">,</span>
+        <span class="p">}</span>
+
+        <span class="k">return</span> <span class="n">fields</span></div></div>
+
+<div class="viewcode-block" id="RebindingBCDashboardSection"><a class="viewcode-back" href="../../../../api/wepy.reporter.receptor.dashboard.html#wepy.reporter.receptor.dashboard.RebindingBCDashboardSection">[docs]</a><span class="k">class</span> <span class="nc">RebindingBCDashboardSection</span><span class="p">(</span><span class="n">ReceptorBCDashboardSection</span><span class="p">):</span>
+
+    <span class="n">RECEPTOR_PARAMETERS</span> <span class="o">=</span> \
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Cutoff RMSD: {{ cutoff_rmsd }}</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bc</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">cutoff_rmsd</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="s1">&#39;name&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+            <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;RebindingBC&#39;</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">bc</span><span class="o">=</span><span class="n">bc</span><span class="p">,</span>
+                         <span class="n">cutoff_rmsd</span><span class="o">=</span><span class="n">cutoff_rmsd</span><span class="p">,</span>
+                         <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">bc</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cutoff_rmsd</span> <span class="o">=</span> <span class="n">bc</span><span class="o">.</span><span class="n">cutoff_rmsd</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="n">cutoff_rmsd</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> \
+                <span class="s2">&quot;If no bc is given must give parameters: cutoff_rmsd&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cutoff_rmsd</span> <span class="o">=</span> <span class="n">cutoff_rmsd</span>
+
+<div class="viewcode-block" id="RebindingBCDashboardSection.gen_fields"><a class="viewcode-back" href="../../../../api/wepy.reporter.receptor.dashboard.html#wepy.reporter.receptor.dashboard.RebindingBCDashboardSection.gen_fields">[docs]</a>    <span class="k">def</span> <span class="nf">gen_fields</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+        <span class="n">fields</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">gen_fields</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="n">parameters_str</span> <span class="o">=</span> <span class="n">Template</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">RECEPTOR_PARAMETERS</span><span class="p">)</span><span class="o">.</span><span class="n">render</span><span class="p">(</span>
+            <span class="n">cutoff_rmsd</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">cutoff_rmsd</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">new_fields</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;parameters&#39;</span> <span class="p">:</span> <span class="n">parameters_str</span><span class="p">,</span>
+        <span class="p">}</span>
+
+        <span class="k">return</span> <span class="n">fields</span></div></div>
+
+
+
+</pre></div>
+
+          </div>
+            
+        </div>
+        <div class="clearfix"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">wepy  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+<script type="text/javascript">
+  $("#mobile-toggle a").click(function () {
+    $("#left-column").toggle();
+  });
+</script>
+<script type="text/javascript" src="../../../../_static/js/bootstrap.js"></script>
+  <div class="footer">
+    &copy; Copyright 2018, Samuel D. Lotz. Created using <a href="http://sphinx.pocoo.org/">Sphinx</a>.
+  </div>
+  </body>
+</html>

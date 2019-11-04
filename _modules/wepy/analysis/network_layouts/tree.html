@@ -1,0 +1,762 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+  
+  <!-- Licensed under the Apache 2.0 License -->
+  <link rel="stylesheet" type="text/css" href="../../../../_static/fonts/open-sans/stylesheet.css" />
+  <!-- Licensed under the SIL Open Font License -->
+  <link rel="stylesheet" type="text/css" href="../../../../_static/fonts/source-serif-pro/source-serif-pro.css" />
+  <link rel="stylesheet" type="text/css" href="../../../../_static/css/bootstrap.min.css" />
+  <link rel="stylesheet" type="text/css" href="../../../../_static/css/bootstrap-theme.min.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+    <title>wepy.analysis.network_layouts.tree &#8212; wepy  documentation</title>
+    <link rel="stylesheet" href="../../../../_static/guzzle.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../../../_static/language_data.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+  
+   
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">wepy  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="container-wrapper">
+
+      <div id="mobile-toggle">
+        <a href="#"><span class="glyphicon glyphicon-align-justify" aria-hidden="true"></span></a>
+      </div>
+  <div id="left-column">
+    <div class="sphinxsidebar">
+<div class="sidebar-block">
+  <div class="sidebar-wrapper">
+    <div id="main-search">
+      <form class="form-inline" action="../../../../search.html" method="GET" role="form">
+        <div class="input-group">
+          <input name="q" type="text" class="form-control" placeholder="Search...">
+        </div>
+        <input type="hidden" name="check_keywords" value="yes" />
+        <input type="hidden" name="area" value="default" />
+      </form>
+    </div>
+  </div>
+</div>
+      
+    </div>
+  </div>
+        <div id="right-column">
+          
+          <div role="navigation" aria-label="breadcrumbs navigation">
+            <ol class="breadcrumb">
+              <li><a href="../../../../index.html">Docs</a></li>
+              
+                <li><a href="../../../index.html">Module code</a></li>
+              
+              <li>wepy.analysis.network_layouts.tree</li>
+            </ol>
+          </div>
+          
+          <div class="document clearer body">
+            
+  <h1>Source code for wepy.analysis.network_layouts.tree</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Class for generating layouts for resampling trees.</span>
+
+<span class="sd">Routines</span>
+<span class="sd">--------</span>
+
+<span class="sd">ResamplingTreeLayout.layout</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">warnings</span> <span class="k">import</span> <span class="n">warn</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">defaultdict</span>
+<span class="kn">from</span> <span class="nn">copy</span> <span class="k">import</span> <span class="n">copy</span>
+<span class="kn">import</span> <span class="nn">itertools</span> <span class="k">as</span> <span class="nn">it</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">networkx</span> <span class="k">as</span> <span class="nn">nx</span>
+
+<span class="kn">from</span> <span class="nn">wepy.analysis.network_layouts.layout</span> <span class="k">import</span> <span class="n">LayoutError</span>
+
+<div class="viewcode-block" id="ResamplingTreeLayout"><a class="viewcode-back" href="../../../../api/wepy.analysis.network_layouts.tree.html#wepy.analysis.network_layouts.tree.ResamplingTreeLayout">[docs]</a><span class="k">class</span> <span class="nc">ResamplingTreeLayout</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Class that wraps the parameters for generating resampling tree layouts.</span>
+
+<span class="sd">    Use the &#39;layout&#39; method to generate inputs to a LayoutGraph for rendering.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+
+<span class="sd">    node_radius : float</span>
+<span class="sd">        Default node radius to use.</span>
+<span class="sd">    row_spacing : float</span>
+<span class="sd">        Spacing between nodes in a single row in layout.</span>
+<span class="sd">    step_spacing : float</span>
+<span class="sd">        Spacing between the rows of nodes in each step of the layout.</span>
+<span class="sd">    central_axis : float</span>
+<span class="sd">        X coordinate value to center each row around in the tree layout.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                 <span class="n">node_radius</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
+                 <span class="n">row_spacing</span><span class="o">=</span><span class="mf">5.0</span><span class="p">,</span>
+                 <span class="n">step_spacing</span><span class="o">=</span><span class="mf">20.0</span><span class="p">,</span>
+                 <span class="n">central_axis</span><span class="o">=</span><span class="mf">0.0</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Constructing the object is just a setting of the parameters and</span>
+<span class="sd">        collection of methods for generating layout positions.</span>
+
+<span class="sd">        Arguments</span>
+<span class="sd">        ---------</span>
+<span class="sd">        node_radius : float, optional</span>
+<span class="sd">            Default node radius to use.</span>
+<span class="sd">             (Default value = 1.0)</span>
+
+<span class="sd">        row_spacing : float</span>
+<span class="sd">            Spacing between nodes in a single row in layout.</span>
+<span class="sd">             (Default value = 5.0)</span>
+
+<span class="sd">        step_spacing : float</span>
+<span class="sd">            Spacing between the rows of nodes in each step of the layout.</span>
+<span class="sd">             (Default value = 20.0)</span>
+
+<span class="sd">        central_axis : float</span>
+<span class="sd">            X coordinate value to center each row around in the tree layout.</span>
+<span class="sd">             (Default value = 0.0)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">node_radius</span> <span class="o">=</span> <span class="n">node_radius</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">row_spacing</span> <span class="o">=</span> <span class="n">row_spacing</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">step_spacing</span> <span class="o">=</span> <span class="n">step_spacing</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">central_axis</span> <span class="o">=</span> <span class="n">central_axis</span>
+
+    <span class="k">def</span> <span class="nf">_overlaps</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">positions</span><span class="p">,</span> <span class="n">node_radii</span><span class="p">,</span> <span class="n">node_idx</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        positions :</span>
+
+<span class="sd">        node_radii :</span>
+
+<span class="sd">        node_idx :</span>
+
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># get the nodes that this one overlaps with</span>
+        <span class="n">overlaps</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">other_node_idx</span><span class="p">,</span> <span class="n">other_node_position</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">positions</span><span class="p">):</span>
+
+            <span class="c1"># you can&#39;t overlap yourself</span>
+            <span class="k">if</span> <span class="n">node_idx</span> <span class="o">==</span> <span class="n">other_node_idx</span><span class="p">:</span>
+                <span class="n">overlaps</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># check if there is an overlap between nodes</span>
+                <span class="n">diff</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">positions</span><span class="p">[</span><span class="n">node_idx</span><span class="p">]</span> <span class="o">-</span> <span class="n">other_node_position</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">diff</span> <span class="o">&lt;</span> <span class="n">node_radii</span><span class="p">[</span><span class="n">node_idx</span><span class="p">]</span> <span class="o">+</span> <span class="n">node_radii</span><span class="p">[</span><span class="n">other_node_idx</span><span class="p">]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">row_spacing</span><span class="p">:</span>
+                    <span class="n">overlaps</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">overlaps</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">overlaps</span>
+
+    <span class="k">def</span> <span class="nf">_node_row_length</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node_positions</span><span class="p">,</span> <span class="n">node_radii</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get the edge to edge length of a row of nodes.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        node_positions :</span>
+
+<span class="sd">        node_radii :</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
+<span class="sd">        row_length : float</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">max_child_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">node_positions</span><span class="p">)</span>
+        <span class="n">max_edge</span> <span class="o">=</span> <span class="n">node_positions</span><span class="p">[</span><span class="n">max_child_idx</span><span class="p">]</span> <span class="o">+</span> <span class="n">node_radii</span><span class="p">[</span><span class="n">max_child_idx</span><span class="p">]</span>
+        <span class="n">min_child_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">node_positions</span><span class="p">)</span>
+        <span class="n">min_edge</span> <span class="o">=</span> <span class="n">node_positions</span><span class="p">[</span><span class="n">min_child_idx</span><span class="p">]</span> <span class="o">-</span> <span class="n">node_radii</span><span class="p">[</span><span class="n">min_child_idx</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="nb">abs</span><span class="p">(</span><span class="n">max_edge</span> <span class="o">-</span> <span class="n">min_edge</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_simple_gen_distribution</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nodes_x</span><span class="p">,</span> <span class="n">node_radii</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        nodes_x :</span>
+
+<span class="sd">        node_radii :</span>
+
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
+<span class="sd">        new_nodes_positions</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># we want to update the positions given so we copy that array</span>
+        <span class="n">node_positions</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">copy</span><span class="p">(</span><span class="n">nodes_x</span><span class="p">))</span>
+
+        <span class="c1"># first we check to see if there are any groups of nodes that</span>
+        <span class="c1"># are in identical positions. If there are we can lump them</span>
+        <span class="c1"># into a single node with a bigger radii and move things</span>
+        <span class="c1"># around it</span>
+
+        <span class="n">groups</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">group_positions</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">node_idx</span><span class="p">,</span> <span class="n">node_position</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">node_positions</span><span class="p">):</span>
+
+            <span class="c1"># first get if this nodes position is already in the list</span>
+            <span class="c1"># of known positions</span>
+            <span class="k">if</span> <span class="n">node_position</span> <span class="ow">in</span> <span class="n">group_positions</span><span class="p">:</span>
+                <span class="c1"># if it is then get which group it is and add it to the list for that</span>
+                <span class="n">idx</span> <span class="o">=</span> <span class="n">group_positions</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">node_position</span><span class="p">)</span>
+                <span class="n">groups</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">node_idx</span><span class="p">)</span>
+
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># start a new group for it</span>
+                <span class="n">group_positions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">node_position</span><span class="p">)</span>
+                <span class="n">groups</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">node_idx</span><span class="p">])</span>
+
+        <span class="c1"># now we filter out the groups that only have one node</span>
+        <span class="n">chosen_idxs</span> <span class="o">=</span> <span class="p">[</span><span class="n">idx</span> <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">group</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">groups</span><span class="p">)</span>
+                       <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">group</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">]</span>
+
+        <span class="n">group_positions</span> <span class="o">=</span> <span class="p">[</span><span class="n">group_positions</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="n">chosen_idxs</span><span class="p">]</span>
+
+        <span class="n">groups</span> <span class="o">=</span> <span class="p">[</span><span class="n">groups</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="n">chosen_idxs</span><span class="p">]</span>
+        <span class="n">n_groups</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">groups</span><span class="p">)</span>
+
+        <span class="c1"># we make a collection of the nodes that are in groups</span>
+        <span class="n">grouped_node_idxs</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">it</span><span class="o">.</span><span class="n">chain</span><span class="p">(</span><span class="o">*</span><span class="n">groups</span><span class="p">))</span>
+
+        <span class="c1"># then we remove these nodes from the positions and radii</span>
+        <span class="c1"># arrays and replace them with single nodes of updated radii</span>
+        <span class="c1"># and positions.</span>
+        <span class="n">group_radii</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">group_idx</span><span class="p">,</span> <span class="n">group</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">groups</span><span class="p">):</span>
+
+            <span class="c1"># the new radii will be the sum of the diameters plus the</span>
+            <span class="c1"># spacing between the nodes</span>
+
+            <span class="c1"># the sum of the diamters</span>
+            <span class="n">sum_diameters</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">([</span><span class="mi">2</span> <span class="o">*</span> <span class="n">node_radii</span><span class="p">[</span><span class="n">node_idx</span><span class="p">]</span>
+                                 <span class="k">for</span> <span class="n">node_idx</span> <span class="ow">in</span> <span class="n">group</span><span class="p">])</span>
+
+            <span class="c1"># the spacing between is for 1 less than the total number</span>
+            <span class="c1"># of the nodes in the group</span>
+            <span class="n">sum_spacing</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">row_spacing</span> <span class="o">*</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">group</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+
+            <span class="c1"># the whole groups radius</span>
+            <span class="n">group_radius</span> <span class="o">=</span> <span class="p">(</span><span class="n">sum_diameters</span> <span class="o">+</span> <span class="n">sum_spacing</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>
+
+            <span class="n">group_radii</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">group_radius</span><span class="p">)</span>
+
+        <span class="c1"># then we rip out the nodes that are part of groups and are</span>
+        <span class="c1"># left with the singletons</span>
+        <span class="n">singleton_idxs</span> <span class="o">=</span> <span class="p">[</span><span class="n">node_idx</span> <span class="k">for</span> <span class="n">node_idx</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">node_positions</span><span class="p">)</span>
+                          <span class="k">if</span> <span class="n">node_idx</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">grouped_node_idxs</span><span class="p">]</span>
+        <span class="n">singleton_positions</span> <span class="o">=</span> <span class="p">[</span><span class="n">node_positions</span><span class="p">[</span><span class="n">node_idx</span><span class="p">]</span> <span class="k">for</span> <span class="n">node_idx</span> <span class="ow">in</span> <span class="n">singleton_idxs</span><span class="p">]</span>
+        <span class="n">singleton_radii</span> <span class="o">=</span> <span class="p">[</span><span class="n">node_radii</span><span class="p">[</span><span class="n">node_idx</span><span class="p">]</span> <span class="k">for</span> <span class="n">node_idx</span> <span class="ow">in</span> <span class="n">singleton_idxs</span><span class="p">]</span>
+
+        <span class="c1"># then we make the effective nodes to position later, we put</span>
+        <span class="c1"># them at the beginning of the new positions list so we can</span>
+        <span class="c1"># easily decompose it later and put them back out to how they</span>
+        <span class="c1"># should be</span>
+        <span class="n">eff_positions</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">group_positions</span> <span class="o">+</span> <span class="n">singleton_positions</span><span class="p">)</span>
+        <span class="n">eff_radii</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">group_radii</span> <span class="o">+</span> <span class="n">singleton_radii</span><span class="p">)</span>
+
+        <span class="c1"># now that we have made the effective nodes we go ahead and</span>
+        <span class="c1"># place them</span>
+
+        <span class="c1"># then for each node we place it sequentially</span>
+        <span class="k">for</span> <span class="n">node_idx</span><span class="p">,</span> <span class="n">node_radius</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">eff_radii</span><span class="p">):</span>
+
+            <span class="c1"># get the overlaps for this node</span>
+            <span class="n">overlaps</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_overlaps</span><span class="p">(</span><span class="n">eff_positions</span><span class="p">,</span> <span class="n">eff_radii</span><span class="p">,</span> <span class="n">node_idx</span><span class="p">)</span>
+
+            <span class="c1"># get how many nodes overlap it to the left and to the</span>
+            <span class="c1"># right of it&#39;s starting position</span>
+            <span class="n">left_overlaps</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">overlaps</span><span class="p">)</span>
+                             <span class="k">if</span> <span class="n">eff_positions</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">eff_positions</span><span class="p">[</span><span class="n">node_idx</span><span class="p">]]</span>
+            <span class="n">right_overlaps</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">overlaps</span><span class="p">)</span>
+                              <span class="k">if</span> <span class="n">eff_positions</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">eff_positions</span><span class="p">[</span><span class="n">node_idx</span><span class="p">]]</span>
+
+            <span class="n">left_n_overlaps</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">left_overlaps</span><span class="p">)</span>
+            <span class="n">right_n_overlaps</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">right_overlaps</span><span class="p">)</span>
+
+            <span class="c1"># we just move all the other nodes to allow this node to</span>
+            <span class="c1"># be placed where we proposed it</span>
+
+            <span class="c1"># left overlaps</span>
+            <span class="k">if</span> <span class="n">left_n_overlaps</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+
+                <span class="c1"># repel the other nodes around it</span>
+
+                <span class="c1"># get the node idxs to the left of this one</span>
+                <span class="n">detangle_left_node_idxs</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">position</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">eff_positions</span><span class="p">)</span>
+                                            <span class="k">if</span> <span class="n">position</span> <span class="o">&lt;</span> <span class="n">eff_positions</span><span class="p">[</span><span class="n">node_idx</span><span class="p">]]</span>
+
+                <span class="c1"># get the (center to center) distances from this node to</span>
+                <span class="c1"># all it&#39;s overlaps</span>
+                <span class="n">cc_left_overlap_dists</span> <span class="o">=</span> <span class="p">[</span><span class="nb">abs</span><span class="p">(</span><span class="n">eff_positions</span><span class="p">[</span><span class="n">node_idx</span><span class="p">]</span> <span class="o">-</span> <span class="n">eff_positions</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+                                         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">left_overlaps</span><span class="p">]</span>
+
+                <span class="c1"># then get the edge to edge distances (which can be</span>
+                <span class="c1"># negative where they cross over) this is the sum of the</span>
+                <span class="c1"># radii subtracted from the center to center distance (ee = d-(r_0 + r_1))</span>
+                <span class="n">ee_left_overlap_dists</span> <span class="o">=</span> <span class="p">[</span><span class="n">cc_left_overlap_dists</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="p">(</span><span class="n">node_radius</span> <span class="o">+</span> <span class="n">eff_radii</span><span class="p">[</span><span class="n">node_i</span><span class="p">])</span>
+                                         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">node_i</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">left_overlaps</span><span class="p">)]</span>
+
+                <span class="c1"># we want the minimum one of the edge to edges (even if</span>
+                <span class="c1"># its negative)</span>
+                <span class="n">left_min_ee_overlap_dist</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">ee_left_overlap_dists</span><span class="p">)</span>
+
+                <span class="c1"># this overlap should always be negative for the</span>
+                <span class="c1"># overlapping nodes so we minimally need to move one</span>
+                <span class="c1"># node this far away to have no overlap, on top of</span>
+                <span class="c1"># that we add the spacing for the move distance to make</span>
+                <span class="n">left_move</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">row_spacing</span> <span class="o">+</span> <span class="p">(</span><span class="o">-</span><span class="n">left_min_ee_overlap_dist</span><span class="p">))</span>
+
+                <span class="c1"># then apply to those nodes</span>
+                <span class="n">eff_positions</span><span class="p">[</span><span class="n">detangle_left_node_idxs</span><span class="p">]</span> <span class="o">+=</span> <span class="n">left_move</span>
+
+
+            <span class="c1"># right overlaps</span>
+            <span class="k">if</span> <span class="n">right_n_overlaps</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+
+                <span class="c1"># see above for comments</span>
+                <span class="n">detangle_right_node_idxs</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">position</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">eff_positions</span><span class="p">)</span>
+                                            <span class="k">if</span> <span class="n">position</span> <span class="o">&gt;</span> <span class="n">eff_positions</span><span class="p">[</span><span class="n">node_idx</span><span class="p">]]</span>
+
+                <span class="n">cc_right_overlap_dists</span> <span class="o">=</span> <span class="p">[</span><span class="nb">abs</span><span class="p">(</span><span class="n">eff_positions</span><span class="p">[</span><span class="n">node_idx</span><span class="p">]</span> <span class="o">-</span> <span class="n">eff_positions</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+                                          <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">right_overlaps</span><span class="p">]</span>
+
+                <span class="n">ee_right_overlap_dists</span> <span class="o">=</span> <span class="p">[</span><span class="n">cc_right_overlap_dists</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="p">(</span><span class="n">node_radius</span> <span class="o">+</span> <span class="n">eff_radii</span><span class="p">[</span><span class="n">node_i</span><span class="p">])</span>
+                                         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">node_i</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">right_overlaps</span><span class="p">)]</span>
+
+                <span class="n">right_min_ee_overlap_dist</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">ee_right_overlap_dists</span><span class="p">)</span>
+
+                <span class="n">right_move</span> <span class="o">=</span> <span class="o">+</span><span class="mi">1</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">row_spacing</span> <span class="o">+</span> <span class="p">(</span><span class="o">-</span><span class="n">right_min_ee_overlap_dist</span><span class="p">))</span>
+
+                <span class="n">eff_positions</span><span class="p">[</span><span class="n">detangle_right_node_idxs</span><span class="p">]</span> <span class="o">+=</span> <span class="n">right_move</span>
+
+
+        <span class="c1"># now that we have placed the effective nodes we want to</span>
+        <span class="c1"># reconstruct the original nodes from the grouped ones</span>
+
+        <span class="c1"># make a new positions array that we can repopulate</span>
+        <span class="n">new_node_positions</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">node_positions</span><span class="p">]</span>
+
+        <span class="c1"># first for each group we need to place the nodes that had</span>
+        <span class="c1"># identical positions within the space created by their larger</span>
+        <span class="c1"># effective nodes</span>
+        <span class="k">for</span> <span class="n">group_idx</span><span class="p">,</span> <span class="n">group</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">groups</span><span class="p">):</span>
+
+            <span class="c1"># the position of the group overall, since the grouped</span>
+            <span class="c1"># nodes were at the front of the list of the effective</span>
+            <span class="c1"># nodes with preserverd order we can use the group_index</span>
+            <span class="c1"># to get them</span>
+            <span class="n">group_position</span> <span class="o">=</span> <span class="n">eff_positions</span><span class="p">[</span><span class="n">group_idx</span><span class="p">]</span>
+            <span class="n">group_radii</span> <span class="o">=</span> <span class="n">eff_radii</span><span class="p">[</span><span class="n">group_idx</span><span class="p">]</span>
+
+            <span class="n">member_radii</span> <span class="o">=</span> <span class="p">[</span><span class="n">node_radii</span><span class="p">[</span><span class="n">node_idx</span><span class="p">]</span> <span class="k">for</span> <span class="n">node_idx</span> <span class="ow">in</span> <span class="n">group</span><span class="p">]</span>
+
+            <span class="c1"># just place them like you would the initial distribution,</span>
+            <span class="c1"># which is centered at 0</span>
+            <span class="n">member_positions</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_initial_parent_distribution</span><span class="p">(</span><span class="n">member_radii</span><span class="p">))</span>
+
+            <span class="c1"># translate all nodes left (negative by the midpoint/radius)</span>
+            <span class="n">member_positions</span> <span class="o">-=</span> <span class="n">group_radii</span>
+
+            <span class="c1"># then we translate all of them to the overall group position</span>
+            <span class="n">member_positions</span> <span class="o">+=</span> <span class="n">group_position</span>
+
+            <span class="c1"># now that we have good positions we can place them back</span>
+            <span class="c1"># into the main level positions list</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">node_idx</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">group</span><span class="p">):</span>
+                <span class="n">new_node_positions</span><span class="p">[</span><span class="n">node_idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">member_positions</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+
+        <span class="c1"># The singletons were at the end of the effective positions so</span>
+        <span class="c1"># we have N_group_nodes + i where i is the index over the singletons</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">node_idx</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">singleton_idxs</span><span class="p">):</span>
+
+            <span class="n">new_node_positions</span><span class="p">[</span><span class="n">node_idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">eff_positions</span><span class="p">[</span><span class="n">n_groups</span> <span class="o">+</span> <span class="n">i</span><span class="p">]</span>
+
+        <span class="c1"># sanity check that we covered them all</span>
+        <span class="k">assert</span> <span class="nb">all</span><span class="p">([</span><span class="kc">True</span> <span class="k">if</span> <span class="n">pos</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">False</span>
+                    <span class="k">for</span> <span class="n">pos</span> <span class="ow">in</span> <span class="n">new_node_positions</span><span class="p">]),</span>\
+                        <span class="s2">&quot;not all positions recovered from the effective nodes&quot;</span>
+
+
+        <span class="k">return</span> <span class="n">new_node_positions</span>
+
+    <span class="k">def</span> <span class="nf">_simple_next_gen</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parents_x</span><span class="p">,</span> <span class="n">children_parent_idxs</span><span class="p">,</span> <span class="n">node_radii</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        parents_x :</span>
+
+<span class="sd">        children_parent_idxs :</span>
+
+<span class="sd">        node_radii :</span>
+
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
+<span class="sd">        children_x</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">children_x</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">parent_idx</span> <span class="ow">in</span> <span class="n">children_parent_idxs</span><span class="p">:</span>
+            <span class="n">children_x</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">parents_x</span><span class="p">[</span><span class="n">parent_idx</span><span class="p">])</span>
+
+        <span class="n">children_x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_simple_gen_distribution</span><span class="p">(</span><span class="n">children_x</span><span class="p">,</span> <span class="n">node_radii</span><span class="p">)</span>
+
+        <span class="c1"># check to make sure there are no overlaps</span>
+        <span class="k">for</span> <span class="n">node_idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">children_x</span><span class="p">)):</span>
+            <span class="n">overlaps</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_overlaps</span><span class="p">(</span><span class="n">children_x</span><span class="p">,</span> <span class="n">node_radii</span><span class="p">,</span> <span class="n">node_idx</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">overlaps</span><span class="p">):</span>
+                <span class="k">pass</span>
+                <span class="c1">#raise LayoutError(&quot;node {} has an overlap&quot;.format(node_idx))</span>
+
+        <span class="k">return</span> <span class="n">children_x</span>
+
+
+    <span class="k">def</span> <span class="nf">_initial_parent_distribution</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node_radii</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        node_radii :</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
+<span class="sd">        positions</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># start at the origin and add nodes at positions that</span>
+        <span class="c1"># accomodate their diameter and that are spaced by spacing_factor</span>
+        <span class="n">origin</span> <span class="o">=</span> <span class="mf">0.0</span>
+
+        <span class="n">positions</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="c1"># place the first node at the origin, offset by its radius so</span>
+        <span class="c1"># that the leading edge is at 0.0, then iterate for the rest</span>
+        <span class="c1"># of them</span>
+        <span class="n">positions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">origin</span> <span class="o">+</span> <span class="n">node_radii</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+        <span class="c1"># compute the edge so we know how much to space the next one</span>
+        <span class="c1"># by</span>
+        <span class="n">last_edge</span> <span class="o">=</span> <span class="n">origin</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">node_radii</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="c1"># then do the rest</span>
+        <span class="k">for</span> <span class="n">node_idx</span><span class="p">,</span> <span class="n">node_radius</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">node_radii</span><span class="p">[</span><span class="mi">1</span><span class="p">:]):</span>
+
+            <span class="n">node_idx</span> <span class="o">+=</span> <span class="mi">1</span>
+
+            <span class="c1"># set the position from the last edge plus the space and</span>
+            <span class="c1"># the new nodes radius</span>
+            <span class="n">position</span> <span class="o">=</span> <span class="n">last_edge</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">row_spacing</span> <span class="o">+</span> <span class="n">node_radius</span>
+
+            <span class="n">positions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">position</span><span class="p">)</span>
+
+            <span class="c1"># then calculate that ones edge</span>
+            <span class="n">last_edge</span> <span class="o">=</span> <span class="n">position</span> <span class="o">+</span> <span class="n">node_radius</span>
+
+        <span class="k">return</span> <span class="n">positions</span>
+
+    <span class="k">def</span> <span class="nf">_center_row</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">positions</span><span class="p">,</span> <span class="n">radii</span><span class="p">,</span> <span class="n">center</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Centers the midpoint of a row of nodes around a number.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        positions :</span>
+
+<span class="sd">        radii :</span>
+
+<span class="sd">        center : float</span>
+
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
+<span class="sd">        centered_positions</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># calculate the length of the row</span>
+        <span class="n">row_length</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_node_row_length</span><span class="p">(</span><span class="n">positions</span><span class="p">,</span> <span class="n">radii</span><span class="p">)</span>
+
+        <span class="n">min_child_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">positions</span><span class="p">)</span>
+        <span class="n">min_edge</span> <span class="o">=</span> <span class="n">positions</span><span class="p">[</span><span class="n">min_child_idx</span><span class="p">]</span> <span class="o">-</span> <span class="n">radii</span><span class="p">[</span><span class="n">min_child_idx</span><span class="p">]</span>
+
+        <span class="c1"># row midpoint is the minimum edge plus the radius of the row</span>
+        <span class="n">row_midpoint</span> <span class="o">=</span> <span class="n">min_edge</span> <span class="o">+</span> <span class="p">(</span><span class="n">row_length</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
+
+        <span class="c1"># translate all the points so that the midpoint is at 0</span>
+        <span class="n">centered_positions</span> <span class="o">=</span> <span class="n">positions</span> <span class="o">-</span> <span class="n">row_midpoint</span>
+
+        <span class="k">return</span> <span class="n">centered_positions</span>
+
+    <span class="k">def</span> <span class="nf">_layout_array</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent_table</span><span class="p">,</span> <span class="n">radii_array</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Generates the structured array of positions for nodes in the parent</span>
+<span class="sd">        forest tree layout given the corresponding radii.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        parent_table :</span>
+
+<span class="sd">        radii_array :</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
+<span class="sd">        node_positions</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">n_timesteps</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">parent_table</span><span class="p">)</span>
+        <span class="n">n_walkers</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">parent_table</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+        <span class="c1"># initialize the positions to zeros, we add one to the</span>
+        <span class="c1"># timesteps for the roots of the resampling trees</span>
+        <span class="n">node_positions</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">n_timesteps</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">n_walkers</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+
+        <span class="c1"># initialize the first generation (cycle) node positions, this</span>
+        <span class="c1"># is the root positions, we give it the radii of the first row in the array</span>
+        <span class="n">first_gen_positions</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_initial_parent_distribution</span><span class="p">(</span><span class="n">radii_array</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+
+        <span class="c1"># then center them around the central axis</span>
+        <span class="n">first_gen_positions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_center_row</span><span class="p">(</span><span class="n">first_gen_positions</span><span class="p">,</span> <span class="n">radii_array</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                                               <span class="bp">self</span><span class="o">.</span><span class="n">central_axis</span><span class="p">)</span>
+
+        <span class="c1"># save them as full coordinates for visualization</span>
+        <span class="n">node_positions</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="n">x</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">first_gen_positions</span><span class="p">])</span>
+
+        <span class="c1"># we use the last gen positions to make the next gen</span>
+        <span class="n">last_gen_positions</span> <span class="o">=</span> <span class="n">first_gen_positions</span>
+
+        <span class="c1"># layout all the rest of the steps</span>
+        <span class="k">for</span> <span class="n">step_idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_timesteps</span><span class="p">):</span>
+
+            <span class="c1"># the generation index is the one used for the actual tree</span>
+            <span class="c1"># and it is always one more than the step index, since the</span>
+            <span class="c1"># first generation is not counted as a step and was</span>
+            <span class="c1"># already made outside the loop</span>
+            <span class="n">generation_idx</span> <span class="o">=</span> <span class="n">step_idx</span> <span class="o">+</span> <span class="mi">1</span>
+
+            <span class="c1"># generate the starting positions for the next generation nodes</span>
+            <span class="n">curr_gen_positions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_simple_next_gen</span><span class="p">(</span><span class="n">last_gen_positions</span><span class="p">,</span>
+                                                       <span class="n">parent_table</span><span class="p">[</span><span class="n">step_idx</span><span class="p">],</span>
+                                                       <span class="n">radii_array</span><span class="p">[</span><span class="n">generation_idx</span><span class="p">])</span>
+
+            <span class="c1"># center them around the central axis</span>
+            <span class="n">curr_gen_positions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_center_row</span><span class="p">(</span><span class="n">curr_gen_positions</span><span class="p">,</span>
+                                                  <span class="n">radii_array</span><span class="p">[</span><span class="n">generation_idx</span><span class="p">],</span>
+                                                   <span class="bp">self</span><span class="o">.</span><span class="n">central_axis</span><span class="p">)</span>
+
+
+            <span class="c1"># figure out how big the increase in the Y direction</span>
+            <span class="c1"># should be. This is based on the largest radii of the</span>
+            <span class="c1"># last step and the largets radii of this step with the</span>
+            <span class="c1"># mandatory spacing in between</span>
+
+            <span class="c1"># get the y dimension of the last step</span>
+            <span class="n">last_y</span> <span class="o">=</span> <span class="n">node_positions</span><span class="p">[</span><span class="n">generation_idx</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+
+            <span class="c1"># get the largest radii of the last step</span>
+            <span class="n">last_max_radius</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">radii_array</span><span class="p">[</span><span class="n">generation_idx</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+
+            <span class="c1"># get the largest radii of this step</span>
+            <span class="n">this_max_radius</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">radii_array</span><span class="p">[</span><span class="n">generation_idx</span><span class="p">])</span>
+
+            <span class="c1"># compute the step y dimension, which is from the last y</span>
+            <span class="c1"># value plus the max radii plus the spacing</span>
+            <span class="n">step_y</span> <span class="o">=</span> <span class="n">last_y</span> <span class="o">+</span> <span class="n">last_max_radius</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">step_spacing</span> <span class="o">+</span> <span class="n">this_max_radius</span>
+
+            <span class="c1"># then generate the coordinates</span>
+            <span class="n">node_positions</span><span class="p">[</span><span class="n">generation_idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+                <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">x</span><span class="p">,</span> <span class="n">step_y</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">])</span>
+                 <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">curr_gen_positions</span><span class="p">])</span>
+
+            <span class="c1"># set the last gen positions</span>
+            <span class="n">last_gen_positions</span> <span class="o">=</span> <span class="n">curr_gen_positions</span>
+
+        <span class="k">return</span> <span class="n">node_positions</span>
+
+
+<div class="viewcode-block" id="ResamplingTreeLayout.layout"><a class="viewcode-back" href="../../../../api/wepy.analysis.network_layouts.tree.html#wepy.analysis.network_layouts.tree.ResamplingTreeLayout.layout">[docs]</a>    <span class="k">def</span> <span class="nf">layout</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent_forest</span><span class="p">,</span> <span class="n">node_radii</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Given a parent forest object, returns a dictionary</span>
+<span class="sd">        mapping nodes to their xyz layout coordinates.</span>
+
+<span class="sd">        If the node radii are given (as a dictionary mapping node ID</span>
+<span class="sd">        to the desired radius) these are used as the the node radii</span>
+<span class="sd">        and the default node radius parameter of the layout object is</span>
+<span class="sd">        ignored.</span>
+
+<span class="sd">        Radii are needed to calculate the proper positions so there is</span>
+<span class="sd">        no overlaps between nodes.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        parent_forest : ParentForest object</span>
+
+<span class="sd">        node_radii : dict of node_id: float</span>
+<span class="sd">            A dictionary mapping the nodes to node radii.</span>
+<span class="sd">             (Default value = None)</span>
+
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        node_coords : dict of node_id: array_like of float of dim (3,)</span>
+<span class="sd">            x, y, z coordinates for all nodes. Z will be 0 for all.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If an invalid node_id is given.</span>
+
+<span class="sd">        Warns</span>
+<span class="sd">        -----</span>
+<span class="sd">        If some but not all nodes were given assigned radii. Uses</span>
+<span class="sd">        default value for unspecified nodes.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># get the parent table from the parent forest</span>
+        <span class="n">parent_table</span> <span class="o">=</span> <span class="n">parent_forest</span><span class="o">.</span><span class="n">parent_table</span>
+
+        <span class="c1"># default your node radii to the layout parameter, and fill in</span>
+        <span class="c1"># the rest with the node_radii given to this method</span>
+
+        <span class="c1"># we need to generate an array of node radii, the size of</span>
+        <span class="c1"># which is the parent table plus one extra row for the</span>
+        <span class="c1"># root parents</span>
+        <span class="n">radii_array</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="c1"># count the number of nodes to check later whether or not the</span>
+        <span class="c1"># user has given complete coverage with their radii. We can</span>
+        <span class="c1"># issue a warning so that the user is not confused.</span>
+        <span class="n">n_nodes</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="c1"># the &quot;root&quot; row, it is the same length as the first in the</span>
+        <span class="c1"># parent table</span>
+        <span class="n">radii_array</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">node_radius</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">parent_table</span><span class="p">[</span><span class="mi">0</span><span class="p">]])</span>
+        <span class="n">n_nodes</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="n">parent_table</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+        <span class="c1"># the rest of them</span>
+        <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">parent_table</span><span class="p">:</span>
+            <span class="n">radii_array</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">node_radius</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">row</span><span class="p">])</span>
+            <span class="n">n_nodes</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
+
+        <span class="c1"># if any radii are given overwrite the default size, we count</span>
+        <span class="c1"># how many new radii we give so that we can compare to the</span>
+        <span class="c1"># actual number of nodes</span>
+        <span class="n">n_new_radii</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">if</span> <span class="n">node_radii</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">node_id</span><span class="p">,</span> <span class="n">radius</span> <span class="ow">in</span> <span class="n">node_radii</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+
+                <span class="c1"># we know that the node_id is the (cycle_idx,</span>
+                <span class="c1"># walker_idx), so we use these as indices on the array</span>
+                <span class="n">cycle_idx</span><span class="p">,</span> <span class="n">walker_idx</span> <span class="o">=</span> <span class="n">node_id</span>
+
+                <span class="c1"># the indices in the node_array start at the -1 root</span>
+                <span class="c1"># nodes so we increase cycle index by one to match,</span>
+                <span class="c1"># this is called the generation index</span>
+                <span class="n">generation_idx</span> <span class="o">=</span> <span class="n">cycle_idx</span> <span class="o">+</span> <span class="mi">1</span>
+
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">radii_array</span><span class="p">[</span><span class="n">generation_idx</span><span class="p">][</span><span class="n">walker_idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">radius</span>
+                <span class="k">except</span> <span class="ne">IndexError</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;invalid node_id was given&quot;</span><span class="p">)</span>
+
+                <span class="n">n_new_radii</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="c1"># check if we have fewer assignments than there were nodes</span>
+        <span class="k">if</span> <span class="n">n_new_radii</span> <span class="o">&lt;</span> <span class="n">n_nodes</span><span class="p">:</span>
+            <span class="n">warn</span><span class="p">(</span>
+                <span class="s2">&quot;not all nodes were assigned custom radii,&quot;</span>
+                <span class="s2">&quot; default value </span><span class="si">{}</span><span class="s2"> was used instead&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">node_radius</span><span class="p">))</span>
+
+        <span class="n">layout_array</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_layout_array</span><span class="p">(</span><span class="n">parent_table</span><span class="p">,</span> <span class="n">radii_array</span><span class="p">)</span>
+
+        <span class="c1"># make a dictionary mapping node ids to layout values</span>
+        <span class="n">node_coords</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">cycle_idx</span><span class="p">,</span> <span class="n">layout_row</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">layout_array</span><span class="p">):</span>
+
+            <span class="k">for</span> <span class="n">walker_idx</span><span class="p">,</span> <span class="n">coord</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">layout_row</span><span class="p">):</span>
+
+                <span class="c1"># since the layout array starts at the root nodes (cycle</span>
+                <span class="c1"># -1) we just reduce the cycle_idx by one when we set the</span>
+                <span class="c1"># node attribute</span>
+                <span class="n">node_coords</span><span class="p">[(</span><span class="n">cycle_idx</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">walker_idx</span><span class="p">)]</span> <span class="o">=</span> <span class="n">coord</span>
+
+        <span class="k">return</span> <span class="n">node_coords</span></div></div>
+</pre></div>
+
+          </div>
+            
+        </div>
+        <div class="clearfix"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">wepy  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+<script type="text/javascript">
+  $("#mobile-toggle a").click(function () {
+    $("#left-column").toggle();
+  });
+</script>
+<script type="text/javascript" src="../../../../_static/js/bootstrap.js"></script>
+  <div class="footer">
+    &copy; Copyright 2018, Samuel D. Lotz. Created using <a href="http://sphinx.pocoo.org/">Sphinx</a>.
+  </div>
+  </body>
+</html>

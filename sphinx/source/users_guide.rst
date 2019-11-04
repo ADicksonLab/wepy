@@ -1,0 +1,1657 @@
+User's Guide
+============
+
+How to approach learning and using wepy
+---------------------------------------
+
+The ``wepy`` project is a framework and library written in python for
+performing :abbr:`WE (weighted ensemble)` simulations.
+
+That means there is no special language to learn and use other than
+python itself. This also means you are able to harness the power of the
+entire language and ecosystem in prototyping methods and analyzing data.
+
+To use prebuilt components all it takes is some basic knowledge of
+python.
+
+With a little knowledge of object-oriented programming (OOP) you can
+utilize a collection of functionality to help you focus prototype your
+complex algorithms rather than worrying about how to save data etc.
+
+The first question is what exactly do you need to write to be able to
+run a wepy simulation and how to run it.
+
+The software configuration trap
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Some people may not understand (or agree with) the approach to the
+design of ``wepy`` as it diverges from many packages in the field. So we
+will provide a summary of the issues leading to the deliberately made
+choices.
+
+Many other tools utilize some sort of separate "configuration" file that
+is used to specify in a declarative manner what the simulation is
+supposed to do. Typically, these kinds of configurations are supposed to
+cater to beginners that have no experience in programming. Inevitably
+the features of the program start to expand and the complexity of
+configuration files grow until the developers have accidentally created
+an entire programming language, which invariably is very clumsy to
+program. Moreover, this language is a completely isolated ecosystem.
+
+``wepy`` was designed to avoid this issue and from the start and
+embraces a well-designed and highly popular programming language with a
+huge standard library and massive collection of highle-trusted third
+party libraries; Python (version 3 specifically). So while in ``wepy``
+you are still "configuring" your simulations by building components
+there is no need to limit yourself to a small insular ecosystem in a
+sub-par programming language designed by a chemist when punch cards were
+still cutting edge.
+
+Many older simulation engines fall into the traps described above simply
+because there were no obviously dominant high-level languages like
+python at the time. The implementers of these engines were pioneers and
+we admire them for the intrepid and forthright spirit that drove them to
+accomplish there scientific goals given the available infrastructure at
+the time. However, we try not to mistake particular implementations for
+the important traditions. As the success of a particular tradition in
+scientific modelling gains popularity, as molecular dynamics has, the
+requirements on implementation grows as many more diverse and previously
+unthunk use cases emerge for the better. We endeavour to highlight these
+successes as best and as honestly as we can.
+
+As equally as we respect the scientific traditions we should also look
+to other disciplines such as computer science which have worked just as
+industriously to provide tools that enable us to actualize our ideas.
+
+Python is the *lingua franca* of the scientific community as of the time
+of writing this, and the developers feel this is for the better.
+
+The insular ecosystem problem is essentially solved by the use of a
+general-purpose programming language such as Python. For example, a
+massive collection of numerical algorithms and linear algebra can be
+used in your component as easily as ``import numpy``. Furthermore,
+anyone can use or incorporate wepy into their project with a simple
+``import wepy``.
+
+Furthermore, ``wepy`` is only as system dependent as far as python is
+(and consequently C). It doesn't rely on any environmental variables for
+its functioning or other special operating specific details, (excepting
+performance optimizations). Everything is contained within python files.
+Some basic know-how of environments is assumed to be able to even
+install and configure python, but is completely orthogonal to wepy
+itself.
+
+If you wish to use some OS-specific or legacy programs, there is the
+python ``subprocess`` module that allows for doing just that, and
+perhaps a wrapper package ready to be imported.
+
+To run wepy you simply write a file that runs a simulation and then run
+it on the command line:
+
+.. code:: bash
+
+    python run_wepy.py
+
+The use of pure python files for configuring may seem complicated to
+someone that doesn't know python, but when you are running complex
+simulations it is comforting to know that there is no magic involved.
+
+If you are dissappointed that wepy does not follow the "Unix"
+philosophy, there is a simple explanation. The so-called "universal"
+textual interface is wholly unsuited to storing any kind of molecular
+simulation data (much less snapshots of simulations) and so right at the
+start you are stuck with the decision of what your binary format is.
+
+#. Intended audience and some suggestions
+
+   With all of this in mind ``wepy`` is meant to be a tool for a fairly
+   expert user that is willing to write python code and understand some
+   basic software patterns; that is the primary users of ``wepy`` are
+   the developers. We want to make "complex things possible" first and
+   secondarily "simple things simple". As of the ``1.0`` release we
+   believe that "complex things possible" has largely been achieved and
+   now the focus is making particular use-cases more streamlined as well
+   as broadening the number of domains addressed.
+
+   That said there is no reason that specific applications of wepy could
+   not eventually be provided with some sort of easy-to-use
+   configuration file format, command-line or web application.
+
+   We warn anyone that wants to do this to have a very clear idea of the
+   scope of this application and keep the above comments in mind. Some
+   suggestions on tools for such application/configurations are:
+
+   -  using the orchestration sub-packages Snapshot and Configuration
+      objects for setting up and serializing (storage via python
+      pickles) specific simulation initial conditions for short term (as
+      updates to the code may break these objects).
+   -  A very simple, well-specified, and human-writable format such as
+      `TOML <https://github.com/toml-lang/toml>`__ that has simple
+      translations to all programming languages.
+   -  A simple and popular template engine such as
+      `Jinja <https://github.com/pallets/jinja>`__ for generating python
+      scripts.
+
+   Some anti-examples would be:
+
+   -  ad hoc unspecified configuration files
+   -  human written XML files
+   -  operating system specific environmental variables
+   -  metaprogramming: such as python metaclasses
+
+#. Snapshot and Configuration files
+
+   The ``orchestration`` sub-package, as mentioned, does come with a
+   serialization format for simulation snapshots and configurations.
+   This is an advanced general purpose tool that is primarily meant for
+   managing large numbers of interconnected simulations and for adding
+   in checkpointing capabilities for hardware that tends to crash.
+
+   The snapshot and configuration files use python pickling to be able
+   easily serialize them which should be used with caution. Pickle files
+   should be read with the exact same version of the software that wrote
+   them, otherwise complete and utter loss of data should be expected.
+   It is possible that updates to the code will not effect the
+   readability, but should never be assumed. So this is a very short
+   term solution to storage.
+
+   This sub-package will be discussed later as an advanced topic in
+   depth.
+
+Framework or library?
+~~~~~~~~~~~~~~~~~~~~~
+
+At first a pedantic distinction, but understanding which parts of wepy
+are the "framework" and which parts are the "library" (and which parts
+are both) should eliminate some confusion (and hopefully lead to a
+sympathizing elightenment).
+
+It helps to understand that wepy fulfills a few roles:
+
+-  wepy provides components that can be used together
+-  wepy defines **interfaces** that new components may implement so that
+   they can be used with existing components
+
+Because python is dynamically typed (AKA duck typing) interfaces and
+object identities (types) are not explicitly enforced. In fact the
+interfaces cannot even be expressed in python syntax. Instead we rely on
+the following sources to determine interfaces in order of precedence:
+
+-  the original developers intention
+-  the source code
+-  the source code docstrings
+-  the source code comments
+-  the written documentation
+-  ...
+-  a person on the internet
+
+The developers ultimately have the final say because there will always
+be bugs in implementation and mistakes in documentation.
+
+Developers make mistakes and are willing to fix them, if you think they
+have made a mistake and there is a bug or problem in an interface please
+reach out for clarification before assuming it was not already though
+of. If you are still convinced of the issue, prepare an argument to be
+made for your case for a change in an interface and prepare for it to be
+questioned and critiqued in an objective manner.
+
+#. wepy: the framework
+
+   ``wepy`` is a framework, in that, you execute it by configuring an
+   "engine" that then takes your configurations and uses them on your
+   behalf. So your goal as a wepy user is to obtain the necessary
+   components and give them to the engine (the simulation manager) which
+   will run the entire workflow.
+
+   For the learned software engineers out there ``wepy`` uses dependency
+   injection (AKA inversion of control).
+
+   First we assemble our components by whatever means necessary:
+
+   .. code:: python
+
+       from some.sim.engine import SimRunner
+       from some.resampler import SomeResampler
+
+       runner = SimRunner()
+       resampler = SomeResampler()
+
+   Then we configure the engine by passing it the things it needs
+   (injecting the runner and resampler dependencies):
+
+   .. code:: python
+
+       from wepy.sim_manager import Manager
+
+       # create initial walkers...
+       init_walkers = make_walkers()
+
+       sim_manager = Manager(init_walkers,
+                             runner=runner,
+                             resampler=resampler)
+
+   This gives the ``sim_manager`` object control of our components. It
+   expects them to have methods for running simulations and resampling.
+   We instruct the ``sim_manager`` to run a simulation:
+
+   .. code:: python
+
+       results = sim_manager.run_simulation(...)
+
+   And we get back our results.
+
+   In the future examples we will also give the simulation manager a
+   collection "reporters" which will produce rich datasets as
+   "side-effects" of the simulation. In practice, running simulations
+   isn't very useful without them, but for simplicity we leave them out
+   for now.
+
+   So we see that the core framework of wepy is actually very simple and
+   really only consists of the ``Manager`` object and the interface it
+   defines (by calling specific methods of the components you gave it).
+   The simplicity of this makes it very flexible to use with other
+   components.
+
+#. wepy: the library
+
+   It is a library in the sense some of these components come freely
+   available and off the shelf for you to use, perhaps with the tweaking
+   of a few simple parameters.
+
+   For example you can import the WExplore resampler simply by writing:
+
+   .. code:: python
+
+       from wepy.resampling.resamplers.wexplore import WExploreResampler
+
+   The nonsense example above does this to retrieve some components from
+   some library not included in wepy.
+
+   Thus, wepy also includes a library of generally useful components
+   that can be used to configure the simulation manager.
+
+   The main categories of library components used by the sim manager
+   are:
+
+   -  runners
+   -  resamplers
+   -  distance metrics
+   -  boundary conditions
+   -  reporters
+   -  work mappers
+
+   There is also some libraries related to storage and analysis of WE
+   simulation data that are not used as injected dependencies of the sim
+   manager:
+
+   -  HDF5 storage
+   -  analysis
+
+   Some examples of off-the-shelf components are:
+
+   * :class:`wepy.runners.openmm.OpenMMRunner`
+   * :class:`wepy.runners.openmm.OpenMMRunner`
+   * :class:`wepy.resampling.resamplers.revo.REVOResampler`
+   * :class:`wepy.resampling.distances.receptor.UnbindingDistance`
+   * :class:`wepy.boundary_conditions.receptor.UnbindingBC`
+   * :class:`wepy.reporter.hdf5.WepyHDF5Reporter`
+   * :class:`wepy.reporter.dashboard.DashboardReporter`
+
+   These only need to be imported and constructed, e.g.:
+
+   .. code:: python
+
+       from wepy.runners.openmm import OpenMMRunner
+
+       runner = OpenMMRunner(system, topology, integrator,
+                              platform='Reference')
+
+#. wepy: the library of frameworks
+
+   As a reminder classes in OOP define a type of object, similar to how
+   the type ``Int`` or ``str`` defines a *class* of possible values. To
+   create an object from class you are said to **construct** it.
+
+   Objects (and classes) are essentially containers for both code and
+   data. The code of an object or class is a method, and the data is an
+   attribute.
+
+   Classes can be created in two ways. The developer writes it defining
+   how to construct it and what the methods and attributes are. The
+   second way is to make a class out of another class. Classes made from
+   other classes in OOP is called **inheritance** and all functionality
+   of a super-class is shared by the sub-class.
+
+   **Abstract base classes (ABC)** are classes that are available for
+   the sole purpose of making other classes from. Sub-classes of ABCs in
+   turn can either be abstract again, or concrete.
+
+   A subclass that inherits from an abstract class only becomes concrete
+   (and thus usable like the OpenMMRunner component) when it is
+   **customized** which are additional code written by the developer.
+
+   Customizations can either add orthogonal functionality, such as new
+   methods or attributes, or they can **override** functionality from a
+   super-class, changing the behavior or type of an existing method or
+   attribute.
+
+   The goal of all this is ultimately is two-fold:
+
+   -  reduce the amount of code you need to write
+   -  fix problems only once
+
+   Lets look at a real example in the
+   ``wepy.resampling.distances.receptor`` module.
+
+   First there is the definition of the class ``ReceptorDistance``:
+
+   .. code:: python
+
+       from wepy.resampling.distances.distance import Distance
+       class ReceptorDistance(Distance):
+           """Common abstract class for receptor-ligand molecular systems."""
+
+           def _unaligned_image(self, state):
+               box_lengths, box_angles = box_vectors_to_lengths_angles(state['box_vectors'])
+               grouped_positions = group_pair(state['positions'], box_lengths,
+                                           self._bs_idxs, self._lig_idxs)
+               # then center them around the binding site
+               centered_positions = center_around(grouped_positions,
+                                                  self._bs_idxs)
+               state_image = centered_positions[self._image_idxs]
+
+               return state_image
+
+
+           def image(self, state):
+               state_image = self._unaligned_image(state)
+               sup_image, _, _ = superimpose(self.ref_image,
+                                             state_image,
+                                             idxs=self._image_bs_idxs)
+
+               return sup_image
+
+   We see that ReceptorDistance is inheriting from the ``Distance``
+   class, which is defined as such:
+
+   .. code:: python
+
+       class Distance(object):
+           """Abstract Base class for Distance classes."""
+
+           def __init__(self):
+               """Constructor for Distance class."""
+               pass
+
+           ...
+
+   All classes ultimately inherit from ``object``.
+
+   Also ignore the ``self`` keyword for now, except to note that all
+   object methods must have them.
+
+   The method ``__init__`` is how this class constructs an object. You
+   can think of this:
+
+   .. code:: python
+
+       dist = Distance()
+
+   as being equivalent to:
+
+   .. code:: python
+
+       dist = Distance.__init__()
+
+   We notice that the ``Distance`` class defines this method
+   ``distance``:
+
+   .. code:: python
+
+       class Distance(object):
+           ...
+
+           def distance(self, state_a, state_b):
+
+               ...
+
+   But this is not written under ``ReceptorDistance``. Because
+   ``ReceptorDistance`` inherits from ``Distance`` it also inherits the
+   ``distance`` method. So while it is not written under
+   ``ReceptorDistance`` it still has access to it.
+
+   We notice that ``Distance`` also defines the method
+   ``image_distance``:
+
+   .. code:: python
+
+       class Distance(object):
+
+           ...
+
+           def image_distance(self, image_a, image_b):
+
+               raise NotImplementedError
+
+   But this will always raise the ``NotImplementedError`` exception,
+   which makes it an unusable function. This is because the method is
+   defined merely as an example of what an ``image_distance`` method
+   should look like; it is an interface definition.
+
+   Because only the ``image_distance`` interface is defined and not its
+   implementation the whole ``Distance`` class is labelled abstract.
+   Despite it having some functioning methods like ``distance``.
+
+   The ``ReceptorDistance`` class customizes ``Distance`` in a couple
+   ways. It re-implements the ``__init__`` and ``image`` methods
+   (overriding), adds the ``_unaligned_image`` method, and inherits the
+   abstract ``image_distance``. So it has added some valuable methods
+   but is still abstract because ``image_distance`` still raises the
+   ``NotImplementedError``.
+
+   Concrete sub-classes of ``ReceptorDistance`` are defined by
+   ``UnbindingDistance`` and ``RebindingDistance``.
+
+   .. code:: python
+
+       class UnbindingDistance(ReceptorDistance):
+
+           def image_distance(self, image_a, image_b):
+               lig_rmsd = calc_rmsd(image_a, image_b, idxs=self._image_lig_idxs)
+
+               return lig_rmsd
+
+
+       class RebindingDistance(ReceptorDistance):
+
+           def image_distance(self, image_a, image_b):
+               state_a_rmsd = calc_rmsd(self.ref_image, image_a, idxs=self._image_lig_idxs)
+               state_b_rmsd = calc_rmsd(self.ref_image, image_b, idxs=self._image_lig_idxs)
+               d = abs(1./state_a_rmsd - 1./state_b_rmsd)
+
+               return d
+
+   In both of these only the ``image_distance`` method is implemented.
+
+   Whats important to notice is that both ``UnbindingDistance`` and
+   ``RebindingDistance`` have the capabilities to run the ``distance``,
+   ``image``, etc. methods that were defined in their common
+   superclasses.
+
+   So not only is the amount of code written for these classes small and
+   focused on the task at hand (calculating the distance between two
+   walker images), but if there are any bugs in the shared code, say in
+   ``_unaligned_image``, then when it is fixed they both will be fixed.
+   They both will also break when something in a superclass breaks, but
+   this can be seen as a good thing because bugs will be found faster.
+
+   So when you import an abstract base class to use as the foundation to
+   build other classes you are importing a framework from a library.
+
+   For example, when we imported ``Distance`` above for the
+   ``ReceptorDistance`` we wanted to build something that looks, talks,
+   and quacks the same as a ``Distance`` class but that adds some new
+   and interesting functionality to it. The methods that are inherited
+   may be expected by other components in a framework or they may be
+   only for internal use only. In any case, inheritance is easy, easily
+   overriden, and can make interfacing more seamless.
+
+   So in this sense the ``wepy`` project contains not only the main
+   ``sim_manager`` framework but a number of sub-frameworks that aid in
+   constructing the main components.
+
+What kind of wepy user are you?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Understanding what you want to accomplish with wepy can help you
+understand which parts to pay attention to and which to ignore.
+
+I've outlined some possible goals a user might have with wepy in order
+of least to most expertise needed:
+
+#. Recreate results found in a paper published using wepy.
+#. Evaluate the utility of WE to enhance the sampling of my equilibrium
+   OpenMM MD simulations of biomolecules on a small scale.
+#. Run MD-WE simulations on a large scale.
+#. Run a more complex MD simulation involving non-OpenMM
+   dynamics/sampling engines, non-equilibrium simulations, or research,
+   development, and prototyping of novel resampling algorithms.
+#. Change, fix, or contribute a major feature to ``wepy`` itself.
+
+In order:
+
+#. Recreate results found in a paper published using wepy
+
+   If you are looking at wepy for the first time and just want to see
+   what WE is all about and maybe play with the output to try and
+   understand the kind of data that is produced, you should start with
+   an example that recreates a published result. For that we provide
+   examples and tutorials for you to run and perform some standard
+   analysis with. Getting hands-on experience with the resulting data
+   structures (walker resampling family trees etc.) is a great way to
+   understand WE as it is quite different from normal, linear MD
+   simulations.
+
+#. Evaluating WE for your system
+
+   If you are interested in a WE algorithm (WExplore, REVO, etc.)
+   because you read a paper and thought it could be applied to your
+   system of interest you will want to run it to evaluate if it looks
+   promising. For this you will want to follow a tutorial to get your
+   system set up. For now ``wepy`` only comes with built-in support for
+   OpenMM MD simulations so the first step is to follow the Openmm
+   `documentation <http://openmm.org>`__ to set up an MD simulation.
+   OpenMM has support for most force fields. This is easily the most
+   difficult part of the process. Once you have working MD simulations
+   you will only need create a distance metric that characterizes the
+   type of behavior you want to enhance in your simulations, if there is
+   not already one available in a wepy or
+   :ref:`contributed library <resources>` .
+
+#. Running wepy on a large scale
+
+   If you have been succesful at running ``wepy`` but find yourself:
+
+   -  overloaded with managing too many simulation results
+   -  an excess of copy-pasted and tweaked scripts with increasingly
+      complex filenames or directory structures
+   -  want to run multiple simulations that are continuations of each
+      other
+   -  find you jobs failing and losing all your progress
+
+   You will probably want to start using some more advanced
+   **orchestration** features of wepy and data aggregation methods in
+   the ``WepyHDF5``.
+
+#. Advanced or custom simulation requirements
+
+   If you need to:
+
+   -  run simulations with another kind of dynamics engine
+   -  implement boundary conditions for non-equilibrium simulations
+   -  implement or prototype a new resampler
+   -  implement a new reporter
+   -  implement a new work mapper for distributed or parallel computing
+
+   All of this can (ideally) be done without having modify the core
+   ``wepy`` code base.
+
+   First check if there is a similar contributed project that you could
+   use, or contribute to yourself. Otherwise you are free to implement
+   your component however you please; as a standalone importable module
+   or directly in your run script.
+
+   If you think think the feature is general-purpose enough to request
+   the devs to implement it you can make a feature request on the issue
+   tracker.
+
+   If you need help implementing the feature, read on, or contact the
+   devs for some advice.
+
+   If you think that there is something missing in the core library that
+   is necessary for implementing the feature you can make a feature
+   request, although we may end up just pointing you to an existing
+   mechanism.
+
+   If you want other people to know about your creation we can add it to
+   the contributed packages list if it is a proper module. If it is a
+   bit rougher but still useful we can add it to the developers
+   resources page.
+
+#. Contribute to wepy itself
+
+   As mentioned in the last section if you need to have some changes
+   made to core ``wepy`` to implement your new component you can make a
+   feature request or you can submit the merge/pull request yourself!
+
+   We are also open to the eventual inclusion of popular and mature
+   contributed modules to the wepy core library if you want to fold in
+   the maintenance of those modules to core.
+
+Overview of frameworks
+----------------------
+
+Simulation manager
+~~~~~~~~~~~~~~~~~~
+
+The simulation manager framework can be configured with the following
+components:
+
+-  **initial walkers**: the initial walkers (weights and states) to
+   start a simulation with, can be from a single starting point or the
+   final walkers from a previous simulation.
+-  **runner**: the dynamics (or sampling) engine, which acts on the
+   initial walkers
+-  **boundary conditions**: specify walker modifications (warping) based
+   on rules which is outside of the runner dynamics
+-  **resampler**: performs the resampling through cloning and merging
+-  **reporters**: generate data as side effects based on the behavior of
+   the other components.
+-  **work mappers**: the mechanism by which the work of the runner is
+   achieved, i.e. achieving parallelism.
+
+The simulation manager can also be made to run simulations by different
+methods which can be seen in the API documentation.
+
+Here we discuss how the simulation manager actually achieves the work of
+running a simulation and how the components are actually used.
+
+In your simulation script you will configure a ``Manager`` object which
+contains the components for running the simulation, by constructing a
+``Manager`` object.
+
+.. code:: python
+
+    from wepy.sim_manager import Manager
+
+    from my_wepy_components import *
+
+    sim_manager = Manager(...)
+
+Once the ``Manager`` has been constructed we run a simulation by
+repeatedly calling the ``run_cycle`` method. Before doing this though we
+must initialize the contexts for a single "run" of a simulation. This is
+achieved through the ``init`` method, which triggers the components
+which have runtime setup routines to do that. This is primarily for
+reporters to open file handles and initialize run data and for the work
+mapper to start worker processes.
+
+Once, the **run** has been initialized we can call ``run_cycle`` how we
+like:
+
+.. code:: python
+
+    # for the first cycle we use the initial walkers
+    start_walkers = sim_manager.init_walkers
+
+    n_steps = 1000
+
+    sim_manager.init()
+
+    for i in range (10):
+
+        # run a full cycle
+        end_walkers, components = sim_manager.run_cycle(start_walkers, n_steps, i)
+
+        start_walkers = end_walkers
+
+    sim_manager.cleanup()
+
+In this example we run 10 cycles of 1000 steps each. We also call the
+``cleanup`` method which allows components to gracefully teardown, such
+as closing files, flushing buffers, and stopping processes.
+
+There are a couple of builtin methods to do this for you, but its worth
+showing that the ``run_cycle`` method is where the real magic happens.
+
+For example:
+
+.. code:: python
+
+    n_cycles = 10
+    steps = [1000 for i in range(n_cycles)]
+
+    walkers, components = sim_manager.run_simulation(n_cycles, steps)
+
+Achieves the same as the example above.
+
+The ``walkers`` output of the ``run_cycle`` is what you expect it to be.
+The ``components`` output is a collection of the various components that
+may have been mutated as well during the simulation.
+
+For example resamplers like WExplore are history dependent and stores
+copies of walker states (as compressed images) in a tree of regions
+which is stored in the resampler object.
+
+These components are modified in place when called in ``run_cycle``
+(this is not a purely functional process as their is no input of
+components to ``run_cycle``) but we return a reference of them each
+cycle so you don't need to introspect the ``Manager`` object.
+
+Utilizing the components at this level is beyond the scope here and is
+primarily for supporting orchestration facilities.
+
+Another example is running timed simulations:
+
+.. code:: python
+
+    end_walkers, _ = sim_manager.run_simulation_by_time(3600, 1000)
+
+This runs simulations for **roughly** one hour with 1000 steps per
+cycle. Currently, this is implemented by checking the total runtime at
+the beginning of a cycle and if the runtime has exceeded this time then
+the run loop is exited. If you use this option understand that you will
+need to give yourself enough time over this time to run 1 whole cycle
+(if you have only 1 second left on the clock the cycle will run and no
+guessing is done) plus the teardown routines.
+
+The ``run_cycle`` method has several steps and it is very important to
+understand the order in which the components are executed to be able to
+reason about your simulation results, even if you are not implementing
+any components.
+
+Secondarily, understanding which methods of which components are called
+and with what arguments is the *de facto* interface definition for those
+components.
+
+It is also helpful to know what your options are for storing state
+during a simulation.
+
+For example, should we write data out with a reporter or save it in the
+resampler object? Should a piece of state be carried in the runner,
+boundary condition (BC), resampler, or sim manager?
+
+The execution of ``run_cycle`` is as follows:
+
+#. ``runner.pre_cycle(walkers, n_segment_steps, cycle_idx)``
+#. ``run_segment(walkers, n_segment_steps)`` ->
+   ``work_mapper.map(runner.run_segment)``
+#. ``runner.post_cycle()``
+#. ``boundary_conditions.warp_walkers(walkers, cycle_idx)`` (if present)
+#. ``resampler.resample(walkers)``
+#. ``reporter.report(**report)`` for all reporters
+
+At a high level there are two categories of components: **apparatus**
+and **configuration**.
+
+The runner, BC, and resampler are part of the apparatus. The work mapper
+and reporter are part of the configuration.
+
+The apparatus represents state that is meaningful in relation to the
+content of the simulation (e.g. accumulated region definitions in
+WExplore). The configuration is only related to *how* the simulation is
+run in a particular situation.
+
+For example, if you want to restart a simulation and do another run
+startng at the end another, it is not enough to only copy over the
+walkers at the end of the simulation (unless your components are
+stateless). If you have defined a thousand regions with WExplore then
+you need to have that information at the start of a run.
+
+The configuration only deals with the reporters and work mappers; and
+because neither of these can effect the actual content there is no need
+to keep a copy of them at the end of a simulation in order to be able to
+restart it. In fact, for reporters it is likely that you will want to
+avoid this since if paths are the same then you could potentially
+overwrite data.
+
+Separating apparatus and configuration allows for the snapshotting of
+simulation state separate from details about how the simulation was
+actually run. For instance lets say you run one segment of a simulation
+on a node with 4 GPUs and then some time later you want to continue that
+run, but you only have access to a node with 2 GPUs, then you only need
+to reparametrize the configuration to handle that. Another use case is
+that you can add or remove reporters between runs without effecting the
+apparatus.
+
+These topics are discussed in more detail in the documentation on
+orchestration since it uses these concepts for actually producing
+artifacts for snapshots and configurations. The distinction, however, is
+still useful here because we clearly see which components effect
+simulations.
+
+Lets start with the apparatus components since without these you won't
+be needing the configuration.
+
+#. Walkers and WalkerStates
+
+   The topic of what a ``Walker`` object is, is very simple. It is
+   simply a container which holds a state and a weight. The weight is a
+   simple float value, which is assumed to be normalized with the rest
+   of the weights of walkers in an ensemble (a simple list container).
+
+   The implementation is very simple:
+
+   .. code:: python
+
+       class Walker(object):
+
+           def __init__(self, state, weight):
+
+               self.state = state
+               self.weight = weight
+
+   You can see that there is really just those two attributes.
+
+   The state part of the walker however is a bit trickier to define.
+   This partially stems from the fact that representation of simulation
+   state in various dynamics engine is wildly different and impossible
+   for the simulation manager itself to handle all the variants.
+
+   Furthermore, the number of possible applications that require
+   distinct kinds of states is not possible to specify up front in any
+   case. For instance molecular dynamics is fairly uniform in that you
+   typically only have to worry about atomic positions and velocities in
+   the state and cubic box vectors. However, modern enhanced simulations
+   use a wide variety of techniques that add all kinds of additional
+   state such as alchemical lambda variables.
+
+   This required the definition of a common general purpose and
+   extensible specification of how to represent them for use in
+   ``wepy``.
+
+   For this simple key-value store semantics was chosen, where keys are
+   strings. With the addition of one method ``dict()`` which transforms
+   the object into pure python dictionary, and a constructor which takes
+   values as key-word arguments. Anything that provides python like
+   dictionary syntax and the ``dict()`` method can be considered to
+   implement the ``WalkerState`` interface and will be called such even
+   if it doesn't directly inherit from the actual ``WalkerState`` class.
+
+   The implementation is very simple:
+
+   .. code:: python
+
+       class WalkerState(object):
+
+           def __init__(self, **kwargs):
+               self._data = kwargs
+
+           def __getitem__(self, key):
+               return self._data[key]
+
+           def dict(self):
+               """Return all key-value pairs as a dictionary."""
+               return self._data
+
+   Where the ``__getitem__`` magic method implements the behavior for
+   the square bracket access:
+
+   .. code:: python
+
+       state = WalkerState(thing='hello', other_thing=np.array([0,1,2,3]))
+
+       arr = state['other_thing']
+       state_dict = state.dict()
+
+   You can always just dump your state from whatever simulation engine
+   into a ``WalkerState`` and be on your merry way:
+
+   .. code:: python
+
+       state_dict = {'positions' : ...,
+                     'velocities' : ...}
+
+       state = WalkerState(**state_dict)
+
+   The sim manager takes care of copying walkers when it needs to copy
+   them so you don't have to worry about returning copies or references
+   to internal data such as the ``_data`` attribute in the
+   ``WalkerState`` class.
+
+   This interface also supports wrapping state objects from other
+   engines. This may just be a constructor with a positional argument
+   for one of these states:
+
+   .. code:: python
+
+
+       class MDEngineWalkerState():
+
+           def __init__(self, md_state, **kwargs):
+
+               self._state = md_state
+               self._data = kwargs
+
+           def __getitem__(self, key):
+
+               if key == 'positions':
+                   return self._state.getPositions()
+
+               else:
+                   return self._data[key]
+
+   This approach requires no copying of the original state and makes the
+   state actually accessible and retrievable is some other tool or
+   library specifically needs that class.
+
+   From the simulation managers point of view this is all that matters
+   for it to work properly. However, all the other components will
+   expect certain properties to be present. For example, the
+   ``WepyHDF5`` reporter will expect there to be a 'positions' attribute
+   as in the above example.
+
+   Probably you should have walker states specialize in terms of the
+   class definition for the runner they are being used by rather than
+   the "schema" of which attributes it will contain. This allows you to
+   couple the runner and the state so that you can get some performance
+   optimizations by carrying around the state without having to
+   transform it every time you go between them. For instance, in the
+   ``OpenMMRunner`` we get the state from the ``OpenMMState`` roughly
+   by:
+
+   .. code:: python
+
+       sim = openmm.Simulation(...)
+       sim.context.setState(walker.sim_state)
+
+   Instead of:
+
+   .. code:: python
+
+       sim = openmm.Simulation(...)
+       sim.context.setPositions(walker['positions'])
+       sim.context.setVelocities(walker['velocities'])
+       sim.context.setBoxVectors(walker['box_vectors'])
+       ...
+
+#. Runners
+
+   The Runner is the component that actually runs the sampling that the
+   weighted ensemble algorithm will be enhancing, via resampling.
+
+   As such this can be any type of stochastic dynamics or sampling
+   algorithm such as Monte Carlo. Dynamics should be stochastic because
+   trajectories need to be able to diverge following cloning events.
+
+   That is if you take deterministic dynamics and make a copy of one of
+   those simulations, you will perform the same exact work in duplicate
+   of which there is no point to do in parallell. Furthermore, it will
+   be impossible to enhance sampling from resampling because we need to
+   be able to capitalize on differences that arise between those cloned
+   simulations.
+
+   A Runner in wepy is typically a wrapper around some other dynamics
+   engine as they can be of considerable complexity and highly domain
+   specific.
+
+   The principle method a Runner must implement is ``run_segment`` which
+   takes a walker, a definition of how long to run that segment, called
+   the ``segment_length``, and possibly a set of key-value based
+   arguments.
+
+   This function should then return a single walker which has had it's
+   state updated according to those input parameters.
+
+   The principle runner in ``wepy`` is the OpenMM runner which
+   essentially just does some initialization and then calls:
+
+   .. code:: python
+
+       simulation.step(segment_length)
+
+   to run the simulation segment.
+
+   Within the ``Manager.run_cycle`` method there is a call to a
+   simulation manager method, also called, ``run_segment``. This,
+   ``Manager.run_segment`` method in turns calls the
+   ``runner.run_segment`` once for each walker in the current ensemble.
+   This is simply the common semantics of ``map`` function which takes a
+   single function and applies it to multiple pieces of data.
+
+   The behavior of how this is achieved is encapsulated within the
+   ``work_mapper`` object. For ``wepy`` a ``work_mapper`` must simply
+   have a method called ``map`` that has the same function signature as
+   the python built-in :keyword:`map`, except that the function to be
+   called is an attribute of the object.
+
+   Basically, the work mapper is called as such:
+
+   .. code:: python
+
+       new_walkers = list(self.work_mapper.map(walkers,
+                                               (segment_length for i in range(num_walkers)),
+                                              )
+
+   See the section on work mappers for more details on implementing
+   them.
+
+   Two additional methods are also called for the runner in order to get
+   a single call to the runner per cycle which are: ``pre_cycle`` and
+   ``post_cycle``. Call these if you have some state in the runner that
+   needs to be updated outside of the ``run_segment`` calls.
+
+#. Boundary Conditions
+
+   Boundary conditions (often abbreviated as BC) are extra conditions
+   that are placed in the simulation that allow for executing extra
+   rules about the transformation of walker states.
+
+   This is very useful for doing non-equilibrium simulations where once
+   walkers have reached some predetermined condition or region the
+   simulation is restarted in some original location. This allows for
+   the calculation of rates from simulations.
+
+   BCs are strictly optional and conceptually could be implemented
+   within the Runner itself. However, having them separate makes them
+   more composable with different simulations. Furthermore, BCs are
+   useful for reporting information on walkers as a simulation
+   progresses that are not computed in the runner engine.
+
+   BCs are applied after runner steps are completed and is called
+   basically as so:
+
+   .. code:: python
+
+       warped_walkers, warp_data, bc_data, progress_data  = \
+                                           self.boundary_conditions.warp_walkers(walkers,
+                                                                                 cycle_idx)
+
+   The name ``warp_walkers`` is meant to evoke the sense in which
+   walkers are getting transformed according to something outside of the
+   normal laws of physics the simulations implement. A typical example
+   is non-equilibrium unbinding simulations (see the ``UnBindingBC``
+   class) where walkers start with a state where a small ligand molecule
+   is bound to a binding site in a protein and sampling proceeds until
+   the molecule has left the binding site and moved away from the
+   protein. At that point the boundary conditions recognize this and
+   "warp" the walker so that it's state is replaced with the original
+   starting state.
+
+   These events are recorded in the return ``warp_data`` object. Which
+   is the first example of a record data type. So lets take a moment to
+   describe those.
+
+   In addition to the walkers there are a number of different pieces of
+   data that are produced by the BCs and resampler components. These are
+   documented fully in the developer's architecture guide in terms of
+   their formats. But suffice to say now that they all have a key-value
+   or record oriented data definition that makes it much more convienent
+   to implement storage layers, since they can all be essentially
+   treated the same way except for their names. These records are
+   vitally important to interpreting ``wepy`` simulation data because
+   walker trajectories are no longer straightforward linear simulations,
+   and may have various warping and merging events that destroy old
+   states.
+
+   The ``warp_data`` warping records are especially important because
+   they tell you where and when simulations were respawned in
+   non-equilibrium simulations which tells you how to reconstruct
+   contiguous trajectories as well as how to calculate rates.
+
+   One other possibility for warp records is that they do not actually
+   "warp" the walker in the sense that they may mutate walker state
+   attributes which are orthogonal to the dynamics engine. This can be
+   used to implement "colored" dynamics where when a walker reaches some
+   boundary an enumerated value (called the color) is changed to
+   indicate the last boundary it crossed was. This color has no effect
+   on MD propogation but is useful for calculating kinetics of the
+   process while running what are essentially equilibrium simulations.
+   Warping events that effect the same variables as the dynamics engine
+   are often called "discontinuities".
+
+   An optional interface a ``BoundaryConditions`` class can implement to
+   determine whether a record indicates a discontinuity is
+   ``warping_discontinuity(warp_record)`` which returns a boolean. This
+   is used by some of the analysis routines to automatically obtain
+   continuous trajectories or to show in tree graphs where exactly
+   warping events occured.
+
+   The other two record types are fairly accessory: BC records and
+   progress records. The BC records are meant to allow for reporting on
+   the changes in state of the boundary conditions as a simulation
+   progresses. I am not aware of any practical use of this, but one
+   could imagine changing the value of a cutoff as a function of
+   simulation time.
+
+   The progress records are not critical to the functioning of the
+   simulation but are a way to not waste values which are computed when
+   checking for boundary conditions. Unlike warping and BC records
+   progress records are produced every cycle once for every walker. For
+   example, in ``UnbindingBC`` the minimum distance of a ligand to the
+   protein is calculated every cycle to check whether any ligand has
+   unbound. Instead of dropping these numbers on the floor we pass them
+   through with the progress data and any reporter that is interested in
+   them can report them.
+
+   One can also imagine calculating values which are not necessary for
+   making a decision to warp or not here, but we would caution that from
+   a performance perspective that this is not wise since the
+   ``warp_walkers`` call is blocking the progression of the simulation
+   and creating overhead. The real bottleneck in terms of time is
+   usually the dynamics (especially in the case of MD) and an
+   implementer of any Runner, BC, or Resampler component should aim to
+   make them efficient so as to be able to run as much dynamics as
+   possible. Of course there is a tradeoff here and should be approached
+   from the perspective of improving the performance of the metric you
+   are looking for rather then raw MD throughput. Presumably, the reason
+   you are using WE is that brute-force sampling is not fast enough to
+   begin with.
+
+   Calculating observables on WE data is very convient using the
+   analysis tools in ``wepy``. If you do want to calculate quantities
+   on-the-fly for some reason this should be done in a reporter. This
+   might want to be done if you aren't storing the entire state on disk
+   because it is too large but you still want to monitor some value that
+   is a funtion of it. E.g. computing the average kinetic energy
+   temperature from the velocities. Typically you don't store every
+   frame of velocities because it uses too much disk space, but you
+   could compute the temperature in a reporter and just write that
+   single number. Furthermore, while it currently is not the case now,
+   it is possible to completely move reporting out of the critical path
+   of the simulation so they do not block. This is possible because
+   reporting is a pure side-effect of the simulation, but just requires
+   a more complex concurrency architecture and fault tolerance.
+
+#. Resamplers
+
+   Resamplers are the heart and soul of ``wepy`` and are the loci of the
+   actually complex and interesting algorithms.
+
+   I will eschew a description of what purpose a resampler serves at
+   this point as this is better described in a somewhat formal context.
+   For more information see the resources in the introduction.
+
+   In terms of what a resampler component looks like and does can be
+   quite distinct from some of the theoretical formulations. This
+   freedom is the key to the flexibility of using ``wepy`` for
+   prototyping new resampling algorithms.
+
+   Minimally all a resampler must do is implement the ``resample``
+   method, e.g. the trivial ``NoResampler`` is implemented like this:
+
+   .. code:: python
+
+       from wepy.resampling.resamplers.resampler import Resampler
+
+       class NoResampler(Resampler)
+
+           def resample(self, walkers, **kwargs):
+               ...
+               resampling_data = self._init_walker_actions(len(walkers))
+               ...
+               return walkers, resampling_data, [{}]
+
+   where we just return the original walkers we were given. The
+   additional return values are records related to the resampling
+   records which report on how the cloning and merging took place
+   (``resampling_data``) and the resampler records which report on state
+   changes of the resampler itself.
+
+   The resampling records here are just the default ones produced by the
+   ``_init_walker_actions`` and there is not state for this resampler so
+   we just produe a single empty record for that.
+
+   The more important record types are the resampling records as they
+   are what lets us reconstruct a family tree of walkers from cloning
+   and merging. The resampler records on the other hand are just for
+   monitoring of the resampler during the simulation and very specific
+   to each resampler. The discussion of the field types and format of
+   the resampling records is a bit involved and largely unnecessary to
+   understand unless you are implementing a very specialized resampler.
+
+   If you are just using a resampler off of the shelf just know that
+   these are saved in the ``WepyHDF5`` format and the various analysis
+   tools will take care of all the mundane details of utilizing them.
+
+#. Reporters
+
+   Reporters are the primary mechanism for saving data about
+   simulations.
+
+   As shown above you could just run a cycle on your own and introspect
+   the objects and get the information you want. However, this would be
+   specific to the implementation of each component. All reporters that
+   are called from ``run_cycle`` can expect the same structure of data
+   no matter the component that produced them.
+
+   Besides the ``init()`` and ``cleanup()`` methods each reporter must
+   implement the ``report`` method which takes some key-word arguments.
+   The key-value pairs that the manager passes to the reporters is the
+   same, but each reporter chooses which ones it cares about.
+
+   This dictionary collectively is called the report. Currently, it has
+   these keys in it:
+
+   -  ``cycle_idx``
+   -  ``n_segment_steps``
+   -  ``new_walkers``
+   -  ``warp_data``
+   -  ``bc_data``
+   -  ``progress_data``
+   -  ``resampling_data``
+   -  ``resampler_data``
+   -  ``resampled_walkers``
+   -  ``worker_segment_times``
+   -  ``cycle_runner_time``
+   -  ``cycle_bc_time``
+   -  ``cycle_resampling_time``
+
+   The 'time' fields are various timings that are made of the components
+   for some performance reporting, and the rest have been discussed
+   already.
+
+   This listing might change more frequently so if you are unsure check
+   the source code.
+
+   Also when writing a ``report`` method always accept extra kwargs to
+   handle new ones, e.g.:
+
+   .. code:: python
+
+       from wepy.reporter.reporter import Reporter
+
+       class MyReporter(Reporter):
+           def report(self, cycle_idx=None,
+                      n_segment_steps=None,
+                      cycle_resampling_time=None,
+                      **kwargs):
+               ...
+
+   In addition to the ABC ``Reporter`` class the ``FileReporter`` and
+   ``ProgressiveFileReporter`` are very useful to inherit from as they
+   handle some file path and file mode logic, the latter updates modes
+   to allow for repeated writes to the same file for each cycle of a
+   simulation.
+
+   For example the ``DashboardReporter`` need only handle parameters
+   specific to its own function and all the handling of filenames is
+   done by a call to the superclass constructor:
+
+   .. code:: python
+
+       from wepy.reporter.reporter import ProgressiveFileReporter
+
+       class DashboardReporter(ProgressiveFileReporter):
+
+           def __init__(self,
+                        step_time=None,
+                        bc_cutoff_distance=None,
+                        **kwargs
+                       ):
+
+               # handle filename(s) and mode(s) in the superclass
+               super().__init__(**kwargs)
+
+               # Dashboard logic
+               ...
+               self.step_time = step_time
+               self.bc_cutoff_distance = bc_cutoff_distance
+
+#. Work Mappers
+
+   The final component is the work mapper. As mentioned in the section
+   on runners this is what actually achieves task parallelism over the
+   walker's dynamics segments.
+
+   The simplest and default mapper is the simple ``Mapper`` class.
+   Basically, it works by first constructing it with the function you
+   want to map (in the case of the simulation manager it automatically
+   does this with the ``runner.run_segment`` function) and then using a
+   simple for-loop to sequentially compute the segments:
+
+   .. code:: python
+
+
+       class Mapper(object):
+
+           def init(self, segment_func):
+
+               self._func = segment_func
+
+           def map(self, *args):
+               args = [list(arg) for arg in args]
+
+               results = []
+               for arg_idx in range(len(args[0])):
+
+                   result = self._func(*[arg[arg_idx] for arg in args])
+                   results.append(result)
+
+               return results
+
+   This is okay for test systems but for real simulations that take a
+   long time we will need to use some sort of parallelism.
+
+   Currently, we provide a work mapper that uses a queue to put tasks on
+   (the ``run_cycle`` plus the arguments) and worker processes fetch
+   tasks off of the queue to perform whenever they are able and done
+   with the next task. This is the ``WorkerMapper`` class, which starts
+   ``Worker`` object processes using the python multiprocessing library.
+
+   Because, we are using OS processes instead of "threads" it is truly
+   parallel when using the CPython runtime, which uses the infamous
+   Global Interpreter Lock (GIL). The GIL effectively makes it so that a
+   single python process can never be multi-threaded or parallel, but
+   will still let you program with thread semantics and maybe make you
+   believe you are multi-threaded. It may be possible to use another
+   python runtime like PyPy to get around this but this has not been
+   tested.
+
+   Another note when using OS threads is that you will need to make sure
+   you are creating processes in a way which is compatible with the
+   dynamics engine runtime. For example, in linux systems you can make
+   processes with a cheap ``fork`` syscall, or the more robust but more
+   expensive ``spawn`` syscall. When creating processes when a CUDA
+   context has been defined, you must use the ``spawn`` option (at least
+   with OpenMM). This can be set in your run script like so:
+
+   .. code:: python
+
+       import multiprocessing as mp
+
+       # set the process creation method
+       mp.set_start_method('spawn')
+
+       # useful tip for logging in multiprocessing:
+       mp.log_to_stderr(logging.WARNING)
+
+   For different environments and runners you can use different worker
+   types for customization if necessary. This is one case where
+   inheritance is very important since inheriting from the ``Process``
+   base class is very important.
+
+   For example, the OpenMM module defines two workers for either CPU
+   (``OpenMMCPUWorker``) or GPU based workers (``OpenMMGPUWorker``). The
+   former allows you to specify the number of threads to use per CPU and
+   the GPU worker just specifies which GPU device index to use.
+
+   In the simulation managers call to ``init`` a worker process is
+   created for each device that is present (CPU or GPU) and two queues
+   are initialized, the work queue and the results queue. The worker
+   processes then begin polling the queue for items. At the beginning of
+   a cycle one ``Task`` object per walker is placed on the work queue
+   and immediately the workers begin popping of tasks. Each worker then
+   computes the walker-task and places the result onto the result queue
+   then polls the queue again for new tasks, until they reach the end of
+   the tasks. At the end of the cycle the main simulation manager
+   process pops off the results from the result queue and structures
+   them as walker states. At the end of a simulation a special "poison
+   pill" is placed on the work queue for each worker which is a signal
+   to shut down.
+
+Resampling Framework
+~~~~~~~~~~~~~~~~~~~~
+
+See the sub-package documentation: ``wepy/resampling/__init__.py``
+
+Simulation Data Persistence (WepyHDF5) and Analysis
+---------------------------------------------------
+
+We have discussed the components that are necessary to run a simulation
+using the simulation manager and the interfaces these components must
+implement.
+
+The other half of the equation is to store the data associated with the
+simulation and be able to analyze and transform that data. This is where
+the ``WepyHDF5`` format comes into play.
+
+The module ``wepy.hdf5`` has a class ``WepyHDF5`` which defines an
+interface for creating, accessing, and adding data to a single HDF5
+format file which can be used for any ``wepy`` simulation.
+
+If you are not familiar with HDF5, it is a general purpose binary format
+that is used for large amounts of structured numerical data. While
+in-depth knowledge of how HDF5 works is not necessary to use the
+``WepyHDF5`` class, it definitely makes sense to at least get an
+overview of the performance and memory behaviors. For this I suggest
+just going through the documentation for the
+`h5py <https://github.com/h5py/h5py>`__ library and the book `"Python
+and HDF5: Unlocking Scientific Data" by Andrew
+Collette <https://www.amazon.com/Python-HDF5-Andrew-Collette/dp/1449367836>`__
+who is also the original ``h5py`` author.
+
+``WepyHDF5`` uses ``h5py`` under the hood and so if there is ever a
+functionality that one of it's methods doesn't provide you can always
+drop down and use it.
+
+The main features of HDF5 are the existence are groups and datasets,
+which are roughly equivalent to directories and files in common
+hierarchical filesystems. The difference between datasets and files
+being that HDF5 datasets must have explicit data shapes and types
+(integers, floats, stings, etc.). Groups contain other groups and
+datasets, and datasets make up the leaves of the tree. In ``h5py``
+groups and datasets also have string paths like files in order to access
+them.
+
+The core HDF5 library simply gives these building blocks to the
+structure, while the ``WepyHDF5`` class specifies and implements a
+"schema" using these building blocks. So a ``WepyHDF5`` is just any file
+that has the same structure as one that would be constructed or read by
+the ``WepyHDF5`` class. An more in depth (but not formal) description of
+this "schema" is given in the module API documentation.
+
+Briefly though, the file is primarily organized by the concept of a run.
+Each "run" contains all the data and metadata for a single ``wepy``
+simulation, that is after the call to ``Manager.init()`` every
+``Manager.run_cycle`` writes to the same run until we call
+``Manager.cleanup()``. Or a call to ``Manager.run_simulation`` etc.
+
+A run contains essentially two types of datasets: trajectories and
+records. Trajectories (including the initial walkers) are the results of
+the sampling step produced by the runner. A single trajectory is a group
+containing any number of "fields" which are just a single attribute of a
+frame of a trajectory. This typically includes the positions, box
+vectors, velocities (if given) and the temperature, volume, etc. for a
+typical molecular dynamics simulation. The records are the data produced
+by the various components like the resampler and boundary conditions
+(BCs). The meaning of these different record groups is discussed in the
+documentation for these components. Their storage in the HDF5 is the
+same however, and works again using any number of fields like the
+trajectories.
+
+So the basic outline of an HDF5 file is:
+
+-  runs
+
+   -  run: 0
+
+      -  trajectories
+
+         -  traj: 0
+
+            -  field: ``positions``
+            -  field: ``box_vectors``
+            -  ...
+
+      -  resampling records
+
+         -  field: ``decision``
+         -  field: ``target_idxs``
+         -  ...
+
+      -  warping records
+      -  ...
+
+   -  run: 1
+
+      -  ...
+
+The primary way in which this file is created is by using the
+``WepyHDF5Reporter``. If there is only one reporter you should ever use
+it is this one! Please see the tutorials and documentation for how to
+fully make use of this reporter.
+
+Once you have generated a ``WepyHDF5`` file from a run (or many runs)
+you will want to analyze the data. For this the ``wepy.analysis``
+sub-package is available along with some basic functions in the
+``WepyHDF5`` API. The analysis package is intended to be limited to
+functionality which works directly on the ``WepyHDF5`` file or from a
+set of records from a component. This is in order to not bloat ``wepy``
+with all manner of domain specific analysis tools that get overly
+integrated to our own peculiar data structures. These tools provide a
+way to transform a subset of your data into other formats like numpy,
+pandas, networkx, and mdtraj. They also provide utilities for giving
+different views onto the data so that excessive copying of the
+trajectory data is not needed.
+
+The most useful method is the ``WepyHDF5.compute_observable`` method,
+which you pass a function to compute some sort of value over all of the
+frames of your trajectories. These computed values can either be
+returned to be used in some other context or written directly to the
+file as a trajectory field. Writing it to the file has the advantage
+that later transformation views on the file will always have direct
+access to these "observables" fields without having to deal with complex
+indexing schemes to use with external data.
+
+The three primary "views" provided by the analysis modules are in the
+``contig_tree``, ``network``, and ``parents`` modules.
+
+The ``contig_tree`` module introduces the notion of a **contig** (a term
+borrowed from the genomic assembly community, but totally distinct
+here). A contig in this sense is simply the concatenation of multiple
+``wepy`` runs to form a single /contig/uous whole. The **contig tree**
+is a more general expression of this and represents the actual tree (or
+forest) of runs that are started from each other. For instance you could
+do one run and then restart it in two distinct simulations, in which
+case you now have a tree. This tree-like structure makes it difficult to
+more difficult to peform sliding window calculations and other things
+and so provides this special functionality.
+
+But why add this extra layer of abstraction over top of runs? I don't
+have bifurcating simulations so couldn't we just keep concatenating
+frames to a single run and just analyze that?
+
+The answer is yes I suppose you could do that if you want. However, this
+use-case is not explicitly provided for in ``wepy`` because we see the
+unit of "run" as both the data produced and the time, place, and
+machine(s) that it was computed on. A run should be produced by the
+execution of a single script or job on a timesharing system like SLURM
+or Torque. This allows for provenance of the units of execution,
+otherwise you would need to keep an index of when which cycles of the
+run were executed from which jobs. Furthermore, it supports immutability
+of already completed work. Instead of modifying the chunks of data
+inside the runs and potentially corrupting them, just keep adding new
+runs which don't touch the other ones. Our typical workflow is to
+produce a single run in a single file per job, and to never fiddle with
+that file until it has been properly aggregated and archived. There are
+tools in ``wepy`` that aid in linking between files and aggregating
+files so that a single ``WepyHDF5`` object has access to data to many
+other files.
+
+The contig and contig tree are the conceptually complete unit of a
+"simulation".
+
+See the tutorials on how to make use of them.
+
+The next data "view" is the ``wepy.analysis.network.MacroStateNetwork``.
+Outside of resampling type enhanced sampling algorithms simulations are
+very linear and so you always had one canonical way to go through the
+data that makes sense. Of course when trajectories became very long the
+practicality of this is challenged and so various techniques for
+reducing the dimensions are used such as clustering and things like
+Markov State Models (MSMs). These representations are what we call
+Conformation State Networks (CSNs) or Macrostate Networks. They are
+essentially networks in which the nodes are some sort of "macro-state"
+that represents a collection of "micro-states", and the edges represent
+the observed transitions between the macrostates as determined from the
+transitions between microstates seen from dynamics. The various names
+indicate certain mathematical properties of the values of the edges and
+nodes including rates and probabilities, but the structure is the same.
+
+The ``MacroStateNetwork`` class wraps a ``WepyHDF5`` object and holds a
+mapping of trajectory frame indices for each "macro-state" in a network.
+This mapping can be automatically made by providing a field name from
+the trajectories and each unique value will become it's own macrostate.
+Probably this field should be some sort of enumerated type like an
+integer or string which can be calculated using the
+``compute_observable`` method. Typically, this will be the result of
+some clustering or MSM algorithm (supported by sliding window methods of
+the ``ContigTree``).
+
+The network is implemented as a ``networkx`` directed graph and any of
+the multitude of network and graph theory algorithms there can be
+leveraged for analyzing your state network. Furthermore, using the
+``MacroStateNetwork`` allows very easy introspection of the microstates
+from any single macrostate. Finally, using the ``MacroStateNetwork`` it
+is trivial to produce transition probability matrices (edge matrices)
+which can be used to calculate committor probabilities etc. from a
+network. See the ``wepy.analysis.transitions`` module for relevant
+functions.
+
+The network representation of WE data is particularly important because
+there really is no canonical ordering of frames within the walker
+cloning & merging family tree and so the natural representation is the
+state network. However, if you run a simulation with boundary conditions
+there is one meaningful linear representation which is the trajectory of
+walker that has crossed a boundary.
+
+We call these linear representations of trajectory data from the entire
+contig **traces**. In order to be able to obtain traces we first have to
+use the resampling records to determine which walkers give rise to
+walkers in later cycles. Secondarily, we use the wapring records to
+determine if there were any discontinuous warping events that occur
+along these traces.
+
+The primary object that abstracts the walker family tree is the
+``ParentForest`` class (in ``wepy.analysis.parents``) and the ``Contig``
+class. See the tutorials for a complete example of how to use this. Some
+of the more useful functions here are the
+``Contig.exit_point_trajectories`` which generates a full lineage of
+each walker that crosses a boundary. The ``ParentForest`` provides a
+``networkx`` directed graph of the tree which makes it amenable to the
+algorithms available there. The ``parents.ancestors`` gives a complete
+lineage from any walker.
+
+In addition to these basic views onto the underlying HDF5 dataset there
+are also a few analysis routines for calculating rates and free energy
+profiles which are a very common use case for simulations.
+
+First using boundary conditions is often for the purpose of calculating
+rates. The ``wepy.analysis.rates`` module covers this.
+
+The ``wepy.analysis.profiles`` module covers generating free-energy
+profiles and probability distributions for both the entire simulation
+and as a series so you can easily see the convergence of a simulation
+with relation to a given projection.
+
+JSON Topology and Converting to Other File Formats
+--------------------------------------------------
+
+``wepy`` is not a molecular data file reader/writer of which there are
+great many of. This topic can cause considerable headaches if not done
+properly. For writing to file formats such as PDB, DCD, XTC, and all the
+rest we rely on the ``mdtraj`` library to satisfy this need. It probably
+wouldn't be too difficult to make a connector to another library if you
+really need it so don't think this is the only way.
+
+The ``WepyHDF5`` object, and analysis wrappers thereof, provide a number
+of methods for generating ``mdtraj.Trajectory`` and ``mdtraj.Topology``
+objects from stored data in various ways. See the API reference for a
+full listing of options.
+
+Read the ``mdtraj`` documentation to get all of the options, but know
+that it is as really simple as:
+
+.. code:: python
+
+    traj = wepy_hdf5.to_mdtraj(...)
+    traj.save_pdb('mymolecule.pdb')
+
+It is worth noting that the JSON topology format that is used in
+``WepyHDF5`` was actually taken from the HDF5 file format defined and
+implemented in ``mdtraj``. The actual function for converting
+``mdtraj.Topology`` objects to JSON and back again was a bit hidden so
+we extracted it and provide them as utilities in ``wepy.util.mdtraj``:
+``json_to_mdtraj_topology`` and ``mdtraj_to_json_topology``.
+
+Another useful trick is that ``mdtraj`` also has a converter to the
+OpenMM topology object: ``mdtraj.Topology.to_openmm`` and
+``mdtraj.Topology.from_openmm``. This comes in handy for serializing
+your topologies to JSON after you create them in OpenMM.
+
+There are several shortcomings in this JSON topology format in the
+opinions of this author, however after surveying all available topology
+format we have found it to be the most unambiguous and "programmable"
+format and so rely on it.
+
+Of course different applications will different types "topologies", no
+topologies, or altogether different system specifications and so the
+HDF5 format should not be seen as being tied to this format for
+molecular systems. It primarily provides a good substrate for generating
+other files which are needed by other programs.
+
+That said there are no extensive libraries supporting it. However, there
+really isn't any need since the parser is in the python standard
+library:
+
+.. code:: python
+
+    import json
+    top = json.loads(json_top_str)
+
+where the ``top`` object is just native python types making it easy to
+do basic selections of atoms based on their atom or residue names and
+types or the bond connectivity. If you want to do more complex things
+like chemoinformatics or structural informatics you will want to cast
+this to a purpose built representation. There are JSON parsers in just
+about every language and so it is pretty portable in that sense.
+
+We do provide a few useful functions that make working with it a tad
+easier which are contained in the ``wepy.util.json_top`` module. The
+highlights there are functions for generating ``pandas.DataFrame``
+tables for either: atoms, residues, or chains; e.g.
+``json_top_atom_df``. The other being a function for getting a new
+topology from a subset of atoms from the original ``json_top_subset``.
+This is extremely useful for generating files for subsets of your entire
+MD system and excluding things like waters.

@@ -1,0 +1,3084 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+  
+  <!-- Licensed under the Apache 2.0 License -->
+  <link rel="stylesheet" type="text/css" href="../_static/fonts/open-sans/stylesheet.css" />
+  <!-- Licensed under the SIL Open Font License -->
+  <link rel="stylesheet" type="text/css" href="../_static/fonts/source-serif-pro/source-serif-pro.css" />
+  <link rel="stylesheet" type="text/css" href="../_static/css/bootstrap.min.css" />
+  <link rel="stylesheet" type="text/css" href="../_static/css/bootstrap-theme.min.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+    <title>wepy.hdf5 module &#8212; wepy  documentation</title>
+    <link rel="stylesheet" href="../_static/guzzle.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/language_data.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="wepy.sim_manager module" href="wepy.sim_manager.html" />
+    <link rel="prev" title="wepy.cli module" href="wepy.cli.html" />
+  
+   
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="wepy.sim_manager.html" title="wepy.sim_manager module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="wepy.cli.html" title="wepy.cli module"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">wepy  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >wepy</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="wepy.html" accesskey="U">wepy package</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="container-wrapper">
+
+      <div id="mobile-toggle">
+        <a href="#"><span class="glyphicon glyphicon-align-justify" aria-hidden="true"></span></a>
+      </div>
+  <div id="left-column">
+    <div class="sphinxsidebar">
+<div class="sidebar-block">
+  <div class="sidebar-wrapper">
+    <h2>Contents</h2>
+    <div class="sidebar-localtoc">
+      <ul>
+<li><a class="reference internal" href="#">wepy.hdf5 module</a><ul>
+<li><a class="reference internal" href="#the-hdf5-format-specification">The HDF5 Format Specification</a><ul>
+<li><a class="reference internal" href="#header">Header</a></li>
+<li><a class="reference internal" href="#runs">Runs</a><ul>
+<li><a class="reference internal" href="#trajectories">Trajectories</a></li>
+<li><a class="reference internal" href="#init-walkers">Init Walkers</a></li>
+<li><a class="reference internal" href="#record-groups">Record Groups</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+    </div>
+  </div>
+</div>
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="wepy.cli.html"
+                        title="previous chapter">wepy.cli module</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="wepy.sim_manager.html"
+                        title="next chapter">wepy.sim_manager module</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/api/wepy.hdf5.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div class="sidebar-block">
+  <div class="sidebar-wrapper">
+    <div id="main-search">
+      <form class="form-inline" action="../search.html" method="GET" role="form">
+        <div class="input-group">
+          <input name="q" type="text" class="form-control" placeholder="Search...">
+        </div>
+        <input type="hidden" name="check_keywords" value="yes" />
+        <input type="hidden" name="area" value="default" />
+      </form>
+    </div>
+  </div>
+</div>
+      
+    </div>
+  </div>
+        <div id="right-column">
+          
+          <div role="navigation" aria-label="breadcrumbs navigation">
+            <ol class="breadcrumb">
+              <li><a href="../index.html">Docs</a></li>
+              
+                <li><a href="modules.html">wepy</a></li>
+              
+                <li><a href="wepy.html">wepy package</a></li>
+              
+              <li>wepy.hdf5 module</li>
+            </ol>
+          </div>
+          
+          <div class="document clearer body">
+            
+  <div class="section" id="module-wepy.hdf5">
+<span id="wepy-hdf5-module"></span><h1>wepy.hdf5 module<a class="headerlink" href="#module-wepy.hdf5" title="Permalink to this headline">¶</a></h1>
+<p>Primary wepy simulation database driver and access API using the
+HDF5 format.</p>
+<div class="section" id="the-hdf5-format-specification">
+<h2>The HDF5 Format Specification<a class="headerlink" href="#the-hdf5-format-specification" title="Permalink to this headline">¶</a></h2>
+<p>As part of the wepy framework this module provides a fully-featured
+API for creating and accessing data generated in weighted ensemble
+simulations run with wepy.</p>
+<p>The need for a special purpose format is many-fold but primarily it is
+the nonlinear branching structure of walker trajectories coupled with
+weights.</p>
+<p>That is for standard simulations data is organized as independent
+linear trajectories of frames each related linearly to the one before
+it and after it.</p>
+<p>In weighted ensemble due to the resampling (i.e. cloning and merging)
+of walkers, a single frame may have multiple ‘child’ frames.</p>
+<p>This is the primary motivation for this format.</p>
+<p>However, in practice it solves several other issues and itself is a
+more general and flexible format than for just weighted ensemble
+simulations.</p>
+<p>Concretely the WepyHDF5 format is simply an informally described
+schema that is commensurable with the HDF5 constructs of hierarchical
+groups (similar to unix filesystem directories) arranged as a tree
+with datasets as the leaves.</p>
+<p>The hierarchy is fairly deep and so we will progress downwards from
+the top and describe each broad section in turn breaking it down when
+necessary.</p>
+<div class="section" id="header">
+<h3>Header<a class="headerlink" href="#header" title="Permalink to this headline">¶</a></h3>
+<p>The items right under the root of the tree are:</p>
+<ul class="simple">
+<li><p>runs</p></li>
+<li><p>topology</p></li>
+<li><p>_settings</p></li>
+</ul>
+<p>The first item ‘runs’ is itself a group that contains all of the
+primary data from simulations. In WepyHDF5 the run is the unit
+dataset. All data internal to a run is self contained. That is for
+multiple dependent trajectories (e.g. from cloning and merging) all
+exist within a single run.</p>
+<p>This excludes metadata-like things that may be needed for interpreting
+this data, such as the molecular topology that imposes structure over
+a frame of atom positions. This information is placed in the
+‘topology’ item.</p>
+<p>The topology field has no specified internal structure at this
+time. However, with the current implementation of the WepyHDF5Reporter
+(which is the principal implementation of generating a WepyHDF5
+object/file from simulations) this is simply a string dataset. This
+string dataset should be a JSON compliant string. The format of which
+is specified elsewhere and was borrowed from the mdtraj library.</p>
+<p>Warning! this format and specification for the topology is subject to
+change in the future and will likely be kept unspecified indefinitely.</p>
+<p>For most intents and purposes (which we assume to be for molecular or
+molecular-like simulations) the ‘topology’ item (and perhaps any other
+item at the top level other than those proceeded by and underscore,
+such as in the ‘_settings’ item) is merely useful metadata that
+applies to ALL runs and is not dynamical.</p>
+<p>In the language of the orchestration module all data in ‘runs’ uses
+the same ‘apparatus’ which is the function that takes in the initial
+conditions for walkers and produces new walkers. The apparatus may
+differ in the specific values of parameters but not in kind. This is
+to facilitate runs that are continuations of other runs. For these
+kinds of simulations the state of the resampler, boundary conditions,
+etc. will not be as they were initially but are the same in kind or
+type.</p>
+<p>All of the necessary type information of data in runs is kept in the
+‘_settings’ group. This is used to serialize information about the
+data types, shapes, run to run continuations etc. This allows for the
+initialization of an empty (no runs) WepyHDF5 database at one time and
+filling of data at another time. Otherwise types of datasets would
+have to be inferred from the data itself, which may not exist yet.</p>
+<p>As a convention items which are preceeded by an underscore (following
+the python convention) are to be considered hidden and mechanical to
+the proper functioning of various WepyHDF5 API features, such as
+sparse trajectory fields.</p>
+<p>The ‘_settings’ is specified as a simple key-value structure, however
+values may be arbitrarily complex.</p>
+</div>
+<div class="section" id="runs">
+<h3>Runs<a class="headerlink" href="#runs" title="Permalink to this headline">¶</a></h3>
+<p>The meat of the format is contained within the runs group:</p>
+<ul class="simple">
+<li><p>runs</p>
+<ul>
+<li><p>0</p></li>
+<li><p>1</p></li>
+<li><p>2</p></li>
+<li><p>…</p></li>
+</ul>
+</li>
+</ul>
+<p>Under the runs group are a series of groups for each run. Runs are
+named according to the order in which they were added to the database.</p>
+<p>Within a run (say ‘0’ from above) we have a number of items:</p>
+<ul class="simple">
+<li><p>0</p>
+<ul>
+<li><p>init_walkers</p></li>
+<li><p>trajectories</p></li>
+<li><p>decision</p></li>
+<li><p>resampling</p></li>
+<li><p>resampler</p></li>
+<li><p>warping</p></li>
+<li><p>progress</p></li>
+<li><p>boundary_conditions</p></li>
+</ul>
+</li>
+</ul>
+<div class="section" id="trajectories">
+<h4>Trajectories<a class="headerlink" href="#trajectories" title="Permalink to this headline">¶</a></h4>
+<p>The ‘trajectories’ group is where the data for the frames of the
+walker trajectories is stored.</p>
+<p>Even though the tree-like trajectories of weighted ensemble data may
+be well suited to having a tree-like storage topology we have opted to
+use something more familiar to the field, and have used a collection
+of linear “trajectories”.</p>
+<p>This way of breaking up the trajectory data coupled with proper
+records of resampling (see below) allows for the imposition of a tree
+structure without committing to that as the data storage topology.</p>
+<p>This allows the WepyHDF5 format to be easily used as a container
+format for collections of linear trajectories. While this is not
+supported in any real capacity it is one small step to convergence. We
+feel that a format that contains multiple trajectories is important
+for situations like weighted ensemble where trajectories are
+interdependent. The transition to a storage format like HDF5 however
+opens up many possibilities for new features for trajectories that
+have not occurred despite several attempts to forge new formats based
+on HDF5 (TODO: get references right; see work in mdtraj and MDHDF5).</p>
+<p>Perhaps these formats have not caught on because the existing formats
+(e.g. XTC, DCD) for simple linear trajectories are good enough and
+there is little motivation to migrate.</p>
+<p>However, by making the WepyHDF5 format (and related sub-formats to be
+described e.g. record groups and the trajectory format) both cover a
+new use case which can’t be achieved with old formats and old ones
+with ease.</p>
+<p>Once users see the power of using a format like HDF5 from using wepy
+they may continue to use it for simpler simulations.</p>
+<p>In any case the ‘trajectories’ in the group for weighted ensemble
+simulations should be thought of only as containers and not literally
+as trajectories. That is frame 4 does not necessarily follow from
+frame 3. So one may think of them more as “lanes” or “slots” for
+trajectory data that needs to be stitched together with the
+appropriate resampling records.</p>
+<p>The routines and methods for generating contiguous trajectories from
+the data in WepyHDF5 are given through the ‘analysis’ module, which
+generates “traces” through the dataset.</p>
+<p>With this in mind we will describe the sub-format of a trajectory now.</p>
+<p>The ‘trajectories’ group is similar to the ‘runs’ group in that it has
+sub-groups whose names are numbers. These numbers however are not the
+order in which they are created but an index of that trajectory which
+are typically laid out all at once.</p>
+<p>For a wepy simulation with a constant number of walkers you will only
+ever need as many trajectories/slots as there are walkers. So if you
+have 8 walkers then you will have trajectories 0 through 7. Concretely:</p>
+<ul class="simple">
+<li><p>runs</p>
+<ul>
+<li><p>0</p>
+<ul>
+<li><p>trajectories</p>
+<ul>
+<li><p>0</p></li>
+<li><p>1</p></li>
+<li><p>2</p></li>
+<li><p>3</p></li>
+<li><p>4</p></li>
+<li><p>5</p></li>
+<li><p>6</p></li>
+<li><p>7</p></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p>If we look at trajectory 0 we might see the following groups within:</p>
+<ul class="simple">
+<li><p>positions</p></li>
+<li><p>box_vectors</p></li>
+<li><p>velocities</p></li>
+<li><p>weights</p></li>
+</ul>
+<p>Which is what you would expect for a constant pressure molecular
+dynamics simulation where you have the positions of the atoms, the box
+size, and velocities of the atoms.</p>
+<p>The particulars for what “fields” a trajectory in general has are not
+important but this important use-case is directly supported in the
+WepyHDF5 format.</p>
+<p>In any such simulation, however, the ‘weights’ field will appear since
+this is the weight of the walker of this frame and is a value
+important to weighted ensemble and not the underlying dynamics.</p>
+<p>The naive approach to these fields is that each is a dataset of
+dimension (n_frames, feature_vector_shape[0], …) where the first dimension
+is the cycle_idx and the rest of the dimensions are determined by the
+atomic feature vector for each field for a single frame.</p>
+<p>For example, the positions for a molecular simulation with 100 atoms
+with x, y, and z coordinates that ran for 1000 cycles would be a
+dataset of the shape (1000, 100, 3). Similarly the box vectors would
+be (1000, 3, 3) and the weights would be (1000, 1).</p>
+<p>This uniformity vastly simplifies accessing and adding new variables
+and requires that individual state values in walkers always be arrays
+with shapes, even when they are single values (e.g. energy). The
+exception being the weight which is handled separately.</p>
+<p>However, this situation is actually more complex to allow for special
+features.</p>
+<p>First of all is the presence of compound fields which allow nesting of
+multiple groups.</p>
+<p>The above “trajectory fields” would have identifiers such as the
+literal strings ‘positions’ and ‘box_vectors’, while a compound field
+would have an identifier ‘observables/rmsd’ or ‘alt_reps/binding_site’.</p>
+<p>Use of trajectory field names using the ‘/’ path separator will
+automatically make a field a group and the last element of the field
+name the dataset. So for the observables example we might have:</p>
+<ul class="simple">
+<li><p>0</p>
+<ul>
+<li><p>observables</p>
+<ul>
+<li><p>rmsd</p></li>
+<li><p>sasa</p></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p>Where the rmsd would be accessed as a trajectory field of trajectory 0
+as ‘observables/rmsd’ and the solvent accessible surface area as
+‘observables/sasa’.</p>
+<p>This example introduces how the WepyHDF5 format is not only useful for
+storing data produced by simulation but also in the analysis of that
+data and computation of by-frame quantities.</p>
+<p>The ‘observables’ compound group key prefix is special and will be
+used in the ‘compute_observables’ method.</p>
+<p>The other special compound group key prefix is ‘alt_reps’ which is
+used for particle simulations to store “alternate representation” of
+the positions. This is useful in cooperation with the next feature of
+wepy trajectory fields to allow for more economical storage of data.</p>
+<p>The next feature (and complication of the format) is the allowance for
+sparse fields. As the fields were introduced we said that they should
+have as many feature vectors as there are frames for the
+simulation. In the example however, you will notice that storing both
+the full atomic positions and velocities for a long simulation
+requires a heavy storage burden.</p>
+<p>So perhaps you only want to store the velocities (or forces) every 100
+frames so that you can be able to restart a simulation form midway
+through the simulation. This is achieved through sparse fields.</p>
+<p>A sparse field is no longer a dataset but a group with two items:</p>
+<ul class="simple">
+<li><p>_sparse_idxs</p></li>
+<li><p>data</p></li>
+</ul>
+<p>The ‘_sparse_idxs’ are simply a dataset of integers that assign each
+element of the ‘data’ dataset to a frame index. Using the above
+example we run a simulation for 1000 frames with 100 atoms and we save
+the velocities every 100 frames we would have a ‘velocities/data’
+dataset of shape (100, 100, 3) which is 10 times less data than if it
+were saved every frame.</p>
+<p>While this complicates the storage format use of the proper API
+methods should be transparent whether you are returning a sparse field
+or not.</p>
+<p>As alluded to above the use of sparse fields can be used for more than
+just accessory fields. In many simulations, such as those with full
+atomistic simulations of proteins in solvent we often don’t care about
+the dynamics of most of the atoms in the simulation and so would like
+to not have to save them.</p>
+<p>The ‘alt_reps’ compound field is meant to solve this. For example, the
+WepyHDF5Reporter supports a special option to save only a subset of
+the atoms in the main ‘positions’ field but also to save the full
+atomic system as an alternate representation, which is the field name
+‘alt_reps/all_atoms’. So that you can still save the full system every
+once in a while but be economical in what positions you save every
+single frame.</p>
+<p>Note that there really isn’t a way to achieve this with other
+formats. You either make a completely new trajectory with only the
+atoms of interest and now you are duplicating those in two places, or
+you duplicate and then filter your full systems trajectory file and
+rely on some sort of index to always live with it in the filesystem,
+which is a very precarious scenario. The situation is particularly
+hopeless for weighted ensemble trajectories.</p>
+</div>
+<div class="section" id="init-walkers">
+<h4>Init Walkers<a class="headerlink" href="#init-walkers" title="Permalink to this headline">¶</a></h4>
+<p>The data stored in the ‘trajectories’ section is the data that is
+returned after running dynamics in a cycle. Since we view the WepyHDF5
+as a completely self-contained format for simulations it seems
+negligent to rely on outside sources (such as the filesystem) for the
+initial structures that seeded the simulations. These states (and
+weights) can be stored in this group.</p>
+<p>The format of this group is identical to the one for trajectories
+except that there is only one frame for each slot and so the shape of
+the datasets for each field is just the shape of the feature vector.</p>
+</div>
+<div class="section" id="record-groups">
+<h4>Record Groups<a class="headerlink" href="#record-groups" title="Permalink to this headline">¶</a></h4>
+<p>TODO: add reference to reference groups</p>
+<p>The last five items are what are called ‘record groups’ and all follow
+the same format.</p>
+<p>Each record group contains itself a number of datasets, where the
+names of the datasets correspond to the ‘field names’ from the record
+group specification. So each record groups is simply a key-value store
+where the values must be datasets.</p>
+<p>For instance the fields in the ‘resampling’ (which is particularly
+important as it encodes the branching structure) record group for a
+WExplore resampler simulation are:</p>
+<ul class="simple">
+<li><p>step_idx</p></li>
+<li><p>walker_idx</p></li>
+<li><p>decision_id</p></li>
+<li><p>target_idxs</p></li>
+<li><p>region_assignment</p></li>
+</ul>
+<p>Where the ‘step_idx’ is an integer specifying which step of resampling
+within the cycle the resampling action took place (the cycle index is
+metadata for the group). The ‘walker_idx’ is the index of the walker
+that this action was assigned to. The ‘decision_id’ is an integer that
+is related to an enumeration of decision types that encodes which
+discrete action is to be taken for this resampling event (the
+enumeration is in the ‘decision’ item of the run groups). The
+‘target_idxs’ is a variable length 1-D array of integers which assigns
+the results of the action to specific target ‘slots’ (which was
+discussed for the ‘trajectories’ run group). And the
+‘region_assignment’ is specific to WExplore which reports on which
+region the walker was in at that time, and is a variable length 1-D
+array of integers.</p>
+<p>Additionally, record groups are broken into two types:</p>
+<ul class="simple">
+<li><p>continual</p></li>
+<li><p>sporadic</p></li>
+</ul>
+<p>Continual records occur once per cycle and so there is no extra
+indexing necessary.</p>
+<p>Sporadic records can happen multiple or zero times per cycle and so
+require a special index for them which is contained in the extra
+dataset ‘_cycle_idxs’.</p>
+<p>It is worth noting that the underlying methods for each record group
+are general. So while these are the official wepy record groups that
+are supported if there is a use-case that demands a new record group
+it is a fairly straightforward task from a developers perspective.</p>
+<dl class="data">
+<dt id="wepy.hdf5.TOPOLOGY">
+<code class="sig-prename descclassname">wepy.hdf5.</code><code class="sig-name descname">TOPOLOGY</code><em class="property"> = 'topology'</em><a class="headerlink" href="#wepy.hdf5.TOPOLOGY" title="Permalink to this definition">¶</a></dt>
+<dd><p>Default header apparatus dataset. The molecular topology dataset.</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="wepy.hdf5.SETTINGS">
+<code class="sig-prename descclassname">wepy.hdf5.</code><code class="sig-name descname">SETTINGS</code><em class="property"> = '_settings'</em><a class="headerlink" href="#wepy.hdf5.SETTINGS" title="Permalink to this definition">¶</a></dt>
+<dd><p>Name of the settings group in the header group.</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="wepy.hdf5.RUNS">
+<code class="sig-prename descclassname">wepy.hdf5.</code><code class="sig-name descname">RUNS</code><em class="property"> = 'runs'</em><a class="headerlink" href="#wepy.hdf5.RUNS" title="Permalink to this definition">¶</a></dt>
+<dd><p>The group name for runs.</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="wepy.hdf5.RUN_IDX">
+<code class="sig-prename descclassname">wepy.hdf5.</code><code class="sig-name descname">RUN_IDX</code><em class="property"> = 'run_idx'</em><a class="headerlink" href="#wepy.hdf5.RUN_IDX" title="Permalink to this definition">¶</a></dt>
+<dd><p>Metadata field for run groups for the run index within this file.</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="wepy.hdf5.RUN_START_SNAPSHOT_HASH">
+<code class="sig-prename descclassname">wepy.hdf5.</code><code class="sig-name descname">RUN_START_SNAPSHOT_HASH</code><em class="property"> = 'start_snapshot_hash'</em><a class="headerlink" href="#wepy.hdf5.RUN_START_SNAPSHOT_HASH" title="Permalink to this definition">¶</a></dt>
+<dd><p>Metadata field for a run that corresponds to the hash of the
+starting simulation snapshot in orchestration.</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="wepy.hdf5.RUN_END_SNAPSHOT_HASH">
+<code class="sig-prename descclassname">wepy.hdf5.</code><code class="sig-name descname">RUN_END_SNAPSHOT_HASH</code><em class="property"> = 'end_snapshot_hash'</em><a class="headerlink" href="#wepy.hdf5.RUN_END_SNAPSHOT_HASH" title="Permalink to this definition">¶</a></dt>
+<dd><p>Metadata field for a run that corresponds to the hash of the
+ending simulation snapshot in orchestration.</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="wepy.hdf5.TRAJ_IDX">
+<code class="sig-prename descclassname">wepy.hdf5.</code><code class="sig-name descname">TRAJ_IDX</code><em class="property"> = 'traj_idx'</em><a class="headerlink" href="#wepy.hdf5.TRAJ_IDX" title="Permalink to this definition">¶</a></dt>
+<dd><p>Metadata field for trajectory groups for the trajectory index in that run.</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="wepy.hdf5.CYCLE_IDX">
+<code class="sig-prename descclassname">wepy.hdf5.</code><code class="sig-name descname">CYCLE_IDX</code><em class="property"> = 'cycle_idx'</em><a class="headerlink" href="#wepy.hdf5.CYCLE_IDX" title="Permalink to this definition">¶</a></dt>
+<dd><p>String for setting the names of cycle indices in records and
+miscellaneous situations.</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="wepy.hdf5.SPARSE_FIELDS">
+<code class="sig-prename descclassname">wepy.hdf5.</code><code class="sig-name descname">SPARSE_FIELDS</code><em class="property"> = 'sparse_fields'</em><a class="headerlink" href="#wepy.hdf5.SPARSE_FIELDS" title="Permalink to this definition">¶</a></dt>
+<dd><p>Settings field name for sparse field trajectory field flags.</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="wepy.hdf5.N_ATOMS">
+<code class="sig-prename descclassname">wepy.hdf5.</code><code class="sig-name descname">N_ATOMS</code><em class="property"> = 'n_atoms'</em><a class="headerlink" href="#wepy.hdf5.N_ATOMS" title="Permalink to this definition">¶</a></dt>
+<dd><p>Settings field name group for the number of atoms in the default positions field.</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="wepy.hdf5.N_DIMS_STR">
+<code class="sig-prename descclassname">wepy.hdf5.</code><code class="sig-name descname">N_DIMS_STR</code><em class="property"> = 'n_dims'</em><a class="headerlink" href="#wepy.hdf5.N_DIMS_STR" title="Permalink to this definition">¶</a></dt>
+<dd><p>Settings field name for positions field spatial dimensions.</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="wepy.hdf5.MAIN_REP_IDXS">
+<code class="sig-prename descclassname">wepy.hdf5.</code><code class="sig-name descname">MAIN_REP_IDXS</code><em class="property"> = 'main_rep_idxs'</em><a class="headerlink" href="#wepy.hdf5.MAIN_REP_IDXS" title="Permalink to this definition">¶</a></dt>
+<dd><p>Settings field name for the indices of the full apparatus topology in
+the default positions trajectory field.</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="wepy.hdf5.ALT_REPS_IDXS">
+<code class="sig-prename descclassname">wepy.hdf5.</code><code class="sig-name descname">ALT_REPS_IDXS</code><em class="property"> = 'alt_reps_idxs'</em><a class="headerlink" href="#wepy.hdf5.ALT_REPS_IDXS" title="Permalink to this definition">¶</a></dt>
+<dd><p>Settings field name for the different ‘alt_reps’. The indices of
+the atoms from the full apparatus topology for each.</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="wepy.hdf5.FIELD_FEATURE_SHAPES_STR">
+<code class="sig-prename descclassname">wepy.hdf5.</code><code class="sig-name descname">FIELD_FEATURE_SHAPES_STR</code><em class="property"> = 'field_feature_shapes'</em><a class="headerlink" href="#wepy.hdf5.FIELD_FEATURE_SHAPES_STR" title="Permalink to this definition">¶</a></dt>
+<dd><p>Settings field name for the trajectory field shapes.</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="wepy.hdf5.FIELD_FEATURE_DTYPES_STR">
+<code class="sig-prename descclassname">wepy.hdf5.</code><code class="sig-name descname">FIELD_FEATURE_DTYPES_STR</code><em class="property"> = 'field_feature_dtypes'</em><a class="headerlink" href="#wepy.hdf5.FIELD_FEATURE_DTYPES_STR" title="Permalink to this definition">¶</a></dt>
+<dd><p>Settings field name for the trajectory field data types.</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="wepy.hdf5.UNITS">
+<code class="sig-prename descclassname">wepy.hdf5.</code><code class="sig-name descname">UNITS</code><em class="property"> = 'units'</em><a class="headerlink" href="#wepy.hdf5.UNITS" title="Permalink to this definition">¶</a></dt>
+<dd><p>Settings field name for the units of the trajectory fields.</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="wepy.hdf5.RECORD_FIELDS">
+<code class="sig-prename descclassname">wepy.hdf5.</code><code class="sig-name descname">RECORD_FIELDS</code><em class="property"> = 'record_fields'</em><a class="headerlink" href="#wepy.hdf5.RECORD_FIELDS" title="Permalink to this definition">¶</a></dt>
+<dd><p>Settings field name for the record fields that are to be included
+in the truncated listing of record group fields.</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="wepy.hdf5.CONTINUATIONS">
+<code class="sig-prename descclassname">wepy.hdf5.</code><code class="sig-name descname">CONTINUATIONS</code><em class="property"> = 'continuations'</em><a class="headerlink" href="#wepy.hdf5.CONTINUATIONS" title="Permalink to this definition">¶</a></dt>
+<dd><p>Settings field name for the continuations relationships between runs.</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="wepy.hdf5.TRAJECTORIES">
+<code class="sig-prename descclassname">wepy.hdf5.</code><code class="sig-name descname">TRAJECTORIES</code><em class="property"> = 'trajectories'</em><a class="headerlink" href="#wepy.hdf5.TRAJECTORIES" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run field name for the trajectories group.</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="wepy.hdf5.INIT_WALKERS">
+<code class="sig-prename descclassname">wepy.hdf5.</code><code class="sig-name descname">INIT_WALKERS</code><em class="property"> = 'init_walkers'</em><a class="headerlink" href="#wepy.hdf5.INIT_WALKERS" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run field name for the initial walkers group.</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="wepy.hdf5.DECISION">
+<code class="sig-prename descclassname">wepy.hdf5.</code><code class="sig-name descname">DECISION</code><em class="property"> = 'decision'</em><a class="headerlink" href="#wepy.hdf5.DECISION" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run field name for the decision enumeration group.</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="wepy.hdf5.RESAMPLING">
+<code class="sig-prename descclassname">wepy.hdf5.</code><code class="sig-name descname">RESAMPLING</code><em class="property"> = 'resampling'</em><a class="headerlink" href="#wepy.hdf5.RESAMPLING" title="Permalink to this definition">¶</a></dt>
+<dd><p>Record group run field name for the resampling records</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="wepy.hdf5.RESAMPLER">
+<code class="sig-prename descclassname">wepy.hdf5.</code><code class="sig-name descname">RESAMPLER</code><em class="property"> = 'resampler'</em><a class="headerlink" href="#wepy.hdf5.RESAMPLER" title="Permalink to this definition">¶</a></dt>
+<dd><p>Record group run field name for the resampler records</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="wepy.hdf5.WARPING">
+<code class="sig-prename descclassname">wepy.hdf5.</code><code class="sig-name descname">WARPING</code><em class="property"> = 'warping'</em><a class="headerlink" href="#wepy.hdf5.WARPING" title="Permalink to this definition">¶</a></dt>
+<dd><p>Record group run field name for the warping records</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="wepy.hdf5.PROGRESS">
+<code class="sig-prename descclassname">wepy.hdf5.</code><code class="sig-name descname">PROGRESS</code><em class="property"> = 'progress'</em><a class="headerlink" href="#wepy.hdf5.PROGRESS" title="Permalink to this definition">¶</a></dt>
+<dd><p>Record group run field name for the progress records</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="wepy.hdf5.BC">
+<code class="sig-prename descclassname">wepy.hdf5.</code><code class="sig-name descname">BC</code><em class="property"> = 'boundary_conditions'</em><a class="headerlink" href="#wepy.hdf5.BC" title="Permalink to this definition">¶</a></dt>
+<dd><p>Record group run field name for the boundary conditions records</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="wepy.hdf5.NONE_STR">
+<code class="sig-prename descclassname">wepy.hdf5.</code><code class="sig-name descname">NONE_STR</code><em class="property"> = 'None'</em><a class="headerlink" href="#wepy.hdf5.NONE_STR" title="Permalink to this definition">¶</a></dt>
+<dd><p>String signifying a field of unspecified shape. Used for
+serializing the None python object.</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="wepy.hdf5.CYCLE_IDXS">
+<code class="sig-prename descclassname">wepy.hdf5.</code><code class="sig-name descname">CYCLE_IDXS</code><em class="property"> = '_cycle_idxs'</em><a class="headerlink" href="#wepy.hdf5.CYCLE_IDXS" title="Permalink to this definition">¶</a></dt>
+<dd><p>Group name for the cycle indices of sporadic records.</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="wepy.hdf5.SPORADIC_RECORDS">
+<code class="sig-prename descclassname">wepy.hdf5.</code><code class="sig-name descname">SPORADIC_RECORDS</code><em class="property"> = ('resampler', 'warping', 'resampling', 'boundary_conditions')</em><a class="headerlink" href="#wepy.hdf5.SPORADIC_RECORDS" title="Permalink to this definition">¶</a></dt>
+<dd><p>Enumeration of the record groups that are sporadic.</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="wepy.hdf5.N_DIMS">
+<code class="sig-prename descclassname">wepy.hdf5.</code><code class="sig-name descname">N_DIMS</code><em class="property"> = 3</em><a class="headerlink" href="#wepy.hdf5.N_DIMS" title="Permalink to this definition">¶</a></dt>
+<dd><p>Number of dimensions for the default positions.</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="wepy.hdf5.WEIGHTS">
+<code class="sig-prename descclassname">wepy.hdf5.</code><code class="sig-name descname">WEIGHTS</code><em class="property"> = 'weights'</em><a class="headerlink" href="#wepy.hdf5.WEIGHTS" title="Permalink to this definition">¶</a></dt>
+<dd><p>The field name for the frame weights.</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="wepy.hdf5.POSITIONS">
+<code class="sig-prename descclassname">wepy.hdf5.</code><code class="sig-name descname">POSITIONS</code><em class="property"> = 'positions'</em><a class="headerlink" href="#wepy.hdf5.POSITIONS" title="Permalink to this definition">¶</a></dt>
+<dd><p>The field name for the default positions.</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="wepy.hdf5.BOX_VECTORS">
+<code class="sig-prename descclassname">wepy.hdf5.</code><code class="sig-name descname">BOX_VECTORS</code><em class="property"> = 'box_vectors'</em><a class="headerlink" href="#wepy.hdf5.BOX_VECTORS" title="Permalink to this definition">¶</a></dt>
+<dd><p>The field name for the default box vectors.</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="wepy.hdf5.VELOCITIES">
+<code class="sig-prename descclassname">wepy.hdf5.</code><code class="sig-name descname">VELOCITIES</code><em class="property"> = 'velocities'</em><a class="headerlink" href="#wepy.hdf5.VELOCITIES" title="Permalink to this definition">¶</a></dt>
+<dd><p>The field name for the default velocities.</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="wepy.hdf5.FORCES">
+<code class="sig-prename descclassname">wepy.hdf5.</code><code class="sig-name descname">FORCES</code><em class="property"> = 'forces'</em><a class="headerlink" href="#wepy.hdf5.FORCES" title="Permalink to this definition">¶</a></dt>
+<dd><p>The field name for the default forces.</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="wepy.hdf5.TIME">
+<code class="sig-prename descclassname">wepy.hdf5.</code><code class="sig-name descname">TIME</code><em class="property"> = 'time'</em><a class="headerlink" href="#wepy.hdf5.TIME" title="Permalink to this definition">¶</a></dt>
+<dd><p>The field name for the default time.</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="wepy.hdf5.KINETIC_ENERGY">
+<code class="sig-prename descclassname">wepy.hdf5.</code><code class="sig-name descname">KINETIC_ENERGY</code><em class="property"> = 'kinetic_energy'</em><a class="headerlink" href="#wepy.hdf5.KINETIC_ENERGY" title="Permalink to this definition">¶</a></dt>
+<dd><p>The field name for the default kinetic energy.</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="wepy.hdf5.POTENTIAL_ENERGY">
+<code class="sig-prename descclassname">wepy.hdf5.</code><code class="sig-name descname">POTENTIAL_ENERGY</code><em class="property"> = 'potential_energy'</em><a class="headerlink" href="#wepy.hdf5.POTENTIAL_ENERGY" title="Permalink to this definition">¶</a></dt>
+<dd><p>The field name for the default potential energy.</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="wepy.hdf5.BOX_VOLUME">
+<code class="sig-prename descclassname">wepy.hdf5.</code><code class="sig-name descname">BOX_VOLUME</code><em class="property"> = 'box_volume'</em><a class="headerlink" href="#wepy.hdf5.BOX_VOLUME" title="Permalink to this definition">¶</a></dt>
+<dd><p>The field name for the default box volume.</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="wepy.hdf5.PARAMETERS">
+<code class="sig-prename descclassname">wepy.hdf5.</code><code class="sig-name descname">PARAMETERS</code><em class="property"> = 'parameters'</em><a class="headerlink" href="#wepy.hdf5.PARAMETERS" title="Permalink to this definition">¶</a></dt>
+<dd><p>The field name for the default parameters.</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="wepy.hdf5.PARAMETER_DERIVATIVES">
+<code class="sig-prename descclassname">wepy.hdf5.</code><code class="sig-name descname">PARAMETER_DERIVATIVES</code><em class="property"> = 'parameter_derivatives'</em><a class="headerlink" href="#wepy.hdf5.PARAMETER_DERIVATIVES" title="Permalink to this definition">¶</a></dt>
+<dd><p>The field name for the default parameter derivatives.</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="wepy.hdf5.ALT_REPS">
+<code class="sig-prename descclassname">wepy.hdf5.</code><code class="sig-name descname">ALT_REPS</code><em class="property"> = 'alt_reps'</em><a class="headerlink" href="#wepy.hdf5.ALT_REPS" title="Permalink to this definition">¶</a></dt>
+<dd><p>The field name for the default compound field observables.</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="wepy.hdf5.OBSERVABLES">
+<code class="sig-prename descclassname">wepy.hdf5.</code><code class="sig-name descname">OBSERVABLES</code><em class="property"> = 'observables'</em><a class="headerlink" href="#wepy.hdf5.OBSERVABLES" title="Permalink to this definition">¶</a></dt>
+<dd><p>The field name for the default compound field observables.</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="wepy.hdf5.WEIGHT_SHAPE">
+<code class="sig-prename descclassname">wepy.hdf5.</code><code class="sig-name descname">WEIGHT_SHAPE</code><em class="property"> = (1,)</em><a class="headerlink" href="#wepy.hdf5.WEIGHT_SHAPE" title="Permalink to this definition">¶</a></dt>
+<dd><p>Weights feature vector shape.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.hdf5.WEIGHT_DTYPE">
+<code class="sig-prename descclassname">wepy.hdf5.</code><code class="sig-name descname">WEIGHT_DTYPE</code><a class="headerlink" href="#wepy.hdf5.WEIGHT_DTYPE" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">builtins.float</span></code></p>
+</dd></dl>
+
+<dl class="data">
+<dt id="wepy.hdf5.FIELD_FEATURE_SHAPES">
+<code class="sig-prename descclassname">wepy.hdf5.</code><code class="sig-name descname">FIELD_FEATURE_SHAPES</code><em class="property"> = (('time', (1,)), ('box_vectors', (3, 3)), ('box_volume', (1,)), ('kinetic_energy', (1,)), ('potential_energy', (1,)))</em><a class="headerlink" href="#wepy.hdf5.FIELD_FEATURE_SHAPES" title="Permalink to this definition">¶</a></dt>
+<dd><p>Default shapes for the default fields.</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="wepy.hdf5.FIELD_FEATURE_DTYPES">
+<code class="sig-prename descclassname">wepy.hdf5.</code><code class="sig-name descname">FIELD_FEATURE_DTYPES</code><em class="property"> = (('positions', &lt;class 'float'&gt;), ('velocities', &lt;class 'float'&gt;), ('forces', &lt;class 'float'&gt;), ('time', &lt;class 'float'&gt;), ('box_vectors', &lt;class 'float'&gt;), ('box_volume', &lt;class 'float'&gt;), ('kinetic_energy', &lt;class 'float'&gt;), ('potential_energy', &lt;class 'float'&gt;))</em><a class="headerlink" href="#wepy.hdf5.FIELD_FEATURE_DTYPES" title="Permalink to this definition">¶</a></dt>
+<dd><p>Default data types for the default fields.</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="wepy.hdf5.POSITIONS_LIKE_FIELDS">
+<code class="sig-prename descclassname">wepy.hdf5.</code><code class="sig-name descname">POSITIONS_LIKE_FIELDS</code><em class="property"> = ('velocities', 'forces')</em><a class="headerlink" href="#wepy.hdf5.POSITIONS_LIKE_FIELDS" title="Permalink to this definition">¶</a></dt>
+<dd><p>Default trajectory fields which are the same shape as the main positions field.</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="wepy.hdf5.DATA">
+<code class="sig-prename descclassname">wepy.hdf5.</code><code class="sig-name descname">DATA</code><em class="property"> = 'data'</em><a class="headerlink" href="#wepy.hdf5.DATA" title="Permalink to this definition">¶</a></dt>
+<dd><p>Name of the dataset in sparse trajectory fields.</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="wepy.hdf5.SPARSE_IDXS">
+<code class="sig-prename descclassname">wepy.hdf5.</code><code class="sig-name descname">SPARSE_IDXS</code><em class="property"> = '_sparse_idxs'</em><a class="headerlink" href="#wepy.hdf5.SPARSE_IDXS" title="Permalink to this definition">¶</a></dt>
+<dd><p>Name of the dataset that indexes sparse trajectory fields.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="wepy.hdf5.WepyHDF5">
+<em class="property">class </em><code class="sig-prename descclassname">wepy.hdf5.</code><code class="sig-name descname">WepyHDF5</code><span class="sig-paren">(</span><em class="sig-param">filename</em>, <em class="sig-param">mode='x'</em>, <em class="sig-param">topology=None</em>, <em class="sig-param">units=None</em>, <em class="sig-param">sparse_fields=None</em>, <em class="sig-param">feature_shapes=None</em>, <em class="sig-param">feature_dtypes=None</em>, <em class="sig-param">n_dims=None</em>, <em class="sig-param">alt_reps=None</em>, <em class="sig-param">main_rep_idxs=None</em>, <em class="sig-param">swmr_mode=False</em>, <em class="sig-param">expert_mode=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/hdf5.html#WepyHDF5"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.hdf5.WepyHDF5" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Wrapper for h5py interface to an HDF5 file object for creation and
+access of WepyHDF5 data.</p>
+<p>This is the primary implementation of the API for creating,
+accessing, and modifying data in an HDF5 file that conforms to the
+WepyHDF5 specification.</p>
+<p>Constructor for the WepyHDF5 class.</p>
+<p>Initialize a new Wepy HDF5 file. This will create an h5py.File
+object.</p>
+<p>The File will be closed after construction by default.</p>
+<p>mode:
+r        Readonly, file must exist
+r+       Read/write, file must exist
+w        Create file, truncate if exists
+x or w-  Create file, fail if exists
+a        Read/write if exists, create otherwise</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filename</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – File path</p></li>
+<li><p><strong>mode</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – Mode specification for opening the HDF5 file.</p></li>
+<li><p><strong>topology</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – JSON string representing topology of system being simulated.</p></li>
+<li><p><strong>units</strong> (<em>dict of str : str</em><em>, </em><em>optional</em>) – Mapping of trajectory field names to string specs
+for units.</p></li>
+<li><p><strong>sparse_fields</strong> (<em>list of str</em><em>, </em><em>optional</em>) – List of trajectory fields that should be initialized as sparse.</p></li>
+<li><p><strong>feature_shapes</strong> (<em>dict of str : shape_spec</em><em>, </em><em>optional</em>) – Mapping of trajectory fields to their shape spec for initialization.</p></li>
+<li><p><strong>feature_dtypes</strong> (<em>dict of str : dtype_spec</em><em>, </em><em>optional</em>) – Mapping of trajectory fields to their shape spec for initialization.</p></li>
+<li><p><strong>n_dims</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a><em>, </em><em>default: 3</em>) – Set the number of spatial dimensions for the default
+positions trajectory field.</p></li>
+<li><p><strong>alt_reps</strong> (<em>dict of str : list of int</em><em>, </em><em>optional</em>) – Specifies that there will be ‘alt_reps’ of positions each
+named by the keys of this mapping and containing the
+indices in each value list.</p></li>
+<li><p><strong>main_rep_idxs</strong> (<em>list of int</em><em>, </em><em>optional</em>) – The indices of atom positions to save as the main ‘positions’
+trajectory field. Defaults to all atoms.</p></li>
+<li><p><strong>expert_mode</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a>) – If True no initialization is performed other than the
+setting of the filename. Useful mainly for debugging.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#AssertionError" title="(in Python v3.8)"><strong>AssertionError</strong></a> – If the mode is not one of the supported mode specs.</p></li>
+<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#AssertionError" title="(in Python v3.8)"><strong>AssertionError</strong></a> – If a topology is not given for a creation mode.</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Warns</dt>
+<dd class="field-odd"><p><strong>If initialization data was given but the file was opened in a read mode.</strong></p>
+</dd>
+</dl>
+<dl class="attribute">
+<dt id="wepy.hdf5.WepyHDF5.MODES">
+<code class="sig-name descname">MODES</code><em class="property"> = ('r', 'r+', 'w', 'w-', 'x', 'a')</em><a class="headerlink" href="#wepy.hdf5.WepyHDF5.MODES" title="Permalink to this definition">¶</a></dt>
+<dd><p>The recognized modes for opening the WepyHDF5 file.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.hdf5.WepyHDF5.WRITE_MODES">
+<code class="sig-name descname">WRITE_MODES</code><em class="property"> = ('r+', 'w', 'w-', 'x', 'a')</em><a class="headerlink" href="#wepy.hdf5.WepyHDF5.WRITE_MODES" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wepy.hdf5.WepyHDF5.swmr_mode">
+<em class="property">property </em><code class="sig-name descname">swmr_mode</code><a class="headerlink" href="#wepy.hdf5.WepyHDF5.swmr_mode" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wepy.hdf5.WepyHDF5.filename">
+<em class="property">property </em><code class="sig-name descname">filename</code><a class="headerlink" href="#wepy.hdf5.WepyHDF5.filename" title="Permalink to this definition">¶</a></dt>
+<dd><p>The path to the underlying HDF5 file.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.hdf5.WepyHDF5.open">
+<code class="sig-name descname">open</code><span class="sig-paren">(</span><em class="sig-param">mode=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/hdf5.html#WepyHDF5.open"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.hdf5.WepyHDF5.open" title="Permalink to this definition">¶</a></dt>
+<dd><p>Open the underlying HDF5 file for access.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>mode</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – Valid mode spec. Opens the HDF5 file in this mode if given
+otherwise uses the existing mode.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.hdf5.WepyHDF5.close">
+<code class="sig-name descname">close</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/hdf5.html#WepyHDF5.close"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.hdf5.WepyHDF5.close" title="Permalink to this definition">¶</a></dt>
+<dd><p>Close the underlying HDF5 file.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.hdf5.WepyHDF5.mode">
+<em class="property">property </em><code class="sig-name descname">mode</code><a class="headerlink" href="#wepy.hdf5.WepyHDF5.mode" title="Permalink to this definition">¶</a></dt>
+<dd><p>The WepyHDF5 mode this object was created with.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.hdf5.WepyHDF5.set_mode">
+<code class="sig-name descname">set_mode</code><span class="sig-paren">(</span><em class="sig-param">mode</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/hdf5.html#WepyHDF5.set_mode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.hdf5.WepyHDF5.set_mode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the mode for opening the file with.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.hdf5.WepyHDF5.h5_mode">
+<em class="property">property </em><code class="sig-name descname">h5_mode</code><a class="headerlink" href="#wepy.hdf5.WepyHDF5.h5_mode" title="Permalink to this definition">¶</a></dt>
+<dd><p>The h5py.File mode the HDF5 file currently has.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.hdf5.WepyHDF5.h5">
+<em class="property">property </em><code class="sig-name descname">h5</code><a class="headerlink" href="#wepy.hdf5.WepyHDF5.h5" title="Permalink to this definition">¶</a></dt>
+<dd><p>The underlying h5py.File object.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.hdf5.WepyHDF5.run">
+<code class="sig-name descname">run</code><span class="sig-paren">(</span><em class="sig-param">run_idx</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/hdf5.html#WepyHDF5.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.hdf5.WepyHDF5.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the h5py.Group for a run.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>run_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>run_group</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>h5py.Group</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.hdf5.WepyHDF5.traj">
+<code class="sig-name descname">traj</code><span class="sig-paren">(</span><em class="sig-param">run_idx</em>, <em class="sig-param">traj_idx</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/hdf5.html#WepyHDF5.traj"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.hdf5.WepyHDF5.traj" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get an h5py.Group trajectory group.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>run_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – </p></li>
+<li><p><strong>traj_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>traj_group</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>h5py.Group</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.hdf5.WepyHDF5.run_trajs">
+<code class="sig-name descname">run_trajs</code><span class="sig-paren">(</span><em class="sig-param">run_idx</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/hdf5.html#WepyHDF5.run_trajs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.hdf5.WepyHDF5.run_trajs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the trajectories group for a run.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>run_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>trajectories_grp</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>h5py.Group</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.hdf5.WepyHDF5.runs">
+<em class="property">property </em><code class="sig-name descname">runs</code><a class="headerlink" href="#wepy.hdf5.WepyHDF5.runs" title="Permalink to this definition">¶</a></dt>
+<dd><p>The runs group.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.hdf5.WepyHDF5.run_grp">
+<code class="sig-name descname">run_grp</code><span class="sig-paren">(</span><em class="sig-param">run_idx</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/hdf5.html#WepyHDF5.run_grp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.hdf5.WepyHDF5.run_grp" title="Permalink to this definition">¶</a></dt>
+<dd><p>A group for a single run.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.hdf5.WepyHDF5.run_start_snapshot_hash">
+<code class="sig-name descname">run_start_snapshot_hash</code><span class="sig-paren">(</span><em class="sig-param">run_idx</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/hdf5.html#WepyHDF5.run_start_snapshot_hash"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.hdf5.WepyHDF5.run_start_snapshot_hash" title="Permalink to this definition">¶</a></dt>
+<dd><p>Hash identifier for the starting snapshot of a run from
+orchestration.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.hdf5.WepyHDF5.run_end_snapshot_hash">
+<code class="sig-name descname">run_end_snapshot_hash</code><span class="sig-paren">(</span><em class="sig-param">run_idx</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/hdf5.html#WepyHDF5.run_end_snapshot_hash"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.hdf5.WepyHDF5.run_end_snapshot_hash" title="Permalink to this definition">¶</a></dt>
+<dd><p>Hash identifier for the ending snapshot of a run from
+orchestration.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.hdf5.WepyHDF5.set_run_start_snapshot_hash">
+<code class="sig-name descname">set_run_start_snapshot_hash</code><span class="sig-paren">(</span><em class="sig-param">run_idx</em>, <em class="sig-param">snaphash</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/hdf5.html#WepyHDF5.set_run_start_snapshot_hash"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.hdf5.WepyHDF5.set_run_start_snapshot_hash" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the starting snapshot hash identifier for a run from
+orchestration.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.hdf5.WepyHDF5.set_run_end_snapshot_hash">
+<code class="sig-name descname">set_run_end_snapshot_hash</code><span class="sig-paren">(</span><em class="sig-param">run_idx</em>, <em class="sig-param">snaphash</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/hdf5.html#WepyHDF5.set_run_end_snapshot_hash"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.hdf5.WepyHDF5.set_run_end_snapshot_hash" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the ending snapshot hash identifier for a run from
+orchestration.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.hdf5.WepyHDF5.settings_grp">
+<em class="property">property </em><code class="sig-name descname">settings_grp</code><a class="headerlink" href="#wepy.hdf5.WepyHDF5.settings_grp" title="Permalink to this definition">¶</a></dt>
+<dd><p>The header settings group.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.hdf5.WepyHDF5.decision_grp">
+<code class="sig-name descname">decision_grp</code><span class="sig-paren">(</span><em class="sig-param">run_idx</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/hdf5.html#WepyHDF5.decision_grp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.hdf5.WepyHDF5.decision_grp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the decision enumeration group for a run.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>run_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>decision_grp</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>h5py.Group</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.hdf5.WepyHDF5.init_walkers_grp">
+<code class="sig-name descname">init_walkers_grp</code><span class="sig-paren">(</span><em class="sig-param">run_idx</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/hdf5.html#WepyHDF5.init_walkers_grp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.hdf5.WepyHDF5.init_walkers_grp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the group for the initial walkers for a run.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>run_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>init_walkers_grp</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>h5py.Group</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.hdf5.WepyHDF5.records_grp">
+<code class="sig-name descname">records_grp</code><span class="sig-paren">(</span><em class="sig-param">run_idx</em>, <em class="sig-param">run_record_key</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/hdf5.html#WepyHDF5.records_grp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.hdf5.WepyHDF5.records_grp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a record group h5py.Group for a run.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>run_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – </p></li>
+<li><p><strong>run_record_key</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – Name of the record group</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>run_record_group</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>h5py.Group</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.hdf5.WepyHDF5.resampling_grp">
+<code class="sig-name descname">resampling_grp</code><span class="sig-paren">(</span><em class="sig-param">run_idx</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/hdf5.html#WepyHDF5.resampling_grp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.hdf5.WepyHDF5.resampling_grp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get this record group for a run.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>run_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>run_record_group</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>h5py.Group</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.hdf5.WepyHDF5.resampler_grp">
+<code class="sig-name descname">resampler_grp</code><span class="sig-paren">(</span><em class="sig-param">run_idx</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/hdf5.html#WepyHDF5.resampler_grp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.hdf5.WepyHDF5.resampler_grp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get this record group for a run.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>run_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>run_record_group</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>h5py.Group</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.hdf5.WepyHDF5.warping_grp">
+<code class="sig-name descname">warping_grp</code><span class="sig-paren">(</span><em class="sig-param">run_idx</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/hdf5.html#WepyHDF5.warping_grp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.hdf5.WepyHDF5.warping_grp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get this record group for a run.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>run_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>run_record_group</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>h5py.Group</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.hdf5.WepyHDF5.bc_grp">
+<code class="sig-name descname">bc_grp</code><span class="sig-paren">(</span><em class="sig-param">run_idx</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/hdf5.html#WepyHDF5.bc_grp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.hdf5.WepyHDF5.bc_grp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get this record group for a run.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>run_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>run_record_group</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>h5py.Group</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.hdf5.WepyHDF5.progress_grp">
+<code class="sig-name descname">progress_grp</code><span class="sig-paren">(</span><em class="sig-param">run_idx</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/hdf5.html#WepyHDF5.progress_grp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.hdf5.WepyHDF5.progress_grp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get this record group for a run.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>run_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>run_record_group</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>h5py.Group</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.hdf5.WepyHDF5.iter_runs">
+<code class="sig-name descname">iter_runs</code><span class="sig-paren">(</span><em class="sig-param">idxs=False</em>, <em class="sig-param">run_sel=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/hdf5.html#WepyHDF5.iter_runs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.hdf5.WepyHDF5.iter_runs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generator for iterating through the runs of a file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>idxs</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a>) – If True yields the run index in addition to the group.</p></li>
+<li><p><strong>run_sel</strong> (<em>list of int</em><em>, </em><em>optional</em>) – If not None should be a list of the runs you want to iterate over.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Yields</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>run_idx</strong> (<em>int, if idxs is True</em>)</p></li>
+<li><p><strong>run_group</strong> (<em>h5py.Group</em>)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.hdf5.WepyHDF5.iter_trajs">
+<code class="sig-name descname">iter_trajs</code><span class="sig-paren">(</span><em class="sig-param">idxs=False</em>, <em class="sig-param">traj_sel=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/hdf5.html#WepyHDF5.iter_trajs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.hdf5.WepyHDF5.iter_trajs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generator for iterating over trajectories in a file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>idxs</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a>) – If True returns a tuple of the run index and trajectory
+index in addition to the trajectory group.</p></li>
+<li><p><strong>traj_sel</strong> (<em>list of int</em><em>, </em><em>optional</em>) – If not None is a list of tuples of (run_idx, traj_idx)
+selecting which trajectories to iterate over.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Yields</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>traj_id</strong> (<em>tuple of int, if idxs is True</em>) – A tuple of (run_idx, traj_idx) for the group</p></li>
+<li><p><strong>trajectory</strong> (<em>h5py.Group</em>)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.hdf5.WepyHDF5.iter_run_trajs">
+<code class="sig-name descname">iter_run_trajs</code><span class="sig-paren">(</span><em class="sig-param">run_idx</em>, <em class="sig-param">idxs=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/hdf5.html#WepyHDF5.iter_run_trajs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.hdf5.WepyHDF5.iter_run_trajs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Iterate over the trajectories of a run.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>run_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – </p></li>
+<li><p><strong>idxs</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a>) – If True returns a tuple of the run index and trajectory
+index in addition to the trajectory group.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>iter_trajs_generator</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>generator for the iter_trajs method</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.hdf5.WepyHDF5.defined_traj_field_names">
+<em class="property">property </em><code class="sig-name descname">defined_traj_field_names</code><a class="headerlink" href="#wepy.hdf5.WepyHDF5.defined_traj_field_names" title="Permalink to this definition">¶</a></dt>
+<dd><p>A list of the settings defined field names all trajectories have in the file.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.hdf5.WepyHDF5.observable_field_names">
+<em class="property">property </em><code class="sig-name descname">observable_field_names</code><a class="headerlink" href="#wepy.hdf5.WepyHDF5.observable_field_names" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a list of the names of the observables that all trajectories have.</p>
+<p>If this encounters observable fields that don’t occur in all
+trajectories (inconsistency) raises an inconsistency error.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.hdf5.WepyHDF5.record_fields">
+<em class="property">property </em><code class="sig-name descname">record_fields</code><a class="headerlink" href="#wepy.hdf5.WepyHDF5.record_fields" title="Permalink to this definition">¶</a></dt>
+<dd><p>The record fields for each record group which are selected for inclusion in the truncated records.</p>
+<p>These are the fields which are considered to be table-ified.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>record_fields</strong> – Mapping of record group name to alist of the record group fields.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>dict of str : list of str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.hdf5.WepyHDF5.sparse_fields">
+<em class="property">property </em><code class="sig-name descname">sparse_fields</code><a class="headerlink" href="#wepy.hdf5.WepyHDF5.sparse_fields" title="Permalink to this definition">¶</a></dt>
+<dd><p>The trajectory fields that are sparse.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.hdf5.WepyHDF5.main_rep_idxs">
+<em class="property">property </em><code class="sig-name descname">main_rep_idxs</code><a class="headerlink" href="#wepy.hdf5.WepyHDF5.main_rep_idxs" title="Permalink to this definition">¶</a></dt>
+<dd><p>The indices of the atoms included from the full topology in the default ‘positions’ trajectory</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.hdf5.WepyHDF5.alt_reps_idxs">
+<em class="property">property </em><code class="sig-name descname">alt_reps_idxs</code><a class="headerlink" href="#wepy.hdf5.WepyHDF5.alt_reps_idxs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Mapping of the names of the alt reps to the indices of the atoms
+from the topology that they include in their datasets.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.hdf5.WepyHDF5.alt_reps">
+<em class="property">property </em><code class="sig-name descname">alt_reps</code><a class="headerlink" href="#wepy.hdf5.WepyHDF5.alt_reps" title="Permalink to this definition">¶</a></dt>
+<dd><p>Names of the alt reps.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.hdf5.WepyHDF5.field_feature_shapes">
+<em class="property">property </em><code class="sig-name descname">field_feature_shapes</code><a class="headerlink" href="#wepy.hdf5.WepyHDF5.field_feature_shapes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Mapping of the names of the trajectory fields to their feature
+vector shapes.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.hdf5.WepyHDF5.field_feature_dtypes">
+<em class="property">property </em><code class="sig-name descname">field_feature_dtypes</code><a class="headerlink" href="#wepy.hdf5.WepyHDF5.field_feature_dtypes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Mapping of the names of the trajectory fields to their feature
+vector numpy dtypes.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.hdf5.WepyHDF5.continuations">
+<em class="property">property </em><code class="sig-name descname">continuations</code><a class="headerlink" href="#wepy.hdf5.WepyHDF5.continuations" title="Permalink to this definition">¶</a></dt>
+<dd><p>The continuation relationships in this file.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.hdf5.WepyHDF5.metadata">
+<em class="property">property </em><code class="sig-name descname">metadata</code><a class="headerlink" href="#wepy.hdf5.WepyHDF5.metadata" title="Permalink to this definition">¶</a></dt>
+<dd><p>File metadata (h5py.attrs).</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.hdf5.WepyHDF5.decision_enum">
+<code class="sig-name descname">decision_enum</code><span class="sig-paren">(</span><em class="sig-param">run_idx</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/hdf5.html#WepyHDF5.decision_enum"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.hdf5.WepyHDF5.decision_enum" title="Permalink to this definition">¶</a></dt>
+<dd><p>Mapping of decision enumerated names to their integer representations.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>run_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>decision_enum</strong> – Mapping of the decision ID string to the integer representation.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict of str : int</p>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#wepy.hdf5.WepyHDF5.decision_value_names" title="wepy.hdf5.WepyHDF5.decision_value_names"><code class="xref py py-meth docutils literal notranslate"><span class="pre">WepyHDF5.decision_value_names()</span></code></a></dt><dd><p>for the reverse mapping</p>
+</dd>
+</dl>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.hdf5.WepyHDF5.decision_value_names">
+<code class="sig-name descname">decision_value_names</code><span class="sig-paren">(</span><em class="sig-param">run_idx</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/hdf5.html#WepyHDF5.decision_value_names"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.hdf5.WepyHDF5.decision_value_names" title="Permalink to this definition">¶</a></dt>
+<dd><p>Mapping of the integer values for decisions to the decision ID strings.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>run_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>decision_enum</strong> – Mapping of the decision integer to the decision ID string representation.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict of int : str</p>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#wepy.hdf5.WepyHDF5.decision_enum" title="wepy.hdf5.WepyHDF5.decision_enum"><code class="xref py py-meth docutils literal notranslate"><span class="pre">WepyHDF5.decision_enum()</span></code></a></dt><dd><p>for the reverse mapping</p>
+</dd>
+</dl>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.hdf5.WepyHDF5.get_topology">
+<code class="sig-name descname">get_topology</code><span class="sig-paren">(</span><em class="sig-param">alt_rep='positions'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/hdf5.html#WepyHDF5.get_topology"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.hdf5.WepyHDF5.get_topology" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the JSON topology for a particular represenation of the positions.</p>
+<p>By default gives the topology for the main ‘positions’ field
+(when alt_rep ‘positions’). To get the full topology the file
+was initialized with set <cite>alt_rep</cite> to <cite>None</cite>. Topologies for
+alternative representations (subfields of ‘alt_reps’) can be
+obtained by passing in the key for that alt_rep. For example,
+‘all_atoms’ for the field in alt_reps called ‘all_atoms’.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>alt_rep</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – The base name of the alternate representation, or ‘positions’, or None.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>topology</strong> – The JSON topology string for the representation.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.hdf5.WepyHDF5.topology">
+<em class="property">property </em><code class="sig-name descname">topology</code><a class="headerlink" href="#wepy.hdf5.WepyHDF5.topology" title="Permalink to this definition">¶</a></dt>
+<dd><p>The topology for the full simulated system.</p>
+<p>May not be the main representation in the POSITIONS field; for
+that use the <cite>get_topology</cite> method.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>topology</strong> – The JSON topology string for the full representation.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.hdf5.WepyHDF5.get_mdtraj_topology">
+<code class="sig-name descname">get_mdtraj_topology</code><span class="sig-paren">(</span><em class="sig-param">alt_rep='positions'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/hdf5.html#WepyHDF5.get_mdtraj_topology"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.hdf5.WepyHDF5.get_mdtraj_topology" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get an mdtraj.Topology object for a system representation.</p>
+<p>By default gives the topology for the main ‘positions’ field
+(when alt_rep ‘positions’). To get the full topology the file
+was initialized with set <cite>alt_rep</cite> to <cite>None</cite>. Topologies for
+alternative representations (subfields of ‘alt_reps’) can be
+obtained by passing in the key for that alt_rep. For example,
+‘all_atoms’ for the field in alt_reps called ‘all_atoms’.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>alt_rep</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – The base name of the alternate representation, or ‘positions’, or None.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>topology</strong> – The JSON topology string for the full representation.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.hdf5.WepyHDF5.initial_walker_fields">
+<code class="sig-name descname">initial_walker_fields</code><span class="sig-paren">(</span><em class="sig-param">run_idx</em>, <em class="sig-param">fields</em>, <em class="sig-param">walker_idxs=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/hdf5.html#WepyHDF5.initial_walker_fields"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.hdf5.WepyHDF5.initial_walker_fields" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get fields from the initial walkers of the simulation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>run_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – Run to get initial walkers for.</p></li>
+<li><p><strong>fields</strong> (<em>list of str</em>) – Names of the fields you want to retrieve.</p></li>
+<li><p><strong>walker_idxs</strong> (<a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.8)"><em>None</em></a><em> or </em><em>list of int</em>) – If None returns all of the walkers fields, otherwise a
+list of ints that are a selection from those walkers.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>walker_fields</strong> – Dictionary mapping fields to the values for all
+walkers. Frames will be either in counting order if no
+indices were requested or the order of the walker indices
+as given.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict of str : array of shape</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.hdf5.WepyHDF5.initial_walkers_to_mdtraj">
+<code class="sig-name descname">initial_walkers_to_mdtraj</code><span class="sig-paren">(</span><em class="sig-param">run_idx</em>, <em class="sig-param">walker_idxs=None</em>, <em class="sig-param">alt_rep='positions'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/hdf5.html#WepyHDF5.initial_walkers_to_mdtraj"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.hdf5.WepyHDF5.initial_walkers_to_mdtraj" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate an mdtraj Trajectory from a trace of frames from the runs.</p>
+<p>Uses the default fields for positions (unless an alternate
+representation is specified) and box vectors which are assumed
+to be present in the trajectory fields.</p>
+<p>The time value for the mdtraj trajectory is set to the cycle
+indices for each trace frame.</p>
+<p>This is useful for converting WepyHDF5 data to common
+molecular dynamics data formats accessible through the mdtraj
+library.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>run_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – Run to get initial walkers for.</p></li>
+<li><p><strong>fields</strong> (<em>list of str</em>) – Names of the fields you want to retrieve.</p></li>
+<li><p><strong>walker_idxs</strong> (<a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.8)"><em>None</em></a><em> or </em><em>list of int</em>) – If None returns all of the walkers fields, otherwise a
+list of ints that are a selection from those walkers.</p></li>
+<li><p><strong>alt_rep</strong> (<a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.8)"><em>None</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – If None uses default ‘positions’ representation otherwise
+chooses the representation from the ‘alt_reps’ compound field.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>traj</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>mdtraj.Trajectory</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.hdf5.WepyHDF5.num_atoms">
+<em class="property">property </em><code class="sig-name descname">num_atoms</code><a class="headerlink" href="#wepy.hdf5.WepyHDF5.num_atoms" title="Permalink to this definition">¶</a></dt>
+<dd><p>The number of atoms in the full topology representation.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.hdf5.WepyHDF5.num_dims">
+<em class="property">property </em><code class="sig-name descname">num_dims</code><a class="headerlink" href="#wepy.hdf5.WepyHDF5.num_dims" title="Permalink to this definition">¶</a></dt>
+<dd><p>The number of spatial dimensions in the positions and alt_reps trajectory fields.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.hdf5.WepyHDF5.num_runs">
+<em class="property">property </em><code class="sig-name descname">num_runs</code><a class="headerlink" href="#wepy.hdf5.WepyHDF5.num_runs" title="Permalink to this definition">¶</a></dt>
+<dd><p>The number of runs in the file.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.hdf5.WepyHDF5.num_trajs">
+<em class="property">property </em><code class="sig-name descname">num_trajs</code><a class="headerlink" href="#wepy.hdf5.WepyHDF5.num_trajs" title="Permalink to this definition">¶</a></dt>
+<dd><p>The total number of trajectories in the entire file.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.hdf5.WepyHDF5.num_init_walkers">
+<code class="sig-name descname">num_init_walkers</code><span class="sig-paren">(</span><em class="sig-param">run_idx</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/hdf5.html#WepyHDF5.num_init_walkers"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.hdf5.WepyHDF5.num_init_walkers" title="Permalink to this definition">¶</a></dt>
+<dd><p>The number of initial walkers for a run.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>run_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>n_walkers</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.hdf5.WepyHDF5.num_walkers">
+<code class="sig-name descname">num_walkers</code><span class="sig-paren">(</span><em class="sig-param">run_idx</em>, <em class="sig-param">cycle_idx</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/hdf5.html#WepyHDF5.num_walkers"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.hdf5.WepyHDF5.num_walkers" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the number of walkers at a given cycle in a run.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>run_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – </p></li>
+<li><p><strong>cycle_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>n_walkers</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.hdf5.WepyHDF5.num_run_trajs">
+<code class="sig-name descname">num_run_trajs</code><span class="sig-paren">(</span><em class="sig-param">run_idx</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/hdf5.html#WepyHDF5.num_run_trajs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.hdf5.WepyHDF5.num_run_trajs" title="Permalink to this definition">¶</a></dt>
+<dd><p>The number of trajectories in a run.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>run_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>n_trajs</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.hdf5.WepyHDF5.num_run_cycles">
+<code class="sig-name descname">num_run_cycles</code><span class="sig-paren">(</span><em class="sig-param">run_idx</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/hdf5.html#WepyHDF5.num_run_cycles"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.hdf5.WepyHDF5.num_run_cycles" title="Permalink to this definition">¶</a></dt>
+<dd><p>The number of cycles in a run.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>run_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>n_cycles</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.hdf5.WepyHDF5.num_traj_frames">
+<code class="sig-name descname">num_traj_frames</code><span class="sig-paren">(</span><em class="sig-param">run_idx</em>, <em class="sig-param">traj_idx</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/hdf5.html#WepyHDF5.num_traj_frames"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.hdf5.WepyHDF5.num_traj_frames" title="Permalink to this definition">¶</a></dt>
+<dd><p>The number of frames in a given trajectory.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>run_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – </p></li>
+<li><p><strong>traj_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>n_frames</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.hdf5.WepyHDF5.run_idxs">
+<em class="property">property </em><code class="sig-name descname">run_idxs</code><a class="headerlink" href="#wepy.hdf5.WepyHDF5.run_idxs" title="Permalink to this definition">¶</a></dt>
+<dd><p>The indices of the runs in the file.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.hdf5.WepyHDF5.run_traj_idxs">
+<code class="sig-name descname">run_traj_idxs</code><span class="sig-paren">(</span><em class="sig-param">run_idx</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/hdf5.html#WepyHDF5.run_traj_idxs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.hdf5.WepyHDF5.run_traj_idxs" title="Permalink to this definition">¶</a></dt>
+<dd><p>The indices of trajectories in a run.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>run_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>traj_idxs</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list of int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.hdf5.WepyHDF5.run_traj_idx_tuples">
+<code class="sig-name descname">run_traj_idx_tuples</code><span class="sig-paren">(</span><em class="sig-param">runs=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/hdf5.html#WepyHDF5.run_traj_idx_tuples"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.hdf5.WepyHDF5.run_traj_idx_tuples" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get identifier tuples (run_idx, traj_idx) for all trajectories in
+all runs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>runs</strong> (<em>list of int</em><em>, </em><em>optional</em>) – If not None, a list of run indices to restrict to.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>run_traj_tuples</strong> – A listing of all trajectories by their identifying tuple
+of (run_idx, traj_idx).</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list of tuple of int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.hdf5.WepyHDF5.get_traj_field_cycle_idxs">
+<code class="sig-name descname">get_traj_field_cycle_idxs</code><span class="sig-paren">(</span><em class="sig-param">run_idx</em>, <em class="sig-param">traj_idx</em>, <em class="sig-param">field_path</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/hdf5.html#WepyHDF5.get_traj_field_cycle_idxs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.hdf5.WepyHDF5.get_traj_field_cycle_idxs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the cycle indices for a sparse trajectory field.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>run_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – </p></li>
+<li><p><strong>traj_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – </p></li>
+<li><p><strong>field_path</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – Name of the trajectory field</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>cycle_idxs</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>arraylike of int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.hdf5.WepyHDF5.next_run_idx">
+<code class="sig-name descname">next_run_idx</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/hdf5.html#WepyHDF5.next_run_idx"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.hdf5.WepyHDF5.next_run_idx" title="Permalink to this definition">¶</a></dt>
+<dd><p>The index of the next run if it were to be added.</p>
+<p>Because runs are named as the integer value of the order they
+were added this gives the index of the next run that would be
+added.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>next_run_idx</strong></p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.hdf5.WepyHDF5.next_run_traj_idx">
+<code class="sig-name descname">next_run_traj_idx</code><span class="sig-paren">(</span><em class="sig-param">run_idx</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/hdf5.html#WepyHDF5.next_run_traj_idx"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.hdf5.WepyHDF5.next_run_traj_idx" title="Permalink to this definition">¶</a></dt>
+<dd><p>The index of the next trajectory for this run.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>run_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>next_traj_idx</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.hdf5.WepyHDF5.is_run_contig">
+<code class="sig-name descname">is_run_contig</code><span class="sig-paren">(</span><em class="sig-param">run_idxs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/hdf5.html#WepyHDF5.is_run_contig"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.hdf5.WepyHDF5.is_run_contig" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method checks that if a given list of run indices is a valid
+contig or not.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>run_idxs</strong> (<em>list of int</em>) – The run indices that would make up the contig in order.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>is_contig</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.hdf5.WepyHDF5.clone">
+<code class="sig-name descname">clone</code><span class="sig-paren">(</span><em class="sig-param">path</em>, <em class="sig-param">mode='x'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/hdf5.html#WepyHDF5.clone"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.hdf5.WepyHDF5.clone" title="Permalink to this definition">¶</a></dt>
+<dd><p>Clone the header information of this file into another file.</p>
+<p>Clones this WepyHDF5 file without any of the actual runs and run
+data. This includes the topology, units, sparse_fields,
+feature shapes and dtypes, alt_reps, and main representation
+information.</p>
+<p>This method will flush the buffers for this file.</p>
+<p>Does not preserve metadata pertaining to inter-run
+relationships like continuations.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>path</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – File path to save the new file.</p></li>
+<li><p><strong>mode</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – The mode to open the new file with.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>new_file</strong> – The handle to the new file. It will be closed.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>h5py.File</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.hdf5.WepyHDF5.link_run">
+<code class="sig-name descname">link_run</code><span class="sig-paren">(</span><em class="sig-param">filepath</em>, <em class="sig-param">run_idx</em>, <em class="sig-param">continue_run=None</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/hdf5.html#WepyHDF5.link_run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.hdf5.WepyHDF5.link_run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a run from another file to this one as an HDF5 external
+link.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filepath</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – File path to the HDF5 file that the run is on.</p></li>
+<li><p><strong>run_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – The run index from the target file you want to link.</p></li>
+<li><p><strong>continue_run</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a><em>, </em><em>optional</em>) – The run from the linking WepyHDF5 file you want the target
+linked run to continue.</p></li>
+<li><p><strong>kwargs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)"><em>dict</em></a>) – Adds metadata (h5py.attrs) to the linked run.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>linked_run_idx</strong> – The index of the linked run in the linking file.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.hdf5.WepyHDF5.link_file_runs">
+<code class="sig-name descname">link_file_runs</code><span class="sig-paren">(</span><em class="sig-param">wepy_h5_path</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/hdf5.html#WepyHDF5.link_file_runs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.hdf5.WepyHDF5.link_file_runs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Link all runs from another WepyHDF5 file.</p>
+<p>This preserves continuations within that file. This will open
+the file if not already opened.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>wepy_h5_path</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – Filepath to the file you want to link runs from.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>new_run_idxs</strong> – The new run idxs from the linking file.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list of int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.hdf5.WepyHDF5.extract_run">
+<code class="sig-name descname">extract_run</code><span class="sig-paren">(</span><em class="sig-param">filepath</em>, <em class="sig-param">run_idx</em>, <em class="sig-param">continue_run=None</em>, <em class="sig-param">run_slice=None</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/hdf5.html#WepyHDF5.extract_run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.hdf5.WepyHDF5.extract_run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a run from another file to this one by copying it and
+truncating it if necessary.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filepath</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – File path to the HDF5 file that the run is on.</p></li>
+<li><p><strong>run_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – The run index from the target file you want to link.</p></li>
+<li><p><strong>continue_run</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a><em>, </em><em>optional</em>) – The run from the linking WepyHDF5 file you want the target
+linked run to continue.</p></li>
+<li><p><strong>run_slice</strong> – </p></li>
+<li><p><strong>kwargs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)"><em>dict</em></a>) – Adds metadata (h5py.attrs) to the linked run.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>linked_run_idx</strong> – The index of the linked run in the linking file.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.hdf5.WepyHDF5.extract_file_runs">
+<code class="sig-name descname">extract_file_runs</code><span class="sig-paren">(</span><em class="sig-param">wepy_h5_path</em>, <em class="sig-param">run_slices=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/hdf5.html#WepyHDF5.extract_file_runs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.hdf5.WepyHDF5.extract_file_runs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extract (copying and truncating appropriately) all runs from
+another WepyHDF5 file.</p>
+<p>This preserves continuations within that file. This will open
+the file if not already opened.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>wepy_h5_path</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – Filepath to the file you want to link runs from.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>new_run_idxs</strong> – The new run idxs from the linking file.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list of int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.hdf5.WepyHDF5.join">
+<code class="sig-name descname">join</code><span class="sig-paren">(</span><em class="sig-param">other_h5</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/hdf5.html#WepyHDF5.join"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.hdf5.WepyHDF5.join" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given another WepyHDF5 file object does a left join on this
+file, renumbering the runs starting from this file.</p>
+<p>This function uses the H5O function for copying. Data will be
+copied not linked.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>other_h5</strong> (<em>h5py.File</em>) – File handle to the file you want to join to this one.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.hdf5.WepyHDF5.add_metadata">
+<code class="sig-name descname">add_metadata</code><span class="sig-paren">(</span><em class="sig-param">key</em>, <em class="sig-param">value</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/hdf5.html#WepyHDF5.add_metadata"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.hdf5.WepyHDF5.add_metadata" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add metadata for the whole file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>key</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – </p></li>
+<li><p><strong>value</strong> (<em>h5py value</em>) – h5py valid metadata value.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.hdf5.WepyHDF5.init_record_fields">
+<code class="sig-name descname">init_record_fields</code><span class="sig-paren">(</span><em class="sig-param">run_record_key</em>, <em class="sig-param">record_fields</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/hdf5.html#WepyHDF5.init_record_fields"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.hdf5.WepyHDF5.init_record_fields" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize the settings record fields for a record group in the
+settings group.</p>
+<p>Save which records are to be considered from a run record group’s
+datasets to be in the table like representation. This exists
+to allow there to large and small datasets for records to be
+stored together but allow for a more compact single table like
+representation to be produced for serialization.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>run_record_key</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – Name of the record group you want to set this for.</p></li>
+<li><p><strong>record_fields</strong> (<em>list of str</em>) – Names of the fields you want to set as record fields.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.hdf5.WepyHDF5.init_resampling_record_fields">
+<code class="sig-name descname">init_resampling_record_fields</code><span class="sig-paren">(</span><em class="sig-param">resampler</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/hdf5.html#WepyHDF5.init_resampling_record_fields"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.hdf5.WepyHDF5.init_resampling_record_fields" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize the record fields for this record group.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>resampler</strong> (<em>object implementing the Resampler interface</em>) – The resampler which contains the data for which record fields to set.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.hdf5.WepyHDF5.init_resampler_record_fields">
+<code class="sig-name descname">init_resampler_record_fields</code><span class="sig-paren">(</span><em class="sig-param">resampler</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/hdf5.html#WepyHDF5.init_resampler_record_fields"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.hdf5.WepyHDF5.init_resampler_record_fields" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize the record fields for this record group.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>resampler</strong> (<em>object implementing the Resampler interface</em>) – The resampler which contains the data for which record fields to set.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.hdf5.WepyHDF5.init_bc_record_fields">
+<code class="sig-name descname">init_bc_record_fields</code><span class="sig-paren">(</span><em class="sig-param">bc</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/hdf5.html#WepyHDF5.init_bc_record_fields"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.hdf5.WepyHDF5.init_bc_record_fields" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize the record fields for this record group.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>bc</strong> (<em>object implementing the BoundaryConditions interface</em>) – The boundary conditions object which contains the data for which record fields to set.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.hdf5.WepyHDF5.init_warping_record_fields">
+<code class="sig-name descname">init_warping_record_fields</code><span class="sig-paren">(</span><em class="sig-param">bc</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/hdf5.html#WepyHDF5.init_warping_record_fields"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.hdf5.WepyHDF5.init_warping_record_fields" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize the record fields for this record group.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>bc</strong> (<em>object implementing the BoundaryConditions interface</em>) – The boundary conditions object which contains the data for which record fields to set.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.hdf5.WepyHDF5.init_progress_record_fields">
+<code class="sig-name descname">init_progress_record_fields</code><span class="sig-paren">(</span><em class="sig-param">bc</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/hdf5.html#WepyHDF5.init_progress_record_fields"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.hdf5.WepyHDF5.init_progress_record_fields" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize the record fields for this record group.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>bc</strong> (<em>object implementing the BoundaryConditions interface</em>) – The boundary conditions object which contains the data for which record fields to set.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.hdf5.WepyHDF5.add_continuation">
+<code class="sig-name descname">add_continuation</code><span class="sig-paren">(</span><em class="sig-param">continuation_run</em>, <em class="sig-param">base_run</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/hdf5.html#WepyHDF5.add_continuation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.hdf5.WepyHDF5.add_continuation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a continuation between runs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>continuation_run</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – The run index of the run that will be continuing another</p></li>
+<li><p><strong>base_run</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – The run that is being continued.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.hdf5.WepyHDF5.new_run">
+<code class="sig-name descname">new_run</code><span class="sig-paren">(</span><em class="sig-param">init_walkers</em>, <em class="sig-param">continue_run=None</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/hdf5.html#WepyHDF5.new_run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.hdf5.WepyHDF5.new_run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize a new run.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>init_walkers</strong> (<em>list of objects implementing the Walker interface</em>) – The walkers that will be the start of this run.</p></li>
+<li><p><strong>continue_run</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a><em>, </em><em>optional</em>) – If this run is a continuation of another set which one it is continuing.</p></li>
+<li><p><strong>kwargs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)"><em>dict</em></a>) – Metadata to set for the run.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>run_grp</strong> – The group of the newly created run.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>h5py.Group</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.hdf5.WepyHDF5.init_run_resampling">
+<code class="sig-name descname">init_run_resampling</code><span class="sig-paren">(</span><em class="sig-param">run_idx</em>, <em class="sig-param">resampler</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/hdf5.html#WepyHDF5.init_run_resampling"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.hdf5.WepyHDF5.init_run_resampling" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize data for resampling records.</p>
+<p>Initialized the run record group as well as settings for the
+fields.</p>
+<p>This method also creates the decision group for the run.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>run_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – </p></li>
+<li><p><strong>resampler</strong> (<em>object implementing the Resampler interface</em>) – The resampler which contains the data for which record fields to set.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>record_grp</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>h5py.Group</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.hdf5.WepyHDF5.init_run_resampling_decision">
+<code class="sig-name descname">init_run_resampling_decision</code><span class="sig-paren">(</span><em class="sig-param">run_idx</em>, <em class="sig-param">resampler</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/hdf5.html#WepyHDF5.init_run_resampling_decision"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.hdf5.WepyHDF5.init_run_resampling_decision" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize the decision group for the run resampling records.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>run_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – </p></li>
+<li><p><strong>resampler</strong> (<em>object implementing the Resampler interface</em>) – The resampler which contains the data for which record fields to set.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.hdf5.WepyHDF5.init_run_resampler">
+<code class="sig-name descname">init_run_resampler</code><span class="sig-paren">(</span><em class="sig-param">run_idx</em>, <em class="sig-param">resampler</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/hdf5.html#WepyHDF5.init_run_resampler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.hdf5.WepyHDF5.init_run_resampler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize data for this record group in a run.</p>
+<p>Initialized the run record group as well as settings for the
+fields.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>run_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – </p></li>
+<li><p><strong>resampler</strong> (<em>object implementing the Resampler interface</em>) – The resampler which contains the data for which record fields to set.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>record_grp</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>h5py.Group</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.hdf5.WepyHDF5.init_run_warping">
+<code class="sig-name descname">init_run_warping</code><span class="sig-paren">(</span><em class="sig-param">run_idx</em>, <em class="sig-param">bc</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/hdf5.html#WepyHDF5.init_run_warping"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.hdf5.WepyHDF5.init_run_warping" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize data for this record group in a run.</p>
+<p>Initialized the run record group as well as settings for the
+fields.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>run_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – </p></li>
+<li><p><strong>bc</strong> (<em>object implementing the BoundaryConditions interface</em>) – The boundary conditions object which contains the data for which record fields to set.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>record_grp</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>h5py.Group</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.hdf5.WepyHDF5.init_run_progress">
+<code class="sig-name descname">init_run_progress</code><span class="sig-paren">(</span><em class="sig-param">run_idx</em>, <em class="sig-param">bc</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/hdf5.html#WepyHDF5.init_run_progress"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.hdf5.WepyHDF5.init_run_progress" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize data for this record group in a run.</p>
+<p>Initialized the run record group as well as settings for the
+fields.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>run_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – </p></li>
+<li><p><strong>bc</strong> (<em>object implementing the BoundaryConditions interface</em>) – The boundary conditions object which contains the data for which record fields to set.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>record_grp</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>h5py.Group</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.hdf5.WepyHDF5.init_run_bc">
+<code class="sig-name descname">init_run_bc</code><span class="sig-paren">(</span><em class="sig-param">run_idx</em>, <em class="sig-param">bc</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/hdf5.html#WepyHDF5.init_run_bc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.hdf5.WepyHDF5.init_run_bc" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize data for this record group in a run.</p>
+<p>Initialized the run record group as well as settings for the
+fields.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>run_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – </p></li>
+<li><p><strong>bc</strong> (<em>object implementing the BoundaryConditions interface</em>) – The boundary conditions object which contains the data for which record fields to set.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>record_grp</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>h5py.Group</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.hdf5.WepyHDF5.init_run_fields_resampling">
+<code class="sig-name descname">init_run_fields_resampling</code><span class="sig-paren">(</span><em class="sig-param">run_idx</em>, <em class="sig-param">fields</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/hdf5.html#WepyHDF5.init_run_fields_resampling"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.hdf5.WepyHDF5.init_run_fields_resampling" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize this record group fields datasets.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>run_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – </p></li>
+<li><p><strong>fields</strong> (<em>list of str</em>) – Names of the fields to initialize</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>record_grp</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>h5py.Group</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.hdf5.WepyHDF5.init_run_fields_resampling_decision">
+<code class="sig-name descname">init_run_fields_resampling_decision</code><span class="sig-paren">(</span><em class="sig-param">run_idx</em>, <em class="sig-param">decision_enum_dict</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/hdf5.html#WepyHDF5.init_run_fields_resampling_decision"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.hdf5.WepyHDF5.init_run_fields_resampling_decision" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize the decision group for this run.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>run_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – </p></li>
+<li><p><strong>decision_enum_dict</strong> (<em>dict of str : int</em>) – Mapping of decision ID strings to integer representation.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.hdf5.WepyHDF5.init_run_fields_resampler">
+<code class="sig-name descname">init_run_fields_resampler</code><span class="sig-paren">(</span><em class="sig-param">run_idx</em>, <em class="sig-param">fields</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/hdf5.html#WepyHDF5.init_run_fields_resampler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.hdf5.WepyHDF5.init_run_fields_resampler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize this record group fields datasets.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>run_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – </p></li>
+<li><p><strong>fields</strong> (<em>list of str</em>) – Names of the fields to initialize</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>record_grp</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>h5py.Group</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.hdf5.WepyHDF5.init_run_fields_warping">
+<code class="sig-name descname">init_run_fields_warping</code><span class="sig-paren">(</span><em class="sig-param">run_idx</em>, <em class="sig-param">fields</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/hdf5.html#WepyHDF5.init_run_fields_warping"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.hdf5.WepyHDF5.init_run_fields_warping" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize this record group fields datasets.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>run_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – </p></li>
+<li><p><strong>fields</strong> (<em>list of str</em>) – Names of the fields to initialize</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>record_grp</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>h5py.Group</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.hdf5.WepyHDF5.init_run_fields_progress">
+<code class="sig-name descname">init_run_fields_progress</code><span class="sig-paren">(</span><em class="sig-param">run_idx</em>, <em class="sig-param">fields</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/hdf5.html#WepyHDF5.init_run_fields_progress"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.hdf5.WepyHDF5.init_run_fields_progress" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize this record group fields datasets.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>run_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – </p></li>
+<li><p><strong>fields</strong> (<em>list of str</em>) – Names of the fields to initialize</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>record_grp</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>h5py.Group</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.hdf5.WepyHDF5.init_run_fields_bc">
+<code class="sig-name descname">init_run_fields_bc</code><span class="sig-paren">(</span><em class="sig-param">run_idx</em>, <em class="sig-param">fields</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/hdf5.html#WepyHDF5.init_run_fields_bc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.hdf5.WepyHDF5.init_run_fields_bc" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize this record group fields datasets.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>run_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – </p></li>
+<li><p><strong>fields</strong> (<em>list of str</em>) – Names of the fields to initialize</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>record_grp</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>h5py.Group</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.hdf5.WepyHDF5.init_run_record_grp">
+<code class="sig-name descname">init_run_record_grp</code><span class="sig-paren">(</span><em class="sig-param">run_idx</em>, <em class="sig-param">run_record_key</em>, <em class="sig-param">fields</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/hdf5.html#WepyHDF5.init_run_record_grp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.hdf5.WepyHDF5.init_run_record_grp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize a record group for a run.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>run_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – </p></li>
+<li><p><strong>run_record_key</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – The name of the record group.</p></li>
+<li><p><strong>fields</strong> (<em>list of str</em>) – The names of the fields to set for the record group.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.hdf5.WepyHDF5.add_traj">
+<code class="sig-name descname">add_traj</code><span class="sig-paren">(</span><em class="sig-param">run_idx</em>, <em class="sig-param">data</em>, <em class="sig-param">weights=None</em>, <em class="sig-param">sparse_idxs=None</em>, <em class="sig-param">metadata=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/hdf5.html#WepyHDF5.add_traj"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.hdf5.WepyHDF5.add_traj" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a full trajectory to a run.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>run_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – </p></li>
+<li><p><strong>data</strong> (<em>dict of str : arraylike</em>) – Mapping of trajectory fields to the data for them to add.</p></li>
+<li><p><strong>weights</strong> (<em>1-D arraylike of float</em>) – The weights of each frame. If None defaults all frames to 1.0.</p></li>
+<li><p><strong>sparse_idxs</strong> (<em>list of int</em>) – Cycle indices the data corresponds to.</p></li>
+<li><p><strong>metadata</strong> (<em>dict of str : value</em>) – Metadata for the trajectory.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>traj_grp</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>h5py.Group</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.hdf5.WepyHDF5.extend_traj">
+<code class="sig-name descname">extend_traj</code><span class="sig-paren">(</span><em class="sig-param">run_idx</em>, <em class="sig-param">traj_idx</em>, <em class="sig-param">data</em>, <em class="sig-param">weights=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/hdf5.html#WepyHDF5.extend_traj"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.hdf5.WepyHDF5.extend_traj" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extend a trajectory with data for all fields.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>run_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – </p></li>
+<li><p><strong>traj_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – </p></li>
+<li><p><strong>data</strong> (<em>dict of str : arraylike</em>) – The data to add for each field of the trajectory. Must all
+have the same first dimension.</p></li>
+<li><p><strong>weights</strong> (<em>arraylike</em>) – Weights for the frames of the trajectory. If None defaults all frames to 1.0.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.hdf5.WepyHDF5.extend_cycle_warping_records">
+<code class="sig-name descname">extend_cycle_warping_records</code><span class="sig-paren">(</span><em class="sig-param">run_idx</em>, <em class="sig-param">cycle_idx</em>, <em class="sig-param">warping_data</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/hdf5.html#WepyHDF5.extend_cycle_warping_records"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.hdf5.WepyHDF5.extend_cycle_warping_records" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add records for each field for this record group.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>run_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – </p></li>
+<li><p><strong>cycle_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – The cycle index these records correspond to.</p></li>
+<li><p><strong>warping_data</strong> (<em>dict of str : arraylike</em>) – Mapping of the record group fields to a collection of
+values for each field.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.hdf5.WepyHDF5.extend_cycle_bc_records">
+<code class="sig-name descname">extend_cycle_bc_records</code><span class="sig-paren">(</span><em class="sig-param">run_idx</em>, <em class="sig-param">cycle_idx</em>, <em class="sig-param">bc_data</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/hdf5.html#WepyHDF5.extend_cycle_bc_records"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.hdf5.WepyHDF5.extend_cycle_bc_records" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add records for each field for this record group.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>run_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – </p></li>
+<li><p><strong>cycle_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – The cycle index these records correspond to.</p></li>
+<li><p><strong>bc_data</strong> (<em>dict of str : arraylike</em>) – Mapping of the record group fields to a collection of
+values for each field.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.hdf5.WepyHDF5.extend_cycle_progress_records">
+<code class="sig-name descname">extend_cycle_progress_records</code><span class="sig-paren">(</span><em class="sig-param">run_idx</em>, <em class="sig-param">cycle_idx</em>, <em class="sig-param">progress_data</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/hdf5.html#WepyHDF5.extend_cycle_progress_records"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.hdf5.WepyHDF5.extend_cycle_progress_records" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add records for each field for this record group.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>run_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – </p></li>
+<li><p><strong>cycle_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – The cycle index these records correspond to.</p></li>
+<li><p><strong>progress_data</strong> (<em>dict of str : arraylike</em>) – Mapping of the record group fields to a collection of
+values for each field.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.hdf5.WepyHDF5.extend_cycle_resampling_records">
+<code class="sig-name descname">extend_cycle_resampling_records</code><span class="sig-paren">(</span><em class="sig-param">run_idx</em>, <em class="sig-param">cycle_idx</em>, <em class="sig-param">resampling_data</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/hdf5.html#WepyHDF5.extend_cycle_resampling_records"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.hdf5.WepyHDF5.extend_cycle_resampling_records" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add records for each field for this record group.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>run_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – </p></li>
+<li><p><strong>cycle_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – The cycle index these records correspond to.</p></li>
+<li><p><strong>resampling_data</strong> (<em>dict of str : arraylike</em>) – Mapping of the record group fields to a collection of
+values for each field.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.hdf5.WepyHDF5.extend_cycle_resampler_records">
+<code class="sig-name descname">extend_cycle_resampler_records</code><span class="sig-paren">(</span><em class="sig-param">run_idx</em>, <em class="sig-param">cycle_idx</em>, <em class="sig-param">resampler_data</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/hdf5.html#WepyHDF5.extend_cycle_resampler_records"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.hdf5.WepyHDF5.extend_cycle_resampler_records" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add records for each field for this record group.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>run_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – </p></li>
+<li><p><strong>cycle_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – The cycle index these records correspond to.</p></li>
+<li><p><strong>resampler_data</strong> (<em>dict of str : arraylike</em>) – Mapping of the record group fields to a collection of
+values for each field.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.hdf5.WepyHDF5.extend_cycle_run_group_records">
+<code class="sig-name descname">extend_cycle_run_group_records</code><span class="sig-paren">(</span><em class="sig-param">run_idx</em>, <em class="sig-param">run_record_key</em>, <em class="sig-param">cycle_idx</em>, <em class="sig-param">fields_data</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/hdf5.html#WepyHDF5.extend_cycle_run_group_records"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.hdf5.WepyHDF5.extend_cycle_run_group_records" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extend data for a whole records group.</p>
+<p>This must have the cycle index for the data it is appending as
+this is done for sporadic and continual datasets.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>run_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – </p></li>
+<li><p><strong>run_record_key</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – Name of the record group.</p></li>
+<li><p><strong>cycle_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – The cycle index these records correspond to.</p></li>
+<li><p><strong>fields_data</strong> (<em>dict of str : arraylike</em>) – Mapping of the field name to the values for the records being added.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.hdf5.WepyHDF5.run_records">
+<code class="sig-name descname">run_records</code><span class="sig-paren">(</span><em class="sig-param">run_idx</em>, <em class="sig-param">run_record_key</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/hdf5.html#WepyHDF5.run_records"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.hdf5.WepyHDF5.run_records" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the records for a record group for a single run.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>run_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – </p></li>
+<li><p><strong>run_record_key</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – The name of the record group.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>records</strong> – The list of records for the run’s record group.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list of namedtuple objects</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.hdf5.WepyHDF5.run_contig_records">
+<code class="sig-name descname">run_contig_records</code><span class="sig-paren">(</span><em class="sig-param">run_idxs</em>, <em class="sig-param">run_record_key</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/hdf5.html#WepyHDF5.run_contig_records"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.hdf5.WepyHDF5.run_contig_records" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the records for a record group for the contig that is formed by
+the run indices.</p>
+<p>This alters the cycle indices for the records so that they
+appear to have come from a single run. That is they are the
+cycle indices of the contig.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>run_idxs</strong> (<em>list of int</em>) – The run indices that form a contig. (i.e. element 1
+continues element 0)</p></li>
+<li><p><strong>run_record_key</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – Name of the record group.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>records</strong> – The list of records for the contig’s record group.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list of namedtuple objects</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.hdf5.WepyHDF5.run_records_dataframe">
+<code class="sig-name descname">run_records_dataframe</code><span class="sig-paren">(</span><em class="sig-param">run_idx</em>, <em class="sig-param">run_record_key</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/hdf5.html#WepyHDF5.run_records_dataframe"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.hdf5.WepyHDF5.run_records_dataframe" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the records for a record group for a single run in the form of
+a pandas DataFrame.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>run_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – </p></li>
+<li><p><strong>run_record_key</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – Name of record group.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>record_df</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>pandas.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.hdf5.WepyHDF5.run_contig_records_dataframe">
+<code class="sig-name descname">run_contig_records_dataframe</code><span class="sig-paren">(</span><em class="sig-param">run_idxs</em>, <em class="sig-param">run_record_key</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/hdf5.html#WepyHDF5.run_contig_records_dataframe"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.hdf5.WepyHDF5.run_contig_records_dataframe" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the records for a record group for a contig of runs in the form
+of a pandas DataFrame.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>run_idxs</strong> (<em>list of int</em>) – The run indices that form a contig. (i.e. element 1
+continues element 0)</p></li>
+<li><p><strong>run_record_key</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – The name of the record group.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>records_df</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>pandas.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.hdf5.WepyHDF5.resampling_records">
+<code class="sig-name descname">resampling_records</code><span class="sig-paren">(</span><em class="sig-param">run_idxs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/hdf5.html#WepyHDF5.resampling_records"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.hdf5.WepyHDF5.resampling_records" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the records this record group for the contig that is formed by
+the run indices.</p>
+<p>This alters the cycle indices for the records so that they
+appear to have come from a single run. That is they are the
+cycle indices of the contig.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>run_idxs</strong> (<em>list of int</em>) – The run indices that form a contig. (i.e. element 1
+continues element 0)</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>records</strong> – The list of records for the contig’s record group.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list of namedtuple objects</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.hdf5.WepyHDF5.resampling_records_dataframe">
+<code class="sig-name descname">resampling_records_dataframe</code><span class="sig-paren">(</span><em class="sig-param">run_idxs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/hdf5.html#WepyHDF5.resampling_records_dataframe"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.hdf5.WepyHDF5.resampling_records_dataframe" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the records for this record group for a contig of runs in the
+form of a pandas DataFrame.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>run_idxs</strong> (<em>list of int</em>) – The run indices that form a contig. (i.e. element 1
+continues element 0)</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>records_df</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>pandas.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.hdf5.WepyHDF5.resampler_records">
+<code class="sig-name descname">resampler_records</code><span class="sig-paren">(</span><em class="sig-param">run_idxs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/hdf5.html#WepyHDF5.resampler_records"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.hdf5.WepyHDF5.resampler_records" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the records this record group for the contig that is formed by
+the run indices.</p>
+<p>This alters the cycle indices for the records so that they
+appear to have come from a single run. That is they are the
+cycle indices of the contig.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>run_idxs</strong> (<em>list of int</em>) – The run indices that form a contig. (i.e. element 1
+continues element 0)</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>records</strong> – The list of records for the contig’s record group.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list of namedtuple objects</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.hdf5.WepyHDF5.resampler_records_dataframe">
+<code class="sig-name descname">resampler_records_dataframe</code><span class="sig-paren">(</span><em class="sig-param">run_idxs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/hdf5.html#WepyHDF5.resampler_records_dataframe"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.hdf5.WepyHDF5.resampler_records_dataframe" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the records for this record group for a contig of runs in the
+form of a pandas DataFrame.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>run_idxs</strong> (<em>list of int</em>) – The run indices that form a contig. (i.e. element 1
+continues element 0)</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>records_df</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>pandas.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.hdf5.WepyHDF5.warping_records">
+<code class="sig-name descname">warping_records</code><span class="sig-paren">(</span><em class="sig-param">run_idxs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/hdf5.html#WepyHDF5.warping_records"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.hdf5.WepyHDF5.warping_records" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the records this record group for the contig that is formed by
+the run indices.</p>
+<p>This alters the cycle indices for the records so that they
+appear to have come from a single run. That is they are the
+cycle indices of the contig.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>run_idxs</strong> (<em>list of int</em>) – The run indices that form a contig. (i.e. element 1
+continues element 0)</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>records</strong> – The list of records for the contig’s record group.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list of namedtuple objects</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.hdf5.WepyHDF5.warping_records_dataframe">
+<code class="sig-name descname">warping_records_dataframe</code><span class="sig-paren">(</span><em class="sig-param">run_idxs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/hdf5.html#WepyHDF5.warping_records_dataframe"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.hdf5.WepyHDF5.warping_records_dataframe" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the records for this record group for a contig of runs in the
+form of a pandas DataFrame.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>run_idxs</strong> (<em>list of int</em>) – The run indices that form a contig. (i.e. element 1
+continues element 0)</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>records_df</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>pandas.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.hdf5.WepyHDF5.bc_records">
+<code class="sig-name descname">bc_records</code><span class="sig-paren">(</span><em class="sig-param">run_idxs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/hdf5.html#WepyHDF5.bc_records"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.hdf5.WepyHDF5.bc_records" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the records this record group for the contig that is formed by
+the run indices.</p>
+<p>This alters the cycle indices for the records so that they
+appear to have come from a single run. That is they are the
+cycle indices of the contig.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>run_idxs</strong> (<em>list of int</em>) – The run indices that form a contig. (i.e. element 1
+continues element 0)</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>records</strong> – The list of records for the contig’s record group.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list of namedtuple objects</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.hdf5.WepyHDF5.bc_records_dataframe">
+<code class="sig-name descname">bc_records_dataframe</code><span class="sig-paren">(</span><em class="sig-param">run_idxs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/hdf5.html#WepyHDF5.bc_records_dataframe"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.hdf5.WepyHDF5.bc_records_dataframe" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the records for this record group for a contig of runs in the
+form of a pandas DataFrame.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>run_idxs</strong> (<em>list of int</em>) – The run indices that form a contig. (i.e. element 1
+continues element 0)</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>records_df</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>pandas.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.hdf5.WepyHDF5.progress_records">
+<code class="sig-name descname">progress_records</code><span class="sig-paren">(</span><em class="sig-param">run_idxs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/hdf5.html#WepyHDF5.progress_records"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.hdf5.WepyHDF5.progress_records" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the records this record group for the contig that is formed by
+the run indices.</p>
+<p>This alters the cycle indices for the records so that they
+appear to have come from a single run. That is they are the
+cycle indices of the contig.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>run_idxs</strong> (<em>list of int</em>) – The run indices that form a contig. (i.e. element 1
+continues element 0)</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>records</strong> – The list of records for the contig’s record group.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list of namedtuple objects</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.hdf5.WepyHDF5.progress_records_dataframe">
+<code class="sig-name descname">progress_records_dataframe</code><span class="sig-paren">(</span><em class="sig-param">run_idxs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/hdf5.html#WepyHDF5.progress_records_dataframe"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.hdf5.WepyHDF5.progress_records_dataframe" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the records for this record group for a contig of runs in the
+form of a pandas DataFrame.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>run_idxs</strong> (<em>list of int</em>) – The run indices that form a contig. (i.e. element 1
+continues element 0)</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>records_df</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>pandas.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.hdf5.WepyHDF5.run_resampling_panel">
+<code class="sig-name descname">run_resampling_panel</code><span class="sig-paren">(</span><em class="sig-param">run_idx</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/hdf5.html#WepyHDF5.run_resampling_panel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.hdf5.WepyHDF5.run_resampling_panel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate a resampling panel from the resampling records of a run.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>run_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>resampling_panel</strong> – The panel (list of tables) of resampling records in order
+(cycle, step, walker)</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list of list of list of namedtuple records</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.hdf5.WepyHDF5.run_contig_resampling_panel">
+<code class="sig-name descname">run_contig_resampling_panel</code><span class="sig-paren">(</span><em class="sig-param">run_idxs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/hdf5.html#WepyHDF5.run_contig_resampling_panel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.hdf5.WepyHDF5.run_contig_resampling_panel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate a resampling panel from the resampling records of a
+contig, which is a series of runs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>run_idxs</strong> (<em>list of int</em>) – The run indices that form a contig. (i.e. element 1
+continues element 0)</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>resampling_panel</strong> – The panel (list of tables) of resampling records in order
+(cycle, step, walker)</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list of list of list of namedtuple records</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.hdf5.WepyHDF5.add_run_observable">
+<code class="sig-name descname">add_run_observable</code><span class="sig-paren">(</span><em class="sig-param">run_idx</em>, <em class="sig-param">observable_name</em>, <em class="sig-param">data</em>, <em class="sig-param">sparse_idxs=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/hdf5.html#WepyHDF5.add_run_observable"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.hdf5.WepyHDF5.add_run_observable" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a trajectory sub-field in the compound field “observables” for
+a single run.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>run_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – </p></li>
+<li><p><strong>observable_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – What to name the observable subfield.</p></li>
+<li><p><strong>data</strong> (<em>arraylike of shape</em><em> (</em><em>n_trajs</em><em>, </em><em>feature_vector_shape</em><em>[</em><em>0</em><em>]</em><em>, </em><em>..</em><em>)</em>) – The data for all of the trajectories that will be set to
+this observable field.</p></li>
+<li><p><strong>sparse_idxs</strong> (<em>list of int</em><em>, </em><em>optional</em>) – If not None, specifies the cycle indices this data corresponds to.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.hdf5.WepyHDF5.add_traj_observable">
+<code class="sig-name descname">add_traj_observable</code><span class="sig-paren">(</span><em class="sig-param">observable_name</em>, <em class="sig-param">data</em>, <em class="sig-param">sparse_idxs=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/hdf5.html#WepyHDF5.add_traj_observable"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.hdf5.WepyHDF5.add_traj_observable" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a trajectory sub-field in the compound field “observables” for
+an entire file, on a trajectory basis.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>observable_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – What to name the observable subfield.</p></li>
+<li><p><strong>data</strong> (<em>list of arraylike</em>) – The data for each run are the elements of this
+argument. Each element is an arraylike of shape
+(n_traj_frames, feature_vector_shape[0],…) where the
+n_run_frames is the number of frames in trajectory.</p></li>
+<li><p><strong>sparse_idxs</strong> (<em>list of list of int</em><em>, </em><em>optional</em>) – If not None, specifies the cycle indices this data
+corresponds to. First by run, then by trajectory.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.hdf5.WepyHDF5.add_observable">
+<code class="sig-name descname">add_observable</code><span class="sig-paren">(</span><em class="sig-param">observable_name</em>, <em class="sig-param">data</em>, <em class="sig-param">sparse_idxs=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/hdf5.html#WepyHDF5.add_observable"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.hdf5.WepyHDF5.add_observable" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a trajectory sub-field in the compound field “observables” for
+an entire file, on a compound run and trajectory basis.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>observable_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – What to name the observable subfield.</p></li>
+<li><p><strong>data</strong> (<em>list of list of arraylike</em>) – The data for each run are the elements of this
+argument. Each element is a list of the trajectory
+observable arraylikes of shape (n_traj_frames,
+feature_vector_shape[0],…).</p></li>
+<li><p><strong>sparse_idxs</strong> (<em>list of list of int</em><em>, </em><em>optional</em>) – If not None, specifies the cycle indices this data
+corresponds to. First by run, then by trajectory.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.hdf5.WepyHDF5.compute_observable">
+<code class="sig-name descname">compute_observable</code><span class="sig-paren">(</span><em class="sig-param">func</em>, <em class="sig-param">fields</em>, <em class="sig-param">args</em>, <em class="sig-param">map_func=&lt;class 'map'&gt;</em>, <em class="sig-param">traj_sel=None</em>, <em class="sig-param">save_to_hdf5=None</em>, <em class="sig-param">idxs=False</em>, <em class="sig-param">return_results=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/hdf5.html#WepyHDF5.compute_observable"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.hdf5.WepyHDF5.compute_observable" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute an observable on the trajectory data according to a
+function. Optionally save that data in the observables data group for
+the trajectory.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>func</strong> (<em>callable</em>) – The function to apply to the trajectory fields (by
+cycle). Must accept a dictionary mapping string trajectory
+field names to a feature vector for that cycle and return
+an arraylike. May accept other positional arguments as well.</p></li>
+<li><p><strong>fields</strong> (<em>list of str</em>) – A list of trajectory field names to pass to the mapped function.</p></li>
+<li><p><strong>args</strong> (<a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.8)"><em>None</em></a><em> or </em><em>or tuple</em>) – A single tuple of arguments which will be expanded and
+passed to the mapped function for every evaluation.</p></li>
+<li><p><strong>map_func</strong> (<em>callable</em>) – The mapping function. The implementation of how to map the
+computation function over the data. Default is the python
+builtin <cite>map</cite> function. Can be a parallel implementation
+for example.</p></li>
+<li><p><strong>traj_sel</strong> (<em>list of tuple</em><em>, </em><em>optional</em>) – If not None, a list of trajectory identifier tuple
+(run_idx, traj_idx) to restrict the computation to.</p></li>
+<li><p><strong>save_to_hdf5</strong> (<a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.8)"><em>None</em></a><em> or </em><em>string</em><em>, </em><em>optional</em>) – If not None, a string that specifies the name of the
+observables sub-field that the computed values will be saved to.</p></li>
+<li><p><strong>idxs</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a>) – If True will return the trajectory identifier tuple
+(run_idx, traj_idx) along with other return values.</p></li>
+<li><p><strong>return_results</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a>) – If True will return the results of the mapping. If not
+using the ‘save_to_hdf5’ option, be sure to use this or
+results will be lost.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>traj_id_tuples</strong> (<em>list of tuple of int, if ‘idxs’ option is True</em>) – A list of the tuple identifiers for each trajectory result.</p></li>
+<li><p><strong>results</strong> (<em>list of arraylike, if ‘return_results’ option is True</em>) – A list of arraylike feature vectors for each trajectory.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.hdf5.WepyHDF5.get_traj_field">
+<code class="sig-name descname">get_traj_field</code><span class="sig-paren">(</span><em class="sig-param">run_idx</em>, <em class="sig-param">traj_idx</em>, <em class="sig-param">field_path</em>, <em class="sig-param">frames=None</em>, <em class="sig-param">masked=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/hdf5.html#WepyHDF5.get_traj_field"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.hdf5.WepyHDF5.get_traj_field" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a numpy array for the given trajectory field.</p>
+<p>You can control how sparse fields are returned using the
+<cite>masked</cite> option. When True (default) a masked numpy array will
+be returned such that you can get which cycles it is from,
+when False an unmasked array of the data will be returned
+which has no cycle information.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>run_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – </p></li>
+<li><p><strong>traj_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – </p></li>
+<li><p><strong>field_path</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – Name of the trajectory field to get</p></li>
+<li><p><strong>frames</strong> (<a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.8)"><em>None</em></a><em> or </em><em>list of int</em>) – If not None, a list of the frame indices of the trajectory
+to return values for.</p></li>
+<li><p><strong>masked</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a>) – If true will return sparse field values as masked arrays,
+otherwise just returns the compacted data.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>field_data</strong> – The data for the trajectory field.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>arraylike</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.hdf5.WepyHDF5.get_trace_fields">
+<code class="sig-name descname">get_trace_fields</code><span class="sig-paren">(</span><em class="sig-param">frame_tups</em>, <em class="sig-param">fields</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/hdf5.html#WepyHDF5.get_trace_fields"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.hdf5.WepyHDF5.get_trace_fields" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get trajectory field data for the frames specified by the trace.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>frame_tups</strong> (<em>list of tuple of int</em>) – The trace values. Each tuple is of the form
+(run_idx, traj_idx, frame_idx).</p></li>
+<li><p><strong>fields</strong> (<em>list of str</em>) – The names of the fields to get for each frame.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>trace_fields</strong> – Mapping of the field names to the array of feature vectors
+for the trace.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict of str : arraylike</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.hdf5.WepyHDF5.get_run_trace_fields">
+<code class="sig-name descname">get_run_trace_fields</code><span class="sig-paren">(</span><em class="sig-param">run_idx</em>, <em class="sig-param">frame_tups</em>, <em class="sig-param">fields</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/hdf5.html#WepyHDF5.get_run_trace_fields"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.hdf5.WepyHDF5.get_run_trace_fields" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get trajectory field data for the frames specified by the trace
+within a single run.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>run_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – </p></li>
+<li><p><strong>frame_tups</strong> (<em>list of tuple of int</em>) – The trace values. Each tuple is of the form
+(traj_idx, frame_idx).</p></li>
+<li><p><strong>fields</strong> (<em>list of str</em>) – The names of the fields to get for each frame.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>trace_fields</strong> – Mapping of the field names to the array of feature vectors
+for the trace.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict of str : arraylike</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.hdf5.WepyHDF5.get_contig_trace_fields">
+<code class="sig-name descname">get_contig_trace_fields</code><span class="sig-paren">(</span><em class="sig-param">contig_trace</em>, <em class="sig-param">fields</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/hdf5.html#WepyHDF5.get_contig_trace_fields"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.hdf5.WepyHDF5.get_contig_trace_fields" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get field data for all trajectories of a contig for the frames
+specified by the contig trace.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>contig_trace</strong> (<em>list of tuple of int</em>) – The trace values. Each tuple is of the form
+(run_idx, frame_idx).</p></li>
+<li><p><strong>fields</strong> (<em>list of str</em>) – The names of the fields to get for each cycle.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>contig_fields</strong> –                  of shape (n_cycles, n_trajs, field_feature_shape[0],…)
+Mapping of the field names to the array of feature vectors
+for contig trace.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict of str : arraylike</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.hdf5.WepyHDF5.iter_trajs_fields">
+<code class="sig-name descname">iter_trajs_fields</code><span class="sig-paren">(</span><em class="sig-param">fields</em>, <em class="sig-param">idxs=False</em>, <em class="sig-param">traj_sel=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/hdf5.html#WepyHDF5.iter_trajs_fields"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.hdf5.WepyHDF5.iter_trajs_fields" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generator for iterating over fields trajectories in a file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fields</strong> (<em>list of str</em>) – Names of the trajectory fields you want to yield.</p></li>
+<li><p><strong>idxs</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a>) – If True will also return the tuple identifier of the
+trajectory the field data is from.</p></li>
+<li><p><strong>traj_sel</strong> (<em>list of tuple of int</em>) – If not None, a list of trajectory identifiers to restrict
+iteration over.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Yields</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>traj_identifier</strong> (<em>tuple of int if ‘idxs’ option is True</em>) – Tuple identifying the trajectory the data belongs to
+(run_idx, traj_idx).</p></li>
+<li><p><strong>fields_data</strong> (<em>dict of str : arraylike</em>) – Mapping of the field name to the array of feature vectors
+of that field for this trajectory.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.hdf5.WepyHDF5.traj_fields_map">
+<code class="sig-name descname">traj_fields_map</code><span class="sig-paren">(</span><em class="sig-param">func</em>, <em class="sig-param">fields</em>, <em class="sig-param">args</em>, <em class="sig-param">map_func=&lt;class 'map'&gt;</em>, <em class="sig-param">idxs=False</em>, <em class="sig-param">traj_sel=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/hdf5.html#WepyHDF5.traj_fields_map"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.hdf5.WepyHDF5.traj_fields_map" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function for mapping work onto field of trajectories.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>func</strong> (<em>callable</em>) – The function to apply to the trajectory fields (by
+cycle). Must accept a dictionary mapping string trajectory
+field names to a feature vector for that cycle and return
+an arraylike. May accept other positional arguments as well.</p></li>
+<li><p><strong>fields</strong> (<em>list of str</em>) – A list of trajectory field names to pass to the mapped function.</p></li>
+<li><p><strong>args</strong> (<a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.8)"><em>None</em></a><em> or </em><em>or tuple</em>) – A single tuple of arguments which will be
+passed to the mapped function for every evaluation.</p></li>
+<li><p><strong>map_func</strong> (<em>callable</em>) – The mapping function. The implementation of how to map the
+computation function over the data. Default is the python
+builtin <cite>map</cite> function. Can be a parallel implementation
+for example.</p></li>
+<li><p><strong>traj_sel</strong> (<em>list of tuple</em><em>, </em><em>optional</em>) – If not None, a list of trajectory identifier tuple
+(run_idx, traj_idx) to restrict the computation to.</p></li>
+<li><p><strong>idxs</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a>) – If True will return the trajectory identifier tuple
+(run_idx, traj_idx) along with other return values.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>traj_id_tuples</strong> (<em>list of tuple of int, if ‘idxs’ option is True</em>) – A list of the tuple identifiers for each trajectory result.</p></li>
+<li><p><strong>results</strong> (<em>list of arraylike</em>) – A list of arraylike feature vectors for each trajectory.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.hdf5.WepyHDF5.to_mdtraj">
+<code class="sig-name descname">to_mdtraj</code><span class="sig-paren">(</span><em class="sig-param">run_idx</em>, <em class="sig-param">traj_idx</em>, <em class="sig-param">frames=None</em>, <em class="sig-param">alt_rep=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/hdf5.html#WepyHDF5.to_mdtraj"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.hdf5.WepyHDF5.to_mdtraj" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert a trajectory to an mdtraj Trajectory object.</p>
+<p>Works if the right trajectory fields are defined. Minimally
+this is a representation, including the ‘positions’ field or
+an ‘alt_rep’ subfield.</p>
+<p>Will also set the unitcell lengths and angle if the
+‘box_vectors’ field is present.</p>
+<p>Will also set the time for the frames if the ‘time’ field is
+present, although this is likely not useful since walker
+segments have the time reset.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>run_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – </p></li>
+<li><p><strong>traj_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – </p></li>
+<li><p><strong>frames</strong> (<a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.8)"><em>None</em></a><em> or </em><em>list of int</em>) – If not None, a list of the frames to include.</p></li>
+<li><p><strong>alt_rep</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – If not None, an ‘alt_reps’ subfield name to use for
+positions instead of the ‘positions’ field.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>traj</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>mdtraj.Trajectory</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.hdf5.WepyHDF5.trace_to_mdtraj">
+<code class="sig-name descname">trace_to_mdtraj</code><span class="sig-paren">(</span><em class="sig-param">trace</em>, <em class="sig-param">alt_rep=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/hdf5.html#WepyHDF5.trace_to_mdtraj"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.hdf5.WepyHDF5.trace_to_mdtraj" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate an mdtraj Trajectory from a trace of frames from the runs.</p>
+<p>Uses the default fields for positions (unless an alternate
+representation is specified) and box vectors which are assumed
+to be present in the trajectory fields.</p>
+<p>The time value for the mdtraj trajectory is set to the cycle
+indices for each trace frame.</p>
+<p>This is useful for converting WepyHDF5 data to common
+molecular dynamics data formats accessible through the mdtraj
+library.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>trace</strong> (<em>list of tuple of int</em>) – The trace values. Each tuple is of the form
+(run_idx, traj_idx, frame_idx).</p></li>
+<li><p><strong>alt_rep</strong> (<a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.8)"><em>None</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – If None uses default ‘positions’ representation otherwise
+chooses the representation from the ‘alt_reps’ compound field.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>traj</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>mdtraj.Trajectory</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.hdf5.WepyHDF5.run_trace_to_mdtraj">
+<code class="sig-name descname">run_trace_to_mdtraj</code><span class="sig-paren">(</span><em class="sig-param">run_idx</em>, <em class="sig-param">trace</em>, <em class="sig-param">alt_rep=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/hdf5.html#WepyHDF5.run_trace_to_mdtraj"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.hdf5.WepyHDF5.run_trace_to_mdtraj" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate an mdtraj Trajectory from a trace of frames from the runs.</p>
+<p>Uses the default fields for positions (unless an alternate
+representation is specified) and box vectors which are assumed
+to be present in the trajectory fields.</p>
+<p>The time value for the mdtraj trajectory is set to the cycle
+indices for each trace frame.</p>
+<p>This is useful for converting WepyHDF5 data to common
+molecular dynamics data formats accessible through the mdtraj
+library.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>run_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – The run the trace is over.</p></li>
+<li><p><strong>run_trace</strong> (<em>list of tuple of int</em>) – The trace values. Each tuple is of the form
+(traj_idx, frame_idx).</p></li>
+<li><p><strong>alt_rep</strong> (<a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.8)"><em>None</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – If None uses default ‘positions’ representation otherwise
+chooses the representation from the ‘alt_reps’ compound field.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>traj</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>mdtraj.Trajectory</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.hdf5.WepyHDF5.traj_fields_to_mdtraj">
+<code class="sig-name descname">traj_fields_to_mdtraj</code><span class="sig-paren">(</span><em class="sig-param">traj_fields</em>, <em class="sig-param">alt_rep='positions'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/hdf5.html#WepyHDF5.traj_fields_to_mdtraj"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.hdf5.WepyHDF5.traj_fields_to_mdtraj" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create an mdtraj.Trajectory from a traj_fields dictionary.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>traj_fields</strong> (<em>dict of str : arraylike</em>) – Dictionary of the traj fields to their values</p></li>
+<li><p><strong>alt_reps</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – The base alt rep name for the positions representation to
+use for the topology, should have the corresponding
+alt_rep field in the traj_fields</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>traj</strong> (<em>mdtraj.Trajectory object</em>)</p></li>
+<li><p><em>This is mainly a convenience function to retrieve the correct</em></p></li>
+<li><p><em>topology for the positions which will be passed to the generic</em></p></li>
+<li><p><cite>traj_fields_to_mdtraj</cite> function.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.hdf5.WepyHDF5.copy_run_slice">
+<code class="sig-name descname">copy_run_slice</code><span class="sig-paren">(</span><em class="sig-param">run_idx</em>, <em class="sig-param">target_file_path</em>, <em class="sig-param">target_grp_path</em>, <em class="sig-param">run_slice=None</em>, <em class="sig-param">mode='x'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/hdf5.html#WepyHDF5.copy_run_slice"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.hdf5.WepyHDF5.copy_run_slice" title="Permalink to this definition">¶</a></dt>
+<dd><p>Copy this run to another HDF5 file (target_file_path) at the group
+(target_grp_path)</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+</div>
+</div>
+
+
+          </div>
+            
+  <div class="footer-relations">
+    
+      <div class="pull-left">
+        <a class="btn btn-default" href="wepy.cli.html" title="previous chapter (use the left arrow)">wepy.cli module</a>
+      </div>
+    
+      <div class="pull-right">
+        <a class="btn btn-default" href="wepy.sim_manager.html" title="next chapter (use the right arrow)">wepy.sim_manager module</a>
+      </div>
+    </div>
+    <div class="clearer"></div>
+  
+        </div>
+        <div class="clearfix"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="wepy.sim_manager.html" title="wepy.sim_manager module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="wepy.cli.html" title="wepy.cli module"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">wepy  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >wepy</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="wepy.html" >wepy package</a> &#187;</li> 
+      </ul>
+    </div>
+<script type="text/javascript">
+  $("#mobile-toggle a").click(function () {
+    $("#left-column").toggle();
+  });
+</script>
+<script type="text/javascript" src="../_static/js/bootstrap.js"></script>
+  <div class="footer">
+    &copy; Copyright 2018, Samuel D. Lotz. Created using <a href="http://sphinx.pocoo.org/">Sphinx</a>.
+  </div>
+  </body>
+</html>

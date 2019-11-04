@@ -1,0 +1,189 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+  
+  <!-- Licensed under the Apache 2.0 License -->
+  <link rel="stylesheet" type="text/css" href="../../../_static/fonts/open-sans/stylesheet.css" />
+  <!-- Licensed under the SIL Open Font License -->
+  <link rel="stylesheet" type="text/css" href="../../../_static/fonts/source-serif-pro/source-serif-pro.css" />
+  <link rel="stylesheet" type="text/css" href="../../../_static/css/bootstrap.min.css" />
+  <link rel="stylesheet" type="text/css" href="../../../_static/css/bootstrap-theme.min.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+    <title>wepy.orchestration.snapshot &#8212; wepy  documentation</title>
+    <link rel="stylesheet" href="../../../_static/guzzle.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../../_static/language_data.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+  
+   
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">wepy  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="container-wrapper">
+
+      <div id="mobile-toggle">
+        <a href="#"><span class="glyphicon glyphicon-align-justify" aria-hidden="true"></span></a>
+      </div>
+  <div id="left-column">
+    <div class="sphinxsidebar">
+<div class="sidebar-block">
+  <div class="sidebar-wrapper">
+    <div id="main-search">
+      <form class="form-inline" action="../../../search.html" method="GET" role="form">
+        <div class="input-group">
+          <input name="q" type="text" class="form-control" placeholder="Search...">
+        </div>
+        <input type="hidden" name="check_keywords" value="yes" />
+        <input type="hidden" name="area" value="default" />
+      </form>
+    </div>
+  </div>
+</div>
+      
+    </div>
+  </div>
+        <div id="right-column">
+          
+          <div role="navigation" aria-label="breadcrumbs navigation">
+            <ol class="breadcrumb">
+              <li><a href="../../../index.html">Docs</a></li>
+              
+                <li><a href="../../index.html">Module code</a></li>
+              
+              <li>wepy.orchestration.snapshot</li>
+            </ol>
+          </div>
+          
+          <div class="document clearer body">
+            
+  <h1>Source code for wepy.orchestration.snapshot</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">copy</span> <span class="k">import</span> <span class="n">copy</span><span class="p">,</span> <span class="n">deepcopy</span>
+
+<div class="viewcode-block" id="SimApparatus"><a class="viewcode-back" href="../../../api/wepy.orchestration.snapshot.html#wepy.orchestration.snapshot.SimApparatus">[docs]</a><span class="k">class</span> <span class="nc">SimApparatus</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;The simulation apparatus are the components needed for running a</span>
+<span class="sd">    simulation without the initial conditions for starting the simulation.</span>
+<span class="sd">    </span>
+<span class="sd">    A runner is strictly necessary but a resampler and boundary</span>
+<span class="sd">    conditions are not.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filters</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_filters</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">filters</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">filters</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_filters</span></div>
+
+
+
+<div class="viewcode-block" id="WepySimApparatus"><a class="viewcode-back" href="../../../api/wepy.orchestration.snapshot.html#wepy.orchestration.snapshot.WepySimApparatus">[docs]</a><span class="k">class</span> <span class="nc">WepySimApparatus</span><span class="p">(</span><span class="n">SimApparatus</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
+
+    <span class="n">RUNNER_IDX</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">BC_IDX</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">RESAMPLER_IDX</span> <span class="o">=</span> <span class="mi">2</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">runner</span><span class="p">,</span> <span class="n">resampler</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">boundary_conditions</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="n">resampler</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;must provide a resampler&quot;</span><span class="p">)</span>
+
+        <span class="c1"># add them in the order they are done in Wepy</span>
+        <span class="n">filters</span> <span class="o">=</span> <span class="p">[</span><span class="n">runner</span><span class="p">,</span> <span class="n">boundary_conditions</span><span class="p">,</span> <span class="n">resampler</span><span class="p">]</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">filters</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">runner</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">filters</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">RUNNER_IDX</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">boundary_conditions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">filters</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">BC_IDX</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">resampler</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">filters</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">RESAMPLER_IDX</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="SimSnapshot"><a class="viewcode-back" href="../../../api/wepy.orchestration.snapshot.html#wepy.orchestration.snapshot.SimSnapshot">[docs]</a><span class="k">class</span> <span class="nc">SimSnapshot</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">walkers</span><span class="p">,</span> <span class="n">apparatus</span><span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_walkers</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">walkers</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_apparatus</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">apparatus</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">walkers</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_walkers</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">apparatus</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_apparatus</span></div>
+
+</pre></div>
+
+          </div>
+            
+        </div>
+        <div class="clearfix"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">wepy  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+<script type="text/javascript">
+  $("#mobile-toggle a").click(function () {
+    $("#left-column").toggle();
+  });
+</script>
+<script type="text/javascript" src="../../../_static/js/bootstrap.js"></script>
+  <div class="footer">
+    &copy; Copyright 2018, Samuel D. Lotz. Created using <a href="http://sphinx.pocoo.org/">Sphinx</a>.
+  </div>
+  </body>
+</html>

@@ -198,13 +198,13 @@ def docs_build(ctx):
     """Buld the documenation"""
     ctx.run("(cd sphinx; ./build.sh)")
 
-@task
+@task(pre=[])
 def docs_deploy_local(ctx):
     """Deployt the docs locally for development."""
 
     ctx.run("bundle exec jekyll serve")
 
-@task(pre=[clean_website, docs_build])
+@task(pre=[docs_build])
 def docs_deploy(ctx):
     """Deploy the documentation onto the internet."""
 

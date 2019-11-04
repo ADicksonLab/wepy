@@ -1,0 +1,710 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+  
+  <!-- Licensed under the Apache 2.0 License -->
+  <link rel="stylesheet" type="text/css" href="../../../../_static/fonts/open-sans/stylesheet.css" />
+  <!-- Licensed under the SIL Open Font License -->
+  <link rel="stylesheet" type="text/css" href="../../../../_static/fonts/source-serif-pro/source-serif-pro.css" />
+  <link rel="stylesheet" type="text/css" href="../../../../_static/css/bootstrap.min.css" />
+  <link rel="stylesheet" type="text/css" href="../../../../_static/css/bootstrap-theme.min.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+    <title>wepy.analysis.network_layouts.layout_graph &#8212; wepy  documentation</title>
+    <link rel="stylesheet" href="../../../../_static/guzzle.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../../../_static/language_data.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+  
+   
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">wepy  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="container-wrapper">
+
+      <div id="mobile-toggle">
+        <a href="#"><span class="glyphicon glyphicon-align-justify" aria-hidden="true"></span></a>
+      </div>
+  <div id="left-column">
+    <div class="sphinxsidebar">
+<div class="sidebar-block">
+  <div class="sidebar-wrapper">
+    <div id="main-search">
+      <form class="form-inline" action="../../../../search.html" method="GET" role="form">
+        <div class="input-group">
+          <input name="q" type="text" class="form-control" placeholder="Search...">
+        </div>
+        <input type="hidden" name="check_keywords" value="yes" />
+        <input type="hidden" name="area" value="default" />
+      </form>
+    </div>
+  </div>
+</div>
+      
+    </div>
+  </div>
+        <div id="right-column">
+          
+          <div role="navigation" aria-label="breadcrumbs navigation">
+            <ol class="breadcrumb">
+              <li><a href="../../../../index.html">Docs</a></li>
+              
+                <li><a href="../../../index.html">Module code</a></li>
+              
+              <li>wepy.analysis.network_layouts.layout_graph</li>
+            </ol>
+          </div>
+          
+          <div class="document clearer body">
+            
+  <h1>Source code for wepy.analysis.network_layouts.layout_graph</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Base class for generating general purpose graphs to external formats.</span>
+
+<span class="sd">The primary use for this will be generating GEXF files for use in</span>
+<span class="sd">visualization.</span>
+
+<span class="sd">Routines</span>
+<span class="sd">--------</span>
+
+<span class="sd">LayoutGraph</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="LayoutGraph"><a class="viewcode-back" href="../../../../api/wepy.analysis.network_layouts.layout_graph.html#wepy.analysis.network_layouts.layout_graph.LayoutGraph">[docs]</a><span class="k">class</span> <span class="nc">LayoutGraph</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Base class for networks that will be given layouts for visualization.</span>
+
+<span class="sd">    For the graph it wraps it will create a mirror graph which only</span>
+<span class="sd">    has visualization specific node and edge attributes. This avoids</span>
+<span class="sd">    namespace clashes between graphs.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># graphviz colors are given by the RGB or RGBA hex string for them</span>
+    <span class="n">GRAPHVIZ_COLOR</span> <span class="o">=</span> <span class="s1">&#39;color&#39;</span>
+    <span class="n">GRAPHVIZ_POSITION</span> <span class="o">=</span> <span class="s1">&#39;pos&#39;</span>
+    <span class="n">GRAPHVIZ_SHAPE</span> <span class="o">=</span> <span class="s1">&#39;shape&#39;</span>
+    <span class="n">GRAPHVIZ_SIZE</span> <span class="o">=</span> <span class="s1">&#39;size&#39;</span>
+
+    <span class="n">GEXF_VIZ</span> <span class="o">=</span> <span class="s1">&#39;viz&#39;</span>
+    <span class="n">GEXF_VIZ_COLOR</span> <span class="o">=</span> <span class="s1">&#39;color&#39;</span>
+    <span class="n">GEXF_VIZ_COLOR_RED</span> <span class="o">=</span> <span class="s1">&#39;r&#39;</span>
+    <span class="n">GEXF_VIZ_COLOR_GREEN</span> <span class="o">=</span> <span class="s1">&#39;g&#39;</span>
+    <span class="n">GEXF_VIZ_COLOR_BLUE</span> <span class="o">=</span> <span class="s1">&#39;b&#39;</span>
+    <span class="n">GEXF_VIZ_COLOR_ALPHA</span> <span class="o">=</span> <span class="s1">&#39;a&#39;</span>
+
+    <span class="n">GEXF_VIZ_POSITION</span> <span class="o">=</span> <span class="s1">&#39;position&#39;</span>
+    <span class="n">GEXF_VIZ_POSITION_X</span> <span class="o">=</span> <span class="s1">&#39;x&#39;</span>
+    <span class="n">GEXF_VIZ_POSITION_Y</span> <span class="o">=</span> <span class="s1">&#39;y&#39;</span>
+    <span class="n">GEXF_VIZ_POSITION_Z</span> <span class="o">=</span> <span class="s1">&#39;z&#39;</span>
+
+    <span class="n">GEXF_VIZ_SIZE</span> <span class="o">=</span> <span class="s1">&#39;size&#39;</span>
+    <span class="n">GEXF_VIZ_SHAPE</span> <span class="o">=</span> <span class="s1">&#39;shape&#39;</span>
+
+    <span class="n">GEXF_EDGE_THICKNESS</span> <span class="o">=</span> <span class="s1">&#39;thickness&#39;</span>
+    <span class="n">GEXF_EDGE_SHAPE</span> <span class="o">=</span> <span class="s1">&#39;shape&#39;</span>
+
+
+    <span class="n">COLOR</span> <span class="o">=</span> <span class="n">GRAPHVIZ_COLOR</span>
+    <span class="n">POSITION</span> <span class="o">=</span> <span class="n">GRAPHVIZ_POSITION</span>
+    <span class="n">SHAPE</span> <span class="o">=</span> <span class="n">GRAPHVIZ_SHAPE</span>
+    <span class="n">SIZE</span> <span class="o">=</span> <span class="n">GRAPHVIZ_SIZE</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">graph</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Creates a wrapper for a graph that allows for setting of</span>
+<span class="sd">        visualization properties and export to external formats without</span>
+<span class="sd">        modifying the source graph.</span>
+
+<span class="sd">        This is done by keeping a mirrored copy of the graph, known as</span>
+<span class="sd">        the viz_graph, which has all node and edge attributes removed</span>
+<span class="sd">        but keeps the topology.</span>
+
+<span class="sd">        Arguments</span>
+<span class="sd">        ---------</span>
+<span class="sd">        graph : any networkx graph</span>
+
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_graph</span> <span class="o">=</span> <span class="n">graph</span>
+
+        <span class="c1"># we copy the graph to another graph without the attributes so</span>
+        <span class="c1"># we avoid name collisions between data and visualization metadata</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_viz_graph</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="p">)()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_viz_graph</span><span class="o">.</span><span class="n">add_nodes_from</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_viz_graph</span><span class="o">.</span><span class="n">add_edges_from</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">edges</span><span class="p">)</span>
+
+
+        <span class="c1"># add a &quot;viz&quot; attribute for all nodes for visualization</span>
+        <span class="c1"># puproses in gexf format</span>
+        <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">viz_graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">viz_graph</span><span class="o">.</span><span class="n">node</span><span class="p">[</span><span class="n">node</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">GEXF_VIZ</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">graph</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The source data graph the class is wrapping.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_graph</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">viz_graph</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The mirror graph in which visualization attributes are set.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_viz_graph</span>
+
+
+<div class="viewcode-block" id="LayoutGraph.get_node_attributes"><a class="viewcode-back" href="../../../../api/wepy.analysis.network_layouts.layout_graph.html#wepy.analysis.network_layouts.layout_graph.LayoutGraph.get_node_attributes">[docs]</a>    <span class="k">def</span> <span class="nf">get_node_attributes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attribute_key</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Gets attributes from the data graph and returns as a dictionary</span>
+<span class="sd">        which is compatible with the set_node_viz_attributes methods.</span>
+
+<span class="sd">        For instance could be used to get a &#39;weight&#39; value and set as the color.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        attribute_key : str</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        node_attributes : dict of node_id: value</span>
+<span class="sd">            Dictionary mapping of data graph nodes to the value</span>
+<span class="sd">            specified by the attribute key.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">node_attr_dict</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">node_id</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">:</span>
+            <span class="n">node_d</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">node</span><span class="p">[</span><span class="n">node_id</span><span class="p">]</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="n">node_d</span><span class="p">[</span><span class="n">attribute_key</span><span class="p">]</span>
+
+            <span class="c1"># if the node doesn&#39;t have it set a None instead</span>
+            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="kc">None</span>
+
+            <span class="n">node_attr_dict</span><span class="p">[</span><span class="n">node_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+
+        <span class="k">return</span> <span class="n">node_attr_dict</span></div>
+
+
+    <span class="c1"># for setting visualization values of the network in a format agnostic way</span>
+<div class="viewcode-block" id="LayoutGraph.set_node_viz_attributes"><a class="viewcode-back" href="../../../../api/wepy.analysis.network_layouts.layout_graph.html#wepy.analysis.network_layouts.layout_graph.LayoutGraph.set_node_viz_attributes">[docs]</a>    <span class="k">def</span> <span class="nf">set_node_viz_attributes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attribute_key</span><span class="p">,</span> <span class="n">node_attribute_dict</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Sets attributes of the viz_graph in a format agnostic way.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        attribute_key : str</span>
+<span class="sd">            Key to set node attribute values to.</span>
+
+<span class="sd">        node_attribute_dict : dict of node_id: value</span>
+<span class="sd">            Dictionary mapping node_ids to the value that will be set</span>
+<span class="sd">            under the attribute key for each node.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">for</span> <span class="n">node_id</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">node_attribute_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">viz_graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">node_id</span><span class="p">][</span><span class="n">attribute_key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span></div>
+
+<div class="viewcode-block" id="LayoutGraph.set_node_positions"><a class="viewcode-back" href="../../../../api/wepy.analysis.network_layouts.layout_graph.html#wepy.analysis.network_layouts.layout_graph.LayoutGraph.set_node_positions">[docs]</a>    <span class="k">def</span> <span class="nf">set_node_positions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node_positions_dict</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set positions of the nodes in the viz graph in a format agnostic way.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        node_positions_dict : dict of node_id: position</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_node_viz_attributes</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">POSITION</span><span class="p">,</span> <span class="n">node_positions_dict</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="LayoutGraph.set_node_colors"><a class="viewcode-back" href="../../../../api/wepy.analysis.network_layouts.layout_graph.html#wepy.analysis.network_layouts.layout_graph.LayoutGraph.set_node_colors">[docs]</a>    <span class="k">def</span> <span class="nf">set_node_colors</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node_colors_dict</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set colors of the nodes in the viz graph in a format agnostic way.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        node_colors_dict : dict of node_id: color</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_node_viz_attributes</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">COLOR</span><span class="p">,</span> <span class="n">node_colors_dict</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="LayoutGraph.set_node_sizes"><a class="viewcode-back" href="../../../../api/wepy.analysis.network_layouts.layout_graph.html#wepy.analysis.network_layouts.layout_graph.LayoutGraph.set_node_sizes">[docs]</a>    <span class="k">def</span> <span class="nf">set_node_sizes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node_sizes_dict</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set sizes of the nodes in the viz graph in a format agnostic way.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        node_sizes_dict : dict of node_id: int</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_node_viz_attributes</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">SIZE</span><span class="p">,</span> <span class="n">node_sizes_dict</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="LayoutGraph.set_node_shapes"><a class="viewcode-back" href="../../../../api/wepy.analysis.network_layouts.layout_graph.html#wepy.analysis.network_layouts.layout_graph.LayoutGraph.set_node_shapes">[docs]</a>    <span class="k">def</span> <span class="nf">set_node_shapes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node_shapes_dict</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set the shapes of the nodes in the viz graph in a format agnostic way.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        node_shapes_dict : dict of node_id: shape_spec</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_node_viz_attributes</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">SHAPE</span><span class="p">,</span> <span class="n">node_shapes_dict</span><span class="p">)</span></div>
+
+
+    <span class="c1"># getters</span>
+<div class="viewcode-block" id="LayoutGraph.get_node_viz_attributes"><a class="viewcode-back" href="../../../../api/wepy.analysis.network_layouts.layout_graph.html#wepy.analysis.network_layouts.layout_graph.LayoutGraph.get_node_viz_attributes">[docs]</a>    <span class="k">def</span> <span class="nf">get_node_viz_attributes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attribute_key</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get the format agnostic attributes of nodes in the viz graph.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        attribute_key : str</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        node_attributes : dict of node_id: value</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">node_attr_dict</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">node_id</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">viz_graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">:</span>
+            <span class="n">node_attr_dict</span><span class="p">[</span><span class="n">node_id</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="p">[</span><span class="n">node_id</span><span class="p">][</span><span class="n">attribute_key</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">node_attr_dict</span></div>
+
+<div class="viewcode-block" id="LayoutGraph.get_node_positions"><a class="viewcode-back" href="../../../../api/wepy.analysis.network_layouts.layout_graph.html#wepy.analysis.network_layouts.layout_graph.LayoutGraph.get_node_positions">[docs]</a>    <span class="k">def</span> <span class="nf">get_node_positions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get the format agnostic positions of the nodes in the viz graph.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        node_positions : dict of node_id: numpy.ndarray of float</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">get_node_viz_attributes</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">POSITION</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="LayoutGraph.get_node_colors"><a class="viewcode-back" href="../../../../api/wepy.analysis.network_layouts.layout_graph.html#wepy.analysis.network_layouts.layout_graph.LayoutGraph.get_node_colors">[docs]</a>    <span class="k">def</span> <span class="nf">get_node_colors</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get the format agnostic colors of the nodes in the viz graph.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        node_colors : dict of node_id: color_spec</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">get_node_viz_attributes</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">COLOR</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="LayoutGraph.get_node_sizes"><a class="viewcode-back" href="../../../../api/wepy.analysis.network_layouts.layout_graph.html#wepy.analysis.network_layouts.layout_graph.LayoutGraph.get_node_sizes">[docs]</a>    <span class="k">def</span> <span class="nf">get_node_sizes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get the format agnostic size of the nodes in the viz graph.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        node_sizes : dict of node_id: float</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">get_node_viz_attributes</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">SIZE</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="LayoutGraph.get_node_shapes"><a class="viewcode-back" href="../../../../api/wepy.analysis.network_layouts.layout_graph.html#wepy.analysis.network_layouts.layout_graph.LayoutGraph.get_node_shapes">[docs]</a>    <span class="k">def</span> <span class="nf">get_node_shapes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get the format agnostic shapes of the nodes in the viz graph.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        node_shapes : dict of node_id: shape_spec</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">get_node_viz_attributes</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">SHAPE</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="LayoutGraph.RGBA_to_hex"><a class="viewcode-back" href="../../../../api/wepy.analysis.network_layouts.layout_graph.html#wepy.analysis.network_layouts.layout_graph.LayoutGraph.RGBA_to_hex">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">RGBA_to_hex</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">color_vec</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Convert an RGBA color tuple to the hex representation.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        color_vec : array_like of int</span>
+<span class="sd">            Valid RGB values between 0 and 256</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        hex_color : str</span>
+<span class="sd">            String of the hex value of the color.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">assert</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">([</span><span class="kc">True</span> <span class="k">if</span> <span class="p">(</span><span class="n">color</span> <span class="o">&lt;=</span> <span class="mi">255</span> <span class="ow">and</span> <span class="n">color</span> <span class="o">&gt;=</span><span class="mi">0</span><span class="p">)</span> <span class="k">else</span> <span class="kc">False</span> <span class="k">for</span> <span class="n">color</span> <span class="ow">in</span> <span class="n">color_vec</span><span class="p">]),</span>\
+            <span class="s2">&quot;invalid color values, must be between 0 and 255&quot;</span>
+
+        <span class="k">return</span> <span class="s1">&#39;#&#39;</span> <span class="o">+</span> <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s1">&#39;</span><span class="si">{:02x}</span><span class="s1">&#39;</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">color_vec</span><span class="p">])</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">*</span><span class="p">[</span><span class="n">color</span> <span class="k">for</span> <span class="n">color</span> <span class="ow">in</span> <span class="n">color_vec</span><span class="p">])</span></div>
+
+
+
+    <span class="c1"># methods for setting gexf visualization attributes</span>
+<div class="viewcode-block" id="LayoutGraph.feature_vector_to_gexf_viz_position"><a class="viewcode-back" href="../../../../api/wepy.analysis.network_layouts.layout_graph.html#wepy.analysis.network_layouts.layout_graph.LayoutGraph.feature_vector_to_gexf_viz_position">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">feature_vector_to_gexf_viz_position</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">coord_vec</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Converts an array_like of positions to the corresponding x, y, z</span>
+<span class="sd">        representation for GEXF representation.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        coord_vec : array_like of float of dim (3,)</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        gexf_position_spec : dict of str: float</span>
+<span class="sd">           The node attribute for specifying a position of a node in gexf.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="p">{</span><span class="bp">cls</span><span class="o">.</span><span class="n">GEXF_VIZ_POSITION_X</span> <span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">coord_vec</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span>
+                <span class="bp">cls</span><span class="o">.</span><span class="n">GEXF_VIZ_POSITION_Y</span> <span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">coord_vec</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span>
+                <span class="bp">cls</span><span class="o">.</span><span class="n">GEXF_VIZ_POSITION_Z</span> <span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">coord_vec</span><span class="p">[</span><span class="mi">2</span><span class="p">])}</span></div>
+
+<div class="viewcode-block" id="LayoutGraph.feature_vector_to_gexf_viz_color_RGB"><a class="viewcode-back" href="../../../../api/wepy.analysis.network_layouts.layout_graph.html#wepy.analysis.network_layouts.layout_graph.LayoutGraph.feature_vector_to_gexf_viz_color_RGB">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">feature_vector_to_gexf_viz_color_RGB</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">color_vec</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Converts an array_like of positions to the corresponding RGB</span>
+<span class="sd">        representation for GEXF representation.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        color_vec : array_like of int of dim (3,)</span>
+<span class="sd">            Should be valid RGB values between 0 and 256.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        gexf_color_spec : dict of str: int</span>
+<span class="sd">           The node attribute for specifying a color of a node in gexf.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="p">{</span><span class="bp">cls</span><span class="o">.</span><span class="n">GEXF_VIZ_COLOR_RED</span> <span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">color_vec</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span>
+                <span class="bp">cls</span><span class="o">.</span><span class="n">GEXF_VIZ_COLOR_GREEN</span> <span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">color_vec</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span>
+                <span class="bp">cls</span><span class="o">.</span><span class="n">GEXF_VIZ_COLOR_BLUE</span> <span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">color_vec</span><span class="p">[</span><span class="mi">2</span><span class="p">])}</span></div>
+
+<div class="viewcode-block" id="LayoutGraph.feature_vector_to_gexf_viz_color_RGBA"><a class="viewcode-back" href="../../../../api/wepy.analysis.network_layouts.layout_graph.html#wepy.analysis.network_layouts.layout_graph.LayoutGraph.feature_vector_to_gexf_viz_color_RGBA">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">feature_vector_to_gexf_viz_color_RGBA</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">color_vec</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Converts an array_like of positions to the corresponding RGBA</span>
+<span class="sd">        representation for GEXF representation.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        color_vec : array_like of int of dim (4,)</span>
+<span class="sd">            Should be valid RGB values between 0 and 256.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        gexf_color_spec : dict of str: int</span>
+<span class="sd">           The node attribute for specifying a color of a node in gexf.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="p">{</span><span class="bp">cls</span><span class="o">.</span><span class="n">GEXF_VIZ_COLOR_RED</span> <span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">color_vec</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span>
+                <span class="bp">cls</span><span class="o">.</span><span class="n">GEXF_VIZ_COLOR_GREEN</span> <span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">color_vec</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span>
+                <span class="bp">cls</span><span class="o">.</span><span class="n">GEXF_VIZ_COLOR_BLUE</span> <span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">color_vec</span><span class="p">[</span><span class="mi">2</span><span class="p">]),</span>
+                <span class="bp">cls</span><span class="o">.</span><span class="n">GEXF_VIZ_COLOR_ALPHA</span> <span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">color_vec</span><span class="p">[</span><span class="mi">3</span><span class="p">])}</span></div>
+
+<div class="viewcode-block" id="LayoutGraph.set_node_gexf_viz"><a class="viewcode-back" href="../../../../api/wepy.analysis.network_layouts.layout_graph.html#wepy.analysis.network_layouts.layout_graph.LayoutGraph.set_node_gexf_viz">[docs]</a>    <span class="k">def</span> <span class="nf">set_node_gexf_viz</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">viz_key</span><span class="p">,</span> <span class="n">node_dict</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Sets GEXF formatted visualization attributes for all nodes.</span>
+
+<span class="sd">        GEXF has a structure where each node has a special compound</span>
+<span class="sd">        &#39;viz&#39; attribute which can have a number of special attributes</span>
+<span class="sd">        for shape, position, color, size, etc.</span>
+
+<span class="sd">        This method just makes it easy to set one of those attributes</span>
+<span class="sd">        under all nodes &#39;viz&#39; attribute.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        viz_key : str</span>
+<span class="sd">            Valid GEXF &#39;viz&#39; attribute</span>
+<span class="sd">        node_dict : dict of node_id: value</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">for</span> <span class="n">node_id</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">node_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">viz_graph</span><span class="o">.</span><span class="n">node</span><span class="p">[</span><span class="n">node_id</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">GEXF_VIZ</span><span class="p">][</span><span class="n">viz_key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span></div>
+
+<div class="viewcode-block" id="LayoutGraph.set_node_gexf_positions"><a class="viewcode-back" href="../../../../api/wepy.analysis.network_layouts.layout_graph.html#wepy.analysis.network_layouts.layout_graph.LayoutGraph.set_node_gexf_positions">[docs]</a>    <span class="k">def</span> <span class="nf">set_node_gexf_positions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node_positions_dict</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Sets GEXF specific positions attribute for visualization to nodes.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        node_positions_dict : dict of node_id: array_like of float of dim (3,)</span>
+<span class="sd">            Positions for each node.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># convert the node positions values to a valid dictionary and</span>
+        <span class="c1"># set the positions viz for all the nodes</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_node_gexf_viz</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">GEXF_VIZ_POSITION</span><span class="p">,</span>
+                          <span class="p">{</span><span class="n">node_id</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">feature_vector_to_gexf_viz_position</span><span class="p">(</span><span class="n">coord</span><span class="p">)</span>
+                           <span class="k">for</span> <span class="n">node_id</span><span class="p">,</span> <span class="n">coord</span> <span class="ow">in</span> <span class="n">node_positions_dict</span><span class="o">.</span><span class="n">items</span><span class="p">()})</span></div>
+
+<div class="viewcode-block" id="LayoutGraph.set_node_gexf_colors_rgb"><a class="viewcode-back" href="../../../../api/wepy.analysis.network_layouts.layout_graph.html#wepy.analysis.network_layouts.layout_graph.LayoutGraph.set_node_gexf_colors_rgb">[docs]</a>    <span class="k">def</span> <span class="nf">set_node_gexf_colors_rgb</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node_colors_dict</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Sets GEXF specific RGB color attribute for visualization to nodes.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        node_rgb_dict : dict of node_id: array_like of int of dim (3,)</span>
+<span class="sd">            GEXF RGB color spec for each node.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># convert the node colors values to a valid dictionary and</span>
+        <span class="c1"># set the colors viz for all the nodes</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_node_gexf_viz</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">GEXF_VIZ_COLOR</span><span class="p">,</span>
+                               <span class="p">{</span><span class="n">node_id</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">feature_vector_to_gexf_viz_color_RGB</span><span class="p">(</span><span class="n">coord</span><span class="p">)</span>
+                                <span class="k">for</span> <span class="n">node_id</span><span class="p">,</span> <span class="n">coord</span> <span class="ow">in</span> <span class="n">node_colors_dict</span><span class="o">.</span><span class="n">items</span><span class="p">()})</span></div>
+
+<div class="viewcode-block" id="LayoutGraph.set_node_gexf_colors_rgba"><a class="viewcode-back" href="../../../../api/wepy.analysis.network_layouts.layout_graph.html#wepy.analysis.network_layouts.layout_graph.LayoutGraph.set_node_gexf_colors_rgba">[docs]</a>    <span class="k">def</span> <span class="nf">set_node_gexf_colors_rgba</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node_colors_dict</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Sets GEXF specific RGBA color attribute for visualization to nodes.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        node_rgba_dict : dict of node_id: array_like of int of dim (4,)</span>
+<span class="sd">            GEXF RGBA color spec for each node.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># convert the node colors values to a valid dictionary and</span>
+        <span class="c1"># set the colors viz for all the nodes</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_node_gexf_viz</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">GEXF_VIZ_COLOR</span><span class="p">,</span>
+                               <span class="p">{</span><span class="n">node_id</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">feature_vector_to_gexf_viz_color_RGBA</span><span class="p">(</span><span class="n">coord</span><span class="p">)</span>
+                                <span class="k">for</span> <span class="n">node_id</span><span class="p">,</span> <span class="n">coord</span> <span class="ow">in</span> <span class="n">node_colors_dict</span><span class="o">.</span><span class="n">items</span><span class="p">()})</span></div>
+
+<div class="viewcode-block" id="LayoutGraph.set_node_gexf_sizes"><a class="viewcode-back" href="../../../../api/wepy.analysis.network_layouts.layout_graph.html#wepy.analysis.network_layouts.layout_graph.LayoutGraph.set_node_gexf_sizes">[docs]</a>    <span class="k">def</span> <span class="nf">set_node_gexf_sizes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node_sizes_dict</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Sets GEXF specific node size attribute for visualization to nodes.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        node_sizes_dict : dict of node_id: float</span>
+<span class="sd">            GEXF size spec for each node.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_node_gexf_viz</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">GEXF_VIZ_SIZE</span><span class="p">,</span> <span class="n">node_sizes_dict</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="LayoutGraph.set_node_gexf_shape"><a class="viewcode-back" href="../../../../api/wepy.analysis.network_layouts.layout_graph.html#wepy.analysis.network_layouts.layout_graph.LayoutGraph.set_node_gexf_shape">[docs]</a>    <span class="k">def</span> <span class="nf">set_node_gexf_shape</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node_shape_dict</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Sets GEXF specific node shape attribute for visualization to nodes.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        node_shapes_dict : dict of node_id: str</span>
+<span class="sd">            GEXF shape spec for each node.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_node_gexf_viz</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">GEXF_VIZ_SHAPE</span><span class="p">,</span> <span class="n">node_shape_dict</span><span class="p">)</span></div></div>
+
+
+    <span class="c1"># TODO: either support or deprecate graphviz. Not sure if this is</span>
+    <span class="c1"># ready for main since we really only use the gexf one. I was</span>
+    <span class="c1"># experimenting with this and found it hard.</span>
+
+    <span class="c1"># methods for setting graphviz visualization attributes</span>
+    <span class="c1"># @classmethod</span>
+    <span class="c1"># def feature_vector_to_graphviz_position(cls, coord_vec):</span>
+    <span class="c1">#     &quot;&quot;&quot;</span>
+
+    <span class="c1">#     Parameters</span>
+    <span class="c1">#     ----------</span>
+    <span class="c1">#     coord_vec :</span>
+            
+
+    <span class="c1">#     Returns</span>
+    <span class="c1">#     -------</span>
+
+    <span class="c1">#     &quot;&quot;&quot;</span>
+
+    <span class="c1">#     return &#39;,&#39;.join([&#39;{}&#39; for _ in coord_vec]).format(*[i for i in coord_vec])</span>
+
+
+    <span class="c1"># @classmethod</span>
+    <span class="c1"># def feature_vector_to_graphviz_color_RGB(cls, color_vec):</span>
+    <span class="c1">#     &quot;&quot;&quot;</span>
+
+    <span class="c1">#     Parameters</span>
+    <span class="c1">#     ----------</span>
+    <span class="c1">#     color_vec :</span>
+            
+
+    <span class="c1">#     Returns</span>
+    <span class="c1">#     -------</span>
+
+    <span class="c1">#     &quot;&quot;&quot;</span>
+
+    <span class="c1">#     assert len(color_vec) == 3, &quot;only 3 values for RGB allowed&quot;</span>
+
+    <span class="c1">#     return cls.RGBA_to_hex(color_vec)</span>
+
+    <span class="c1"># @classmethod</span>
+    <span class="c1"># def feature_vector_to_graphviz_color_RGBA(cls, color_vec):</span>
+    <span class="c1">#     &quot;&quot;&quot;</span>
+
+    <span class="c1">#     Parameters</span>
+    <span class="c1">#     ----------</span>
+    <span class="c1">#     color_vec :</span>
+            
+
+    <span class="c1">#     Returns</span>
+    <span class="c1">#     -------</span>
+
+    <span class="c1">#     &quot;&quot;&quot;</span>
+
+    <span class="c1">#     assert len(color_vec) == 4, &quot;only 4 values for RGBA allowed&quot;</span>
+
+    <span class="c1">#     return cls.RGBA_to_hex(color_vec)</span>
+
+
+    <span class="c1"># # methods for setting graphviz attributes for visualization</span>
+
+    <span class="c1"># def set_node_graphviz(self, viz_key, node_dict):</span>
+    <span class="c1">#     &quot;&quot;&quot;</span>
+
+    <span class="c1">#     Parameters</span>
+    <span class="c1">#     ----------</span>
+    <span class="c1">#     viz_key :</span>
+            
+    <span class="c1">#     node_dict :</span>
+            
+
+    <span class="c1">#     Returns</span>
+    <span class="c1">#     -------</span>
+
+    <span class="c1">#     &quot;&quot;&quot;</span>
+
+    <span class="c1">#     for node_id, value in node_dict.items():</span>
+
+    <span class="c1">#         self.viz_graph.nodes[node_id][viz_key] = value</span>
+
+    <span class="c1"># def set_node_graphviz_positions(self, node_positions_dict):</span>
+    <span class="c1">#     &quot;&quot;&quot;</span>
+
+    <span class="c1">#     Parameters</span>
+    <span class="c1">#     ----------</span>
+    <span class="c1">#     node_positions_dict :</span>
+            
+
+    <span class="c1">#     Returns</span>
+    <span class="c1">#     -------</span>
+
+    <span class="c1">#     &quot;&quot;&quot;</span>
+
+    <span class="c1">#     # convert the node positions values to a valid dictionary and</span>
+    <span class="c1">#     # set the positions viz for all the nodes</span>
+    <span class="c1">#     self.set_node_graphviz(self.GRAPHVIZ_POSITION,</span>
+    <span class="c1">#                       {node_id : self.feature_vector_to_graphviz_position(coord)</span>
+    <span class="c1">#                        for node_id, coord in node_positions_dict.items()})</span>
+
+    <span class="c1">#     # we also pin the nodes here</span>
+    <span class="c1">#     self.set_node_graphviz(&#39;pin&#39;,</span>
+    <span class="c1">#                            {node_id : &#39;true&#39; for node_id in node_positions_dict.keys()})</span>
+
+    <span class="c1"># def set_node_graphviz_colors_rgb(self, node_colors_dict):</span>
+    <span class="c1">#     &quot;&quot;&quot;</span>
+
+    <span class="c1">#     Parameters</span>
+    <span class="c1">#     ----------</span>
+    <span class="c1">#     node_colors_dict :</span>
+            
+
+    <span class="c1">#     Returns</span>
+    <span class="c1">#     -------</span>
+
+    <span class="c1">#     &quot;&quot;&quot;</span>
+
+    <span class="c1">#     # convert the node colors values to a valid dictionary and</span>
+    <span class="c1">#     # set the colors viz for all the nodes</span>
+    <span class="c1">#     self.set_node_graphviz(self.GRAPHVIZ_COLOR,</span>
+    <span class="c1">#                            {node_id : self.feature_vector_to_graphviz_color_RGB(coord)</span>
+    <span class="c1">#                                     for node_id, coord in node_colors_dict.items()})</span>
+
+    <span class="c1"># def set_node_graphviz_colors_rgba(self, node_colors_dict):</span>
+    <span class="c1">#     &quot;&quot;&quot;</span>
+
+    <span class="c1">#     Parameters</span>
+    <span class="c1">#     ----------</span>
+    <span class="c1">#     node_colors_dict :</span>
+            
+
+    <span class="c1">#     Returns</span>
+    <span class="c1">#     -------</span>
+
+    <span class="c1">#     &quot;&quot;&quot;</span>
+
+    <span class="c1">#     # convert the node colors values to a valid dictionary and</span>
+    <span class="c1">#     # set the colors viz for all the nodes</span>
+    <span class="c1">#     self.set_node_graphviz(self.GRAPHVIZ_COLOR,</span>
+    <span class="c1">#                            {node_id : self.feature_vector_to_graphviz_color_RGBA_dict(coord)</span>
+    <span class="c1">#                                     for node_id, coord in node_colors_dict.items()})</span>
+
+    <span class="c1"># def set_node_graphviz_sizes(self, node_sizes_dict):</span>
+    <span class="c1">#     &quot;&quot;&quot;</span>
+
+    <span class="c1">#     Parameters</span>
+    <span class="c1">#     ----------</span>
+    <span class="c1">#     node_sizes_dict :</span>
+            
+
+    <span class="c1">#     Returns</span>
+    <span class="c1">#     -------</span>
+
+    <span class="c1">#     &quot;&quot;&quot;</span>
+
+    <span class="c1">#     # convert the node colors values to a valid dictionary and</span>
+    <span class="c1">#     # set the colors viz for all the nodes</span>
+    <span class="c1">#     self.set_node_graphviz(self.GRAPHVIZ_SIZE, node_sizes_dict)</span>
+
+    <span class="c1"># def set_node_graphviz_shape(self, node_sizes_dict):</span>
+    <span class="c1">#     &quot;&quot;&quot;</span>
+
+    <span class="c1">#     Parameters</span>
+    <span class="c1">#     ----------</span>
+    <span class="c1">#     node_sizes_dict :</span>
+            
+
+    <span class="c1">#     Returns</span>
+    <span class="c1">#     -------</span>
+
+    <span class="c1">#     &quot;&quot;&quot;</span>
+
+    <span class="c1">#     # convert the node colors values to a valid dictionary and</span>
+    <span class="c1">#     # set the colors viz for all the nodes</span>
+    <span class="c1">#     self.set_node_graphviz(self.GRAPHVIZ_SHAPE, node_sizes_dict)</span>
+</pre></div>
+
+          </div>
+            
+        </div>
+        <div class="clearfix"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">wepy  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+<script type="text/javascript">
+  $("#mobile-toggle a").click(function () {
+    $("#left-column").toggle();
+  });
+</script>
+<script type="text/javascript" src="../../../../_static/js/bootstrap.js"></script>
+  <div class="footer">
+    &copy; Copyright 2018, Samuel D. Lotz. Created using <a href="http://sphinx.pocoo.org/">Sphinx</a>.
+  </div>
+  </body>
+</html>

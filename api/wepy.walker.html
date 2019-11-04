@@ -1,0 +1,336 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+  
+  <!-- Licensed under the Apache 2.0 License -->
+  <link rel="stylesheet" type="text/css" href="../_static/fonts/open-sans/stylesheet.css" />
+  <!-- Licensed under the SIL Open Font License -->
+  <link rel="stylesheet" type="text/css" href="../_static/fonts/source-serif-pro/source-serif-pro.css" />
+  <link rel="stylesheet" type="text/css" href="../_static/css/bootstrap.min.css" />
+  <link rel="stylesheet" type="text/css" href="../_static/css/bootstrap-theme.min.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+    <title>wepy.walker module &#8212; wepy  documentation</title>
+    <link rel="stylesheet" href="../_static/guzzle.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/language_data.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="prev" title="wepy.sim_manager module" href="wepy.sim_manager.html" />
+  
+   
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="wepy.sim_manager.html" title="wepy.sim_manager module"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">wepy  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >wepy</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="wepy.html" accesskey="U">wepy package</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="container-wrapper">
+
+      <div id="mobile-toggle">
+        <a href="#"><span class="glyphicon glyphicon-align-justify" aria-hidden="true"></span></a>
+      </div>
+  <div id="left-column">
+    <div class="sphinxsidebar">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="wepy.sim_manager.html"
+                        title="previous chapter">wepy.sim_manager module</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/api/wepy.walker.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div class="sidebar-block">
+  <div class="sidebar-wrapper">
+    <div id="main-search">
+      <form class="form-inline" action="../search.html" method="GET" role="form">
+        <div class="input-group">
+          <input name="q" type="text" class="form-control" placeholder="Search...">
+        </div>
+        <input type="hidden" name="check_keywords" value="yes" />
+        <input type="hidden" name="area" value="default" />
+      </form>
+    </div>
+  </div>
+</div>
+      
+    </div>
+  </div>
+        <div id="right-column">
+          
+          <div role="navigation" aria-label="breadcrumbs navigation">
+            <ol class="breadcrumb">
+              <li><a href="../index.html">Docs</a></li>
+              
+                <li><a href="modules.html">wepy</a></li>
+              
+                <li><a href="wepy.html">wepy package</a></li>
+              
+              <li>wepy.walker module</li>
+            </ol>
+          </div>
+          
+          <div class="document clearer body">
+            
+  <div class="section" id="module-wepy.walker">
+<span id="wepy-walker-module"></span><h1>wepy.walker module<a class="headerlink" href="#module-wepy.walker" title="Permalink to this headline">¶</a></h1>
+<p>Reference implementations for a general walker and walker state
+with utilities for cloning and merging walkers.</p>
+<p>Wepy does not require that this or a subclass of this <cite>Walker</cite> or
+<cite>WalkerState</cite> is used and only that it is something that acts like it
+(duck typed).</p>
+<p>The required attributes for the Walker interface are:</p>
+<ul class="simple">
+<li><p><cite>state</cite> : object implementing the <cite>WalkerState</cite> interface</p></li>
+<li><p><cite>weight</cite> : float</p></li>
+</ul>
+<p>The weight attribute is simply a float and the proper normalization of
+weights among a weighted ensemble of walkers should be enforced by the
+resampler.</p>
+<p>The <cite>clone</cite>, <cite>squash</cite>, and <cite>merge</cite> methods can be accessed by Decision
+classes for implementing cloning and merging. As can the module level
+<cite>split</cite> and <cite>keep_merge</cite> functions.</p>
+<p>The WalkerState interface must have a method <cite>dict</cite> which returns a
+dictionary with string keys and arbitrary values.</p>
+<p>Additionally the WalkerState should provide its own <cite>__getitem__</cite>
+magic method for the accessor syntax, i.e. walker.state[‘positions’].</p>
+<dl class="function">
+<dt id="wepy.walker.split">
+<code class="sig-prename descclassname">wepy.walker.</code><code class="sig-name descname">split</code><span class="sig-paren">(</span><em class="sig-param">walker</em>, <em class="sig-param">number=2</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/walker.html#split"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.walker.split" title="Permalink to this definition">¶</a></dt>
+<dd><p>Split (AKA make multiple clones) of a single walker.</p>
+<p>Creates multiple new walkers that have the same state as the given
+walker with weight evenly divided between them.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>walker</strong> (<em>object implementing the Walker interface</em>) – The walker to split/clone</p></li>
+<li><p><strong>number</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – <dl class="simple">
+<dt>The number of clones to make of the walker</dt><dd><p>(Default value = 2)</p>
+</dd>
+</dl>
+</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>cloned_walkers</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list of objects implementing the Walker interface</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="wepy.walker.keep_merge">
+<code class="sig-prename descclassname">wepy.walker.</code><code class="sig-name descname">keep_merge</code><span class="sig-paren">(</span><em class="sig-param">walkers</em>, <em class="sig-param">keep_idx</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/walker.html#keep_merge"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.walker.keep_merge" title="Permalink to this definition">¶</a></dt>
+<dd><p>Merge a set of walkers using the state of one of them.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>walkers</strong> (<em>list of objects implementing the Walker interface</em>) – The walkers that will be merged together</p></li>
+<li><p><strong>keep_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – The index of the walker in the walkers list that will be used
+to set the state of the new merged walker.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>merged_walker</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>object implementing the Walker interface</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="wepy.walker.merge">
+<code class="sig-prename descclassname">wepy.walker.</code><code class="sig-name descname">merge</code><span class="sig-paren">(</span><em class="sig-param">walkers</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/walker.html#merge"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.walker.merge" title="Permalink to this definition">¶</a></dt>
+<dd><p>Merge this walker with another keeping the state of one of them
+and adding the weights.</p>
+<p>The walker that has it’s state kept is a random choice weighted by
+the walkers weights.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>walkers</strong> (<em>list of objects implementing the Walker interface</em>) – The walkers that will be merged together</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>merged_walker</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>object implementing the Walker interface</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="class">
+<dt id="wepy.walker.Walker">
+<em class="property">class </em><code class="sig-prename descclassname">wepy.walker.</code><code class="sig-name descname">Walker</code><span class="sig-paren">(</span><em class="sig-param">state</em>, <em class="sig-param">weight</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/walker.html#Walker"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.walker.Walker" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Reference implementation of the Walker interface.</p>
+<p>A container for:</p>
+<ul class="simple">
+<li><p>state</p></li>
+<li><p>weight</p></li>
+</ul>
+<p>Constructor for Walker.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>state</strong> (<em>object implementing the WalkerState interface</em>) – </p></li>
+<li><p><strong>weight</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a>) – </p></li>
+</ul>
+</dd>
+</dl>
+<dl class="method">
+<dt id="wepy.walker.Walker.clone">
+<code class="sig-name descname">clone</code><span class="sig-paren">(</span><em class="sig-param">number=1</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/walker.html#Walker.clone"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.walker.Walker.clone" title="Permalink to this definition">¶</a></dt>
+<dd><p>Clone this walker by making a copy with the same state and split
+the probability uniformly between clones.</p>
+<p>The number is the increase in the number of walkers.</p>
+<p>e.g. number=1 will return 2 walkers with the same state as
+this object but with probability split 50/50 between them</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>number</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – <dl class="simple">
+<dt>Number of extra clones to make</dt><dd><p>(Default value = 1)</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>cloned_walkers</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list of objects implementing the Walker interface</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.walker.Walker.squash">
+<code class="sig-name descname">squash</code><span class="sig-paren">(</span><em class="sig-param">merge_target</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/walker.html#Walker.squash"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.walker.Walker.squash" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add the weight of this walker to another.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>merge_target</strong> (<em>object implementing the Walker interface</em>) – The walker to add this one’s weight to.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>merged_walker</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>object implementing the Walker interface</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.walker.Walker.merge">
+<code class="sig-name descname">merge</code><span class="sig-paren">(</span><em class="sig-param">other_walkers</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/walker.html#Walker.merge"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.walker.Walker.merge" title="Permalink to this definition">¶</a></dt>
+<dd><p>Merge a set of other walkers into this one using the merge function.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>other_walkers</strong> (<em>list of objects implementing the Walker interface</em>) – The walkers that will be merged together</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>merged_walker</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>object implementing the Walker interface</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="wepy.walker.WalkerState">
+<em class="property">class </em><code class="sig-prename descclassname">wepy.walker.</code><code class="sig-name descname">WalkerState</code><span class="sig-paren">(</span><em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/walker.html#WalkerState"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.walker.WalkerState" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Reference implementation of the WalkerState interface.</p>
+<p>Access all key-value pairs as a dictionary with the dict() method.</p>
+<p>Access individual values using the accessor syntax similar to
+dictionaries:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">WalkerState</span><span class="p">(</span><span class="n">my_key</span><span class="o">=</span><span class="s1">&#39;value&#39;</span><span class="p">)[</span><span class="s1">&#39;my_key&#39;</span><span class="p">]</span>
+<span class="go">&#39;value&#39;</span>
+</pre></div>
+</div>
+<p>Constructor for WalkerState.</p>
+<p>All key-word arguments passed in will be set as the key-value
+pairs for the state.</p>
+<dl class="method">
+<dt id="wepy.walker.WalkerState.dict">
+<code class="sig-name descname">dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/walker.html#WalkerState.dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.walker.WalkerState.dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return all key-value pairs as a dictionary.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+            
+  <div class="footer-relations">
+    
+      <div class="pull-left">
+        <a class="btn btn-default" href="wepy.sim_manager.html" title="previous chapter (use the left arrow)">wepy.sim_manager module</a>
+      </div>
+    
+    </div>
+    <div class="clearer"></div>
+  
+        </div>
+        <div class="clearfix"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="wepy.sim_manager.html" title="wepy.sim_manager module"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">wepy  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >wepy</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="wepy.html" >wepy package</a> &#187;</li> 
+      </ul>
+    </div>
+<script type="text/javascript">
+  $("#mobile-toggle a").click(function () {
+    $("#left-column").toggle();
+  });
+</script>
+<script type="text/javascript" src="../_static/js/bootstrap.js"></script>
+  <div class="footer">
+    &copy; Copyright 2018, Samuel D. Lotz. Created using <a href="http://sphinx.pocoo.org/">Sphinx</a>.
+  </div>
+  </body>
+</html>

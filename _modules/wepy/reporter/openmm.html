@@ -1,0 +1,225 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+  
+  <!-- Licensed under the Apache 2.0 License -->
+  <link rel="stylesheet" type="text/css" href="../../../_static/fonts/open-sans/stylesheet.css" />
+  <!-- Licensed under the SIL Open Font License -->
+  <link rel="stylesheet" type="text/css" href="../../../_static/fonts/source-serif-pro/source-serif-pro.css" />
+  <link rel="stylesheet" type="text/css" href="../../../_static/css/bootstrap.min.css" />
+  <link rel="stylesheet" type="text/css" href="../../../_static/css/bootstrap-theme.min.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+    <title>wepy.reporter.openmm &#8212; wepy  documentation</title>
+    <link rel="stylesheet" href="../../../_static/guzzle.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../../_static/language_data.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+  
+   
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">wepy  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="container-wrapper">
+
+      <div id="mobile-toggle">
+        <a href="#"><span class="glyphicon glyphicon-align-justify" aria-hidden="true"></span></a>
+      </div>
+  <div id="left-column">
+    <div class="sphinxsidebar">
+<div class="sidebar-block">
+  <div class="sidebar-wrapper">
+    <div id="main-search">
+      <form class="form-inline" action="../../../search.html" method="GET" role="form">
+        <div class="input-group">
+          <input name="q" type="text" class="form-control" placeholder="Search...">
+        </div>
+        <input type="hidden" name="check_keywords" value="yes" />
+        <input type="hidden" name="area" value="default" />
+      </form>
+    </div>
+  </div>
+</div>
+      
+    </div>
+  </div>
+        <div id="right-column">
+          
+          <div role="navigation" aria-label="breadcrumbs navigation">
+            <ol class="breadcrumb">
+              <li><a href="../../../index.html">Docs</a></li>
+              
+                <li><a href="../../index.html">Module code</a></li>
+              
+              <li>wepy.reporter.openmm</li>
+            </ol>
+          </div>
+          
+          <div class="document clearer body">
+            
+  <h1>Source code for wepy.reporter.openmm</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">pint</span> <span class="k">import</span> <span class="n">UnitRegistry</span>
+
+
+<span class="kn">from</span> <span class="nn">wepy.reporter.dashboard</span> <span class="k">import</span> <span class="n">RunnerDashboardSection</span>
+
+<span class="c1"># initialize the unit registry</span>
+<span class="n">units</span> <span class="o">=</span> <span class="n">UnitRegistry</span><span class="p">()</span>
+
+<div class="viewcode-block" id="OpenMMRunnerDashboardSection"><a class="viewcode-back" href="../../../api/wepy.reporter.openmm.html#wepy.reporter.openmm.OpenMMRunnerDashboardSection">[docs]</a><span class="k">class</span> <span class="nc">OpenMMRunnerDashboardSection</span><span class="p">(</span><span class="n">RunnerDashboardSection</span><span class="p">):</span>
+
+    <span class="n">RUNNER_SECTION_TEMPLATE</span> <span class="o">=</span> \
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">Runner: {{ name }}</span>
+
+<span class="sd">Integration Step Size: {{ step_time }}</span>
+
+<span class="sd">Single Walker Sampling Time: {{ walker_total_sampling_time }}</span>
+
+<span class="sd">Total Sampling Time: {{ total_sampling_time }}</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">runner</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">step_time</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="o">**</span><span class="n">kwargs</span>
+    <span class="p">):</span>
+
+        <span class="k">if</span> <span class="s1">&#39;name&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+            <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;OpenMMRunner&#39;</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">runner</span><span class="o">=</span><span class="n">runner</span><span class="p">,</span>
+                         <span class="n">step_time</span><span class="o">=</span><span class="n">step_time</span><span class="p">,</span>
+                         <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">runner</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="n">step_time</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;If no complete runner is given must give parameters: step_time&quot;</span>
+
+            <span class="c1"># assume it has units</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">step_time</span> <span class="o">=</span> <span class="n">step_time</span>
+
+        <span class="k">else</span><span class="p">:</span>
+
+            <span class="n">simtk_step_time</span> <span class="o">=</span> <span class="n">runner</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">getStepSize</span><span class="p">()</span>
+            <span class="n">simtk_val</span> <span class="o">=</span> <span class="n">simtk_step_time</span><span class="o">.</span><span class="n">value_in_unit</span><span class="p">(</span><span class="n">simtk_step_time</span><span class="o">.</span><span class="n">unit</span><span class="p">)</span>
+
+            <span class="c1"># convert to a more general purpose pint unit, which will be</span>
+            <span class="c1"># used for the dashboards so we don&#39;t have the simtk</span>
+            <span class="c1"># dependency</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">step_time</span> <span class="o">=</span> <span class="n">simtk_val</span> <span class="o">*</span> <span class="n">units</span><span class="p">(</span><span class="n">simtk_step_time</span><span class="o">.</span><span class="n">unit</span><span class="o">.</span><span class="n">get_name</span><span class="p">())</span>
+
+
+        <span class="c1"># TODO</span>
+
+        <span class="c1"># integrator and params</span>
+
+
+        <span class="c1"># FF and params</span>
+
+        <span class="c1"># updatables</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">walker_total_sampling_time</span> <span class="o">=</span> <span class="mf">0.0</span> <span class="o">*</span> <span class="n">units</span><span class="p">(</span><span class="s1">&#39;microsecond&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">total_sampling_time</span> <span class="o">=</span> <span class="mf">0.0</span> <span class="o">*</span> <span class="n">units</span><span class="p">(</span><span class="s1">&#39;microsecond&#39;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="OpenMMRunnerDashboardSection.update_values"><a class="viewcode-back" href="../../../api/wepy.reporter.openmm.html#wepy.reporter.openmm.OpenMMRunnerDashboardSection.update_values">[docs]</a>    <span class="k">def</span> <span class="nf">update_values</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">update_values</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="c1"># amount of new sampling time for each walker</span>
+        <span class="n">new_walker_sampling_time</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">step_time</span> <span class="o">*</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;n_segment_steps&#39;</span><span class="p">]</span>
+
+        <span class="c1"># accumulated sampling time for a single walker</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">walker_total_sampling_time</span> <span class="o">+=</span> <span class="n">new_walker_sampling_time</span>
+
+        <span class="c1"># amount of sampling time for all walkers</span>
+        <span class="n">new_sampling_time</span> <span class="o">=</span> <span class="n">new_walker_sampling_time</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;new_walkers&#39;</span><span class="p">])</span>
+
+        <span class="c1"># accumulated sampling time for the ensemble</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">total_sampling_time</span> <span class="o">+=</span> <span class="n">new_sampling_time</span></div>
+
+
+<div class="viewcode-block" id="OpenMMRunnerDashboardSection.gen_fields"><a class="viewcode-back" href="../../../api/wepy.reporter.openmm.html#wepy.reporter.openmm.OpenMMRunnerDashboardSection.gen_fields">[docs]</a>    <span class="k">def</span> <span class="nf">gen_fields</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+        <span class="n">fields</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">gen_fields</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="c1">## formatting</span>
+
+        <span class="c1"># units for the different time scales</span>
+        <span class="n">step_size_unit_spec</span> <span class="o">=</span> <span class="s1">&#39;femtosecond&#39;</span>
+        <span class="n">sampling_time_unit_spec</span> <span class="o">=</span> <span class="s1">&#39;microsecond&#39;</span>
+
+        <span class="c1"># get the unit objects for them</span>
+        <span class="n">step_size_unit</span> <span class="o">=</span> <span class="n">units</span><span class="p">(</span><span class="n">step_size_unit_spec</span><span class="p">)</span>
+        <span class="n">sampling_time_unit</span> <span class="o">=</span> <span class="n">units</span><span class="p">(</span><span class="n">sampling_time_unit_spec</span><span class="p">)</span>
+
+        <span class="c1"># step size string</span>
+        <span class="n">step_size_str</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">step_time</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">step_size_unit</span><span class="p">))</span>
+
+        <span class="c1"># single walker sampling</span>
+        <span class="n">walker_samp_str</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">walker_total_sampling_time</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">sampling_time_unit</span><span class="p">))</span>
+
+        <span class="c1"># total sampling</span>
+        <span class="n">total_samp_str</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">total_sampling_time</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">sampling_time_unit</span><span class="p">))</span>
+
+        <span class="n">new_fields</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;step_time&#39;</span> <span class="p">:</span> <span class="n">step_size_str</span><span class="p">,</span>
+            <span class="s1">&#39;walker_total_sampling_time&#39;</span> <span class="p">:</span> <span class="n">walker_samp_str</span><span class="p">,</span>
+            <span class="s1">&#39;total_sampling_time&#39;</span> <span class="p">:</span> <span class="n">total_samp_str</span><span class="p">,</span>
+        <span class="p">}</span>
+
+        <span class="n">fields</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">new_fields</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">fields</span></div></div>
+</pre></div>
+
+          </div>
+            
+        </div>
+        <div class="clearfix"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">wepy  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+<script type="text/javascript">
+  $("#mobile-toggle a").click(function () {
+    $("#left-column").toggle();
+  });
+</script>
+<script type="text/javascript" src="../../../_static/js/bootstrap.js"></script>
+  <div class="footer">
+    &copy; Copyright 2018, Samuel D. Lotz. Created using <a href="http://sphinx.pocoo.org/">Sphinx</a>.
+  </div>
+  </body>
+</html>

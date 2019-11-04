@@ -1,0 +1,1426 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+  
+  <!-- Licensed under the Apache 2.0 License -->
+  <link rel="stylesheet" type="text/css" href="../_static/fonts/open-sans/stylesheet.css" />
+  <!-- Licensed under the SIL Open Font License -->
+  <link rel="stylesheet" type="text/css" href="../_static/fonts/source-serif-pro/source-serif-pro.css" />
+  <link rel="stylesheet" type="text/css" href="../_static/css/bootstrap.min.css" />
+  <link rel="stylesheet" type="text/css" href="../_static/css/bootstrap-theme.min.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+    <title>Introduction to Weighted Ensemble Data Analysis in wepy &#8212; wepy  documentation</title>
+    <link rel="stylesheet" href="../_static/guzzle.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/language_data.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="sEH ligand unbinding: A real use-case" href="seh_prep.html" />
+    <link rel="prev" title="Tutorials" href="index.html" />
+  
+   
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="seh_prep.html" title="sEH ligand unbinding: A real use-case"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Tutorials"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">wepy  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Tutorials</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="container-wrapper">
+
+      <div id="mobile-toggle">
+        <a href="#"><span class="glyphicon glyphicon-align-justify" aria-hidden="true"></span></a>
+      </div>
+  <div id="left-column">
+    <div class="sphinxsidebar">
+<div class="sidebar-block">
+  <div class="sidebar-wrapper">
+    <h2>Contents</h2>
+    <div class="sidebar-localtoc">
+      <ul>
+<li><a class="reference internal" href="#">Introduction to Weighted Ensemble Data Analysis in wepy</a><ul>
+<li><a class="reference internal" href="#Load-Dataset-and-Generate-Fake-Clusters">Load Dataset and Generate Fake Clusters</a></li>
+<li><a class="reference internal" href="#Sliding-Windows-Workflow">Sliding Windows Workflow</a></li>
+<li><a class="reference internal" href="#Lagged-Transitions-in-traditional-linear-MD">Lagged Transitions in traditional linear MD</a></li>
+<li><a class="reference internal" href="#Sliding-Windows-Algorithm">Sliding Windows Algorithm</a></li>
+<li><a class="reference internal" href="#Multi-Run-Data-Analysis">Multi-Run Data Analysis</a></li>
+<li><a class="reference internal" href="#Contig-Tree">Contig Tree</a></li>
+<li><a class="reference internal" href="#Storage-Implementation:-Continuations">Storage Implementation: Continuations</a></li>
+<li><a class="reference internal" href="#API-for-interacting-with-continuations:-Contigs">API for interacting with continuations: Contigs</a><ul>
+<li><a class="reference internal" href="#The-Contig-Tree-Class">The Contig Tree Class</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#The-Macro-State-Network-Class">The Macro-State Network Class</a></li>
+<li><a class="reference internal" href="#Weights/Free-Energy-of-the-Macrostates">Weights/Free Energy of the Macrostates</a></li>
+<li><a class="reference internal" href="#Transition-Probabilitiy-Matrix">Transition Probabilitiy Matrix</a></li>
+<li><a class="reference internal" href="#Updated-User-Workflow">Updated User Workflow</a></li>
+<li><a class="reference internal" href="#Synergism-with-CSNAnalysis">Synergism with CSNAnalysis</a></li>
+<li><a class="reference internal" href="#Committor-Probabilities">Committor Probabilities</a></li>
+<li><a class="reference internal" href="#Microstates-in-the-Macrostate">Microstates in the Macrostate</a></li>
+<li><a class="reference internal" href="#Visualizing-Microstates">Visualizing Microstates</a></li>
+<li><a class="reference internal" href="#Linking-Runs-Together">Linking Runs Together</a><ul>
+<li><a class="reference internal" href="#Example-Datasets">Example Datasets</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#Code:">Code:</a></li>
+<li><a class="reference internal" href="#Future-Topics">Future Topics</a><ul>
+<li><a class="reference internal" href="#Requests-and-Challenges?">Requests and Challenges?</a></li>
+<li><a class="reference internal" href="#TODO">TODO</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+    </div>
+  </div>
+</div>
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="index.html"
+                        title="previous chapter">Tutorials</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="seh_prep.html"
+                        title="next chapter">sEH ligand unbinding: A real use-case</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/tutorials/data_analysis.ipynb.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div class="sidebar-block">
+  <div class="sidebar-wrapper">
+    <div id="main-search">
+      <form class="form-inline" action="../search.html" method="GET" role="form">
+        <div class="input-group">
+          <input name="q" type="text" class="form-control" placeholder="Search...">
+        </div>
+        <input type="hidden" name="check_keywords" value="yes" />
+        <input type="hidden" name="area" value="default" />
+      </form>
+    </div>
+  </div>
+</div>
+      
+    </div>
+  </div>
+        <div id="right-column">
+          
+          <div role="navigation" aria-label="breadcrumbs navigation">
+            <ol class="breadcrumb">
+              <li><a href="../index.html">Docs</a></li>
+              
+                <li><a href="index.html">Tutorials</a></li>
+              
+              <li>Introduction to Weighted Ensemble Data Analysis in wepy</li>
+            </ol>
+          </div>
+          
+          <div class="document clearer body">
+            
+  
+<style>
+/* CSS for nbsphinx extension */
+
+/* remove conflicting styling from Sphinx themes */
+div.nbinput,
+div.nbinput div.prompt,
+div.nbinput div.input_area,
+div.nbinput div[class*=highlight],
+div.nbinput div[class*=highlight] pre,
+div.nboutput,
+div.nbinput div.prompt,
+div.nbinput div.output_area,
+div.nboutput div[class*=highlight],
+div.nboutput div[class*=highlight] pre {
+    background: none;
+    border: none;
+    padding: 0 0;
+    margin: 0;
+    box-shadow: none;
+}
+
+/* avoid gaps between output lines */
+div.nboutput div[class*=highlight] pre {
+    line-height: normal;
+}
+
+/* input/output containers */
+div.nbinput,
+div.nboutput {
+    display: -webkit-flex;
+    display: flex;
+    align-items: flex-start;
+    margin: 0;
+    width: 100%;
+}
+@media (max-width: 540px) {
+    div.nbinput,
+    div.nboutput {
+        flex-direction: column;
+    }
+}
+
+/* input container */
+div.nbinput {
+    padding-top: 5px;
+}
+
+/* last container */
+div.nblast {
+    padding-bottom: 5px;
+}
+
+/* input prompt */
+div.nbinput div.prompt pre {
+    color: #307FC1;
+}
+
+/* output prompt */
+div.nboutput div.prompt pre {
+    color: #BF5B3D;
+}
+
+/* all prompts */
+div.nbinput div.prompt,
+div.nboutput div.prompt {
+    min-width: 7ex;
+    padding-top: 0.4em;
+    padding-right: 0.4em;
+    text-align: right;
+    flex: 0;
+}
+@media (max-width: 540px) {
+    div.nbinput div.prompt,
+    div.nboutput div.prompt {
+        text-align: left;
+        padding: 0.4em;
+    }
+    div.nboutput div.prompt.empty {
+        padding: 0;
+    }
+}
+
+/* disable scrollbars on prompts */
+div.nbinput div.prompt pre,
+div.nboutput div.prompt pre {
+    overflow: hidden;
+}
+
+/* input/output area */
+div.nbinput div.input_area,
+div.nboutput div.output_area {
+    padding: 0.4em;
+    -webkit-flex: 1;
+    flex: 1;
+    overflow: auto;
+}
+@media (max-width: 540px) {
+    div.nbinput div.input_area,
+    div.nboutput div.output_area {
+        width: 100%;
+    }
+}
+
+/* input area */
+div.nbinput div.input_area {
+    border: 1px solid #e0e0e0;
+    border-radius: 2px;
+    background: #f5f5f5;
+}
+
+/* override MathJax center alignment in output cells */
+div.nboutput div[class*=MathJax] {
+    text-align: left !important;
+}
+
+/* override sphinx.ext.imgmath center alignment in output cells */
+div.nboutput div.math p {
+    text-align: left;
+}
+
+/* standard error */
+div.nboutput div.output_area.stderr {
+    background: #fdd;
+}
+
+/* ANSI colors */
+.ansi-black-fg { color: #3E424D; }
+.ansi-black-bg { background-color: #3E424D; }
+.ansi-black-intense-fg { color: #282C36; }
+.ansi-black-intense-bg { background-color: #282C36; }
+.ansi-red-fg { color: #E75C58; }
+.ansi-red-bg { background-color: #E75C58; }
+.ansi-red-intense-fg { color: #B22B31; }
+.ansi-red-intense-bg { background-color: #B22B31; }
+.ansi-green-fg { color: #00A250; }
+.ansi-green-bg { background-color: #00A250; }
+.ansi-green-intense-fg { color: #007427; }
+.ansi-green-intense-bg { background-color: #007427; }
+.ansi-yellow-fg { color: #DDB62B; }
+.ansi-yellow-bg { background-color: #DDB62B; }
+.ansi-yellow-intense-fg { color: #B27D12; }
+.ansi-yellow-intense-bg { background-color: #B27D12; }
+.ansi-blue-fg { color: #208FFB; }
+.ansi-blue-bg { background-color: #208FFB; }
+.ansi-blue-intense-fg { color: #0065CA; }
+.ansi-blue-intense-bg { background-color: #0065CA; }
+.ansi-magenta-fg { color: #D160C4; }
+.ansi-magenta-bg { background-color: #D160C4; }
+.ansi-magenta-intense-fg { color: #A03196; }
+.ansi-magenta-intense-bg { background-color: #A03196; }
+.ansi-cyan-fg { color: #60C6C8; }
+.ansi-cyan-bg { background-color: #60C6C8; }
+.ansi-cyan-intense-fg { color: #258F8F; }
+.ansi-cyan-intense-bg { background-color: #258F8F; }
+.ansi-white-fg { color: #C5C1B4; }
+.ansi-white-bg { background-color: #C5C1B4; }
+.ansi-white-intense-fg { color: #A1A6B2; }
+.ansi-white-intense-bg { background-color: #A1A6B2; }
+
+.ansi-default-inverse-fg { color: #FFFFFF; }
+.ansi-default-inverse-bg { background-color: #000000; }
+
+.ansi-bold { font-weight: bold; }
+.ansi-underline { text-decoration: underline; }
+
+/* Some additional styling taken form the Jupyter notebook CSS */
+div.rendered_html table {
+  border: none;
+  border-collapse: collapse;
+  border-spacing: 0;
+  color: black;
+  font-size: 12px;
+  table-layout: fixed;
+}
+div.rendered_html thead {
+  border-bottom: 1px solid black;
+  vertical-align: bottom;
+}
+div.rendered_html tr,
+div.rendered_html th,
+div.rendered_html td {
+  text-align: right;
+  vertical-align: middle;
+  padding: 0.5em 0.5em;
+  line-height: normal;
+  white-space: normal;
+  max-width: none;
+  border: none;
+}
+div.rendered_html th {
+  font-weight: bold;
+}
+div.rendered_html tbody tr:nth-child(odd) {
+  background: #f5f5f5;
+}
+div.rendered_html tbody tr:hover {
+  background: rgba(66, 165, 245, 0.2);
+}
+</style>
+<div class="section" id="Introduction-to-Weighted-Ensemble-Data-Analysis-in-wepy">
+<h1>Introduction to Weighted Ensemble Data Analysis in wepy<a class="headerlink" href="#Introduction-to-Weighted-Ensemble-Data-Analysis-in-wepy" title="Permalink to this headline">¶</a></h1>
+<p>Samuel Lotz</p>
+<p>Dickson Lab Group Meeting</p>
+<p>2018-08-22</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">os.path</span> <span class="k">as</span> <span class="nn">osp</span>
+<span class="kn">import</span> <span class="nn">random</span> <span class="k">as</span> <span class="nn">rand</span>
+
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="n">warnings</span><span class="o">.</span><span class="n">filterwarnings</span><span class="p">(</span><span class="s2">&quot;ignore&quot;</span><span class="p">)</span>
+
+<span class="n">rand</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">33</span><span class="p">)</span>
+
+<span class="kn">from</span> <span class="nn">PIL</span> <span class="k">import</span> <span class="n">Image</span>
+
+<span class="n">prez_dir</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">expanduser</span><span class="p">(</span><span class="s2">&quot;~/tree/lab/studio/projects/index/presentation.DicksonGroupMeeting_2018-08-22&quot;</span><span class="p">)</span>
+<span class="n">example_dir</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">prez_dir</span><span class="p">,</span> <span class="s2">&quot;Lennard_Jones_Pair&quot;</span><span class="p">)</span>
+<span class="n">media_dir</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">prez_dir</span><span class="p">,</span> <span class="s2">&quot;media&quot;</span><span class="p">)</span>
+<span class="n">outputs_dir</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">example_dir</span><span class="p">,</span> <span class="s2">&quot;outputs&quot;</span><span class="p">)</span>
+
+<span class="c1"># make the outputs dir if it doesn&#39;t exist</span>
+<span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">outputs_dir</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="c1"># remove all files in the outputs dir</span>
+<span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">outputs_dir</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;removing outputs/</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">f</span><span class="p">))</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">outputs_dir</span><span class="p">,</span> <span class="n">f</span><span class="p">))</span>
+
+
+<span class="c1"># paths for all of the results</span>
+<span class="n">wepy1_path</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">outputs_dir</span><span class="p">,</span> <span class="s1">&#39;results_run1.wepy.h5&#39;</span><span class="p">)</span>
+<span class="n">wepy2_path</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">outputs_dir</span><span class="p">,</span> <span class="s1">&#39;results_run2.wepy.h5&#39;</span><span class="p">)</span>
+<span class="n">wepy3_path</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">outputs_dir</span><span class="p">,</span> <span class="s1">&#39;results_run2_cont3.wepy.h5&#39;</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">rescale</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">factor</span><span class="p">):</span>
+    <span class="n">new_shape</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">dim</span> <span class="o">*</span> <span class="n">factor</span><span class="p">)</span> <span class="k">for</span> <span class="n">dim</span> <span class="ow">in</span> <span class="n">image</span><span class="o">.</span><span class="n">size</span><span class="p">]</span>
+    <span class="n">new_image</span> <span class="o">=</span> <span class="n">image</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span><span class="n">new_shape</span><span class="p">,</span> <span class="n">Image</span><span class="o">.</span><span class="n">ANTIALIAS</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">new_image</span>
+
+<span class="c1"># load all the images</span>
+<span class="n">CSN_workflow_longway_im</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">media_dir</span><span class="p">,</span> <span class="s2">&quot;CSN_workflow_longway.png&quot;</span><span class="p">))</span>
+<span class="n">trad_md_windows_im</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">media_dir</span><span class="p">,</span> <span class="s2">&quot;trad_MD_windows.png&quot;</span><span class="p">))</span>
+<span class="n">we_md_windows_im</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">media_dir</span><span class="p">,</span> <span class="s2">&quot;we_MD_windows.png&quot;</span><span class="p">))</span>
+<span class="n">continuation_runs_im</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">media_dir</span><span class="p">,</span> <span class="s2">&quot;continuation_runs.png&quot;</span><span class="p">))</span>
+<span class="n">contig_tree_im</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">media_dir</span><span class="p">,</span> <span class="s2">&quot;contig_tree.png&quot;</span><span class="p">))</span>
+<span class="n">CSN_workflow_shortway_im</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">media_dir</span><span class="p">,</span> <span class="s2">&quot;CSN_workflow_shortway.png&quot;</span><span class="p">))</span>
+<span class="n">linking_files_im</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">media_dir</span><span class="p">,</span> <span class="s2">&quot;linking_files.png&quot;</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+removing outputs/results_run2.wepy.h5
+removing outputs/restart_run1_cont1.pkl
+removing outputs/restart_run1_cont2.pkl
+removing outputs/restart_run2_cont3.pkl
+removing outputs/results_run1.wepy.h5
+removing outputs/results_run2_cont3.wepy.h5
+removing outputs/restart_run1.pkl
+removing outputs/restart_run2.pkl
+</pre></div></div>
+</div>
+<p>Run the simulation</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">from</span> <span class="nn">copy</span> <span class="k">import</span> <span class="n">copy</span><span class="p">,</span> <span class="n">deepcopy</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">os.path</span> <span class="k">as</span> <span class="nn">osp</span>
+<span class="kn">import</span> <span class="nn">pickle</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">scipy.spatial.distance</span> <span class="k">import</span> <span class="n">euclidean</span>
+
+<span class="kn">import</span> <span class="nn">simtk.openmm.app</span> <span class="k">as</span> <span class="nn">omma</span>
+<span class="kn">import</span> <span class="nn">simtk.openmm</span> <span class="k">as</span> <span class="nn">omm</span>
+<span class="kn">import</span> <span class="nn">simtk.unit</span> <span class="k">as</span> <span class="nn">unit</span>
+
+<span class="kn">from</span> <span class="nn">openmmtools.testsystems</span> <span class="k">import</span> <span class="n">LennardJonesPair</span>
+<span class="kn">import</span> <span class="nn">mdtraj</span> <span class="k">as</span> <span class="nn">mdj</span>
+<span class="kn">from</span> <span class="nn">wepy.util.mdtraj</span> <span class="k">import</span> <span class="n">mdtraj_to_json_topology</span>
+
+<span class="kn">from</span> <span class="nn">wepy.sim_manager</span> <span class="k">import</span> <span class="n">Manager</span>
+
+<span class="kn">from</span> <span class="nn">wepy.resampling.distances.distance</span> <span class="k">import</span> <span class="n">Distance</span>
+<span class="kn">from</span> <span class="nn">wepy.resampling.resamplers.wexplore</span> <span class="k">import</span> <span class="n">WExploreResampler</span>
+<span class="kn">from</span> <span class="nn">wepy.walker</span> <span class="k">import</span> <span class="n">Walker</span>
+<span class="kn">from</span> <span class="nn">wepy.runners.openmm</span> <span class="k">import</span> <span class="n">OpenMMRunner</span><span class="p">,</span> <span class="n">OpenMMState</span>
+<span class="kn">from</span> <span class="nn">wepy.runners.openmm</span> <span class="k">import</span> <span class="n">UNIT_NAMES</span><span class="p">,</span> <span class="n">GET_STATE_KWARG_DEFAULTS</span>
+<span class="kn">from</span> <span class="nn">wepy.work_mapper.mapper</span> <span class="k">import</span> <span class="n">Mapper</span>
+<span class="kn">from</span> <span class="nn">wepy.boundary_conditions.unbinding</span> <span class="k">import</span> <span class="n">UnbindingBC</span>
+<span class="kn">from</span> <span class="nn">wepy.reporter.hdf5</span> <span class="k">import</span> <span class="n">WepyHDF5Reporter</span>
+<span class="kn">from</span> <span class="nn">wepy.reporter.dashboard</span> <span class="k">import</span> <span class="n">WExploreDashboardReporter</span>
+<span class="kn">from</span> <span class="nn">wepy.reporter.setup</span> <span class="k">import</span> <span class="n">SetupReporter</span>
+<span class="kn">from</span> <span class="nn">wepy.reporter.restart</span> <span class="k">import</span> <span class="n">RestartReporter</span>
+
+<span class="kn">from</span> <span class="nn">wepy.hdf5</span> <span class="k">import</span> <span class="n">WepyHDF5</span>
+
+
+
+<span class="c1">## PARAMETERS</span>
+
+<span class="c1"># Platform used for OpenMM which uses different hardware computation</span>
+<span class="c1"># kernels. Options are: Reference, CPU, OpenCL, CUDA.</span>
+
+<span class="c1"># we use the Reference platform because this is just a test</span>
+<span class="n">PLATFORM</span> <span class="o">=</span> <span class="s1">&#39;Reference&#39;</span>
+
+<span class="c1"># Langevin Integrator</span>
+<span class="n">TEMPERATURE</span><span class="o">=</span> <span class="mf">300.0</span><span class="o">*</span><span class="n">unit</span><span class="o">.</span><span class="n">kelvin</span>
+<span class="n">FRICTION_COEFFICIENT</span> <span class="o">=</span> <span class="mi">1</span><span class="o">/</span><span class="n">unit</span><span class="o">.</span><span class="n">picosecond</span>
+<span class="c1"># step size of time integrations</span>
+<span class="n">STEP_SIZE</span> <span class="o">=</span> <span class="mf">0.002</span><span class="o">*</span><span class="n">unit</span><span class="o">.</span><span class="n">picoseconds</span>
+
+<span class="c1"># Resampler parameters</span>
+
+<span class="c1"># the maximum weight allowed for a walker</span>
+<span class="n">PMAX</span> <span class="o">=</span> <span class="mf">0.5</span>
+<span class="c1"># the minimum weight allowed for a walker</span>
+<span class="n">PMIN</span> <span class="o">=</span> <span class="mf">1e-12</span>
+
+<span class="c1"># the maximum number of regions allowed under each parent region</span>
+<span class="n">MAX_N_REGIONS</span> <span class="o">=</span> <span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+
+<span class="c1"># the maximum size of regions, new regions will be created if a walker</span>
+<span class="c1"># is beyond this distance from each voronoi image unless there is an</span>
+<span class="c1"># already maximal number of regions</span>
+<span class="n">MAX_REGION_SIZES</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="o">.</span><span class="mi">35</span><span class="p">,</span> <span class="o">.</span><span class="mi">25</span><span class="p">)</span> <span class="c1"># nanometers</span>
+
+<span class="c1"># boundary condition parameters</span>
+
+<span class="c1"># maximum distance between between any atom of the ligand and any</span>
+<span class="c1"># other atom of the protein, if the shortest such atom-atom distance</span>
+<span class="c1"># is larger than this the ligand will be considered unbound and</span>
+<span class="c1"># restarted in the initial state</span>
+<span class="n">CUTOFF_DISTANCE</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="c1"># nm</span>
+
+<span class="c1"># reporting parameters</span>
+
+<span class="c1"># these are the properties of the states (i.e. from OpenMM) which will</span>
+<span class="c1"># be saved into the HDF5</span>
+<span class="n">SAVE_FIELDS</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;positions&#39;</span><span class="p">,</span> <span class="s1">&#39;box_vectors&#39;</span><span class="p">,</span> <span class="s1">&#39;velocities&#39;</span><span class="p">)</span>
+<span class="c1"># these are the names of the units which will be stored with each</span>
+<span class="c1"># field in the HDF5</span>
+<span class="n">UNITS</span> <span class="o">=</span> <span class="n">UNIT_NAMES</span>
+
+<span class="c1">## INPUTS/OUTPUTS</span>
+
+
+<span class="c1"># outputs</span>
+<span class="n">hdf5_filename</span> <span class="o">=</span> <span class="s1">&#39;results.wepy.h5&#39;</span>
+<span class="n">setup_state_filename</span> <span class="o">=</span> <span class="s1">&#39;setup.pkl&#39;</span>
+<span class="n">restart_state_filename</span> <span class="o">=</span> <span class="s1">&#39;restart.pkl&#39;</span>
+
+<span class="c1"># normalize the output paths</span>
+<span class="n">hdf5_path</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">outputs_dir</span><span class="p">,</span> <span class="n">hdf5_filename</span><span class="p">)</span>
+<span class="n">setup_state_path</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">outputs_dir</span><span class="p">,</span> <span class="n">setup_state_filename</span><span class="p">)</span>
+<span class="n">restart_state_path</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">outputs_dir</span><span class="p">,</span> <span class="n">restart_state_filename</span><span class="p">)</span>
+
+<span class="c1">## System and OpenMMRunner</span>
+
+<span class="c1"># make the test system from openmmtools</span>
+<span class="n">test_sys</span> <span class="o">=</span> <span class="n">LennardJonesPair</span><span class="p">()</span>
+
+<span class="c1"># make the integrator</span>
+<span class="n">integrator</span> <span class="o">=</span> <span class="n">omm</span><span class="o">.</span><span class="n">LangevinIntegrator</span><span class="p">(</span><span class="n">TEMPERATURE</span><span class="p">,</span> <span class="n">FRICTION_COEFFICIENT</span><span class="p">,</span> <span class="n">STEP_SIZE</span><span class="p">)</span>
+
+<span class="c1"># make a context and set the positions</span>
+<span class="n">context</span> <span class="o">=</span> <span class="n">omm</span><span class="o">.</span><span class="n">Context</span><span class="p">(</span><span class="n">test_sys</span><span class="o">.</span><span class="n">system</span><span class="p">,</span> <span class="n">copy</span><span class="p">(</span><span class="n">integrator</span><span class="p">))</span>
+<span class="n">context</span><span class="o">.</span><span class="n">setPositions</span><span class="p">(</span><span class="n">test_sys</span><span class="o">.</span><span class="n">positions</span><span class="p">)</span>
+
+<span class="c1"># get the data from this context so we have a state to start the</span>
+<span class="c1"># simulation with</span>
+<span class="n">get_state_kwargs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">GET_STATE_KWARG_DEFAULTS</span><span class="p">)</span>
+<span class="n">init_sim_state</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">getState</span><span class="p">(</span><span class="o">**</span><span class="n">get_state_kwargs</span><span class="p">)</span>
+<span class="n">init_state</span> <span class="o">=</span> <span class="n">OpenMMState</span><span class="p">(</span><span class="n">init_sim_state</span><span class="p">)</span>
+
+<span class="c1"># initialize the runner</span>
+<span class="n">runner</span> <span class="o">=</span> <span class="n">OpenMMRunner</span><span class="p">(</span><span class="n">test_sys</span><span class="o">.</span><span class="n">system</span><span class="p">,</span> <span class="n">test_sys</span><span class="o">.</span><span class="n">topology</span><span class="p">,</span> <span class="n">integrator</span><span class="p">,</span> <span class="n">platform</span><span class="o">=</span><span class="n">PLATFORM</span><span class="p">)</span>
+
+<span class="c1">## Distance Metric</span>
+<span class="c1"># we define a simple distance metric for this system, assuming the</span>
+<span class="c1"># positions are in a &#39;positions&#39; field</span>
+<span class="k">class</span> <span class="nc">PairDistance</span><span class="p">(</span><span class="n">Distance</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">metric</span><span class="o">=</span><span class="n">euclidean</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">metric</span> <span class="o">=</span> <span class="n">metric</span>
+
+    <span class="k">def</span> <span class="nf">image</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">state</span><span class="p">[</span><span class="s1">&#39;positions&#39;</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">image_distance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image_a</span><span class="p">,</span> <span class="n">image_b</span><span class="p">):</span>
+        <span class="n">dist_a</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">metric</span><span class="p">(</span><span class="n">image_a</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">image_a</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">dist_b</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">metric</span><span class="p">(</span><span class="n">image_b</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">image_b</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">dist_a</span> <span class="o">-</span> <span class="n">dist_b</span><span class="p">)</span>
+
+
+<span class="c1"># make a distance object which can be used to compute the distance</span>
+<span class="c1"># between two walkers, for our scorer class</span>
+<span class="n">distance</span> <span class="o">=</span> <span class="n">PairDistance</span><span class="p">()</span>
+
+<span class="c1">## Resampler</span>
+<span class="n">resampler</span> <span class="o">=</span> <span class="n">WExploreResampler</span><span class="p">(</span><span class="n">distance</span><span class="o">=</span><span class="n">distance</span><span class="p">,</span>
+                               <span class="n">init_state</span><span class="o">=</span><span class="n">init_state</span><span class="p">,</span>
+                               <span class="n">max_region_sizes</span><span class="o">=</span><span class="n">MAX_REGION_SIZES</span><span class="p">,</span>
+                               <span class="n">max_n_regions</span><span class="o">=</span><span class="n">MAX_N_REGIONS</span><span class="p">,</span>
+                               <span class="n">pmin</span><span class="o">=</span><span class="n">PMIN</span><span class="p">,</span> <span class="n">pmax</span><span class="o">=</span><span class="n">PMAX</span><span class="p">)</span>
+
+<span class="c1">## Boundary Conditions</span>
+
+<span class="c1"># the mdtraj here is needed for the distance function</span>
+<span class="n">mdtraj_topology</span> <span class="o">=</span> <span class="n">mdj</span><span class="o">.</span><span class="n">Topology</span><span class="o">.</span><span class="n">from_openmm</span><span class="p">(</span><span class="n">test_sys</span><span class="o">.</span><span class="n">topology</span><span class="p">)</span>
+
+<span class="c1"># initialize the unbinding boundary conditions</span>
+<span class="n">ubc</span> <span class="o">=</span> <span class="n">UnbindingBC</span><span class="p">(</span><span class="n">cutoff_distance</span><span class="o">=</span><span class="n">CUTOFF_DISTANCE</span><span class="p">,</span>
+                  <span class="n">initial_state</span><span class="o">=</span><span class="n">init_state</span><span class="p">,</span>
+                  <span class="n">topology</span><span class="o">=</span><span class="n">mdtraj_topology</span><span class="p">,</span>
+                  <span class="n">ligand_idxs</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">test_sys</span><span class="o">.</span><span class="n">ligand_indices</span><span class="p">),</span>
+                  <span class="n">receptor_idxs</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">test_sys</span><span class="o">.</span><span class="n">receptor_indices</span><span class="p">))</span>
+
+<span class="c1">## Reporters</span>
+
+<span class="n">json_str_top</span> <span class="o">=</span> <span class="n">mdtraj_to_json_topology</span><span class="p">(</span><span class="n">mdtraj_topology</span><span class="p">)</span>
+<span class="c1"># make a dictionary of units for adding to the HDF5</span>
+<span class="n">units</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">UNIT_NAMES</span><span class="p">)</span>
+
+<span class="c1"># open it in truncate mode first, then switch after first run</span>
+<span class="n">hdf5_reporter</span> <span class="o">=</span> <span class="n">WepyHDF5Reporter</span><span class="p">(</span><span class="n">hdf5_path</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;w&#39;</span><span class="p">,</span>
+                                 <span class="n">save_fields</span><span class="o">=</span><span class="n">SAVE_FIELDS</span><span class="p">,</span>
+                                 <span class="n">resampler</span><span class="o">=</span><span class="n">resampler</span><span class="p">,</span>
+                                 <span class="n">boundary_conditions</span><span class="o">=</span><span class="n">ubc</span><span class="p">,</span>
+                                 <span class="n">topology</span><span class="o">=</span><span class="n">json_str_top</span><span class="p">,</span>
+                                 <span class="n">units</span><span class="o">=</span><span class="n">units</span><span class="p">,)</span>
+
+<span class="n">restart_reporter</span> <span class="o">=</span> <span class="n">RestartReporter</span><span class="p">(</span><span class="n">restart_state_path</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;w&#39;</span><span class="p">)</span>
+
+<span class="c1">## Work Mapper</span>
+
+<span class="c1"># a simple work mapper</span>
+<span class="n">mapper</span> <span class="o">=</span> <span class="n">Mapper</span><span class="p">()</span>
+
+<span class="c1">## initial walkers</span>
+<span class="n">n_walkers</span> <span class="o">=</span> <span class="mi">4</span>
+<span class="n">init_weight</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">n_walkers</span>
+<span class="n">init_walkers</span> <span class="o">=</span> <span class="p">[</span><span class="n">Walker</span><span class="p">(</span><span class="n">OpenMMState</span><span class="p">(</span><span class="n">init_sim_state</span><span class="p">),</span> <span class="n">init_weight</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_walkers</span><span class="p">)]</span>
+
+<span class="c1">## run parameters</span>
+<span class="n">n_cycles</span> <span class="o">=</span> <span class="mi">100</span>
+<span class="n">n_steps</span> <span class="o">=</span> <span class="mi">1000</span>
+<span class="c1"># steps for each cycle</span>
+<span class="n">steps</span> <span class="o">=</span> <span class="p">[</span><span class="n">n_steps</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_cycles</span><span class="p">)]</span>
+
+<span class="c1">## filenames</span>
+<span class="n">hdf5_template</span> <span class="o">=</span> <span class="s2">&quot;results_</span><span class="si">{}</span><span class="s2">.wepy.h5&quot;</span>
+<span class="n">restart_template</span> <span class="o">=</span> <span class="s1">&#39;restart_</span><span class="si">{}</span><span class="s1">.pkl&#39;</span>
+
+<span class="c1">## to use these from here we should be careful to make copies of them</span>
+<span class="c1">## and to change paths if needed</span>
+
+
+<span class="c1"># paths for run1 reporters</span>
+<span class="n">run1_str</span> <span class="o">=</span> <span class="s2">&quot;run1&quot;</span>
+<span class="n">run1_hdf5_path</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">outputs_dir</span><span class="p">,</span> <span class="n">hdf5_template</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">run1_str</span><span class="p">))</span>
+<span class="n">run1_restart_path</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">outputs_dir</span><span class="p">,</span> <span class="n">restart_template</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">run1_str</span><span class="p">))</span>
+<span class="c1"># WepyHDF5 reporter</span>
+<span class="n">run1_hdf5_reporter</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">hdf5_reporter</span><span class="p">)</span>
+<span class="n">run1_hdf5_reporter</span><span class="o">.</span><span class="n">file_path</span> <span class="o">=</span> <span class="n">run1_hdf5_path</span>
+<span class="c1"># restart reporter</span>
+<span class="n">run1_restart_reporter</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">restart_reporter</span><span class="p">)</span>
+<span class="n">run1_restart_reporter</span><span class="o">.</span><span class="n">file_path</span> <span class="o">=</span> <span class="n">run1_restart_path</span>
+
+<span class="n">reporters_1</span> <span class="o">=</span> <span class="p">[</span><span class="n">run1_hdf5_reporter</span><span class="p">,</span> <span class="n">run1_restart_reporter</span><span class="p">]</span>
+
+<span class="c1"># run two simulations from the initial conditions</span>
+<span class="n">sim_manager_1</span> <span class="o">=</span> <span class="n">Manager</span><span class="p">(</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">init_walkers</span><span class="p">),</span>
+                        <span class="n">runner</span><span class="o">=</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">runner</span><span class="p">),</span>
+                        <span class="n">resampler</span><span class="o">=</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">resampler</span><span class="p">),</span>
+                        <span class="n">boundary_conditions</span><span class="o">=</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">ubc</span><span class="p">),</span>
+                        <span class="n">work_mapper</span><span class="o">=</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">mapper</span><span class="p">),</span>
+                        <span class="n">reporters</span><span class="o">=</span><span class="n">reporters_1</span>
+                    <span class="p">)</span>
+<span class="n">sim_manager_1</span><span class="o">.</span><span class="n">run_simulation</span><span class="p">(</span><span class="n">n_cycles</span><span class="p">,</span> <span class="n">steps</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;run 0 in file 1&quot;</span><span class="p">)</span>
+
+<span class="c1"># paths for run2 reporters</span>
+<span class="n">run2_str</span> <span class="o">=</span> <span class="s2">&quot;run2&quot;</span>
+<span class="n">run2_hdf5_path</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">outputs_dir</span><span class="p">,</span> <span class="n">hdf5_template</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">run2_str</span><span class="p">))</span>
+<span class="n">run2_restart_path</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">outputs_dir</span><span class="p">,</span> <span class="n">restart_template</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">run2_str</span><span class="p">))</span>
+<span class="c1"># WepyHDF5 reporter</span>
+<span class="n">run2_hdf5_reporter</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">hdf5_reporter</span><span class="p">)</span>
+<span class="n">run2_hdf5_reporter</span><span class="o">.</span><span class="n">file_path</span> <span class="o">=</span> <span class="n">run2_hdf5_path</span>
+<span class="c1"># restart reporter</span>
+<span class="n">run2_restart_reporter</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">restart_reporter</span><span class="p">)</span>
+<span class="n">run2_restart_reporter</span><span class="o">.</span><span class="n">file_path</span> <span class="o">=</span> <span class="n">run2_restart_path</span>
+
+<span class="n">reporters_2</span> <span class="o">=</span> <span class="p">[</span><span class="n">run2_hdf5_reporter</span><span class="p">,</span> <span class="n">run2_restart_reporter</span><span class="p">]</span>
+
+<span class="n">sim_manager_2</span> <span class="o">=</span> <span class="n">Manager</span><span class="p">(</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">init_walkers</span><span class="p">),</span>
+                        <span class="n">runner</span><span class="o">=</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">runner</span><span class="p">),</span>
+                        <span class="n">resampler</span><span class="o">=</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">resampler</span><span class="p">),</span>
+                        <span class="n">boundary_conditions</span><span class="o">=</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">ubc</span><span class="p">),</span>
+                        <span class="n">work_mapper</span><span class="o">=</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">mapper</span><span class="p">),</span>
+                        <span class="n">reporters</span><span class="o">=</span><span class="n">reporters_2</span>
+                    <span class="p">)</span>
+
+<span class="n">sim_manager_2</span><span class="o">.</span><span class="n">run_simulation</span><span class="p">(</span><span class="n">n_cycles</span><span class="p">,</span> <span class="n">steps</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;run 0 in file 2&quot;</span><span class="p">)</span>
+
+
+<span class="c1"># we run a restart of run1 in the first file</span>
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">run1_restart_path</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">rf</span><span class="p">:</span>
+    <span class="n">restarter</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">rf</span><span class="p">)</span>
+
+<span class="n">cont1_run</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="c1"># make the restarted sim manager with the suffix</span>
+<span class="n">cont1_sim_manager</span> <span class="o">=</span> <span class="n">restarter</span><span class="o">.</span><span class="n">new_sim_manager</span><span class="p">(</span><span class="n">file_report_suffix</span><span class="o">=</span><span class="s2">&quot;_cont1&quot;</span><span class="p">)</span>
+<span class="c1"># we want to run this in the same HDF5 file as run1</span>
+<span class="n">cont1_sim_manager</span><span class="o">.</span><span class="n">reporters</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">file_path</span> <span class="o">=</span> <span class="n">run1_hdf5_path</span>
+<span class="n">cont1_sim_manager</span><span class="o">.</span><span class="n">reporters</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">mode</span> <span class="o">=</span> <span class="s2">&quot;r+&quot;</span>
+
+<span class="n">cont1_sim_manager</span><span class="o">.</span><span class="n">continue_run_simulation</span><span class="p">(</span><span class="n">cont1_run</span><span class="p">,</span> <span class="n">n_cycles</span><span class="p">,</span> <span class="n">steps</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;run 1 in file 0 continues run 0 in file 0&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cont1_run</span><span class="p">))</span>
+
+<span class="c1"># run another continuation from run1</span>
+<span class="n">cont2_sim_manager</span> <span class="o">=</span> <span class="n">restarter</span><span class="o">.</span><span class="n">new_sim_manager</span><span class="p">(</span><span class="n">file_report_suffix</span><span class="o">=</span><span class="s2">&quot;_cont2&quot;</span><span class="p">)</span>
+<span class="c1"># we want to run this in the same HDF5 file as run1</span>
+<span class="n">cont2_sim_manager</span><span class="o">.</span><span class="n">reporters</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">file_path</span> <span class="o">=</span> <span class="n">run1_hdf5_path</span>
+<span class="n">cont2_sim_manager</span><span class="o">.</span><span class="n">reporters</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">mode</span> <span class="o">=</span> <span class="s2">&quot;r+&quot;</span>
+
+<span class="n">cont2_sim_manager</span><span class="o">.</span><span class="n">continue_run_simulation</span><span class="p">(</span><span class="n">cont1_run</span><span class="p">,</span> <span class="n">n_cycles</span><span class="p">,</span> <span class="n">steps</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;run 2 in file 0 continues run 0 in file 0&quot;</span><span class="p">)</span>
+
+
+<span class="c1"># then we run a restart of run2 in another file</span>
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">run2_restart_path</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">rf</span><span class="p">:</span>
+    <span class="n">restarter</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">rf</span><span class="p">)</span>
+
+<span class="n">cont3_run</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="c1"># make the restarted sim manager with the suffix</span>
+<span class="n">cont3_sim_manager</span> <span class="o">=</span> <span class="n">restarter</span><span class="o">.</span><span class="n">new_sim_manager</span><span class="p">(</span><span class="n">file_report_suffix</span><span class="o">=</span><span class="s2">&quot;_cont3&quot;</span><span class="p">)</span>
+
+<span class="c1"># we don&#39;t run this as a continue because it is in a different file</span>
+<span class="n">cont3_sim_manager</span><span class="o">.</span><span class="n">run_simulation</span><span class="p">(</span><span class="n">n_cycles</span><span class="p">,</span> <span class="n">steps</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;run 0 in file 3 continues run 0 in file 2&quot;</span><span class="p">)</span>
+
+
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+single
+run 0 in file 1
+run 0 in file 2
+run 1 in file 0 continues run 0 in file 0
+run 2 in file 0 continues run 0 in file 0
+run 0 in file 3 continues run 0 in file 2
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">rescale</span><span class="p">(</span><span class="n">CSN_workflow_longway_im</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/tutorials_data_analysis_4_0.png" src="../_images/tutorials_data_analysis_4_0.png" />
+</div>
+</div>
+<div class="section" id="Load-Dataset-and-Generate-Fake-Clusters">
+<h2>Load Dataset and Generate Fake Clusters<a class="headerlink" href="#Load-Dataset-and-Generate-Fake-Clusters" title="Permalink to this headline">¶</a></h2>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">wepy.hdf5</span> <span class="k">import</span> <span class="n">WepyHDF5</span>
+
+<span class="n">wepy1</span> <span class="o">=</span> <span class="n">WepyHDF5</span><span class="p">(</span><span class="n">wepy1_path</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;r+&#39;</span><span class="p">)</span>
+<span class="n">wepy1</span><span class="o">.</span><span class="n">open</span><span class="p">()</span>
+
+<span class="n">run_idx</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">assg_key</span> <span class="o">=</span> <span class="s1">&#39;rand_assg_idx&#39;</span>
+<span class="n">n_classifications</span> <span class="o">=</span> <span class="mi">50</span>
+
+<span class="c1"># observable function, fictituous random &quot;cluster&quot; assignments</span>
+<span class="k">def</span> <span class="nf">rand_assg</span><span class="p">(</span><span class="n">fields_d</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="n">assignments</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">random_integers</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">n_classifications</span><span class="p">,</span>
+                                     <span class="n">size</span><span class="o">=</span><span class="n">fields_d</span><span class="p">[</span><span class="s1">&#39;weights&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">assignments</span>
+
+<span class="c1"># compute this random assignment &quot;observable&quot;</span>
+<span class="n">wepy1</span><span class="o">.</span><span class="n">compute_observable</span><span class="p">(</span><span class="n">rand_assg</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;weights&#39;</span><span class="p">],</span>
+                           <span class="n">save_to_hdf5</span><span class="o">=</span><span class="n">assg_key</span><span class="p">,</span> <span class="n">return_results</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="Sliding-Windows-Workflow">
+<h2>Sliding Windows Workflow<a class="headerlink" href="#Sliding-Windows-Workflow" title="Permalink to this headline">¶</a></h2>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">wepy.hdf5</span> <span class="k">import</span> <span class="n">WepyHDF5</span>
+<span class="kn">from</span> <span class="nn">wepy.resampling.decisions.clone_merge</span> <span class="k">import</span> <span class="n">MultiCloneMergeDecision</span>
+<span class="kn">from</span> <span class="nn">wepy.boundary_conditions.unbinding</span> <span class="k">import</span> <span class="n">UnbindingBC</span>
+<span class="c1"># Analysis modules</span>
+<span class="kn">from</span> <span class="nn">wepy.analysis.transitions</span> <span class="k">import</span> <span class="n">run_transition_probability_matrix</span>
+<span class="kn">from</span> <span class="nn">wepy.analysis.parents</span> <span class="k">import</span> <span class="n">parent_panel</span><span class="p">,</span> <span class="n">net_parent_table</span><span class="p">,</span> <span class="n">parent_table_discontinuities</span>
+<span class="kn">from</span> <span class="nn">wepy.analysis.parents</span> <span class="k">import</span> <span class="n">sliding_window</span>
+
+<span class="c1"># make a parent matrix from the hdf5 resampling records</span>
+<span class="n">resampling_panel</span> <span class="o">=</span> <span class="n">wepy1</span><span class="o">.</span><span class="n">run_resampling_panel</span><span class="p">(</span><span class="n">run_idx</span><span class="p">)</span>
+<span class="n">parent_panel</span> <span class="o">=</span> <span class="n">parent_panel</span><span class="p">(</span><span class="n">MultiCloneMergeDecision</span><span class="p">,</span> <span class="n">resampling_panel</span><span class="p">)</span>
+<span class="n">parent_table</span> <span class="o">=</span> <span class="n">net_parent_table</span><span class="p">(</span><span class="n">parent_panel</span><span class="p">)</span>
+
+<span class="c1"># take into account warping events as discontinuities in the lineage</span>
+<span class="n">parent_matrix</span> <span class="o">=</span> <span class="n">parent_table_discontinuities</span><span class="p">(</span><span class="n">UnbindingBC</span><span class="p">,</span> <span class="n">parent_table</span><span class="p">,</span> <span class="n">wepy1</span><span class="o">.</span><span class="n">warping_records</span><span class="p">([</span><span class="mi">0</span><span class="p">]))</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1"># use the parent matrix to generate the sliding windows</span>
+<span class="n">window_length</span> <span class="o">=</span> <span class="mi">10</span>
+<span class="n">windows</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">sliding_window</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">parent_matrix</span><span class="p">),</span> <span class="n">window_length</span><span class="p">))</span>
+
+<span class="c1"># make the transition matrix from the windows</span>
+<span class="n">transprob_mat</span> <span class="o">=</span> <span class="n">run_transition_probability_matrix</span><span class="p">(</span><span class="n">wepy1</span><span class="p">,</span> <span class="n">run_idx</span><span class="p">,</span>
+                                                  <span class="s2">&quot;observables/</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">assg_key</span><span class="p">),</span> <span class="n">windows</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">transprob_mat</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+[[0.  0.  0.  ... 0.  0.  0. ]
+ [0.  0.  0.  ... 0.  0.  0.5]
+ [0.  0.  0.  ... 0.  0.  0. ]
+ ...
+ [0.  0.  0.  ... 0.  0.  0. ]
+ [0.  0.  0.  ... 0.  0.  0. ]
+ [0.  0.  0.  ... 0.  0.  0. ]]
+</pre></div></div>
+</div>
+</div>
+<div class="section" id="Lagged-Transitions-in-traditional-linear-MD">
+<h2>Lagged Transitions in traditional linear MD<a class="headerlink" href="#Lagged-Transitions-in-traditional-linear-MD" title="Permalink to this headline">¶</a></h2>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">rescale</span><span class="p">(</span><span class="n">trad_md_windows_im</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/tutorials_data_analysis_11_0.png" src="../_images/tutorials_data_analysis_11_0.png" />
+</div>
+</div>
+</div>
+<div class="section" id="Sliding-Windows-Algorithm">
+<h2>Sliding Windows Algorithm<a class="headerlink" href="#Sliding-Windows-Algorithm" title="Permalink to this headline">¶</a></h2>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">we_md_windows_im</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/tutorials_data_analysis_13_0.png" src="../_images/tutorials_data_analysis_13_0.png" />
+</div>
+</div>
+</div>
+<div class="section" id="Multi-Run-Data-Analysis">
+<h2>Multi-Run Data Analysis<a class="headerlink" href="#Multi-Run-Data-Analysis" title="Permalink to this headline">¶</a></h2>
+<p>So far we have assumed nice contiguous data. This is not so with MD data in general which may be split up into different runs.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">rescale</span><span class="p">(</span><span class="n">continuation_runs_im</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/tutorials_data_analysis_15_0.png" src="../_images/tutorials_data_analysis_15_0.png" />
+</div>
+</div>
+<p>We want to be able to get transitions between the original run and all of its continuations without double counting.</p>
+</div>
+<div class="section" id="Contig-Tree">
+<h2>Contig Tree<a class="headerlink" href="#Contig-Tree" title="Permalink to this headline">¶</a></h2>
+<p>The contig tree is a tree (technically forest) of continuous simulations. For us the branchings happen when a run is continued multiple times.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">rescale</span><span class="p">(</span><span class="n">contig_tree_im</span><span class="p">,</span> <span class="mf">0.85</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/tutorials_data_analysis_18_0.png" src="../_images/tutorials_data_analysis_18_0.png" />
+</div>
+</div>
+<p>The Spanning Contigs are the contigs drawn before: (0,3) (0,4) (0,5) (1,) (2,)</p>
+</div>
+<div class="section" id="Storage-Implementation:-Continuations">
+<h2>Storage Implementation: Continuations<a class="headerlink" href="#Storage-Implementation:-Continuations" title="Permalink to this headline">¶</a></h2>
+<p>The only thing that must exist is a specification of the continuations that exist in a <code class="docutils literal notranslate"><span class="pre">WepyHDF5</span></code> file.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Runs in this file:&quot;</span><span class="p">,</span> <span class="n">wepy1</span><span class="o">.</span><span class="n">run_idxs</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Continuations using the API method:</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">wepy1</span><span class="o">.</span><span class="n">continuations</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Where it is actually stored in the HDF5:</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">wepy1</span><span class="o">.</span><span class="n">h5</span><span class="p">[</span><span class="s1">&#39;_settings/continuations&#39;</span><span class="p">][:])</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Runs in this file: [0, 1, 2]
+Continuations using the API method:
+ [[1 0]
+ [2 0]]
+Where it is actually stored in the HDF5:
+ [[1 0]
+ [2 0]]
+</pre></div></div>
+</div>
+<p>Run 1 continues run 0, and run 2 continues run 0.</p>
+<p>This only works within a single file (but we can do interfile linking).</p>
+</div>
+<div class="section" id="API-for-interacting-with-continuations:-Contigs">
+<h2>API for interacting with continuations: Contigs<a class="headerlink" href="#API-for-interacting-with-continuations:-Contigs" title="Permalink to this headline">¶</a></h2>
+<p>A contig is a list of runs that form a contiguous dataset.</p>
+<p>For the continuation (1,0) the contig is (0,1).</p>
+<p>Contigs can be any number of runs.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Contig </span><span class="si">{}</span><span class="s2"> has </span><span class="si">{}</span><span class="s2"> frames&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">([</span><span class="mi">0</span><span class="p">],</span> <span class="n">wepy1</span><span class="o">.</span><span class="n">contig_n_cycles</span><span class="p">([</span><span class="mi">0</span><span class="p">])))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Contig </span><span class="si">{}</span><span class="s2"> has </span><span class="si">{}</span><span class="s2"> frames&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">([</span><span class="mi">1</span><span class="p">],</span> <span class="n">wepy1</span><span class="o">.</span><span class="n">contig_n_cycles</span><span class="p">([</span><span class="mi">1</span><span class="p">])))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Contig </span><span class="si">{}</span><span class="s2"> has </span><span class="si">{}</span><span class="s2"> frames&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">([</span><span class="mi">2</span><span class="p">],</span> <span class="n">wepy1</span><span class="o">.</span><span class="n">contig_n_cycles</span><span class="p">([</span><span class="mi">2</span><span class="p">])))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Contig </span><span class="si">{}</span><span class="s2"> has </span><span class="si">{}</span><span class="s2"> frames&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span> <span class="n">wepy1</span><span class="o">.</span><span class="n">contig_n_cycles</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">])))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Contig </span><span class="si">{}</span><span class="s2"> has </span><span class="si">{}</span><span class="s2"> frames&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">],</span> <span class="n">wepy1</span><span class="o">.</span><span class="n">contig_n_cycles</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">])))</span>
+<span class="c1">#wepy1.resampling_records_dataframe([0,1])</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Contig [0] has 100 frames
+Contig [1] has 100 frames
+Contig [2] has 100 frames
+Contig [0, 1] has 200 frames
+Contig [0, 2] has 200 frames
+</pre></div></div>
+</div>
+<p>A <em>spanning contig</em> is a contig which goes from a root run (a run that does not continue another run) and a leaf run (a run which is not continued). These can be enumerated:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">spanning_contigs</span> <span class="o">=</span> <span class="n">wepy1</span><span class="o">.</span><span class="n">spanning_contigs</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;The spanning contigs:&quot;</span><span class="p">,</span> <span class="n">spanning_contigs</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+The spanning contigs: [[0, 1], [0, 2]]
+</pre></div></div>
+</div>
+<div class="section" id="The-Contig-Tree-Class">
+<h3>The Contig Tree Class<a class="headerlink" href="#The-Contig-Tree-Class" title="Permalink to this headline">¶</a></h3>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">wepy.analysis.contig_tree</span> <span class="k">import</span> <span class="n">ContigTree</span>
+<span class="n">contig_tree</span> <span class="o">=</span> <span class="n">ContigTree</span><span class="p">(</span><span class="n">wepy1</span><span class="p">,</span> <span class="n">decision_class</span><span class="o">=</span><span class="n">MultiCloneMergeDecision</span><span class="p">,</span>
+                         <span class="n">boundary_condition_class</span><span class="o">=</span><span class="n">UnbindingBC</span><span class="p">,</span>
+                        <span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>Since we have given it everything it needs to make the parent table from the previous example it can automate it all with the appropriate sliding windows algorithms for multiple runs!</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">contig_tree</span><span class="o">.</span><span class="n">sliding_windows</span><span class="p">(</span><span class="mi">3</span><span class="p">)[</span><span class="o">-</span><span class="mi">5</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+</pre></div>
+</div>
+<div class="output_area highlight-none notranslate"><div class="highlight"><pre>
+<span></span>[[(0, 3, 1), (0, 3, 2), (0, 3, 3)],
+ [(0, 2, 0), (0, 0, 1), (0, 0, 2)],
+ [(0, 1, 0), (0, 1, 1), (0, 1, 2)],
+ [(0, 2, 0), (0, 2, 1), (0, 2, 2)]]
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="The-Macro-State-Network-Class">
+<h2>The Macro-State Network Class<a class="headerlink" href="#The-Macro-State-Network-Class" title="Permalink to this headline">¶</a></h2>
+<p>In order to make a Conformation State Network (CSN) we need to have the transitions (end-points of sliding windows) and the labels of the micro-states (frames of simulations) which can be from clustering or whatever else.</p>
+<p>Because, a ContigTree can in the most degenerate form be a single run it is the most appropriate inputs for a general macro-state network.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[22]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">wepy.analysis.network</span> <span class="k">import</span> <span class="n">MacroStateNetwork</span>
+
+<span class="n">random_state_net</span> <span class="o">=</span> <span class="n">MacroStateNetwork</span><span class="p">(</span><span class="n">contig_tree</span><span class="p">,</span> <span class="n">transition_lag_time</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+                                     <span class="n">assg_field_key</span><span class="o">=</span><span class="s2">&quot;observables/rand_assg_idx&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>Because this object directly wraps the WepyHDF5 file, we have access to all the data including weights, positions, box sizes etc. and so we can perform all kinds of fancy operations on a macrostate basis.</p>
+</div>
+<div class="section" id="Weights/Free-Energy-of-the-Macrostates">
+<h2>Weights/Free Energy of the Macrostates<a class="headerlink" href="#Weights/Free-Energy-of-the-Macrostates" title="Permalink to this headline">¶</a></h2>
+<p>Since we are principally interested in the free energy of macrostates the weights of the macrostates are a canonical example.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[23]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1"># compute the weights of the macrostates and set them as node attributes</span>
+<span class="n">random_state_net</span><span class="o">.</span><span class="n">set_nodes_field</span><span class="p">(</span><span class="s1">&#39;Weight&#39;</span><span class="p">,</span> <span class="n">random_state_net</span><span class="o">.</span><span class="n">macrostate_weights</span><span class="p">())</span>
+
+<span class="c1"># get the weight of a node</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">random_state_net</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">node</span><span class="p">[</span><span class="mi">39</span><span class="p">][</span><span class="s1">&#39;Weight&#39;</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+3.2531508449465036
+</pre></div></div>
+</div>
+</div>
+<div class="section" id="Transition-Probabilitiy-Matrix">
+<h2>Transition Probabilitiy Matrix<a class="headerlink" href="#Transition-Probabilitiy-Matrix" title="Permalink to this headline">¶</a></h2>
+<p>To make an actual network we would need the transition probabilities as well, which were calculated with the lag time given when we created the network.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[24]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="nb">print</span><span class="p">(</span><span class="n">random_state_net</span><span class="o">.</span><span class="n">probmat</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+[[0.         0.         0.03225806 ... 0.04347826 0.04545455 0.03125   ]
+ [0.07692308 0.05555556 0.         ... 0.         0.         0.        ]
+ [0.         0.05555556 0.06451613 ... 0.         0.         0.        ]
+ ...
+ [0.         0.         0.         ... 0.04347826 0.         0.        ]
+ [0.         0.         0.         ... 0.         0.         0.09375   ]
+ [0.07692308 0.         0.06451613 ... 0.         0.         0.03125   ]]
+</pre></div></div>
+</div>
+</div>
+<div class="section" id="Updated-User-Workflow">
+<h2>Updated User Workflow<a class="headerlink" href="#Updated-User-Workflow" title="Permalink to this headline">¶</a></h2>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">rescale</span><span class="p">(</span><span class="n">CSN_workflow_shortway_im</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/tutorials_data_analysis_39_0.png" src="../_images/tutorials_data_analysis_39_0.png" />
+</div>
+</div>
+</div>
+<div class="section" id="Synergism-with-CSNAnalysis">
+<h2>Synergism with CSNAnalysis<a class="headerlink" href="#Synergism-with-CSNAnalysis" title="Permalink to this headline">¶</a></h2>
+<p>This is the assymetric probability matrix. You can calculate interesting things with it related to paths etc. with the <code class="docutils literal notranslate"><span class="pre">CSNAnalysis</span></code> package from here on.</p>
+<p>The purpose of this class is to calculate transition probabilities and create a direct interface to microstates in the HDF5 from a macrostate perspective.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[25]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">csnanalysis.csn</span> <span class="k">import</span> <span class="n">CSN</span>
+<span class="kn">from</span> <span class="nn">csnanalysis.matrix</span> <span class="k">import</span> <span class="o">*</span>
+
+<span class="n">csn</span> <span class="o">=</span> <span class="n">CSN</span><span class="p">(</span><span class="n">random_state_net</span><span class="o">.</span><span class="n">countsmat</span><span class="p">,</span> <span class="n">symmetrize</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="Committor-Probabilities">
+<h2>Committor Probabilities<a class="headerlink" href="#Committor-Probabilities" title="Permalink to this headline">¶</a></h2>
+<p>Calculate the distance between the two particles:</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[26]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">scipy.spatial.distance</span> <span class="k">import</span> <span class="n">euclidean</span>
+
+<span class="n">dists</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">node_id</span><span class="p">,</span> <span class="n">field_d</span> <span class="ow">in</span> <span class="n">random_state_net</span><span class="o">.</span><span class="n">iter_nodes_fields</span><span class="p">([</span><span class="s1">&#39;positions&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+
+    <span class="c1"># just use the positions of the first frame in the cluster</span>
+    <span class="n">pos_A</span><span class="p">,</span> <span class="n">pos_B</span> <span class="o">=</span> <span class="n">field_d</span><span class="p">[</span><span class="s1">&#39;positions&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">field_d</span><span class="p">[</span><span class="s1">&#39;positions&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="n">dist</span> <span class="o">=</span> <span class="n">euclidean</span><span class="p">(</span><span class="n">pos_A</span><span class="p">,</span> <span class="n">pos_B</span><span class="p">)</span>
+    <span class="n">dists</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dist</span><span class="p">)</span>
+
+</pre></div>
+</div>
+</div>
+<p>Determine the source and sink basins and compute the committor probabilities:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[27]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1"># the sink basins are those close to the unbinding cutoff</span>
+<span class="n">sink_basin</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">argwhere</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">dists</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mf">2.5</span><span class="p">)]</span>
+<span class="c1"># the source basins are where they are close together</span>
+<span class="n">source_basin</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">argwhere</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">dists</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mf">0.37</span><span class="p">)]</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Number of sink states:&quot;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">sink_basin</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Number of source states:&quot;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">source_basin</span><span class="p">))</span>
+
+<span class="n">committor_probabilities</span> <span class="o">=</span> <span class="n">csn</span><span class="o">.</span><span class="n">calc_committors</span><span class="p">([</span><span class="n">source_basin</span><span class="p">,</span> <span class="n">sink_basin</span><span class="p">])</span>
+<span class="n">committor_probabilities</span><span class="p">[</span><span class="mi">39</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Number of sink states: 2
+Number of source states: 3
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[27]:
+</pre></div>
+</div>
+<div class="output_area highlight-none notranslate"><div class="highlight"><pre>
+<span></span>array([0.5639545, 0.4360455])
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="Microstates-in-the-Macrostate">
+<h2>Microstates in the Macrostate<a class="headerlink" href="#Microstates-in-the-Macrostate" title="Permalink to this headline">¶</a></h2>
+<p>The macrostate keeps track of the microstates by a ‘trace’ which in <code class="docutils literal notranslate"><span class="pre">wepy</span></code> parlance is just a list of indices into the main wepy HDF5 data structure to a specific microstate, i.e. list of (run index, walker index, cycle index) tuples.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[28]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">node8_trace</span> <span class="o">=</span> <span class="n">random_state_net</span><span class="o">.</span><span class="n">node_assignments</span><span class="p">(</span><span class="mi">8</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">node8_trace</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+[(0, 0, 32), (0, 0, 56), (0, 0, 65), (0, 1, 13), (0, 1, 18), (0, 1, 43), (0, 1, 71), (0, 1, 73), (0, 1, 97), (0, 2, 22), (0, 2, 69), (0, 3, 44), (1, 0, 32), (1, 0, 57), (1, 0, 59), (1, 1, 28), (1, 2, 45), (1, 2, 68), (1, 2, 76), (1, 3, 37), (1, 3, 61), (2, 0, 39), (2, 0, 45), (2, 1, 16), (2, 2, 81), (2, 3, 41), (2, 3, 46), (2, 3, 65)]
+</pre></div></div>
+</div>
+</div>
+<div class="section" id="Visualizing-Microstates">
+<h2>Visualizing Microstates<a class="headerlink" href="#Visualizing-Microstates" title="Permalink to this headline">¶</a></h2>
+<p>This is used to make it very easy to visualize the microstates by allowing export to other trajectory software better supported by viewers like <code class="docutils literal notranslate"><span class="pre">mdtraj</span></code>.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[29]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1"># get an mdtraj trajectory object from the microstates in a node</span>
+<span class="n">node8_traj</span> <span class="o">=</span> <span class="n">random_state_net</span><span class="o">.</span><span class="n">state_to_mdtraj</span><span class="p">(</span><span class="mi">8</span><span class="p">)</span>
+<span class="n">node8_traj</span><span class="o">.</span><span class="n">superpose</span><span class="p">(</span><span class="n">node8_traj</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> frames in macrostate </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">node8_traj</span><span class="o">.</span><span class="n">n_frames</span><span class="p">,</span> <span class="mi">8</span><span class="p">))</span>
+<span class="kn">import</span> <span class="nn">nglview</span> <span class="k">as</span> <span class="nn">nv</span>
+<span class="n">view</span> <span class="o">=</span> <span class="n">nv</span><span class="o">.</span><span class="n">show_mdtraj</span><span class="p">(</span><span class="n">node8_traj</span><span class="p">)</span>
+<span class="n">view</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+28 frames in macrostate 8
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "e978a698de1345c8b15988c7f318b346", "version_major": 2, "version_minor": 0}</script></div>
+</div>
+</div>
+<div class="section" id="Linking-Runs-Together">
+<h2>Linking Runs Together<a class="headerlink" href="#Linking-Runs-Together" title="Permalink to this headline">¶</a></h2>
+<p>When doing many runs over different jobs and with continuations we found that it would be useful to be able to link them all into a single file and thus not have to worry about different files when doing analysis.</p>
+<p>Luckily, the HDF5 standard provides a way to do this and is now incorporated into <code class="docutils literal notranslate"><span class="pre">wepy.hdf5</span></code>.</p>
+<p>The main methods we can use to accomplish this are: - <code class="docutils literal notranslate"><span class="pre">clone</span></code> : copy the header information in a file without run data - <code class="docutils literal notranslate"><span class="pre">add_continuation</span></code> : manually specify a continuation within a file - <code class="docutils literal notranslate"><span class="pre">link_run</span></code> : link a single run from another file, optionally creating a continuation - <code class="docutils literal notranslate"><span class="pre">link_file_runs</span></code> : link all runs from another file, preserving their internal continuations</p>
+<div class="section" id="Example-Datasets">
+<h3>Example Datasets<a class="headerlink" href="#Example-Datasets" title="Permalink to this headline">¶</a></h3>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">rescale</span><span class="p">(</span><span class="n">linking_files_im</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/tutorials_data_analysis_53_0.png" src="../_images/tutorials_data_analysis_53_0.png" />
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[22]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">wepy2</span> <span class="o">=</span> <span class="n">WepyHDF5</span><span class="p">(</span><span class="n">wepy2_path</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">)</span>
+<span class="n">wepy3</span> <span class="o">=</span> <span class="n">WepyHDF5</span><span class="p">(</span><span class="n">wepy3_path</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">)</span>
+<span class="k">with</span> <span class="n">wepy2</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;File 2 runs:&quot;</span><span class="p">,</span> <span class="n">wepy2</span><span class="o">.</span><span class="n">run_idxs</span><span class="p">)</span>
+<span class="k">with</span> <span class="n">wepy3</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;File 3 runs:&quot;</span><span class="p">,</span> <span class="n">wepy3</span><span class="o">.</span><span class="n">run_idxs</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+File 2 runs: [0]
+File 3 runs: [0]
+</pre></div></div>
+</div>
+</div>
+</div>
+<div class="section" id="Code:">
+<h2>Code:<a class="headerlink" href="#Code:" title="Permalink to this headline">¶</a></h2>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[23]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1"># now we are going to link them all under one linker file</span>
+<span class="n">linker_h5_path</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">outputs_dir</span><span class="p">,</span> <span class="s2">&quot;all_runs.wepy.h5&quot;</span><span class="p">)</span>
+<span class="k">with</span> <span class="n">wepy1</span><span class="p">:</span>
+    <span class="n">all_wepy</span> <span class="o">=</span> <span class="n">wepy1</span><span class="o">.</span><span class="n">clone</span><span class="p">(</span><span class="n">linker_h5_path</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;w&#39;</span><span class="p">)</span>
+
+<span class="k">with</span> <span class="n">all_wepy</span><span class="p">:</span>
+
+    <span class="c1"># link the whole file for wepy1 to preserve the continuations</span>
+    <span class="n">wepy1_run_idxs</span> <span class="o">=</span> <span class="n">all_wepy</span><span class="o">.</span><span class="n">link_file_runs</span><span class="p">(</span><span class="n">wepy1_path</span><span class="p">)</span>
+
+    <span class="c1"># do the same for wepy2 just to test it on only one run in a file and</span>
+    <span class="c1"># because it is easier</span>
+    <span class="n">wepy2_run_idxs</span> <span class="o">=</span> <span class="n">all_wepy</span><span class="o">.</span><span class="n">link_file_runs</span><span class="p">(</span><span class="n">wepy2_path</span><span class="p">)</span>
+
+    <span class="c1"># now we need to link the run from the continuation file for wepy2 and</span>
+    <span class="c1"># add in the continuation records</span>
+    <span class="n">all_wepy</span><span class="o">.</span><span class="n">link_run</span><span class="p">(</span><span class="n">wepy3_path</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">continue_run</span><span class="o">=</span><span class="n">wepy2_run_idxs</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="n">all_wepy</span><span class="o">.</span><span class="n">spanning_contigs</span><span class="p">())</span>
+
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+[[0, 1], [0, 2], [3, 4]]
+</pre></div></div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[24]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">all_wepy</span><span class="o">.</span><span class="n">open</span><span class="p">()</span>
+<span class="n">wepy1</span><span class="o">.</span><span class="n">open</span><span class="p">()</span>
+<span class="n">wepy2</span><span class="o">.</span><span class="n">open</span><span class="p">()</span>
+<span class="n">wepy3</span><span class="o">.</span><span class="n">open</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="Future-Topics">
+<h2>Future Topics<a class="headerlink" href="#Future-Topics" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>Automatic exit point ancestry trees and trajectories</p></li>
+<li><p>Easier restarts and continuations</p></li>
+</ul>
+<div class="section" id="Requests-and-Challenges?">
+<h3>Requests and Challenges?<a class="headerlink" href="#Requests-and-Challenges?" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>stripping waters</p></li>
+<li><p>clustering featurization examples</p></li>
+<li><p>linking files with different amount of solvent</p></li>
+</ul>
+</div>
+<div class="section" id="TODO">
+<h3>TODO<a class="headerlink" href="#TODO" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>wepy paper</p></li>
+</ul>
+</div>
+</div>
+</div>
+
+
+          </div>
+            
+  <div class="footer-relations">
+    
+      <div class="pull-left">
+        <a class="btn btn-default" href="index.html" title="previous chapter (use the left arrow)">Tutorials</a>
+      </div>
+    
+      <div class="pull-right">
+        <a class="btn btn-default" href="seh_prep.html" title="next chapter (use the right arrow)">sEH ligand unbinding: A real use-case</a>
+      </div>
+    </div>
+    <div class="clearer"></div>
+  
+        </div>
+        <div class="clearfix"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="seh_prep.html" title="sEH ligand unbinding: A real use-case"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Tutorials"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">wepy  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >Tutorials</a> &#187;</li> 
+      </ul>
+    </div>
+<script type="text/javascript">
+  $("#mobile-toggle a").click(function () {
+    $("#left-column").toggle();
+  });
+</script>
+<script type="text/javascript" src="../_static/js/bootstrap.js"></script>
+  <div class="footer">
+    &copy; Copyright 2018, Samuel D. Lotz. Created using <a href="http://sphinx.pocoo.org/">Sphinx</a>.
+  </div>
+  </body>
+</html>

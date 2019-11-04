@@ -1,0 +1,613 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+  
+  <!-- Licensed under the Apache 2.0 License -->
+  <link rel="stylesheet" type="text/css" href="../../../_static/fonts/open-sans/stylesheet.css" />
+  <!-- Licensed under the SIL Open Font License -->
+  <link rel="stylesheet" type="text/css" href="../../../_static/fonts/source-serif-pro/source-serif-pro.css" />
+  <link rel="stylesheet" type="text/css" href="../../../_static/css/bootstrap.min.css" />
+  <link rel="stylesheet" type="text/css" href="../../../_static/css/bootstrap-theme.min.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+    <title>wepy.analysis.distributed &#8212; wepy  documentation</title>
+    <link rel="stylesheet" href="../../../_static/guzzle.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../../_static/language_data.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+  
+   
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">wepy  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="container-wrapper">
+
+      <div id="mobile-toggle">
+        <a href="#"><span class="glyphicon glyphicon-align-justify" aria-hidden="true"></span></a>
+      </div>
+  <div id="left-column">
+    <div class="sphinxsidebar">
+<div class="sidebar-block">
+  <div class="sidebar-wrapper">
+    <div id="main-search">
+      <form class="form-inline" action="../../../search.html" method="GET" role="form">
+        <div class="input-group">
+          <input name="q" type="text" class="form-control" placeholder="Search...">
+        </div>
+        <input type="hidden" name="check_keywords" value="yes" />
+        <input type="hidden" name="area" value="default" />
+      </form>
+    </div>
+  </div>
+</div>
+      
+    </div>
+  </div>
+        <div id="right-column">
+          
+          <div role="navigation" aria-label="breadcrumbs navigation">
+            <ol class="breadcrumb">
+              <li><a href="../../../index.html">Docs</a></li>
+              
+                <li><a href="../../index.html">Module code</a></li>
+              
+              <li>wepy.analysis.distributed</li>
+            </ol>
+          </div>
+          
+          <div class="document clearer body">
+            
+  <h1>Source code for wepy.analysis.distributed</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Module that provides functionality for performing parallel</span>
+<span class="sd">distributed calculations using the dask suite of tools.</span>
+
+<span class="sd">Because these tools are to be used in tandem with each other here is an overview of how they fit together:</span>
+
+
+<span class="sd">Dask provides parallelism over arbitrary (serializable) python</span>
+<span class="sd">objects through the bag object. Because WepyHDF5 objects (or any</span>
+<span class="sd">HDF5 dataset reference) are not serializable (because they contain</span>
+<span class="sd">file handles to an underlying HDF5 file) we instead provide a</span>
+<span class="sd">simple datastructure that provides the specifications for which</span>
+<span class="sd">dataset to read from and what piece of the data is to be read</span>
+<span class="sd">in. These the &#39;items&#39; (which are returned by this function) are a</span>
+<span class="sd">simple tuple containing:</span>
+
+<span class="sd">- file path to WepyHDF5 file</span>
+<span class="sd">- run index</span>
+<span class="sd">- trajectory index</span>
+<span class="sd">- frame indices</span>
+<span class="sd">- field names/paths</span>
+
+<span class="sd">This is everything we need to call the `get_traj_field` method and</span>
+<span class="sd">generate a traj fields, which can then be operated on by various</span>
+<span class="sd">other functions, e.g. `traj_fields_to_mdtraj` or any function that</span>
+<span class="sd">could be passed to `WepyHDF5.compute_observable`.</span>
+
+<span class="sd">This function does not directly create a dask bag object, but can</span>
+<span class="sd">easily be done, via</span>
+<span class="sd">`dask.bag.from_sequence(traj_fields_bag_items(*args))`. After</span>
+<span class="sd">which we only need to actually load the data into memory using the</span>
+<span class="sd">other helper function `load_frames_fields` which takes as a single</span>
+<span class="sd">argument a single &#39;item&#39; from this functions output.</span>
+
+<span class="sd">I.e.:</span>
+<span class="sd">`dask.bag.from_sequence(traj_fields_bag_items(*args)).map(load_frames_fields)`</span>
+
+<span class="sd">This will create a dask bag which can then be used to perform</span>
+<span class="sd">various distributed, parallel operations on it, such as</span>
+<span class="sd">`dask.bag.map`. Think of it as a distributed version of</span>
+<span class="sd">`WepyHDF5.compute_observable` (except we can&#39;t save directly to</span>
+<span class="sd">the WepyHDF5 in the same invocation).</span>
+
+<span class="sd">For example:</span>
+
+<span class="sd">```</span>
+<span class="sd">import dask</span>
+<span class="sd">from wepy.util.mdtraj import traj_fields_to_mdtraj</span>
+<span class="sd">from wepy.analysis.distributed import traj_fields_chunk_items, load_traj_chunks</span>
+
+<span class="sd">bag = dask.bag.from_sequence(</span>
+<span class="sd">         traj_fields_bag_items(</span>
+<span class="sd">                &#39;results.wepy.h5&#39;,</span>
+<span class="sd">                [&#39;positions&#39;, &#39;box_vectors&#39;],</span>
+<span class="sd">                chunk_size=500</span>
+<span class="sd">                              )</span>
+<span class="sd">                            )</span>
+
+<span class="sd"># load the trajectory fields &quot;chunks&quot; into distributed memory</span>
+<span class="sd">a = bag.map(load_traj_chunks)</span>
+<span class="sd"># convert our &quot;trajectory fields&quot; chunks to an mdtraj Trajectory object</span>
+<span class="sd">b = bag.map(traj_fields_to_mdtraj)</span>
+<span class="sd"># compute the solvent accessible surface area of the trajectory chunks</span>
+<span class="sd">c = bag.map(mdj.shrake_rupley)</span>
+<span class="sd">results = b.compute()</span>
+
+<span class="sd">```</span>
+
+<span class="sd">The intermediate values a, b, and c are just place holders for</span>
+<span class="sd">delayed operations since, dask is &#39;lazy&#39; in the sense that it</span>
+<span class="sd">doesn&#39;t actually do any of the work in the &#39;map&#39; calls until you</span>
+<span class="sd">call &#39;compute&#39;.</span>
+
+<span class="sd">The choice of the chunk size is also of high importance for getting</span>
+<span class="sd">efficient calculations. To choose the chunk size appropriately</span>
+<span class="sd">consider the resources and parallelism available to each of your</span>
+<span class="sd">workers and the amount of data that you have.</span>
+
+<span class="sd">The smaller the chunk, the more tasks that will be generated for</span>
+<span class="sd">dask. Each task has an intrinsic overhead associated with it, may</span>
+<span class="sd">require serialization and communication if operating in separate</span>
+<span class="sd">processes or hosts, and furthermore needs to be scheduled for</span>
+<span class="sd">execution by dask. An excessively large number of tasks will cause the</span>
+<span class="sd">scheduler to grind to a halt so we want to increase the chunk size to</span>
+<span class="sd">large enough that the scheduler can handle it and that communication</span>
+<span class="sd">doesn&#39;t become more expensive than actual calculation. However, we are limited in a few ways to the size of the chunks:</span>
+
+<span class="sd">1. length of individual trajectories in a run</span>
+<span class="sd">2. memory of a worker process</span>
+<span class="sd">3. throughput of a worker process</span>
+
+<span class="sd">Firstly we are limited in a strong sense by the fact that the largest</span>
+<span class="sd">possible chunk for a single trajectory is the whole trajectory. Even</span>
+<span class="sd">if larger chunks would be theoretically, possible. Probably there are</span>
+<span class="sd">advanced optimizations that could be made if our trajectories happened</span>
+<span class="sd">to be very numerous and very short, we assume that trajectories are</span>
+<span class="sd">reasonably long and not numbering in the hundreds of thousands or</span>
+<span class="sd">millions. This is also dependent on the actual size of a single frame,</span>
+<span class="sd">which may vary greatly in size for different domains. In any case you</span>
+<span class="sd">should very likely do some dimensionality reduction before performing</span>
+<span class="sd">calculations (i.e. stripping out waters in molecular dynamics</span>
+<span class="sd">simulations).</span>
+
+<span class="sd">Secondly, a chunk must be able to fit into the memory of a worker</span>
+<span class="sd">process. This is a straightforward and intuitive limitation.</span>
+<span class="sd">Thirdly, we must not make the chunks so large that the degree of</span>
+<span class="sd">parallelism is diminished.</span>
+
+<span class="sd">We leave off here because optimizing parallel calculation is a huge</span>
+<span class="sd">topic and will change from problem to problem. Thus we encourage trial</span>
+<span class="sd">and error. In our experience however, a nonresponsive (but non-error</span>
+<span class="sd">producing calculation) is probably due to the scheduler being</span>
+<span class="sd">inundated with too many tasks (chunk sizes too small, say of only 1</span>
+<span class="sd">frame).</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">time</span>
+
+<span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">defaultdict</span>
+<span class="kn">from</span> <span class="nn">copy</span> <span class="k">import</span> <span class="n">deepcopy</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">import</span> <span class="nn">dask.bag</span> <span class="k">as</span> <span class="nn">dbag</span>
+
+<span class="kn">from</span> <span class="nn">wepy.hdf5</span> <span class="k">import</span> <span class="n">WepyHDF5</span>
+<span class="kn">from</span> <span class="nn">wepy.util.util</span> <span class="k">import</span> <span class="n">concat_traj_fields</span>
+
+<span class="n">RESULT_FIELD_NAME</span> <span class="o">=</span> <span class="s1">&#39;observable&#39;</span>
+
+<div class="viewcode-block" id="traj_fields_chunk_items"><a class="viewcode-back" href="../../../api/wepy.analysis.distributed.html#wepy.analysis.distributed.traj_fields_chunk_items">[docs]</a><span class="k">def</span> <span class="nf">traj_fields_chunk_items</span><span class="p">(</span><span class="n">wepy_h5_path</span><span class="p">,</span> <span class="n">fields</span><span class="p">,</span>
+                            <span class="n">run_idxs</span><span class="o">=</span><span class="bp">Ellipsis</span><span class="p">,</span>
+                            <span class="n">chunk_size</span><span class="o">=</span><span class="bp">Ellipsis</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Generate items that can be used to create a dask.bag object.</span>
+
+<span class="sd">    Arguments</span>
+<span class="sd">    ---------</span>
+
+<span class="sd">    wepy_h5_path : str</span>
+<span class="sd">        The file path to the WepyHDF5 file that will be read from.</span>
+
+<span class="sd">    fields : list of str</span>
+<span class="sd">        The field names/paths for the data to be retrieved.</span>
+
+<span class="sd">    chunk_size : int</span>
+<span class="sd">        This is the size of the chunk (i.e. number of frames) that</span>
+<span class="sd">        will be retrieved from each trajectory. This is the unit of</span>
+<span class="sd">        data for which a single task will work on. Dask will also</span>
+<span class="sd">        partition these chunks as it sees fit.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    chunk_specs : list of dict of str : value</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># open the HDF5</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">wepy_h5</span> <span class="o">=</span> <span class="n">WepyHDF5</span><span class="p">(</span><span class="n">wepy_h5_path</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">OSError</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Failed to open HDF5&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="k">with</span> <span class="n">wepy_h5</span><span class="p">:</span>
+
+        <span class="c1"># choose the run idxs</span>
+        <span class="k">if</span> <span class="n">run_idxs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">Ellipsis</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="nb">all</span><span class="p">([</span><span class="n">run_idx</span> <span class="ow">in</span> <span class="n">wepy_h5</span><span class="o">.</span><span class="n">run_idxs</span> <span class="k">for</span> <span class="n">run_idx</span> <span class="ow">in</span> <span class="n">run_idxs</span><span class="p">]),</span> <span class="s2">&quot;run_idx not in runs&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">run_idxs</span> <span class="o">=</span> <span class="n">wepy_h5</span><span class="o">.</span><span class="n">run_idxs</span>
+
+        <span class="n">chunk_specs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">run_idx</span> <span class="ow">in</span> <span class="n">run_idxs</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">traj_idx</span> <span class="ow">in</span> <span class="n">wepy_h5</span><span class="o">.</span><span class="n">run_traj_idxs</span><span class="p">(</span><span class="n">run_idx</span><span class="p">):</span>
+
+                <span class="n">num_frames</span> <span class="o">=</span> <span class="n">wepy_h5</span><span class="o">.</span><span class="n">num_traj_frames</span><span class="p">(</span><span class="n">run_idx</span><span class="p">,</span> <span class="n">traj_idx</span><span class="p">)</span>
+
+                <span class="c1"># determine the specific frame indices in the chunks</span>
+
+                <span class="c1"># if the chunk size is either larger than the</span>
+                <span class="c1"># trajectory, or chunk size is Ellipsis we take the</span>
+                <span class="c1"># whole trajectory</span>
+                <span class="k">if</span> <span class="n">chunk_size</span> <span class="ow">is</span> <span class="bp">Ellipsis</span><span class="p">:</span>
+                    <span class="n">chunks</span> <span class="o">=</span> <span class="p">[</span><span class="nb">range</span><span class="p">(</span><span class="n">num_frames</span><span class="p">)]</span>
+                <span class="k">elif</span> <span class="n">chunk_size</span> <span class="o">&gt;</span> <span class="n">num_frames</span><span class="p">:</span>
+                    <span class="n">chunks</span> <span class="o">=</span> <span class="p">[</span><span class="nb">range</span><span class="p">(</span><span class="n">num_frames</span><span class="p">)]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="c1"># split it allowing for an unequal chunk sizes</span>
+                    <span class="n">chunks</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array_split</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">num_frames</span><span class="p">),</span>
+                                            <span class="n">num_frames</span> <span class="o">//</span> <span class="n">chunk_size</span><span class="p">)</span>
+
+                <span class="k">for</span> <span class="n">frame_idxs</span> <span class="ow">in</span> <span class="n">chunks</span><span class="p">:</span>
+                    <span class="n">chunk_spec</span> <span class="o">=</span> <span class="p">{</span>
+                        <span class="s1">&#39;wepy_h5_path&#39;</span> <span class="p">:</span> <span class="n">wepy_h5_path</span><span class="p">,</span>
+                        <span class="s1">&#39;run_idx&#39;</span> <span class="p">:</span> <span class="n">run_idx</span><span class="p">,</span>
+                        <span class="s1">&#39;traj_idx&#39;</span> <span class="p">:</span> <span class="n">traj_idx</span><span class="p">,</span>
+                        <span class="s1">&#39;frame_idxs&#39;</span> <span class="p">:</span> <span class="n">frame_idxs</span><span class="p">,</span>
+                        <span class="s1">&#39;fields&#39;</span> <span class="p">:</span> <span class="n">fields</span><span class="p">,</span>
+                    <span class="p">}</span>
+                    <span class="n">chunk_specs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">chunk_spec</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">chunk_specs</span></div>
+
+<div class="viewcode-block" id="load_chunk"><a class="viewcode-back" href="../../../api/wepy.analysis.distributed.html#wepy.analysis.distributed.load_chunk">[docs]</a><span class="k">def</span> <span class="nf">load_chunk</span><span class="p">(</span><span class="n">chunk_spec</span><span class="p">):</span>
+
+    <span class="n">wepy_h5</span> <span class="o">=</span> <span class="n">WepyHDF5</span><span class="p">(</span><span class="n">chunk_spec</span><span class="p">[</span><span class="s1">&#39;wepy_h5_path&#39;</span><span class="p">],</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">)</span>
+
+    <span class="k">with</span> <span class="n">wepy_h5</span><span class="p">:</span>
+        <span class="n">frame_fields</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">chunk_spec</span><span class="p">[</span><span class="s1">&#39;fields&#39;</span><span class="p">]:</span>
+            <span class="n">frame_fields</span><span class="p">[</span><span class="n">field</span><span class="p">]</span> <span class="o">=</span> <span class="n">wepy_h5</span><span class="o">.</span><span class="n">get_traj_field</span><span class="p">(</span><span class="n">chunk_spec</span><span class="p">[</span><span class="s1">&#39;run_idx&#39;</span><span class="p">],</span>
+                                                         <span class="n">chunk_spec</span><span class="p">[</span><span class="s1">&#39;traj_idx&#39;</span><span class="p">],</span>
+                                                         <span class="n">field</span><span class="p">,</span>
+                                                         <span class="n">frames</span><span class="o">=</span><span class="n">chunk_spec</span><span class="p">[</span><span class="s1">&#39;frame_idxs&#39;</span><span class="p">])</span>
+
+    <span class="c1"># combine the chunk spec with the traj_fields data</span>
+    <span class="n">chunk_spec</span><span class="p">[</span><span class="s1">&#39;traj_fields&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">frame_fields</span>
+
+    <span class="k">return</span> <span class="n">chunk_spec</span></div>
+
+<div class="viewcode-block" id="chunk_func_funcgen"><a class="viewcode-back" href="../../../api/wepy.analysis.distributed.html#wepy.analysis.distributed.chunk_func_funcgen">[docs]</a><span class="k">def</span> <span class="nf">chunk_func_funcgen</span><span class="p">(</span><span class="n">func</span><span class="p">,</span>
+                       <span class="n">input_keys</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;traj_fields&#39;</span><span class="p">],</span>
+                       <span class="n">result_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                       <span class="n">keep_inputs</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+
+    <span class="c1"># if the result name wasn&#39;t given use the function name</span>
+    <span class="k">if</span> <span class="n">result_name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">result_name</span> <span class="o">=</span> <span class="n">func</span><span class="o">.</span><span class="vm">__name__</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">result_name</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>
+
+        <span class="n">result_name</span> <span class="o">=</span> <span class="n">result_name</span>
+
+
+    <span class="k">def</span> <span class="nf">chunk_func</span><span class="p">(</span><span class="n">chunk_spec</span><span class="p">):</span>
+
+
+        <span class="k">assert</span> <span class="ow">not</span> <span class="n">result_name</span> <span class="ow">in</span> <span class="n">chunk_spec</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+
+        <span class="n">fields</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">input_keys</span><span class="p">:</span>
+
+            <span class="c1"># pop the trajectory fields off if we are to keep them or not</span>
+            <span class="k">if</span> <span class="n">keep_inputs</span><span class="p">:</span>
+                <span class="n">field</span> <span class="o">=</span> <span class="n">chunk_spec</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">field</span> <span class="o">=</span> <span class="n">chunk_spec</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+
+            <span class="n">fields</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">field</span><span class="p">)</span>
+
+        <span class="n">chunk_spec</span><span class="p">[</span><span class="n">result_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">func</span><span class="p">(</span><span class="o">*</span><span class="n">fields</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">chunk_spec</span>
+
+    <span class="k">return</span> <span class="n">chunk_func</span></div>
+
+<span class="c1"># NOTE: probably shouldn&#39;t need this. THere is a dask function called</span>
+<span class="c1"># &#39;pluck&#39; which does the same thing, except only for 1 key</span>
+<div class="viewcode-block" id="unwrap_chunk_funcgen"><a class="viewcode-back" href="../../../api/wepy.analysis.distributed.html#wepy.analysis.distributed.unwrap_chunk_funcgen">[docs]</a><span class="k">def</span> <span class="nf">unwrap_chunk_funcgen</span><span class="p">(</span><span class="n">keys</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Consider first using the bag.pluck method&quot;&quot;&quot;</span>
+
+    <span class="k">assert</span> <span class="n">keys</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;must give at least one key or this is useless&quot;</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">keys</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;must give at least one key or this is useless&quot;</span>
+
+    <span class="k">def</span> <span class="nf">unwrap_chunk_func</span><span class="p">(</span><span class="n">chunk_struct</span><span class="p">):</span>
+
+        <span class="k">return</span> <span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="n">value</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">chunk_struct</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+                <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">}</span>
+
+    <span class="k">return</span> <span class="n">unwrap_chunk_func</span></div>
+
+<span class="c1"># for reduction</span>
+<div class="viewcode-block" id="chunk_key_func"><a class="viewcode-back" href="../../../api/wepy.analysis.distributed.html#wepy.analysis.distributed.chunk_key_func">[docs]</a><span class="k">def</span> <span class="nf">chunk_key_func</span><span class="p">(</span><span class="n">chunk_spec</span><span class="p">):</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">chunk_spec</span><span class="p">[</span><span class="s1">&#39;run_idx&#39;</span><span class="p">],</span> <span class="n">chunk_spec</span><span class="p">[</span><span class="s1">&#39;traj_idx&#39;</span><span class="p">])</span></div>
+
+<div class="viewcode-block" id="init_chunk"><a class="viewcode-back" href="../../../api/wepy.analysis.distributed.html#wepy.analysis.distributed.init_chunk">[docs]</a><span class="k">def</span> <span class="nf">init_chunk</span><span class="p">():</span>
+
+    <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;wepy_h5_path&#39;</span> <span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="s1">&#39;run_idx&#39;</span> <span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="s1">&#39;traj_idx&#39;</span> <span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="s1">&#39;fields&#39;</span> <span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="s1">&#39;frame_idxs&#39;</span> <span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([])}</span></div>
+
+<div class="viewcode-block" id="chunk_concat_funcgen"><a class="viewcode-back" href="../../../api/wepy.analysis.distributed.html#wepy.analysis.distributed.chunk_concat_funcgen">[docs]</a><span class="k">def</span> <span class="nf">chunk_concat_funcgen</span><span class="p">(</span><span class="o">*</span><span class="n">concat_funcs</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">chunk_concat</span><span class="p">(</span><span class="n">cum_chunk_spec</span><span class="p">,</span> <span class="n">new_chunk_spec</span><span class="p">):</span>
+
+        <span class="n">new_chunk</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">cum_chunk_spec</span><span class="p">)</span>
+
+        <span class="c1"># check to see that the accumulator chunk struct has been</span>
+        <span class="c1"># initialized, if not initialize it with the values from the new_chunk</span>
+        <span class="k">if</span> <span class="p">(</span>
+                <span class="p">(</span><span class="n">cum_chunk_spec</span><span class="p">[</span><span class="s1">&#39;wepy_h5_path&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">or</span>
+                <span class="p">(</span><span class="n">cum_chunk_spec</span><span class="p">[</span><span class="s1">&#39;run_idx&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">or</span>
+                <span class="p">(</span><span class="n">cum_chunk_spec</span><span class="p">[</span><span class="s1">&#39;traj_idx&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">or</span>
+                <span class="p">(</span><span class="n">cum_chunk_spec</span><span class="p">[</span><span class="s1">&#39;fields&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="p">):</span>
+            <span class="n">cum_chunk_spec</span><span class="p">[</span><span class="s1">&#39;wepy_h5_path&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_chunk_spec</span><span class="p">[</span><span class="s1">&#39;wepy_h5_path&#39;</span><span class="p">]</span>
+            <span class="n">cum_chunk_spec</span><span class="p">[</span><span class="s1">&#39;run_idx&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_chunk_spec</span><span class="p">[</span><span class="s1">&#39;run_idx&#39;</span><span class="p">]</span>
+            <span class="n">cum_chunk_spec</span><span class="p">[</span><span class="s1">&#39;traj_idx&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_chunk_spec</span><span class="p">[</span><span class="s1">&#39;traj_idx&#39;</span><span class="p">]</span>
+            <span class="n">cum_chunk_spec</span><span class="p">[</span><span class="s1">&#39;fields&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_chunk_spec</span><span class="p">[</span><span class="s1">&#39;fields&#39;</span><span class="p">]</span>
+
+        <span class="c1"># concatenate the frame indices in this chunk</span>
+        <span class="n">new_chunk</span><span class="p">[</span><span class="s1">&#39;frame_idxs&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">cum_chunk_spec</span><span class="p">[</span><span class="s1">&#39;frame_idxs&#39;</span><span class="p">],</span> <span class="n">new_chunk_spec</span><span class="p">[</span><span class="s1">&#39;frame_idxs&#39;</span><span class="p">]])</span>
+
+        <span class="c1"># for each extra concat function feed it the two chunk specs</span>
+        <span class="k">for</span> <span class="n">concat_func</span> <span class="ow">in</span> <span class="n">concat_funcs</span><span class="p">:</span>
+
+            <span class="c1"># update the cumulative chunk spec in-place</span>
+            <span class="n">new_chunk</span> <span class="o">=</span> <span class="n">concat_func</span><span class="p">(</span><span class="n">new_chunk</span><span class="p">,</span>
+                                    <span class="n">new_chunk_spec</span><span class="p">)</span>
+
+
+        <span class="k">return</span> <span class="n">new_chunk</span>
+
+    <span class="k">return</span> <span class="n">chunk_concat</span></div>
+
+
+<div class="viewcode-block" id="chunk_array_concat_funcgen"><a class="viewcode-back" href="../../../api/wepy.analysis.distributed.html#wepy.analysis.distributed.chunk_array_concat_funcgen">[docs]</a><span class="k">def</span> <span class="nf">chunk_array_concat_funcgen</span><span class="p">(</span><span class="n">field</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">func</span><span class="p">(</span><span class="n">cum_chunk_spec</span><span class="p">,</span> <span class="n">new_chunk_spec</span><span class="p">):</span>
+
+        <span class="c1"># only add it if it has been initialized in the cum_chunk</span>
+        <span class="k">if</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">cum_chunk_spec</span><span class="p">:</span>
+            <span class="n">cum_chunk_spec</span><span class="p">[</span><span class="n">field</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">cum_chunk_spec</span><span class="p">[</span><span class="n">field</span><span class="p">],</span> <span class="n">new_chunk_spec</span><span class="p">[</span><span class="n">field</span><span class="p">]])</span>
+
+        <span class="c1"># otherwise set just the new chunk</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">cum_chunk_spec</span><span class="p">[</span><span class="n">field</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_chunk_spec</span><span class="p">[</span><span class="n">field</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">cum_chunk_spec</span>
+
+    <span class="k">return</span> <span class="n">func</span></div>
+
+<div class="viewcode-block" id="chunk_traj_fields_concat"><a class="viewcode-back" href="../../../api/wepy.analysis.distributed.html#wepy.analysis.distributed.chunk_traj_fields_concat">[docs]</a><span class="k">def</span> <span class="nf">chunk_traj_fields_concat</span><span class="p">(</span><span class="n">cum_chunk_spec</span><span class="p">,</span> <span class="n">new_chunk_spec</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Binary operation for dask foldby reductions for concatenating chunk</span>
+<span class="sd">    specs with a traj_fields payload&quot;&quot;&quot;</span>
+
+    <span class="c1"># concatenate the traj fields</span>
+    <span class="n">cum_chunk_spec</span><span class="p">[</span><span class="s1">&#39;traj_fields&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">concat_traj_fields</span><span class="p">(</span>
+        <span class="p">[</span><span class="n">cum_chunk_spec</span><span class="p">[</span><span class="s1">&#39;traj_fields&#39;</span><span class="p">],</span> <span class="n">new_chunk_spec</span><span class="p">[</span><span class="s1">&#39;traj_fields&#39;</span><span class="p">]])</span>
+
+    <span class="k">return</span> <span class="n">cum_chunk_spec</span></div>
+
+
+<span class="c1"># this needs to be tested etc.</span>
+<span class="c1"># def compute_observable_gen(func,</span>
+<span class="c1">#                            wepy_h5_path,</span>
+<span class="c1">#                            dask_client,</span>
+<span class="c1">#                            fields,</span>
+<span class="c1">#                            chunk_size=Ellipsis,</span>
+<span class="c1">#                            # TODO replace with traj_sels</span>
+<span class="c1">#                            run_idxs=Ellipsis):</span>
+
+<span class="c1">#     with dask_client:</span>
+
+<span class="c1">#         chunks = traj_fields_chunk_items(wepy_h5_path,</span>
+<span class="c1">#                                          fields,</span>
+<span class="c1">#                                          chunk_size=chunk_size,</span>
+<span class="c1">#                                          run_idxs=run_idxs)</span>
+
+<span class="c1">#         # DEBUG</span>
+<span class="c1">#         # TODO add to logging</span>
+<span class="c1">#         print(&quot;generated {} chunks&quot;.format(len(chunks)))</span>
+
+<span class="c1">#         frame_fields_bag = dbag.from_sequence(chunks)</span>
+
+<span class="c1">#         last_step = compute_observable_graph(func, frame_fields_bag, chunk_size)</span>
+
+<span class="c1">#         # then we can just iterate through the values (JIT compute)</span>
+<span class="c1">#         # and set them into the appropriate trajectory</span>
+<span class="c1">#         while True:</span>
+<span class="c1">#             traj_id, struct = last_step.take(1)</span>
+<span class="c1">#             yield (traj_id, struct[&#39;observable&#39;])</span>
+
+<span class="k">def</span> <span class="nf">_by_traj_to_multidimensional</span><span class="p">(</span><span class="n">traj_d</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Convert a dictionary of keys (run_idx, traj_idx) and values (of</span>
+<span class="sd">    dimension val_dim) as arrays to a list of lists of the value</span>
+<span class="sd">    arrays.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># get all of the unique run_idxs and sort them</span>
+    <span class="n">run_idxs</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">([</span><span class="n">traj_id</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">traj_id</span> <span class="ow">in</span> <span class="n">traj_d</span><span class="o">.</span><span class="n">keys</span><span class="p">()])))</span>
+
+    <span class="c1"># then get which trajectories each run has</span>
+    <span class="n">run_trajs</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">run_idx</span><span class="p">,</span> <span class="n">traj_idx</span> <span class="ow">in</span> <span class="n">traj_d</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="n">run_trajs</span><span class="p">[</span><span class="n">run_idx</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">traj_idx</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">run_idx</span> <span class="ow">in</span> <span class="n">run_trajs</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="c1"># sort the traj indices (these are unique already within the</span>
+        <span class="c1"># run)</span>
+        <span class="n">run_trajs</span><span class="p">[</span><span class="n">run_idx</span><span class="p">]</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">run_trajs</span><span class="p">[</span><span class="n">run_idx</span><span class="p">]))</span>
+
+    <span class="c1"># then just iterate in order over the run_idxs and inside each the</span>
+    <span class="c1"># traj indices, as we build these add them to the big structure</span>
+    <span class="n">runs_arr</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">run_idx</span> <span class="ow">in</span> <span class="n">run_idxs</span><span class="p">:</span>
+        <span class="n">run_arr</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">traj_idx</span> <span class="ow">in</span> <span class="n">run_trajs</span><span class="p">[</span><span class="n">run_idx</span><span class="p">]:</span>
+            <span class="n">traj_id</span> <span class="o">=</span> <span class="p">(</span><span class="n">run_idx</span><span class="p">,</span> <span class="n">traj_idx</span><span class="p">)</span>
+            <span class="n">run_arr</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">traj_d</span><span class="p">[</span><span class="n">traj_id</span><span class="p">])</span>
+        <span class="n">runs_arr</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">run_arr</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">runs_arr</span>
+
+
+<div class="viewcode-block" id="compute_observable"><a class="viewcode-back" href="../../../api/wepy.analysis.distributed.html#wepy.analysis.distributed.compute_observable">[docs]</a><span class="k">def</span> <span class="nf">compute_observable</span><span class="p">(</span><span class="n">func</span><span class="p">,</span>
+                       <span class="n">wepy_h5_path</span><span class="p">,</span>
+                       <span class="n">dask_client</span><span class="p">,</span>
+                       <span class="n">fields</span><span class="p">,</span>
+                       <span class="n">chunk_size</span><span class="o">=</span><span class="bp">Ellipsis</span><span class="p">,</span>
+                       <span class="n">num_partitions</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
+                       <span class="c1"># TODO replace with traj_sels</span>
+                       <span class="n">run_idxs</span><span class="o">=</span><span class="bp">Ellipsis</span><span class="p">):</span>
+
+    <span class="k">with</span> <span class="n">dask_client</span><span class="p">:</span>
+
+        <span class="n">chunks</span> <span class="o">=</span> <span class="n">traj_fields_chunk_items</span><span class="p">(</span><span class="n">wepy_h5_path</span><span class="p">,</span>
+                                         <span class="n">fields</span><span class="p">,</span>
+                                         <span class="n">chunk_size</span><span class="o">=</span><span class="n">chunk_size</span><span class="p">,</span>
+                                         <span class="n">run_idxs</span><span class="o">=</span><span class="n">run_idxs</span><span class="p">)</span>
+
+        <span class="c1"># DEBUG</span>
+        <span class="c1"># TODO add to logging</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;generated </span><span class="si">{}</span><span class="s2"> chunks&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">chunks</span><span class="p">)))</span>
+
+        <span class="n">frame_fields_bag</span> <span class="o">=</span> <span class="n">dbag</span><span class="o">.</span><span class="n">from_sequence</span><span class="p">(</span><span class="n">chunks</span><span class="p">,</span> <span class="n">npartitions</span><span class="o">=</span><span class="n">num_partitions</span><span class="p">)</span>
+
+        <span class="n">last_step</span> <span class="o">=</span> <span class="n">compute_observable_graph</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">frame_fields_bag</span><span class="p">,</span> <span class="n">chunk_size</span><span class="p">)</span>
+
+        <span class="n">chunk_results</span> <span class="o">=</span> <span class="n">last_step</span><span class="o">.</span><span class="n">compute</span><span class="p">()</span>
+
+        <span class="c1"># get just the result value with the traj id</span>
+        <span class="n">results_d</span> <span class="o">=</span> <span class="p">{</span><span class="n">traj_id</span> <span class="p">:</span> <span class="n">chunk_struct</span><span class="p">[</span><span class="n">RESULT_FIELD_NAME</span><span class="p">]</span>
+                   <span class="k">for</span> <span class="n">traj_id</span><span class="p">,</span> <span class="n">chunk_struct</span> <span class="ow">in</span> <span class="n">chunk_results</span><span class="p">}</span>
+
+        <span class="n">results_arr</span> <span class="o">=</span> <span class="n">_by_traj_to_multidimensional</span><span class="p">(</span><span class="n">results_d</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">results_arr</span></div>
+
+
+<div class="viewcode-block" id="compute_observable_graph"><a class="viewcode-back" href="../../../api/wepy.analysis.distributed.html#wepy.analysis.distributed.compute_observable_graph">[docs]</a><span class="k">def</span> <span class="nf">compute_observable_graph</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">chunk_bag</span><span class="p">,</span> <span class="n">chunk_size</span><span class="p">):</span>
+
+    <span class="c1"># since the inputs to any mapped function will be chunk</span>
+    <span class="c1"># structs (i.e. having metadata about the identity of the</span>
+    <span class="c1"># chunk, plus any data it drags along, namely traj_fields and</span>
+    <span class="c1"># computed observables, but perhaps other intermediates in</span>
+    <span class="c1"># more complex pipelines) we need to wrap any function that we</span>
+    <span class="c1"># want to call on this data with a function which gets the</span>
+    <span class="c1"># field of data it needs, and the name of the field it will</span>
+    <span class="c1"># save data in, optionally we can get rid of the input data if</span>
+    <span class="c1"># it is no longer needed</span>
+
+    <span class="n">chunk_func</span> <span class="o">=</span> <span class="n">chunk_func_funcgen</span><span class="p">(</span><span class="n">func</span><span class="p">,</span>
+                                    <span class="n">input_keys</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;traj_fields&#39;</span><span class="p">],</span>
+                                    <span class="n">result_name</span><span class="o">=</span><span class="n">RESULT_FIELD_NAME</span><span class="p">,</span>
+                                    <span class="n">keep_inputs</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="c1"># start constructing computational graph</span>
+
+    <span class="c1"># load chunks into distributed memory</span>
+    <span class="n">load_step</span> <span class="o">=</span> <span class="n">chunk_bag</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">load_chunk</span><span class="p">)</span>
+
+    <span class="c1"># run the function over the chunks</span>
+    <span class="n">map_step</span> <span class="o">=</span> <span class="n">load_step</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">chunk_func</span><span class="p">)</span>
+
+    <span class="c1"># optionally, defrag the chunks into chunks which are the same</span>
+    <span class="c1"># as trajectories using a reduce step</span>
+
+    <span class="c1"># TODO currently we just always reduce, since that gives us the</span>
+    <span class="c1"># structure we need at the end, and don&#39;t have that for the</span>
+    <span class="c1"># non-reduction option i.e. when chunk size is same as</span>
+    <span class="c1"># trajectories. We didn&#39;t want to code up the function to</span>
+    <span class="c1"># structure it that way (in dask) and so leave this for now and if</span>
+    <span class="c1"># it becomes a performance issue we can make that</span>
+    <span class="k">if</span> <span class="kc">True</span><span class="p">:</span> <span class="c1">#chunk_size is not Ellipsis:</span>
+
+        <span class="c1"># generate the concatenation function for the result so we can</span>
+        <span class="c1"># reduce and defrag it, this only deals with the part of the chunk of the field name</span>
+        <span class="n">result_concat</span> <span class="o">=</span> <span class="n">chunk_array_concat_funcgen</span><span class="p">(</span><span class="n">RESULT_FIELD_NAME</span><span class="p">)</span>
+
+        <span class="c1"># now generate the entire chunk concatenation which aggregates</span>
+        <span class="c1"># multiple other specific field concatenation functions,</span>
+        <span class="c1"># fundamentally this really only deals with concatenating the</span>
+        <span class="c1"># frame indices for the chunk</span>
+        <span class="n">chunk_concat</span> <span class="o">=</span> <span class="n">chunk_concat_funcgen</span><span class="p">(</span><span class="n">result_concat</span><span class="p">)</span>
+
+        <span class="n">init_cum_chunk</span> <span class="o">=</span> <span class="n">init_chunk</span><span class="p">()</span>
+
+        <span class="c1"># reduce the results by de-fragging the chunks into trajectory</span>
+        <span class="c1"># chunks</span>
+        <span class="n">defrag_step</span> <span class="o">=</span> <span class="n">map_step</span><span class="o">.</span><span class="n">foldby</span><span class="p">(</span><span class="n">chunk_key_func</span><span class="p">,</span> <span class="n">chunk_concat</span><span class="p">,</span>
+                                      <span class="n">init_cum_chunk</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">defrag_step</span> <span class="o">=</span> <span class="n">map_step</span>
+
+    <span class="k">return</span> <span class="n">defrag_step</span></div>
+</pre></div>
+
+          </div>
+            
+        </div>
+        <div class="clearfix"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">wepy  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+<script type="text/javascript">
+  $("#mobile-toggle a").click(function () {
+    $("#left-column").toggle();
+  });
+</script>
+<script type="text/javascript" src="../../../_static/js/bootstrap.js"></script>
+  <div class="footer">
+    &copy; Copyright 2018, Samuel D. Lotz. Created using <a href="http://sphinx.pocoo.org/">Sphinx</a>.
+  </div>
+  </body>
+</html>

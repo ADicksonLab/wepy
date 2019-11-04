@@ -1,0 +1,308 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+  
+  <!-- Licensed under the Apache 2.0 License -->
+  <link rel="stylesheet" type="text/css" href="../_static/fonts/open-sans/stylesheet.css" />
+  <!-- Licensed under the SIL Open Font License -->
+  <link rel="stylesheet" type="text/css" href="../_static/fonts/source-serif-pro/source-serif-pro.css" />
+  <link rel="stylesheet" type="text/css" href="../_static/css/bootstrap.min.css" />
+  <link rel="stylesheet" type="text/css" href="../_static/css/bootstrap-theme.min.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+    <title>Glossary &#8212; wepy  documentation</title>
+    <link rel="stylesheet" href="../_static/guzzle.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/language_data.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="wepy" href="../api/modules.html" />
+    <link rel="prev" title="Development Setup" href="dev_guide.html" />
+  
+   
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="../api/modules.html" title="wepy"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="dev_guide.html" title="Development Setup"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">wepy  documentation</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="container-wrapper">
+
+      <div id="mobile-toggle">
+        <a href="#"><span class="glyphicon glyphicon-align-justify" aria-hidden="true"></span></a>
+      </div>
+  <div id="left-column">
+    <div class="sphinxsidebar">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="dev_guide.html"
+                        title="previous chapter">Development Setup</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="../api/modules.html"
+                        title="next chapter">wepy</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/source/glossary.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div class="sidebar-block">
+  <div class="sidebar-wrapper">
+    <div id="main-search">
+      <form class="form-inline" action="../search.html" method="GET" role="form">
+        <div class="input-group">
+          <input name="q" type="text" class="form-control" placeholder="Search...">
+        </div>
+        <input type="hidden" name="check_keywords" value="yes" />
+        <input type="hidden" name="area" value="default" />
+      </form>
+    </div>
+  </div>
+</div>
+      
+    </div>
+  </div>
+        <div id="right-column">
+          
+          <div role="navigation" aria-label="breadcrumbs navigation">
+            <ol class="breadcrumb">
+              <li><a href="../index.html">Docs</a></li>
+              
+              <li>Glossary</li>
+            </ol>
+          </div>
+          
+          <div class="document clearer body">
+            
+  <div class="section" id="glossary">
+<h1>Glossary<a class="headerlink" href="#glossary" title="Permalink to this headline">¶</a></h1>
+<dl class="glossary">
+<dt id="term-idx">idx</dt><dd><p>short for index</p>
+</dd>
+<dt id="term-idxs">idxs</dt><dd><p>short for indices</p>
+</dd>
+<dt id="term-weighted-ensemble">weighted ensemble</dt><dd><p>A class of enhanced sampling algorithms that iteratively perform
+parallel sampling coupled with resampling of the replicas, called
+walkers.</p>
+<p>A converged weighted ensemble simulation gives the exact probability
+distribution being sampled.</p>
+</dd>
+<dt id="term-walker">walker</dt><dd><p>The individual simulatio replicas of a weighted ensemble
+simulation. Each walker has a state and a weight corresponding to the
+probability.</p>
+</dd>
+<dt id="term-trajectory">trajectory</dt><dd><p>A contiguous block of trajectory frames that is not necessarily (or
+even usually) logically contiguous.</p>
+<p>In other words an implementation detail.</p>
+</dd>
+<dt id="term-trajectory-fields">trajectory fields</dt><dd><p>The types of data associated with a trajectory is left largely
+unspecified making it a general purpose container for any type of
+runner or state that is produced through simulation.</p>
+<p>Typically, this includes positions, box vectors etc.</p>
+<p>Fields are named by strings, e.g. “positions” and special compound
+fields are separated by the HDF5 path separator
+e.g. “alt_reps/alt_rep1”, “observables/rmsd”.</p>
+</dd>
+<dt id="term-records">records</dt><dd><p>Data associated with walkers and a run.</p>
+<p>Takes the form of a list of tuples (usually namedtuple records).</p>
+</dd>
+<dt id="term-continual-records">continual records</dt><dd><p>Records for a wepy simulation for which one is produced every cycle.</p>
+</dd>
+<dt id="term-sporadic-records">sporadic records</dt><dd><p>Records for a wepy simulation which may have none or many produced for
+a cycle.</p>
+</dd>
+<dt id="term-resampling-records">resampling records</dt><dd><p>Records that report on the resampling of walkers i.e. cloning
+and merging. Contains the fields of a decision record. A
+destructured resampling panel.</p>
+</dd>
+<dt id="term-resampler-records">resampler records</dt><dd><p>Records that report on the state of the resampler itself.</p>
+</dd>
+<dt id="term-resampling-step">resampling step</dt><dd><p>A single cycle of resampling may be broken into several steps
+that are applied in order. A single step is a collection of
+decision records for each walker in the cohort. This, for
+example, allows for recursive clones, which would be very
+difficult to encode in a simple decision set.</p>
+</dd>
+<dt id="term-resampling-panel">resampling panel</dt><dd><p>This is the datastructure that describes the full process of
+resampling for an entire run or contig.</p>
+<p>A single step of resampling results in a resampling record for each
+walker and the list of these records (in order of walker ordering) is
+one “step” of a “cycle” resampling.</p>
+<p>A resampling panel is a list of lists where each element of the list
+contains the resampling steps of that cycle.</p>
+<p>The cycle element is a list of records.</p>
+<p>The structure for the resampling panel looks like this roughly:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="p">[</span>
+  <span class="n">cycle_0</span> <span class="p">[</span>
+            <span class="n">step_0</span> <span class="p">[</span><span class="n">rec0</span><span class="p">,</span> <span class="n">rec1</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span>
+            <span class="n">step_1</span> <span class="p">[</span><span class="n">rec0</span><span class="p">,</span> <span class="n">rec1</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span>
+            <span class="o">...</span>
+          <span class="p">]</span>
+  <span class="o">...</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+</dd>
+<dt id="term-parent-table">parent table</dt><dd><p>A listing for each cycle snapshot of a weighted ensemble contig that
+specifies the parents of the next generation walkers. There can be
+different number of walkers in each cycle and thus is a list of lists
+of ints.</p>
+<p>Specifically:</p>
+<p>For a parent table P with M cycles, N_i is the number of walkers in
+cycle i has a listing P_i which has N_{i+1} elements. For walker j,
+P_i^j, has a domain 0 to N_i and specifies the index of the walker in
+cycle i that is the parent of walker j in cycle i+1.</p>
+</dd>
+<dt id="term-parent-panel">parent panel</dt><dd><p>A parent panel is similar in structure to the resampling panel except
+that instead of resampling records as the atomic elements there are
+simply integers with the same meaning as in the parent table.</p>
+</dd>
+<dt id="term-warping-records">warping records</dt><dd><p>Records that report on events of walkers satisfying boundary
+conditions in the last cycle.</p>
+<p>Warping records are typically treated as either discontinuous
+(e.g. the walker’s state is set to a specified other state) or
+continuous (e.g. the “color” of a walker changes as it reaches a
+boundary).</p>
+<p>The interpretation of this however is entirely domain specific.</p>
+</dd>
+<dt id="term-bc-boundary-conditions-records">bc (boundary conditions) records</dt><dd><p>Records that report on the state of the boundary conditions
+themselves.</p>
+</dd>
+<dt id="term-progress-records">progress records</dt><dd><p>Continual records that a boundary condition reports that provide some
+metrics on the walkers, such as their position along a progress
+coordinate.</p>
+</dd>
+<dt id="term-run">run</dt><dd><p>A single weighted ensemble simulation. Is a collection of walker
+trajectories and records specifying parental relations, boundary
+condition events etc.</p>
+<p>Runs may be logically connected to other runs (through continuations)
+and can be thought of as a unit of computation.</p>
+</dd>
+<dt id="term-continuation">continuation</dt><dd><p>A 2-tuple of the form (continuation_run_idx, continued_run_idx) that
+establishes a logical relationship between the end of one run
+(continued_run_idx) and the beginning of another run
+(continuation_run_idx).</p>
+<p>A collection of continuations is the underlying specification for a
+contig tree for run contigs.</p>
+</dd>
+<dt id="term-contig-tree">contig tree</dt><dd><p>For a collection of weighted ensemble runs with continuations
+specified between them, the contig tree imposes the tree structure
+over them.</p>
+<p>Technically a forest since there can be multiple roots.</p>
+</dd>
+<dt id="term-contig">contig</dt><dd><p>A logically contiguous list of weighted ensemble cycle snapshots.</p>
+</dd>
+<dt id="term-spanning-contig">spanning contig</dt><dd><p>A contig from a contig tree that extends from a root to a leaf</p>
+</dd>
+<dt id="term-run-contig">run contig</dt><dd><p>A logically contiguous list of weighted ensemble runs. The only
+continuation relationship allowed is end-to-end.</p>
+</dd>
+<dt id="term-trace">trace</dt><dd><p>list of tuples which indexes things over either a contig tree, contig,
+or a run.</p>
+</dd>
+<dt id="term-run-trace">run trace</dt><dd><p>list of tuples of the form (run_idx, traj_idx, cycle_idx) over the
+contig tree</p>
+</dd>
+<dt id="term-contig-trace">contig trace</dt><dd><p>list of tuples of the form (run_idx, cycle_idx) over the contig tree</p>
+</dd>
+<dt id="term-contig-walker-trace">contig walker trace</dt><dd><p>list of tuples of the form (traj_idx, cycle_idx) over a contig</p>
+</dd>
+<dt id="term-run-cycle-idx">run cycle idx</dt><dd><p>An index of an in-run cycle</p>
+</dd>
+<dt id="term-contig-cycle-idx">contig cycle idx</dt><dd><p>An index of an in-contig cycle index (can include multiple runs).</p>
+</dd>
+<dt id="term-resampler">resampler</dt><dd><p>An object that resamples walkers each cycle of a weighted ensemble
+simulation.</p>
+</dd>
+<dt id="term-runner">runner</dt><dd><p>The object that propogates the sampling of an individual walker.</p>
+</dd>
+<dt id="term-reporter">reporter</dt><dd><p>A reporter is an object that receives all of the walker states and
+records at the end of the cycle and is allowed to write it out in some
+way.</p>
+</dd>
+<dt id="term-resampling-decision">resampling decision</dt><dd><p>A specification of a type of action to take on a sample within a sample set.</p>
+</dd>
+<dt id="term-decision-record">decision record</dt><dd><p>A specific key-value data structure that represents a resampling
+decision. Must contain a representation of the decision value
+(enum or its integer value) and any additional fields
+(instructions) that are needed to perform the resampling, such
+as the number of clones or which walker to merge with. Contained
+within a resampling record which adds metadata which places it
+within the context of an entire simulation.</p>
+</dd>
+<dt id="term-decision-instruction-record">decision instruction record</dt><dd><p>See decision record.</p>
+</dd>
+</dl>
+</div>
+
+
+          </div>
+            
+  <div class="footer-relations">
+    
+      <div class="pull-left">
+        <a class="btn btn-default" href="dev_guide.html" title="previous chapter (use the left arrow)">Development Setup</a>
+      </div>
+    
+      <div class="pull-right">
+        <a class="btn btn-default" href="../api/modules.html" title="next chapter (use the right arrow)">wepy</a>
+      </div>
+    </div>
+    <div class="clearer"></div>
+  
+        </div>
+        <div class="clearfix"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="../api/modules.html" title="wepy"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="dev_guide.html" title="Development Setup"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">wepy  documentation</a> &#187;</li> 
+      </ul>
+    </div>
+<script type="text/javascript">
+  $("#mobile-toggle a").click(function () {
+    $("#left-column").toggle();
+  });
+</script>
+<script type="text/javascript" src="../_static/js/bootstrap.js"></script>
+  <div class="footer">
+    &copy; Copyright 2018, Samuel D. Lotz. Created using <a href="http://sphinx.pocoo.org/">Sphinx</a>.
+  </div>
+  </body>
+</html>

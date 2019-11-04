@@ -1,0 +1,786 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+  
+  <!-- Licensed under the Apache 2.0 License -->
+  <link rel="stylesheet" type="text/css" href="../../../_static/fonts/open-sans/stylesheet.css" />
+  <!-- Licensed under the SIL Open Font License -->
+  <link rel="stylesheet" type="text/css" href="../../../_static/fonts/source-serif-pro/source-serif-pro.css" />
+  <link rel="stylesheet" type="text/css" href="../../../_static/css/bootstrap.min.css" />
+  <link rel="stylesheet" type="text/css" href="../../../_static/css/bootstrap-theme.min.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+    <title>wepy.reporter.hdf5 &#8212; wepy  documentation</title>
+    <link rel="stylesheet" href="../../../_static/guzzle.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../../_static/language_data.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+  
+   
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">wepy  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="container-wrapper">
+
+      <div id="mobile-toggle">
+        <a href="#"><span class="glyphicon glyphicon-align-justify" aria-hidden="true"></span></a>
+      </div>
+  <div id="left-column">
+    <div class="sphinxsidebar">
+<div class="sidebar-block">
+  <div class="sidebar-wrapper">
+    <div id="main-search">
+      <form class="form-inline" action="../../../search.html" method="GET" role="form">
+        <div class="input-group">
+          <input name="q" type="text" class="form-control" placeholder="Search...">
+        </div>
+        <input type="hidden" name="check_keywords" value="yes" />
+        <input type="hidden" name="area" value="default" />
+      </form>
+    </div>
+  </div>
+</div>
+      
+    </div>
+  </div>
+        <div id="right-column">
+          
+          <div role="navigation" aria-label="breadcrumbs navigation">
+            <ol class="breadcrumb">
+              <li><a href="../../../index.html">Docs</a></li>
+              
+                <li><a href="../../index.html">Module code</a></li>
+              
+              <li>wepy.reporter.hdf5</li>
+            </ol>
+          </div>
+          
+          <div class="document clearer body">
+            
+  <h1>Source code for wepy.reporter.hdf5</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">copy</span> <span class="k">import</span> <span class="n">deepcopy</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">wepy.reporter.reporter</span> <span class="k">import</span> <span class="n">FileReporter</span>
+<span class="kn">from</span> <span class="nn">wepy.hdf5</span> <span class="k">import</span> <span class="n">WepyHDF5</span>
+<span class="kn">from</span> <span class="nn">wepy.walker</span> <span class="k">import</span> <span class="n">Walker</span><span class="p">,</span> <span class="n">WalkerState</span>
+<span class="kn">from</span> <span class="nn">wepy.util.json_top</span> <span class="k">import</span> <span class="n">json_top_atom_count</span>
+
+<div class="viewcode-block" id="WepyHDF5Reporter"><a class="viewcode-back" href="../../../api/wepy.reporter.hdf5.html#wepy.reporter.hdf5.WepyHDF5Reporter">[docs]</a><span class="k">class</span> <span class="nc">WepyHDF5Reporter</span><span class="p">(</span><span class="n">FileReporter</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Reporter for generating an HDF5 format (WepyHDF5) data file from</span>
+<span class="sd">    simulations.</span>
+
+<span class="sd">    This is the most important reporter as it is the principle output</span>
+<span class="sd">    format for storing weighted ensemble simulation data.</span>
+
+<span class="sd">    Files generated with this reporter can be opened using the</span>
+<span class="sd">    wepy.hdf5.WepyHDF5 class.</span>
+
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+
+<span class="sd">    wepy.hdf5.WepyHDF5</span>
+
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># this is the name of the dataset that the all atoms will be saved</span>
+    <span class="c1"># under in the HDF5 alt_reps group</span>
+    <span class="n">ALL_ATOMS_REP_KEY</span> <span class="o">=</span> <span class="s1">&#39;all_atoms&#39;</span>
+
+    <span class="n">FILE_ORDER</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;wepy_hdf5_path&#39;</span><span class="p">,)</span>
+
+    <span class="c1"># this is the suggested extension for naming WepyHDF5 files used</span>
+    <span class="c1"># by this reporter, e.g. results.wepy.h5</span>
+    <span class="n">SUGGESTED_EXTENSIONS</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;wepy.h5&#39;</span><span class="p">,)</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                 <span class="n">save_fields</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">topology</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">units</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">sparse_fields</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">feature_shapes</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">feature_dtypes</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">n_dims</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">main_rep_idxs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">all_atoms_rep_freq</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="c1"># dictionary of alt_rep keys and a tuple of (idxs, freq)</span>
+                 <span class="n">alt_reps</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+
+                 <span class="c1"># pass in the resampler and boundary</span>
+                 <span class="c1"># conditions classes to automatically extract the</span>
+                 <span class="c1"># needed data, the objects themselves are not saves</span>
+                 <span class="n">resampler</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">boundary_conditions</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+
+                 <span class="c1"># or pass the things we need from them in manually</span>
+                 <span class="n">resampling_fields</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">decision_enum_dict</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">resampler_fields</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">warping_fields</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">progress_fields</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">bc_fields</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+
+                 <span class="n">resampling_records</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">resampler_records</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">warping_records</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">bc_records</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">progress_records</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+
+                 <span class="c1"># other settings</span>
+                 <span class="n">swmr_mode</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+
+                 <span class="o">**</span><span class="n">kwargs</span>
+                 <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Constructor for the WepyHDF5Reporter.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        save_fields : tuple of str, default: None</span>
+<span class="sd">           A selection of fields from the walker states to be</span>
+<span class="sd">           stored. Allows for the ignoring of some states. If None all</span>
+<span class="sd">           fields from states will attempted to be saved.</span>
+
+<span class="sd">        topology : str</span>
+<span class="sd">            JSON string representing topology of system being simulated.</span>
+
+<span class="sd">        units : dict of str: str, optional</span>
+<span class="sd">            Mapping of trajectory field names to string specs</span>
+<span class="sd">            for units.</span>
+
+<span class="sd">        sparse_fields : list of str, optional</span>
+<span class="sd">            List of trajectory fields that should be initialized as sparse.</span>
+
+<span class="sd">        feature_shapes : dict of str: shape_spec, optional</span>
+<span class="sd">            Mapping of trajectory fields to their shape spec for initialization.</span>
+
+<span class="sd">        feature_dtypes : dict of str: dtype_spec, optional</span>
+<span class="sd">            Mapping of trajectory fields to their shape spec for initialization.</span>
+
+<span class="sd">        n_dims : int, default: 3</span>
+<span class="sd">            Set the number of spatial dimensions for the default</span>
+<span class="sd">            positions trajectory field.</span>
+
+<span class="sd">        alt_reps : dict of str: tuple of (list of int, int), optional</span>
+<span class="sd">            Specifies that there will be &#39;alt_reps&#39; of positions each</span>
+<span class="sd">            named by the keys of this mapping and containing the</span>
+<span class="sd">            indices in each value list as the first value of the tuple</span>
+<span class="sd">            and the second value being the frequency at which this</span>
+<span class="sd">            field gets saved. Setting `all_atoms_rep_freq` is the</span>
+<span class="sd">            equivalent of setting an entry {&#39;all_atoms&#39; : ([...],</span>
+<span class="sd">            `all_atoms_rep_freq`)}.</span>
+
+<span class="sd">        main_rep_idxs : list of int, optional</span>
+<span class="sd">            The indices of atom positions to save as the main &#39;positions&#39;</span>
+<span class="sd">            trajectory field. Defaults to all atoms.</span>
+
+<span class="sd">        all_atoms_rep_freq : int, optional</span>
+<span class="sd">            The frequency at which to set an &#39;alt_rep&#39; for all of the</span>
+<span class="sd">            atoms in a simulation. Will be set as the field</span>
+<span class="sd">            &#39;alt_rep/all_atoms&#39;.</span>
+
+<span class="sd">        resampler : Resampler object, optional but recommended</span>
+<span class="sd">            The resampler being used for the simulation. Is used as a</span>
+<span class="sd">            convenient container for a variety of constants needed for</span>
+<span class="sd">            specifying data for the resampling records. If this is not</span>
+<span class="sd">            given then these of the Other Parameters below must be</span>
+<span class="sd">            specified manually: resampling_fields, decision_enum_dict,</span>
+<span class="sd">            resampler_fields, resampling_records, resampler_records.</span>
+
+<span class="sd">        boundary_conditions : BoundaryConditions object, optional but recommended</span>
+<span class="sd">            The boundary conditions being used for the simulation. Is</span>
+<span class="sd">            used as a convenient container for a variety of constants</span>
+<span class="sd">            needed for specifying data for the warping and progress</span>
+<span class="sd">            records. If this is not given then these of the Other</span>
+<span class="sd">            Parameters below must be specified manually:</span>
+<span class="sd">            warping_fields, progress_fields, bc_fields,</span>
+<span class="sd">            warping_records, bc_records, progress_records</span>
+
+<span class="sd">        swmr_mode : bool</span>
+<span class="sd">           Whether to write to open the HDF5 in single-writer</span>
+<span class="sd">           multi-reader (SWMR) mode.</span>
+
+
+<span class="sd">        Other Parameters</span>
+<span class="sd">        ----------------</span>
+
+<span class="sd">        resampling_fields : list of str</span>
+<span class="sd">            The names of the fields for resampling records</span>
+
+<span class="sd">        decision_enum_dict : dict of str : int</span>
+<span class="sd">            Mapping of the names of resampling decision enum to their</span>
+<span class="sd">            integer values.</span>
+
+<span class="sd">        resampler_fields : list of str</span>
+<span class="sd">            The names of the fields for the resampler records</span>
+
+<span class="sd">        warping_fields : list of str</span>
+<span class="sd">            The names of the fields for the warping records</span>
+
+<span class="sd">        progress_fields : list of str</span>
+<span class="sd">            The names of the fields for the progress records</span>
+
+<span class="sd">        bc_fields : list of str</span>
+<span class="sd">            The names of the fields for the bounadry condition records.</span>
+
+<span class="sd">        resampling_records : list of str, optional</span>
+<span class="sd">            Names of the resampling_fields that will be used in</span>
+<span class="sd">            table-like views.</span>
+
+<span class="sd">        resampler_records : list of str, optional</span>
+<span class="sd">            Names of the resampler_fields that will be used in</span>
+<span class="sd">            table-like views.</span>
+
+<span class="sd">        warping_records : list of str, optional</span>
+<span class="sd">            Names of the warping_fields that will be used in</span>
+<span class="sd">            table-like views.</span>
+
+<span class="sd">        bc_records : list of str, optional</span>
+<span class="sd">            Names of the bc_fields that will be used in table-like</span>
+<span class="sd">            views.</span>
+
+<span class="sd">        progress_records : list of str, optional</span>
+<span class="sd">            Names of the progress_fields that will be used in</span>
+<span class="sd">            table-like views.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># initialize inherited attributes</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="c1"># set the preference for swmr mode, True or False, if this is</span>
+        <span class="c1"># True then SWMR mode will be turned on when the file is</span>
+        <span class="c1"># written to during reporting</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">swmr_mode</span> <span class="o">=</span> <span class="n">swmr_mode</span>
+
+        <span class="c1"># do all the WepyHDF5 specific stuff</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">wepy_run_idx</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_tmp_topology</span> <span class="o">=</span> <span class="n">topology</span>
+        <span class="c1"># which fields from the walker to save, if None then save all of them</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">save_fields</span> <span class="o">=</span> <span class="n">save_fields</span>
+        <span class="c1"># dictionary of sparse_field_name -&gt; int : frequency of cycles</span>
+        <span class="c1"># to save the field</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sparse_fields</span> <span class="o">=</span> <span class="n">sparse_fields</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_feature_shapes</span> <span class="o">=</span> <span class="n">feature_shapes</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_feature_dtypes</span> <span class="o">=</span> <span class="n">feature_dtypes</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_n_dims</span> <span class="o">=</span> <span class="n">n_dims</span>
+
+        <span class="c1"># get and set the record fields (naems, shapes, dtypes) for</span>
+        <span class="c1"># the resampler and the boundary conditions</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">resampling_fields</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">decision_enum_dict</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">resampling_fields</span> <span class="o">=</span> <span class="n">resampling_fields</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">decision_enum</span> <span class="o">=</span> <span class="n">decision_enum_dict</span>
+        <span class="k">elif</span> <span class="n">resampler</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">resampling_fields</span> <span class="o">=</span> <span class="n">resampler</span><span class="o">.</span><span class="n">resampling_fields</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">decision_enum</span> <span class="o">=</span> <span class="n">resampler</span><span class="o">.</span><span class="n">DECISION</span><span class="o">.</span><span class="n">enum_dict_by_name</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">resampling_fields</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">decision_enum</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">if</span> <span class="n">resampler_fields</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">resampler_fields</span> <span class="o">=</span> <span class="n">resampler_fields</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="n">resampler</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">resampler_fields</span> <span class="o">=</span> <span class="n">resampler</span><span class="o">.</span><span class="n">resampler_fields</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">resampler_fields</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">if</span> <span class="n">warping_fields</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">warping_fields</span> <span class="o">=</span> <span class="n">warping_fields</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="n">boundary_conditions</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">warping_fields</span> <span class="o">=</span> <span class="n">boundary_conditions</span><span class="o">.</span><span class="n">warping_fields</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">warping_fields</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">if</span> <span class="n">progress_fields</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">progress_fields</span> <span class="o">=</span> <span class="n">progress_fields</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="n">boundary_conditions</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">progress_fields</span> <span class="o">=</span> <span class="n">boundary_conditions</span><span class="o">.</span><span class="n">progress_fields</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">progress_fields</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">if</span> <span class="n">bc_fields</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">bc_fields</span> <span class="o">=</span> <span class="n">bc_fields</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="n">boundary_conditions</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">bc_fields</span> <span class="o">=</span> <span class="n">boundary_conditions</span><span class="o">.</span><span class="n">bc_fields</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">bc_fields</span> <span class="o">=</span> <span class="kc">None</span>
+
+
+        <span class="c1"># the fields which are records for table like reports</span>
+        <span class="k">if</span> <span class="n">resampling_records</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">resampling_records</span> <span class="o">=</span> <span class="n">resampling_records</span>
+        <span class="k">elif</span> <span class="n">resampler</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">resampling_records</span> <span class="o">=</span> <span class="n">resampler</span><span class="o">.</span><span class="n">resampling_record_field_names</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">resampling_records</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">if</span> <span class="n">resampler_records</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">resampler_records</span> <span class="o">=</span> <span class="n">resampler_records</span>
+        <span class="k">elif</span> <span class="n">resampler</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">resampler_records</span> <span class="o">=</span> <span class="n">resampler</span><span class="o">.</span><span class="n">resampler_record_field_names</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">resampler_records</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">if</span> <span class="n">bc_records</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">bc_records</span> <span class="o">=</span> <span class="n">bc_records</span>
+        <span class="k">elif</span> <span class="n">boundary_conditions</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">bc_records</span> <span class="o">=</span> <span class="n">boundary_conditions</span><span class="o">.</span><span class="n">bc_record_field_names</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">bc_records</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">if</span> <span class="n">warping_records</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">warping_records</span> <span class="o">=</span> <span class="n">warping_records</span>
+        <span class="k">elif</span> <span class="n">boundary_conditions</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">warping_records</span> <span class="o">=</span> <span class="n">boundary_conditions</span><span class="o">.</span><span class="n">warping_record_field_names</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">warping_records</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">if</span> <span class="n">progress_records</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">progress_records</span> <span class="o">=</span> <span class="n">progress_records</span>
+        <span class="k">elif</span> <span class="n">boundary_conditions</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">progress_records</span> <span class="o">=</span> <span class="n">boundary_conditions</span><span class="o">.</span><span class="n">progress_record_field_names</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">progress_records</span> <span class="o">=</span> <span class="kc">None</span>
+
+
+        <span class="c1"># the atom indices of the whole system that will be saved as</span>
+        <span class="c1"># the main positions representation</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">main_rep_idxs</span> <span class="o">=</span> <span class="n">main_rep_idxs</span>
+
+        <span class="c1"># the idxs for alternate representations of the system</span>
+        <span class="c1"># positions</span>
+        <span class="k">if</span> <span class="n">alt_reps</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">alt_reps_idxs</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="n">tup</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">tup</span> <span class="ow">in</span> <span class="n">alt_reps</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+
+            <span class="c1"># add the frequencies for these alt_reps to the</span>
+            <span class="c1"># sparse_fields frequency dictionary</span>
+            <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="p">(</span><span class="n">idxs</span><span class="p">,</span> <span class="n">freq</span><span class="p">)</span> <span class="ow">in</span> <span class="n">alt_reps</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">alt_rep_key</span> <span class="o">=</span> <span class="s2">&quot;alt_reps/</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+
+                <span class="c1"># if the frequency is Ellipsis or 1 then we save it</span>
+                <span class="c1"># every frame and don&#39;t make it sparse because that is</span>
+                <span class="c1"># very innefficient in comparison</span>
+                <span class="k">if</span> <span class="n">freq</span> <span class="ow">is</span> <span class="bp">Ellipsis</span> <span class="ow">or</span> <span class="n">freq</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">or</span> <span class="n">freq</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="k">pass</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_sparse_fields</span><span class="p">[</span><span class="n">alt_rep_key</span><span class="p">]</span> <span class="o">=</span> <span class="n">freq</span>
+
+                <span class="bp">self</span><span class="o">.</span><span class="n">alt_reps_idxs</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">idxs</span><span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">alt_reps_idxs</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="c1"># check for alt_reps of this name because this is reserved for</span>
+        <span class="c1"># the all_atoms flag.</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ALL_ATOMS_REP_KEY</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">alt_reps_idxs</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Cannot name an alt_rep &#39;all_atoms&#39;&quot;</span><span class="p">)</span>
+
+        <span class="c1"># if there is a frequency for all atoms rep then we make an</span>
+        <span class="c1"># alt_rep for the all_atoms system with the specified</span>
+        <span class="c1"># frequency</span>
+        <span class="k">if</span> <span class="n">all_atoms_rep_freq</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># count the number of atoms in the topology and set the</span>
+            <span class="c1"># alt_reps to have the full slice for all atoms</span>
+            <span class="n">n_atoms</span> <span class="o">=</span> <span class="n">json_top_atom_count</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_tmp_topology</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">alt_reps_idxs</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">ALL_ATOMS_REP_KEY</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n_atoms</span><span class="p">)</span>
+            <span class="c1"># add the frequency for this sparse fields to the</span>
+            <span class="c1"># sparse fields dictionary</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_sparse_fields</span><span class="p">[</span><span class="s2">&quot;alt_reps/</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ALL_ATOMS_REP_KEY</span><span class="p">)]</span> <span class="o">=</span> <span class="n">all_atoms_rep_freq</span>
+
+        <span class="c1"># if there are no sparse fields set it as an empty dictionary</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sparse_fields</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_sparse_fields</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="c1"># if units were given add them otherwise set as an empty dictionary</span>
+        <span class="k">if</span> <span class="n">units</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="n">units</span>
+
+
+<div class="viewcode-block" id="WepyHDF5Reporter.init"><a class="viewcode-back" href="../../../api/wepy.reporter.hdf5.html#wepy.reporter.hdf5.WepyHDF5Reporter.init">[docs]</a>    <span class="k">def</span> <span class="nf">init</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">continue_run</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+             <span class="n">init_walkers</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+             <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+        <span class="c1"># do the inherited stuff</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">init</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="c1"># open and initialize the HDF5 file</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Initializing HDF5 file at </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">file_path</span><span class="p">))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">wepy_h5</span> <span class="o">=</span> <span class="n">WepyHDF5</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">file_path</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mode</span><span class="p">,</span>
+                                <span class="n">topology</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_tmp_topology</span><span class="p">,</span>
+                                <span class="n">units</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">units</span><span class="p">,</span>
+                                <span class="n">sparse_fields</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_sparse_fields</span><span class="o">.</span><span class="n">keys</span><span class="p">()),</span>
+                                <span class="n">feature_shapes</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_feature_shapes</span><span class="p">,</span>
+                                <span class="n">feature_dtypes</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_feature_dtypes</span><span class="p">,</span>
+                                <span class="n">n_dims</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_n_dims</span><span class="p">,</span>
+                                <span class="n">main_rep_idxs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">main_rep_idxs</span><span class="p">,</span>
+                                <span class="n">alt_reps</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">alt_reps_idxs</span><span class="p">)</span>
+
+        <span class="c1"># if we specify save fields only save these for the initial walkers</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">save_fields</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+
+            <span class="n">state_fields</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">init_walkers</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">dict</span><span class="p">()</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+
+            <span class="c1"># make sure all the save_fields are present in the state</span>
+            <span class="k">assert</span> <span class="nb">all</span><span class="p">([</span><span class="kc">True</span> <span class="k">if</span> <span class="n">save_field</span> <span class="ow">in</span> <span class="n">state_fields</span> <span class="k">else</span> <span class="kc">False</span>
+                        <span class="k">for</span> <span class="n">save_field</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">save_fields</span><span class="p">]),</span> \
+                            <span class="s2">&quot;Not all specified save_fields present in walker states&quot;</span>
+
+            <span class="n">filtered_init_walkers</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">walker</span> <span class="ow">in</span> <span class="n">init_walkers</span><span class="p">:</span>
+                <span class="c1"># make a new state by filtering the attributes of the old ones</span>
+                <span class="n">state_d</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span> <span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">walker</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">dict</span><span class="p">()</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+                           <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">save_fields</span><span class="p">}</span>
+
+                <span class="c1"># and saving alternate representations as we would</span>
+                <span class="c1"># expect them</span>
+
+                <span class="c1"># if there are any alternate representations set them</span>
+                <span class="k">for</span> <span class="n">alt_rep_name</span><span class="p">,</span> <span class="n">alt_rep_idxs</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">alt_reps_idxs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+
+                    <span class="n">alt_rep_path</span> <span class="o">=</span> <span class="s1">&#39;alt_reps/</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">alt_rep_name</span><span class="p">)</span>
+
+                    <span class="c1"># if the idxs are None we want all of the atoms</span>
+                    <span class="k">if</span> <span class="n">alt_rep_idxs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="n">state_d</span><span class="p">[</span><span class="n">alt_rep_path</span><span class="p">]</span> <span class="o">=</span> <span class="n">state_d</span><span class="p">[</span><span class="s1">&#39;positions&#39;</span><span class="p">][:]</span>
+                    <span class="c1"># otherwise get only the atoms we want</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">state_d</span><span class="p">[</span><span class="n">alt_rep_path</span><span class="p">]</span> <span class="o">=</span> <span class="n">state_d</span><span class="p">[</span><span class="s1">&#39;positions&#39;</span><span class="p">][</span><span class="n">alt_rep_idxs</span><span class="p">]</span>
+
+                <span class="c1"># if the main rep is different then the full state</span>
+                <span class="c1"># positions set that</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">main_rep_idxs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">state_d</span><span class="p">[</span><span class="s1">&#39;positions&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">state_d</span><span class="p">[</span><span class="s1">&#39;positions&#39;</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">main_rep_idxs</span><span class="p">]</span>
+
+                <span class="c1"># then making the new state</span>
+                <span class="n">new_state</span> <span class="o">=</span> <span class="n">WalkerState</span><span class="p">(</span><span class="o">**</span><span class="n">state_d</span><span class="p">)</span>
+
+                <span class="n">filtered_init_walkers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Walker</span><span class="p">(</span><span class="n">new_state</span><span class="p">,</span> <span class="n">walker</span><span class="o">.</span><span class="n">weight</span><span class="p">))</span>
+        <span class="c1"># otherwise save the full state</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">filtered_init_walkers</span> <span class="o">=</span> <span class="n">init_walkers</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">wepy_h5</span><span class="o">.</span><span class="n">set_mode</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s1">&#39;r+&#39;</span><span class="p">)</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">wepy_h5</span><span class="p">:</span>
+
+            <span class="c1"># if this is a continuation run of another run we want to</span>
+            <span class="c1"># initialize it as such</span>
+
+            <span class="c1"># initialize a new run</span>
+            <span class="n">run_grp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">wepy_h5</span><span class="o">.</span><span class="n">new_run</span><span class="p">(</span><span class="n">filtered_init_walkers</span><span class="p">,</span> <span class="n">continue_run</span><span class="o">=</span><span class="n">continue_run</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">wepy_run_idx</span> <span class="o">=</span> <span class="n">run_grp</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;run_idx&#39;</span><span class="p">]</span>
+
+            <span class="c1"># initialize the run record groups using their fields</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">wepy_h5</span><span class="o">.</span><span class="n">init_run_fields_resampling</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">wepy_run_idx</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">resampling_fields</span><span class="p">)</span>
+            <span class="c1"># the enumeration for the values of resampling</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">wepy_h5</span><span class="o">.</span><span class="n">init_run_fields_resampling_decision</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">wepy_run_idx</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">decision_enum</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">wepy_h5</span><span class="o">.</span><span class="n">init_run_fields_resampler</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">wepy_run_idx</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">resampler_fields</span><span class="p">)</span>
+            <span class="c1"># set the fields that are records for tables etc. unless</span>
+            <span class="c1"># they are already set</span>
+            <span class="k">if</span> <span class="s1">&#39;resampling&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">wepy_h5</span><span class="o">.</span><span class="n">record_fields</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">wepy_h5</span><span class="o">.</span><span class="n">init_record_fields</span><span class="p">(</span><span class="s1">&#39;resampling&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">resampling_records</span><span class="p">)</span>
+            <span class="k">if</span> <span class="s1">&#39;resampler&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">wepy_h5</span><span class="o">.</span><span class="n">record_fields</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">wepy_h5</span><span class="o">.</span><span class="n">init_record_fields</span><span class="p">(</span><span class="s1">&#39;resampler&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">resampler_records</span><span class="p">)</span>
+
+            <span class="c1"># if there were no warping fields set there is no boundary</span>
+            <span class="c1"># conditions and we don&#39;t initialize them</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">warping_fields</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">wepy_h5</span><span class="o">.</span><span class="n">init_run_fields_warping</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">wepy_run_idx</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">warping_fields</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">wepy_h5</span><span class="o">.</span><span class="n">init_run_fields_progress</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">wepy_run_idx</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">progress_fields</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">wepy_h5</span><span class="o">.</span><span class="n">init_run_fields_bc</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">wepy_run_idx</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">bc_fields</span><span class="p">)</span>
+                <span class="c1"># table records</span>
+                <span class="k">if</span> <span class="s1">&#39;warping&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">wepy_h5</span><span class="o">.</span><span class="n">record_fields</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">wepy_h5</span><span class="o">.</span><span class="n">init_record_fields</span><span class="p">(</span><span class="s1">&#39;warping&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">warping_records</span><span class="p">)</span>
+                <span class="k">if</span> <span class="s1">&#39;boundary_conditions&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">wepy_h5</span><span class="o">.</span><span class="n">record_fields</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">wepy_h5</span><span class="o">.</span><span class="n">init_record_fields</span><span class="p">(</span><span class="s1">&#39;boundary_conditions&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">bc_records</span><span class="p">)</span>
+                <span class="k">if</span> <span class="s1">&#39;progress&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">wepy_h5</span><span class="o">.</span><span class="n">record_fields</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">wepy_h5</span><span class="o">.</span><span class="n">init_record_fields</span><span class="p">(</span><span class="s1">&#39;progress&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">progress_records</span><span class="p">)</span>
+
+        <span class="c1"># if this was opened in a truncation mode, we don&#39;t want to</span>
+        <span class="c1"># overwrite old runs with future calls to init(). so we</span>
+        <span class="c1"># change the mode to read/write &#39;r+&#39;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="o">==</span> <span class="s1">&#39;w&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_mode</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;r+&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="WepyHDF5Reporter.cleanup"><a class="viewcode-back" href="../../../api/wepy.reporter.hdf5.html#wepy.reporter.hdf5.WepyHDF5Reporter.cleanup">[docs]</a>    <span class="k">def</span> <span class="nf">cleanup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+        <span class="c1"># it should be already closed at this point but just in case</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">wepy_h5</span><span class="o">.</span><span class="n">closed</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">wepy_h5</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+        <span class="c1"># remove reference to the WepyHDF5 file so we can serialize this object</span>
+        <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">wepy_h5</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">cleanup</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="WepyHDF5Reporter.report"><a class="viewcode-back" href="../../../api/wepy.reporter.hdf5.html#wepy.reporter.hdf5.WepyHDF5Reporter.report">[docs]</a>    <span class="k">def</span> <span class="nf">report</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_walkers</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+               <span class="n">cycle_idx</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+               <span class="n">warp_data</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+               <span class="n">bc_data</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+               <span class="n">progress_data</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+               <span class="n">resampling_data</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+               <span class="n">resampler_data</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+               <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+        <span class="n">n_walkers</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">new_walkers</span><span class="p">)</span>
+
+        <span class="c1"># determine which fields to save. If there were none specified</span>
+        <span class="c1"># save all of them</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">save_fields</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">save_fields</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">new_walkers</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">dict</span><span class="p">()</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">save_fields</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">save_fields</span>
+
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">wepy_h5</span><span class="p">:</span>
+
+            <span class="c1"># turn on SWMR mode if requested for reporting</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">swmr_mode</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">wepy_h5</span><span class="o">.</span><span class="n">swmr_mode</span> <span class="o">=</span> <span class="kc">True</span>
+
+            <span class="c1"># add trajectory data for the walkers</span>
+            <span class="k">for</span> <span class="n">walker_idx</span><span class="p">,</span> <span class="n">walker</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">new_walkers</span><span class="p">):</span>
+
+                <span class="n">walker_weight</span> <span class="o">=</span> <span class="n">walker</span><span class="o">.</span><span class="n">weight</span>
+                <span class="n">walker_data</span> <span class="o">=</span> <span class="n">walker</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">dict</span><span class="p">()</span>
+
+                <span class="c1"># iterate through the feature vectors of the walker</span>
+                <span class="c1"># (fields), and the keys for the alt_reps</span>
+                <span class="k">for</span> <span class="n">field_path</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">walker_data</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
+
+                    <span class="c1"># save the field if it is in the list of save_fields</span>
+                    <span class="k">if</span> <span class="n">field_path</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">save_fields</span><span class="p">:</span>
+                        <span class="n">walker_data</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">field_path</span><span class="p">)</span>
+                        <span class="k">continue</span>
+
+                    <span class="c1"># if the result is None don&#39;t save anything</span>
+                    <span class="k">if</span> <span class="n">walker_data</span><span class="p">[</span><span class="n">field_path</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="n">walker_data</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">field_path</span><span class="p">)</span>
+                        <span class="k">continue</span>
+
+                    <span class="c1"># if this is a sparse field we decide</span>
+                    <span class="c1"># whether it is a valid cycle to save on</span>
+                    <span class="k">if</span> <span class="n">field_path</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sparse_fields</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="n">cycle_idx</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sparse_fields</span><span class="p">[</span><span class="n">field_path</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                            <span class="c1"># this is not a valid cycle so we</span>
+                            <span class="c1"># remove from the walker_data</span>
+                            <span class="n">walker_data</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">field_path</span><span class="p">)</span>
+                            <span class="k">continue</span>
+
+
+                <span class="c1"># Add the alt_reps fields by slicing the positions</span>
+                <span class="k">for</span> <span class="n">alt_rep_key</span><span class="p">,</span> <span class="n">alt_rep_idxs</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">alt_reps_idxs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                    <span class="n">alt_rep_path</span> <span class="o">=</span> <span class="s2">&quot;alt_reps/</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">alt_rep_key</span><span class="p">)</span>
+
+                    <span class="c1"># if the alt rep is also a sparse field check this</span>
+                    <span class="k">if</span> <span class="n">alt_rep_path</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sparse_fields</span><span class="p">:</span>
+
+                        <span class="c1"># check to make sure this is a cycle this is</span>
+                        <span class="c1"># to be saved to, if it is not continue on to</span>
+                        <span class="c1"># the next field without saving this one</span>
+                        <span class="k">if</span> <span class="n">cycle_idx</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sparse_fields</span><span class="p">[</span><span class="n">alt_rep_path</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+
+                            <span class="k">continue</span>
+
+                    <span class="c1"># slice them and save them</span>
+
+                    <span class="c1"># if the idxs are None we want all of the atoms</span>
+                    <span class="k">if</span> <span class="n">alt_rep_idxs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="n">alt_rep_data</span> <span class="o">=</span> <span class="n">walker_data</span><span class="p">[</span><span class="s1">&#39;positions&#39;</span><span class="p">][:]</span>
+                    <span class="c1"># otherwise get only th atoms we want</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">alt_rep_data</span> <span class="o">=</span> <span class="n">walker_data</span><span class="p">[</span><span class="s1">&#39;positions&#39;</span><span class="p">][</span><span class="n">alt_rep_idxs</span><span class="p">]</span>
+                    <span class="n">walker_data</span><span class="p">[</span><span class="n">alt_rep_path</span><span class="p">]</span> <span class="o">=</span> <span class="n">alt_rep_data</span>
+
+
+                <span class="c1"># lastly reduce the atoms for the main representation</span>
+                <span class="c1"># if this option was given</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">main_rep_idxs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">walker_data</span><span class="p">[</span><span class="s1">&#39;positions&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">walker_data</span><span class="p">[</span><span class="s1">&#39;positions&#39;</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">main_rep_idxs</span><span class="p">]</span>
+
+
+                <span class="c1"># for all of these fields we wrap them in another</span>
+                <span class="c1"># dimension to make them feature vectors</span>
+                <span class="k">for</span> <span class="n">field_path</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">walker_data</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
+                    <span class="n">walker_data</span><span class="p">[</span><span class="n">field_path</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">walker_data</span><span class="p">[</span><span class="n">field_path</span><span class="p">]])</span>
+
+                <span class="c1"># save the data to the HDF5 file for this walker</span>
+
+                <span class="c1"># check to see if the walker has a trajectory in the run</span>
+                <span class="k">if</span> <span class="n">walker_idx</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">wepy_h5</span><span class="o">.</span><span class="n">run_traj_idxs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">wepy_run_idx</span><span class="p">):</span>
+
+                    <span class="c1"># if it does then append to the trajectory</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">wepy_h5</span><span class="o">.</span><span class="n">extend_traj</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">wepy_run_idx</span><span class="p">,</span> <span class="n">walker_idx</span><span class="p">,</span>
+                                             <span class="n">weights</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="n">walker_weight</span><span class="p">]]),</span>
+                                             <span class="n">data</span><span class="o">=</span><span class="n">walker_data</span><span class="p">)</span>
+                <span class="c1"># start a new trajectory</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="c1"># add the traj for the walker with the data</span>
+
+                    <span class="n">traj_grp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">wepy_h5</span><span class="o">.</span><span class="n">add_traj</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">wepy_run_idx</span><span class="p">,</span>
+                                                     <span class="n">weights</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="n">walker_weight</span><span class="p">]]),</span>
+                                                     <span class="n">data</span><span class="o">=</span><span class="n">walker_data</span><span class="p">)</span>
+
+                    <span class="c1"># add as metadata the cycle idx where this walker started</span>
+                    <span class="n">traj_grp</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;cycle_idx&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">cycle_idx</span>
+
+
+            <span class="c1"># report the boundary conditions records data, if boundary</span>
+            <span class="c1"># conditions were initialized</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">warping_fields</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_report_warping</span><span class="p">(</span><span class="n">cycle_idx</span><span class="p">,</span> <span class="n">warp_data</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_report_bc</span><span class="p">(</span><span class="n">cycle_idx</span><span class="p">,</span> <span class="n">bc_data</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_report_progress</span><span class="p">(</span><span class="n">cycle_idx</span><span class="p">,</span> <span class="n">progress_data</span><span class="p">)</span>
+
+            <span class="c1"># report the resampling records data</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_report_resampling</span><span class="p">(</span><span class="n">cycle_idx</span><span class="p">,</span> <span class="n">resampling_data</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_report_resampler</span><span class="p">(</span><span class="n">cycle_idx</span><span class="p">,</span> <span class="n">resampler_data</span><span class="p">)</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">report</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+
+    <span class="c1"># sporadic</span>
+    <span class="k">def</span> <span class="nf">_report_warping</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cycle_idx</span><span class="p">,</span> <span class="n">warping_data</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Method to write warping specific information.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        cycle_idx : int</span>
+
+<span class="sd">        warp_data : list of dict of str : value</span>
+<span class="sd">            List of dict-like records for each warping event from the</span>
+<span class="sd">            last cycle.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">warping_data</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">wepy_h5</span><span class="o">.</span><span class="n">extend_cycle_warping_records</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">wepy_run_idx</span><span class="p">,</span> <span class="n">cycle_idx</span><span class="p">,</span> <span class="n">warping_data</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_report_bc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cycle_idx</span><span class="p">,</span> <span class="n">bc_data</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Method to write boundary condition update specific information.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        cycle_idx : int</span>
+
+<span class="sd">        bc_data : list of dict of str : value</span>
+<span class="sd">           List of dict-like records specifying the changes to the</span>
+<span class="sd">           state of the boundary conditions in the last cycle.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">bc_data</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">wepy_h5</span><span class="o">.</span><span class="n">extend_cycle_bc_records</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">wepy_run_idx</span><span class="p">,</span> <span class="n">cycle_idx</span><span class="p">,</span> <span class="n">bc_data</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_report_resampler</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cycle_idx</span><span class="p">,</span> <span class="n">resampler_data</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Method to write resampler update specific information.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        cycle_idx : int</span>
+
+<span class="sd">        resampler_data : list of dict of str : value</span>
+<span class="sd">            List of records specifying the changes to the state of the</span>
+<span class="sd">            resampler in the last cycle.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">resampler_data</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">wepy_h5</span><span class="o">.</span><span class="n">extend_cycle_resampler_records</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">wepy_run_idx</span><span class="p">,</span> <span class="n">cycle_idx</span><span class="p">,</span> <span class="n">resampler_data</span><span class="p">)</span>
+
+    <span class="c1"># the resampling records are provided every cycle but they need to</span>
+    <span class="c1"># be saved as sporadic because of the variable number of walkers</span>
+    <span class="k">def</span> <span class="nf">_report_resampling</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cycle_idx</span><span class="p">,</span> <span class="n">resampling_data</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Method to write resampling specific information.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        cycle_idx : int</span>
+
+<span class="sd">        resampling_data : list of dict of str : value</span>
+<span class="sd">            List of records specifying the resampling to occur at this</span>
+<span class="sd">            cycle.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">wepy_h5</span><span class="o">.</span><span class="n">extend_cycle_resampling_records</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">wepy_run_idx</span><span class="p">,</span> <span class="n">cycle_idx</span><span class="p">,</span> <span class="n">resampling_data</span><span class="p">)</span>
+
+    <span class="c1"># continual</span>
+    <span class="k">def</span> <span class="nf">_report_progress</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cycle_idx</span><span class="p">,</span> <span class="n">progress_data</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Method to write progress specific information.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        cycle_idx : int</span>
+
+<span class="sd">        progress_data : dict str : list</span>
+<span class="sd">            A record indicating the progress values for each walker in</span>
+<span class="sd">            the last cycle.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">wepy_h5</span><span class="o">.</span><span class="n">extend_cycle_progress_records</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">wepy_run_idx</span><span class="p">,</span> <span class="n">cycle_idx</span><span class="p">,</span> <span class="p">[</span><span class="n">progress_data</span><span class="p">])</span></div>
+
+
+
+</pre></div>
+
+          </div>
+            
+        </div>
+        <div class="clearfix"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">wepy  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+<script type="text/javascript">
+  $("#mobile-toggle a").click(function () {
+    $("#left-column").toggle();
+  });
+</script>
+<script type="text/javascript" src="../../../_static/js/bootstrap.js"></script>
+  <div class="footer">
+    &copy; Copyright 2018, Samuel D. Lotz. Created using <a href="http://sphinx.pocoo.org/">Sphinx</a>.
+  </div>
+  </body>
+</html>

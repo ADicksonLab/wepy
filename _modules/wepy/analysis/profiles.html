@@ -1,0 +1,645 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+  
+  <!-- Licensed under the Apache 2.0 License -->
+  <link rel="stylesheet" type="text/css" href="../../../_static/fonts/open-sans/stylesheet.css" />
+  <!-- Licensed under the SIL Open Font License -->
+  <link rel="stylesheet" type="text/css" href="../../../_static/fonts/source-serif-pro/source-serif-pro.css" />
+  <link rel="stylesheet" type="text/css" href="../../../_static/css/bootstrap.min.css" />
+  <link rel="stylesheet" type="text/css" href="../../../_static/css/bootstrap-theme.min.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+    <title>wepy.analysis.profiles &#8212; wepy  documentation</title>
+    <link rel="stylesheet" href="../../../_static/guzzle.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../../_static/language_data.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+  
+   
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">wepy  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="container-wrapper">
+
+      <div id="mobile-toggle">
+        <a href="#"><span class="glyphicon glyphicon-align-justify" aria-hidden="true"></span></a>
+      </div>
+  <div id="left-column">
+    <div class="sphinxsidebar">
+<div class="sidebar-block">
+  <div class="sidebar-wrapper">
+    <div id="main-search">
+      <form class="form-inline" action="../../../search.html" method="GET" role="form">
+        <div class="input-group">
+          <input name="q" type="text" class="form-control" placeholder="Search...">
+        </div>
+        <input type="hidden" name="check_keywords" value="yes" />
+        <input type="hidden" name="area" value="default" />
+      </form>
+    </div>
+  </div>
+</div>
+      
+    </div>
+  </div>
+        <div id="right-column">
+          
+          <div role="navigation" aria-label="breadcrumbs navigation">
+            <ol class="breadcrumb">
+              <li><a href="../../../index.html">Docs</a></li>
+              
+                <li><a href="../../index.html">Module code</a></li>
+              
+              <li>wepy.analysis.profiles</li>
+            </ol>
+          </div>
+          
+          <div class="document clearer body">
+            
+  <h1>Source code for wepy.analysis.profiles</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Analysis routines for generating free energy profiles over wepy</span>
+<span class="sd">simulation data.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">geomm.free_energy</span> <span class="k">import</span> <span class="n">free_energy</span>
+
+<div class="viewcode-block" id="cumulative_partitions"><a class="viewcode-back" href="../../../api/wepy.analysis.profiles.html#wepy.analysis.profiles.cumulative_partitions">[docs]</a><span class="k">def</span> <span class="nf">cumulative_partitions</span><span class="p">(</span><span class="n">ensemble_values</span><span class="p">,</span>
+                          <span class="n">time_tranche</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                          <span class="n">num_partitions</span><span class="o">=</span><span class="mi">5</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Calculate the cumulative free energies for an ensemble of</span>
+<span class="sd">    trajectory weights.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+
+<span class="sd">    ensemble_values : arraylikes of float of shape (n_cycles, n_trajs)</span>
+<span class="sd">        Array of scalar values for all of the frames of an ensemble simulation.</span>
+
+<span class="sd">    time_tranche : int</span>
+<span class="sd">        Width of time-bins/windows/tranche to compute free energies</span>
+<span class="sd">        for. This overrides the functionality of the &#39;partitions&#39;</span>
+<span class="sd">        argument. The last tranche will be truncated to the remainder</span>
+<span class="sd">        after partitioning by tranches.</span>
+
+<span class="sd">    num_partitions : int</span>
+<span class="sd">        Will evenly partition the time coordinate given the</span>
+<span class="sd">        dataset. The first partition will carry the</span>
+<span class="sd">        remainder. Overriden by time_tranche.</span>
+
+<span class="sd">    Yields</span>
+<span class="sd">    ------</span>
+
+<span class="sd">    cumulative_tranche : arraylike</span>
+<span class="sd">        A slice along the cycles axis of the ensemble values starting</span>
+<span class="sd">        at the beginning and including up to the end of the next</span>
+<span class="sd">        tranche.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+
+    <span class="n">n_cycles</span> <span class="o">=</span> <span class="n">ensemble_values</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">n_trajs</span> <span class="o">=</span> <span class="n">ensemble_values</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="c1"># if time_tranche was given determine the number of partitions</span>
+    <span class="k">if</span> <span class="n">time_tranche</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">time_tranche</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">num_partitions</span> <span class="o">=</span> <span class="n">n_cycles</span> <span class="o">//</span> <span class="n">time_tranche</span>
+        <span class="n">partitions</span> <span class="o">=</span> <span class="p">[</span><span class="n">time_tranche</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_partitions</span><span class="p">)]</span>
+
+        <span class="c1"># if there is a remainder we will have another partition for</span>
+        <span class="c1"># the remainder</span>
+        <span class="n">remainder</span> <span class="o">=</span> <span class="n">n_cycles</span> <span class="o">%</span> <span class="n">time_tranche</span>
+        <span class="k">if</span> <span class="n">remainder</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">num_partitions</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">partitions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">remainder</span><span class="p">)</span>
+
+    <span class="c1"># check that one of them is defined</span>
+    <span class="k">elif</span> <span class="n">num_partitions</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">num_partitions</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Must specify either time_tranche size or partitions ratio&quot;</span><span class="p">)</span>
+
+    <span class="c1"># if the partitions are given and the time_tranche is not we</span>
+    <span class="c1"># determine the tranche size automatically</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">time_tranche</span> <span class="o">=</span> <span class="n">n_cycles</span> <span class="o">//</span> <span class="n">num_partitions</span>
+        <span class="n">partitions</span> <span class="o">=</span> <span class="p">[</span><span class="n">time_tranche</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_partitions</span><span class="p">)]</span>
+        <span class="n">remainder</span> <span class="o">=</span> <span class="n">n_cycles</span> <span class="o">%</span> <span class="n">time_tranche</span>
+        <span class="k">if</span> <span class="n">remainder</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">partitions</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+=</span> <span class="n">remainder</span>
+
+    <span class="c1"># yield the time-partitioned values when asked for</span>
+    <span class="k">for</span> <span class="n">p_idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">partitions</span><span class="p">)):</span>
+
+        <span class="c1"># get the index for the end of the slice for this partition</span>
+        <span class="n">end_idx</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">partitions</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">p_idx</span><span class="o">+</span><span class="mi">1</span><span class="p">])</span> <span class="c1">#- 1</span>
+
+        <span class="c1"># compute the free energies</span>
+        <span class="k">yield</span> <span class="n">ensemble_values</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">end_idx</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="free_energy_profile"><a class="viewcode-back" href="../../../api/wepy.analysis.profiles.html#wepy.analysis.profiles.free_energy_profile">[docs]</a><span class="k">def</span> <span class="nf">free_energy_profile</span><span class="p">(</span><span class="n">weights</span><span class="p">,</span> <span class="n">observables</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span>
+                  <span class="n">max_energy</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
+                  <span class="n">zero_point_energy</span><span class="o">=</span><span class="mf">1e-12</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+
+<span class="sd">    free_energies : arraylikes of float of shape (n_trajs, n_cycles)</span>
+<span class="sd">        The free energies for all of the frames of an ensemble simulation.</span>
+
+<span class="sd">    observables : arraylikes of shape (n_trajs, n_cycles)</span>
+<span class="sd">        The scalar observables to compute the free energy over.</span>
+
+<span class="sd">    bins : int or sequence of scalars or str</span>
+<span class="sd">        The number of bins to bin along the observable axis, or the</span>
+<span class="sd">        actual bin edges, or the spec for the binning method.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+
+<span class="sd">    hist_fe : arraylike</span>
+<span class="sd">        The free energies of the histogram bins</span>
+
+<span class="sd">    bin_edges : arraylike</span>
+<span class="sd">        The edges of the bins of the histogram.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">assert</span> <span class="n">weights</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="n">observables</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="s2">&quot;Weights and observables must correspond in shape&quot;</span>
+
+    <span class="n">hist_weights</span><span class="p">,</span> <span class="n">bin_edges</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">histogram</span><span class="p">(</span><span class="n">observables</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="n">weights</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="n">bins</span><span class="p">)</span>
+
+    <span class="n">hist_fe</span> <span class="o">=</span> <span class="n">free_energy</span><span class="p">(</span><span class="n">hist_weights</span><span class="p">,</span>
+                          <span class="n">max_energy</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span>
+                          <span class="n">zero_point_energy</span><span class="o">=</span><span class="n">zero_point_energy</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">hist_fe</span><span class="p">,</span> <span class="n">bin_edges</span></div>
+
+<div class="viewcode-block" id="contigtrees_bin_edges"><a class="viewcode-back" href="../../../api/wepy.analysis.profiles.html#wepy.analysis.profiles.contigtrees_bin_edges">[docs]</a><span class="k">def</span> <span class="nf">contigtrees_bin_edges</span><span class="p">(</span><span class="n">contigtrees</span><span class="p">,</span> <span class="n">bins</span><span class="p">,</span> <span class="n">field_key</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Get the bin edges that best describes the aggregate data for</span>
+<span class="sd">    multiple contigtrees.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+
+<span class="sd">    num_bins : int or str</span>
+<span class="sd">        The number of bins to make or the method to use for autobinning.</span>
+
+<span class="sd">    field_key : str</span>
+<span class="sd">        The trajectory field key for the values to get bins for.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    bin_edges : array of dtype float</span>
+<span class="sd">        The edges to pass into `numpy.histogram`</span>
+
+
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    numpy.histogram_bin_edges : For the bin edge function</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">all_values</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">contigtree</span> <span class="ow">in</span> <span class="n">contigtrees</span><span class="p">:</span>
+        <span class="k">with</span> <span class="n">contigtree</span><span class="p">:</span>
+            <span class="n">all_values</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">fields</span><span class="p">[</span><span class="n">field_key</span><span class="p">]</span>
+                                              <span class="k">for</span> <span class="n">fields</span>
+                                              <span class="ow">in</span> <span class="n">contigtree</span><span class="o">.</span><span class="n">wepy_h5</span><span class="o">.</span><span class="n">iter_trajs_fields</span><span class="p">([</span><span class="n">field_key</span><span class="p">])]))</span>
+
+    <span class="n">all_values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">all_values</span><span class="p">)</span>
+
+    <span class="n">bin_edges</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">histogram_bin_edges</span><span class="p">(</span><span class="n">all_values</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="n">bins</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">bin_edges</span></div>
+
+
+<div class="viewcode-block" id="ContigTreeProfiler"><a class="viewcode-back" href="../../../api/wepy.analysis.profiles.html#wepy.analysis.profiles.ContigTreeProfiler">[docs]</a><span class="k">class</span> <span class="nc">ContigTreeProfiler</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;A wrapper class around a ContigTree that provides extra methods for</span>
+<span class="sd">    generating free energy profiles for observables.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">contigtree</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Create a wrapper around a contigtree for the profiler.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        contigtree : ContigTree object</span>
+<span class="sd">            The contigtree you want to generate profiles for.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_contigtree</span> <span class="o">=</span> <span class="n">contigtree</span>
+
+        <span class="c1"># determine the global binning strategy. These are the bins</span>
+        <span class="c1"># that best describe the entire pool of data in this contig</span>
+        <span class="c1"># tree</span>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">contigtree</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The underlying contigtree this wraps.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_contigtree</span>
+
+<div class="viewcode-block" id="ContigTreeProfiler.fe_profile_trace"><a class="viewcode-back" href="../../../api/wepy.analysis.profiles.html#wepy.analysis.profiles.ContigTreeProfiler.fe_profile_trace">[docs]</a>    <span class="k">def</span> <span class="nf">fe_profile_trace</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">trace</span><span class="p">,</span> <span class="n">field_key</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Calculate the free energy histogram over a trajectory field.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        trace : list of tuple of ints (run_idx, traj_idx, cycle_idx)</span>
+
+<span class="sd">        field_key : str</span>
+<span class="sd">            The key for the trajectory field to calculate the profiles</span>
+<span class="sd">            for. Must be a rank 0 (or equivalent (1,) rank) field.</span>
+
+<span class="sd">        bins : int or sequence of scalars or str or None</span>
+<span class="sd">            The number of bins to bin along the observable axis, or</span>
+<span class="sd">            the actual bin edges, or the spec for the binning method,</span>
+<span class="sd">            or None. If None will generate them with the &#39;auto&#39;</span>
+<span class="sd">            setting for this span.</span>
+
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
+<span class="sd">        fe_profile : arraylike of dtype float</span>
+<span class="sd">            An array of free energies for each bin.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">fields</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">contigtree</span><span class="o">.</span><span class="n">wepy_h5</span><span class="o">.</span><span class="n">get_trace_fields</span><span class="p">(</span><span class="n">trace</span><span class="p">,</span> <span class="p">[</span><span class="n">field_key</span><span class="p">,</span> <span class="s1">&#39;weights&#39;</span><span class="p">])</span>
+
+        <span class="n">weights</span> <span class="o">=</span> <span class="n">fields</span><span class="p">[</span><span class="s1">&#39;weights&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+        <span class="n">values</span> <span class="o">=</span> <span class="n">fields</span><span class="p">[</span><span class="n">field_key</span><span class="p">]</span>
+
+        <span class="c1"># the feature vector must be either shape 0 or (1,) i.e. rank</span>
+        <span class="c1"># 0 equivalent, so we get one feature and check its shape</span>
+        <span class="n">test_feature</span> <span class="o">=</span> <span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="c1"># if it doesn&#39;t satisfy this requirement we need to raise an error</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">test_feature</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="p">()</span> <span class="ow">or</span> <span class="n">test_feature</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="p">(</span><span class="mi">1</span><span class="p">,)):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;The field key specified a field that is non-scalar.&quot;</span>
+                            <span class="s2">&quot;The shape of the feature vector must be () or (1,).&quot;</span><span class="p">)</span>
+
+        <span class="c1"># determine the bin_edges</span>
+
+        <span class="c1"># if the bins were not specified generate them from all the</span>
+        <span class="c1"># values for this span</span>
+        <span class="k">if</span> <span class="n">bins</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">bin_edges</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">histogram_bin_edges</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="s1">&#39;auto&#39;</span><span class="p">)</span>
+
+        <span class="c1"># if the number or binning strategy was given generate them</span>
+        <span class="c1"># according to that</span>
+        <span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">bins</span><span class="p">)</span> <span class="ow">in</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+            <span class="n">bin_edges</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">histogram_bin_edges</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="n">bins</span><span class="p">)</span>
+
+        <span class="c1"># if it wasn&#39;t those things we assume it is already a correct</span>
+        <span class="c1"># bin_edges</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">bin_edges</span> <span class="o">=</span> <span class="n">bins</span>
+
+
+        <span class="n">fe_profile</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">free_energy_profile</span><span class="p">(</span><span class="n">weights</span><span class="p">,</span> <span class="n">values</span><span class="p">,</span>
+                                            <span class="n">bins</span><span class="o">=</span><span class="n">bin_edges</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">fe_profile</span></div>
+
+
+<div class="viewcode-block" id="ContigTreeProfiler.fe_profile_all"><a class="viewcode-back" href="../../../api/wepy.analysis.profiles.html#wepy.analysis.profiles.ContigTreeProfiler.fe_profile_all">[docs]</a>    <span class="k">def</span> <span class="nf">fe_profile_all</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field_key</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Calculate the free energy histogram over a trajectory field.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        field_key : str</span>
+<span class="sd">            The key for the trajectory field to calculate the profiles</span>
+<span class="sd">            for. Must be a rank 0 (or equivalent (1,) rank) field.</span>
+
+<span class="sd">        bins : int or sequence of scalars or str or None</span>
+<span class="sd">            The number of bins to bin along the observable axis, or</span>
+<span class="sd">            the actual bin edges, or the spec for the binning method,</span>
+<span class="sd">            or None. If None will generate them with the &#39;auto&#39;</span>
+<span class="sd">            setting for this span.</span>
+
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
+<span class="sd">        fe_profile : arraylike of dtype float</span>
+<span class="sd">            An array of free energies for each bin.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">weights</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">values</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">run_idx</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">contigtree</span><span class="o">.</span><span class="n">wepy_h5</span><span class="o">.</span><span class="n">run_idxs</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">traj_idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">contigtree</span><span class="o">.</span><span class="n">wepy_h5</span><span class="o">.</span><span class="n">num_run_trajs</span><span class="p">(</span><span class="n">run_idx</span><span class="p">)):</span>
+
+                <span class="n">traj_weights</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">contigtree</span><span class="o">.</span><span class="n">wepy_h5</span><span class="o">.</span><span class="n">get_traj_field</span><span class="p">(</span><span class="n">run_idx</span><span class="p">,</span> <span class="n">traj_idx</span><span class="p">,</span> <span class="s1">&#39;weights&#39;</span><span class="p">)</span>
+                <span class="n">traj_weights</span> <span class="o">=</span> <span class="n">traj_weights</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+                <span class="n">weights</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">traj_weights</span><span class="p">)</span>
+
+                <span class="n">values</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">contigtree</span><span class="o">.</span><span class="n">wepy_h5</span><span class="o">.</span><span class="n">get_traj_field</span><span class="p">(</span><span class="n">run_idx</span><span class="p">,</span> <span class="n">traj_idx</span><span class="p">,</span> <span class="n">field_key</span><span class="p">))</span>
+
+        <span class="c1"># the feature vector must be either shape 0 or (1,) i.e. rank</span>
+        <span class="c1"># 0 equivalent</span>
+
+        <span class="c1"># concatenate all of the weights and features</span>
+        <span class="n">weights</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">weights</span><span class="p">)</span>
+        <span class="n">values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">values</span><span class="p">)</span>
+
+        <span class="c1"># so we get one feature and check its shape</span>
+        <span class="n">test_feature</span> <span class="o">=</span> <span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="c1"># if it doesn&#39;t satisfy this requirement we need to raise an error</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">test_feature</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="p">()</span> <span class="ow">or</span> <span class="n">test_feature</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="p">(</span><span class="mi">1</span><span class="p">,)):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;The field key specified a field that is non-scalar.&quot;</span>
+                            <span class="s2">&quot;The shape of the feature vector must be () or (1,).&quot;</span><span class="p">)</span>
+
+        <span class="c1"># determine the bin_edges</span>
+
+        <span class="c1"># if the bins were not specified generate them from all the</span>
+        <span class="c1"># values for this span</span>
+        <span class="k">if</span> <span class="n">bins</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">bin_edges</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">histogram_bin_edges</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="s1">&#39;auto&#39;</span><span class="p">)</span>
+
+        <span class="c1"># if the number or binning strategy was given generate them</span>
+        <span class="c1"># according to that</span>
+        <span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">bins</span><span class="p">)</span> <span class="ow">in</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+            <span class="n">bin_edges</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">histogram_bin_edges</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="n">bins</span><span class="p">)</span>
+
+        <span class="c1"># if it wasn&#39;t those things we assume it is already a correct</span>
+        <span class="c1"># bin_edges</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">bin_edges</span> <span class="o">=</span> <span class="n">bins</span>
+
+
+        <span class="n">fe_profile</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">free_energy_profile</span><span class="p">(</span><span class="n">weights</span><span class="p">,</span> <span class="n">values</span><span class="p">,</span>
+                                            <span class="n">bins</span><span class="o">=</span><span class="n">bin_edges</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">fe_profile</span></div>
+
+
+<div class="viewcode-block" id="ContigTreeProfiler.fe_profile"><a class="viewcode-back" href="../../../api/wepy.analysis.profiles.html#wepy.analysis.profiles.ContigTreeProfiler.fe_profile">[docs]</a>    <span class="k">def</span> <span class="nf">fe_profile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">span</span><span class="p">,</span> <span class="n">field_key</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Calculate the free energy histogram over a trajectory field.</span>
+
+<span class="sd">        Deprecation warning: This will likely be deprecated and</span>
+<span class="sd">        renamed to fe_profile_span because it is misleading that a</span>
+<span class="sd">        profile is span based.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        span : int</span>
+<span class="sd">            The index of the span to calculate profiles for.</span>
+
+<span class="sd">        field_key : str</span>
+<span class="sd">            The key for the trajectory field to calculate the profiles</span>
+<span class="sd">            for. Must be a rank 0 (or equivalent (1,) rank) field.</span>
+
+<span class="sd">        bins : int or sequence of scalars or str or None</span>
+<span class="sd">            The number of bins to bin along the observable axis, or</span>
+<span class="sd">            the actual bin edges, or the spec for the binning method,</span>
+<span class="sd">            or None. If None will generate them with the &#39;auto&#39;</span>
+<span class="sd">            setting for this span.</span>
+
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
+<span class="sd">        fe_profile : arraylike of dtype float</span>
+<span class="sd">            An array of free energies for each bin.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># make the contig for this span</span>
+        <span class="n">contig</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">contigtree</span><span class="o">.</span><span class="n">span_contig</span><span class="p">(</span><span class="n">span</span><span class="p">)</span>
+
+        <span class="c1"># get the weights</span>
+        <span class="n">weights</span> <span class="o">=</span> <span class="n">contig</span><span class="o">.</span><span class="n">contig_fields</span><span class="p">([</span><span class="s1">&#39;weights&#39;</span><span class="p">])[</span><span class="s1">&#39;weights&#39;</span><span class="p">]</span>
+        <span class="c1"># reshape to match</span>
+        <span class="n">weights</span> <span class="o">=</span> <span class="n">weights</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="n">weights</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">weights</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+        <span class="c1"># then get the values for the field key</span>
+        <span class="n">values</span> <span class="o">=</span> <span class="n">contig</span><span class="o">.</span><span class="n">contig_fields</span><span class="p">([</span><span class="n">field_key</span><span class="p">])[</span><span class="n">field_key</span><span class="p">]</span>
+
+        <span class="c1"># the feature vector must be either shape 0 or (1,) i.e. rank</span>
+        <span class="c1"># 0 equivalent</span>
+
+        <span class="c1"># so we get one feature and check its shape</span>
+        <span class="n">test_feature</span> <span class="o">=</span> <span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="c1"># if it doesn&#39;t satisfy this requirement we need to raise an error</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">test_feature</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="p">()</span> <span class="ow">or</span> <span class="n">test_feature</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="p">(</span><span class="mi">1</span><span class="p">,)):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;The field key specified a field that is non-scalar.&quot;</span>
+                            <span class="s2">&quot;The shape of the feature vector must be () or (1,).&quot;</span><span class="p">)</span>
+
+        <span class="c1"># determine the bin_edges</span>
+
+        <span class="c1"># if the bins were not specified generate them from all the</span>
+        <span class="c1"># values for this span</span>
+        <span class="k">if</span> <span class="n">bins</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">bin_edges</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">histogram_bin_edges</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="s1">&#39;auto&#39;</span><span class="p">)</span>
+
+        <span class="c1"># if the number or binning strategy was given generate them</span>
+        <span class="c1"># according to that</span>
+        <span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">bins</span><span class="p">)</span> <span class="ow">in</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+            <span class="n">bin_edges</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">histogram_bin_edges</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="n">bins</span><span class="p">)</span>
+
+        <span class="c1"># if it wasn&#39;t those things we assume it is already a correct</span>
+        <span class="c1"># bin_edges</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">bin_edges</span> <span class="o">=</span> <span class="n">bins</span>
+
+
+        <span class="n">fe_profile</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">free_energy_profile</span><span class="p">(</span><span class="n">weights</span><span class="p">,</span> <span class="n">values</span><span class="p">,</span>
+                                            <span class="n">bins</span><span class="o">=</span><span class="n">bin_edges</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">fe_profile</span></div>
+
+
+<div class="viewcode-block" id="ContigTreeProfiler.fe_cumulative_profiles"><a class="viewcode-back" href="../../../api/wepy.analysis.profiles.html#wepy.analysis.profiles.ContigTreeProfiler.fe_cumulative_profiles">[docs]</a>    <span class="k">def</span> <span class="nf">fe_cumulative_profiles</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">span</span><span class="p">,</span> <span class="n">field_key</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                               <span class="n">time_tranche</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">num_partitions</span><span class="o">=</span><span class="mi">5</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Calculate the cumulative free energy histograms for a trajectory</span>
+<span class="sd">        field.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        span : int</span>
+<span class="sd">            The index of the span to calculate profiles for.</span>
+
+<span class="sd">        field_key : str</span>
+<span class="sd">            The key for the trajectory field to calculate the profiles</span>
+<span class="sd">            for. Must be a rank 0 (or equivalent (1,) rank) field.</span>
+
+<span class="sd">        bins : int or sequence of scalars or str or None</span>
+<span class="sd">            The number of bins to bin along the observable axis, or</span>
+<span class="sd">            the actual bin edges, or the spec for the binning method,</span>
+<span class="sd">            or None. If None will generate them with the &#39;auto&#39;</span>
+<span class="sd">            setting for this span.</span>
+
+<span class="sd">        time_tranche : int</span>
+<span class="sd">            Width of time-bins/windows/tranche to compute free</span>
+<span class="sd">            energies for. This overrides the functionality of the</span>
+<span class="sd">            &#39;partitions&#39; argument. The last tranche will be truncated</span>
+<span class="sd">            to the remainder after partitioning by tranches. Overrides</span>
+<span class="sd">            partitions.</span>
+
+<span class="sd">        num_partitions : int</span>
+<span class="sd">            Will evenly partition the time coordinate given the</span>
+<span class="sd">            dataset. The first partition will carry the remainder.</span>
+<span class="sd">            Overriden by time_tranche.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
+<span class="sd">        cumulative_fe_profiles : list of arraylike of dtype float</span>
+<span class="sd">            A list of each cumulative free energy profile. Each profile is</span>
+<span class="sd">            an array of free energies for each bin.</span>
+
+<span class="sd">        profile_num_cycles : list of int</span>
+<span class="sd">            The number of cycles in each cumulative fe profile.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># make the contig for this span</span>
+        <span class="n">contig</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">contigtree</span><span class="o">.</span><span class="n">span_contig</span><span class="p">(</span><span class="n">span</span><span class="p">)</span>
+
+        <span class="c1"># get the weights</span>
+        <span class="n">weights</span> <span class="o">=</span> <span class="n">contig</span><span class="o">.</span><span class="n">contig_fields</span><span class="p">([</span><span class="s1">&#39;weights&#39;</span><span class="p">])[</span><span class="s1">&#39;weights&#39;</span><span class="p">]</span>
+        <span class="c1"># reshape to match</span>
+        <span class="n">weights</span> <span class="o">=</span> <span class="n">weights</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="n">weights</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">weights</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+        <span class="c1"># then get the values for the field key</span>
+        <span class="n">values</span> <span class="o">=</span> <span class="n">contig</span><span class="o">.</span><span class="n">contig_fields</span><span class="p">([</span><span class="n">field_key</span><span class="p">])[</span><span class="n">field_key</span><span class="p">]</span>
+
+        <span class="c1"># determine the bin_edges</span>
+
+        <span class="c1"># if the bins were not specified generate them from all the</span>
+        <span class="c1"># values for this span</span>
+        <span class="k">if</span> <span class="n">bins</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">bin_edges</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">histogram_bin_edges</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="s1">&#39;auto&#39;</span><span class="p">)</span>
+
+        <span class="c1"># if the number or binning strategy was given generate them</span>
+        <span class="c1"># according to that</span>
+        <span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">bins</span><span class="p">)</span> <span class="ow">in</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+            <span class="n">bin_edges</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">histogram_bin_edges</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="n">bins</span><span class="p">)</span>
+
+        <span class="c1"># if it wasn&#39;t those things we assume it is already a correct</span>
+        <span class="c1"># bin_edges</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">bin_edges</span> <span class="o">=</span> <span class="n">bins</span>
+
+
+        <span class="c1"># make the cumulative generators for each</span>
+        <span class="n">weights_partition_gen</span> <span class="o">=</span> <span class="n">cumulative_partitions</span><span class="p">(</span><span class="n">weights</span><span class="p">,</span> <span class="n">time_tranche</span><span class="o">=</span><span class="n">time_tranche</span><span class="p">,</span>
+                                                      <span class="n">num_partitions</span><span class="o">=</span><span class="n">num_partitions</span><span class="p">)</span>
+        <span class="n">values_partition_gen</span> <span class="o">=</span> <span class="n">cumulative_partitions</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">time_tranche</span><span class="o">=</span><span class="n">time_tranche</span><span class="p">,</span>
+                                                     <span class="n">num_partitions</span><span class="o">=</span><span class="n">num_partitions</span><span class="p">)</span>
+
+        <span class="c1"># then generate each profile for each cumulative tranche</span>
+
+        <span class="n">fe_profiles</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">profile_num_cycles</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">weights_part</span> <span class="ow">in</span> <span class="n">weights_partition_gen</span><span class="p">:</span>
+
+            <span class="n">values_part</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">values_partition_gen</span><span class="p">)</span>
+
+            <span class="n">profile_num_cycles</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">values_part</span><span class="p">))</span>
+
+            <span class="n">fe_profile</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">free_energy_profile</span><span class="p">(</span><span class="n">weights_part</span><span class="p">,</span> <span class="n">values_part</span><span class="p">,</span>
+                                                <span class="n">bins</span><span class="o">=</span><span class="n">bin_edges</span><span class="p">)</span>
+
+            <span class="n">fe_profiles</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">fe_profile</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">fe_profiles</span><span class="p">,</span> <span class="n">profile_num_cycles</span></div>
+
+
+<div class="viewcode-block" id="ContigTreeProfiler.bin_edges"><a class="viewcode-back" href="../../../api/wepy.analysis.profiles.html#wepy.analysis.profiles.ContigTreeProfiler.bin_edges">[docs]</a>    <span class="k">def</span> <span class="nf">bin_edges</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bins</span><span class="p">,</span> <span class="n">field_key</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Compute the bin edges that best describes all of the contigtree</span>
+<span class="sd">        data for the number of bins.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        bins : int or str</span>
+<span class="sd">            The number of bins to make or the method to use for</span>
+<span class="sd">            autobinning.</span>
+
+<span class="sd">        field_key : str</span>
+<span class="sd">            The trajectory field key for the values to get bins for.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bin_edges : array of dtype float</span>
+<span class="sd">            The edges to pass into `numpy.histogram`</span>
+
+
+<span class="sd">        See Also</span>
+<span class="sd">        --------</span>
+<span class="sd">        numpy.histogram_bin_edges : For the bin edge function</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">all_values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">fields</span><span class="p">[</span><span class="n">field_key</span><span class="p">]</span>
+                                     <span class="k">for</span> <span class="n">fields</span>
+                                     <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">contigtree</span><span class="o">.</span><span class="n">wepy_h5</span><span class="o">.</span><span class="n">iter_trajs_fields</span><span class="p">([</span><span class="n">field_key</span><span class="p">])])</span>
+
+        <span class="n">bin_edges</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">histogram_bin_edges</span><span class="p">(</span><span class="n">all_values</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="n">bins</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">bin_edges</span></div></div>
+
+</pre></div>
+
+          </div>
+            
+        </div>
+        <div class="clearfix"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">wepy  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+<script type="text/javascript">
+  $("#mobile-toggle a").click(function () {
+    $("#left-column").toggle();
+  });
+</script>
+<script type="text/javascript" src="../../../_static/js/bootstrap.js"></script>
+  <div class="footer">
+    &copy; Copyright 2018, Samuel D. Lotz. Created using <a href="http://sphinx.pocoo.org/">Sphinx</a>.
+  </div>
+  </body>
+</html>

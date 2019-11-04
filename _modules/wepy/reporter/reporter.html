@@ -1,0 +1,662 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+  
+  <!-- Licensed under the Apache 2.0 License -->
+  <link rel="stylesheet" type="text/css" href="../../../_static/fonts/open-sans/stylesheet.css" />
+  <!-- Licensed under the SIL Open Font License -->
+  <link rel="stylesheet" type="text/css" href="../../../_static/fonts/source-serif-pro/source-serif-pro.css" />
+  <link rel="stylesheet" type="text/css" href="../../../_static/css/bootstrap.min.css" />
+  <link rel="stylesheet" type="text/css" href="../../../_static/css/bootstrap-theme.min.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+    <title>wepy.reporter.reporter &#8212; wepy  documentation</title>
+    <link rel="stylesheet" href="../../../_static/guzzle.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../../_static/language_data.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+  
+   
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">wepy  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="container-wrapper">
+
+      <div id="mobile-toggle">
+        <a href="#"><span class="glyphicon glyphicon-align-justify" aria-hidden="true"></span></a>
+      </div>
+  <div id="left-column">
+    <div class="sphinxsidebar">
+<div class="sidebar-block">
+  <div class="sidebar-wrapper">
+    <div id="main-search">
+      <form class="form-inline" action="../../../search.html" method="GET" role="form">
+        <div class="input-group">
+          <input name="q" type="text" class="form-control" placeholder="Search...">
+        </div>
+        <input type="hidden" name="check_keywords" value="yes" />
+        <input type="hidden" name="area" value="default" />
+      </form>
+    </div>
+  </div>
+</div>
+      
+    </div>
+  </div>
+        <div id="right-column">
+          
+          <div role="navigation" aria-label="breadcrumbs navigation">
+            <ol class="breadcrumb">
+              <li><a href="../../../index.html">Docs</a></li>
+              
+                <li><a href="../../index.html">Module code</a></li>
+              
+              <li>wepy.reporter.reporter</li>
+            </ol>
+          </div>
+          
+          <div class="document clearer body">
+            
+  <h1>Source code for wepy.reporter.reporter</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">os.path</span> <span class="k">as</span> <span class="nn">osp</span>
+<span class="kn">import</span> <span class="nn">pickle</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+
+<div class="viewcode-block" id="ReporterError"><a class="viewcode-back" href="../../../api/wepy.reporter.reporter.html#wepy.reporter.dashboard.ReporterError">[docs]</a><span class="k">class</span> <span class="nc">ReporterError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
+    <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="Reporter"><a class="viewcode-back" href="../../../api/wepy.reporter.reporter.html#wepy.reporter.dashboard.Reporter">[docs]</a><span class="k">class</span> <span class="nc">Reporter</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Abstract base class for wepy reporters.</span>
+
+<span class="sd">    All reporters must customize and override minimally the &#39;report&#39;</span>
+<span class="sd">    method. Optionally the &#39;init&#39; and &#39;cleanup&#39; can be overriden.</span>
+
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+
+<span class="sd">    wepy.sim_manager : details of calls to reporter methods.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Construct a reporter.</span>
+
+<span class="sd">        Void constructor for the Reporter base class.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        **kwargs : key-value pairs</span>
+<span class="sd">            Ignored kwargs, but accepts them from subclass calls for</span>
+<span class="sd">            compatibility.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span>
+
+<div class="viewcode-block" id="Reporter.init"><a class="viewcode-back" href="../../../api/wepy.reporter.reporter.html#wepy.reporter.dashboard.Reporter.init">[docs]</a>    <span class="k">def</span> <span class="nf">init</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initialization routines for the reporter at simulation runtime.</span>
+
+<span class="sd">        Initialize I/O connections including file descriptors,</span>
+<span class="sd">        database connections, timers, stdout/stderr etc.</span>
+
+<span class="sd">        Void method for reporter base class.</span>
+
+<span class="sd">        Reporters can expect to have the following key word arguments</span>
+<span class="sd">        passed to them during a simulation by the sim_manager in this</span>
+<span class="sd">        call.</span>
+
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        init_walkers : list of Walker objects</span>
+<span class="sd">            The initial walkers for the simulation.</span>
+
+<span class="sd">        runner : Runner object</span>
+<span class="sd">            The runner that will be used in the simulation.</span>
+
+<span class="sd">        resampler : Resampler object</span>
+<span class="sd">            The resampler that will be used in the simulation.</span>
+
+<span class="sd">        boundary_conditions : BoundaryConditions object</span>
+<span class="sd">            The boundary conditions taht will be used in the simulation.</span>
+
+<span class="sd">        work_mapper : WorkMapper object</span>
+<span class="sd">            The work mapper that will be used in the simulation.</span>
+
+<span class="sd">        reporters : list of Reporter objects</span>
+<span class="sd">            The list of reporters that are in the simulation.</span>
+
+<span class="sd">        continue_run : int</span>
+<span class="sd">            The index of the run that is being continued within this</span>
+<span class="sd">            same file.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">method_name</span> <span class="o">=</span> <span class="s1">&#39;init&#39;</span>
+        <span class="k">assert</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="nb">super</span><span class="p">(),</span> <span class="n">method_name</span><span class="p">),</span> \
+            <span class="s2">&quot;Superclass with method </span><span class="si">{}</span><span class="s2"> is masked&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">method_name</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Reporter.report"><a class="viewcode-back" href="../../../api/wepy.reporter.reporter.html#wepy.reporter.dashboard.Reporter.report">[docs]</a>    <span class="k">def</span> <span class="nf">report</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Given data concerning the main simulation components state, perform</span>
+<span class="sd">        I/O operations to persist that data.</span>
+
+<span class="sd">        Void method for reporter base class.</span>
+
+<span class="sd">        Reporters can expect to have the following key word arguments</span>
+<span class="sd">        passed to them during a simulation by the sim_manager.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        cycle_idx : int</span>
+
+<span class="sd">        new_walkers : list of Walker objects</span>
+<span class="sd">            List of walkers that were produced from running their</span>
+<span class="sd">            dynamics by the runner.</span>
+
+<span class="sd">        warp_data : list of dict of str : value</span>
+<span class="sd">            List of dict-like records for each warping event from the</span>
+<span class="sd">            last cycle.</span>
+
+<span class="sd">        bc_data : list of dict of str : value</span>
+<span class="sd">           List of dict-like records specifying the changes to the</span>
+<span class="sd">           state of the boundary conditions in the last cycle.</span>
+
+<span class="sd">        progress_data : dict str : list</span>
+<span class="sd">            A record indicating the progress values for each walker in</span>
+<span class="sd">            the last cycle.</span>
+
+<span class="sd">        resampling_data : list of dict of str : value</span>
+<span class="sd">            List of records specifying the resampling to occur at this</span>
+<span class="sd">            cycle.</span>
+
+<span class="sd">        resampler_data : list of dict of str : value</span>
+<span class="sd">            List of records specifying the changes to the state of the</span>
+<span class="sd">            resampler in the last cycle.</span>
+
+<span class="sd">        n_segment_steps : int</span>
+<span class="sd">            The number of dynamics steps that were completed in the last cycle</span>
+
+<span class="sd">        worker_segment_times : dict of int : list of float</span>
+<span class="sd">            Mapping worker index to the times they took for each</span>
+<span class="sd">            segment they processed.</span>
+
+<span class="sd">        cycle_runner_time : float</span>
+<span class="sd">            Total time runner took in last cycle.</span>
+
+<span class="sd">        cycle_bc_time : float</span>
+<span class="sd">            Total time boundary conditions took in last cycle.</span>
+
+<span class="sd">        cycle_resampling_time : float</span>
+<span class="sd">            Total time resampler took in last cycle.</span>
+
+<span class="sd">        resampled_walkers : list of Walker objects</span>
+<span class="sd">            List of walkers that were produced from the new_walkers</span>
+<span class="sd">            from applying resampling and boundary conditions.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">method_name</span> <span class="o">=</span> <span class="s1">&#39;report&#39;</span>
+        <span class="k">assert</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="nb">super</span><span class="p">(),</span> <span class="n">method_name</span><span class="p">),</span> \
+            <span class="s2">&quot;Superclass with method </span><span class="si">{}</span><span class="s2"> is masked&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">method_name</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Reporter.cleanup"><a class="viewcode-back" href="../../../api/wepy.reporter.reporter.html#wepy.reporter.dashboard.Reporter.cleanup">[docs]</a>    <span class="k">def</span> <span class="nf">cleanup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Teardown routines for the reporter at the end of the simulation.</span>
+
+<span class="sd">        Use to cleanly and safely close I/O connections or other</span>
+<span class="sd">        cleanup I/O.</span>
+
+<span class="sd">        Use to close file descriptors, database connections etc.</span>
+
+<span class="sd">        Reporters can expect to have the following key word arguments</span>
+<span class="sd">        passed to them during a simulation by the sim_manager.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        runner : Runner object</span>
+<span class="sd">            The runner at the end of the simulation</span>
+
+<span class="sd">        work_mapper : WorkeMapper object</span>
+<span class="sd">            The work mapper at the end of the simulation</span>
+
+<span class="sd">        resampler : Resampler object</span>
+<span class="sd">            The resampler at the end of the simulation</span>
+
+<span class="sd">        boundary_conditions : BoundaryConditions object</span>
+<span class="sd">            The boundary conditions at the end of the simulation</span>
+
+<span class="sd">        reporters : list of Reporter objects</span>
+<span class="sd">            The list of reporters at the end of the simulation</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">method_name</span> <span class="o">=</span> <span class="s1">&#39;cleanup&#39;</span>
+        <span class="k">assert</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="nb">super</span><span class="p">(),</span> <span class="n">method_name</span><span class="p">),</span> \
+            <span class="s2">&quot;Superclass with method </span><span class="si">{}</span><span class="s2"> is masked&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">method_name</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="FileReporter"><a class="viewcode-back" href="../../../api/wepy.reporter.reporter.html#wepy.reporter.dashboard.FileReporter">[docs]</a><span class="k">class</span> <span class="nc">FileReporter</span><span class="p">(</span><span class="n">Reporter</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Abstract reporter that handles specifying file paths for a</span>
+<span class="sd">    reporter.</span>
+
+<span class="sd">    This abstract class doesn&#39;t perform any operations that involve</span>
+<span class="sd">    actually opening file descriptors, but only the validation and</span>
+<span class="sd">    organization of file paths.</span>
+
+<span class="sd">    This provides a uniform API for retrieving file paths from all</span>
+<span class="sd">    reporters inheriting from it.</span>
+
+<span class="sd">    Additionally, FileReporter implements an interface for performing</span>
+<span class="sd">    a so-called reparametrization of the relevant values associated</span>
+<span class="sd">    with each file specification (i.e. file path and mode).</span>
+
+<span class="sd">    A reparametrization can be performed by calling the</span>
+<span class="sd">    &#39;reparametrize&#39; method, and can be customized.</span>
+
+<span class="sd">    Additionally, there are some customizable class constants than can</span>
+<span class="sd">    be used in subclasses to control this process including:</span>
+<span class="sd">    DEFAULT_MODE, SUGGESTED_FILENAME_TEMPLATE,</span>
+<span class="sd">    DEFAULT_SUGGESTED_EXTENSION, FILE_ORDER, and SUGGESTED_EXTENSIONS.</span>
+
+<span class="sd">    The intention is to allow the redefinition of file paths</span>
+<span class="sd">    dynamically to adapt to changing runtime requirements. Such as</span>
+<span class="sd">    execution on a separate subtree of a directory hierarchy.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">MODES</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">,</span> <span class="s1">&#39;w-&#39;</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">,</span> <span class="s1">&#39;r+&#39;</span><span class="p">,)</span>
+    <span class="sd">&quot;&quot;&quot;Valid modes accepted for files.&quot;&quot;&quot;</span>
+
+    <span class="n">DEFAULT_MODE</span> <span class="o">=</span> <span class="s1">&#39;x&#39;</span>
+    <span class="sd">&quot;&quot;&quot;The default mode to set for opening files if none is specified</span>
+<span class="sd">    (create if doesn&#39;t exist, fail if it does.)&quot;&quot;&quot;</span>
+
+
+    <span class="n">SUGGESTED_FILENAME_TEMPLATE</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{config}{narration}{reporter_class}</span><span class="s2">.</span><span class="si">{ext}</span><span class="s2">&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Template to use for dynamic reparametrization of file path names.</span>
+
+<span class="sd">    The fields in the template are:</span>
+
+<span class="sd">    config : indicator of the runtime configuration used</span>
+
+<span class="sd">    narration : freeform description of the instance</span>
+
+<span class="sd">    reporter_class : the name of the class that produced the</span>
+<span class="sd">        output. When no specific name is given for a file report generated</span>
+<span class="sd">        from a reporter this is used to disambiguate, along with the</span>
+<span class="sd">        extension.</span>
+
+<span class="sd">    ext : The file extension, for multiple files produced from one</span>
+<span class="sd">    reporter this should be sufficient to disambiguate the files.</span>
+
+<span class="sd">    The &#39;config&#39; and &#39;narration&#39; should be the same across all</span>
+<span class="sd">    reporters in the same simulation manager, and the &#39;narration&#39; is</span>
+<span class="sd">    considered optional.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">DEFAULT_SUGGESTED_EXTENSION</span> <span class="o">=</span> <span class="s1">&#39;report&#39;</span>
+    <span class="sd">&quot;&quot;&quot;The default file extension used for files during dynamic</span>
+<span class="sd">    reparametrization, if none is specified&quot;&quot;&quot;</span>
+
+    <span class="n">FILE_ORDER</span> <span class="o">=</span> <span class="p">()</span>
+    <span class="sd">&quot;&quot;&quot;Specify an ordering of file paths. Should be customized.&quot;&quot;&quot;</span>
+
+    <span class="n">SUGGESTED_EXTENSIONS</span> <span class="o">=</span> <span class="p">()</span>
+    <span class="sd">&quot;&quot;&quot;Suggested extensions for file paths for use with the automatic</span>
+<span class="sd">    reparametrization feature. Should be customized.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_paths</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">modes</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">file_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Constructor for FileReporter.</span>
+
+<span class="sd">        This constructor allows the specification of either a list of</span>
+<span class="sd">        file names (and modes) via &#39;file_paths&#39; and &#39;modes&#39; key-word</span>
+<span class="sd">        arguments or a single &#39;file_path&#39; and &#39;mode&#39;.</span>
+
+<span class="sd">        The access API though is always a list of file paths and modes</span>
+<span class="sd">        where order is important for associating other features.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        file_paths : list of str</span>
+<span class="sd">            The list of file paths (in order) to use.</span>
+
+<span class="sd">        modes : list of str</span>
+<span class="sd">            The list of mode specs (in order) to use.</span>
+
+<span class="sd">        file_path : str</span>
+<span class="sd">            If &#39;file_paths&#39; not specified, the single file path to use.</span>
+
+<span class="sd">        mode : str</span>
+<span class="sd">            If &#39;file_path&#39; option used, this is the mode for that file.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># file paths</span>
+
+        <span class="k">assert</span> <span class="ow">not</span> <span class="p">((</span><span class="n">file_paths</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">file_path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)),</span> \
+            <span class="s2">&quot;only file_paths or file_path kwargs can be specified&quot;</span>
+
+        <span class="c1"># if only one file path is given then we handle it as multiple</span>
+        <span class="k">if</span> <span class="n">file_path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">file_paths</span> <span class="o">=</span> <span class="p">[</span><span class="n">file_path</span><span class="p">]</span>
+
+
+        <span class="c1"># if any of the explicit paths are given (from the FILE_ORDER</span>
+        <span class="c1"># constant) in the kwargs then we automatically add those to</span>
+        <span class="c1"># the file_paths being sent to the super class constructor.</span>
+
+        <span class="c1"># we use a flag to condition this, initialize and fall back to</span>
+        <span class="c1"># using the &#39;file_paths&#39; kwarg</span>
+        <span class="n">use_explicit_path_kwargs</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="c1"># we check the kwargs for the explicit file kwargs, and if</span>
+        <span class="c1"># they are given then we check whether they are valid and if</span>
+        <span class="c1"># they are, use them to set the &#39;file_paths&#39; kwarg</span>
+
+        <span class="c1"># make a list of the presence of the given explicit keys</span>
+        <span class="n">given_explicit_kwargs</span> <span class="o">=</span> <span class="p">[(</span><span class="kc">True</span> <span class="k">if</span> <span class="n">file_key</span> <span class="ow">in</span> <span class="n">kwargs</span> <span class="k">else</span> <span class="kc">False</span><span class="p">)</span>
+                                <span class="k">for</span> <span class="n">file_key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">FILE_ORDER</span><span class="p">]</span>
+
+        <span class="c1"># check that all the keys are present, if they aren&#39;t all</span>
+        <span class="c1"># present then the flag will stay false and the fallback of</span>
+        <span class="c1"># using the &#39;file_paths&#39; kwarg will be used</span>
+        <span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="n">given_explicit_kwargs</span><span class="p">):</span>
+
+            <span class="c1"># then get the values and check them</span>
+            <span class="n">valid_explicit_kwargs</span> <span class="o">=</span> <span class="p">[(</span><span class="kc">True</span> <span class="k">if</span> <span class="n">kwargs</span><span class="p">[</span><span class="n">file_key</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">False</span><span class="p">)</span>
+                                     <span class="k">for</span> <span class="n">file_key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">FILE_ORDER</span><span class="p">]</span>
+
+
+            <span class="c1"># if they are all valid then we can use them</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">(</span><span class="n">valid_explicit_kwargs</span><span class="p">):</span>
+
+                <span class="n">use_explicit_path_kwargs</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="c1"># if only some were given this is wrong</span>
+        <span class="k">elif</span> <span class="nb">any</span><span class="p">(</span><span class="n">given_explicit_kwargs</span><span class="p">):</span>
+
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;If you explicitly pass in the paths, all must be given explicitly&quot;</span><span class="p">)</span>
+
+
+
+        <span class="c1"># if we use the explicit path kwargs, then we need to put them</span>
+        <span class="c1"># into the &#39;file_paths&#39; for superclass initialization</span>
+        <span class="k">if</span> <span class="n">use_explicit_path_kwargs</span><span class="p">:</span>
+
+                <span class="n">file_paths</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="k">for</span> <span class="n">file_key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">FILE_ORDER</span><span class="p">:</span>
+
+                    <span class="c1"># add it to the file paths for superclass initialization</span>
+                    <span class="n">file_paths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">kwargs</span><span class="p">[</span><span class="n">file_key</span><span class="p">])</span>
+
+        <span class="c1"># otherwise we need to use the file_paths argument that should</span>
+        <span class="c1"># have been given</span>
+        <span class="k">else</span><span class="p">:</span>
+
+            <span class="c1"># make sure it is in kwargs and valid</span>
+            <span class="k">assert</span> <span class="n">file_paths</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> \
+                <span class="s2">&quot;if no explicit file path is given the &#39;file_paths&#39; must have a value&quot;</span>
+
+            <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">file_paths</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">FILE_ORDER</span><span class="p">),</span> \
+                <span class="s2">&quot;you must give file_paths </span><span class="si">{}</span><span class="s2"> paths&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">FILE_ORDER</span><span class="p">))</span>
+
+        <span class="c1"># using the file_path paths we got above we set them as</span>
+        <span class="c1"># attributes in this object</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">file_key</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">FILE_ORDER</span><span class="p">):</span>
+            <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_key</span><span class="p">,</span> <span class="n">file_paths</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+
+
+        <span class="c1"># set the underlying file paths</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_file_paths</span> <span class="o">=</span> <span class="n">file_paths</span>
+
+
+        <span class="c1"># modes</span>
+
+        <span class="k">assert</span> <span class="ow">not</span> <span class="p">((</span><span class="n">modes</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">mode</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)),</span> \
+            <span class="s2">&quot;only modes or mode kwargs can be specified&quot;</span>
+
+        <span class="c1"># if modes is None we make modes, from defaults if we have to</span>
+        <span class="k">if</span> <span class="n">modes</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+
+            <span class="c1"># if mode is None set it to the default</span>
+            <span class="k">if</span> <span class="n">modes</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">mode</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">mode</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">DEFAULT_MODE</span>
+
+            <span class="c1"># if only one mode is given copy it for each file given</span>
+            <span class="n">modes</span> <span class="o">=</span> <span class="p">[</span><span class="n">mode</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_file_paths</span><span class="p">))]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_modes</span> <span class="o">=</span> <span class="n">modes</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+
+    <span class="k">def</span> <span class="nf">_validate_mode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mode</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Check if the mode spec is a valid one.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        mode : str</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        valid : bool</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">mode</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">MODES</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">mode</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;For single file path reporters the mode of that file.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_file_paths</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">ReporterError</span><span class="p">(</span><span class="s2">&quot;there are multiple files and modes defined&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_modes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">file_path</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;For single file path reporters the file path to that file spec.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_file_paths</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">ReporterError</span><span class="p">(</span><span class="s2">&quot;there are multiple files and modes defined&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_file_paths</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">file_paths</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The file paths for this reporter, in order.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_file_paths</span>
+
+    <span class="nd">@file_paths</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">file_paths</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_paths</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Setter for the file paths.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        file_paths : list of str</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">file_path</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">file_paths</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_path</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">file_path</span><span class="p">)</span>
+
+<div class="viewcode-block" id="FileReporter.set_path"><a class="viewcode-back" href="../../../api/wepy.reporter.reporter.html#wepy.reporter.dashboard.FileReporter.set_path">[docs]</a>    <span class="k">def</span> <span class="nf">set_path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_idx</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set the path for a single indexed file.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        file_idx : int</span>
+<span class="sd">            Index in the listing of files.</span>
+<span class="sd">        path : str</span>
+<span class="sd">            The new path to set for this file</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_paths</span><span class="p">[</span><span class="n">file_idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">path</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">modes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The modes for the files, in order.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_modes</span>
+
+    <span class="nd">@modes</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">modes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">modes</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Setter for the modes.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        modes : list of str</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">mode</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">modes</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_mode</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">mode</span><span class="p">)</span>
+
+<div class="viewcode-block" id="FileReporter.set_mode"><a class="viewcode-back" href="../../../api/wepy.reporter.reporter.html#wepy.reporter.dashboard.FileReporter.set_mode">[docs]</a>    <span class="k">def</span> <span class="nf">set_mode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_idx</span><span class="p">,</span> <span class="n">mode</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set the mode for a single indexed file.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        file_idx : int</span>
+<span class="sd">            Index in the listing of files.</span>
+<span class="sd">        mode : str</span>
+<span class="sd">            The new mode spec.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_validate_mode</span><span class="p">(</span><span class="n">mode</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_modes</span><span class="p">[</span><span class="n">file_idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">mode</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Incorrect mode </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">mode</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="FileReporter.reparametrize"><a class="viewcode-back" href="../../../api/wepy.reporter.reporter.html#wepy.reporter.dashboard.FileReporter.reparametrize">[docs]</a>    <span class="k">def</span> <span class="nf">reparametrize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_paths</span><span class="p">,</span> <span class="n">modes</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set the file paths and modes for all files in the reporter.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        file_paths : list of str</span>
+<span class="sd">            New file paths for each file, in order.</span>
+<span class="sd">        modes : list of str</span>
+<span class="sd">            New modes for each file, in order.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">file_paths</span> <span class="o">=</span> <span class="n">file_paths</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">modes</span> <span class="o">=</span> <span class="n">modes</span></div></div>
+
+<div class="viewcode-block" id="ProgressiveFileReporter"><a class="viewcode-back" href="../../../api/wepy.reporter.reporter.html#wepy.reporter.dashboard.ProgressiveFileReporter">[docs]</a><span class="k">class</span> <span class="nc">ProgressiveFileReporter</span><span class="p">(</span><span class="n">FileReporter</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Super class for a reporter that will successively overwrite the</span>
+<span class="sd">    same file over and over again. The base FileReporter really only</span>
+<span class="sd">    supports creation of file one time.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="ProgressiveFileReporter.init"><a class="viewcode-back" href="../../../api/wepy.reporter.reporter.html#wepy.reporter.dashboard.ProgressiveFileReporter.init">[docs]</a>    <span class="k">def</span> <span class="nf">init</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Construct a ProgressiveFileReporter.</span>
+
+<span class="sd">        This is exactly the same as the FileReporter.</span>
+
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        file_paths : list of str</span>
+<span class="sd">            The list of file paths (in order) to use.</span>
+
+<span class="sd">        modes : list of str</span>
+<span class="sd">            The list of mode specs (in order) to use.</span>
+
+<span class="sd">        file_path : str</span>
+<span class="sd">            If &#39;file_paths&#39; not specified, the single file path to use.</span>
+
+<span class="sd">        mode : str</span>
+<span class="sd">            If &#39;file_path&#39; option used, this is the mode for that file.</span>
+
+<span class="sd">        See Also</span>
+<span class="sd">        --------</span>
+
+<span class="sd">        wepy.reporter.reporter.FileReporter</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">init</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="c1"># because we want to overwrite the file at every cycle we</span>
+        <span class="c1"># need to change the modes to write with truncate. This allows</span>
+        <span class="c1"># the file to first be opened in &#39;x&#39; or &#39;w-&#39; and check whether</span>
+        <span class="c1"># the file already exists (say from another run), and warn the</span>
+        <span class="c1"># user. However, once the file has been created for this run</span>
+        <span class="c1"># we need to overwrite it many times forcefully.</span>
+
+        <span class="c1"># go thourgh each file managed by this reporter</span>
+        <span class="k">for</span> <span class="n">file_i</span><span class="p">,</span> <span class="n">mode</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">modes</span><span class="p">):</span>
+
+            <span class="c1"># if the mode is &#39;x&#39; or &#39;w-&#39; we check to make sure the file</span>
+            <span class="c1"># doesn&#39;t exist</span>
+            <span class="k">if</span> <span class="n">mode</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="s1">&#39;w-&#39;</span><span class="p">]:</span>
+                <span class="n">file_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">file_paths</span><span class="p">[</span><span class="n">file_i</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">osp</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">file_path</span><span class="p">):</span>
+                    <span class="k">raise</span> <span class="ne">FileExistsError</span><span class="p">(</span><span class="s2">&quot;File exists: &#39;</span><span class="si">{}</span><span class="s2">&#39;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">file_path</span><span class="p">))</span>
+
+            <span class="c1"># now that we have checked if the file exists we set it into</span>
+            <span class="c1"># overwrite mode</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_mode</span><span class="p">(</span><span class="n">file_i</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span></div></div>
+</pre></div>
+
+          </div>
+            
+        </div>
+        <div class="clearfix"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">wepy  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+<script type="text/javascript">
+  $("#mobile-toggle a").click(function () {
+    $("#left-column").toggle();
+  });
+</script>
+<script type="text/javascript" src="../../../_static/js/bootstrap.js"></script>
+  <div class="footer">
+    &copy; Copyright 2018, Samuel D. Lotz. Created using <a href="http://sphinx.pocoo.org/">Sphinx</a>.
+  </div>
+  </body>
+</html>

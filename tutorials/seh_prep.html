@@ -1,0 +1,272 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+  
+  <!-- Licensed under the Apache 2.0 License -->
+  <link rel="stylesheet" type="text/css" href="../_static/fonts/open-sans/stylesheet.css" />
+  <!-- Licensed under the SIL Open Font License -->
+  <link rel="stylesheet" type="text/css" href="../_static/fonts/source-serif-pro/source-serif-pro.css" />
+  <link rel="stylesheet" type="text/css" href="../_static/css/bootstrap.min.css" />
+  <link rel="stylesheet" type="text/css" href="../_static/css/bootstrap-theme.min.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+    <title>sEH ligand unbinding: A real use-case &#8212; wepy  documentation</title>
+    <link rel="stylesheet" href="../_static/guzzle.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/language_data.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="API Reference" href="../source/api.html" />
+    <link rel="prev" title="Introduction to Weighted Ensemble Data Analysis in wepy" href="data_analysis.html" />
+  
+   
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="../source/api.html" title="API Reference"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="data_analysis.html" title="Introduction to Weighted Ensemble Data Analysis in wepy"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">wepy  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Tutorials</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="container-wrapper">
+
+      <div id="mobile-toggle">
+        <a href="#"><span class="glyphicon glyphicon-align-justify" aria-hidden="true"></span></a>
+      </div>
+  <div id="left-column">
+    <div class="sphinxsidebar">
+<div class="sidebar-block">
+  <div class="sidebar-wrapper">
+    <h2>Contents</h2>
+    <div class="sidebar-localtoc">
+      <ul>
+<li><a class="reference internal" href="#">sEH ligand unbinding: A real use-case</a><ul>
+<li><a class="reference internal" href="#getting-started">Getting Started</a></li>
+<li><a class="reference internal" href="#the-inputs">The inputs</a></li>
+<li><a class="reference internal" href="#equilibrating-the-starting-structure">Equilibrating the starting structure</a></li>
+</ul>
+</li>
+</ul>
+
+    </div>
+  </div>
+</div>
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="data_analysis.html"
+                        title="previous chapter">Introduction to Weighted Ensemble Data Analysis in wepy</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="../source/api.html"
+                        title="next chapter">API Reference</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/tutorials/seh_prep.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div class="sidebar-block">
+  <div class="sidebar-wrapper">
+    <div id="main-search">
+      <form class="form-inline" action="../search.html" method="GET" role="form">
+        <div class="input-group">
+          <input name="q" type="text" class="form-control" placeholder="Search...">
+        </div>
+        <input type="hidden" name="check_keywords" value="yes" />
+        <input type="hidden" name="area" value="default" />
+      </form>
+    </div>
+  </div>
+</div>
+      
+    </div>
+  </div>
+        <div id="right-column">
+          
+          <div role="navigation" aria-label="breadcrumbs navigation">
+            <ol class="breadcrumb">
+              <li><a href="../index.html">Docs</a></li>
+              
+                <li><a href="index.html">Tutorials</a></li>
+              
+              <li>sEH ligand unbinding: A real use-case</li>
+            </ol>
+          </div>
+          
+          <div class="document clearer body">
+            
+  <div class="section" id="seh-ligand-unbinding-a-real-use-case">
+<h1>sEH ligand unbinding: A real use-case<a class="headerlink" href="#seh-ligand-unbinding-a-real-use-case" title="Permalink to this headline">¶</a></h1>
+<p>In the course of a real project that was meant to simulate different
+ligands unbinding from the protein soluble epoxide hydrolase (sEH) a
+small importable package was built called
+<cite>seh:sub:`prep</cite> &lt;<a class="reference external" href="https://gitlab.com/salotz/seh_prep">https://gitlab.com/salotz/seh_prep</a>&gt;`__.</p>
+<p>In this tutorial we will use this package to build a simulation similar
+to the one in this paper: TODO.</p>
+<div class="section" id="getting-started">
+<h2>Getting Started<a class="headerlink" href="#getting-started" title="Permalink to this headline">¶</a></h2>
+<p>In the package you will find several scripts (in the <code class="docutils literal notranslate"><span class="pre">seh_prep</span></code> dir)
+for:</p>
+<ul class="simple">
+<li><p>equilibrating freshly minted systems: <code class="docutils literal notranslate"><span class="pre">equilibrate.py</span></code></p></li>
+<li><p>common components and functions used by these types of simulations:
+<code class="docutils literal notranslate"><span class="pre">modules.py</span></code></p></li>
+<li><p>a complete definition of all parameters used for all components used
+by the simulation: <code class="docutils literal notranslate"><span class="pre">parameters.py</span></code></p></li>
+<li><p>script for running a simple simulation for testing:
+<code class="docutils literal notranslate"><span class="pre">run_without_orch.py</span></code></p></li>
+<li><p>a script for generating an initial orchestrator for running
+simulations: <code class="docutils literal notranslate"><span class="pre">gen_orchestrator.py</span></code></p></li>
+</ul>
+<p>There are others but lets ignore them for now.</p>
+<p>The necessary force field data used for all simulations is in the
+<code class="docutils literal notranslate"><span class="pre">data</span></code> folder. For these simulations we are using CHARMM 36 with the
+CGENFF force fields for parametrizing the ligands.</p>
+<p>There are some example inputs in the <code class="docutils literal notranslate"><span class="pre">example_data</span></code> folder we will be
+using for the tutorial.</p>
+<p>To use and edit this project it is probably best to just use git to
+clone it and install it:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git clone https://gitlab.com/salotz/seh_prep.git
+pip install --no-use-pep517 -e ./seh_prep
+</pre></div>
+</div>
+<p>I won’t take you through creating virtual environments but it is
+probably good to do this in a virtual environment.</p>
+</div>
+<div class="section" id="the-inputs">
+<h2>The inputs<a class="headerlink" href="#the-inputs" title="Permalink to this headline">¶</a></h2>
+<p>Its worth talking about what the inputs are here since this is a point
+of considerable confusion.</p>
+<p>Ultimately we are going to be running MD simulations using OpenMM and a
+lot of input files are related to the force fields, topologies, and
+initial positions for that.</p>
+<p>For this we can’t really recommend any single tool since there are many
+different programs and suites of programs that do this. Furthermore, it
+is not a really well-defined process and there is considerable
+complexity involved (at least in our experience). The only inputs,
+besides parameters, we need for our wepy simulations are the JSON
+topology of the full MD system and the initial positions for the full
+system.</p>
+<p>These are in the <code class="docutils literal notranslate"><span class="pre">sEH_lig-X.top.json</span></code> and
+<code class="docutils literal notranslate"><span class="pre">initial_positions.coords.txt</span></code> files respectively. The latter can be
+read using the standard numpy reader for text files.</p>
+<p>For this particular case we used the CHARMM-GUI server to do the
+preprocessing of the system. Unfortunately, the topology formats
+produced by this service were not easily transformed into mdtraj or
+OpenMM topologies (which can easily be translated to the JSON format).
+And so manual scripting was used to accomplish this as well as
+extracting the positions (in the correct order). I suggest if possible
+to use the model building tools provided by OpenMM itself or other
+related programs like PDBFixer.</p>
+<p>In any case once you will want to ultimately get an mdtraj <code class="docutils literal notranslate"><span class="pre">Topology</span></code>
+object and then use the <code class="docutils literal notranslate"><span class="pre">mdtraj_to_json_topology</span></code> method from
+<code class="docutils literal notranslate"><span class="pre">wepy.utils.mdtraj</span></code> to convert it to JSON.</p>
+<p>The other files here are the forcefields for OpenMM in their XML format.
+The <code class="docutils literal notranslate"><span class="pre">charmm36.xml</span></code>, <code class="docutils literal notranslate"><span class="pre">charm36_solvent.xml</span></code> files come with the OpenMM
+distribution and are just copied over. The forcefield for the ligand,
+<code class="docutils literal notranslate"><span class="pre">unl.xml</span></code>, was generated from the corresponding ‘prm’ and ‘rtf’ from
+CGENFF files using a utility in the package
+<a class="reference external" href="https://github.com/ParmEd/ParmEd">parmed</a>. Something like:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">lig_params</span> <span class="o">=</span> <span class="n">pmd</span><span class="o">.</span><span class="n">charmm</span><span class="o">.</span><span class="n">CharmmParameterSet</span><span class="p">(</span><span class="s2">&quot;unl.rtf&quot;</span><span class="p">,</span> <span class="s2">&quot;unl.prm&quot;</span><span class="p">)</span>
+<span class="n">params</span> <span class="o">=</span> <span class="n">pmd</span><span class="o">.</span><span class="n">openmm</span><span class="o">.</span><span class="n">OpenMMParameterSet</span><span class="o">.</span><span class="n">from_parameterset</span><span class="p">(</span><span class="n">lig_params</span><span class="p">)</span>
+
+<span class="c1"># here you have an opportunity to rename the ligand if you choose</span>
+<span class="n">params</span><span class="o">.</span><span class="n">residues</span><span class="p">[</span><span class="s1">&#39;UNL&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">lig_params</span><span class="o">.</span><span class="n">residues</span><span class="p">[</span><span class="s2">&quot;UNL&quot;</span><span class="p">]</span>
+<span class="n">params</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;unl.xml&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="equilibrating-the-starting-structure">
+<h2>Equilibrating the starting structure<a class="headerlink" href="#equilibrating-the-starting-structure" title="Permalink to this headline">¶</a></h2>
+<p>Once you have assembled the necessary components to at least run a
+straigtforward OpenMM simulation we can start to equilibrate it. I won’t
+go through the details here, but in brief it first does a steepest
+descent minimization followed by a series of MD with increasing
+temperatures. If you installed the <code class="docutils literal notranslate"><span class="pre">seh_prep</span></code> package with pip then
+you can run the modules/scripts anywhere like this:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">lig_id</span><span class="o">=</span><span class="s2">&quot;X&quot;</span>
+python -m seh_prep.equilibrate <span class="se">\</span>
+       <span class="s2">&quot;initial_positions.coords.txt&quot;</span> <span class="se">\</span>
+       <span class="s2">&quot;sEH_lig-</span><span class="si">${</span><span class="nv">lig_id</span><span class="si">}</span><span class="s2">.top.json&quot;</span> <span class="se">\</span>
+       <span class="s2">&quot;UNL&quot;</span> <span class="se">\</span>
+       <span class="s2">&quot;charmm36.xml&quot;</span> <span class="s2">&quot;charmm36_solvent.xml&quot;</span> <span class="s2">&quot;unl.xml&quot;</span> <span class="se">\</span>
+       <span class="nv">$lig_id</span>
+</pre></div>
+</div>
+<p>We are calling giving the ligand the ID “X” and the residue name in all
+the topologies for the ligand is “UNL”.</p>
+<p>This requires that you have OpenCL installed and have a GPU to actually
+run it on.</p>
+</div>
+</div>
+
+
+          </div>
+            
+  <div class="footer-relations">
+    
+      <div class="pull-left">
+        <a class="btn btn-default" href="data_analysis.html" title="previous chapter (use the left arrow)">Introduction to Weighted Ensemble Data Analysis in wepy</a>
+      </div>
+    
+      <div class="pull-right">
+        <a class="btn btn-default" href="../source/api.html" title="next chapter (use the right arrow)">API Reference</a>
+      </div>
+    </div>
+    <div class="clearer"></div>
+  
+        </div>
+        <div class="clearfix"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="../source/api.html" title="API Reference"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="data_analysis.html" title="Introduction to Weighted Ensemble Data Analysis in wepy"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">wepy  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >Tutorials</a> &#187;</li> 
+      </ul>
+    </div>
+<script type="text/javascript">
+  $("#mobile-toggle a").click(function () {
+    $("#left-column").toggle();
+  });
+</script>
+<script type="text/javascript" src="../_static/js/bootstrap.js"></script>
+  <div class="footer">
+    &copy; Copyright 2018, Samuel D. Lotz. Created using <a href="http://sphinx.pocoo.org/">Sphinx</a>.
+  </div>
+  </body>
+</html>

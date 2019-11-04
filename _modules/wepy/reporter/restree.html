@@ -1,0 +1,613 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+  
+  <!-- Licensed under the Apache 2.0 License -->
+  <link rel="stylesheet" type="text/css" href="../../../_static/fonts/open-sans/stylesheet.css" />
+  <!-- Licensed under the SIL Open Font License -->
+  <link rel="stylesheet" type="text/css" href="../../../_static/fonts/source-serif-pro/source-serif-pro.css" />
+  <link rel="stylesheet" type="text/css" href="../../../_static/css/bootstrap.min.css" />
+  <link rel="stylesheet" type="text/css" href="../../../_static/css/bootstrap-theme.min.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+    <title>wepy.reporter.restree &#8212; wepy  documentation</title>
+    <link rel="stylesheet" href="../../../_static/guzzle.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../../_static/language_data.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+  
+   
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">wepy  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="container-wrapper">
+
+      <div id="mobile-toggle">
+        <a href="#"><span class="glyphicon glyphicon-align-justify" aria-hidden="true"></span></a>
+      </div>
+  <div id="left-column">
+    <div class="sphinxsidebar">
+<div class="sidebar-block">
+  <div class="sidebar-wrapper">
+    <div id="main-search">
+      <form class="form-inline" action="../../../search.html" method="GET" role="form">
+        <div class="input-group">
+          <input name="q" type="text" class="form-control" placeholder="Search...">
+        </div>
+        <input type="hidden" name="check_keywords" value="yes" />
+        <input type="hidden" name="area" value="default" />
+      </form>
+    </div>
+  </div>
+</div>
+      
+    </div>
+  </div>
+        <div id="right-column">
+          
+          <div role="navigation" aria-label="breadcrumbs navigation">
+            <ol class="breadcrumb">
+              <li><a href="../../../index.html">Docs</a></li>
+              
+                <li><a href="../../index.html">Module code</a></li>
+              
+              <li>wepy.reporter.restree</li>
+            </ol>
+          </div>
+          
+          <div class="document clearer body">
+            
+  <h1>Source code for wepy.reporter.restree</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Provides a reporter for generating graphical depictions of</span>
+<span class="sd">resampling parent trees.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">namedtuple</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">networkx</span> <span class="k">as</span> <span class="nn">nx</span>
+<span class="kn">from</span> <span class="nn">matplotlib</span> <span class="k">import</span> <span class="n">cm</span>
+
+<span class="kn">from</span> <span class="nn">geomm.free_energy</span> <span class="k">import</span> <span class="n">free_energy</span>
+
+<span class="kn">from</span> <span class="nn">wepy.reporter.reporter</span> <span class="k">import</span> <span class="n">ProgressiveFileReporter</span>
+<span class="kn">from</span> <span class="nn">wepy.analysis.network_layouts.tree</span> <span class="k">import</span> <span class="n">ResamplingTreeLayout</span>
+<span class="kn">from</span> <span class="nn">wepy.analysis.network_layouts.layout_graph</span> <span class="k">import</span> <span class="n">LayoutGraph</span>
+
+<span class="kn">from</span> <span class="nn">wepy.analysis.parents</span> <span class="k">import</span> <span class="n">resampling_panel</span><span class="p">,</span> \
+                                  <span class="n">parent_panel</span><span class="p">,</span> <span class="n">net_parent_table</span><span class="p">,</span>\
+                                  <span class="n">ParentForest</span>
+
+
+<div class="viewcode-block" id="ResTreeReporter"><a class="viewcode-back" href="../../../api/wepy.reporter.restree.html#wepy.reporter.restree.ResTreeReporter">[docs]</a><span class="k">class</span> <span class="nc">ResTreeReporter</span><span class="p">(</span><span class="n">ProgressiveFileReporter</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Reporter that generates resampling parent trees in the GEXF</span>
+<span class="sd">    format.&quot;&quot;&quot;</span>
+
+    <span class="n">FILE_ORDER</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;gexf_restree_path&#39;</span><span class="p">,)</span>
+
+    <span class="n">SUGGESTED_EXTENSIONS</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;restree.gexf&#39;</span><span class="p">,)</span>
+
+    <span class="n">MAX_PROGRESS_NORM</span> <span class="o">=</span> <span class="mf">1.0</span>
+
+    <span class="n">DISCONTINUOUS_NODE_SHAPE</span> <span class="o">=</span> <span class="s1">&#39;square&#39;</span>
+    <span class="sd">&quot;&quot;&quot;The shape of nodes that signify a discontinuity in the lineage.&quot;&quot;&quot;</span>
+
+    <span class="n">DEFAULT_NODE_SHAPE</span> <span class="o">=</span> <span class="s1">&#39;disc&#39;</span>
+    <span class="sd">&quot;&quot;&quot;The shape of normal nodes that signify a continuity in the lineage.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                 <span class="n">resampler</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">boundary_conditions</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">row_spacing</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">step_spacing</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">default_node_radius</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">progress_key</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">max_progress_value</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">colormap_name</span><span class="o">=</span><span class="s1">&#39;plasma&#39;</span><span class="p">,</span>
+                 <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Constructor for the ResTreeReporter.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        resampler : Resampler</span>
+<span class="sd">            Used to generate parental relations from resampling</span>
+<span class="sd">            records.</span>
+
+<span class="sd">        boundary_condition : BoundaryCondition, optional</span>
+<span class="sd">            Used to determine discontinuities in the lineages.</span>
+<span class="sd">             (Default value = None)</span>
+
+<span class="sd">        row_spacing : float, default: 5.0</span>
+<span class="sd">            Spacing between nodes in a single row in layout.</span>
+
+<span class="sd">        step_spacing : float, default: 20.0</span>
+<span class="sd">            Spacing between the rows of nodes in each step of the layout.</span>
+
+<span class="sd">        default_node_radius : float, default: 1.0</span>
+<span class="sd">            Default node radius to use.</span>
+
+<span class="sd">        progress_key : str</span>
+<span class="sd">            The key of the value in the progress records to use for</span>
+<span class="sd">            coloring nodes in the tree.</span>
+
+<span class="sd">        max_progress_value : float or None</span>
+<span class="sd">            The maximum value to consider for progress values, if None</span>
+<span class="sd">            no max value will be used.</span>
+
+<span class="sd">        colormap_name : str, default: &#39;plasma&#39;</span>
+<span class="sd">            The name of the colormap to use from the matplotlib</span>
+<span class="sd">            colormap library (i.e. &#39;matplotlib.cm.get_cmap&#39;)</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">assert</span> <span class="n">resampler</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> \
+            <span class="s2">&quot;Must provide a resampler, this is used to get the correct records &quot;</span>\
+            <span class="s2">&quot;from resampling data and is not saved in this object&quot;</span>
+
+        <span class="k">assert</span> <span class="n">boundary_conditions</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;must give the boundary condition class&quot;</span>
+
+        <span class="c1"># TODO: this should be made optional</span>
+        <span class="k">assert</span> <span class="n">progress_key</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;Currently, a progress key must be given.&quot;</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="c1"># parameters for the layout</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">row_spacing</span> <span class="o">=</span> <span class="n">row_spacing</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">step_spacing</span> <span class="o">=</span> <span class="n">step_spacing</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">default_node_radius</span> <span class="o">=</span> <span class="n">default_node_radius</span>
+
+        <span class="c1"># this is the key we will use to get values for the progress out</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">progress_key</span> <span class="o">=</span> <span class="n">progress_key</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_progress_value</span> <span class="o">=</span> <span class="n">max_progress_value</span>
+        <span class="c1"># get the actual colormap that will be used from matplotlib</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">colormap</span> <span class="o">=</span> <span class="n">cm</span><span class="o">.</span><span class="n">get_cmap</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">colormap_name</span><span class="p">)</span>
+
+        <span class="c1"># we need the decision class for getting parent child</span>
+        <span class="c1"># relationships</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_decision_class</span> <span class="o">=</span> <span class="n">resampler</span><span class="o">.</span><span class="n">decision</span>
+
+        <span class="c1"># get the fields for the records of the resampling records, we</span>
+        <span class="c1"># don&#39;t need to store the whole resampler</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_resampling_record_field_names</span> <span class="o">=</span> <span class="n">resampler</span><span class="o">.</span><span class="n">resampling_record_field_names</span><span class="p">()</span>
+
+        <span class="c1"># we also will need to know the shape and dtype of them</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_resampling_field_names</span> <span class="o">=</span> <span class="n">resampler</span><span class="o">.</span><span class="n">resampling_field_names</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_resampling_field_shapes</span> <span class="o">=</span> <span class="n">resampler</span><span class="o">.</span><span class="n">resampling_field_shapes</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_resampling_field_dtypes</span> <span class="o">=</span> <span class="n">resampler</span><span class="o">.</span><span class="n">resampling_field_dtypes</span><span class="p">()</span>
+
+
+        <span class="c1"># make a namedtuple record for these records</span>
+        <span class="c1"># self._ResamplingRecord = namedtuple(&#39;{}_Record&#39;.format(&#39;Resampling&#39;),</span>
+        <span class="c1">#                 [&#39;cycle_idx&#39;] + list(self._resampling_record_field_names))</span>
+
+        <span class="c1"># we do the same for the bounadry condition class, although we</span>
+        <span class="c1"># also need the class itself</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_bc</span> <span class="o">=</span> <span class="n">boundary_conditions</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_warping_record_field_names</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bc</span><span class="o">.</span><span class="n">warping_record_field_names</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_warping_field_names</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bc</span><span class="o">.</span><span class="n">warping_field_names</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_warping_field_shapes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bc</span><span class="o">.</span><span class="n">warping_field_shapes</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_warping_field_dtypes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bc</span><span class="o">.</span><span class="n">warping_field_dtypes</span><span class="p">()</span>
+
+        <span class="c1"># self._WarpingRecord = namedtuple(&#39;{}_Record&#39;.format(&#39;Warping&#39;),</span>
+        <span class="c1">#                             [&#39;cycle_idx&#39;] + list(self._warping_record_field_names))</span>
+
+
+
+        <span class="c1"># initialize the parent table that will be generated as the</span>
+        <span class="c1"># simulation progresses</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_parent_table</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="c1"># the node ids of the warped nodes (ones with -1 parents)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_discontinuous_nodes</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="c1"># also keep track of the weights of the walkers</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_walker_weights</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="c1"># and the progress values for each walker</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_walkers_progress</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">parent_table</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The net parent table datastructure.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent_table</span>
+
+    <span class="k">def</span> <span class="nf">_make_resampling_record</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">record_d</span><span class="p">,</span> <span class="n">cycle_idx</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Make a namedtuple resampling record from a dictionary</span>
+<span class="sd">        representation.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        record_d : dict of str : value</span>
+<span class="sd">            The dictionary of values to make a namedtuple record from.</span>
+<span class="sd">        cycle_idx : int</span>
+<span class="sd">            The cycle index the record is associated with.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
+<span class="sd">        record : namedtuple</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># make a namedtuple record for these records</span>
+        <span class="n">ResamplingRecord</span> <span class="o">=</span> <span class="n">namedtuple</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1">_Record&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s1">&#39;Resampling&#39;</span><span class="p">),</span>
+                        <span class="p">[</span><span class="s1">&#39;cycle_idx&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_resampling_record_field_names</span><span class="p">))</span>
+
+
+        <span class="n">record</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_make_record</span><span class="p">(</span><span class="n">record_d</span><span class="p">,</span> <span class="n">cycle_idx</span><span class="p">,</span>
+                                   <span class="bp">self</span><span class="o">.</span><span class="n">_resampling_record_field_names</span><span class="p">,</span>
+                                   <span class="bp">self</span><span class="o">.</span><span class="n">_resampling_field_names</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_resampling_field_shapes</span><span class="p">,</span>
+                                   <span class="n">ResamplingRecord</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">record</span>
+
+    <span class="k">def</span> <span class="nf">_make_warping_record</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">record_d</span><span class="p">,</span> <span class="n">cycle_idx</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Make a namedtuple warping record from a dictionary representation.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        record_d : dict of str : value</span>
+<span class="sd">            The dictionary of values to make a namedtuple record from.</span>
+<span class="sd">        cycle_idx : int</span>
+<span class="sd">            The cycle index the record is associated with.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
+<span class="sd">        record : namedtuple</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># make a namedtuple record for these records</span>
+        <span class="n">WarpingRecord</span> <span class="o">=</span> <span class="n">namedtuple</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1">_Record&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s1">&#39;Warping&#39;</span><span class="p">),</span>
+                                   <span class="p">[</span><span class="s1">&#39;cycle_idx&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_warping_record_field_names</span><span class="p">))</span>
+
+        <span class="n">record</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_make_record</span><span class="p">(</span><span class="n">record_d</span><span class="p">,</span> <span class="n">cycle_idx</span><span class="p">,</span>
+                                   <span class="bp">self</span><span class="o">.</span><span class="n">_warping_record_field_names</span><span class="p">,</span>
+                                   <span class="bp">self</span><span class="o">.</span><span class="n">_warping_field_names</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_warping_field_shapes</span><span class="p">,</span>
+                                   <span class="n">WarpingRecord</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">record</span>
+
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_make_record</span><span class="p">(</span><span class="n">record_d</span><span class="p">,</span> <span class="n">cycle_idx</span><span class="p">,</span>
+                     <span class="n">record_field_names</span><span class="p">,</span> <span class="n">field_names</span><span class="p">,</span> <span class="n">field_shapes</span><span class="p">,</span> <span class="n">rec_namedtuple</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Generic record making function.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        record_d : dict of str : value</span>
+
+<span class="sd">        cycle_idx : int</span>
+
+<span class="sd">        record_field_names : list of str</span>
+<span class="sd">            The record field names to use for the record.</span>
+
+<span class="sd">        field_names : list of str</span>
+<span class="sd">            All of the field names available for the field type.</span>
+
+<span class="sd">        field_shapes : list of tuple of int</span>
+<span class="sd">            Shapes for each field</span>
+
+<span class="sd">        rec_namedtuple : namedtuple object</span>
+<span class="sd">            The namedtuple class to make records out of</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
+<span class="sd">        record : namedtuple object</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># go through each field of the record</span>
+        <span class="n">rec_d</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;cycle_idx&#39;</span> <span class="p">:</span> <span class="n">cycle_idx</span><span class="p">}</span>
+        <span class="k">for</span> <span class="n">field_name</span><span class="p">,</span> <span class="n">field_value</span> <span class="ow">in</span> <span class="n">record_d</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+
+            <span class="n">field_idx</span> <span class="o">=</span> <span class="n">field_names</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">field_name</span><span class="p">)</span>
+            <span class="n">field_shape</span> <span class="o">=</span> <span class="n">field_shapes</span><span class="p">[</span><span class="n">field_idx</span><span class="p">]</span>
+
+            <span class="c1"># if it is not part of the record we just keep going and</span>
+            <span class="c1"># don&#39;t bother</span>
+            <span class="k">if</span> <span class="n">field_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">record_field_names</span><span class="p">:</span>
+                <span class="k">continue</span>
+
+            <span class="c1"># otherwise we need to do some formatting</span>
+            <span class="k">else</span><span class="p">:</span>
+
+                <span class="c1"># if it is variable length (shape is Ellipsis) or if</span>
+                <span class="c1"># it has more than one element cast all elements to</span>
+                <span class="c1"># tuples</span>
+                <span class="k">if</span> <span class="n">field_shape</span> <span class="ow">is</span> <span class="bp">Ellipsis</span><span class="p">:</span>
+                    <span class="n">value</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">field_value</span><span class="p">)</span>
+
+                <span class="c1"># if it is not variable length make sure it is not more than a</span>
+                <span class="c1"># 1D feature vector</span>
+                <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">field_shape</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+                        <span class="s2">&quot;cannot convert fields with feature vectors more than 1 dimension,&quot;</span>
+                        <span class="s2">&quot; was given </span><span class="si">{}</span><span class="s2"> for </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                            <span class="n">field_value</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">:],</span> <span class="n">field_name</span><span class="p">))</span>
+
+                <span class="c1"># if it is only a rank 1 feature vector and it has more than</span>
+                <span class="c1"># one element make a tuple out of it</span>
+                <span class="k">elif</span> <span class="n">field_shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="n">value</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">field_value</span><span class="p">)</span>
+
+                <span class="c1"># otherwise just get the single value instead of keeping it as</span>
+                <span class="c1"># a single valued feature vector</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">value</span> <span class="o">=</span> <span class="n">field_value</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+            <span class="n">rec_d</span><span class="p">[</span><span class="n">field_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+
+        <span class="c1"># after you make the dictionary of this convert it to a</span>
+        <span class="c1"># namedtuple record</span>
+        <span class="n">record</span> <span class="o">=</span> <span class="n">rec_namedtuple</span><span class="p">(</span><span class="o">*</span><span class="p">(</span><span class="n">rec_d</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">rec_namedtuple</span><span class="o">.</span><span class="n">_fields</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">record</span>
+
+
+<div class="viewcode-block" id="ResTreeReporter.report"><a class="viewcode-back" href="../../../api/wepy.reporter.restree.html#wepy.reporter.restree.ResTreeReporter.report">[docs]</a>    <span class="k">def</span> <span class="nf">report</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cycle_idx</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+               <span class="n">resampled_walkers</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+               <span class="n">warp_data</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+               <span class="n">progress_data</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+               <span class="n">resampling_data</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+               <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Generate the resampling tree GEXF file.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        cycle_idx : int</span>
+
+<span class="sd">        resampled_walkers : list of Walker</span>
+
+<span class="sd">        warp_data : dict of str : value</span>
+
+<span class="sd">        progress_data : dict of str : value</span>
+
+<span class="sd">        resampling_data : dict of str : value</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+
+        <span class="c1"># we basically want to generate a new parent table from the</span>
+        <span class="c1"># records we were just given and then add that to our existing</span>
+        <span class="c1"># parent table</span>
+
+        <span class="c1"># we first have to generate the resampling and warping records</span>
+        <span class="c1"># though adding the cycle_idx</span>
+
+        <span class="n">resampling_records</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_make_resampling_record</span><span class="p">(</span><span class="n">rec_d</span><span class="p">,</span> <span class="n">cycle_idx</span><span class="p">)</span>
+                              <span class="k">for</span> <span class="n">rec_d</span> <span class="ow">in</span> <span class="n">resampling_data</span><span class="p">]</span>
+
+        <span class="n">warping_records</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_make_warping_record</span><span class="p">(</span><span class="n">rec_d</span><span class="p">,</span> <span class="n">cycle_idx</span><span class="p">)</span>
+                              <span class="k">for</span> <span class="n">rec_d</span> <span class="ow">in</span> <span class="n">warp_data</span><span class="p">]</span>
+
+        <span class="c1"># tabulate the discontinuities</span>
+        <span class="k">for</span> <span class="n">warping_record</span> <span class="ow">in</span> <span class="n">warping_records</span><span class="p">:</span>
+            <span class="c1"># if this record classifies as discontinuous</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bc</span><span class="o">.</span><span class="n">warping_discontinuity</span><span class="p">(</span><span class="n">warping_record</span><span class="p">):</span>
+                <span class="c1"># then we save it as one of the nodes that is discontinuous</span>
+                <span class="n">disc_node_id</span> <span class="o">=</span> <span class="p">(</span><span class="n">warping_record</span><span class="o">.</span><span class="n">cycle_idx</span><span class="p">,</span> <span class="n">warping_record</span><span class="o">.</span><span class="n">walker_idx</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_discontinuous_nodes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">disc_node_id</span><span class="p">)</span>
+
+        <span class="c1"># get the weights of the resampled walkers since we will want</span>
+        <span class="c1"># to plot them</span>
+        <span class="n">walker_weights</span> <span class="o">=</span> <span class="p">[</span><span class="n">walker</span><span class="o">.</span><span class="n">weight</span> <span class="k">for</span> <span class="n">walker</span> <span class="ow">in</span> <span class="n">resampled_walkers</span><span class="p">]</span>
+        <span class="c1"># add these to the collected weights</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_walker_weights</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">walker_weights</span><span class="p">)</span>
+
+        <span class="c1"># get the progress values for all of the walkers</span>
+        <span class="n">walkers_progress</span> <span class="o">=</span> <span class="p">[</span><span class="n">progress</span> <span class="k">for</span> <span class="n">progress</span> <span class="ow">in</span> <span class="n">progress_data</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">progress_key</span><span class="p">]]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_walkers_progress</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">walkers_progress</span><span class="p">)</span>
+
+        <span class="c1"># so we make a resampling panel from the records</span>
+
+        <span class="c1"># TODO: this uses the cycle_idx in the records and thus wehn</span>
+        <span class="c1"># you receive just one cycle it adds a empty records to the</span>
+        <span class="c1"># beginning of it and only the last entry is the one we are</span>
+        <span class="c1"># looking for so for now we just get it, and wrap back in a list</span>
+        <span class="n">res_panel</span> <span class="o">=</span> <span class="p">[</span><span class="n">resampling_panel</span><span class="p">(</span><span class="n">resampling_records</span><span class="p">,</span> <span class="n">is_sorted</span><span class="o">=</span><span class="kc">False</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span>
+
+        <span class="c1"># then the parent panel, and then the net parent table</span>
+        <span class="n">par_panel</span> <span class="o">=</span> <span class="n">parent_panel</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_decision_class</span><span class="p">,</span> <span class="n">res_panel</span><span class="p">)</span>
+        <span class="n">cycle_parent_table</span> <span class="o">=</span> <span class="n">net_parent_table</span><span class="p">(</span><span class="n">par_panel</span><span class="p">)</span>
+
+        <span class="c1"># add these to the main parent table</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_parent_table</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">cycle_parent_table</span><span class="p">)</span>
+
+        <span class="c1"># now use this to create a new ParentForest without a WepyHDF5</span>
+        <span class="c1"># file view. We exclude the discontinuities on purpose because</span>
+        <span class="c1"># we want to keep the paren child relationships through the</span>
+        <span class="c1"># warps for visualization and will just change the shapes of</span>
+        <span class="c1"># the nodes to communicate the warping</span>
+        <span class="n">parent_forest</span> <span class="o">=</span> <span class="n">ParentForest</span><span class="p">(</span><span class="n">parent_table</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_parent_table</span><span class="p">)</span>
+
+        <span class="c1"># The only ones that should be none are the roots which will</span>
+        <span class="c1"># be 1.0 / N</span>
+        <span class="n">n_roots</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_parent_table</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">root_weight</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">n_roots</span>
+
+        <span class="c1"># compute the size of the nodes to plot, which is the</span>
+        <span class="c1"># free_energy. To compute this we flatten the list of list of</span>
+        <span class="c1"># weights to a 1-d array then unravel it back out</span>
+
+        <span class="c1"># put the root weights at the beginning of this array, and</span>
+        <span class="c1"># account for it in the flattening</span>
+        <span class="n">flattened_weights</span> <span class="o">=</span> <span class="p">[</span><span class="n">root_weight</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_walker_weights</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+        <span class="n">cycles_n_walkers</span> <span class="o">=</span> <span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_walker_weights</span><span class="p">[</span><span class="mi">0</span><span class="p">])]</span>
+        <span class="k">for</span> <span class="n">cycle_weights</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_walker_weights</span><span class="p">:</span>
+            <span class="n">cycles_n_walkers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">cycle_weights</span><span class="p">))</span>
+            <span class="n">flattened_weights</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">cycle_weights</span><span class="p">)</span>
+
+        <span class="c1"># now compute the free energy</span>
+        <span class="n">flattened_free_energies</span> <span class="o">=</span> <span class="n">free_energy</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">flattened_weights</span><span class="p">))</span>
+
+        <span class="c1"># and ravel them back into a list of lists</span>
+        <span class="n">free_energies</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">last_index</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">cycle_n_walkers</span> <span class="ow">in</span> <span class="n">cycles_n_walkers</span><span class="p">:</span>
+            <span class="n">free_energies</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">flattened_free_energies</span><span class="p">[</span><span class="n">last_index</span><span class="p">:</span><span class="n">last_index</span> <span class="o">+</span> <span class="n">cycle_n_walkers</span><span class="p">])</span>
+            <span class="n">last_index</span> <span class="o">+=</span> <span class="n">cycle_n_walkers</span>
+
+        <span class="c1"># we want to set the colors based on the progress, first we</span>
+        <span class="c1"># scale all the progress values to a 1-100 scale</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_progress_value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">norm_ratio</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">MAX_PROGRESS_NORM</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_progress_value</span>
+
+        <span class="c1"># otherwise we use the maximum value from the full progress</span>
+        <span class="c1"># values dataset so far</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">max_progress_value</span> <span class="o">=</span> <span class="nb">max</span><span class="p">([</span><span class="nb">max</span><span class="p">(</span><span class="n">row</span><span class="p">)</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_walkers_progress</span><span class="p">])</span>
+            <span class="c1"># then use that for the ratio</span>
+            <span class="n">norm_ratio</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">MAX_PROGRESS_NORM</span> <span class="o">/</span> <span class="n">max_progress_value</span>
+
+        <span class="c1"># now that we have ratios for normalizing values we apply that</span>
+        <span class="c1"># and then use the lookup table for the color bar to get the</span>
+        <span class="c1"># RGB color values</span>
+        <span class="n">colors</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">progress_row</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_walkers_progress</span><span class="p">:</span>
+            <span class="n">color_row</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">colormap</span><span class="p">(</span><span class="n">progress</span> <span class="o">*</span> <span class="n">norm_ratio</span><span class="p">,</span> <span class="nb">bytes</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                         <span class="k">for</span> <span class="n">progress</span> <span class="ow">in</span> <span class="n">progress_row</span><span class="p">]</span>
+            <span class="n">colors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">color_row</span><span class="p">)</span>
+
+        <span class="c1"># put these into the parent forest graph as node attributes,</span>
+        <span class="c1"># so we can get them out as a lookup table by node id for</span>
+        <span class="c1"># assigning to nodes in the layout. We skip the first row of</span>
+        <span class="c1"># free energies for the roots in this step</span>
+        <span class="n">parent_forest</span><span class="o">.</span><span class="n">set_attrs_by_array</span><span class="p">(</span><span class="s1">&#39;free_energy&#39;</span><span class="p">,</span> <span class="n">free_energies</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
+        <span class="n">parent_forest</span><span class="o">.</span><span class="n">set_attrs_by_array</span><span class="p">(</span><span class="s1">&#39;color&#39;</span><span class="p">,</span> <span class="n">colors</span><span class="p">)</span>
+
+        <span class="c1"># get the free energies out as a dictionary, flattening it to</span>
+        <span class="c1"># a single value. Set the nodes with None for their FE to a</span>
+        <span class="c1"># small number.</span>
+
+        <span class="c1"># now we make the graph which will contain the layout</span>
+        <span class="c1"># information</span>
+        <span class="n">layout_forest</span> <span class="o">=</span> <span class="n">LayoutGraph</span><span class="p">(</span><span class="n">parent_forest</span><span class="o">.</span><span class="n">graph</span><span class="p">)</span>
+
+
+        <span class="c1"># get the free energy attributes out using the root weight for</span>
+        <span class="c1"># the nodes with no fe defined</span>
+
+        <span class="c1"># start it with the root weights</span>
+        <span class="n">node_fes</span> <span class="o">=</span> <span class="p">{(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span> <span class="p">:</span> <span class="n">free_energy</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">free_energy</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">free_energies</span><span class="p">[</span><span class="mi">0</span><span class="p">])}</span>
+        <span class="k">for</span> <span class="n">node_id</span><span class="p">,</span> <span class="n">fe_arr</span> <span class="ow">in</span> <span class="n">layout_forest</span><span class="o">.</span><span class="n">get_node_attributes</span><span class="p">(</span><span class="s1">&#39;free_energy&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+
+            <span class="k">if</span> <span class="n">fe_arr</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">node_fes</span><span class="p">[</span><span class="n">node_id</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">node_fes</span><span class="p">[</span><span class="n">node_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">fe_arr</span>
+
+        <span class="c1"># the default progress for the root ones is 0 and so the color</span>
+        <span class="c1"># is also 0</span>
+        <span class="n">node_colors</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">node_id</span><span class="p">,</span> <span class="n">color_arr</span> <span class="ow">in</span> <span class="n">layout_forest</span><span class="o">.</span><span class="n">get_node_attributes</span><span class="p">(</span><span class="s1">&#39;color&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+
+            <span class="k">if</span> <span class="n">color_arr</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="c1"># make a black color for these</span>
+                <span class="n">node_colors</span><span class="p">[</span><span class="n">node_id</span><span class="p">]</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="mi">255</span><span class="p">)</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">node_colors</span><span class="p">[</span><span class="n">node_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">color_arr</span>
+
+        <span class="c1"># make a dictionary for the shapes of the nodes</span>
+        <span class="n">node_shapes</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="c1"># set all the nodes to a default &#39;disc&#39;</span>
+        <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">layout_forest</span><span class="o">.</span><span class="n">viz_graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">:</span>
+            <span class="n">node_shapes</span><span class="p">[</span><span class="n">node</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">DEFAULT_NODE_SHAPE</span>
+        <span class="c1"># then set all the discontinuous ones</span>
+        <span class="k">for</span> <span class="n">discontinuous_node</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_discontinuous_nodes</span><span class="p">:</span>
+            <span class="n">node_shapes</span><span class="p">[</span><span class="n">discontinuous_node</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">DISCONTINUOUS_NODE_SHAPE</span>
+
+        <span class="c1"># also set the color to black</span>
+        <span class="k">for</span> <span class="n">discontinuous_node</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_discontinuous_nodes</span><span class="p">:</span>
+            <span class="n">node_colors</span><span class="p">[</span><span class="n">discontinuous_node</span><span class="p">]</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">))</span>
+
+
+        <span class="c1"># we are going to output to the gexf format so we use the</span>
+        <span class="c1"># pertinent methods</span>
+
+        <span class="c1"># we set the sizes</span>
+        <span class="n">layout_forest</span><span class="o">.</span><span class="n">set_node_gexf_sizes</span><span class="p">(</span><span class="n">node_fes</span><span class="p">)</span>
+
+        <span class="c1"># and set the colors based on the progresses</span>
+
+        <span class="n">layout_forest</span><span class="o">.</span><span class="n">set_node_gexf_colors_rgba</span><span class="p">(</span><span class="n">node_colors</span><span class="p">)</span>
+
+        <span class="c1"># then set the shape of the nodes based on whether they were</span>
+        <span class="c1"># warped or not</span>
+        <span class="n">layout_forest</span><span class="o">.</span><span class="n">set_node_gexf_shape</span><span class="p">(</span><span class="n">node_shapes</span><span class="p">)</span>
+
+
+        <span class="c1"># now we get to the part where we make the layout (positioning</span>
+        <span class="c1"># of nodes), so we parametrize a layout engine</span>
+        <span class="n">tree_layout</span> <span class="o">=</span> <span class="n">ResamplingTreeLayout</span><span class="p">(</span><span class="n">row_spacing</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">row_spacing</span><span class="p">,</span>
+                                           <span class="n">step_spacing</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">step_spacing</span><span class="p">,</span>
+                                           <span class="n">node_radius</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">default_node_radius</span><span class="p">)</span>
+
+
+        <span class="n">node_coords</span> <span class="o">=</span> <span class="n">tree_layout</span><span class="o">.</span><span class="n">layout</span><span class="p">(</span><span class="n">parent_forest</span><span class="p">,</span>
+                                         <span class="n">node_radii</span><span class="o">=</span><span class="n">node_fes</span><span class="p">)</span>
+
+        <span class="n">layout_forest</span><span class="o">.</span><span class="n">set_node_gexf_positions</span><span class="p">(</span><span class="n">node_coords</span><span class="p">)</span>
+
+
+        <span class="c1"># now we can write this graph to the gexf format to the file</span>
+        <span class="n">nx</span><span class="o">.</span><span class="n">write_gexf</span><span class="p">(</span><span class="n">layout_forest</span><span class="o">.</span><span class="n">viz_graph</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">gexf_restree_path</span><span class="p">)</span></div></div>
+</pre></div>
+
+          </div>
+            
+        </div>
+        <div class="clearfix"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">wepy  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+<script type="text/javascript">
+  $("#mobile-toggle a").click(function () {
+    $("#left-column").toggle();
+  });
+</script>
+<script type="text/javascript" src="../../../_static/js/bootstrap.js"></script>
+  <div class="footer">
+    &copy; Copyright 2018, Samuel D. Lotz. Created using <a href="http://sphinx.pocoo.org/">Sphinx</a>.
+  </div>
+  </body>
+</html>

@@ -1,0 +1,1783 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+  
+  <!-- Licensed under the Apache 2.0 License -->
+  <link rel="stylesheet" type="text/css" href="../_static/fonts/open-sans/stylesheet.css" />
+  <!-- Licensed under the SIL Open Font License -->
+  <link rel="stylesheet" type="text/css" href="../_static/fonts/source-serif-pro/source-serif-pro.css" />
+  <link rel="stylesheet" type="text/css" href="../_static/css/bootstrap.min.css" />
+  <link rel="stylesheet" type="text/css" href="../_static/css/bootstrap-theme.min.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+    <title>wepy.analysis.contig_tree module &#8212; wepy  documentation</title>
+    <link rel="stylesheet" href="../_static/guzzle.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/language_data.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="wepy.analysis.distributed module" href="wepy.analysis.distributed.html" />
+    <link rel="prev" title="wepy.analysis.network_layouts.tree module" href="wepy.analysis.network_layouts.tree.html" />
+  
+   
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="wepy.analysis.distributed.html" title="wepy.analysis.distributed module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="wepy.analysis.network_layouts.tree.html" title="wepy.analysis.network_layouts.tree module"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">wepy  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >wepy</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="wepy.html" >wepy package</a> &#187;</li>
+          <li class="nav-item nav-item-3"><a href="wepy.analysis.html" accesskey="U">wepy.analysis package</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="container-wrapper">
+
+      <div id="mobile-toggle">
+        <a href="#"><span class="glyphicon glyphicon-align-justify" aria-hidden="true"></span></a>
+      </div>
+  <div id="left-column">
+    <div class="sphinxsidebar">
+<div class="sidebar-block">
+  <div class="sidebar-wrapper">
+    <h2>Contents</h2>
+    <div class="sidebar-localtoc">
+      <ul>
+<li><a class="reference internal" href="#">wepy.analysis.contig_tree module</a><ul>
+<li><a class="reference internal" href="#routines">Routines</a></li>
+</ul>
+</li>
+</ul>
+
+    </div>
+  </div>
+</div>
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="wepy.analysis.network_layouts.tree.html"
+                        title="previous chapter">wepy.analysis.network_layouts.tree module</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="wepy.analysis.distributed.html"
+                        title="next chapter">wepy.analysis.distributed module</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/api/wepy.analysis.contig_tree.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div class="sidebar-block">
+  <div class="sidebar-wrapper">
+    <div id="main-search">
+      <form class="form-inline" action="../search.html" method="GET" role="form">
+        <div class="input-group">
+          <input name="q" type="text" class="form-control" placeholder="Search...">
+        </div>
+        <input type="hidden" name="check_keywords" value="yes" />
+        <input type="hidden" name="area" value="default" />
+      </form>
+    </div>
+  </div>
+</div>
+      
+    </div>
+  </div>
+        <div id="right-column">
+          
+          <div role="navigation" aria-label="breadcrumbs navigation">
+            <ol class="breadcrumb">
+              <li><a href="../index.html">Docs</a></li>
+              
+                <li><a href="modules.html">wepy</a></li>
+              
+                <li><a href="wepy.html">wepy package</a></li>
+              
+                <li><a href="wepy.analysis.html">wepy.analysis package</a></li>
+              
+              <li>wepy.analysis.contig_tree module</li>
+            </ol>
+          </div>
+          
+          <div class="document clearer body">
+            
+  <div class="section" id="module-wepy.analysis.contig_tree">
+<span id="wepy-analysis-contig-tree-module"></span><h1>wepy.analysis.contig_tree module<a class="headerlink" href="#module-wepy.analysis.contig_tree" title="Permalink to this headline">¶</a></h1>
+<p>Classes providing a contig and branching contigs abstractions over
+the underlying WepyHDF5 simulation data store.</p>
+<div class="section" id="routines">
+<h2>Routines<a class="headerlink" href="#routines" title="Permalink to this headline">¶</a></h2>
+<p>ContigTree
+Contig</p>
+<dl class="data">
+<dt id="wepy.analysis.contig_tree.RESAMPLING">
+<code class="sig-prename descclassname">wepy.analysis.contig_tree.</code><code class="sig-name descname">RESAMPLING</code><em class="property"> = 'resampling'</em><a class="headerlink" href="#wepy.analysis.contig_tree.RESAMPLING" title="Permalink to this definition">¶</a></dt>
+<dd><p>Record key for resampling records.</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="wepy.analysis.contig_tree.RESAMPLER">
+<code class="sig-prename descclassname">wepy.analysis.contig_tree.</code><code class="sig-name descname">RESAMPLER</code><em class="property"> = 'resampler'</em><a class="headerlink" href="#wepy.analysis.contig_tree.RESAMPLER" title="Permalink to this definition">¶</a></dt>
+<dd><p>Record key for resampler records.</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="wepy.analysis.contig_tree.WARPING">
+<code class="sig-prename descclassname">wepy.analysis.contig_tree.</code><code class="sig-name descname">WARPING</code><em class="property"> = 'warping'</em><a class="headerlink" href="#wepy.analysis.contig_tree.WARPING" title="Permalink to this definition">¶</a></dt>
+<dd><p>Record key for warping records.</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="wepy.analysis.contig_tree.PROGRESS">
+<code class="sig-prename descclassname">wepy.analysis.contig_tree.</code><code class="sig-name descname">PROGRESS</code><em class="property"> = 'progress'</em><a class="headerlink" href="#wepy.analysis.contig_tree.PROGRESS" title="Permalink to this definition">¶</a></dt>
+<dd><p>Record key for progress records.</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="wepy.analysis.contig_tree.BC">
+<code class="sig-prename descclassname">wepy.analysis.contig_tree.</code><code class="sig-name descname">BC</code><em class="property"> = 'boundary_conditions'</em><a class="headerlink" href="#wepy.analysis.contig_tree.BC" title="Permalink to this definition">¶</a></dt>
+<dd><p>Record key for boundary condition records.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="wepy.analysis.contig_tree.BaseContigTree">
+<em class="property">class </em><code class="sig-prename descclassname">wepy.analysis.contig_tree.</code><code class="sig-name descname">BaseContigTree</code><span class="sig-paren">(</span><em class="sig-param">wepy_h5</em>, <em class="sig-param">continuations=Ellipsis</em>, <em class="sig-param">runs=Ellipsis</em>, <em class="sig-param">boundary_condition_class=None</em>, <em class="sig-param">decision_class=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/contig_tree.html#BaseContigTree"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.contig_tree.BaseContigTree" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>A base class for the contigtree which doesn’t contain a WepyHDF5
+object. Useful for serialization of the object and can then be
+reattached later to a WepyHDF5.</p>
+<p>The only required argument is an WepyHDF5 object from which to draw
+data.</p>
+<p>If <cite>continuations</cite> is given it specifies the (continuing_run_idx,
+continued_run_idx) continuations the contig tree will use. This
+overrides anything in the WepyHDF5 file. Only use this if you know
+what you are doing. If <cite>continuations</cite> is <cite>Ellipsis</cite> the
+continuations from the <cite>WepyHDF5</cite> will be used.</p>
+<p>If <cite>runs</cite> is not <cite>Ellipsis</cite> only these runs will be included in
+the <cite>ContigTree</cite> and the continuations relvant to this subset will
+be used.</p>
+<p>If a valid <cite>decision_class</cite> is given walker lineages will be
+generated. This class is largely useless without this.</p>
+<p>The <cite>boundary_condition_class</cite> is only used in the presence of a
+<cite>decision_class</cite>. A valid <cite>boundary_condition_class</cite> will detect
+the discontinuities in walker trajectories and will automatically
+apply them to divide up logical trajectories. Otherwise, if
+discontinuous boundary condition warping events in data are
+present logical trajectories will have discontinuities in them.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>wepy_h5</strong> (<em>closed WepyHDF5 object</em>) – </p></li>
+<li><p><strong>continuations</strong> (<em>Ellipsis</em><em> (</em><em>use continuations in wepy_h5</em><em>) </em><em>or</em>) – <p>list of tuple of int (run_idx, run_idx)</p>
+<dl class="simple">
+<dt>The continuations to apply to the runs in this contig tree.</dt><dd><p>(Default value = Ellipsis)</p>
+</dd>
+</dl>
+</p></li>
+<li><p><strong>runs</strong> (<em>Ellipsis</em><em> (</em><em>use all runs in wepy_h5</em><em>) </em><em>or</em>) – <p>list of idx</p>
+<dl class="simple">
+<dt>The indices of the runs to use in the contig tree</dt><dd><p>(Default value = Ellipsis)</p>
+</dd>
+</dl>
+</p></li>
+<li><p><strong>boundary_condition_class</strong> (<em>class implementing BoundaryCondition</em>) – interface
+(Default value = None)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="simple">
+<dt>decision_class<span class="classifier">class implementing Decision interface</span></dt><dd><p>(Default value = None)</p>
+</dd>
+</dl>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Only set <cite>continuations</cite> if you know what you are doing.</p>
+<p>A <cite>decision_class</cite> must be given to be able to detect cloning and
+merging and get parental lineages.</p>
+<p>Make sure to give the <cite>boundary_condition_class</cite> if there was
+discontinuous warping events in the simulation or else you will
+get erroneous contiguous trajectories.</p>
+</div>
+<dl class="attribute">
+<dt id="wepy.analysis.contig_tree.BaseContigTree.RESAMPLING_PANEL_KEY">
+<code class="sig-name descname">RESAMPLING_PANEL_KEY</code><em class="property"> = 'resampling_steps'</em><a class="headerlink" href="#wepy.analysis.contig_tree.BaseContigTree.RESAMPLING_PANEL_KEY" title="Permalink to this definition">¶</a></dt>
+<dd><p>Key for resampling panel node attributes in the tree graph.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.analysis.contig_tree.BaseContigTree.PARENTS_KEY">
+<code class="sig-name descname">PARENTS_KEY</code><em class="property"> = 'parent_idxs'</em><a class="headerlink" href="#wepy.analysis.contig_tree.BaseContigTree.PARENTS_KEY" title="Permalink to this definition">¶</a></dt>
+<dd><p>Key for parent indices node attributes in the tree graph.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.analysis.contig_tree.BaseContigTree.DISCONTINUITY_KEY">
+<code class="sig-name descname">DISCONTINUITY_KEY</code><em class="property"> = 'discontinuities'</em><a class="headerlink" href="#wepy.analysis.contig_tree.BaseContigTree.DISCONTINUITY_KEY" title="Permalink to this definition">¶</a></dt>
+<dd><p>Key for discontinuity node attributes in the tree graph.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.contig_tree.BaseContigTree.graph">
+<em class="property">property </em><code class="sig-name descname">graph</code><a class="headerlink" href="#wepy.analysis.contig_tree.BaseContigTree.graph" title="Permalink to this definition">¶</a></dt>
+<dd><p>The underlying networkx.DiGraph object.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.contig_tree.BaseContigTree.decision_class">
+<em class="property">property </em><code class="sig-name descname">decision_class</code><a class="headerlink" href="#wepy.analysis.contig_tree.BaseContigTree.decision_class" title="Permalink to this definition">¶</a></dt>
+<dd><p>The decision class used to determine parental lineages.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.contig_tree.BaseContigTree.boundary_condition_class">
+<em class="property">property </em><code class="sig-name descname">boundary_condition_class</code><a class="headerlink" href="#wepy.analysis.contig_tree.BaseContigTree.boundary_condition_class" title="Permalink to this definition">¶</a></dt>
+<dd><p>The boundary condition class is used to determine discontinuities in lineages.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.contig_tree.BaseContigTree.span_traces">
+<em class="property">property </em><code class="sig-name descname">span_traces</code><a class="headerlink" href="#wepy.analysis.contig_tree.BaseContigTree.span_traces" title="Permalink to this definition">¶</a></dt>
+<dd><p>Dictionary mapping the spand indices to their run traces.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.contig_tree.BaseContigTree.span_contig">
+<code class="sig-name descname">span_contig</code><span class="sig-paren">(</span><em class="sig-param">span_idx</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/contig_tree.html#BaseContigTree.span_contig"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.contig_tree.BaseContigTree.span_contig" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates a contig object for the specified spanning contig.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.contig_tree.BaseContigTree.run_idxs">
+<em class="property">property </em><code class="sig-name descname">run_idxs</code><a class="headerlink" href="#wepy.analysis.contig_tree.BaseContigTree.run_idxs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Indices of runs in WepyHDF5 used in this contig tree.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.contig_tree.BaseContigTree.continuations">
+<em class="property">property </em><code class="sig-name descname">continuations</code><a class="headerlink" href="#wepy.analysis.contig_tree.BaseContigTree.continuations" title="Permalink to this definition">¶</a></dt>
+<dd><p>The continuations that are used in this contig tree over the runs.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.contig_tree.BaseContigTree.contig_trace_to_run_trace">
+<em class="property">static </em><code class="sig-name descname">contig_trace_to_run_trace</code><span class="sig-paren">(</span><em class="sig-param">contig_trace</em>, <em class="sig-param">contig_walker_trace</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/contig_tree.html#BaseContigTree.contig_trace_to_run_trace"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.contig_tree.BaseContigTree.contig_trace_to_run_trace" title="Permalink to this definition">¶</a></dt>
+<dd><p>Combine a contig trace and a walker trace to get the equivalent run trace.</p>
+<p>The contig_walker_trace cycle_idxs must be a subset of the
+frame indices given by the contig_trace.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>contig_trace</strong> (<em>list of tuples of ints</em><em> (</em><em>run_idx</em><em>, </em><em>cycle_idx</em><em>)</em>) – </p></li>
+<li><p><strong>contig_walker_trace</strong> (<em>list of tuples of ints</em><em> (</em><em>traj_idx</em><em>, </em><em>cycle_idx</em><em>)</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>run_trace</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list of tuples of ints (run_idx, traj_idx, cycle_idx)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.contig_tree.BaseContigTree.walker_trace_to_run_trace">
+<code class="sig-name descname">walker_trace_to_run_trace</code><span class="sig-paren">(</span><em class="sig-param">contig_walker_trace</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/contig_tree.html#BaseContigTree.walker_trace_to_run_trace"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.contig_tree.BaseContigTree.walker_trace_to_run_trace" title="Permalink to this definition">¶</a></dt>
+<dd><p>Combine a walker trace to get the equivalent run trace for this contig.</p>
+<p>The contig_walker_trace cycle_idxs must be a subset of the
+frame indices given by the contig_trace.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>contig_walker_trace</strong> (<em>list of tuples of ints</em><em> (</em><em>traj_idx</em><em>, </em><em>cycle_idx</em><em>)</em>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>run_trace</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list of tuples of ints (run_idx, traj_idx, cycle_idx)</p>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#wepy.analysis.contig_tree.Contig.contig_trace_to_run_trace" title="wepy.analysis.contig_tree.Contig.contig_trace_to_run_trace"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Contig.contig_trace_to_run_trace()</span></code></a></dt><dd><p>calls this static method</p>
+</dd>
+</dl>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.contig_tree.BaseContigTree.run_trace_to_contig_trace">
+<code class="sig-name descname">run_trace_to_contig_trace</code><span class="sig-paren">(</span><em class="sig-param">run_trace</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/contig_tree.html#BaseContigTree.run_trace_to_contig_trace"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.contig_tree.BaseContigTree.run_trace_to_contig_trace" title="Permalink to this definition">¶</a></dt>
+<dd><p>Assumes that the run trace goes along a valid contig.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>run_trace</strong> (<em>list of tuples of ints</em><em> (</em><em>run_idx</em><em>, </em><em>traj_idx</em><em>, </em><em>cycle_idx</em><em>)</em>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>contig_walker_trace</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list of tuples of ints (traj_idx, contig_cycle_idx)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.contig_tree.BaseContigTree.contig_cycle_idx">
+<code class="sig-name descname">contig_cycle_idx</code><span class="sig-paren">(</span><em class="sig-param">run_idx</em>, <em class="sig-param">cycle_idx</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/contig_tree.html#BaseContigTree.contig_cycle_idx"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.contig_tree.BaseContigTree.contig_cycle_idx" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert an in-run cycle index to an in-contig cyle_idx.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>run_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – Index of a run in the contig tree</p></li>
+<li><p><strong>cycle_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – Index of a cycle index within a run</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>contig_cycle_idx</strong> – The cycle idx in the contig</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.contig_tree.BaseContigTree.get_branch_trace">
+<code class="sig-name descname">get_branch_trace</code><span class="sig-paren">(</span><em class="sig-param">run_idx</em>, <em class="sig-param">cycle_idx</em>, <em class="sig-param">start_contig_idx=0</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/contig_tree.html#BaseContigTree.get_branch_trace"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.contig_tree.BaseContigTree.get_branch_trace" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a contig trace for a branch of the contig tree from an end
+point back to a set point (defaults to root of contig tree).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>run_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – </p></li>
+<li><p><strong>cycle_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – An in-contig cycle index</p></li>
+<li><p><strong>start_contig_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a><em>, </em><em>optional</em>) – <dl class="simple">
+<dt>The in-contig cycle index where the “root” of the branch will start</dt><dd><p>(Default value = 0)</p>
+</dd>
+</dl>
+</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>contig_trace</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list of tuples of ints (run_idx, cycle_idx)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.contig_tree.BaseContigTree.trace_parent_table">
+<code class="sig-name descname">trace_parent_table</code><span class="sig-paren">(</span><em class="sig-param">contig_trace</em>, <em class="sig-param">discontinuities=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/contig_tree.html#BaseContigTree.trace_parent_table"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.contig_tree.BaseContigTree.trace_parent_table" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a contig trace returns a parent table for that contig.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>contig_trace</strong> (<em>list of tuples</em><em> (</em><em>run_idx</em><em>, </em><em>cycle_idx</em><em>)</em>) – </p></li>
+<li><p><strong>discontinuities</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a>) – Whether or not to include discontinuities in the table.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>parent_table</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list of list of int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.contig_tree.BaseContigTree.leaves">
+<code class="sig-name descname">leaves</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/contig_tree.html#BaseContigTree.leaves"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.contig_tree.BaseContigTree.leaves" title="Permalink to this definition">¶</a></dt>
+<dd><p>All of the leaves of this contig tree.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>leaves</strong> – The leaf node IDs of the tree.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>list of node_id</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.contig_tree.BaseContigTree.roots">
+<code class="sig-name descname">roots</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/contig_tree.html#BaseContigTree.roots"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.contig_tree.BaseContigTree.roots" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns all of the roots in this contig tree (which is technically
+a forest and can have multiple roots).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>root</strong></p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>list of node_id</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.contig_tree.BaseContigTree.subtrees">
+<code class="sig-name descname">subtrees</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/contig_tree.html#BaseContigTree.subtrees"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.contig_tree.BaseContigTree.subtrees" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns all of the subtrees (with unique roots) in this contig tree
+(which is technically a forest and can have multiple
+roots).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>subtrees</strong></p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>list of networkx.DiGraph trees</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.contig_tree.BaseContigTree.get_subtree">
+<code class="sig-name descname">get_subtree</code><span class="sig-paren">(</span><em class="sig-param">node</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/contig_tree.html#BaseContigTree.get_subtree"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.contig_tree.BaseContigTree.get_subtree" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a node defining a subtree root return that subtree.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>node</strong> (<em>node_id</em>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>subtree</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>networkx.DiGraph tree</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.contig_tree.BaseContigTree.contig_sliding_windows">
+<code class="sig-name descname">contig_sliding_windows</code><span class="sig-paren">(</span><em class="sig-param">contig_trace</em>, <em class="sig-param">window_length</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/contig_tree.html#BaseContigTree.contig_sliding_windows"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.contig_tree.BaseContigTree.contig_sliding_windows" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a contig trace get the sliding windows of length
+‘window_length’ as contig walker traces.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>contig_trace</strong> (<em>list of tuples of ints</em><em> (</em><em>run_idx</em><em>, </em><em>cycle_idx</em><em>)</em>) – Trace defining a contig in the contig tree.</p></li>
+<li><p><strong>window_length</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – The length of the sliding windows to return.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>windows</strong> – List of contig walker traces</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list of list of tuples of ints (traj_idx, cycle_idx)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.contig_tree.BaseContigTree.sliding_contig_windows">
+<code class="sig-name descname">sliding_contig_windows</code><span class="sig-paren">(</span><em class="sig-param">window_length</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/contig_tree.html#BaseContigTree.sliding_contig_windows"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.contig_tree.BaseContigTree.sliding_contig_windows" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a ‘window_length’ return all the windows over the contig tree
+as contig traces.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>window_length</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>contig_windows</strong> – List of contig traces</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list of list of tuples of ints (run_idx, cycle_idx)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.contig_tree.BaseContigTree.sliding_windows">
+<code class="sig-name descname">sliding_windows</code><span class="sig-paren">(</span><em class="sig-param">window_length</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/contig_tree.html#BaseContigTree.sliding_windows"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.contig_tree.BaseContigTree.sliding_windows" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns all the sliding windows over walker trajectories as run
+traces for a given window length.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>window_length</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>windows</strong> – List of run traces.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list of list of tuples of ints (run_idx, traj_idx, cycle_idx)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.contig_tree.BaseContigTree.spanning_contig_traces">
+<code class="sig-name descname">spanning_contig_traces</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/contig_tree.html#BaseContigTree.spanning_contig_traces"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.contig_tree.BaseContigTree.spanning_contig_traces" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a list of all possible spanning contigs given the
+continuations present in this file. Spanning contigs are paths
+through a tree that must start from a root node and end at a
+leaf node.</p>
+<p>This algorithm always returns them in a canonical order (as
+long as the runs are not rearranged after being added). This
+means that the indices here are the indices of the contigs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>spanning_contig_traces</strong> – List of all spanning contigs which are contig traces.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>list of list of tuples of ints (run_idx, cycle_idx)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.contig_tree.BaseContigTree.exit_point_trajectories">
+<code class="sig-name descname">exit_point_trajectories</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/contig_tree.html#BaseContigTree.exit_point_trajectories"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.contig_tree.BaseContigTree.exit_point_trajectories" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return full run traces for every warping event.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="wepy.analysis.contig_tree.ContigTree">
+<em class="property">class </em><code class="sig-prename descclassname">wepy.analysis.contig_tree.</code><code class="sig-name descname">ContigTree</code><span class="sig-paren">(</span><em class="sig-param">wepy_h5</em>, <em class="sig-param">base_contigtree=None</em>, <em class="sig-param">continuations=Ellipsis</em>, <em class="sig-param">runs=Ellipsis</em>, <em class="sig-param">boundary_condition_class=None</em>, <em class="sig-param">decision_class=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/contig_tree.html#ContigTree"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.contig_tree.ContigTree" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#wepy.analysis.contig_tree.BaseContigTree" title="wepy.analysis.contig_tree.BaseContigTree"><code class="xref py py-class docutils literal notranslate"><span class="pre">wepy.analysis.contig_tree.BaseContigTree</span></code></a></p>
+<p>Wraps a WepyHDF5 object and gives access to logical trajectories.</p>
+<p>The contig tree is technically a forest (a collection of trees)
+and can have multiple roots.</p>
+<p>The only required argument is an WepyHDF5 object from which to draw
+data.</p>
+<p>If <cite>continuations</cite> is given it specifies the (continuing_run_idx,
+continued_run_idx) continuations the contig tree will use. This
+overrides anything in the WepyHDF5 file. Only use this if you know
+what you are doing. If <cite>continuations</cite> is <cite>Ellipsis</cite> the
+continuations from the <cite>WepyHDF5</cite> will be used.</p>
+<p>If <cite>runs</cite> is not <cite>Ellipsis</cite> only these runs will be included in
+the <cite>ContigTree</cite> and the continuations relvant to this subset will
+be used.</p>
+<p>If a valid <cite>decision_class</cite> is given walker lineages will be
+generated. This class is largely useless without this.</p>
+<p>The <cite>boundary_condition_class</cite> is only used in the presence of a
+<cite>decision_class</cite>. A valid <cite>boundary_condition_class</cite> will detect
+the discontinuities in walker trajectories and will automatically
+apply them to divide up logical trajectories. Otherwise, if
+discontinuous boundary condition warping events in data are
+present logical trajectories will have discontinuities in them.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>wepy_h5</strong> (<em>closed WepyHDF5 object</em>) – </p></li>
+<li><p><strong>continuations</strong> (<em>Ellipsis</em><em> (</em><em>use continuations in wepy_h5</em><em>) </em><em>or</em>) – <p>list of tuple of int (run_idx, run_idx)</p>
+<dl class="simple">
+<dt>The continuations to apply to the runs in this contig tree.</dt><dd><p>(Default value = Ellipsis)</p>
+</dd>
+</dl>
+</p></li>
+<li><p><strong>runs</strong> (<em>Ellipsis</em><em> (</em><em>use all runs in wepy_h5</em><em>) </em><em>or</em>) – <p>list of idx</p>
+<dl class="simple">
+<dt>The indices of the runs to use in the contig tree</dt><dd><p>(Default value = Ellipsis)</p>
+</dd>
+</dl>
+</p></li>
+<li><p><strong>boundary_condition_class</strong> (<em>class implementing BoundaryCondition</em>) – interface
+(Default value = None)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="simple">
+<dt>decision_class<span class="classifier">class implementing Decision interface</span></dt><dd><p>(Default value = None)</p>
+</dd>
+</dl>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Only set <cite>continuations</cite> if you know what you are doing.</p>
+<p>A <cite>decision_class</cite> must be given to be able to detect cloning and
+merging and get parental lineages.</p>
+<p>Make sure to give the <cite>boundary_condition_class</cite> if there was
+discontinuous warping events in the simulation or else you will
+get erroneous contiguous trajectories.</p>
+</div>
+<dl class="method">
+<dt id="wepy.analysis.contig_tree.ContigTree.open">
+<code class="sig-name descname">open</code><span class="sig-paren">(</span><em class="sig-param">mode=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/contig_tree.html#ContigTree.open"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.contig_tree.ContigTree.open" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.contig_tree.ContigTree.close">
+<code class="sig-name descname">close</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/contig_tree.html#ContigTree.close"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.contig_tree.ContigTree.close" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.contig_tree.ContigTree.base_contigtree">
+<em class="property">property </em><code class="sig-name descname">base_contigtree</code><a class="headerlink" href="#wepy.analysis.contig_tree.ContigTree.base_contigtree" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.contig_tree.ContigTree.wepy_h5">
+<em class="property">property </em><code class="sig-name descname">wepy_h5</code><a class="headerlink" href="#wepy.analysis.contig_tree.ContigTree.wepy_h5" title="Permalink to this definition">¶</a></dt>
+<dd><p>The WepyHDF5 source object for which the contig tree is being constructed.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.contig_tree.ContigTree.make_contig">
+<code class="sig-name descname">make_contig</code><span class="sig-paren">(</span><em class="sig-param">contig_trace</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/contig_tree.html#ContigTree.make_contig"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.contig_tree.ContigTree.make_contig" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a Contig object given a contig trace.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>contig_trace</strong> (<em>list of tuples of ints</em><em> (</em><em>run_idx</em><em>, </em><em>cycle_idx</em><em>)</em>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>contig</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Contig object</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.contig_tree.ContigTree.warp_trace">
+<code class="sig-name descname">warp_trace</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/contig_tree.html#ContigTree.warp_trace"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.contig_tree.ContigTree.warp_trace" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the trace for all unique warping events from all contigs.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.analysis.contig_tree.ContigTree.DISCONTINUITY_KEY">
+<code class="sig-name descname">DISCONTINUITY_KEY</code><em class="property"> = 'discontinuities'</em><a class="headerlink" href="#wepy.analysis.contig_tree.ContigTree.DISCONTINUITY_KEY" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.analysis.contig_tree.ContigTree.PARENTS_KEY">
+<code class="sig-name descname">PARENTS_KEY</code><em class="property"> = 'parent_idxs'</em><a class="headerlink" href="#wepy.analysis.contig_tree.ContigTree.PARENTS_KEY" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.analysis.contig_tree.ContigTree.RESAMPLING_PANEL_KEY">
+<code class="sig-name descname">RESAMPLING_PANEL_KEY</code><em class="property"> = 'resampling_steps'</em><a class="headerlink" href="#wepy.analysis.contig_tree.ContigTree.RESAMPLING_PANEL_KEY" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.contig_tree.ContigTree.boundary_condition_class">
+<em class="property">property </em><code class="sig-name descname">boundary_condition_class</code><a class="headerlink" href="#wepy.analysis.contig_tree.ContigTree.boundary_condition_class" title="Permalink to this definition">¶</a></dt>
+<dd><p>The boundary condition class is used to determine discontinuities in lineages.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.contig_tree.ContigTree.contig_cycle_idx">
+<code class="sig-name descname">contig_cycle_idx</code><span class="sig-paren">(</span><em class="sig-param">run_idx</em>, <em class="sig-param">cycle_idx</em><span class="sig-paren">)</span><a class="headerlink" href="#wepy.analysis.contig_tree.ContigTree.contig_cycle_idx" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert an in-run cycle index to an in-contig cyle_idx.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>run_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – Index of a run in the contig tree</p></li>
+<li><p><strong>cycle_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – Index of a cycle index within a run</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>contig_cycle_idx</strong> – The cycle idx in the contig</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.contig_tree.ContigTree.contig_sliding_windows">
+<code class="sig-name descname">contig_sliding_windows</code><span class="sig-paren">(</span><em class="sig-param">contig_trace</em>, <em class="sig-param">window_length</em><span class="sig-paren">)</span><a class="headerlink" href="#wepy.analysis.contig_tree.ContigTree.contig_sliding_windows" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a contig trace get the sliding windows of length
+‘window_length’ as contig walker traces.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>contig_trace</strong> (<em>list of tuples of ints</em><em> (</em><em>run_idx</em><em>, </em><em>cycle_idx</em><em>)</em>) – Trace defining a contig in the contig tree.</p></li>
+<li><p><strong>window_length</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – The length of the sliding windows to return.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>windows</strong> – List of contig walker traces</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list of list of tuples of ints (traj_idx, cycle_idx)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.contig_tree.ContigTree.contig_trace_to_run_trace">
+<em class="property">static </em><code class="sig-name descname">contig_trace_to_run_trace</code><span class="sig-paren">(</span><em class="sig-param">contig_trace</em>, <em class="sig-param">contig_walker_trace</em><span class="sig-paren">)</span><a class="headerlink" href="#wepy.analysis.contig_tree.ContigTree.contig_trace_to_run_trace" title="Permalink to this definition">¶</a></dt>
+<dd><p>Combine a contig trace and a walker trace to get the equivalent run trace.</p>
+<p>The contig_walker_trace cycle_idxs must be a subset of the
+frame indices given by the contig_trace.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>contig_trace</strong> (<em>list of tuples of ints</em><em> (</em><em>run_idx</em><em>, </em><em>cycle_idx</em><em>)</em>) – </p></li>
+<li><p><strong>contig_walker_trace</strong> (<em>list of tuples of ints</em><em> (</em><em>traj_idx</em><em>, </em><em>cycle_idx</em><em>)</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>run_trace</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list of tuples of ints (run_idx, traj_idx, cycle_idx)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.contig_tree.ContigTree.continuations">
+<em class="property">property </em><code class="sig-name descname">continuations</code><a class="headerlink" href="#wepy.analysis.contig_tree.ContigTree.continuations" title="Permalink to this definition">¶</a></dt>
+<dd><p>The continuations that are used in this contig tree over the runs.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.contig_tree.ContigTree.decision_class">
+<em class="property">property </em><code class="sig-name descname">decision_class</code><a class="headerlink" href="#wepy.analysis.contig_tree.ContigTree.decision_class" title="Permalink to this definition">¶</a></dt>
+<dd><p>The decision class used to determine parental lineages.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.contig_tree.ContigTree.exit_point_trajectories">
+<code class="sig-name descname">exit_point_trajectories</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.analysis.contig_tree.ContigTree.exit_point_trajectories" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return full run traces for every warping event.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.contig_tree.ContigTree.get_branch_trace">
+<code class="sig-name descname">get_branch_trace</code><span class="sig-paren">(</span><em class="sig-param">run_idx</em>, <em class="sig-param">cycle_idx</em>, <em class="sig-param">start_contig_idx=0</em><span class="sig-paren">)</span><a class="headerlink" href="#wepy.analysis.contig_tree.ContigTree.get_branch_trace" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a contig trace for a branch of the contig tree from an end
+point back to a set point (defaults to root of contig tree).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>run_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – </p></li>
+<li><p><strong>cycle_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – An in-contig cycle index</p></li>
+<li><p><strong>start_contig_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a><em>, </em><em>optional</em>) – <dl class="simple">
+<dt>The in-contig cycle index where the “root” of the branch will start</dt><dd><p>(Default value = 0)</p>
+</dd>
+</dl>
+</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>contig_trace</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list of tuples of ints (run_idx, cycle_idx)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.contig_tree.ContigTree.get_subtree">
+<code class="sig-name descname">get_subtree</code><span class="sig-paren">(</span><em class="sig-param">node</em><span class="sig-paren">)</span><a class="headerlink" href="#wepy.analysis.contig_tree.ContigTree.get_subtree" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a node defining a subtree root return that subtree.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>node</strong> (<em>node_id</em>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>subtree</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>networkx.DiGraph tree</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.contig_tree.ContigTree.graph">
+<em class="property">property </em><code class="sig-name descname">graph</code><a class="headerlink" href="#wepy.analysis.contig_tree.ContigTree.graph" title="Permalink to this definition">¶</a></dt>
+<dd><p>The underlying networkx.DiGraph object.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.contig_tree.ContigTree.leaves">
+<code class="sig-name descname">leaves</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.analysis.contig_tree.ContigTree.leaves" title="Permalink to this definition">¶</a></dt>
+<dd><p>All of the leaves of this contig tree.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>leaves</strong> – The leaf node IDs of the tree.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>list of node_id</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.contig_tree.ContigTree.roots">
+<code class="sig-name descname">roots</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.analysis.contig_tree.ContigTree.roots" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns all of the roots in this contig tree (which is technically
+a forest and can have multiple roots).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>root</strong></p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>list of node_id</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.contig_tree.ContigTree.run_idxs">
+<em class="property">property </em><code class="sig-name descname">run_idxs</code><a class="headerlink" href="#wepy.analysis.contig_tree.ContigTree.run_idxs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Indices of runs in WepyHDF5 used in this contig tree.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.contig_tree.ContigTree.run_trace_to_contig_trace">
+<code class="sig-name descname">run_trace_to_contig_trace</code><span class="sig-paren">(</span><em class="sig-param">run_trace</em><span class="sig-paren">)</span><a class="headerlink" href="#wepy.analysis.contig_tree.ContigTree.run_trace_to_contig_trace" title="Permalink to this definition">¶</a></dt>
+<dd><p>Assumes that the run trace goes along a valid contig.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>run_trace</strong> (<em>list of tuples of ints</em><em> (</em><em>run_idx</em><em>, </em><em>traj_idx</em><em>, </em><em>cycle_idx</em><em>)</em>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>contig_walker_trace</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list of tuples of ints (traj_idx, contig_cycle_idx)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.contig_tree.ContigTree.sliding_contig_windows">
+<code class="sig-name descname">sliding_contig_windows</code><span class="sig-paren">(</span><em class="sig-param">window_length</em><span class="sig-paren">)</span><a class="headerlink" href="#wepy.analysis.contig_tree.ContigTree.sliding_contig_windows" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a ‘window_length’ return all the windows over the contig tree
+as contig traces.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>window_length</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>contig_windows</strong> – List of contig traces</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list of list of tuples of ints (run_idx, cycle_idx)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.contig_tree.ContigTree.sliding_windows">
+<code class="sig-name descname">sliding_windows</code><span class="sig-paren">(</span><em class="sig-param">window_length</em><span class="sig-paren">)</span><a class="headerlink" href="#wepy.analysis.contig_tree.ContigTree.sliding_windows" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns all the sliding windows over walker trajectories as run
+traces for a given window length.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>window_length</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>windows</strong> – List of run traces.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list of list of tuples of ints (run_idx, traj_idx, cycle_idx)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.contig_tree.ContigTree.span_contig">
+<code class="sig-name descname">span_contig</code><span class="sig-paren">(</span><em class="sig-param">span_idx</em><span class="sig-paren">)</span><a class="headerlink" href="#wepy.analysis.contig_tree.ContigTree.span_contig" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates a contig object for the specified spanning contig.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.contig_tree.ContigTree.span_traces">
+<em class="property">property </em><code class="sig-name descname">span_traces</code><a class="headerlink" href="#wepy.analysis.contig_tree.ContigTree.span_traces" title="Permalink to this definition">¶</a></dt>
+<dd><p>Dictionary mapping the spand indices to their run traces.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.contig_tree.ContigTree.spanning_contig_traces">
+<code class="sig-name descname">spanning_contig_traces</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.analysis.contig_tree.ContigTree.spanning_contig_traces" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a list of all possible spanning contigs given the
+continuations present in this file. Spanning contigs are paths
+through a tree that must start from a root node and end at a
+leaf node.</p>
+<p>This algorithm always returns them in a canonical order (as
+long as the runs are not rearranged after being added). This
+means that the indices here are the indices of the contigs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>spanning_contig_traces</strong> – List of all spanning contigs which are contig traces.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>list of list of tuples of ints (run_idx, cycle_idx)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.contig_tree.ContigTree.subtrees">
+<code class="sig-name descname">subtrees</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.analysis.contig_tree.ContigTree.subtrees" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns all of the subtrees (with unique roots) in this contig tree
+(which is technically a forest and can have multiple
+roots).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>subtrees</strong></p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>list of networkx.DiGraph trees</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.contig_tree.ContigTree.trace_parent_table">
+<code class="sig-name descname">trace_parent_table</code><span class="sig-paren">(</span><em class="sig-param">contig_trace</em>, <em class="sig-param">discontinuities=True</em><span class="sig-paren">)</span><a class="headerlink" href="#wepy.analysis.contig_tree.ContigTree.trace_parent_table" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a contig trace returns a parent table for that contig.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>contig_trace</strong> (<em>list of tuples</em><em> (</em><em>run_idx</em><em>, </em><em>cycle_idx</em><em>)</em>) – </p></li>
+<li><p><strong>discontinuities</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a>) – Whether or not to include discontinuities in the table.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>parent_table</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list of list of int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.contig_tree.ContigTree.walker_trace_to_run_trace">
+<code class="sig-name descname">walker_trace_to_run_trace</code><span class="sig-paren">(</span><em class="sig-param">contig_walker_trace</em><span class="sig-paren">)</span><a class="headerlink" href="#wepy.analysis.contig_tree.ContigTree.walker_trace_to_run_trace" title="Permalink to this definition">¶</a></dt>
+<dd><p>Combine a walker trace to get the equivalent run trace for this contig.</p>
+<p>The contig_walker_trace cycle_idxs must be a subset of the
+frame indices given by the contig_trace.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>contig_walker_trace</strong> (<em>list of tuples of ints</em><em> (</em><em>traj_idx</em><em>, </em><em>cycle_idx</em><em>)</em>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>run_trace</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list of tuples of ints (run_idx, traj_idx, cycle_idx)</p>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#wepy.analysis.contig_tree.Contig.contig_trace_to_run_trace" title="wepy.analysis.contig_tree.Contig.contig_trace_to_run_trace"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Contig.contig_trace_to_run_trace()</span></code></a></dt><dd><p>calls this static method</p>
+</dd>
+</dl>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="wepy.analysis.contig_tree.Contig">
+<em class="property">class </em><code class="sig-prename descclassname">wepy.analysis.contig_tree.</code><code class="sig-name descname">Contig</code><span class="sig-paren">(</span><em class="sig-param">wepy_h5</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/contig_tree.html#Contig"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.contig_tree.Contig" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#wepy.analysis.contig_tree.ContigTree" title="wepy.analysis.contig_tree.ContigTree"><code class="xref py py-class docutils literal notranslate"><span class="pre">wepy.analysis.contig_tree.ContigTree</span></code></a></p>
+<p>Wraps a WepyHDF5 object and gives access to logical trajectories
+from a single contig.</p>
+<p>This class is very similar to the ContigTree class and inherits
+all of those methods. It adds methods for getting records and
+other data about a single contig.</p>
+<p>The only required argument is an WepyHDF5 object from which to draw
+data.</p>
+<p>If <cite>continuations</cite> is given it specifies the (continuing_run_idx,
+continued_run_idx) continuations the contig tree will use. This
+overrides anything in the WepyHDF5 file. Only use this if you know
+what you are doing. If <cite>continuations</cite> is <cite>Ellipsis</cite> the
+continuations from the <cite>WepyHDF5</cite> will be used.</p>
+<p>If <cite>runs</cite> is not <cite>Ellipsis</cite> only these runs will be included in
+the <cite>ContigTree</cite> and the continuations relvant to this subset will
+be used.</p>
+<p>If a valid <cite>decision_class</cite> is given walker lineages will be
+generated. This class is largely useless without this.</p>
+<p>The <cite>boundary_condition_class</cite> is only used in the presence of a
+<cite>decision_class</cite>. A valid <cite>boundary_condition_class</cite> will detect
+the discontinuities in walker trajectories and will automatically
+apply them to divide up logical trajectories. Otherwise, if
+discontinuous boundary condition warping events in data are
+present logical trajectories will have discontinuities in them.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>wepy_h5</strong> (<em>closed WepyHDF5 object</em>) – </p></li>
+<li><p><strong>continuations</strong> (<em>Ellipsis</em><em> (</em><em>use continuations in wepy_h5</em><em>) </em><em>or</em>) – <p>list of tuple of int (run_idx, run_idx)</p>
+<dl class="simple">
+<dt>The continuations to apply to the runs in this contig tree.</dt><dd><p>(Default value = Ellipsis)</p>
+</dd>
+</dl>
+</p></li>
+<li><p><strong>runs</strong> (<em>Ellipsis</em><em> (</em><em>use all runs in wepy_h5</em><em>) </em><em>or</em>) – <p>list of idx</p>
+<dl class="simple">
+<dt>The indices of the runs to use in the contig tree</dt><dd><p>(Default value = Ellipsis)</p>
+</dd>
+</dl>
+</p></li>
+<li><p><strong>boundary_condition_class</strong> (<em>class implementing BoundaryCondition</em>) – interface
+(Default value = None)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="simple">
+<dt>decision_class<span class="classifier">class implementing Decision interface</span></dt><dd><p>(Default value = None)</p>
+</dd>
+</dl>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Only set <cite>continuations</cite> if you know what you are doing.</p>
+<p>A <cite>decision_class</cite> must be given to be able to detect cloning and
+merging and get parental lineages.</p>
+<p>Make sure to give the <cite>boundary_condition_class</cite> if there was
+discontinuous warping events in the simulation or else you will
+get erroneous contiguous trajectories.</p>
+</div>
+<dl class="method">
+<dt id="wepy.analysis.contig_tree.Contig.contig_fields">
+<code class="sig-name descname">contig_fields</code><span class="sig-paren">(</span><em class="sig-param">fields</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/contig_tree.html#Contig.contig_fields"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.contig_tree.Contig.contig_fields" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns trajectory field data for the specified fields.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>fields</strong> (<em>list of str</em>) – The field keys you want to retrieve data for.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>fields_dict</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict of str: numpy.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.contig_tree.Contig.contig_trace">
+<em class="property">property </em><code class="sig-name descname">contig_trace</code><a class="headerlink" href="#wepy.analysis.contig_tree.Contig.contig_trace" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the contig trace corresponding to this contig.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p></p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>contig_trace :: list of tuples of ints (run_idx, cycle_idx)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.contig_tree.Contig.num_cycles">
+<em class="property">property </em><code class="sig-name descname">num_cycles</code><a class="headerlink" href="#wepy.analysis.contig_tree.Contig.num_cycles" title="Permalink to this definition">¶</a></dt>
+<dd><p>The number of cycles in this contig.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>num_cycles</strong></p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.contig_tree.Contig.num_walkers">
+<code class="sig-name descname">num_walkers</code><span class="sig-paren">(</span><em class="sig-param">cycle_idx</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/contig_tree.html#Contig.num_walkers"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.contig_tree.Contig.num_walkers" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the number of walkers at a given cycle in the contig.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>cycle_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>n_walkers</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.contig_tree.Contig.records">
+<code class="sig-name descname">records</code><span class="sig-paren">(</span><em class="sig-param">record_key</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/contig_tree.html#Contig.records"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.contig_tree.Contig.records" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the records for the given key.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>record_key</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>records</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list of namedtuple records</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.contig_tree.Contig.records_dataframe">
+<code class="sig-name descname">records_dataframe</code><span class="sig-paren">(</span><em class="sig-param">record_key</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/contig_tree.html#Contig.records_dataframe"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.contig_tree.Contig.records_dataframe" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the records as a pandas.DataFrame for the given key.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>record_key</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>records_df</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>pandas.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.contig_tree.Contig.resampling_records">
+<code class="sig-name descname">resampling_records</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/contig_tree.html#Contig.resampling_records"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.contig_tree.Contig.resampling_records" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the resampling records.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>resampling_records</strong></p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>list of namedtuple records</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.contig_tree.Contig.resampling_records_dataframe">
+<code class="sig-name descname">resampling_records_dataframe</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/contig_tree.html#Contig.resampling_records_dataframe"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.contig_tree.Contig.resampling_records_dataframe" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the resampling records as a pandas.DataFrame.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>resampling_df</strong></p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>pandas.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.contig_tree.Contig.resampler_records">
+<code class="sig-name descname">resampler_records</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/contig_tree.html#Contig.resampler_records"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.contig_tree.Contig.resampler_records" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the resampler records.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>resampler_records</strong></p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>list of namedtuple records</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.contig_tree.Contig.resampler_records_dataframe">
+<code class="sig-name descname">resampler_records_dataframe</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/contig_tree.html#Contig.resampler_records_dataframe"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.contig_tree.Contig.resampler_records_dataframe" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the resampler records as a pandas.DataFrame.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>resampler_df</strong></p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>pandas.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.contig_tree.Contig.warping_records">
+<code class="sig-name descname">warping_records</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/contig_tree.html#Contig.warping_records"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.contig_tree.Contig.warping_records" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the warping records.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>warping_records</strong></p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>list of namedtuple records</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.contig_tree.Contig.warping_records_dataframe">
+<code class="sig-name descname">warping_records_dataframe</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/contig_tree.html#Contig.warping_records_dataframe"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.contig_tree.Contig.warping_records_dataframe" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the warping records as a pandas.DataFrame.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>warping_df</strong></p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>pandas.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.contig_tree.Contig.bc_records">
+<code class="sig-name descname">bc_records</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/contig_tree.html#Contig.bc_records"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.contig_tree.Contig.bc_records" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the boundary conditions records.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>bc_records</strong></p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>list of namedtuple records</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.contig_tree.Contig.bc_records_dataframe">
+<code class="sig-name descname">bc_records_dataframe</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/contig_tree.html#Contig.bc_records_dataframe"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.contig_tree.Contig.bc_records_dataframe" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the boundary conditions records as a pandas.DataFrame.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>bc_df</strong></p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>pandas.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.analysis.contig_tree.Contig.DISCONTINUITY_KEY">
+<code class="sig-name descname">DISCONTINUITY_KEY</code><em class="property"> = 'discontinuities'</em><a class="headerlink" href="#wepy.analysis.contig_tree.Contig.DISCONTINUITY_KEY" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.analysis.contig_tree.Contig.PARENTS_KEY">
+<code class="sig-name descname">PARENTS_KEY</code><em class="property"> = 'parent_idxs'</em><a class="headerlink" href="#wepy.analysis.contig_tree.Contig.PARENTS_KEY" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wepy.analysis.contig_tree.Contig.RESAMPLING_PANEL_KEY">
+<code class="sig-name descname">RESAMPLING_PANEL_KEY</code><em class="property"> = 'resampling_steps'</em><a class="headerlink" href="#wepy.analysis.contig_tree.Contig.RESAMPLING_PANEL_KEY" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.contig_tree.Contig.base_contigtree">
+<em class="property">property </em><code class="sig-name descname">base_contigtree</code><a class="headerlink" href="#wepy.analysis.contig_tree.Contig.base_contigtree" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.contig_tree.Contig.boundary_condition_class">
+<em class="property">property </em><code class="sig-name descname">boundary_condition_class</code><a class="headerlink" href="#wepy.analysis.contig_tree.Contig.boundary_condition_class" title="Permalink to this definition">¶</a></dt>
+<dd><p>The boundary condition class is used to determine discontinuities in lineages.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.contig_tree.Contig.close">
+<code class="sig-name descname">close</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.analysis.contig_tree.Contig.close" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.contig_tree.Contig.contig_cycle_idx">
+<code class="sig-name descname">contig_cycle_idx</code><span class="sig-paren">(</span><em class="sig-param">run_idx</em>, <em class="sig-param">cycle_idx</em><span class="sig-paren">)</span><a class="headerlink" href="#wepy.analysis.contig_tree.Contig.contig_cycle_idx" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert an in-run cycle index to an in-contig cyle_idx.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>run_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – Index of a run in the contig tree</p></li>
+<li><p><strong>cycle_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – Index of a cycle index within a run</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>contig_cycle_idx</strong> – The cycle idx in the contig</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.contig_tree.Contig.contig_sliding_windows">
+<code class="sig-name descname">contig_sliding_windows</code><span class="sig-paren">(</span><em class="sig-param">contig_trace</em>, <em class="sig-param">window_length</em><span class="sig-paren">)</span><a class="headerlink" href="#wepy.analysis.contig_tree.Contig.contig_sliding_windows" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a contig trace get the sliding windows of length
+‘window_length’ as contig walker traces.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>contig_trace</strong> (<em>list of tuples of ints</em><em> (</em><em>run_idx</em><em>, </em><em>cycle_idx</em><em>)</em>) – Trace defining a contig in the contig tree.</p></li>
+<li><p><strong>window_length</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – The length of the sliding windows to return.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>windows</strong> – List of contig walker traces</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list of list of tuples of ints (traj_idx, cycle_idx)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.contig_tree.Contig.contig_trace_to_run_trace">
+<em class="property">static </em><code class="sig-name descname">contig_trace_to_run_trace</code><span class="sig-paren">(</span><em class="sig-param">contig_trace</em>, <em class="sig-param">contig_walker_trace</em><span class="sig-paren">)</span><a class="headerlink" href="#wepy.analysis.contig_tree.Contig.contig_trace_to_run_trace" title="Permalink to this definition">¶</a></dt>
+<dd><p>Combine a contig trace and a walker trace to get the equivalent run trace.</p>
+<p>The contig_walker_trace cycle_idxs must be a subset of the
+frame indices given by the contig_trace.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>contig_trace</strong> (<em>list of tuples of ints</em><em> (</em><em>run_idx</em><em>, </em><em>cycle_idx</em><em>)</em>) – </p></li>
+<li><p><strong>contig_walker_trace</strong> (<em>list of tuples of ints</em><em> (</em><em>traj_idx</em><em>, </em><em>cycle_idx</em><em>)</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>run_trace</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list of tuples of ints (run_idx, traj_idx, cycle_idx)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.contig_tree.Contig.continuations">
+<em class="property">property </em><code class="sig-name descname">continuations</code><a class="headerlink" href="#wepy.analysis.contig_tree.Contig.continuations" title="Permalink to this definition">¶</a></dt>
+<dd><p>The continuations that are used in this contig tree over the runs.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.contig_tree.Contig.decision_class">
+<em class="property">property </em><code class="sig-name descname">decision_class</code><a class="headerlink" href="#wepy.analysis.contig_tree.Contig.decision_class" title="Permalink to this definition">¶</a></dt>
+<dd><p>The decision class used to determine parental lineages.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.contig_tree.Contig.get_branch_trace">
+<code class="sig-name descname">get_branch_trace</code><span class="sig-paren">(</span><em class="sig-param">run_idx</em>, <em class="sig-param">cycle_idx</em>, <em class="sig-param">start_contig_idx=0</em><span class="sig-paren">)</span><a class="headerlink" href="#wepy.analysis.contig_tree.Contig.get_branch_trace" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a contig trace for a branch of the contig tree from an end
+point back to a set point (defaults to root of contig tree).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>run_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – </p></li>
+<li><p><strong>cycle_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – An in-contig cycle index</p></li>
+<li><p><strong>start_contig_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a><em>, </em><em>optional</em>) – <dl class="simple">
+<dt>The in-contig cycle index where the “root” of the branch will start</dt><dd><p>(Default value = 0)</p>
+</dd>
+</dl>
+</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>contig_trace</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list of tuples of ints (run_idx, cycle_idx)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.contig_tree.Contig.get_subtree">
+<code class="sig-name descname">get_subtree</code><span class="sig-paren">(</span><em class="sig-param">node</em><span class="sig-paren">)</span><a class="headerlink" href="#wepy.analysis.contig_tree.Contig.get_subtree" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a node defining a subtree root return that subtree.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>node</strong> (<em>node_id</em>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>subtree</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>networkx.DiGraph tree</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.contig_tree.Contig.graph">
+<em class="property">property </em><code class="sig-name descname">graph</code><a class="headerlink" href="#wepy.analysis.contig_tree.Contig.graph" title="Permalink to this definition">¶</a></dt>
+<dd><p>The underlying networkx.DiGraph object.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.contig_tree.Contig.leaves">
+<code class="sig-name descname">leaves</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.analysis.contig_tree.Contig.leaves" title="Permalink to this definition">¶</a></dt>
+<dd><p>All of the leaves of this contig tree.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>leaves</strong> – The leaf node IDs of the tree.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>list of node_id</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.contig_tree.Contig.make_contig">
+<code class="sig-name descname">make_contig</code><span class="sig-paren">(</span><em class="sig-param">contig_trace</em><span class="sig-paren">)</span><a class="headerlink" href="#wepy.analysis.contig_tree.Contig.make_contig" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a Contig object given a contig trace.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>contig_trace</strong> (<em>list of tuples of ints</em><em> (</em><em>run_idx</em><em>, </em><em>cycle_idx</em><em>)</em>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>contig</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Contig object</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.contig_tree.Contig.open">
+<code class="sig-name descname">open</code><span class="sig-paren">(</span><em class="sig-param">mode=None</em><span class="sig-paren">)</span><a class="headerlink" href="#wepy.analysis.contig_tree.Contig.open" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.contig_tree.Contig.progress_records">
+<code class="sig-name descname">progress_records</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/contig_tree.html#Contig.progress_records"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.contig_tree.Contig.progress_records" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the progress records.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>progress_records</strong></p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>list of namedtuple records</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.contig_tree.Contig.roots">
+<code class="sig-name descname">roots</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.analysis.contig_tree.Contig.roots" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns all of the roots in this contig tree (which is technically
+a forest and can have multiple roots).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>root</strong></p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>list of node_id</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.contig_tree.Contig.run_idxs">
+<em class="property">property </em><code class="sig-name descname">run_idxs</code><a class="headerlink" href="#wepy.analysis.contig_tree.Contig.run_idxs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Indices of runs in WepyHDF5 used in this contig tree.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.contig_tree.Contig.run_trace_to_contig_trace">
+<code class="sig-name descname">run_trace_to_contig_trace</code><span class="sig-paren">(</span><em class="sig-param">run_trace</em><span class="sig-paren">)</span><a class="headerlink" href="#wepy.analysis.contig_tree.Contig.run_trace_to_contig_trace" title="Permalink to this definition">¶</a></dt>
+<dd><p>Assumes that the run trace goes along a valid contig.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>run_trace</strong> (<em>list of tuples of ints</em><em> (</em><em>run_idx</em><em>, </em><em>traj_idx</em><em>, </em><em>cycle_idx</em><em>)</em>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>contig_walker_trace</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list of tuples of ints (traj_idx, contig_cycle_idx)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.contig_tree.Contig.sliding_contig_windows">
+<code class="sig-name descname">sliding_contig_windows</code><span class="sig-paren">(</span><em class="sig-param">window_length</em><span class="sig-paren">)</span><a class="headerlink" href="#wepy.analysis.contig_tree.Contig.sliding_contig_windows" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a ‘window_length’ return all the windows over the contig tree
+as contig traces.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>window_length</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>contig_windows</strong> – List of contig traces</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list of list of tuples of ints (run_idx, cycle_idx)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.contig_tree.Contig.sliding_windows">
+<code class="sig-name descname">sliding_windows</code><span class="sig-paren">(</span><em class="sig-param">window_length</em><span class="sig-paren">)</span><a class="headerlink" href="#wepy.analysis.contig_tree.Contig.sliding_windows" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns all the sliding windows over walker trajectories as run
+traces for a given window length.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>window_length</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>windows</strong> – List of run traces.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list of list of tuples of ints (run_idx, traj_idx, cycle_idx)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.contig_tree.Contig.span_contig">
+<code class="sig-name descname">span_contig</code><span class="sig-paren">(</span><em class="sig-param">span_idx</em><span class="sig-paren">)</span><a class="headerlink" href="#wepy.analysis.contig_tree.Contig.span_contig" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates a contig object for the specified spanning contig.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.contig_tree.Contig.span_traces">
+<em class="property">property </em><code class="sig-name descname">span_traces</code><a class="headerlink" href="#wepy.analysis.contig_tree.Contig.span_traces" title="Permalink to this definition">¶</a></dt>
+<dd><p>Dictionary mapping the spand indices to their run traces.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.contig_tree.Contig.spanning_contig_traces">
+<code class="sig-name descname">spanning_contig_traces</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.analysis.contig_tree.Contig.spanning_contig_traces" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a list of all possible spanning contigs given the
+continuations present in this file. Spanning contigs are paths
+through a tree that must start from a root node and end at a
+leaf node.</p>
+<p>This algorithm always returns them in a canonical order (as
+long as the runs are not rearranged after being added). This
+means that the indices here are the indices of the contigs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>spanning_contig_traces</strong> – List of all spanning contigs which are contig traces.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>list of list of tuples of ints (run_idx, cycle_idx)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.contig_tree.Contig.subtrees">
+<code class="sig-name descname">subtrees</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.analysis.contig_tree.Contig.subtrees" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns all of the subtrees (with unique roots) in this contig tree
+(which is technically a forest and can have multiple
+roots).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>subtrees</strong></p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>list of networkx.DiGraph trees</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.contig_tree.Contig.trace_parent_table">
+<code class="sig-name descname">trace_parent_table</code><span class="sig-paren">(</span><em class="sig-param">contig_trace</em>, <em class="sig-param">discontinuities=True</em><span class="sig-paren">)</span><a class="headerlink" href="#wepy.analysis.contig_tree.Contig.trace_parent_table" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a contig trace returns a parent table for that contig.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>contig_trace</strong> (<em>list of tuples</em><em> (</em><em>run_idx</em><em>, </em><em>cycle_idx</em><em>)</em>) – </p></li>
+<li><p><strong>discontinuities</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a>) – Whether or not to include discontinuities in the table.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>parent_table</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list of list of int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.contig_tree.Contig.walker_trace_to_run_trace">
+<code class="sig-name descname">walker_trace_to_run_trace</code><span class="sig-paren">(</span><em class="sig-param">contig_walker_trace</em><span class="sig-paren">)</span><a class="headerlink" href="#wepy.analysis.contig_tree.Contig.walker_trace_to_run_trace" title="Permalink to this definition">¶</a></dt>
+<dd><p>Combine a walker trace to get the equivalent run trace for this contig.</p>
+<p>The contig_walker_trace cycle_idxs must be a subset of the
+frame indices given by the contig_trace.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>contig_walker_trace</strong> (<em>list of tuples of ints</em><em> (</em><em>traj_idx</em><em>, </em><em>cycle_idx</em><em>)</em>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>run_trace</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list of tuples of ints (run_idx, traj_idx, cycle_idx)</p>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#wepy.analysis.contig_tree.Contig.contig_trace_to_run_trace" title="wepy.analysis.contig_tree.Contig.contig_trace_to_run_trace"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Contig.contig_trace_to_run_trace()</span></code></a></dt><dd><p>calls this static method</p>
+</dd>
+</dl>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.contig_tree.Contig.wepy_h5">
+<em class="property">property </em><code class="sig-name descname">wepy_h5</code><a class="headerlink" href="#wepy.analysis.contig_tree.Contig.wepy_h5" title="Permalink to this definition">¶</a></dt>
+<dd><p>The WepyHDF5 source object for which the contig tree is being constructed.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.contig_tree.Contig.progress_records_dataframe">
+<code class="sig-name descname">progress_records_dataframe</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/contig_tree.html#Contig.progress_records_dataframe"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.contig_tree.Contig.progress_records_dataframe" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the progress records as a pandas.DataFrame.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>progress_df</strong></p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>pandas.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.contig_tree.Contig.resampling_panel">
+<code class="sig-name descname">resampling_panel</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/contig_tree.html#Contig.resampling_panel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.contig_tree.Contig.resampling_panel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the full resampling panel for this contig.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>resampling_panel</strong></p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>list of list of list of namedtuple records</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.contig_tree.Contig.parent_table">
+<code class="sig-name descname">parent_table</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/contig_tree.html#Contig.parent_table"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.contig_tree.Contig.parent_table" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the full parent table for this contig.</p>
+<p class="rubric">Notes</p>
+<p>This requires the decision class to be given to the Contig at
+construction.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>If the simulation was run with boundary conditions that result
+in discontinuous warping events and that class is not provided
+at construction time to this class these discontinuities will
+not be taken into account and not added to this parent table.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>parent_table</strong></p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>list of list of int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.contig_tree.Contig.terminal_trace">
+<code class="sig-name descname">terminal_trace</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/contig_tree.html#Contig.terminal_trace"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.contig_tree.Contig.terminal_trace" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a trace of all of the walkers, whose state was not
+propagated forward.</p>
+<p>i.e. all squashed and warped walkers as well as the last walkers in the simulation</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.contig_tree.Contig.squash_trace">
+<code class="sig-name descname">squash_trace</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/contig_tree.html#Contig.squash_trace"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.contig_tree.Contig.squash_trace" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a trace of all of the squashed walkers in the simulation.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.contig_tree.Contig.final_trace">
+<code class="sig-name descname">final_trace</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/contig_tree.html#Contig.final_trace"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.contig_tree.Contig.final_trace" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a trace of all the walkers at the end of the contig.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.contig_tree.Contig.warp_trace">
+<code class="sig-name descname">warp_trace</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/contig_tree.html#Contig.warp_trace"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.contig_tree.Contig.warp_trace" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a trace that gives all of the walkers that were warped.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wepy.analysis.contig_tree.Contig.exit_point_trajectories">
+<code class="sig-name descname">exit_point_trajectories</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/contig_tree.html#Contig.exit_point_trajectories"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.contig_tree.Contig.exit_point_trajectories" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return full run traces for every warping event.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+            
+  <div class="footer-relations">
+    
+      <div class="pull-left">
+        <a class="btn btn-default" href="wepy.analysis.network_layouts.tree.html" title="previous chapter (use the left arrow)">wepy.analysis.network_layouts.tree module</a>
+      </div>
+    
+      <div class="pull-right">
+        <a class="btn btn-default" href="wepy.analysis.distributed.html" title="next chapter (use the right arrow)">wepy.analysis.distributed module</a>
+      </div>
+    </div>
+    <div class="clearer"></div>
+  
+        </div>
+        <div class="clearfix"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="wepy.analysis.distributed.html" title="wepy.analysis.distributed module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="wepy.analysis.network_layouts.tree.html" title="wepy.analysis.network_layouts.tree module"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">wepy  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >wepy</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="wepy.html" >wepy package</a> &#187;</li>
+          <li class="nav-item nav-item-3"><a href="wepy.analysis.html" >wepy.analysis package</a> &#187;</li> 
+      </ul>
+    </div>
+<script type="text/javascript">
+  $("#mobile-toggle a").click(function () {
+    $("#left-column").toggle();
+  });
+</script>
+<script type="text/javascript" src="../_static/js/bootstrap.js"></script>
+  <div class="footer">
+    &copy; Copyright 2018, Samuel D. Lotz. Created using <a href="http://sphinx.pocoo.org/">Sphinx</a>.
+  </div>
+  </body>
+</html>

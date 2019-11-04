@@ -1,0 +1,352 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+  
+  <!-- Licensed under the Apache 2.0 License -->
+  <link rel="stylesheet" type="text/css" href="../_static/fonts/open-sans/stylesheet.css" />
+  <!-- Licensed under the SIL Open Font License -->
+  <link rel="stylesheet" type="text/css" href="../_static/fonts/source-serif-pro/source-serif-pro.css" />
+  <link rel="stylesheet" type="text/css" href="../_static/css/bootstrap.min.css" />
+  <link rel="stylesheet" type="text/css" href="../_static/css/bootstrap-theme.min.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+    <title>wepy.resampling package &#8212; wepy  documentation</title>
+    <link rel="stylesheet" href="../_static/guzzle.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/language_data.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="wepy.resampling.decisions package" href="wepy.resampling.decisions.html" />
+    <link rel="prev" title="wepy.reporter.walker module" href="wepy.reporter.walker.html" />
+  
+   
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="wepy.resampling.decisions.html" title="wepy.resampling.decisions package"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="wepy.reporter.walker.html" title="wepy.reporter.walker module"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">wepy  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >wepy</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="wepy.html" accesskey="U">wepy package</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="container-wrapper">
+
+      <div id="mobile-toggle">
+        <a href="#"><span class="glyphicon glyphicon-align-justify" aria-hidden="true"></span></a>
+      </div>
+  <div id="left-column">
+    <div class="sphinxsidebar">
+<div class="sidebar-block">
+  <div class="sidebar-wrapper">
+    <h2>Contents</h2>
+    <div class="sidebar-localtoc">
+      <ul>
+<li><a class="reference internal" href="#">wepy.resampling package</a><ul>
+<li><a class="reference internal" href="#role-of-resampling-in-we">Role of Resampling in WE</a></li>
+<li><a class="reference internal" href="#outline-of-the-resampler-sub-package">Outline of the resampler sub-package</a><ul>
+<li><a class="reference internal" href="#decisions">Decisions</a></li>
+<li><a class="reference internal" href="#resamplers">Resamplers</a></li>
+<li><a class="reference internal" href="#distances">Distances</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#subpackages">Subpackages</a></li>
+</ul>
+</li>
+</ul>
+
+    </div>
+  </div>
+</div>
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="wepy.reporter.walker.html"
+                        title="previous chapter">wepy.reporter.walker module</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="wepy.resampling.decisions.html"
+                        title="next chapter">wepy.resampling.decisions package</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/api/wepy.resampling.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div class="sidebar-block">
+  <div class="sidebar-wrapper">
+    <div id="main-search">
+      <form class="form-inline" action="../search.html" method="GET" role="form">
+        <div class="input-group">
+          <input name="q" type="text" class="form-control" placeholder="Search...">
+        </div>
+        <input type="hidden" name="check_keywords" value="yes" />
+        <input type="hidden" name="area" value="default" />
+      </form>
+    </div>
+  </div>
+</div>
+      
+    </div>
+  </div>
+        <div id="right-column">
+          
+          <div role="navigation" aria-label="breadcrumbs navigation">
+            <ol class="breadcrumb">
+              <li><a href="../index.html">Docs</a></li>
+              
+                <li><a href="modules.html">wepy</a></li>
+              
+                <li><a href="wepy.html">wepy package</a></li>
+              
+              <li>wepy.resampling package</li>
+            </ol>
+          </div>
+          
+          <div class="document clearer body">
+            
+  <div class="section" id="module-wepy.resampling">
+<span id="wepy-resampling-package"></span><h1>wepy.resampling package<a class="headerlink" href="#module-wepy.resampling" title="Permalink to this headline">¶</a></h1>
+<p>Resampling functionality for weighted ensemble simulations.</p>
+<div class="section" id="role-of-resampling-in-we">
+<h2>Role of Resampling in WE<a class="headerlink" href="#role-of-resampling-in-we" title="Permalink to this headline">¶</a></h2>
+<p>The defining feature of weighted ensemble simulations (as opposed to
+simply running multiple independent simulations in parallel) is the
+addition of a processing step that allows for communication of the
+states of the parallel simulations. In this communication step we have
+the opportunity to make decisions about the relative productivity of
+each of them and attempt to bias the overall behavior of the ensemble
+of simulations, while not explicitly modifying the governing laws
+(e.g. equations of motion, force field, hamiltonian, etc.) of each
+parallel dynamics simulation universe.</p>
+<p>A resampler embodies this communication. At a basic level it takes as
+input a set of samples derived from dynamics, called walkers. In
+addition to the states (the random variable) the walkers also have an
+associated probability or weight. At the beginning of a WE simulation
+each walker in the ensemble has a uniform probability. But the
+probabilities are free to change due to the action of the resampler,
+that is due to a resampling process.</p>
+<p>Resampling characterizes a potentially large number of algorithms that
+may or may not be useful. In the original WE algorithm by Huber and
+Kim (TODO add citation) this resampling is achieved through the
+“cloning” and “merging” of walkers.</p>
+</div>
+<div class="section" id="outline-of-the-resampler-sub-package">
+<h2>Outline of the resampler sub-package<a class="headerlink" href="#outline-of-the-resampler-sub-package" title="Permalink to this headline">¶</a></h2>
+<p>The design of the wepy framework allows for any user to implement
+their own resampler.</p>
+<p>The only strict requirement that the framework is that a resampler
+must have a method “resample” that receives a list of walkers and
+returns some other list of walkers along with optional records the
+resampling process and any changes to the state of the resampler
+itself (while these records aren’t strictly necessary for a simulation
+to run, they are paramount to actually recording data on the
+simulations).</p>
+<p>However, useful resamplers share a lot of shared functionality. This
+sub-package attempts to provide a sub-framework that provides this
+functionality.</p>
+<div class="section" id="decisions">
+<h3>Decisions<a class="headerlink" href="#decisions" title="Permalink to this headline">¶</a></h3>
+<p>First is the definition of the “decisions” and the decision records.</p>
+<p>A resampling process given a set of weighted samples should produce a
+number of other samples where the set of states in the output is a
+subset of those in the input.</p>
+<p>For example a simple form of resampling is subsampling, where we
+simply drop some of the samples from the collection. Similar to how
+outliers are removed from a dataset.</p>
+<p>In the subsampling mechanism we might say that there are only two
+decisions a resampler can make: DROP and KEEP.</p>
+<p>These could then be embodied in a Decision class
+(e.g. SubsamplingDecision) which enumerates the possibilities and
+provides methods for performing the operations on a collection of
+walkers given a set of these decisions.</p>
+<p>Such a resampler wouldn’t be very useful for WE since the simulation
+would simply fade away as each walker was eventually eliminated.</p>
+<p>A more complex (and useful) example would be to add a possible
+decision to split up a walker into two. In this there are now two
+samples of the same random variable (state) but the total probability
+of that state is the same since the weights are normalized and divided
+in half for each.</p>
+<p>These decisions might be called: DROP, KEEP, SPLIT. Now we can replace
+dropped samples so that the number of samples is kept the same.</p>
+<p>We could also allow the splitting of a walker into multiple walkers
+instead of just two, in this case we replace SPLIT with CLONE. The
+CLONE record now needs some additional information to parametrize it’s
+action. A record containing the decision value and the decision
+parameters is called a ‘decision record’. A CLONE decision record would
+look like for example:</p>
+<p>(decision=CLONE, n_children=3)</p>
+<p>If we add data about which walker it applies to on which cycle and
+which step of resampling it would be a ‘resampling record’.</p>
+<p>One issue with the use of a pure subsampling scheme is that we must
+renormalize the weights of the walkers when any are dropped. In WE the
+sample distribution is preserved at each step by allowing the
+‘merging’ of walkers instead of just removing them. Merging involves
+choosing a walker/sample to remove and adding that weight to another
+walker, before discarding the sample value.</p>
+<p>This cloning-merging strategy is the primary Decision class used in
+wepy and the choice of most resamplers. The full listing of decisions
+is:</p>
+<ul class="simple">
+<li><p>NOTHING</p></li>
+<li><p>CLONE</p></li>
+<li><p>SQUASH</p></li>
+<li><p>KEEP_MERGE</p></li>
+</ul>
+<p>Where NOTHING and CLONE are as above, SQUASH is the walker that will
+be discarded and have it’s weight donated, and KEEP_MERGE is a walker
+that will be receiving weight from one or more squashed walkers.</p>
+</div>
+<div class="section" id="resamplers">
+<h3>Resamplers<a class="headerlink" href="#resamplers" title="Permalink to this headline">¶</a></h3>
+<p>Abstractly a resampler in the context of wepy is an algorithm that
+given a sample of walkers produces instructions on how to resample
+them. The instruction set is defined and implemented by a decision
+object.</p>
+<p>Concretely (and state above), the Resampler class is parametrized by a
+Decision class and has a method ‘resample’ which receives a set of
+walkers and returns a resampled collection of walkers.</p>
+<p>Resamplers in the sub-framework also produce resampling records in
+roughly the format described above so that storage formats can record
+the lineages (family trees) of walkers.</p>
+<p>Changes in the state of the resampler can also be recorded for
+profiling and analysis purposes if it is desired, but is completely
+specific to the resampling algorithm.</p>
+<p>It is important to note that the choice of resampler is entirely
+independent of:</p>
+<ul class="simple">
+<li><p>the type of sampling used e.g. molecular dynamics, monte carlo</p></li>
+<li><p>the system being simulated e.g. proteins, polymers</p></li>
+</ul>
+<p>The type of sampling being used is encapsulated in the Runner class.</p>
+<p>For the second point we would like our resamplers to be as resuable as
+possible between different systems.</p>
+<p>For example, wepy has implementations of both the WExplore and REVO
+resampling algorithms which are broadly applicable and interchangable.</p>
+<p>For instance if you want to simulate ligand unbinding for a particular
+protein-ligand system you can choose either WExplore or REVO. This
+choice can be made after you have already determined a metric for
+discerning novelty in you protein-ligand system, as long as the metric
+is encapsulated in a Distance class.</p>
+</div>
+<div class="section" id="distances">
+<h3>Distances<a class="headerlink" href="#distances" title="Permalink to this headline">¶</a></h3>
+<p>A distance metric (in the context of wepy) is simply a function that
+returns a single value when given the states of two walkers.</p>
+<p>For such a function to be considered a proper distance metric extra
+criterion are required but wepy does not enforce these in
+implementation.</p>
+<p>A Distance class is simply a class with a single method ‘distance’. To
+allow for certain basic performance requirements, it is also required
+that the ‘image’ and ‘image_distance’ methods be overriden. This
+allows for the transformation (which is potentially compute intensive)
+of a walker state to a reduced form called an image. The
+‘image_distance’ method should produce the same results as the
+‘distance’ method for the same walker states.</p>
+</div>
+</div>
+<div class="section" id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="wepy.resampling.decisions.html">wepy.resampling.decisions package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="wepy.resampling.decisions.html#submodules">Submodules</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="wepy.resampling.decisions.clone_merge.html">wepy.resampling.decisions.clone_merge module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="wepy.resampling.decisions.decision.html">wepy.resampling.decisions.decision module</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="wepy.resampling.distances.html">wepy.resampling.distances package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="wepy.resampling.distances.html#submodules">Submodules</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="wepy.resampling.distances.distance.html">wepy.resampling.distances.distance module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="wepy.resampling.distances.randomwalk.html">wepy.resampling.distances.randomwalk module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="wepy.resampling.distances.receptor.html">wepy.resampling.distances.receptor module</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="wepy.resampling.resamplers.html">wepy.resampling.resamplers package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="wepy.resampling.resamplers.html#submodules">Submodules</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="wepy.resampling.resamplers.clone_merge.html">wepy.resampling.resamplers.clone_merge module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="wepy.resampling.resamplers.resampler.html">wepy.resampling.resamplers.resampler module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="wepy.resampling.resamplers.revo.html">wepy.resampling.resamplers.revo module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="wepy.resampling.resamplers.wexplore.html">wepy.resampling.resamplers.wexplore module</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+</div>
+
+
+          </div>
+            
+  <div class="footer-relations">
+    
+      <div class="pull-left">
+        <a class="btn btn-default" href="wepy.reporter.walker.html" title="previous chapter (use the left arrow)">wepy.reporter.walker module</a>
+      </div>
+    
+      <div class="pull-right">
+        <a class="btn btn-default" href="wepy.resampling.decisions.html" title="next chapter (use the right arrow)">wepy.resampling.decisions package</a>
+      </div>
+    </div>
+    <div class="clearer"></div>
+  
+        </div>
+        <div class="clearfix"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="wepy.resampling.decisions.html" title="wepy.resampling.decisions package"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="wepy.reporter.walker.html" title="wepy.reporter.walker module"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">wepy  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >wepy</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="wepy.html" >wepy package</a> &#187;</li> 
+      </ul>
+    </div>
+<script type="text/javascript">
+  $("#mobile-toggle a").click(function () {
+    $("#left-column").toggle();
+  });
+</script>
+<script type="text/javascript" src="../_static/js/bootstrap.js"></script>
+  <div class="footer">
+    &copy; Copyright 2018, Samuel D. Lotz. Created using <a href="http://sphinx.pocoo.org/">Sphinx</a>.
+  </div>
+  </body>
+</html>

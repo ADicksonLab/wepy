@@ -1,0 +1,439 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+  
+  <!-- Licensed under the Apache 2.0 License -->
+  <link rel="stylesheet" type="text/css" href="../../../_static/fonts/open-sans/stylesheet.css" />
+  <!-- Licensed under the SIL Open Font License -->
+  <link rel="stylesheet" type="text/css" href="../../../_static/fonts/source-serif-pro/source-serif-pro.css" />
+  <link rel="stylesheet" type="text/css" href="../../../_static/css/bootstrap.min.css" />
+  <link rel="stylesheet" type="text/css" href="../../../_static/css/bootstrap-theme.min.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+    <title>wepy.util.json_top &#8212; wepy  documentation</title>
+    <link rel="stylesheet" href="../../../_static/guzzle.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../../_static/language_data.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+  
+   
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">wepy  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="container-wrapper">
+
+      <div id="mobile-toggle">
+        <a href="#"><span class="glyphicon glyphicon-align-justify" aria-hidden="true"></span></a>
+      </div>
+  <div id="left-column">
+    <div class="sphinxsidebar">
+<div class="sidebar-block">
+  <div class="sidebar-wrapper">
+    <div id="main-search">
+      <form class="form-inline" action="../../../search.html" method="GET" role="form">
+        <div class="input-group">
+          <input name="q" type="text" class="form-control" placeholder="Search...">
+        </div>
+        <input type="hidden" name="check_keywords" value="yes" />
+        <input type="hidden" name="area" value="default" />
+      </form>
+    </div>
+  </div>
+</div>
+      
+    </div>
+  </div>
+        <div id="right-column">
+          
+          <div role="navigation" aria-label="breadcrumbs navigation">
+            <ol class="breadcrumb">
+              <li><a href="../../../index.html">Docs</a></li>
+              
+                <li><a href="../../index.html">Module code</a></li>
+              
+              <li>wepy.util.json_top</li>
+            </ol>
+          </div>
+          
+          <div class="document clearer body">
+            
+  <h1>Source code for wepy.util.json_top</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">json</span>
+
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+
+<span class="n">CHAIN_KEY</span> <span class="o">=</span> <span class="s1">&#39;index&#39;</span>
+<span class="n">RESIDUE_KEY</span> <span class="o">=</span> <span class="s1">&#39;index&#39;</span>
+<span class="n">ATOM_KEY</span> <span class="o">=</span> <span class="s1">&#39;index&#39;</span>
+<span class="n">CHAIN_ATTR_KEYS</span> <span class="o">=</span> <span class="p">(</span><span class="n">CHAIN_KEY</span><span class="p">,)</span>
+<span class="n">RESIDUE_ATTR_KEYS</span> <span class="o">=</span> <span class="p">(</span><span class="n">RESIDUE_KEY</span><span class="p">,</span> <span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="s1">&#39;resSeq&#39;</span><span class="p">,</span> <span class="s1">&#39;segmentID&#39;</span><span class="p">)</span>
+<span class="n">ATOM_ATTR_KEYS</span> <span class="o">=</span> <span class="p">(</span><span class="n">ATOM_KEY</span><span class="p">,</span> <span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="s1">&#39;element&#39;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="json_top_chain_fields"><a class="viewcode-back" href="../../../api/wepy.util.json_top.html#wepy.util.json_top.json_top_chain_fields">[docs]</a><span class="k">def</span> <span class="nf">json_top_chain_fields</span><span class="p">(</span><span class="n">json_topology</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Creates a fields dictionary for all of the chains in a topology.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+
+<span class="sd">    json_topology : str</span>
+<span class="sd">        JSON format topology</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+
+<span class="sd">    chain_cols : dict of str: list</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+
+    <span class="n">top</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">json_topology</span><span class="p">)</span>
+
+    <span class="n">chain_cols</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span> <span class="p">:</span> <span class="p">[]</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">CHAIN_ATTR_KEYS</span><span class="p">}</span>
+
+    <span class="k">for</span> <span class="n">chain</span> <span class="ow">in</span> <span class="n">top</span><span class="p">[</span><span class="s1">&#39;chains&#39;</span><span class="p">]:</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">CHAIN_ATTR_KEYS</span><span class="p">:</span>
+            <span class="n">chain_cols</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">chain</span><span class="p">[</span><span class="n">key</span><span class="p">])</span>
+
+    <span class="k">return</span> <span class="n">chain_cols</span></div>
+
+<div class="viewcode-block" id="json_top_chain_df"><a class="viewcode-back" href="../../../api/wepy.util.json_top.html#wepy.util.json_top.json_top_chain_df">[docs]</a><span class="k">def</span> <span class="nf">json_top_chain_df</span><span class="p">(</span><span class="n">json_topology</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Make a pandas dataframe for the chains in the JSON topology.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+
+<span class="sd">    json_topology : str</span>
+<span class="sd">        JSON format topology</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+
+<span class="sd">    chain_df : pandas.DataFrame</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">json_top_chain_fields</span><span class="p">(</span><span class="n">json_topology</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="json_top_residue_fields"><a class="viewcode-back" href="../../../api/wepy.util.json_top.html#wepy.util.json_top.json_top_residue_fields">[docs]</a><span class="k">def</span> <span class="nf">json_top_residue_fields</span><span class="p">(</span><span class="n">json_topology</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Creates a fields dictionary for all of the residues in a topology.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+
+<span class="sd">    json_topology : str</span>
+<span class="sd">        JSON format topology</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+
+<span class="sd">    residue_cols : dict of str: list</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+
+    <span class="n">top</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">json_topology</span><span class="p">)</span>
+
+    <span class="n">residue_cols</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span> <span class="p">:</span> <span class="p">[]</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">RESIDUE_ATTR_KEYS</span><span class="p">}</span>
+    <span class="n">residue_cols</span><span class="p">[</span><span class="s1">&#39;chain_key&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">for</span> <span class="n">chain</span> <span class="ow">in</span> <span class="n">top</span><span class="p">[</span><span class="s1">&#39;chains&#39;</span><span class="p">]:</span>
+        <span class="k">for</span> <span class="n">residue</span> <span class="ow">in</span> <span class="n">chain</span><span class="p">[</span><span class="s1">&#39;residues&#39;</span><span class="p">]:</span>
+            <span class="n">residue_cols</span><span class="p">[</span><span class="s1">&#39;chain_key&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">chain</span><span class="p">[</span><span class="n">CHAIN_KEY</span><span class="p">])</span>
+            <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">RESIDUE_ATTR_KEYS</span><span class="p">:</span>
+                <span class="n">residue_cols</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">residue</span><span class="p">[</span><span class="n">key</span><span class="p">])</span>
+
+    <span class="k">return</span> <span class="n">residue_cols</span></div>
+
+<div class="viewcode-block" id="json_top_residue_df"><a class="viewcode-back" href="../../../api/wepy.util.json_top.html#wepy.util.json_top.json_top_residue_df">[docs]</a><span class="k">def</span> <span class="nf">json_top_residue_df</span><span class="p">(</span><span class="n">json_topology</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Make a pandas dataframe for the residues in the JSON topology.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+
+<span class="sd">    json_topology : str</span>
+<span class="sd">        JSON format topology</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+
+<span class="sd">    residue_df : pandas.DataFrame</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">json_top_residue_fields</span><span class="p">(</span><span class="n">json_topology</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="json_top_atom_fields"><a class="viewcode-back" href="../../../api/wepy.util.json_top.html#wepy.util.json_top.json_top_atom_fields">[docs]</a><span class="k">def</span> <span class="nf">json_top_atom_fields</span><span class="p">(</span><span class="n">json_topology</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Creates a fields dictionary for all of the atoms in a topology.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+
+<span class="sd">    json_topology : str</span>
+<span class="sd">        JSON format topology</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+
+<span class="sd">    atom_cols : dict of str: list</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">top</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">json_topology</span><span class="p">)</span>
+
+    <span class="n">atom_cols</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span> <span class="p">:</span> <span class="p">[]</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">ATOM_ATTR_KEYS</span><span class="p">}</span>
+    <span class="n">atom_cols</span><span class="p">[</span><span class="s1">&#39;chain_key&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">atom_cols</span><span class="p">[</span><span class="s1">&#39;residue_key&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">for</span> <span class="n">chain</span> <span class="ow">in</span> <span class="n">top</span><span class="p">[</span><span class="s1">&#39;chains&#39;</span><span class="p">]:</span>
+        <span class="k">for</span> <span class="n">residue</span> <span class="ow">in</span> <span class="n">chain</span><span class="p">[</span><span class="s1">&#39;residues&#39;</span><span class="p">]:</span>
+            <span class="k">for</span> <span class="n">atom</span> <span class="ow">in</span> <span class="n">residue</span><span class="p">[</span><span class="s1">&#39;atoms&#39;</span><span class="p">]:</span>
+                <span class="n">atom_cols</span><span class="p">[</span><span class="s1">&#39;chain_key&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">chain</span><span class="p">[</span><span class="n">CHAIN_KEY</span><span class="p">])</span>
+                <span class="n">atom_cols</span><span class="p">[</span><span class="s1">&#39;residue_key&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">residue</span><span class="p">[</span><span class="n">RESIDUE_KEY</span><span class="p">])</span>
+                <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">ATOM_ATTR_KEYS</span><span class="p">:</span>
+                    <span class="n">atom_cols</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">atom</span><span class="p">[</span><span class="n">key</span><span class="p">])</span>
+
+    <span class="k">return</span> <span class="n">atom_cols</span></div>
+
+<div class="viewcode-block" id="json_top_atom_df"><a class="viewcode-back" href="../../../api/wepy.util.json_top.html#wepy.util.json_top.json_top_atom_df">[docs]</a><span class="k">def</span> <span class="nf">json_top_atom_df</span><span class="p">(</span><span class="n">json_topology</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Make a pandas dataframe for the atoms in the JSON topology.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+
+<span class="sd">    json_topology : str</span>
+<span class="sd">        JSON format topology</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+
+<span class="sd">    atoms_df : pandas.DataFrame</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">json_top_atom_fields</span><span class="p">(</span><span class="n">json_topology</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="json_top_atom_count"><a class="viewcode-back" href="../../../api/wepy.util.json_top.html#wepy.util.json_top.json_top_atom_count">[docs]</a><span class="k">def</span> <span class="nf">json_top_atom_count</span><span class="p">(</span><span class="n">json_str</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Count the number of atoms in the JSON topology used by wepy HDF5.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    json_str : str</span>
+<span class="sd">        A string of valid JSON in the format of JSON used in WepyHDF5</span>
+<span class="sd">        and mdtraj HDF5 format.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    n_atoms : int</span>
+<span class="sd">        Number of atoms in the topology.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">top_d</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">json_str</span><span class="p">)</span>
+    <span class="n">atom_count</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">atom_count</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">chain</span> <span class="ow">in</span> <span class="n">top_d</span><span class="p">[</span><span class="s1">&#39;chains&#39;</span><span class="p">]:</span>
+        <span class="k">for</span> <span class="n">residue</span> <span class="ow">in</span> <span class="n">chain</span><span class="p">[</span><span class="s1">&#39;residues&#39;</span><span class="p">]:</span>
+            <span class="n">atom_count</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="n">residue</span><span class="p">[</span><span class="s1">&#39;atoms&#39;</span><span class="p">])</span>
+
+    <span class="k">return</span> <span class="n">atom_count</span></div>
+
+<div class="viewcode-block" id="json_top_subset"><a class="viewcode-back" href="../../../api/wepy.util.json_top.html#wepy.util.json_top.json_top_subset">[docs]</a><span class="k">def</span> <span class="nf">json_top_subset</span><span class="p">(</span><span class="n">json_str</span><span class="p">,</span> <span class="n">atom_idxs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Given a JSON topology and atom indices from that topology returns</span>
+<span class="sd">    another JSON topology which is a subset of the first, preserving</span>
+<span class="sd">    the topology between remaining atoms. The atoms will be ordered in</span>
+<span class="sd">    the order in which the indices are given.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+
+<span class="sd">    json_str : str</span>
+<span class="sd">        A string of valid JSON in the format of JSON used in WepyHDF5</span>
+<span class="sd">        and mdtraj HDF5 format.</span>
+
+<span class="sd">    atom_idxs : list of int</span>
+<span class="sd">        The atoms for which you want to make a subset of.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+
+<span class="sd">    subset_json_str : str</span>
+<span class="sd">        JSON string of the subset of atoms. Ordering preserved.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># cast so we can use the list index method</span>
+    <span class="n">atom_idxs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">atom_idxs</span><span class="p">)</span>
+
+    <span class="c1"># do checks on the atom idxs</span>
+
+    <span class="c1"># no duplicates</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">atom_idxs</span><span class="p">))</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">atom_idxs</span><span class="p">),</span> <span class="s2">&quot;duplicate atom indices&quot;</span>
+
+    <span class="n">top</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">json_str</span><span class="p">)</span>
+
+    <span class="c1"># the dictionaries for each thing indexed by their old index</span>
+    <span class="n">atom_data_ds</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">residue_data_ds</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="c1"># mapping of old atom indices to the residue data they belong to</span>
+    <span class="n">atom_res_idxs</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">res_chain_idxs</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="c1"># go through and collect data on the atoms and convert indices to</span>
+    <span class="c1"># the new ones</span>
+    <span class="k">for</span> <span class="n">chain</span> <span class="ow">in</span> <span class="n">top</span><span class="p">[</span><span class="s1">&#39;chains&#39;</span><span class="p">]:</span>
+
+        <span class="k">for</span> <span class="n">residue</span> <span class="ow">in</span> <span class="n">chain</span><span class="p">[</span><span class="s1">&#39;residues&#39;</span><span class="p">]:</span>
+            <span class="n">res_chain_idxs</span><span class="p">[</span><span class="n">residue</span><span class="p">[</span><span class="s1">&#39;index&#39;</span><span class="p">]]</span> <span class="o">=</span> <span class="n">chain</span><span class="p">[</span><span class="s1">&#39;index&#39;</span><span class="p">]</span>
+
+            <span class="c1"># create the data dict for this residue</span>
+            <span class="n">residue_data_ds</span><span class="p">[</span><span class="n">residue</span><span class="p">[</span><span class="s1">&#39;index&#39;</span><span class="p">]]</span> <span class="o">=</span> <span class="n">residue</span>
+
+
+
+            <span class="k">for</span> <span class="n">atom</span> <span class="ow">in</span> <span class="n">residue</span><span class="p">[</span><span class="s1">&#39;atoms&#39;</span><span class="p">]:</span>
+                <span class="n">atom_res_idxs</span><span class="p">[</span><span class="n">atom</span><span class="p">[</span><span class="s1">&#39;index&#39;</span><span class="p">]]</span> <span class="o">=</span> <span class="n">residue</span><span class="p">[</span><span class="s1">&#39;index&#39;</span><span class="p">]</span>
+
+                <span class="c1"># if the current atom&#39;s index is in the selection</span>
+                <span class="k">if</span> <span class="n">atom</span><span class="p">[</span><span class="s1">&#39;index&#39;</span><span class="p">]</span> <span class="ow">in</span> <span class="n">atom_idxs</span><span class="p">:</span>
+
+                    <span class="c1"># we add this to the mapping by getting the index</span>
+                    <span class="c1"># of the atom in subset</span>
+                    <span class="n">new_idx</span> <span class="o">=</span> <span class="n">atom_idxs</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">atom</span><span class="p">[</span><span class="s1">&#39;index&#39;</span><span class="p">])</span>
+
+                    <span class="c1"># save the atom attributes</span>
+                    <span class="n">atom_data_ds</span><span class="p">[</span><span class="n">atom</span><span class="p">[</span><span class="s1">&#39;index&#39;</span><span class="p">]]</span> <span class="o">=</span> <span class="n">atom</span>
+
+    <span class="c1"># initialize the data structure for the topology subset</span>
+    <span class="n">top_subset</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;chains&#39;</span> <span class="p">:</span> <span class="p">[],</span>
+                  <span class="s1">&#39;bonds&#39;</span> <span class="p">:</span> <span class="p">[]}</span>
+
+    <span class="n">residue_idx_map</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">chain_idx_map</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="n">old_to_new_atoms</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="c1"># initialize the new indexing of the chains and residues</span>
+    <span class="n">new_res_idx_counter</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">new_chain_idx_counter</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="c1"># now in the new order go through and create the topology</span>
+    <span class="k">for</span> <span class="n">new_atom_idx</span><span class="p">,</span> <span class="n">old_atom_idx</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">atom_idxs</span><span class="p">):</span>
+
+        <span class="n">old_to_new_atoms</span><span class="p">[</span><span class="n">old_atom_idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_atom_idx</span>
+
+        <span class="n">atom_data</span> <span class="o">=</span> <span class="n">atom_data_ds</span><span class="p">[</span><span class="n">old_atom_idx</span><span class="p">]</span>
+
+        <span class="c1"># get the old residue index</span>
+        <span class="n">old_res_idx</span> <span class="o">=</span> <span class="n">atom_res_idxs</span><span class="p">[</span><span class="n">old_atom_idx</span><span class="p">]</span>
+
+        <span class="c1"># since the datastrucutre is hierarchical starting with the</span>
+        <span class="c1"># chains and residues we work our way back up craeting these</span>
+        <span class="c1"># if neceessary for this atom, once this is taken care of we</span>
+        <span class="c1"># will add the atom to the data structure</span>
+        <span class="k">if</span> <span class="n">old_res_idx</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">residue_idx_map</span><span class="p">:</span>
+            <span class="n">residue_idx_map</span><span class="p">[</span><span class="n">old_res_idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_res_idx_counter</span>
+            <span class="n">new_res_idx_counter</span> <span class="o">+=</span> <span class="mi">1</span>
+
+            <span class="c1"># do the same but for the chain</span>
+            <span class="n">old_chain_idx</span> <span class="o">=</span> <span class="n">res_chain_idxs</span><span class="p">[</span><span class="n">old_res_idx</span><span class="p">]</span>
+
+            <span class="c1"># make it if necessary</span>
+            <span class="k">if</span> <span class="n">old_chain_idx</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">chain_idx_map</span><span class="p">:</span>
+                <span class="n">chain_idx_map</span><span class="p">[</span><span class="n">old_chain_idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_chain_idx_counter</span>
+                <span class="n">new_chain_idx_counter</span> <span class="o">+=</span> <span class="mi">1</span>
+
+                <span class="c1"># and add the chain to the topology</span>
+                <span class="n">new_chain_idx</span> <span class="o">=</span> <span class="n">chain_idx_map</span><span class="p">[</span><span class="n">old_chain_idx</span><span class="p">]</span>
+                <span class="n">top_subset</span><span class="p">[</span><span class="s1">&#39;chains&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s1">&#39;index&#39;</span> <span class="p">:</span> <span class="n">new_chain_idx</span><span class="p">,</span>
+                                             <span class="s1">&#39;residues&#39;</span> <span class="p">:</span> <span class="p">[]})</span>
+
+            <span class="c1"># add the new index to the dats dict for the residue</span>
+            <span class="n">res_data</span> <span class="o">=</span> <span class="n">residue_data_ds</span><span class="p">[</span><span class="n">old_res_idx</span><span class="p">]</span>
+            <span class="n">res_data</span><span class="p">[</span><span class="s1">&#39;index&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">residue_idx_map</span><span class="p">[</span><span class="n">old_res_idx</span><span class="p">]</span>
+            <span class="c1"># clear the atoms</span>
+            <span class="n">res_data</span><span class="p">[</span><span class="s1">&#39;atoms&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+
+            <span class="c1"># add the reside to the chain idx</span>
+            <span class="n">new_chain_idx</span> <span class="o">=</span> <span class="n">chain_idx_map</span><span class="p">[</span><span class="n">old_chain_idx</span><span class="p">]</span>
+            <span class="n">top_subset</span><span class="p">[</span><span class="s1">&#39;chains&#39;</span><span class="p">][</span><span class="n">new_chain_idx</span><span class="p">][</span><span class="s1">&#39;residues&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">res_data</span><span class="p">)</span>
+
+        <span class="c1"># now that (if) we have made the necessary chains and residues</span>
+        <span class="c1"># for this atom we replace the atom index with the new index</span>
+        <span class="c1"># and add it to the residue</span>
+        <span class="n">new_res_idx</span> <span class="o">=</span> <span class="n">residue_idx_map</span><span class="p">[</span><span class="n">old_res_idx</span><span class="p">]</span>
+        <span class="n">new_chain_idx</span> <span class="o">=</span> <span class="n">chain_idx_map</span><span class="p">[</span><span class="n">res_chain_idxs</span><span class="p">[</span><span class="n">old_res_idx</span><span class="p">]]</span>
+
+        <span class="n">atom_data</span><span class="p">[</span><span class="s1">&#39;index&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_atom_idx</span>
+
+        <span class="n">top_subset</span><span class="p">[</span><span class="s1">&#39;chains&#39;</span><span class="p">][</span><span class="n">new_chain_idx</span><span class="p">][</span><span class="s1">&#39;residues&#39;</span><span class="p">][</span><span class="n">new_res_idx</span><span class="p">][</span><span class="s1">&#39;atoms&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">atom_data</span><span class="p">)</span>
+
+    <span class="c1"># then translate the atom indices in the bonds</span>
+    <span class="n">new_bonds</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">bond_atom_idxs</span> <span class="ow">in</span> <span class="n">top</span><span class="p">[</span><span class="s1">&#39;bonds&#39;</span><span class="p">]:</span>
+
+        <span class="k">if</span> <span class="nb">all</span><span class="p">([</span><span class="kc">True</span> <span class="k">if</span> <span class="n">a_idx</span> <span class="ow">in</span> <span class="n">old_to_new_atoms</span> <span class="k">else</span> <span class="kc">False</span>
+                <span class="k">for</span> <span class="n">a_idx</span> <span class="ow">in</span> <span class="n">bond_atom_idxs</span><span class="p">]):</span>
+            <span class="n">new_bond_atom_idxs</span> <span class="o">=</span> <span class="p">[</span><span class="n">old_to_new_atoms</span><span class="p">[</span><span class="n">a_idx</span><span class="p">]</span> <span class="k">for</span> <span class="n">a_idx</span> <span class="ow">in</span> <span class="n">bond_atom_idxs</span>
+                                  <span class="k">if</span> <span class="n">a_idx</span> <span class="ow">in</span> <span class="n">old_to_new_atoms</span><span class="p">]</span>
+            <span class="n">new_bonds</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">new_bond_atom_idxs</span><span class="p">)</span>
+
+    <span class="n">top_subset</span><span class="p">[</span><span class="s1">&#39;bonds&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_bonds</span>
+
+
+    <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">top_subset</span><span class="p">)</span></div>
+</pre></div>
+
+          </div>
+            
+        </div>
+        <div class="clearfix"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">wepy  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+<script type="text/javascript">
+  $("#mobile-toggle a").click(function () {
+    $("#left-column").toggle();
+  });
+</script>
+<script type="text/javascript" src="../../../_static/js/bootstrap.js"></script>
+  <div class="footer">
+    &copy; Copyright 2018, Samuel D. Lotz. Created using <a href="http://sphinx.pocoo.org/">Sphinx</a>.
+  </div>
+  </body>
+</html>

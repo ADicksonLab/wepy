@@ -1,0 +1,296 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+  
+  <!-- Licensed under the Apache 2.0 License -->
+  <link rel="stylesheet" type="text/css" href="../../../../_static/fonts/open-sans/stylesheet.css" />
+  <!-- Licensed under the SIL Open Font License -->
+  <link rel="stylesheet" type="text/css" href="../../../../_static/fonts/source-serif-pro/source-serif-pro.css" />
+  <link rel="stylesheet" type="text/css" href="../../../../_static/css/bootstrap.min.css" />
+  <link rel="stylesheet" type="text/css" href="../../../../_static/css/bootstrap-theme.min.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+    <title>wepy.resampling.decisions.clone_merge &#8212; wepy  documentation</title>
+    <link rel="stylesheet" href="../../../../_static/guzzle.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../../../_static/language_data.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+  
+   
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">wepy  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="container-wrapper">
+
+      <div id="mobile-toggle">
+        <a href="#"><span class="glyphicon glyphicon-align-justify" aria-hidden="true"></span></a>
+      </div>
+  <div id="left-column">
+    <div class="sphinxsidebar">
+<div class="sidebar-block">
+  <div class="sidebar-wrapper">
+    <div id="main-search">
+      <form class="form-inline" action="../../../../search.html" method="GET" role="form">
+        <div class="input-group">
+          <input name="q" type="text" class="form-control" placeholder="Search...">
+        </div>
+        <input type="hidden" name="check_keywords" value="yes" />
+        <input type="hidden" name="area" value="default" />
+      </form>
+    </div>
+  </div>
+</div>
+      
+    </div>
+  </div>
+        <div id="right-column">
+          
+          <div role="navigation" aria-label="breadcrumbs navigation">
+            <ol class="breadcrumb">
+              <li><a href="../../../../index.html">Docs</a></li>
+              
+                <li><a href="../../../index.html">Module code</a></li>
+              
+              <li>wepy.resampling.decisions.clone_merge</li>
+            </ol>
+          </div>
+          
+          <div class="document clearer body">
+            
+  <h1>Source code for wepy.resampling.decisions.clone_merge</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">namedtuple</span><span class="p">,</span> <span class="n">defaultdict</span>
+<span class="kn">from</span> <span class="nn">enum</span> <span class="k">import</span> <span class="n">Enum</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">wepy.resampling.decisions.decision</span> <span class="k">import</span> <span class="n">Decision</span>
+
+<span class="kn">from</span> <span class="nn">wepy.walker</span> <span class="k">import</span> <span class="n">split</span><span class="p">,</span> <span class="n">keep_merge</span>
+
+<span class="c1"># the possible types of decisions that can be made enumerated for</span>
+<span class="c1"># storage, these each correspond to specific instruction type</span>
+<div class="viewcode-block" id="CloneMergeDecisionEnum"><a class="viewcode-back" href="../../../../api/wepy.resampling.decisions.clone_merge.html#wepy.resampling.decisions.clone_merge.CloneMergeDecisionEnum">[docs]</a><span class="k">class</span> <span class="nc">CloneMergeDecisionEnum</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Enum definition for cloning and merging decision values.&quot;</span>
+
+<span class="sd">    - NOTHING : 1</span>
+<span class="sd">    - CLONE : 2</span>
+<span class="sd">    - SQUASH : 3</span>
+<span class="sd">    - KEEP_MERGE : 4</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">NOTHING</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="sd">&quot;&quot;&quot;Do nothing with the walker sample. &quot;&quot;&quot;</span>
+
+    <span class="n">CLONE</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="sd">&quot;&quot;&quot;Clone the walker into multiple children equally splitting the weight.&quot;&quot;&quot;</span>
+
+    <span class="n">SQUASH</span> <span class="o">=</span> <span class="mi">3</span>
+    <span class="sd">&quot;&quot;&quot;Destroy the walker sample value (state) and donate the sample</span>
+<span class="sd">    weight to another KEEP_MERGE walker sample.&quot;&quot;&quot;</span>
+
+    <span class="n">KEEP_MERGE</span> <span class="o">=</span> <span class="mi">4</span>
+    <span class="sd">&quot;&quot;&quot;Do nothing with the sample value (state) but squashed walkers will</span>
+<span class="sd">    donate their weight to it.&quot;&quot;&quot;</span></div>
+
+
+
+<div class="viewcode-block" id="MultiCloneMergeDecision"><a class="viewcode-back" href="../../../../api/wepy.resampling.decisions.clone_merge.html#wepy.resampling.decisions.clone_merge.MultiCloneMergeDecision">[docs]</a><span class="k">class</span> <span class="nc">MultiCloneMergeDecision</span><span class="p">(</span><span class="n">Decision</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Decision encoding cloning and merging decisions for weighted ensemble.</span>
+
+<span class="sd">    The decision records have in addition to the &#39;decision_id&#39; a field</span>
+<span class="sd">    called &#39;target_idxs&#39;. This field has differing interpretations</span>
+<span class="sd">    depending on the &#39;decision_id&#39;.</span>
+
+<span class="sd">    For NOTHING and KEEP_MERGE it indicates the walker index to assign</span>
+<span class="sd">    this sample to after resampling. In this sense the walker is</span>
+<span class="sd">    merely a vessel for the propagation of the state and acts as a</span>
+<span class="sd">    slot.</span>
+
+<span class="sd">    For SQUASH it indicates the walker that it&#39;s weight will be given</span>
+<span class="sd">    to, which must have a KEEP_MERGE record for it.</span>
+
+<span class="sd">    For CLONE it indicates the walker indices that clones of this one</span>
+<span class="sd">    will be placed in. This field is variable length and the length</span>
+<span class="sd">    corresponds to the number of clones.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+
+    <span class="n">ENUM</span> <span class="o">=</span> <span class="n">CloneMergeDecisionEnum</span>
+
+    <span class="n">DEFAULT_DECISION</span> <span class="o">=</span> <span class="n">ENUM</span><span class="o">.</span><span class="n">NOTHING</span>
+
+    <span class="n">FIELDS</span> <span class="o">=</span> <span class="n">Decision</span><span class="o">.</span><span class="n">FIELDS</span> <span class="o">+</span> <span class="p">(</span><span class="s1">&#39;target_idxs&#39;</span><span class="p">,)</span>
+    <span class="n">SHAPES</span> <span class="o">=</span> <span class="n">Decision</span><span class="o">.</span><span class="n">SHAPES</span> <span class="o">+</span> <span class="p">(</span><span class="bp">Ellipsis</span><span class="p">,)</span>
+    <span class="n">DTYPES</span> <span class="o">=</span> <span class="n">Decision</span><span class="o">.</span><span class="n">DTYPES</span> <span class="o">+</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int</span><span class="p">,)</span>
+
+    <span class="n">RECORD_FIELDS</span> <span class="o">=</span> <span class="n">Decision</span><span class="o">.</span><span class="n">RECORD_FIELDS</span> <span class="o">+</span> <span class="p">(</span><span class="s1">&#39;target_idxs&#39;</span><span class="p">,)</span>
+
+
+    <span class="c1"># the decision types that pass on their state</span>
+    <span class="n">ANCESTOR_DECISION_IDS</span> <span class="o">=</span> <span class="p">(</span><span class="n">ENUM</span><span class="o">.</span><span class="n">NOTHING</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
+                             <span class="n">ENUM</span><span class="o">.</span><span class="n">KEEP_MERGE</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
+                             <span class="n">ENUM</span><span class="o">.</span><span class="n">CLONE</span><span class="o">.</span><span class="n">value</span><span class="p">,)</span>
+
+
+    <span class="c1"># TODO deprecate in favor of Decision implementation</span>
+<div class="viewcode-block" id="MultiCloneMergeDecision.record"><a class="viewcode-back" href="../../../../api/wepy.resampling.decisions.clone_merge.html#wepy.resampling.decisions.clone_merge.MultiCloneMergeDecision.record">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">record</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">enum_value</span><span class="p">,</span> <span class="n">target_idxs</span><span class="p">):</span>
+        <span class="n">record</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">record</span><span class="p">(</span><span class="n">enum_value</span><span class="p">)</span>
+        <span class="n">record</span><span class="p">[</span><span class="s1">&#39;target_idxs&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">target_idxs</span>
+
+        <span class="k">return</span> <span class="n">record</span></div>
+
+<div class="viewcode-block" id="MultiCloneMergeDecision.action"><a class="viewcode-back" href="../../../../api/wepy.resampling.decisions.clone_merge.html#wepy.resampling.decisions.clone_merge.MultiCloneMergeDecision.action">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">action</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">walkers</span><span class="p">,</span> <span class="n">decisions</span><span class="p">):</span>
+
+        <span class="c1"># list for the modified walkers</span>
+        <span class="n">mod_walkers</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">walkers</span><span class="p">))]</span>
+
+        <span class="c1"># perform clones and merges for each step of resampling</span>
+        <span class="k">for</span> <span class="n">step_idx</span><span class="p">,</span> <span class="n">step_recs</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">decisions</span><span class="p">):</span>
+            <span class="c1"># we need to collect groups of merges, one entry for each</span>
+            <span class="c1"># merge, where the key is the walker_idx of the keep merge slot</span>
+            <span class="n">squash_walkers</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
+            <span class="n">keep_walkers</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="c1"># go through each decision and perform the decision</span>
+            <span class="c1"># instructions</span>
+            <span class="k">for</span> <span class="n">walker_idx</span><span class="p">,</span> <span class="n">walker_rec</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">step_recs</span><span class="p">):</span>
+
+                <span class="n">decision_value</span> <span class="o">=</span> <span class="n">walker_rec</span><span class="p">[</span><span class="s1">&#39;decision_id&#39;</span><span class="p">]</span>
+                <span class="n">instruction</span> <span class="o">=</span> <span class="n">walker_rec</span><span class="p">[</span><span class="s1">&#39;target_idxs&#39;</span><span class="p">]</span>
+
+                <span class="k">if</span> <span class="n">decision_value</span> <span class="o">==</span> <span class="bp">cls</span><span class="o">.</span><span class="n">ENUM</span><span class="o">.</span><span class="n">NOTHING</span><span class="o">.</span><span class="n">value</span><span class="p">:</span>
+                    <span class="c1"># check to make sure a walker doesn&#39;t already exist</span>
+                    <span class="c1"># where you are going to put it</span>
+                    <span class="k">if</span> <span class="n">mod_walkers</span><span class="p">[</span><span class="n">instruction</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                            <span class="s2">&quot;Multiple walkers assigned to position </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">instruction</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+
+                    <span class="c1"># put the walker in the position specified by the</span>
+                    <span class="c1"># instruction</span>
+                    <span class="n">mod_walkers</span><span class="p">[</span><span class="n">instruction</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="n">walkers</span><span class="p">[</span><span class="n">walker_idx</span><span class="p">]</span>
+
+                <span class="c1"># for a clone</span>
+                <span class="k">elif</span> <span class="n">decision_value</span> <span class="o">==</span> <span class="bp">cls</span><span class="o">.</span><span class="n">ENUM</span><span class="o">.</span><span class="n">CLONE</span><span class="o">.</span><span class="n">value</span><span class="p">:</span>
+
+                    <span class="c1"># get the walker to be cloned</span>
+                    <span class="n">walker</span> <span class="o">=</span> <span class="n">walkers</span><span class="p">[</span><span class="n">walker_idx</span><span class="p">]</span>
+                    <span class="c1"># &quot;clone&quot; it by splitting it into walkers of the</span>
+                    <span class="c1"># same state with even weights</span>
+                    <span class="n">clones</span> <span class="o">=</span> <span class="n">split</span><span class="p">(</span><span class="n">walker</span><span class="p">,</span> <span class="n">number</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">instruction</span><span class="p">))</span>
+
+                    <span class="c1"># then assign each of these clones to a target</span>
+                    <span class="c1"># walker index in the next step</span>
+                    <span class="k">for</span> <span class="n">clone_idx</span><span class="p">,</span> <span class="n">target_idx</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">instruction</span><span class="p">):</span>
+
+                        <span class="c1"># check that there are not another walker</span>
+                        <span class="c1"># already assigned to this position</span>
+                        <span class="k">if</span> <span class="n">mod_walkers</span><span class="p">[</span><span class="n">target_idx</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                                <span class="s2">&quot;Multiple walkers assigned to position </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">instruction</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+
+                        <span class="c1"># TODO this comment was just fixed so I</span>
+                        <span class="c1"># believe that there was some serious problems</span>
+                        <span class="c1"># before</span>
+                        <span class="c1"># mod_walkers[walker_idx] = clones[clone_idx]</span>
+
+                        <span class="c1"># assign the clone to the modified walkers of the next step</span>
+                        <span class="n">mod_walkers</span><span class="p">[</span><span class="n">target_idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">clones</span><span class="p">[</span><span class="n">clone_idx</span><span class="p">]</span>
+
+                <span class="c1"># if it is a decision for merging we must perform this</span>
+                <span class="c1"># once we know all the merge targets for each merge group</span>
+                <span class="k">elif</span> <span class="n">decision_value</span> <span class="o">==</span> <span class="bp">cls</span><span class="o">.</span><span class="n">ENUM</span><span class="o">.</span><span class="n">SQUASH</span><span class="o">.</span><span class="n">value</span><span class="p">:</span>
+
+                    <span class="c1"># save this walker to the appropriate merge group to</span>
+                    <span class="c1"># merge after going through the list of walkers</span>
+                    <span class="n">squash_walkers</span><span class="p">[</span><span class="n">instruction</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">walker_idx</span><span class="p">)</span>
+
+                <span class="k">elif</span> <span class="n">decision_value</span> <span class="o">==</span> <span class="bp">cls</span><span class="o">.</span><span class="n">ENUM</span><span class="o">.</span><span class="n">KEEP_MERGE</span><span class="o">.</span><span class="n">value</span><span class="p">:</span>
+                    <span class="n">keep_walkers</span><span class="p">[</span><span class="n">instruction</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="n">walker_idx</span>
+
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Decision not recognized&quot;</span><span class="p">)</span>
+
+            <span class="c1"># do the merging for each merge group</span>
+            <span class="k">for</span> <span class="n">target_idx</span><span class="p">,</span> <span class="n">walker_idxs</span> <span class="ow">in</span> <span class="n">squash_walkers</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+
+                <span class="n">keep_idx</span> <span class="o">=</span> <span class="n">keep_walkers</span><span class="p">[</span><span class="n">target_idx</span><span class="p">]</span>
+
+                <span class="c1"># collect the walkers in the merge group, the keep idx is</span>
+                <span class="c1"># always the first in the list</span>
+                <span class="n">merge_grp</span> <span class="o">=</span> <span class="p">[</span><span class="n">walkers</span><span class="p">[</span><span class="n">keep_idx</span><span class="p">]]</span> <span class="o">+</span> <span class="p">[</span><span class="n">walkers</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">walker_idxs</span><span class="p">]</span>
+
+                <span class="c1"># merge the walkers</span>
+                <span class="n">merged_walker</span> <span class="o">=</span> <span class="n">keep_merge</span><span class="p">(</span><span class="n">merge_grp</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+
+                <span class="c1"># make sure there is not already a walker in this slot</span>
+                <span class="k">if</span> <span class="n">mod_walkers</span><span class="p">[</span><span class="n">target_idx</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                        <span class="s2">&quot;Multiple walkers assigned to position </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">target_idx</span><span class="p">))</span>
+
+                <span class="c1"># set it in the slot for the keep_idx</span>
+                <span class="n">mod_walkers</span><span class="p">[</span><span class="n">keep_idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">merged_walker</span>
+
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">([</span><span class="kc">False</span> <span class="k">if</span> <span class="n">walker</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">True</span> <span class="k">for</span> <span class="n">walker</span> <span class="ow">in</span> <span class="n">mod_walkers</span><span class="p">]):</span>
+
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Some walkers were not created&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">mod_walkers</span></div></div>
+</pre></div>
+
+          </div>
+            
+        </div>
+        <div class="clearfix"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">wepy  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+<script type="text/javascript">
+  $("#mobile-toggle a").click(function () {
+    $("#left-column").toggle();
+  });
+</script>
+<script type="text/javascript" src="../../../../_static/js/bootstrap.js"></script>
+  <div class="footer">
+    &copy; Copyright 2018, Samuel D. Lotz. Created using <a href="http://sphinx.pocoo.org/">Sphinx</a>.
+  </div>
+  </body>
+</html>

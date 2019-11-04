@@ -1,0 +1,402 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+  
+  <!-- Licensed under the Apache 2.0 License -->
+  <link rel="stylesheet" type="text/css" href="../../../_static/fonts/open-sans/stylesheet.css" />
+  <!-- Licensed under the SIL Open Font License -->
+  <link rel="stylesheet" type="text/css" href="../../../_static/fonts/source-serif-pro/source-serif-pro.css" />
+  <link rel="stylesheet" type="text/css" href="../../../_static/css/bootstrap.min.css" />
+  <link rel="stylesheet" type="text/css" href="../../../_static/css/bootstrap-theme.min.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+    <title>wepy.orchestration.configuration &#8212; wepy  documentation</title>
+    <link rel="stylesheet" href="../../../_static/guzzle.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../../_static/language_data.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+  
+   
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">wepy  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="container-wrapper">
+
+      <div id="mobile-toggle">
+        <a href="#"><span class="glyphicon glyphicon-align-justify" aria-hidden="true"></span></a>
+      </div>
+  <div id="left-column">
+    <div class="sphinxsidebar">
+<div class="sidebar-block">
+  <div class="sidebar-wrapper">
+    <div id="main-search">
+      <form class="form-inline" action="../../../search.html" method="GET" role="form">
+        <div class="input-group">
+          <input name="q" type="text" class="form-control" placeholder="Search...">
+        </div>
+        <input type="hidden" name="check_keywords" value="yes" />
+        <input type="hidden" name="area" value="default" />
+      </form>
+    </div>
+  </div>
+</div>
+      
+    </div>
+  </div>
+        <div id="right-column">
+          
+          <div role="navigation" aria-label="breadcrumbs navigation">
+            <ol class="breadcrumb">
+              <li><a href="../../../index.html">Docs</a></li>
+              
+                <li><a href="../../index.html">Module code</a></li>
+              
+              <li>wepy.orchestration.configuration</li>
+            </ol>
+          </div>
+          
+          <div class="document clearer body">
+            
+  <h1>Source code for wepy.orchestration.configuration</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">os.path</span> <span class="k">as</span> <span class="nn">osp</span>
+<span class="kn">from</span> <span class="nn">copy</span> <span class="k">import</span> <span class="n">deepcopy</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">itertools</span> <span class="k">as</span> <span class="nn">it</span>
+
+<span class="kn">from</span> <span class="nn">wepy.work_mapper.mapper</span> <span class="k">import</span> <span class="n">Mapper</span><span class="p">,</span> <span class="n">WorkerMapper</span>
+<span class="kn">from</span> <span class="nn">wepy.work_mapper.worker</span> <span class="k">import</span> <span class="n">Worker</span>
+
+<div class="viewcode-block" id="Configuration"><a class="viewcode-back" href="../../../api/wepy.orchestration.configuration.html#wepy.orchestration.configuration.Configuration">[docs]</a><span class="k">class</span> <span class="nc">Configuration</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
+
+    <span class="n">DEFAULT_WORKDIR</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">realpath</span><span class="p">(</span><span class="n">osp</span><span class="o">.</span><span class="n">curdir</span><span class="p">)</span>
+    <span class="n">DEFAULT_CONFIG_NAME</span> <span class="o">=</span> <span class="s2">&quot;root&quot;</span>
+    <span class="n">DEFAULT_NARRATION</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+    <span class="n">DEFAULT_REPORTER_CLASS</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+    <span class="c1"># if there is to be reporter class in filenames use this template</span>
+    <span class="c1"># to put it into the filename</span>
+    <span class="n">REPORTER_CLASS_SEG_TEMPLATE</span> <span class="o">=</span> <span class="s2">&quot;.</span><span class="si">{}</span><span class="s2">&quot;</span>
+    <span class="n">DEFAULT_MODE</span> <span class="o">=</span> <span class="s1">&#39;x&#39;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                 <span class="c1"># reporters</span>
+                 <span class="n">config_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">work_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">mode</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">narration</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">reporter_classes</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">reporter_partial_kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="c1"># work mappers</span>
+                 <span class="n">work_mapper_class</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">work_mapper_partial_kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+        <span class="c1">## reporter stuff</span>
+
+        <span class="c1"># reporters and partial kwargs</span>
+        <span class="k">if</span> <span class="n">reporter_classes</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_reporter_classes</span> <span class="o">=</span> <span class="n">reporter_classes</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_reporter_classes</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">if</span> <span class="n">reporter_partial_kwargs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_reporter_partial_kwargs</span> <span class="o">=</span> <span class="n">reporter_partial_kwargs</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_reporter_partial_kwargs</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="c1"># file path localization variables</span>
+
+        <span class="c1"># config string</span>
+        <span class="k">if</span> <span class="n">config_name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_config_name</span> <span class="o">=</span> <span class="n">config_name</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_config_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">DEFAULT_CONFIG_NAME</span>
+
+        <span class="k">if</span> <span class="n">work_dir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_work_dir</span> <span class="o">=</span> <span class="n">work_dir</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_work_dir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">DEFAULT_WORKDIR</span>
+
+        <span class="c1"># narration</span>
+        <span class="k">if</span> <span class="n">narration</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">narration</span> <span class="o">=</span> <span class="s2">&quot;_</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">narration</span><span class="p">)</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">narration</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_narration</span> <span class="o">=</span> <span class="n">narration</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_narration</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">DEFAULT_NARRATION</span>
+
+
+        <span class="c1"># file modes, if none are given we set to the default, this</span>
+        <span class="c1"># needs to be done before generating the reporters</span>
+        <span class="k">if</span> <span class="n">mode</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_mode</span> <span class="o">=</span> <span class="n">mode</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_mode</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">DEFAULT_MODE</span>
+
+        <span class="c1"># generate the reporters for this configuration</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_reporters</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gen_reporters</span><span class="p">()</span>
+
+        <span class="c1">## work mapper</span>
+
+        <span class="c1"># the partial kwargs that will be passed for reparametrization</span>
+        <span class="k">if</span> <span class="n">work_mapper_partial_kwargs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_work_mapper_partial_kwargs</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_work_mapper_partial_kwargs</span> <span class="o">=</span> <span class="n">work_mapper_partial_kwargs</span>
+
+        <span class="c1"># if the number of workers is not given set it to None</span>
+        <span class="k">if</span> <span class="s1">&#39;num_workers&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_work_mapper_partial_kwargs</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_work_mapper_partial_kwargs</span><span class="p">[</span><span class="s1">&#39;num_workers&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="c1"># same for the worker type</span>
+        <span class="k">if</span> <span class="s1">&#39;worker_type&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_work_mapper_partial_kwargs</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_work_mapper_partial_kwargs</span><span class="p">[</span><span class="s1">&#39;worker_type&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="c1"># if the number of workers was sepcified and no work_mapper</span>
+        <span class="c1"># class was specified default to the WorkerMapper</span>
+        <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_work_mapper_partial_kwargs</span><span class="p">[</span><span class="s1">&#39;num_workers&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">and</span> \
+           <span class="p">(</span><span class="n">work_mapper_class</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_work_mapper_class</span> <span class="o">=</span> <span class="n">WorkerMapper</span>
+
+        <span class="c1"># if no number of workers was specified and no work_mapper</span>
+        <span class="c1"># class was specified we default to the serial mapper</span>
+        <span class="k">elif</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_work_mapper_partial_kwargs</span><span class="p">[</span><span class="s1">&#39;num_workers&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">and</span> \
+             <span class="p">(</span><span class="n">work_mapper_class</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_work_mapper_class</span> <span class="o">=</span> <span class="n">Mapper</span>
+
+        <span class="c1"># otherwise if the work_mapper class was given we use it and</span>
+        <span class="c1"># whatever the number of workers was</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_work_mapper_class</span> <span class="o">=</span> <span class="n">work_mapper_class</span>
+
+        <span class="c1"># then generate a work mapper</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_work_mapper</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_work_mapper_class</span><span class="p">(</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_work_mapper_partial_kwargs</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">reporter_classes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_reporter_classes</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">reporter_partial_kwargs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_reporter_partial_kwargs</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">config_name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_config_name</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">work_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_work_dir</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">narration</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_narration</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">mode</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mode</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">reporters</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_reporters</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">work_mapper_class</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_work_mapper_class</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">work_mapper_partial_kwargs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_work_mapper_partial_kwargs</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">work_mapper</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_work_mapper</span>
+
+    <span class="k">def</span> <span class="nf">_gen_reporters</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
+
+        <span class="c1"># check the extensions of all the reporters. If any of them</span>
+        <span class="c1"># are the same raise a flag to add the reporter names to the</span>
+        <span class="c1"># filenames</span>
+
+        <span class="c1"># the number of filenames</span>
+        <span class="n">all_exts</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">it</span><span class="o">.</span><span class="n">chain</span><span class="p">(</span><span class="o">*</span><span class="p">[[</span><span class="n">ext</span> <span class="k">for</span> <span class="n">ext</span> <span class="ow">in</span> <span class="n">rep</span><span class="o">.</span><span class="n">SUGGESTED_EXTENSIONS</span><span class="p">]</span>
+                                 <span class="k">for</span> <span class="n">rep</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">reporter_classes</span><span class="p">]))</span>
+        <span class="n">n_exts</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">all_exts</span><span class="p">)</span>
+
+        <span class="c1"># the number of unique ones</span>
+        <span class="n">n_unique_exts</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">all_exts</span><span class="p">))</span>
+
+        <span class="n">duplicates</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="n">n_unique_exts</span> <span class="o">&lt;</span> <span class="n">n_exts</span><span class="p">:</span>
+            <span class="n">duplicates</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="c1"># then go through and make the inputs for each reporter</span>
+        <span class="n">reporters</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">reporter_class</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">reporter_classes</span><span class="p">):</span>
+
+            <span class="c1"># first we have to generate the filenames for all the</span>
+            <span class="c1"># files this reporter needs. The number of file names the</span>
+            <span class="c1"># reporter needs is given by the number of suggested</span>
+            <span class="c1"># extensions it has</span>
+            <span class="n">file_paths</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">extension</span> <span class="ow">in</span> <span class="n">reporter_class</span><span class="o">.</span><span class="n">SUGGESTED_EXTENSIONS</span><span class="p">:</span>
+
+
+                <span class="c1"># if previously found that there are duplicates in the</span>
+                <span class="c1"># extensions we need to name with the reporter class string</span>
+                <span class="k">if</span> <span class="n">duplicates</span><span class="p">:</span>
+
+                    <span class="c1"># use the __name__ attribute of the class and put</span>
+                    <span class="c1"># it into the template to make a segment out of it</span>
+                    <span class="n">reporter_class_seg_str</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">REPORTER_CLASS_SEG_TEMPLATE</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                        <span class="n">reporter_class</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
+
+                    <span class="c1"># then make the filename with this</span>
+                    <span class="n">filename</span> <span class="o">=</span> <span class="n">reporter_class</span><span class="o">.</span><span class="n">SUGGESTED_FILENAME_TEMPLATE</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                                       <span class="n">narration</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">narration</span><span class="p">,</span>
+                                       <span class="n">config</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config_name</span><span class="p">,</span>
+                                       <span class="n">reporter_class</span><span class="o">=</span><span class="n">reporter_class_seg_str</span><span class="p">,</span>
+                                       <span class="n">ext</span><span class="o">=</span><span class="n">extension</span><span class="p">)</span>
+
+                <span class="c1"># otherwise don&#39;t use the reporter class names to keep it clean</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">filename</span> <span class="o">=</span> <span class="n">reporter_class</span><span class="o">.</span><span class="n">SUGGESTED_FILENAME_TEMPLATE</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                                       <span class="n">narration</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">narration</span><span class="p">,</span>
+                                       <span class="n">config</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config_name</span><span class="p">,</span>
+                                       <span class="n">reporter_class</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">DEFAULT_REPORTER_CLASS</span><span class="p">,</span>
+                                       <span class="n">ext</span><span class="o">=</span><span class="n">extension</span><span class="p">)</span>
+
+
+                <span class="n">file_path</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">work_dir</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+
+                <span class="n">file_paths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
+
+            <span class="n">modes</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">file_paths</span><span class="p">))]</span>
+
+            <span class="n">reporter</span> <span class="o">=</span> <span class="n">reporter_class</span><span class="p">(</span><span class="n">file_paths</span><span class="o">=</span><span class="n">file_paths</span><span class="p">,</span> <span class="n">modes</span><span class="o">=</span><span class="n">modes</span><span class="p">,</span>
+                                  <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">reporter_partial_kwargs</span><span class="p">[</span><span class="n">idx</span><span class="p">])</span>
+
+            <span class="n">reporters</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">reporter</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">reporters</span>
+
+    <span class="k">def</span> <span class="nf">_gen_work_mapper</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
+
+        <span class="n">work_mapper</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_work_mapper_class</span><span class="p">(</span><span class="n">n_workers</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_default_n_workers</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">work_mapper</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">reporters</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_reporters</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">work_mapper</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_work_mapper</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="Configuration.reparametrize"><a class="viewcode-back" href="../../../api/wepy.orchestration.configuration.html#wepy.orchestration.configuration.Configuration.reparametrize">[docs]</a>    <span class="k">def</span> <span class="nf">reparametrize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        **kwargs :</span>
+<span class="sd">            </span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># dictionary of the possible reparametrizations from the</span>
+        <span class="c1"># current configuration</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="p">{</span><span class="c1"># related to the work mapper</span>
+                  <span class="s1">&#39;work_mapper_class&#39;</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">work_mapper_class</span><span class="p">,</span>
+                  <span class="s1">&#39;work_mapper_partial_kwargs&#39;</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">work_mapper_partial_kwargs</span><span class="p">,</span>
+                  <span class="c1"># those related to the reporters</span>
+                  <span class="s1">&#39;mode&#39;</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span><span class="p">,</span>
+                  <span class="s1">&#39;config_name&#39;</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">config_name</span><span class="p">,</span>
+                  <span class="s1">&#39;work_dir&#39;</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">work_dir</span><span class="p">,</span>
+                  <span class="s1">&#39;narration&#39;</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">narration</span><span class="p">,</span>
+                  <span class="s1">&#39;reporter_classes&#39;</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">reporter_classes</span><span class="p">,</span>
+                  <span class="s1">&#39;reporter_partial_kwargs&#39;</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">reporter_partial_kwargs</span><span class="p">}</span>
+
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+
+            <span class="c1"># for the partial kwargs we need to update them not</span>
+            <span class="c1"># completely overwrite</span>
+            <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;work_mapper_partial_kwargs&#39;</span><span class="p">,</span> <span class="s1">&#39;reporter_partial_kwargs&#39;</span><span class="p">]:</span>
+                <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">params</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+            <span class="c1"># if the value is given we replace the old one with it</span>
+            <span class="k">elif</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">params</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+
+        <span class="n">new_configuration</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)(</span><span class="o">**</span><span class="n">params</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">new_configuration</span></div></div>
+</pre></div>
+
+          </div>
+            
+        </div>
+        <div class="clearfix"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">wepy  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+<script type="text/javascript">
+  $("#mobile-toggle a").click(function () {
+    $("#left-column").toggle();
+  });
+</script>
+<script type="text/javascript" src="../../../_static/js/bootstrap.js"></script>
+  <div class="footer">
+    &copy; Copyright 2018, Samuel D. Lotz. Created using <a href="http://sphinx.pocoo.org/">Sphinx</a>.
+  </div>
+  </body>
+</html>

@@ -1,0 +1,367 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+  
+  <!-- Licensed under the Apache 2.0 License -->
+  <link rel="stylesheet" type="text/css" href="../_static/fonts/open-sans/stylesheet.css" />
+  <!-- Licensed under the SIL Open Font License -->
+  <link rel="stylesheet" type="text/css" href="../_static/fonts/source-serif-pro/source-serif-pro.css" />
+  <link rel="stylesheet" type="text/css" href="../_static/css/bootstrap.min.css" />
+  <link rel="stylesheet" type="text/css" href="../_static/css/bootstrap-theme.min.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+    <title>wepy.analysis.transitions module &#8212; wepy  documentation</title>
+    <link rel="stylesheet" href="../_static/guzzle.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/language_data.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="wepy.boundary_conditions package" href="wepy.boundary_conditions.html" />
+    <link rel="prev" title="wepy.analysis.rates module" href="wepy.analysis.rates.html" />
+  
+   
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="wepy.boundary_conditions.html" title="wepy.boundary_conditions package"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="wepy.analysis.rates.html" title="wepy.analysis.rates module"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">wepy  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >wepy</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="wepy.html" >wepy package</a> &#187;</li>
+          <li class="nav-item nav-item-3"><a href="wepy.analysis.html" accesskey="U">wepy.analysis package</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="container-wrapper">
+
+      <div id="mobile-toggle">
+        <a href="#"><span class="glyphicon glyphicon-align-justify" aria-hidden="true"></span></a>
+      </div>
+  <div id="left-column">
+    <div class="sphinxsidebar">
+<div class="sidebar-block">
+  <div class="sidebar-wrapper">
+    <h2>Contents</h2>
+    <div class="sidebar-localtoc">
+      <ul>
+<li><a class="reference internal" href="#">wepy.analysis.transitions module</a><ul>
+<li><a class="reference internal" href="#routines">Routines</a></li>
+</ul>
+</li>
+</ul>
+
+    </div>
+  </div>
+</div>
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="wepy.analysis.rates.html"
+                        title="previous chapter">wepy.analysis.rates module</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="wepy.boundary_conditions.html"
+                        title="next chapter">wepy.boundary_conditions package</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/api/wepy.analysis.transitions.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div class="sidebar-block">
+  <div class="sidebar-wrapper">
+    <div id="main-search">
+      <form class="form-inline" action="../search.html" method="GET" role="form">
+        <div class="input-group">
+          <input name="q" type="text" class="form-control" placeholder="Search...">
+        </div>
+        <input type="hidden" name="check_keywords" value="yes" />
+        <input type="hidden" name="area" value="default" />
+      </form>
+    </div>
+  </div>
+</div>
+      
+    </div>
+  </div>
+        <div id="right-column">
+          
+          <div role="navigation" aria-label="breadcrumbs navigation">
+            <ol class="breadcrumb">
+              <li><a href="../index.html">Docs</a></li>
+              
+                <li><a href="modules.html">wepy</a></li>
+              
+                <li><a href="wepy.html">wepy package</a></li>
+              
+                <li><a href="wepy.analysis.html">wepy.analysis package</a></li>
+              
+              <li>wepy.analysis.transitions module</li>
+            </ol>
+          </div>
+          
+          <div class="document clearer body">
+            
+  <div class="section" id="module-wepy.analysis.transitions">
+<span id="wepy-analysis-transitions-module"></span><h1>wepy.analysis.transitions module<a class="headerlink" href="#module-wepy.analysis.transitions" title="Permalink to this headline">¶</a></h1>
+<p>Collection of routines for counting transitions and calculating
+transition probability matrices.</p>
+<p>There are two basic data structures used in this module for edge
+transitions: dictionary based and matrix based.</p>
+<p>The dictionary based approach is used to interface with graph
+representations, like in the
+~wepy.analysis.network.MacroStateNetwork~.</p>
+<p>Arrays are used as an interface to numerical libraries which use this
+to calculate other properties such as steady-state probabilities.</p>
+<p>Wepy is primarily meant to support expedient data structuring and will
+not support the latter numerical calculations and is left up to
+external libraries and domain specific code.</p>
+<div class="section" id="routines">
+<h2>Routines<a class="headerlink" href="#routines" title="Permalink to this headline">¶</a></h2>
+<dl class="simple">
+<dt>transition_counts<span class="classifier">Given a structured array of assignments of</span></dt><dd><p>microstate to macrostate labels and a listing of all kinetic
+transitions over the microstates returns the counts of transitions
+between each macrostate as a dictionary mapping macrostate
+transition edges to the total counts each microstate transition.</p>
+</dd>
+<dt>counts_d_to_matrix<span class="classifier">Converts a dictionary mapping macrostate</span></dt><dd><p>transition edges to a asymmetric transition matrix.</p>
+</dd>
+<dt>normalize_counts<span class="classifier">Normalizes outgoing transition counts from each</span></dt><dd><p>macrostate to 1 for a transition counts matrix.</p>
+</dd>
+<dt>transition_counts_matrix<span class="classifier">Given a structured array of assignments of</span></dt><dd><p>microstate to macrostate labels and a listing of all kinetic
+transitions over the microstates returns the counts of transitions
+between each macrostate as an assymetric transition counts matrix.</p>
+</dd>
+<dt>transition_probability_matrix<span class="classifier">Given a structured array of assignments of</span></dt><dd><p>microstate to macrostate labels and a listing of all kinetic
+transitions over the microstates returns the probability of transitions
+between each macrostate as an assymetric transition probability matrix.</p>
+</dd>
+<dt>run_transition_counts_matrix<span class="classifier">Generates an asymmetric transition</span></dt><dd><p>counts matrix directly from a single WepyHDF5 run.</p>
+</dd>
+<dt>run_transition_probability_matrix<span class="classifier">Generates an asymmetric transition</span></dt><dd><p>probability matrix directly from a single WepyHDF5 run.</p>
+</dd>
+</dl>
+<dl class="function">
+<dt id="wepy.analysis.transitions.transition_counts">
+<code class="sig-prename descclassname">wepy.analysis.transitions.</code><code class="sig-name descname">transition_counts</code><span class="sig-paren">(</span><em class="sig-param">assignments</em>, <em class="sig-param">transitions</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/transitions.html#transition_counts"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.transitions.transition_counts" title="Permalink to this definition">¶</a></dt>
+<dd><p>Make a dictionary of the count of microstate transitions between macrostates.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>assignments</strong> (<em>mixed array_like of dim</em><em> (</em><em>n_run</em><em>, </em><em>n_traj</em><em>, </em><em>n_cycle</em><em>) </em><em>type int</em>) – Assignment of microstates to macrostate labels, where N_runs
+is the number of runs, N_traj is the number of trajectories,
+and N_cycle is the number of cycles.</p></li>
+<li><p><strong>transitions</strong> (<em>list of list of tuples of ints</em><em> (</em><em>run_idx</em><em>, </em><em>traj_idx</em><em>, </em><em>cycle_idx</em><em>)</em>) – List of run traces corresponding to transitions. Only the
+first and last trace elements are used.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>transition_counts</strong> – Dictionary mapping transitions between macrostate labels to
+the count of microstate transitions between them.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict of (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a>, <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a>): int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="wepy.analysis.transitions.counts_d_to_matrix">
+<code class="sig-prename descclassname">wepy.analysis.transitions.</code><code class="sig-name descname">counts_d_to_matrix</code><span class="sig-paren">(</span><em class="sig-param">counts_d</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/transitions.html#counts_d_to_matrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.transitions.counts_d_to_matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert a dictionary of counts for macrostate transitions to an
+assymetric transitions counts matrix.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>counts_d</strong> (<em>dict of</em><em> (</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a><em>)</em><em>: int</em>) – Dictionary mapping transitions between macrostate labels to
+the count of microstate transitions between them.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>counts_matrix</strong> – Assymetric counts matrix of dim (n_macrostates, n_macrostates).</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>numpy.ndarray of int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="wepy.analysis.transitions.normalize_counts">
+<code class="sig-prename descclassname">wepy.analysis.transitions.</code><code class="sig-name descname">normalize_counts</code><span class="sig-paren">(</span><em class="sig-param">transition_counts_matrix</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/transitions.html#normalize_counts"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.transitions.normalize_counts" title="Permalink to this definition">¶</a></dt>
+<dd><p>Normalize the macrostate outgoing transition counts to 1.0 for each macrostate.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>transition_counts_matrix</strong> (<em>numpy.ndarray of int</em>) – Assymetric counts matrix of dim (n_macrostates, n_macrostates).</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>transition_probability_matrix</strong> – Assymetric transition probability matrix of dim (n_macrostates, n_macrostates).</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>numpy.ndarray of float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="wepy.analysis.transitions.transition_counts_matrix">
+<code class="sig-prename descclassname">wepy.analysis.transitions.</code><code class="sig-name descname">transition_counts_matrix</code><span class="sig-paren">(</span><em class="sig-param">assignments</em>, <em class="sig-param">transitions</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/transitions.html#transition_counts_matrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.transitions.transition_counts_matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Make an asymmetric array of the count of microstate transitions between macrostates.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>assignments</strong> (<em>mixed array_like of dim</em><em> (</em><em>n_run</em><em>, </em><em>n_traj</em><em>, </em><em>n_cycle</em><em>) </em><em>type int</em>) – Assignment of microstates to macrostate labels, where N_runs
+is the number of runs, N_traj is the number of trajectories,
+and N_cycle is the number of cycles.</p></li>
+<li><p><strong>transitions</strong> (<em>list of list of tuples of ints</em><em> (</em><em>run_idx</em><em>, </em><em>traj_idx</em><em>, </em><em>cycle_idx</em><em>)</em>) – List of run traces corresponding to transitions. Only the
+first and last trace elements are used.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>transition_counts_matrix</strong> – Assymetric counts matrix of dim (n_macrostates, n_macrostates).</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>numpy.ndarray of int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="wepy.analysis.transitions.transition_probability_matrix">
+<code class="sig-prename descclassname">wepy.analysis.transitions.</code><code class="sig-name descname">transition_probability_matrix</code><span class="sig-paren">(</span><em class="sig-param">assignments</em>, <em class="sig-param">transitions</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/transitions.html#transition_probability_matrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.transitions.transition_probability_matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Make an asymmetric array of macrostates transition probabilities from microstate assignments.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>assignments</strong> (<em>mixed array_like of dim</em><em> (</em><em>n_run</em><em>, </em><em>n_traj</em><em>, </em><em>n_cycle</em><em>) </em><em>type int</em>) – Assignment of microstates to macrostate labels, where N_runs
+is the number of runs, N_traj is the number of trajectories,
+and N_cycle is the number of cycles.</p></li>
+<li><p><strong>transitions</strong> (<em>list of list of tuples of ints</em><em> (</em><em>run_idx</em><em>, </em><em>traj_idx</em><em>, </em><em>cycle_idx</em><em>)</em>) – List of run traces corresponding to transitions. Only the
+first and last trace elements are used.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>transition_probability_matrix</strong> – Assymetric transition probability matrix of dim (n_macrostates, n_macrostates).</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>numpy.ndarray of float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="wepy.analysis.transitions.run_transition_counts_matrix">
+<code class="sig-prename descclassname">wepy.analysis.transitions.</code><code class="sig-name descname">run_transition_counts_matrix</code><span class="sig-paren">(</span><em class="sig-param">wepy_hdf5</em>, <em class="sig-param">run_idx</em>, <em class="sig-param">assignment_key</em>, <em class="sig-param">transitions</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/transitions.html#run_transition_counts_matrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.transitions.run_transition_counts_matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates an asymmetric transition counts matrix directly from a single WepyHDF5 run.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>wepy_hdf5</strong> (<em>WepyHDF5 object</em>) – </p></li>
+<li><p><strong>run_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – </p></li>
+<li><p><strong>assignment_key</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – Field from trajectory data to use as macrostate label.</p></li>
+<li><p><strong>transitions</strong> (<em>list of list of tuples of ints</em><em> (</em><em>run_idx</em><em>, </em><em>traj_idx</em><em>, </em><em>cycle_idx</em><em>)</em>) – List of run traces corresponding to transitions. Only the
+first and last trace elements are used.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>transition_counts_matrix</strong> – Assymetric counts matrix of dim (n_macrostates, n_macrostates).</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>numpy.ndarray of int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="wepy.analysis.transitions.run_transition_probability_matrix">
+<code class="sig-prename descclassname">wepy.analysis.transitions.</code><code class="sig-name descname">run_transition_probability_matrix</code><span class="sig-paren">(</span><em class="sig-param">wepy_hdf5</em>, <em class="sig-param">run_idx</em>, <em class="sig-param">assignment_key</em>, <em class="sig-param">transitions</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/transitions.html#run_transition_probability_matrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.transitions.run_transition_probability_matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates an asymmetric transition counts matrix directly from a single WepyHDF5 run.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>wepy_hdf5</strong> (<em>WepyHDF5 object</em>) – </p></li>
+<li><p><strong>run_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – </p></li>
+<li><p><strong>assignment_key</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – Field from trajectory data to use as macrostate label.</p></li>
+<li><p><strong>transitions</strong> (<em>list of list of tuples of ints</em><em> (</em><em>run_idx</em><em>, </em><em>traj_idx</em><em>, </em><em>cycle_idx</em><em>)</em>) – List of run traces corresponding to transitions. Only the
+first and last trace elements are used.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>transition_probability_matrix</strong> – Assymetric transition probability matrix of dim (n_macrostates, n_macrostates).</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>numpy.ndarray of float</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+            
+  <div class="footer-relations">
+    
+      <div class="pull-left">
+        <a class="btn btn-default" href="wepy.analysis.rates.html" title="previous chapter (use the left arrow)">wepy.analysis.rates module</a>
+      </div>
+    
+      <div class="pull-right">
+        <a class="btn btn-default" href="wepy.boundary_conditions.html" title="next chapter (use the right arrow)">wepy.boundary_conditions package</a>
+      </div>
+    </div>
+    <div class="clearer"></div>
+  
+        </div>
+        <div class="clearfix"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="wepy.boundary_conditions.html" title="wepy.boundary_conditions package"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="wepy.analysis.rates.html" title="wepy.analysis.rates module"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">wepy  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >wepy</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="wepy.html" >wepy package</a> &#187;</li>
+          <li class="nav-item nav-item-3"><a href="wepy.analysis.html" >wepy.analysis package</a> &#187;</li> 
+      </ul>
+    </div>
+<script type="text/javascript">
+  $("#mobile-toggle a").click(function () {
+    $("#left-column").toggle();
+  });
+</script>
+<script type="text/javascript" src="../_static/js/bootstrap.js"></script>
+  <div class="footer">
+    &copy; Copyright 2018, Samuel D. Lotz. Created using <a href="http://sphinx.pocoo.org/">Sphinx</a>.
+  </div>
+  </body>
+</html>

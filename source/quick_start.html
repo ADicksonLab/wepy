@@ -1,0 +1,262 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+  
+  <!-- Licensed under the Apache 2.0 License -->
+  <link rel="stylesheet" type="text/css" href="../_static/fonts/open-sans/stylesheet.css" />
+  <!-- Licensed under the SIL Open Font License -->
+  <link rel="stylesheet" type="text/css" href="../_static/fonts/source-serif-pro/source-serif-pro.css" />
+  <link rel="stylesheet" type="text/css" href="../_static/css/bootstrap.min.css" />
+  <link rel="stylesheet" type="text/css" href="../_static/css/bootstrap-theme.min.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+    <title>Quick Start &#8212; wepy  documentation</title>
+    <link rel="stylesheet" href="../_static/guzzle.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/language_data.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="User’s Guide" href="users_guide.html" />
+    <link rel="prev" title="Installation" href="installation.html" />
+  
+   
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="users_guide.html" title="User’s Guide"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="installation.html" title="Installation"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">wepy  documentation</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="container-wrapper">
+
+      <div id="mobile-toggle">
+        <a href="#"><span class="glyphicon glyphicon-align-justify" aria-hidden="true"></span></a>
+      </div>
+  <div id="left-column">
+    <div class="sphinxsidebar">
+<div class="sidebar-block">
+  <div class="sidebar-wrapper">
+    <h2>Contents</h2>
+    <div class="sidebar-localtoc">
+      <ul>
+<li><a class="reference internal" href="#">Quick Start</a><ul>
+<li><a class="reference internal" href="#a-trivial-example">A trivial example</a></li>
+<li><a class="reference internal" href="#a-somewhat-more-realistic-example">A somewhat more realistic example</a></li>
+</ul>
+</li>
+</ul>
+
+    </div>
+  </div>
+</div>
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="installation.html"
+                        title="previous chapter">Installation</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="users_guide.html"
+                        title="next chapter">User’s Guide</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/source/quick_start.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div class="sidebar-block">
+  <div class="sidebar-wrapper">
+    <div id="main-search">
+      <form class="form-inline" action="../search.html" method="GET" role="form">
+        <div class="input-group">
+          <input name="q" type="text" class="form-control" placeholder="Search...">
+        </div>
+        <input type="hidden" name="check_keywords" value="yes" />
+        <input type="hidden" name="area" value="default" />
+      </form>
+    </div>
+  </div>
+</div>
+      
+    </div>
+  </div>
+        <div id="right-column">
+          
+          <div role="navigation" aria-label="breadcrumbs navigation">
+            <ol class="breadcrumb">
+              <li><a href="../index.html">Docs</a></li>
+              
+              <li>Quick Start</li>
+            </ol>
+          </div>
+          
+          <div class="document clearer body">
+            
+  <div class="section" id="quick-start">
+<h1>Quick Start<a class="headerlink" href="#quick-start" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="a-trivial-example">
+<h2>A trivial example<a class="headerlink" href="#a-trivial-example" title="Permalink to this headline">¶</a></h2>
+<p>Here is one of the simplest possible examples of running wepy using
+OpenMM.</p>
+<p>This requires that the openmmtools library is installed to get a
+pre-built MD system:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>conda install -c conda-forge openmmtools
+</pre></div>
+</div>
+<p>This example uses the <code class="docutils literal notranslate"><span class="pre">NoResampler</span></code> which performs no resampling so
+this is equivalent to running 10 simulations in parallel.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">copy</span> <span class="kn">import</span> <span class="n">copy</span>
+
+<span class="kn">import</span> <span class="nn">simtk.openmm</span> <span class="kn">as</span> <span class="nn">omm</span>
+<span class="kn">import</span> <span class="nn">simtk.unit</span> <span class="kn">as</span> <span class="nn">unit</span>
+
+<span class="kn">from</span> <span class="nn">openmmtools.testsystems</span> <span class="kn">import</span> <span class="n">LennardJonesPair</span>
+
+<span class="kn">from</span> <span class="nn">wepy.resampling.resamplers.resampler</span> <span class="kn">import</span> <span class="n">NoResampler</span>
+<span class="kn">from</span> <span class="nn">wepy.runners.openmm</span> <span class="kn">import</span> <span class="n">OpenMMRunner</span><span class="p">,</span> <span class="n">gen_walker_state</span>
+<span class="kn">from</span> <span class="nn">wepy.walker</span> <span class="kn">import</span> <span class="n">Walker</span>
+<span class="kn">from</span> <span class="nn">wepy.sim_manager</span> <span class="kn">import</span> <span class="n">Manager</span>
+
+<span class="c1"># use a ready made system for OpenMM MD simulation</span>
+<span class="n">test_sys</span> <span class="o">=</span> <span class="n">LennardJonesPair</span><span class="p">()</span>
+
+<span class="n">integrator</span> <span class="o">=</span> <span class="n">omm</span><span class="o">.</span><span class="n">LangevinIntegrator</span><span class="p">(</span><span class="mf">300.0</span><span class="o">*</span><span class="n">unit</span><span class="o">.</span><span class="n">kelvin</span><span class="p">,</span>
+                                    <span class="mi">1</span><span class="o">/</span><span class="n">unit</span><span class="o">.</span><span class="n">picosecond</span><span class="p">,</span>
+                                    <span class="mf">0.002</span><span class="o">*</span><span class="n">unit</span><span class="o">.</span><span class="n">picoseconds</span><span class="p">)</span>
+
+<span class="n">init_state</span> <span class="o">=</span> <span class="n">gen_walker_state</span><span class="p">(</span><span class="n">test_sys</span><span class="o">.</span><span class="n">positions</span><span class="p">,</span> <span class="n">test_sys</span><span class="o">.</span><span class="n">system</span><span class="p">,</span> <span class="n">integrator</span><span class="p">)</span>
+
+<span class="n">runner</span> <span class="o">=</span> <span class="n">OpenMMRunner</span><span class="p">(</span><span class="n">test_sys</span><span class="o">.</span><span class="n">system</span><span class="p">,</span> <span class="n">test_sys</span><span class="o">.</span><span class="n">topology</span><span class="p">,</span> <span class="n">integrator</span><span class="p">,</span>
+                      <span class="n">platform</span><span class="o">=</span><span class="s1">&#39;Reference&#39;</span><span class="p">)</span>
+
+<span class="c1"># a trivial resampler which does nothing</span>
+<span class="n">resampler</span> <span class="o">=</span> <span class="n">NoResampler</span><span class="p">()</span>
+
+<span class="c1"># Run the simulation</span>
+
+<span class="c1"># number of cycles of WE to perform</span>
+<span class="n">n_cycles</span> <span class="o">=</span> <span class="mi">5</span>
+
+<span class="c1"># the number of MD dynamics steps for each cycle</span>
+<span class="n">n_steps</span> <span class="o">=</span> <span class="mi">1000</span>
+<span class="n">steps</span> <span class="o">=</span> <span class="p">[</span><span class="n">n_steps</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_cycles</span><span class="p">)]</span>
+
+<span class="c1"># number of parallel simulations</span>
+<span class="n">n_walkers</span> <span class="o">=</span> <span class="mi">10</span>
+
+
+
+<span class="c1"># create the initial walkers with equal weights</span>
+<span class="n">init_weight</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">n_walkers</span>
+<span class="n">init_walkers</span> <span class="o">=</span> <span class="p">[</span><span class="n">Walker</span><span class="p">(</span><span class="n">copy</span><span class="p">(</span><span class="n">init_state</span><span class="p">),</span> <span class="n">init_weight</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_walkers</span><span class="p">)]</span>
+
+<span class="n">sim_manager</span> <span class="o">=</span> <span class="n">Manager</span><span class="p">(</span><span class="n">init_walkers</span><span class="p">,</span>
+                      <span class="n">runner</span><span class="o">=</span><span class="n">runner</span><span class="p">,</span>
+                      <span class="n">resampler</span><span class="o">=</span><span class="n">resampler</span><span class="p">)</span>
+
+<span class="c1"># run the simulation and get the results</span>
+<span class="n">final_walkers</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">sim_manager</span><span class="o">.</span><span class="n">run_simulation</span><span class="p">(</span><span class="n">n_cycles</span><span class="p">,</span> <span class="n">steps</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>In this example we see the core components of a wepy simulation:</p>
+<ul class="simple">
+<li><p><strong>Runner</strong>: for running dynamics (‘sampling’ in wepy parlance)</p></li>
+<li><p><strong>Resampler</strong>: for performing resampling (i.e. cloning and merging of
+walkers)</p></li>
+<li><p><strong>Manager</strong>: the main simulation loop</p></li>
+</ul>
+<p>Being the trivial example it is, not only does it do no resampling it
+produces no output other than the final walkers and then only in memory
+as <code class="docutils literal notranslate"><span class="pre">Walker</span></code> objects.</p>
+<p>Further in the docs we will show how to add reporters to the simulation
+so that your results can be saved and how to use and customize
+resamplers that do useful work.</p>
+<p>Writing scripts like this is the primary way in which wepy is intended
+to be used.</p>
+<p>You can run this wepy simulation by running this on the command line
+after you have copy and pasted it to a file:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python run_wepy.py
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">wepy</span></code> command line application introduces some useful tools for
+working with and managing many interconnected simulations with
+checkpointing capabilities. This is the <code class="docutils literal notranslate"><span class="pre">orchestration</span></code> sub-module and
+should be a considered an advanced feature. Just know that if you are
+running a lot of simulations, long simulations which tend to fail due to
+hardware issues, or if you need to repeatedly stop and restart
+simulations the orchestration sub-module is available for that.</p>
+<p>So ignore the wepy commands like <code class="docutils literal notranslate"><span class="pre">wepy</span> <span class="pre">run</span></code> for now.</p>
+</div>
+<div class="section" id="a-somewhat-more-realistic-example">
+<h2>A somewhat more realistic example<a class="headerlink" href="#a-somewhat-more-realistic-example" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+          </div>
+            
+  <div class="footer-relations">
+    
+      <div class="pull-left">
+        <a class="btn btn-default" href="installation.html" title="previous chapter (use the left arrow)">Installation</a>
+      </div>
+    
+      <div class="pull-right">
+        <a class="btn btn-default" href="users_guide.html" title="next chapter (use the right arrow)">User’s Guide</a>
+      </div>
+    </div>
+    <div class="clearer"></div>
+  
+        </div>
+        <div class="clearfix"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="users_guide.html" title="User’s Guide"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="installation.html" title="Installation"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">wepy  documentation</a> &#187;</li> 
+      </ul>
+    </div>
+<script type="text/javascript">
+  $("#mobile-toggle a").click(function () {
+    $("#left-column").toggle();
+  });
+</script>
+<script type="text/javascript" src="../_static/js/bootstrap.js"></script>
+  <div class="footer">
+    &copy; Copyright 2018, Samuel D. Lotz. Created using <a href="http://sphinx.pocoo.org/">Sphinx</a>.
+  </div>
+  </body>
+</html>
