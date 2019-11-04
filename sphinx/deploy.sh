@@ -17,6 +17,9 @@ git merge master
 rm ../.gitmodules
 rm -rf ../wepy-tests
 
+git add ../.gitmodules
+git add ../wepy-tests
+
 # copy over the build products
 mv -f ./_build/html/* ../
 
