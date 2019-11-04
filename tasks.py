@@ -22,6 +22,9 @@ OPENMMTOOLS_INSTALL_TARGET = 'git+https://github.com/choderalab/openmmtools.git'
 BENCHMARK_STORAGE_URL="./metrics/benchmarks"
 BENCHMARK_STORAGE_URI="\"file://{}\"".format(BENCHMARK_STORAGE_URL)
 
+
+### Environments
+
 @task
 def deps_run(ctx):
     """Install bare minimum packages for running wepy with OpenMM."""
@@ -56,7 +59,6 @@ def deps_examples(ctx):
     # then install openmmtools from pip
     ctx.run(f"pip install {OPENMMTOOLS_INSTALL_TARGET}",
             pty=True)
-
 
 
 @task(pre=[deps_run, deps_dev, deps_examples])
@@ -124,33 +126,6 @@ def env_trial(ctx):
     print(f"Created an environment for trying out wepy called '{TRIAL_ENV}'")
     print(f"enter it by running the command 'conda activate {TRIAL_ENV}'\n")
 
-@task
-def version_which(ctx):
-    """Tell me what version the project is at."""
-
-    # get the current version
-    import wepy
-    print(wepy.__version__)
-
-
-# TODO
-@task
-def version_set(ctx):
-    """Set the version with a custom string."""
-
-    NotImplemented
-
-@task
-def version_bump(ctx, level='patch'):
-    """Incrementally increase the version number by specifying the bumpversion level."""
-
-    NotImplemented
-
-    # use the bumpversion utility
-    ctx.run("bumpversion {}".format(level))
-
-    # tag the git repo
-    ctx.run("git tag -a ")
 
 ### Cleaning
 
@@ -189,7 +164,7 @@ def sdist(ctx):
     """Make a source distribution"""
     ctx.run("python setup.py sdist")
 
-## Docs
+### Docs
 
 @task
 def docs_build(ctx):
@@ -255,6 +230,7 @@ def tests_tox(ctx):
     ctx.run("env PATH=\"{}/bin:$PATH\" tox".format(
         TOX_PYTHON_DIR))
 
+### Code Quality
 
 @task
 def lint(ctx):
@@ -270,6 +246,8 @@ def complexity(ctx):
 
     # make a cute word cloud of the things used
     ctx.run("(cd metrics/code_quality; lizard -EWordCount src/wepy > /dev/null)")
+
+### Profiling and Performance
 
 @task
 def profile(ctx):
@@ -313,6 +291,40 @@ def benchmark_compare(ctx):
 
 
 ### Releases
+
+
+## version management
+
+@task
+def version_which(ctx):
+    """Tell me what version the project is at."""
+
+    # get the current version
+    import wepy
+    print(wepy.__version__)
+
+
+# TODO
+@task
+def version_set(ctx):
+    """Set the version with a custom string."""
+
+    NotImplemented
+
+@task
+def version_bump(ctx, level='patch'):
+    """Incrementally increase the version number by specifying the bumpversion level."""
+
+    NotImplemented
+
+    # use the bumpversion utility
+    ctx.run("bumpversion {}".format(level))
+
+    # tag the git repo
+    ctx.run("git tag -a ")
+
+
+## Publishing
 
 @task(pre=[sdist])
 def upload_pypi(ctx):
