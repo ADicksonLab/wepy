@@ -175,7 +175,7 @@ def clean_docs(ctx):
 
 @task
 def clean_website(ctx):
-    """Remove all documentation build products"""
+    """Remove all local website build products"""
 
     ctx.run("rm -rf docs/*")
 
@@ -198,14 +198,28 @@ def docs_build(ctx):
     """Buld the documenation"""
     ctx.run("(cd sphinx; ./build.sh)")
 
-@task
-def docs_deploy_local(ctx):
-    """Deployt the docs locally for development."""
 
+
+### Website
+
+@task(pre=[clean_docs, clean_website, docs_build])
+def website_deploy_local(ctx):
+    """Deploy the docs locally for development. Must have bundler and jekyll installed"""
+
+    # WIP: a more landing page style website for wepy using jekyll
+    # which will have the docs linked to from it
+
+    # ctx.cd("jekyll")
+
+    # # update dependencies
+    # ctx.run("bundle install")
+    # ctx.run("bundle update")
+
+    # run the server
     ctx.run("bundle exec jekyll serve")
 
-@task(pre=[clean_website, docs_build])
-def docs_deploy(ctx):
+@task(pre=[clean_docs, docs_build])
+def website_deploy(ctx):
     """Deploy the documentation onto the internet."""
 
     ctx.run("(cd sphinx; ./deploy.sh)")

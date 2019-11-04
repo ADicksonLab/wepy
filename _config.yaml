@@ -1,7 +1,7 @@
 # this will be overridden by github but is useful for testing and CI
 # pipelines
 source: 'sphinx/_build/html'
-destination: 'docs'
+destination: 'site'
 
 # include the sphinx assets jekyll usually ignores
 include: [
