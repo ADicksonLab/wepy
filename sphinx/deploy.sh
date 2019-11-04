@@ -13,7 +13,7 @@ git checkout gh-pages
 git merge master
 
 # copy over the build products
-cp -r ./_build/html/* ../docs/
+cp -r ./_build/html/* ../
 
 # add the files in the docs folder
 git add ../docs/* --force
