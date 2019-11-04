@@ -24,13 +24,13 @@ abstract_requirements = [
     'jinja2',
     'pint',
     'multiprocessing_logging',
+    'dask[bag]',
+    'mdtraj',
 ]
 
 # extras requirements list
 mdtraj_requirements = ['mdtraj']
 
-#
-examples_reqs = ['openmmtools']
 
 # combination of all the extras requirements
 all_requirements = it.chain.from_iterable([mdtraj_requirements, ])

@@ -3,44 +3,147 @@ import sys
 
 #import conda.cli.python_api as Conda
 
-SHELL = "/bin/bash"
-ENV = "wepy-dev"
-CONDA = "${CONDA_EXE}"
+PYTHON_VERSION='3.7'
 
-CONDA_DEPS = ['pandoc', 'graphviz']
-OMNIA_DEPS = ['openmm']
+# names of canned envs that might be useful here
+TRIAL_ENV = 'wepy-trial'
+DEV_ENV = 'wepy-dev'
+
+CONDA_DEV_DEPS = ['pandoc', 'graphviz']
+OMNIA_RUN_DEPS = ['openmm',]
+
+# since we need to install openmmtools from pip since their conda
+# install is a PITA
+OPENMMTOOLS_DEPS = ['netcdf4', 'mpiplus', 'pymbar', 'pyyaml', 'cython',]
+OPENMMTOOLS_INSTALL_TARGET = 'git+https://github.com/choderalab/openmmtools.git'
+
+# OPENMM_CUDA_BUILD = "100"
+# OPENMM_INSTALL_SUFFIX = f"-c omnia/label/cuda{OPENMM_CUDA_BUILD} openmm"
+
 
 BENCHMARK_STORAGE_URL="./metrics/benchmarks"
 BENCHMARK_STORAGE_URI="\"file://{}\"".format(BENCHMARK_STORAGE_URL)
 
 @task
+def deps_run(ctx):
+    """Install bare minimum packages for running wepy with OpenMM."""
+
+
+    ctx.run("pip install -r requirements.txt")
+
+    ctx.run("conda install -y -c omnia {}".format(' '.join(OMNIA_RUN_DEPS)),
+            pty=True)
+
+@task(pre=[deps_run])
 def deps_dev(ctx):
-    """Install extra dependencies not available through python package management."""
+    """Install dependencies needed for developing in current env."""
 
-    ctx.run("conda install {}".format(' '.join(CONDA_DEPS)))
+
+    ctx.run("pip install -r requirements_dev.txt")
+
+    ctx.run("conda install -y -c conda-forge {}".format(' '.join(CONDA_DEV_DEPS)),
+            pty=True)
+
+
+@task(pre=[deps_run])
+def deps_examples(ctx):
+    """Install dependencies needed for running the examples in current env."""
+
+
+    # install the openmmtools dependencies
+    ctx.run("conda install -y -c conda-forge {}".format(
+        ' '.join(OPENMMTOOLS_DEPS)),
+        pty=True)
+
+    # then install openmmtools from pip
+    ctx.run(f"pip install {OPENMMTOOLS_INSTALL_TARGET}",
+            pty=True)
+
+
+
+@task(pre=[deps_run, deps_dev, deps_examples])
+def deps(ctx):
+    """Install all dependencies for all auxiliary tasks in the repo in current env."""
+    pass
+
 
 @task
-def deps_omnia(ctx):
-    """Install dependencies from the omnia conda channel."""
+def env_dev(ctx):
+    """Recreate from scratch the wepy development environment."""
 
-    ctx.run("conda install {}".format(' '.join(OMNIA_DEPS)))
+    ctx.run(f"conda create -y -n {DEV_ENV} python={PYTHON_VERSION}",
+        pty=True)
+
+    # install wepy
+    ctx.run(f"$ANACONDA_DIR/envs/{DEV_ENV}/bin/pip install -e .")
+
+    # install the dev dependencies
+    ctx.run(f"$ANACONDA_DIR/envs/{DEV_ENV}/bin/pip install -r requirements_dev.txt")
+    ctx.run("conda install -y -c conda-forge {}".format(' '.join(CONDA_DEV_DEPS)),
+            pty=True)
+
+    # install the openmmtools dependencies
+    ctx.run("conda install -y -n {} -c conda-forge {}".format(
+        TRIAL_ENV,
+        ' '.join(OPENMMTOOLS_DEPS)),
+        pty=True)
+
+    # then install openmmtools from pip
+    ctx.run("$ANACONDA_DIR/envs/" + TRIAL_ENV + f"/bin/pip install {OPENMMTOOLS_INSTALL_TARGET}",
+            pty=True)
+
 
 @task
-def what_version(ctx):
+def env_trial(ctx):
+    """Create (or recreate) an environment that is ready for running
+    pre-made wepy examples."""
+
+    ctx.run('echo "ANACONDA_DIR: $ANACONDA_DIR"')
+
+    ctx.run(f"conda create -y -n {TRIAL_ENV}",
+        pty=True)
+
+    ctx.run(f"conda install -y -n {TRIAL_ENV} python={PYTHON_VERSION}",
+        pty=True)
+
+    # install wepy
+    ctx.run("$ANACONDA_DIR/envs/" + TRIAL_ENV + "/bin/pip install -e .",
+            pty=True)
+
+    # install the other things needed for running the canned examples
+
+    # install the openmmtools dependencies
+    ctx.run("conda install -y -n {} -c conda-forge {}".format(
+        TRIAL_ENV,
+        ' '.join(OPENMMTOOLS_DEPS)),
+        pty=True)
+
+    # then install openmmtools from pip
+    ctx.run("$ANACONDA_DIR/envs/" + TRIAL_ENV + f"/bin/pip install {OPENMMTOOLS_INSTALL_TARGET}",
+            pty=True)
+
+    print("\n--------------------------------------------------------------")
+    print(f"Created an environment for trying out wepy called '{TRIAL_ENV}'")
+    print(f"enter it by running the command 'conda activate {TRIAL_ENV}'\n")
+
+@task
+def version_which(ctx):
     """Tell me what version the project is at."""
 
     # get the current version
     import wepy
     print(wepy.__version__)
 
+
+# TODO
 @task
-def set_version(ctx):
+def version_set(ctx):
     """Set the version with a custom string."""
 
     NotImplemented
 
 @task
-def inc_version(ctx, level='patch'):
+def version_bump(ctx, level='patch'):
     """Incrementally increase the version number by specifying the bumpversion level."""
 
     NotImplemented
@@ -51,6 +154,7 @@ def inc_version(ctx, level='patch'):
     # tag the git repo
     ctx.run("git tag -a ")
 
+### Cleaning
 
 @task
 def clean_dist(ctx):
@@ -61,33 +165,48 @@ def clean_dist(ctx):
 @task
 def clean_cache(ctx):
     """Remove all of the __pycache__ files in the packages."""
-
-    NotImplemented
+    ctx.run('find . -name "__pycache__" -exec rm -r {} +')
 
 @task
 def clean_docs(ctx):
     """Remove all documentation build products"""
 
-    NotImplemented
+    ctx.run("rm -rf sphinx/_build/*")
+
+@task
+def clean_website(ctx):
+    """Remove all documentation build products"""
+
+    ctx.run("rm -rf docs/*")
+
+
+@task(pre=[clean_cache, clean_dist, clean_docs, clean_website])
+def clean(ctx):
+    pass
+
+### Building and packaging
 
 @task
 def sdist(ctx):
+    """Make a source distribution"""
     ctx.run("python setup.py sdist")
 
-@task(pre=[sdist])
-def upload_pypi(ctx):
-    ctx.run('twine upload dist/*')
+## Docs
 
 @task
 def docs_build(ctx):
     """Buld the documenation"""
-    ctx.run("./sphinx/build.sh")
+    ctx.run("(cd sphinx; ./build.sh)")
 
-@task
+@task(pre=[clean_website, docs_build])
 def docs_deploy(ctx):
-    """Deploy the documentation onto the server."""
-    ctx.run("./sphinx/deploy.sh")
+    """Deploy the documentation onto the internet."""
 
+    ctx.run("(cd sphinx; ./deploy.sh)")
+
+
+
+### Tests
 
 @task
 def tests_submodule(ctx):
@@ -107,8 +226,6 @@ def tests_automatic(ctx):
     """Run the automated tests."""
 
     ctx.run("pytest -m 'not interactive'")
-
-
 
 @task
 def tests_tox(ctx):
@@ -175,3 +292,10 @@ def benchmark_compare(ctx):
 )
 
     ctx.run(run_command)
+
+
+### Releases
+
+@task(pre=[sdist])
+def upload_pypi(ctx):
+    ctx.run('twine upload dist/*')

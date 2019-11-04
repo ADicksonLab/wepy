@@ -1,8 +1,0 @@
-cython
-mdtraj
-git+https://github.com/ADicksonLab/geomm.git
-git+https://github.com/choderalab/openmmtools.git
-
-
-multiprocessing_logging
-

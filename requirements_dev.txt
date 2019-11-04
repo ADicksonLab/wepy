@@ -63,4 +63,4 @@ git+https://github.com/ADicksonLab/geomm.git
 
 
 # for the test systems we use openmmtools
-git+https://github.com/choderalab/openmmtools.git
+# git+https://github.com/choderalab/openmmtools.git
