@@ -21,7 +21,8 @@ git add ../.gitmodules
 git add ../wepy-tests
 
 # copy over the build products
-mv -f ./_build/html/* ../
+cp -rf ./_build/html/* ../
+rm -rf ./_build/html/*
 
 # add the files in the docs folder
 git add ../* --force
