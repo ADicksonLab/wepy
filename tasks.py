@@ -1,8 +1,6 @@
 from invoke import task
 import sys
 
-#import conda.cli.python_api as Conda
-
 PYTHON_VERSION='3.7'
 
 # names of canned envs that might be useful here
