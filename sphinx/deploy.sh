@@ -12,6 +12,11 @@ git checkout gh-pages
 # merge the new changes from master
 git merge master
 
+# then remove the modules so we can actually build the docs without gh
+# pages complaining
+rm .gitmodules
+rm -rf wepy-tests
+
 # copy over the build products
 mv ./_build/html/* ../
 
