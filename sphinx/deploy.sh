@@ -31,7 +31,7 @@ git add ../* --force
 git commit -m "Automated commit from deploy.sh"
 
 # push this branch so it gets published
-git push github/gh-pages
+git push github gh-pages
 
 # go back to the branch you were on
 git checkout -
