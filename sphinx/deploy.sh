@@ -10,7 +10,7 @@ git checkout --track github/gh-pages
 git checkout gh-pages
 
 # copy over the build products
-cp ./_build/html/* ../docs/
+cp -r ./_build/html/* ../docs/
 
 # push this branch so it gets published
 git push github
