@@ -12,6 +12,12 @@ git checkout gh-pages
 # copy over the build products
 cp -r ./_build/html/* ../docs/
 
+# add the files in the docs folder
+git add docs/* --force
+
+# commit
+git commit -m "Automated commit from deploy.sh"
+
 # push this branch so it gets published
 git push github
 
