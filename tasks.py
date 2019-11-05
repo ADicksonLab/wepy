@@ -23,6 +23,16 @@ BENCHMARK_STORAGE_URL="./metrics/benchmarks"
 BENCHMARK_STORAGE_URI="\"file://{}\"".format(BENCHMARK_STORAGE_URL)
 
 
+### Repo
+
+@task
+def submodule_tests(ctx):
+    """Retrieve the tests submodule if not already cloned."""
+
+    ctx.run("git submodule update --init --recursive")
+    ctx.run("git -C wepy-tests checkout master")
+
+
 ### Environments
 
 @task
@@ -201,12 +211,6 @@ def website_deploy(ctx):
 
 ### Tests
 
-@task
-def tests_submodule(ctx):
-    """Retrieve the tests submodule if not already cloned."""
-
-    ctx.run("git submodule update --init --recursive")
-    ctx.run("git -C wepy-tests checkout master")
 
 @task
 def tests_interactive(ctx):
