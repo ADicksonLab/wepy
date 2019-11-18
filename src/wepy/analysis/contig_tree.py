@@ -1632,34 +1632,34 @@ class Contig(ContigTree):
 
         return self.trace_parent_table(self.contig_trace)
 
+    # TODO
+    def terminal_trace(self):
+        """Return a trace of all of the walkers, whose state was not
+        propagated forward.
+
+        i.e. all squashed and warped walkers as well as the last walkers in the simulation
+
+        """
+
+        raise NotImplementedError
+
+        trace = self.squash_trace() + self.final_trace() + self.warp_trace()
+
+        return trace
+
+    def squash_trace(self):
+        """Return a trace of all of the squashed walkers in the simulation."""
+
+        raise NotImplementedError
+
+    def final_trace(self):
+        """Return a trace of all the walkers at the end of the contig."""
+
+        raise NotImplementedError
 
 
-    # convenience methods for getting the ancestries from traces
-    def lineages_contig(self, contig_trace):
-        """Get the ancestry lineage for each element of the trace"""
-
-        # get the parent table for the spanning contig
-        parent_table = self.parent_table()
-
-        lineages = []
-        # for each warping record
-        for cycle_idx, walker_idx in contig_trace:
-
-            # get the ancestors as a contig walker trace (traj_idx, cycle_idx)
-            contig_walker_trace = ancestors(parent_table, cycle_idx, walker_idx)
-
-            lineages.append(lineage)
-
-        return lineages
-
-    def lineages(self, contig_trace):
-
-        return [self.contig_trace_to_run_trace(trace)
-                for trace in self.lineages_contig(contig_trace)]
-
-    # methods for getting traces of walkers for which a specific type
-    # of event occured with them
-    def warp_contig_trace(self):
+    def warp_trace(self):
+        """Return a trace that gives all of the walkers that were warped."""
 
         trace = []
         for warping_record in self.warping_records():
@@ -1671,92 +1671,30 @@ class Contig(ContigTree):
 
             trace.append(rec)
 
-
-        return trace
-
-    def resampling_contig_trace(self, decision_id):
-        """Return full run traces for every specified type of resampling
-        event.
-
-        Parameters
-        ----------
-
-        decision_id : str
-            The string ID of the decision you want to match on and get
-            lineages for.
-
-        """
-        pass
-
-    def final_contig_trace(self):
-
-        pass
-
-    def warp_trace(self):
-        """Return a run trace that gives all of the walkers that were warped."""
-
-        trace = self.warp_contig_trace()
-
         run_trace = self.contig_trace_to_run_trace(self.contig_trace, trace)
 
         return run_trace
 
 
-    def resampling_trace(self):
-        """Return full run traces for every specified type of resampling
-        event.
-
-        Parameters
-        ----------
-
-        decision_id : str
-            The string ID of the decision you want to match on and get
-            lineages for.
-
-        """
-
-
-        trace = self.resampling_contig_trace()
-
-        run_trace = self.contig_trace_to_run_trace(self.contig_trace, trace)
-
-        return run_trace
-
-
-    def final_trace(self):
-        """Return a trace of all the walkers at the end of the contig."""
-
-        trace = self.final_contig_trace()
-
-        run_trace = self.contig_trace_to_run_trace(self.contig_trace, trace)
-
-        return run_trace
-
-
-
-
-    # specific lineages we care about
-    def warp_lineages(self):
+    def exit_point_trajectories(self):
         """Return full run traces for every warping event."""
 
-        return self.lineages(self.warp_traces())
+        # get the parent table for the spanning contig
+        parent_table = self.parent_table()
 
-    def final_lineages(self):
-        """Return full run traces for every warping event."""
+        warp_lineages = []
+        # for each warping record
+        for warping_record in self.warping_records():
 
-        return self.lineages(self.final_traces())
+            cycle_idx = warping_record[0]
+            walker_idx = warping_record[1]
 
-    def resampling_lineages(self, decision_id):
-        """Return full run traces for every specified type of resampling
-        event.
+            # get the ancestors as a contig walker trace (traj_idx, cycle_idx)
+            contig_walker_trace = ancestors(parent_table, cycle_idx, walker_idx)
 
-        Parameters
-        ----------
+            # convert to a run trace
+            lineage = self.contig_trace_to_run_trace(self.contig_trace, contig_walker_trace)
 
-        decision_id : str
-            The string ID of the decision you want to match on and get
-            lineages for.
+            warp_lineages.append(lineage)
 
-        """
-
-        return self.lineages(self.resampling_traces(decision_id))
+        return warp_lineages
