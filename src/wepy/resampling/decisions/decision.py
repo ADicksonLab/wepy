@@ -297,13 +297,11 @@ class NoDecision(Decision):
     ENUM = NothingDecisionEnum
     DEFAULT_DECISION = ENUM.NOTHING
 
-    FIELDS = Decision.FIELDS
+    FIELDS = Decision.FIELDS + ('target_idxs',)
+    SHAPES = Decision.SHAPES + (Ellipsis,)
+    DTYPES = Decision.DTYPES + (np.int,)
 
-    FIELDS = Decision.FIELDS
-    SHAPES = Decision.SHAPES
-    DTYPES = Decision.DTYPES
-
-    RECORD_FIELDS = Decision.RECORD_FIELDS
+    RECORD_FIELDS = Decision.RECORD_FIELDS + ('target_idxs',)
 
     ANCESTOR_DECISION_IDS = (ENUM.NOTHING.value,)
 
