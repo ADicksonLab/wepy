@@ -11,7 +11,8 @@ def binding_site_idxs(json_topology,
                       ligand_idxs, receptor_idxs,
                       coords,
                       box_vectors,
-                      cutoff):
+                      cutoff,
+                      periodic=True):
     """
 
     Parameters
@@ -48,9 +49,8 @@ def binding_site_idxs(json_topology,
                           unitcell_angles=[box_angles],
                           topology=json_to_mdtraj_topology(json_topology))
 
-    # selects protein atoms which have less than 8 A from ligand
-    # atoms in the crystal structure
-    neighbors_idxs = mdj.compute_neighbors(traj, cutoff, ligand_idxs)
+    neighbors_idxs = mdj.compute_neighbors(traj, cutoff, ligand_idxs,
+                                           periodic=periodic)[0]
 
     # selects protein atoms from neighbors list
     binding_selection_idxs = np.intersect1d(neighbors_idxs, receptor_idxs)

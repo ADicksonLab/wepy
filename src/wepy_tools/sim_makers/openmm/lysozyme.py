@@ -36,7 +36,7 @@ class LysozymeImplicitOpenMMSimMaker(OpenMMToolsTestSysSimMaker):
     BCS = OpenMMToolsTestSysSimMaker.BCS + [UnbindingBC]
 
     UNBINDING_BC_DEFAULTS = {
-        'cutoff_distance' : 1.0, # nm
+        'cutoff_distance' : 1.0 * unit.nanometer,
     }
 
     DEFAULT_BC_PARAMS = OpenMMToolsTestSysSimMaker.DEFAULT_BC_PARAMS
@@ -57,7 +57,6 @@ class LysozymeImplicitOpenMMSimMaker(OpenMMToolsTestSysSimMaker):
         test_sys = LysozymeImplicit()
 
         init_state = self.make_state(test_sys.system, test_sys.positions)
-
 
         lig_idxs = self.ligand_idxs()
         bs_idxs = self.binding_site_idxs(bs_cutoff)
@@ -123,7 +122,9 @@ class LysozymeImplicitOpenMMSimMaker(OpenMMToolsTestSysSimMaker):
             cls.receptor_idxs(),
             test_sys.positions,
             cls.box_vectors(),
-            cutoff)
+            cutoff,
+            periodic=False
+        )
 
         return atom_idxs
 
