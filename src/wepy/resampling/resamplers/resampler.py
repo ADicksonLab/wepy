@@ -591,6 +591,13 @@ class NoResampler(Resampler):
 
     DECISION = NoDecision
 
+    # must reset these when you change the decision
+    RESAMPLING_FIELDS = DECISION.FIELDS + Resampler.CYCLE_FIELDS
+    RESAMPLING_SHAPES = DECISION.SHAPES + Resampler.CYCLE_SHAPES
+    RESAMPLING_DTYPES = DECISION.DTYPES + Resampler.CYCLE_DTYPES
+
+    RESAMPLING_RECORD_FIELDS = DECISION.RECORD_FIELDS + Resampler.CYCLE_RECORD_FIELDS
+
     def resample(self, walkers, **kwargs):
 
         self._resample_init(walkers=walkers)
@@ -610,6 +617,7 @@ class NoResampler(Resampler):
             walker_record['step_idx'] = np.array([0])
             walker_record['walker_idx'] = np.array([walker_record['walker_idx']])
             walker_record['decision_id'] = np.array([walker_record['decision_id']])
+            walker_record['target_idxs'] = np.array([walker_record['walker_idx']])
 
         # we only have one step so our resampling_records are just the
         # single list of walker actions

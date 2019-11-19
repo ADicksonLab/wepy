@@ -1333,6 +1333,57 @@ class ContigTree(BaseContigTree):
         # then cast to a set to get the unique ones
         return list(set(big_trace))
 
+    def resampling_trace(self, decision_id):
+        """Get the trace for all unique warping events from all contigs."""
+
+        with self:
+            big_trace = []
+            for contig_idx in self.span_traces.keys():
+                contig = self.span_contig(contig_idx)
+
+                big_trace.extend(contig.resampling_trace(decision_id))
+
+        # then cast to a set to get the unique ones
+        return list(set(big_trace))
+
+    def final_trace(self):
+        """Get the trace for all unique warping events from all contigs."""
+
+        with self:
+            big_trace = []
+            for contig_idx in self.span_traces.keys():
+                contig = self.span_contig(contig_idx)
+
+                big_trace.extend(contig.final_trace())
+
+        # then cast to a set to get the unique ones
+        return list(set(big_trace))
+
+
+    def lineages(self, trace):
+
+        lines = []
+        # for each element of the trace we need to get it's lineage
+        for w_run_idx, w_walker_idx, w_cycle_idx in trace:
+
+            # get a span contig that it is a part of
+            for span_idx, span_trace in self.span_traces.items():
+
+                # if this frame is from this span trace
+                if (w_run_idx, w_cycle_idx,) in span_trace:
+
+                    # then we process to get the lineages with this span
+                    contig = self.span_contig(span_idx)
+
+                    # lineages for a single frame
+                    lines.append(contig.lineages([(w_cycle_idx, w_walker_idx)])[0])
+
+                    # any span trace will do so we finish at this point
+                    break
+
+
+        return lines
+
 class Contig(ContigTree):
     """Wraps a WepyHDF5 object and gives access to logical trajectories
     from a single contig.
@@ -1636,25 +1687,28 @@ class Contig(ContigTree):
 
     # convenience methods for getting the ancestries from traces
     def lineages_contig(self, contig_trace):
-        """Get the ancestry lineage for each element of the trace"""
+        """Get the ancestry lineage for each element of the trace for a contig
+        trace as contig traces."""
 
         # get the parent table for the spanning contig
         parent_table = self.parent_table()
 
         lineages = []
-        # for each warping record
+
         for cycle_idx, walker_idx in contig_trace:
 
             # get the ancestors as a contig walker trace (traj_idx, cycle_idx)
-            contig_walker_trace = ancestors(parent_table, cycle_idx, walker_idx)
+            lineage = ancestors(parent_table, cycle_idx, walker_idx)
 
             lineages.append(lineage)
 
         return lineages
 
     def lineages(self, contig_trace):
+        """Get the ancestry lineage for each element of the trace as a run
+        trace."""
 
-        return [self.contig_trace_to_run_trace(trace)
+        return [self.walker_trace_to_run_trace(trace)
                 for trace in self.lineages_contig(contig_trace)]
 
     # methods for getting traces of walkers for which a specific type
@@ -1681,16 +1735,36 @@ class Contig(ContigTree):
         Parameters
         ----------
 
-        decision_id : str
-            The string ID of the decision you want to match on and get
-            lineages for.
+        decision_id : int
+            The integer ID of the decision you want to match on and get
+            lineages for. This is the integer value of the decision
+            enumeration value.
 
         """
-        pass
+
+        trace = []
+
+        # go through the resampling records and filter only the
+        # records that match the decision_id
+        for rec in self.resampling_records():
+
+            if rec.decision_id == decision_id:
+
+                trace.append((rec.walker_idx, rec.cycle_idx))
+
+        return trace
 
     def final_contig_trace(self):
 
-        pass
+        # this is just the last cycle index
+        last_cycle_idx = self.num_cycles - 1
+
+        # make a contig trace for each of the last walkers
+        trace = [(walker_idx, last_cycle_idx)
+                 for walker_idx in range(self.num_walkers(last_cycle_idx))]
+
+        return trace
+
 
     def warp_trace(self):
         """Return a run trace that gives all of the walkers that were warped."""
@@ -1702,21 +1776,21 @@ class Contig(ContigTree):
         return run_trace
 
 
-    def resampling_trace(self):
+    def resampling_trace(self, decision_id):
         """Return full run traces for every specified type of resampling
         event.
 
         Parameters
         ----------
 
-        decision_id : str
+        decision_id : int
             The string ID of the decision you want to match on and get
             lineages for.
 
         """
 
 
-        trace = self.resampling_contig_trace()
+        trace = self.resampling_contig_trace(decision_id)
 
         run_trace = self.contig_trace_to_run_trace(self.contig_trace, trace)
 
@@ -1731,32 +1805,3 @@ class Contig(ContigTree):
         run_trace = self.contig_trace_to_run_trace(self.contig_trace, trace)
 
         return run_trace
-
-
-
-
-    # specific lineages we care about
-    def warp_lineages(self):
-        """Return full run traces for every warping event."""
-
-        return self.lineages(self.warp_traces())
-
-    def final_lineages(self):
-        """Return full run traces for every warping event."""
-
-        return self.lineages(self.final_traces())
-
-    def resampling_lineages(self, decision_id):
-        """Return full run traces for every specified type of resampling
-        event.
-
-        Parameters
-        ----------
-
-        decision_id : str
-            The string ID of the decision you want to match on and get
-            lineages for.
-
-        """
-
-        return self.lineages(self.resampling_traces(decision_id))
