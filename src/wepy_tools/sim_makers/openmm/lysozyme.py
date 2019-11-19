@@ -36,7 +36,7 @@ class LysozymeImplicitOpenMMSimMaker(OpenMMToolsTestSysSimMaker):
     BCS = OpenMMToolsTestSysSimMaker.BCS + [UnbindingBC]
 
     UNBINDING_BC_DEFAULTS = {
-        'cutoff_distance' : 1.0 * unit.nanometer,
+        'cutoff_distance' : 1.0,
     }
 
     DEFAULT_BC_PARAMS = OpenMMToolsTestSysSimMaker.DEFAULT_BC_PARAMS
