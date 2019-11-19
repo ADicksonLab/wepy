@@ -1683,27 +1683,6 @@ class Contig(ContigTree):
 
         return self.trace_parent_table(self.contig_trace)
 
-
-
-    # convenience methods for getting the ancestries from traces
-    def lineages_contig(self, contig_trace):
-        """Get the ancestry lineage for each element of the trace for a contig
-        trace as contig traces."""
-
-        # get the parent table for the spanning contig
-        parent_table = self.parent_table()
-
-        lineages = []
-
-        for cycle_idx, walker_idx in contig_trace:
-
-            # get the ancestors as a contig walker trace (traj_idx, cycle_idx)
-            lineage = ancestors(parent_table, cycle_idx, walker_idx)
-
-            lineages.append(lineage)
-
-        return lineages
-
     def lineages(self, contig_trace):
         """Get the ancestry lineage for each element of the trace as a run
         trace."""
@@ -1711,9 +1690,9 @@ class Contig(ContigTree):
         return [self.walker_trace_to_run_trace(trace)
                 for trace in self.lineages_contig(contig_trace)]
 
-    # methods for getting traces of walkers for which a specific type
-    # of event occured with them
-    def warp_contig_trace(self):
+
+    def warp_trace(self):
+        """Return a trace that gives all of the walkers that were warped."""
 
         trace = []
         for warping_record in self.warping_records():
@@ -1724,7 +1703,6 @@ class Contig(ContigTree):
             rec = (walker_idx, cycle_idx)
 
             trace.append(rec)
-
 
         return trace
 
@@ -1774,7 +1752,6 @@ class Contig(ContigTree):
         run_trace = self.contig_trace_to_run_trace(self.contig_trace, trace)
 
         return run_trace
-
 
     def resampling_trace(self, decision_id):
         """Return full run traces for every specified type of resampling
