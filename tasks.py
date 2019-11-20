@@ -4,8 +4,8 @@ import sys
 PYTHON_VERSION='3.7'
 
 # names of canned envs that might be useful here
-TRIAL_ENV = 'wepy-trial'
-DEV_ENV = 'wepy-dev'
+TRIAL_ENV = 'wepy.trial'
+DEV_ENV = 'wepy.dev'
 
 CONDA_DEV_DEPS = ['pandoc', 'graphviz']
 OMNIA_RUN_DEPS = ['openmm',]
@@ -50,7 +50,7 @@ def deps_dev(ctx):
     """Install dependencies needed for developing in current env."""
 
 
-    ctx.run("pip install -r requirements_dev.txt")
+    ctx.run("pip install -r dev.requirements.txt")
 
     ctx.run("conda install -y -c conda-forge {}".format(' '.join(CONDA_DEV_DEPS)),
             pty=True)
@@ -78,63 +78,25 @@ def deps(ctx):
 
 
 @task
-def env_dev(ctx):
-    """Recreate from scratch the wepy development environment."""
+def env(cx, name='dev'):
 
-    ctx.run(f"conda create -y -n {DEV_ENV} python={PYTHON_VERSION}",
+    env_name=f"wepy.{name}"
+
+    cx.run(f"conda create -y -n {env_name} python={PYTHON_VERSION}",
         pty=True)
 
-    # install wepy
-    ctx.run(f"$ANACONDA_DIR/envs/{DEV_ENV}/bin/pip install -e .")
+    # install the pip dev dependencies
+    cx.run(f"$ANACONDA_DIR/envs/{env_name}/bin/pip install -r envs/{name}.requirements.txt")
 
-    # install the dev dependencies
-    ctx.run(f"$ANACONDA_DIR/envs/{DEV_ENV}/bin/pip install -r requirements_dev.txt")
-    ctx.run("conda install -y -c conda-forge {}".format(' '.join(CONDA_DEV_DEPS)),
-            pty=True)
+    # install the conda dev dependencies
+    cx.run(f"conda env update -n {env_name} --file envs/{name}.env.yaml")
 
-    # install the openmmtools dependencies
-    ctx.run("conda install -y -n {} -c conda-forge {}".format(
-        TRIAL_ENV,
-        ' '.join(OPENMMTOOLS_DEPS)),
-        pty=True)
+    # # install the pip tools dependencies
+    # cx.run(f"$ANACONDA_DIR/envs/{env_name}/bin/pip install -r tools.requirements.txt")
 
-    # then install openmmtools from pip
-    ctx.run("$ANACONDA_DIR/envs/" + TRIAL_ENV + f"/bin/pip install {OPENMMTOOLS_INSTALL_TARGET}",
-            pty=True)
+    print("--------------------------------------------------------------------------------")
+    print(f"run: conda activate {env_name}")
 
-
-@task
-def env_trial(ctx):
-    """Create (or recreate) an environment that is ready for running
-    pre-made wepy examples."""
-
-    ctx.run('echo "ANACONDA_DIR: $ANACONDA_DIR"')
-
-    ctx.run(f"conda create -y -n {TRIAL_ENV}",
-        pty=True)
-
-    ctx.run(f"conda install -y -n {TRIAL_ENV} python={PYTHON_VERSION}",
-        pty=True)
-
-    # install wepy
-    ctx.run("$ANACONDA_DIR/envs/" + TRIAL_ENV + "/bin/pip install -e .",
-            pty=True)
-
-    # install the other things needed for running the canned examples
-
-    # install the openmmtools dependencies
-    ctx.run("conda install -y -n {} -c conda-forge {}".format(
-        TRIAL_ENV,
-        ' '.join(OPENMMTOOLS_DEPS)),
-        pty=True)
-
-    # then install openmmtools from pip
-    ctx.run("$ANACONDA_DIR/envs/" + TRIAL_ENV + f"/bin/pip install {OPENMMTOOLS_INSTALL_TARGET}",
-            pty=True)
-
-    print("\n--------------------------------------------------------------")
-    print(f"Created an environment for trying out wepy called '{TRIAL_ENV}'")
-    print(f"enter it by running the command 'conda activate {TRIAL_ENV}'\n")
 
 
 ### Cleaning
@@ -213,16 +175,42 @@ def website_deploy(ctx):
 
 
 @task
-def tests_interactive(ctx):
-    """Run the interactive tests so we can play with things."""
-
-    ctx.run("pytest -m 'interactive'")
+def tests_benchmarks(cx):
+    cx.run("(cd wepy-tests/tests/test_benchmarks && pytest -m 'not interactive')")
 
 @task
-def tests_automatic(ctx):
-    """Run the automated tests."""
+def tests_integration(cx, node='dev'):
+    cx.run(f"(cd wepy-tests/tests/test_integration && pytest -m 'not interactive' -m 'node_{node}')")
 
-    ctx.run("pytest -m 'not interactive'")
+@task
+def tests_unit(cx, node='dev'):
+    cx.run(f"(cd wepy-tests/tests/test_unit && pytest -m 'not interactive' -m 'node_{node}')")
+
+@task
+def tests_interactive(cx):
+    """Run the interactive tests so we can play with things."""
+
+    cx.run("pytest -m 'interactive'")
+
+@task()
+def tests_all(cx, node='dev'):
+    """Run all the automated tests. No benchmarks.
+
+    There are different kinds of nodes that we can run on that
+    different kinds of tests are available for.
+
+    - minor : does not have a GPU, can still test most other code paths
+
+    - dev : has at least 1 GPU, enough for small tests of all code paths
+
+    - production : has multiple GPUs, good for running benchmarks
+                   and full stress tests
+
+    """
+
+
+    tests_unit(cx, node=node)
+    tests_integration(cx, node=node)
 
 @task
 def tests_tox(ctx):
@@ -333,3 +321,70 @@ def version_bump(ctx, level='patch'):
 @task(pre=[sdist])
 def upload_pypi(ctx):
     ctx.run('twine upload dist/*')
+
+
+## Scrapyard
+
+# @task
+# def env_dev(ctx):
+#     """Recreate from scratch the wepy development environment."""
+
+#     ctx.run(f"conda create -y -n {DEV_ENV} python={PYTHON_VERSION}",
+#         pty=True)
+
+#     # install wepy
+#     ctx.run(f"$ANACONDA_DIR/envs/{DEV_ENV}/bin/pip install -e .")
+
+#     # install the dev dependencies
+#     ctx.run(f"$ANACONDA_DIR/envs/{DEV_ENV}/bin/pip install -r dev.requirements.txt")
+#     ctx.run("conda install -y -c conda-forge {}".format(' '.join(CONDA_DEV_DEPS)),
+#             pty=True)
+
+#     # install the openmmtools dependencies
+#     ctx.run("conda install -y -n {} -c conda-forge {}".format(
+#         DEV_ENV,
+#         ' '.join(OPENMMTOOLS_DEPS)),
+#         pty=True)
+
+#     # then install openmmtools from pip
+#     ctx.run("$ANACONDA_DIR/envs/" + DEV_ENV + f"/bin/pip install {OPENMMTOOLS_INSTALL_TARGET}",
+#             pty=True)
+
+#     print("\n--------------------------------------------------------------")
+#     print(f"Created an environment for trying out wepy called '{DEV_ENV}'")
+#     print(f"enter it by running the command 'conda activate {DEV_ENV}'\n")
+
+
+
+# @task
+# def env_trial(ctx):
+#     """Create (or recreate) an environment that is ready for running
+#     pre-made wepy examples."""
+
+#     ctx.run('echo "ANACONDA_DIR: $ANACONDA_DIR"')
+
+#     ctx.run(f"conda create -y -n {TRIAL_ENV}",
+#         pty=True)
+
+#     ctx.run(f"conda install -y -n {TRIAL_ENV} python={PYTHON_VERSION}",
+#         pty=True)
+
+#     # install wepy
+#     ctx.run("$ANACONDA_DIR/envs/" + TRIAL_ENV + "/bin/pip install -e .",
+#             pty=True)
+
+#     # install the other things needed for running the canned examples
+
+#     # install the openmmtools dependencies
+#     ctx.run("conda install -y -n {} -c conda-forge {}".format(
+#         TRIAL_ENV,
+#         ' '.join(OPENMMTOOLS_DEPS)),
+#         pty=True)
+
+#     # then install openmmtools from pip
+#     ctx.run("$ANACONDA_DIR/envs/" + TRIAL_ENV + f"/bin/pip install {OPENMMTOOLS_INSTALL_TARGET}",
+#             pty=True)
+
+#     print("\n--------------------------------------------------------------")
+#     print(f"Created an environment for trying out wepy called '{TRIAL_ENV}'")
+#     print(f"enter it by running the command 'conda activate {TRIAL_ENV}'\n")

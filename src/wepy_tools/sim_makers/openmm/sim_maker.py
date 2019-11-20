@@ -197,6 +197,7 @@ class OpenMMSimMaker():
         self.init_state = init_state
         self.system = system
         self.topology = topology
+        
 
         self.getState_kwargs = dict(GET_STATE_KWARG_DEFAULTS)
         if self.GET_STATE_KWARGS is not None:

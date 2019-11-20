@@ -5,7 +5,7 @@ pandas
 dill
 click
 scipy
-geomm
+git+https://github.com/ADicksonLab/geomm.git
 matplotlib
 tabulate
 jinja2

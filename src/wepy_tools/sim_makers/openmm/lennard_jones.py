@@ -1,6 +1,7 @@
 import numpy as np
 from scipy.spatial.distance import euclidean
 
+from wepy.runners.openmm import GET_STATE_KWARG_DEFAULTS
 from wepy.resampling.distances.distance import Distance
 from wepy.boundary_conditions.receptor import UnbindingBC
 
@@ -51,6 +52,12 @@ class LennardJonesPairOpenMMSimMaker(OpenMMToolsTestSysSimMaker):
     )
 
     def __init__(self):
+
+        # must set this here since we need it to generate the state,
+        # will get called again in the superclass method
+        self.getState_kwargs = dict(GET_STATE_KWARG_DEFAULTS)
+        if self.GET_STATE_KWARGS is not None:
+            self.getState_kwargs.update(self.GET_STATE_KWARGS)
 
         test_sys = LennardJonesPair()
 

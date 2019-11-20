@@ -8,8 +8,7 @@
 
 # source tooling.sh
 
-# figure out which directory is you anaconda dir
-export ANACONDA_DIR=$(dirname $(dirname $(which conda)))
+source ./env.bash
 
 # install invoke here
-$ANACONDA_DIR/bin/pip install -r requirements_tooling.txt
+$ANACONDA_DIR/bin/pip install -r tools.requirements.txt
