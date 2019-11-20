@@ -1128,7 +1128,7 @@ class OpenMMCPUWalkerTaskProcess(WalkerTaskProcess):
         # make the platform kwargs dictionary
         platform_options = {'CpuThreads' : num_threads}
 
-        new_walker = task(platform_kwargs=platform_options)
+        return task(platform_kwargs=platform_options)
 
 class OpenMMGPUWalkerTaskProcess(WalkerTaskProcess):
 
@@ -1143,4 +1143,4 @@ class OpenMMGPUWalkerTaskProcess(WalkerTaskProcess):
         # make the platform kwargs dictionary
         platform_options = {'DeviceIndex' : device_id}
 
-        new_walker = task(platform_kwargs=platform_options)
+        return task(platform_kwargs=platform_options)

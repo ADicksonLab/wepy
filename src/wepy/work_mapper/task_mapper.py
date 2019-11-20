@@ -400,7 +400,7 @@ class WalkerTaskProcess(mp.Process):
         # run the task thunk
         logging.info("{}: Running task".format(self.name))
         try:
-            result = task()
+            result = self.run_task(task)
         except Exception as task_exception:
 
             # get the traceback for the exception
@@ -427,6 +427,10 @@ class WalkerTaskProcess(mp.Process):
                             tb=tb)
 
         return result
+
+    def run_task(self, task):
+
+        return task()
 
     def run(self):
 
