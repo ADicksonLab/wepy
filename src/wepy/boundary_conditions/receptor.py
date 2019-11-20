@@ -606,6 +606,7 @@ class UnbindingBC(ReceptorBC):
                  topology=None,
                  ligand_idxs=None,
                  receptor_idxs=None,
+                 periodic=True,
                  **kwargs):
         """Constructor for UnbindingBC class.
 
@@ -673,6 +674,10 @@ class UnbindingBC(ReceptorBC):
         # convert the json topology to an mdtraj one
         self._mdj_top = json_to_mdtraj_topology(self._topology)
 
+        # whether or not to use the periodic box vectors in the
+        # distance calculation
+        self._periodic = periodic
+
 
     @property
     def cutoff_distance(self):
@@ -712,10 +717,12 @@ class UnbindingBC(ReceptorBC):
         # and get hte minimum distance
         min_distance = np.min(mdj.compute_distances(walker_traj,
                                                     it.product(self.ligand_idxs,
-                                                               self.receptor_idxs)))
+                                                               self.receptor_idxs),
+                                                    periodic=self._periodic)
+        )
         t4 = time.time()
         logging.info("Make a traj: {0}; Calc dists: {1}".format(t3-t2,t4-t3))
-        
+
         return min_distance
 
     def _progress(self, walker):

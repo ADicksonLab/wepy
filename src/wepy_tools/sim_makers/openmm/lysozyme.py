@@ -37,6 +37,7 @@ class LysozymeImplicitOpenMMSimMaker(OpenMMToolsTestSysSimMaker):
 
     UNBINDING_BC_DEFAULTS = {
         'cutoff_distance' : 1.0,
+        'periodic' : False,
     }
 
     DEFAULT_BC_PARAMS = OpenMMToolsTestSysSimMaker.DEFAULT_BC_PARAMS
@@ -45,6 +46,9 @@ class LysozymeImplicitOpenMMSimMaker(OpenMMToolsTestSysSimMaker):
             'UnbindingBC' : UNBINDING_BC_DEFAULTS,
         }
     )
+
+
+    BOX_SIDE_LENGTH = 20 * unit.nanometer
 
     def __init__(self, bs_cutoff=0.8*unit.nanometer):
 
@@ -55,6 +59,11 @@ class LysozymeImplicitOpenMMSimMaker(OpenMMToolsTestSysSimMaker):
             self.getState_kwargs.update(self.GET_STATE_KWARGS)
 
         test_sys = LysozymeImplicit()
+
+        # set the box vectors to something reasonable
+        box_vectors = self.box_vectors()
+
+        test_sys.setDefaultPeriodicBoxVectors()
 
         init_state = self.make_state(test_sys.system, test_sys.positions)
 
@@ -72,6 +81,25 @@ class LysozymeImplicitOpenMMSimMaker(OpenMMToolsTestSysSimMaker):
             system=test_sys.system,
             topology=test_sys.topology,
         )
+
+    @classmethod
+    def box_vectors(cls):
+
+        # the box vectors from the test system are garbage and don't
+        # matter for the simulation, however they cause lots of
+        # problems when they are set to be super small. You should be
+        # running things such that there is no periodic boundary
+        # conditions but this is annoying and error-prone so we set
+        # them to something large here just to make things DWIM more
+
+        bvs = np.zeros((3,3))
+
+        for dim in [0,1,2]:
+            bvs[dim,dim] = cls.BOX_SIDE_LENGTH.value_in_unit(unit.nanometer)
+
+        bvs = bvs * unit.nanometer
+
+        return bvs
 
     def make_apparatus(self, **kwargs):
 
