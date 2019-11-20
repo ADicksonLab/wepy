@@ -61,9 +61,17 @@ class LysozymeImplicitOpenMMSimMaker(OpenMMToolsTestSysSimMaker):
         test_sys = LysozymeImplicit()
 
         # set the box vectors to something reasonable
+
+        # we have a constructor which uses a constant we set in the
+        # class to do this
         box_vectors = self.box_vectors()
 
-        test_sys.setDefaultPeriodicBoxVectors()
+        # set them to the test system
+        test_sys.system.setDefaultPeriodicBoxVectors(
+            box_vectors[0],
+            box_vectors[1],
+            box_vectors[2],
+        )
 
         init_state = self.make_state(test_sys.system, test_sys.positions)
 
