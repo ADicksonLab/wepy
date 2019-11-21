@@ -150,10 +150,10 @@ protein with the inhibitor TPPU, which was the subject of this paper:
 
 Lotz and Dickson. 2018. JACS 140 (2) pp. 618-628 (DOI: 10.1021/jacs.7b08572)
 
-
 If you plan developing wepy read the [[https://github.com/ADicksonLab/wepy/blob/master/sphinx/source/dev_guide.org][Dev Guide]].
 
 
+*** COMMENT toolchain examples
 
 If you have installed the tooling then you can get started with the
 examples a little quicker:

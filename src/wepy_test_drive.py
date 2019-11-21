@@ -21,13 +21,15 @@ def parse_system_spec(spec):
     return sys_spec, runner, platform
 
 @click.option('-v', '--verbose', is_flag=True)
+@click.option('-W', '--work-mapper',
+              help="Work mapper for doing work.")
 @click.argument('n_workers', type=int)
 @click.argument('tau', type=float)
 @click.argument('n_cycles', type=int)
 @click.argument('n_walkers', type=int)
 @click.argument('system')
 @click.command()
-def cli(verbose, n_workers, tau, n_cycles, n_walkers, system):
+def cli(verbose, work_mapper, n_workers, tau, n_cycles, n_walkers, system):
     """Run a pre-parametrized wepy simulation.
 
     \b
@@ -36,7 +38,7 @@ def cli(verbose, n_workers, tau, n_cycles, n_walkers, system):
 
     \b
     SYSTEM : str
-        Which pre-parametrized simulation to run: System/Runner-Platform
+        Which pre-parametrized simulation to run should have the format: System/Runner-Platform
 
     \b
     N_WALKERS : int
@@ -67,11 +69,32 @@ def cli(verbose, n_workers, tau, n_cycles, n_walkers, system):
     ---------------------------
 
     \b
-    OpenMM:
+    OpenMM-
       Reference
       CPU
       OpenCL (GPU)
       CUDA (GPU)
+
+
+    \b
+    Available Work Mappers
+    ----------------------
+
+    WorkerMapper (default) : parallel python multiprocessing based
+                             worker-consumer concurrency model
+
+    WIP not available in test drive yet:
+
+    TaskMapper : parallel python multiprocessing based task-process
+                 based concurrency model
+
+    Mapper : non-parallel single-process implementation
+
+    \b
+    Examples
+    --------
+
+    python wepy_test_drive.py LennardJonesPair/OpenMM-CPU 20 10 2 4
 
     \b
     Notes
@@ -98,7 +121,9 @@ def cli(verbose, n_workers, tau, n_cycles, n_walkers, system):
     tau = tau * unit.picosecond
     n_steps = round(tau / apparatus.filters[0].integrator.getStepSize())
 
-    config = sim_maker.make_configuration(work_mapper='WorkerMapper', platform=platform)
+    config = sim_maker.make_configuration(apparatus,
+                                          work_mapper='WorkerMapper',
+                                          platform=platform)
 
     sim_manager = sim_maker.make_sim_manager(n_walkers, apparatus, config)
 

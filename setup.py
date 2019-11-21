@@ -4,6 +4,14 @@
 from __future__ import absolute_import
 from __future__ import print_function
 
+import io
+import re
+from glob import glob
+from os.path import basename
+from os.path import dirname
+from os.path import join
+from os.path import splitext
+
 from setuptools import setup, find_packages
 
 import itertools as it
@@ -64,10 +72,12 @@ setup(
 
     # pymodules is for single file standalone modules not part of the
     # package
-    # py_modules=[],
+    py_modules=[splitext(basename(path))[0] for path in glob('src/*.py')],
 
     entry_points={
-        'console_scripts' : ['wepy=wepy.cli:cli']
+        'console_scripts' : [
+            'wepy=wepy.cli:cli',
+        ]
     },
 
     install_requires=abstract_requirements,
