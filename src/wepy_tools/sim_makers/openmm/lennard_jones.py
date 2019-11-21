@@ -33,15 +33,17 @@ class PairDistance(Distance):
 #     pass
 
 class LennardJonesPairOpenMMSimMaker(OpenMMToolsTestSysSimMaker):
-    TEST_SYS = LennardJonesPair
 
-    LIGAND_RESNAME = 'TMP'
-    RECEPTOR_RES_IDXS = list(range(162))
+    TEST_SYS = LennardJonesPair
 
     BCS = OpenMMToolsTestSysSimMaker.BCS + [UnbindingBC]
 
+    LIGAND_IDXS = [0]
+    RECEPTOR_IDXS = [1]
+
     UNBINDING_BC_DEFAULTS = {
         'cutoff_distance' : 1.0, # nm
+        'periodic' : False,
     }
 
     DEFAULT_BC_PARAMS = OpenMMToolsTestSysSimMaker.DEFAULT_BC_PARAMS
@@ -50,6 +52,23 @@ class LennardJonesPairOpenMMSimMaker(OpenMMToolsTestSysSimMaker):
             'UnbindingBC' : UNBINDING_BC_DEFAULTS,
         }
     )
+
+    def make_bc(self, bc_class, bc_params):
+
+        if bc_class == UnbindingBC:
+            bc_params.update(
+                {
+                    'distance' : self.distance,
+                    'initial_state' : self.init_state,
+                    'topology' : self.json_top(),
+                    'ligand_idxs' : self.LIGAND_IDXS,
+                    'receptor_idxs' : self.RECEPTOR_IDXS,
+                }
+            )
+
+        bc = bc_class(**bc_params)
+
+        return bc
 
     def __init__(self):
 

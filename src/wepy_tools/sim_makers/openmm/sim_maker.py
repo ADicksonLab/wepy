@@ -284,11 +284,13 @@ class OpenMMSimMaker():
         # BOUNDARY_CONDITIONS
 
         # you don't have to specify a boundary condition
-        if bc is not None:
+        bc_name = bc
+        if bc_name is not None:
+
 
             # choose which bc to use
             bc_class = [res for res in self.BCS
-                               if res.__name__ == bc][0]
+                        if res.__name__ == bc_name][0]
 
             bc_name = bc_class.__name__
 
@@ -297,6 +299,7 @@ class OpenMMSimMaker():
                 bc_params = self.DEFAULT_BC_PARAMS[bc_name]
 
             bc = self.make_bc(bc_class, bc_params)
+
 
 
 

@@ -1067,7 +1067,7 @@ class OpenMMCPUWorker(Worker):
     def __init__(self, *args, **kwargs):
 
         if 'num_threads' not in kwargs:
-            num_threads = DEFAULT_NUM_THREADS
+            num_threads = self.DEFAULT_NUM_THREADS
         else:
             num_threads = kwargs.pop('num_threads')
 

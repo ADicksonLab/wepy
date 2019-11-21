@@ -20,7 +20,7 @@ python we.py 10 100 10
 #+end_src
 
 You should see an ~outputs~ folder appear with the files:
-~results.wepy.h5~ and ~wepy.dash.org.txt~.
+~results.wepy.h5~ and ~wepy.dash.org~.
 
 The ~wepy.dash.org.txt~ is a plain text file that gives lots of high
 level information about the simulation. This file is written every

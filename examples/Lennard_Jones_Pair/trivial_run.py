@@ -1,3 +1,6 @@
+"""Very basic example of a simulation without a resampler or boundary
+conditions"""
+
 from copy import copy
 
 import simtk.openmm as omm

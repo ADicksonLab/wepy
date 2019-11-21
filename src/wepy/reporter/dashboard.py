@@ -457,11 +457,27 @@ class BCDashboardSection():
 
 Boundary Condition: {{ name }}
 
+Total Number of Dynamics segments: {{ total_n_walker_segments }}
+
+Total Number of Crossings: {{ total_crossings }}
+
+Cumulative Boundary Crossed Weight: {{ total_crossed_weight }}
+
 ** Warping Log
 
 {{ warping_log }}
 
 """
+
+
+    WARP_RECORD_COLNAMES = (
+        'cycle_idx',
+        'walker_idx',
+        'weight',
+        'target_idx',
+        'discontinuous',
+    )
+
 
     def __init__(self, bc=None,
                  discontinuities=None,
@@ -482,12 +498,20 @@ Boundary Condition: {{ name }}
             self.bc_discontinuities = copy(bc.DISCONTINUITY_TARGET_IDXS)
 
         else:
-            assert discontinuities is not None, "If the bc is not given must give parameter: discontinuities"
+            assert discontinuities is not None, \
+                "If the bc is not given must give parameter: discontinuities"
             self.bc_discontinuities = discontinuities
 
         self.warp_records = []
+        self.total_n_walker_segments = 0
+        self.total_crossings = 0
+        self.total_crossed_weight = 0.
 
     def update_values(self, **kwargs):
+
+        # keep track of exactly how many walker segments are run, this
+        # is useful for rate calculations via Hill's relation.
+        self.total_n_walker_segments += len(kwargs['new_walkers'])
 
         # just create the bare warp records, since we know no more
         # domain knowledge, feel free to override and add more data to
@@ -521,20 +545,16 @@ Boundary Condition: {{ name }}
     def gen_fields(self, **kwargs):
 
         # make the table for the collected warping records
-        warp_table_colnames = (
-            'cycle_idx',
-            'walker_idx',
-            'weight',
-            'target_idx',
-            'discontinuous',
-        )
-        warp_table_df = pd.DataFrame(self.warp_records, columns=warp_table_colnames)
+        warp_table_df = pd.DataFrame(self.warp_records, columns=self.WARP_RECORD_COLNAMES)
         warp_table_str = tabulate(warp_table_df,
                                   headers=warp_table_df.columns,
                                   tablefmt='orgtbl')
 
         fields = {
             'name' : self.bc_name,
+            'total_n_walker_segments' : self.total_n_walker_segments,
+            'total_crossings' : self.total_crossings,
+            'total_crossed_weight' : self.total_crossed_weight,
             'warping_log' : warp_table_str,
         }
 

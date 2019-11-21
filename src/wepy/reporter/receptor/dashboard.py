@@ -15,9 +15,13 @@ class ReceptorBCDashboardSection(BCDashboardSection):
 
 Boundary Condition: {{ name }}
 
-Total Number of Warps: {{ n_exit_points }}
+Total Number of Dynamics segments: {{ total_n_walker_segments }}
 
-Cumulative Boundary Crossed Weight {{ total_unbound_weight }}
+Total Number of Warps: {{ total_crossings }}
+
+Cumulative Boundary Crossed Weight: {{ total_unbound_weight }}
+
+Rate (1/τ): {{ rate }}
 
 Parameters:
 
@@ -35,71 +39,29 @@ Parameters:
 
         super().__init__(**kwargs)
 
-        # updatables
-        self.warp_records = []
-        self.exit_point_weights = []
-        self.exit_point_times = []
-        self.n_exit_points = 0
-        self.total_unbound_weight = 0.0
-
-
-    def update_values(self, **kwargs):
-
-        super().update_values(**kwargs)
-
-        for warp_record in kwargs['warp_data']:
-
-            weight = warp_record['weight'][0]
-            walker_idx = warp_record['walker_idx'][0]
-
-            # make a record for a table that includes the time in
-            # walkers sampling time
-            record = (walker_idx, weight, kwargs['cycle_idx'])
-            self.warp_records.append(record)
-
-            # also add them to the individual records
-            self.exit_point_weights.append(weight)
-
-            # STUB
-            # this is flawed since this is not the individual walker
-            # time, we aren't really that interested in it anyways.
-            # self.exit_point_times.append(self.walker_total_sampling_time)
-
-            # increase the number of exit points by 1
-            self.n_exit_points += 1
-
-
-            # total accumulated unbound probability
-            self.total_unbound_weight += weight
-
-        # STUB: see note above we don't have proper walker sampling
-        # times, and it isn't that interesting anyways. The exit rate
-        # is more useful
-
-        # # calculate the expected value of unbinding times
-        # self.expected_unbinding_time = np.sum([self.exit_point_weights[i] * self.exit_point_times[i]
-        #                                        for i in range(self.n_exit_points)])
-
-        # # expected rate of reactive trajectories
-        # self.reactive_traj_rate = 1 / self.expected_unbinding_time
-
 
     def gen_fields(self, **kwargs):
 
         fields = super().gen_fields(**kwargs)
 
-        # STUB: because the total sampling time is from a different
-        # section we have to remove this for now until we figure that
-        # out
+        # since there is only one boundary to cross here we don't
+        # really have to do any special reporting for meaningful
+        # boundaries. So we just use the standard one.
 
-        # calculate the new rate using the Hill relation after taking
-        # into account all of these warps
-        # self.exit_rate = self.total_unbound_weight / self.total_sampling_time
+
+        # we calculate the non-dimensional rate in terms of the cycle
+        # numbers, then you would just have to multiply that number by
+        # 1/time_per_cycle. In order to handle variable number of
+        # walkers we just keep track of all of the segments that were
+        # run total by keeping a running tally of how many
+        # 'new_walkers' are received in the 'total_n_walkers'
+        # attribute
+
+        rate = self.total_crossed_weight / self.total_n_walker_segments
 
         new_fields = {
             'parameters' : '',
-            'cycle_n_exit_points' : self.n_exit_points,
-            'total_unbound_weight' : self.total_unbound_weight,
+            'rate' : rate,
         }
 
 
