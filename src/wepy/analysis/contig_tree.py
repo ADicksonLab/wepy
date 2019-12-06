@@ -1811,8 +1811,7 @@ class Contig(ContigTree):
 
         ## parent table, don't include discontinuities, we will handle
         ## that on our own
-        parent_table = self.parent_table(discontinuities=True)
-        parent_forest = ParentForest(parent_table=parent_table)
+        parent_forest = ParentForest(self)
 
         ## walker weights
         with self:
@@ -1863,7 +1862,7 @@ class Contig(ContigTree):
 
         # The only ones that should be none are the roots which will
         # be 1.0 / N
-        n_roots = len(parent_table[0])
+        n_roots = len(parent_forest.roots)
         root_weight = 1.0 / n_roots
 
         # compute the size of the nodes to plot, which is the
@@ -1886,7 +1885,8 @@ class Contig(ContigTree):
         free_energies = []
         last_index = 0
         for cycle_n_walkers in cycles_n_walkers:
-            free_energies.append(list(flattened_free_energies[last_index:last_index + cycle_n_walkers]))
+            free_energies.append(list(
+                flattened_free_energies[last_index:last_index + cycle_n_walkers]))
             last_index += cycle_n_walkers
 
         # put these into the parent forest graph as node attributes,

@@ -58,6 +58,7 @@ ParentForest : Class that imposes the forest (tree) structure over the
 
 
 from copy import copy
+import itertools as it
 
 import numpy as np
 import networkx as nx
@@ -488,7 +489,6 @@ class ParentForest():
 
     def __init__(self, contig=None,
                  parent_table=None,
-                 discontinuities=True,
     ):
         """Constructs a parent forest from either a Contig object or parent table.
 
@@ -502,6 +502,9 @@ class ParentForest():
         contig : Conting object, optional conditional on parent_table
 
         parent_table : list of list of int, optional conditional on contig
+            Must not contain the discontinuity values. If you want to
+            include metadata on discontinuities use the contig input
+            which is preferrable.
 
         Raises
         ------
@@ -523,10 +526,13 @@ class ParentForest():
         if self._contig is not None:
 
             # from that contig make a parent table
-            self._parent_table = self.contig.parent_table()
+            self._parent_table = self.contig.parent_table(discontinuities=False)
 
         # otherwise use the one given
         else:
+            assert not self.DISCONTINUITY_VALUE in it.chain(*parent_table), \
+                "Discontinuity values in parent table are not allowed."
+
             self._parent_table = parent_table
 
         self._graph = nx.DiGraph()
