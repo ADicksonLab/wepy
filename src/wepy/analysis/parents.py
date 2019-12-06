@@ -484,8 +484,12 @@ class ParentForest():
     value in the parent table.
     """
 
+    CONTINUITY_VALUE = 0
+
     def __init__(self, contig=None,
-                 parent_table=None):
+                 parent_table=None,
+                 discontinuities=True,
+    ):
         """Constructs a parent forest from either a Contig object or parent table.
 
         Either a contig or parent_table must be given but not both.
@@ -530,7 +534,8 @@ class ParentForest():
         # make the roots of each tree in the parent graph, because
         # this is outside the indexing of the steps we use a special
         # index
-        self._roots = [(self.ROOT_CYCLE_IDX, i) for i in range(len(self.parent_table[0]))]
+        self._roots = [(self.ROOT_CYCLE_IDX, i)
+                       for i in range(len(self.parent_table[0]))]
 
         # set these as nodes
         self.graph.add_nodes_from(self.roots)
@@ -546,13 +551,7 @@ class ParentForest():
             for i, edge in enumerate(edges):
 
                 if edge is not None:
-
-                    # if there is a discontinuity in the edge we only
-                    # add the node
-                    if self.DISCONTINUITY_VALUE == edge[1]:
-                        self.graph.add_node(edge[0])
-                    else:
-                        self.graph.add_edge(*edge, **edges_attrs[i])
+                    self.graph.add_edge(*edge, **edges_attrs[i])
 
     def _make_child_parent_edges(self, step_idx, parent_idxs):
         """Generate edge_ids and edge attributes for an array of parent indices.
@@ -579,14 +578,14 @@ class ParentForest():
 
             # if the parent is the discontinuity value we set the
             # parent node in the edge as the discontinuity value
+            disc = self.CONTINUITY_VALUE
             if parent_idx == self.DISCONTINUITY_VALUE:
-                parent_node = self.DISCONTINUITY_VALUE
-                child_node = (step_idx, curr_walker_idx)
-            else:
-                # otherwise we make the edge with the parent and child as
-                # normal
-                parent_node = (step_idx - 1, parent_idx)
-                child_node = (step_idx, curr_walker_idx)
+                disc = self.DISCONTINUITY_VALUE
+
+            # otherwise we make the edge with the parent and child as
+            # normal
+            parent_node = (step_idx - 1, parent_idx)
+            child_node = (step_idx, curr_walker_idx)
 
             # make an edge between the parent of this walker and this walker
             edge = (parent_node, child_node)
@@ -595,7 +594,7 @@ class ParentForest():
 
             # nothing to do but I already wrote it this way and may be
             # useful later
-            edge_attrs = {}
+            edge_attrs = {'discontinuity' : disc}
 
             edges_attrs.append(edge_attrs)
 
@@ -653,7 +652,7 @@ class ParentForest():
         """
 
         step_nodes = []
-        for node in self.graph.nodes:
+        for i, node in enumerate(self.graph.nodes):
             if node[0] == step_idx:
                 step_nodes.append(node)
 

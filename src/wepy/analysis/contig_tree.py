@@ -11,16 +11,24 @@ Contig
 
 import itertools as it
 from copy import copy
+from operator import attrgetter
 
 import networkx as nx
 import numpy as np
+from matplotlib import cm
+
+from geomm.free_energy import free_energy as calc_free_energy
 
 from wepy.analysis.parents import (
     DISCONTINUITY_VALUE,
     parent_panel, net_parent_table,
     ancestors, sliding_window,
-    parent_cycle_discontinuities
+    parent_cycle_discontinuities,
+    ParentForest
 )
+
+from wepy.analysis.network_layouts.tree import ResamplingTreeLayout
+from wepy.analysis.network_layouts.layout_graph import LayoutGraph
 
 # optional dependencies
 try:
@@ -543,11 +551,14 @@ class BaseContigTree():
 
         parent_table = []
         for run_idx, cycle_idx in contig_trace:
-            parent_idxs = self.graph.node[(run_idx, cycle_idx)][self.PARENTS_KEY]
 
-            discs = self.graph.node[(run_idx, cycle_idx)][self.DISCONTINUITY_KEY]
+            parent_row = self.graph.node[(run_idx, cycle_idx)][self.PARENTS_KEY]
 
-            parent_row = parent_cycle_discontinuities(parent_idxs, discs)
+            if discontinuities:
+
+                discs = self.graph.node[(run_idx, cycle_idx)][self.DISCONTINUITY_KEY]
+
+                parent_row = parent_cycle_discontinuities(parent_row, discs)
 
             parent_table.append(parent_row)
 
@@ -1657,7 +1668,7 @@ class Contig(ContigTree):
 
         return self.wepy_h5.contig_resampling_panel(self._contig_run_idxs)
 
-    def parent_table(self):
+    def parent_table(self, discontinuities=True):
         """Returns the full parent table for this contig.
 
         Notes
@@ -1681,7 +1692,8 @@ class Contig(ContigTree):
 
         """
 
-        return self.trace_parent_table(self.contig_trace)
+        return self.trace_parent_table(self.contig_trace,
+                                       discontinuities=discontinuities)
 
     def lineages(self, contig_trace):
         """Get the ancestry lineage for each element of the trace as a run
@@ -1782,3 +1794,249 @@ class Contig(ContigTree):
         run_trace = self.contig_trace_to_run_trace(self.contig_trace, trace)
 
         return run_trace
+
+    def resampling_tree_layout_graph(self,
+                                     bc_class=None,
+                                     progress_key=None,
+                                     node_shape='disc',
+                                     discontinuous_node_shape='square',
+                                     colormap_name='plasma',
+                                     node_radius=None,
+                                     row_spacing=None,
+                                     step_spacing=None,
+                                     central_axis=None,
+    ):
+
+        ### The data we need for making the resampling tree
+
+        ## parent table, don't include discontinuities, we will handle
+        ## that on our own
+        parent_table = self.parent_table(discontinuities=True)
+        parent_forest = ParentForest(parent_table=parent_table)
+
+        ## walker weights
+        with self:
+            walker_weights = self.wepy_h5.get_contig_trace_fields(
+                self.contig_trace,
+                ['weights']
+            )['weights']
+
+        ### Optional data
+
+        ## Warping records
+        if bc_class is not None:
+            with self:
+                warping_records = self.warping_records()
+
+
+        ## walker progress
+
+        if progress_key is not None:
+            with self:
+                progress_records = self.progress_records()
+
+            walkers_progress = []
+            progress_getter = attrgetter(progress_key)
+            for prog_rec in progress_records:
+                walkers_progress.append(progress_getter(prog_rec))
+
+            del progress_records
+
+        ### Layout node properties
+
+        ## Discontinuities
+
+        if bc_class is not None:
+            # tabulate the discontinuities
+            discontinuous_nodes = []
+            for warping_record in warping_records:
+
+                # if this record classifies as discontinuous
+                if bc_class.warping_discontinuity(warping_record):
+
+                    # then we save it as one of the nodes that is discontinuous
+                    disc_node_id = (warping_record.cycle_idx, warping_record.walker_idx)
+                    discontinuous_nodes.append(disc_node_id)
+
+
+        ## Free Energies
+
+        # The only ones that should be none are the roots which will
+        # be 1.0 / N
+        n_roots = len(parent_table[0])
+        root_weight = 1.0 / n_roots
+
+        # compute the size of the nodes to plot, which is the
+        # free_energy. To compute this we flatten the list of list of
+        # weights to a 1-d array then unravel it back out
+
+        # put the root weights at the beginning of this array, and
+        # account for it in the flattening
+        flattened_weights = [root_weight for _ in walker_weights[0]]
+        cycles_n_walkers = [len(walker_weights[0])]
+
+        for cycle_weights in walker_weights:
+            cycles_n_walkers.append(len(cycle_weights))
+            flattened_weights.extend(list(cycle_weights.reshape( (len(cycle_weights),) )))
+
+        # now compute the free energy
+        flattened_free_energies = calc_free_energy(np.array(flattened_weights))
+
+        # and ravel them back into a list of lists
+        free_energies = []
+        last_index = 0
+        for cycle_n_walkers in cycles_n_walkers:
+            free_energies.append(list(flattened_free_energies[last_index:last_index + cycle_n_walkers]))
+            last_index += cycle_n_walkers
+
+        # put these into the parent forest graph as node attributes,
+        # so we can get them out as a lookup table by node id for
+        # assigning to nodes in the layout. We skip the first row of
+        # free energies for the roots in this step
+        parent_forest.set_attrs_by_array('free_energy', free_energies[1:])
+
+        ## Progress colors
+        colormap = cm.get_cmap(name=colormap_name)
+
+        # if a progress key was given use that
+        if progress_key is not None:
+
+            # get the maximum progress value in the data
+            max_progress_value = max([max(row) for row in walkers_progress])
+
+            # then use that for the ratio
+            norm_ratio = 1.0 / max_progress_value
+
+            # now that we have ratios for normalizing values we apply that
+            # and then use the lookup table for the color bar to get the
+            # RGB color values
+            colors = []
+            for progress_row in walkers_progress:
+                color_row = [colormap(progress * norm_ratio, bytes=True)
+                             for progress in progress_row]
+                colors.append(color_row)
+
+        # otherwise set them to the free energy
+        else:
+
+            # get the maximum progress value in the data
+            max_fe_value = max([max(row) for row in free_energies[1:]])
+
+            # then use that for the ratio
+            norm_ratio = 1.0 / max_fe_value
+
+            # now that we have ratios for normalizing values we apply that
+            # and then use the lookup table for the color bar to get the
+            # RGB color values
+            colors = []
+            for progress_row in free_energies[1:]:
+                color_row = [colormap(progress * norm_ratio, bytes=True)
+                             for progress in progress_row]
+                colors.append(color_row)
+
+        parent_forest.set_attrs_by_array('color', colors)
+
+
+        ### Per node properties
+
+        # get the free energies out as a dictionary, flattening it to
+        # a single value. Set the nodes with None for their FE to a
+        # small number.
+
+        # now we make the graph which will contain the layout
+        # information
+        layout_forest = LayoutGraph(parent_forest.graph)
+
+        ## Free energy and size
+
+        # get the free energy attributes out using the root weight for
+        # the nodes with no fe defined
+
+        # start it with the root weights
+        node_fes = {(-1, i) : free_energy for i, free_energy in enumerate(free_energies[0])}
+        for node_id, fe_arr in layout_forest.get_node_attributes('free_energy').items():
+
+            if fe_arr is None:
+                node_fes[node_id] = 0.0
+            else:
+                node_fes[node_id] = fe_arr
+
+        ## Node colors
+
+        # the default progress for the root ones is 0 and so the color
+        # is also 0
+        node_colors = {}
+        for node_id, color_arr in layout_forest.get_node_attributes('color').items():
+
+            if color_arr is None:
+                # make a black color for these
+                node_colors[node_id] = tuple(int(255) for a in range(4))
+            else:
+                node_colors[node_id] = color_arr
+
+        # set discontinuous nodes to black
+        if bc_class is not None:
+
+            for discontinuous_node in discontinuous_nodes:
+                node_colors[discontinuous_node] = tuple(int(0) for a in range(4))
+
+
+        ## Node Shapes
+
+        # make a dictionary for the shapes of the nodes
+        node_shapes = {}
+
+        # set all the nodes to a default 'disc'
+        for node in layout_forest.viz_graph.nodes:
+            node_shapes[node] = node_shape
+
+        # then set all the discontinuous ones
+        if bc_class is not None:
+            for discontinuous_node in discontinuous_nodes:
+                node_shapes[discontinuous_node] = discontinuous_node_shape
+
+
+        ## Node positions
+
+        # get the options correctly
+        restree_layout_opts = {
+            'node_radius' : node_radius,
+            'row_spacing' : row_spacing,
+            'step_spacing' : step_spacing,
+            'central_axis' : central_axis,
+        }
+
+        # filter out the None values, this will ensure the defaults
+        # are used
+        restree_layout_opts = {field : value
+                               for field, value in restree_layout_opts.items()
+                               if value is not None}
+
+        # now we get to the part where we make the layout (positioning
+        # of nodes), so we parametrize a layout engine
+        tree_layout = ResamplingTreeLayout(**restree_layout_opts)
+
+        node_coords = tree_layout.layout(parent_forest,
+                                         node_radii=node_fes)
+
+        ### Set Layout values
+
+        # we are going to output to the gexf format so we use the
+        # pertinent methods
+
+        # we set the sizes
+        layout_forest.set_node_gexf_sizes(node_fes)
+
+        # and set the colors based on the progresses
+
+        layout_forest.set_node_gexf_colors_rgba(node_colors)
+
+        # then set the shape of the nodes based on whether they were
+        # warped or not
+        layout_forest.set_node_gexf_shape(node_shapes)
+
+        # positions
+        layout_forest.set_node_gexf_positions(node_coords)
+
+        return layout_forest
+
