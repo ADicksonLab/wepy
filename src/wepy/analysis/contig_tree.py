@@ -1695,15 +1695,29 @@ class Contig(ContigTree):
         return self.trace_parent_table(self.contig_trace,
                                        discontinuities=discontinuities)
 
-    def lineages(self, contig_trace):
+    def lineages_contig(self, contig_trace, discontinuities=True):
+
+        # get the parent table for this contig
+        parent_table = self.parent_table(discontinuities=discontinuities)
+
+        lineages = []
+        for walker_idx, cycle_idx in contig_trace:
+            lineage = ancestors(parent_table, cycle_idx, walker_idx)
+
+            lineages.append(lineage)
+
+        return lineages
+
+    def lineages(self, contig_trace, discontinuities=True):
         """Get the ancestry lineage for each element of the trace as a run
         trace."""
 
         return [self.walker_trace_to_run_trace(trace)
-                for trace in self.lineages_contig(contig_trace)]
+                for trace in self.lineages_contig(contig_trace,
+                                                  discontinuities=discontinuities)]
 
 
-    def warp_trace(self):
+    def warp_contig_trace(self):
         """Return a trace that gives all of the walkers that were warped."""
 
         trace = []
