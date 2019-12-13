@@ -12,6 +12,7 @@ Contig
 import itertools as it
 from copy import copy
 from operator import attrgetter
+from collections import deque
 
 import networkx as nx
 import numpy as np
@@ -570,11 +571,14 @@ class BaseContigTree():
         """Given the root node ID and the tree as a networkX DiGraph returns
         the leaves of the tree.
 
+        Must give it the reversed tree because it is recursive.
+
         Parameters
         ----------
         root : node_id
 
         tree : networkx.DiGraph
+            The reversed tree from the contigtree
 
         Returns
         -------
@@ -667,6 +671,15 @@ class BaseContigTree():
             leaves.extend(subtree_leaves)
 
         return leaves
+
+    def root_leaves(self):
+        """Return a dictionary mapping the roots to their leaves."""
+
+        root_leaves = {}
+        for root in self.roots():
+            root_leaves[root] = self._subtree_leaves(root)
+
+        return root_leaves
 
     def _subtree_root(self, node):
         """Given a node find the root of the tree it is on
@@ -962,10 +975,13 @@ class BaseContigTree():
         return windows
 
     @classmethod
-    def _spanning_paths(cls, edges, root):
+    def _rec_spanning_paths(cls, edges, root):
         """Given a set of directed edges (source, target) and a root node id
         of a tree imposed over the edges, returns all the paths over
         that tree which span from the root to a leaf.
+
+        This is a recursive function and has pretty bad performance
+        for nontrivial simulations.
 
         Parameters
         ----------
@@ -1004,7 +1020,7 @@ class BaseContigTree():
 
             # add these paths for this new root to the paths for the
             # current root
-            root_paths.extend(cls._spanning_paths(edges, new_root))
+            root_paths.extend(cls._rec_spanning_paths(edges, new_root))
 
         # if there are no more sources to this root it is a leaf node and
         # we terminate recursion, by not entering the loop above, however
@@ -1018,6 +1034,73 @@ class BaseContigTree():
             final_root_paths.append([root] + root_path)
 
         return final_root_paths
+
+    # @classmethod
+    # def _find_root_sources(cls, edges, root):
+
+    #     # nodes targetting this root
+    #     root_sources = []
+
+    #     # go through all the edges and find those with this
+    #     # node as their target
+    #     for edge_source, edge_target in edges:
+
+    #         # check if the target_node we are looking for matches
+    #         # the edge target node
+    #         if root == edge_target:
+
+    #             # if this root is a target of the source add it to the
+    #             # list of edges targetting this root
+    #             root_sources.append(edge_source)
+
+    #     return root_sources
+
+    def _spanning_paths(self, root):
+        """
+
+        Parameters
+        ----------
+        root : node_id
+
+        Returns
+        -------
+
+        spanning_paths : list of list of edges
+
+        """
+
+        # get the subtree given the root
+        subtree = self.get_subtree(root)
+
+        # get the leaves manually since we already have the subtree
+        leaves = self._tree_leaves(root, subtree.reverse(copy=False))
+
+        # then starting at each leaf just write out the path from it
+        # to the root
+        leaf_paths = {}
+        for leaf in leaves:
+
+            leaf_path = deque([leaf])
+            curr_node = leaf
+            root_found = False
+            while not root_found:
+
+                # get the next node, if there is one
+                parent_nodes = list(subtree.adj[curr_node].keys())
+
+                if len(parent_nodes) == 0:
+                    root_found = True
+                elif len(parent_nodes) == 1:
+                    next_node = parent_nodes.pop()
+                    leaf_path.appendleft(next_node)
+                    curr_node = next_node
+                else:
+                    raise ValueError("Multiple parents, illegal tree")
+
+            leaf_paths[leaf] = list(leaf_path)
+
+        return leaf_paths
+
 
     def spanning_contig_traces(self):
         """Returns a list of all possible spanning contigs given the
@@ -1038,15 +1121,42 @@ class BaseContigTree():
 
         spanning_contig_traces = []
         # roots should be sorted already, so we just iterate over them
-        for root in self.roots():
-
-            # get the spanning paths by passing the continuation edges
-            # and this root to this recursive static method
-            root_spanning_contigs = self._spanning_paths(self.graph.edges, root)
+        for root, root_spanning_contigs in self._root_spanning_contig_traces().items():
 
             spanning_contig_traces.extend(root_spanning_contigs)
 
         return spanning_contig_traces
+
+    def _root_spanning_contig_traces(self):
+        """Returns a list of all possible spanning contigs given the
+        continuations present in this file. Spanning contigs are paths
+        through a tree that must start from a root node and end at a
+        leaf node.
+
+        This algorithm always returns them in a canonical order (as
+        long as the runs are not rearranged after being added). This
+        means that the indices here are the indices of the contigs.
+
+        Returns
+        -------
+        spanning_contig_traces : dict of root_id to list of tuples of ints (run_idx, cycle_idx)
+            Dictionary mapping the root ids to all spanning contigs
+            for it which are contig traces.
+
+        """
+
+        spanning_contig_traces = {}
+        # roots should be sorted already, so we just iterate over them
+        for root in self.roots():
+
+            # get the spanning paths by passing the continuation edges
+            # and this root to this recursive static method
+            root_spanning_contigs = [span for leaf, span in self._spanning_paths(root).items()]
+
+            spanning_contig_traces[root] = root_spanning_contigs
+
+        return spanning_contig_traces
+
 
     @classmethod
     def _contig_trace_to_contig_runs(cls, contig_trace):
