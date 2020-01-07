@@ -3,6 +3,7 @@ simulation data.
 
 """
 import gc
+import itertools as it
 
 import numpy as np
 
@@ -151,7 +152,9 @@ def contigtrees_bin_edges(contigtrees, bins, field_key,
     for contigtree in contigtrees:
         with contigtree:
 
-            # get all of the frames
+
+            # if we aren't truncated go ahead and just get all of the
+            # values by trajectory
             if truncate_cycles is None:
                 all_values.append(np.concatenate([fields[field_key]
                                               for fields
@@ -159,14 +162,27 @@ def contigtrees_bin_edges(contigtrees, bins, field_key,
 
             # get only the values up to the truncation
             else:
-                all_values.append(np.concatenate([fields[field_key][0:truncate_cycles]
-                                              for fields
-                                              in contigtree.wepy_h5.iter_trajs_fields([field_key])]))
 
+                # all of the frames in the contigtree
+                all_trace = it.chain(*[span_trace for span_trace
+                                       in contigtree.span_traces.values()])
+
+                field_values = contigtree.wepy_h5.get_trace_fields(all_trace,
+                                                                   [field_key])[field_key]
+                all_values.append(field_values)
 
     all_values = np.concatenate(all_values)
+    gc.collect()
 
     bin_edges = np.histogram_bin_edges(all_values, bins=bins)
+
+    # If the histogram_bin_edges actually used the weights we would
+    # call it like this and actually have to retrieve the weights,
+    # currently it doesn't so I won't implement that since it would
+    # slow things down and not do anything
+
+    # bin_edges = np.histogram_bin_edges(all_values, bins=bins,
+    #                                    weights=all_weights)
 
     return bin_edges
 
@@ -300,12 +316,14 @@ class ContigTreeProfiler(object):
         # if the bins were not specified generate them from all the
         # values for this span
         if bins is None:
-            bin_edges = np.histogram_bin_edges(values, bins='auto')
+            bin_edges = np.histogram_bin_edges(values, bins='auto',
+                                               weights=weights)
 
         # if the number or binning strategy was given generate them
         # according to that
         elif type(bins) in (str, int):
-            bin_edges = np.histogram_bin_edges(values, bins=bins)
+            bin_edges = np.histogram_bin_edges(values, bins=bins,
+                                               weights=weights)
 
         # if it wasn't those things we assume it is already a correct
         # bin_edges
@@ -348,72 +366,13 @@ class ContigTreeProfiler(object):
 
         """
 
-        # TODO: this is very wrong since I am truncating on the runs
-        # and not the spans
-        raise NotImplementedError
-
-        weights = []
-        values = []
-
         all_trace = it.chain(*[span_trace for span_trace in self.contigtree.span_traces.values()])
 
-        self.fe_profile_trace(all_trace, field_key,
-                              bins=bins,
-                              ignore_truncate=ignore_truncate)
-
-            for traj_idx in range(self.contigtree.wepy_h5.num_run_trajs(run_idx)):
-
-                traj_weights = self.contigtree.wepy_h5.get_traj_field(run_idx, traj_idx, 'weights')
-                traj_values = self.contigtree.wepy_h5.get_traj_field(run_idx, traj_idx, field_key)
-
-                if not ignore_truncate:
-                    traj_weights = traj_weights[0:self._truncate_cycles]
-                    traj_values = traj_values[0:self._truncate_cycles]
-                    gc.collect()
-
-                traj_weights = traj_weights.flatten()
-                weights.append(traj_weights)
-                del traj_weights
-
-                values.append(traj_values)
-                del traj_values
-                gc.collect()
-
-        # the feature vector must be either shape 0 or (1,) i.e. rank
-        # 0 equivalent
-
-        # concatenate all of the weights and features
-        weights = np.concatenate(weights)
-        values = np.concatenate(values)
-
-        # so we get one feature and check its shape
-        test_feature = values[0]
-
-        # if it doesn't satisfy this requirement we need to raise an error
-        if not (test_feature.shape == () or test_feature.shape == (1,)):
-            raise TypeError("The field key specified a field that is non-scalar."
-                            "The shape of the feature vector must be () or (1,).")
-
-        # determine the bin_edges
-
-        # if the bins were not specified generate them from all the
-        # values for this span
-        if bins is None:
-            bin_edges = np.histogram_bin_edges(values, bins='auto')
-
-        # if the number or binning strategy was given generate them
-        # according to that
-        elif type(bins) in (str, int):
-            bin_edges = np.histogram_bin_edges(values, bins=bins)
-
-        # if it wasn't those things we assume it is already a correct
-        # bin_edges
-        else:
-            bin_edges = bins
-
-
-        fe_profile, _ = free_energy_profile(weights, values,
-                                            bins=bin_edges)
+        # this truncates based on the frame specs so doesn't need to
+        # be ordered or anything
+        fe_profile = self.fe_profile_trace(all_trace, field_key,
+                                           bins=bins,
+                                           ignore_truncate=ignore_truncate)
 
         return fe_profile
 
@@ -491,12 +450,14 @@ class ContigTreeProfiler(object):
         # if the bins were not specified generate them from all the
         # values for this span
         if bins is None:
-            bin_edges = np.histogram_bin_edges(values, bins='auto')
+            bin_edges = np.histogram_bin_edges(values, bins='auto',
+                                               weights=weights)
 
         # if the number or binning strategy was given generate them
         # according to that
         elif type(bins) in (str, int):
-            bin_edges = np.histogram_bin_edges(values, bins=bins)
+            bin_edges = np.histogram_bin_edges(values, bins=bins,
+                                               weights=weights)
 
         # if it wasn't those things we assume it is already a correct
         # bin_edges
@@ -584,12 +545,14 @@ class ContigTreeProfiler(object):
         # if the bins were not specified generate them from all the
         # values for this span
         if bins is None:
-            bin_edges = np.histogram_bin_edges(values, bins='auto')
+            bin_edges = np.histogram_bin_edges(values, bins='auto',
+                                               weights=weights)
 
         # if the number or binning strategy was given generate them
         # according to that
         elif type(bins) in (str, int):
-            bin_edges = np.histogram_bin_edges(values, bins=bins)
+            bin_edges = np.histogram_bin_edges(values, bins=bins,
+                                               weights=weights)
 
         # if it wasn't those things we assume it is already a correct
         # bin_edges
@@ -645,7 +608,7 @@ class ContigTreeProfiler(object):
         time_tranche : int
             Width of time-bins/windows/tranche to compute free
             energies for. This overrides the functionality of the
-            'partitions' argument. The last tranche will be truncated
+            'num_partitions' argument. The last tranche will be truncated
             to the remainder after partitioning by tranches. Overrides
             partitions.
 
@@ -669,6 +632,7 @@ class ContigTreeProfiler(object):
 
         """
 
+
         # There are two big use cases here.
         #
         # 1. We are passing in the bin edges since we want to plot
@@ -680,7 +644,6 @@ class ContigTreeProfiler(object):
         # work. In the latter we want to infer bins like normal. The
         # first thing we do is distinguish between which case we have.
 
-
         # if the bins were not specified generate them from all the
         # values for this span
         if bins is None or type(bins) in (str, int):
@@ -691,25 +654,36 @@ class ContigTreeProfiler(object):
             # bins, and then delete it and start fresh with the
             # tranches
 
-            all_weights = []
-            all_values = []
-            for run_idx in self.contigtree.wepy_h5.run_idxs:
-                for traj_idx in range(self.contigtree.wepy_h5.num_run_trajs(run_idx)):
+            # we use a trace orientation here for simplicity in truncation
 
-                    traj_weights = self.contigtree.wepy_h5.get_traj_field(
-                        run_idx, traj_idx, 'weights')
-                    traj_weights = traj_weights.flatten()
-                    all_weights.append(traj_weights)
+            # trace of all of the frames in the contigtree
+            all_trace = it.chain(*[span_trace for span_trace in
+                                   self.contigtree.span_traces.values()])
 
-                    all_values.append(
-                        self.contigtree.wepy_h5.get_traj_field(run_idx, traj_idx, field_key))
+            # filter it for the ignored fields if applicable
+            if not ignore_truncate:
+                ignored_trace = []
+                for key in trace:
+                    if key not in self._ignore_trace:
+                        ignored_trace.append(key)
+
+                trace = ignored_trace
+
+            else:
+                trace = all_trace
+
+            # get the fields for the weights and the field
+            fields = self.contigtree.wepy_h5.get_trace_fields(trace, [field_key, 'weights'])
+
+
+            all_weights = fields['weights']
+            all_values = fields[field_key]
+
+            all_weights = all_weights.flatten()
+            gc.collect()
 
             # the feature vector must be either shape 0 or (1,) i.e. rank
             # 0 equivalent
-
-            # concatenate all of the weights and features
-            all_weights = np.concatenate(all_weights)
-            all_values = np.concatenate(all_values)
 
             # so we get one feature and check its shape
             test_feature = all_values[0]
@@ -721,12 +695,14 @@ class ContigTreeProfiler(object):
 
             # then get the bin edges according to the specific option
             if bins is None:
-                bin_edges = np.histogram_bin_edges(all_values, bins='auto')
+                bin_edges = np.histogram_bin_edges(all_values, bins='auto',
+                                                   weights=all_weights)
 
             # if the number or binning strategy was given generate them
             # according to that
             elif type(bins) in (str, int):
-                bin_edges = np.histogram_bin_edges(all_values, bins=bins)
+                bin_edges = np.histogram_bin_edges(all_values, bins=bins,
+                                                   weights=all_weights)
 
             # clean up these values since we will be loading in new
             # values that are structured in a different way.
@@ -739,10 +715,75 @@ class ContigTreeProfiler(object):
         else:
             bin_edges = bins
 
+        # now we need to decide on the length of the interval that we
+        # will be using so that we can partition it and then use that
+        # to grab the right subset of data
 
-        # Now that we have the bin edges we can get the convergence
-        # profiles appropriately.
+        spans_weights_part_gens = []
+        spans_values_part_gens = []
+        for span_idx in self.contigtree.span_contig.keys():
 
+            contig = self.contigtree.span_contig(span)
+
+            if not ignore_truncate:
+                # get the weights
+                contig_weights = contig.contig_fields(['weights'])['weights'][0:self._truncate_cycles]
+                # then get the values for the field key
+                contig_values = contig.contig_fields([field_key])[field_key][0:self._truncate_cycles]
+
+            else:
+                # get the weights
+                contig_weights = contig.contig_fields(['weights'])['weights']
+                # then get the values for the field key
+                contig_values = contig.contig_fields([field_key])[field_key]
+
+            # reshape to match
+            contig_weights = contig_weights.reshape((contig_weights.shape[0],
+                                                     contig_weights.shape[1]))
+
+
+            # make the cumulative generators for each
+            contig_weights_partition_gen = cumulative_partitions(contig_weights,
+                                                          time_tranche=time_tranche,
+                                                          num_partitions=num_partitions)
+            contig_values_partition_gen = cumulative_partitions(contig_values,
+                                                         time_tranche=time_tranche,
+                                                         num_partitions=num_partitions)
+
+            # we want to include all spans at once so save these for the next part
+            spans_weights_part_gens.append(contig_weights_partition_gen)
+            spans_values_part_gens.append(contig_weights_partition_gen)
+
+
+        part_profiles = []
+        # use the first one for the main loop iteration
+        for first_weights_part in spans_weights_part_gens[0]:
+
+            gc.collect()
+
+            # then add the other ones
+            weights_parts = [first_weights_part]
+            for other_weights_part_gen in spans_weights_part_gens[1:]:
+
+                weights_parts.append(next(other_weights_part_gen))
+
+            values_parts = []
+            for values_part_gen in spans_values_part_gens:
+
+                values_parts.append(next(values_part_gen))
+
+            # concatenate them to feed them to the main function
+            agg_weights_part = np.concatenate(weights_parts)
+            agg_values_part = np.concatenate(values_parts)
+
+            # then compute the FE curve from the aggregate of spans
+            part_profile, _ = free_energy_profile(agg_weights_part,
+                                                  agg_values_part,
+                                                  bins=bin_edges)
+
+            part_profiles.append(part_profile)
+
+        return part_profiles
 
     def bin_edges(self, bins, field_key):
         """Compute the bin edges that best describes all of the contigtree
@@ -775,6 +816,15 @@ class ContigTreeProfiler(object):
                                      in self.contigtree.wepy_h5.iter_trajs_fields([field_key])])
 
         bin_edges = np.histogram_bin_edges(all_values, bins=bins)
+
+        # If the histogram_bin_edges actually used the weights we would
+        # call it like this and actually have to retrieve the weights,
+        # currently it doesn't so I won't implement that since it would
+        # slow things down and not do anything
+
+        # bin_edges = np.histogram_bin_edges(all_values, bins=bins,
+        #                                    weights=all_weights)
+
 
         return bin_edges
 
