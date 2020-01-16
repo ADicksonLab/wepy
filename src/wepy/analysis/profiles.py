@@ -84,8 +84,8 @@ def free_energy_profile(weights, observables, bins=30,
     Parameters
     ----------
 
-    free_energies : arraylikes of float of shape (n_trajs, n_cycles)
-        The free energies for all of the frames of an ensemble simulation.
+    weights : arraylikes of float of shape (n_trajs, n_cycles)
+        The weights for all of the frames of an ensemble simulation.
 
     observables : arraylikes of shape (n_trajs, n_cycles)
         The scalar observables to compute the free energy over.
