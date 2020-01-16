@@ -5189,7 +5189,8 @@ class WepyHDF5(object):
             return self._get_contiguous_traj_field(run_idx, traj_idx, field_path,
                                                    frames=frames)
 
-    def get_trace_fields(self, frame_tups, fields):
+    def get_trace_fields(self, frame_tups, fields,
+                         same_order=True):
         """Get trajectory field data for the frames specified by the trace.
 
         Parameters
@@ -5201,6 +5202,13 @@ class WepyHDF5(object):
         fields : list of str
             The names of the fields to get for each frame.
 
+        same_order : bool
+           (Default = True)
+           If True will ensure that the results will be sorted exactly
+           as the order of the frame_tups were. If False will return
+           them in an arbitrary implementation determined order that
+           should be more efficient.
+
         Returns
         -------
         trace_fields : dict of str : arraylike
@@ -5208,17 +5216,77 @@ class WepyHDF5(object):
             for the trace.
 
         """
-        frame_fields = {field : [] for field in fields}
-        for run_idx, traj_idx, cycle_idx in frame_tups:
-            for field in fields:
-                frame_field = self.get_traj_field(run_idx, traj_idx, field, frames=[cycle_idx])
-                # the first dimension doesn't matter here since we
-                # only get one frame at a time.
-                frame_fields[field].append(frame_field[0])
 
-        # combine all the parts of each field into single arrays
-        for field in fields:
-            frame_fields[field] = np.array(frame_fields[field])
+        # TODO optimize by doing reads in chunks
+        opt_flag = True
+
+        if opt_flag:
+
+            def argsort(seq):
+                return sorted(range(len(seq)), key=seq.__getitem__)
+
+            def apply_argsorted(shuffled_seq, sorted_idxs):
+                return [shuffled_seq[i] for i in sorted_idxs]
+
+            # first sort the frame_tups so we can chunk them up by
+            # (run, traj) to get more efficient reads since these are
+            # chunked by these datasets.
+
+            # we do an argsort here so that we can map fields back to
+            # the order they came in (if requested)
+            sorted_idxs = argsort(frame_tups)
+
+            # then sort them as we will iterate through them
+            sorted_frame_tups = apply_argsorted(frame_tups, sorted_idxs)
+
+            # generate the chunks by (run, traj)
+            read_chunks = defaultdict(list)
+            for run_idx, traj_idx, frame_idx in sorted_frame_tups:
+                read_chunks[(run_idx, traj_idx)].append(frame_idx)
+
+            # go through each chunk and read data for each field
+            frame_fields = {}
+            for field in fields:
+
+                # for each field collect the chunks
+                field_chunks = []
+
+                for chunk_key, frames in read_chunks.items():
+                    run_idx, traj_idx = chunk_key
+
+                    frames_field = self.get_traj_field(run_idx, traj_idx, field,
+                                                       frames=frames)
+
+                    field_chunks.append(frames_field)
+
+                # then aggregate them
+                field_unsorted = np.concatenate(field_chunks)
+                del field_chunks; gc.collect()
+
+                # if we want them sorted sort them back to the
+                # original (unsorted) order, otherwise just return
+                # them
+                if same_order:
+                    frame_fields[field] = field_unsorted[sorted_idxs]
+                else:
+                    frame_fields[field] = field_unsorted
+
+                del field_unsorted; gc.collect()
+
+
+        else:
+
+            frame_fields = {field : [] for field in fields}
+            for run_idx, traj_idx, cycle_idx in frame_tups:
+                for field in fields:
+                    frame_field = self.get_traj_field(run_idx, traj_idx, field, frames=[cycle_idx])
+                    # the first dimension doesn't matter here since we
+                    # only get one frame at a time.
+                    frame_fields[field].append(frame_field[0])
+
+            # combine all the parts of each field into single arrays
+            for field in fields:
+                frame_fields[field] = np.array(frame_fields[field])
 
         return frame_fields
 
