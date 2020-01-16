@@ -126,8 +126,13 @@ def contigtrees_bin_edges(contigtrees, bins, field_key,
     Parameters
     ----------
 
-    num_bins : int or str
-        The number of bins to make or the method to use for autobinning.
+    contigtrees : list of ContigTree objects
+        The contigtrees to draw the data from.
+
+    bins : int or str or sequence of scalars or function
+        The number of bins to make or the method to use for
+        autobinning or the actual specification of bins. See
+        `numpy.histogram_bin_edges` for exact meaning and methods.
 
     field_key : str
         The trajectory field key for the values to get bins for.
@@ -149,32 +154,34 @@ def contigtrees_bin_edges(contigtrees, bins, field_key,
     """
 
     all_values = []
+
     for contigtree in contigtrees:
         with contigtree:
 
+            contigtree_values = []
+            for span_idx in contigtree.span_traces.keys():
 
-            # if we aren't truncated go ahead and just get all of the
-            # values by trajectory
-            if truncate_cycles is None:
-                all_values.append(np.concatenate([fields[field_key]
-                                              for fields
-                                              in contigtree.wepy_h5.iter_trajs_fields([field_key])]))
+                contig = contigtree.span_contig(span_idx)
 
-            # get only the values up to the truncation
-            else:
+                if truncate_cycles is not None:
+                    contig_values = contig.contig_fields([field_key])\
+                                    [field_key][0:truncate_cycles]
 
-                # all of the frames in the contigtree
-                all_trace = it.chain(*[span_trace for span_trace
-                                       in contigtree.span_traces.values()])
+                else:
+                    contig_values = contig.contig_fields([field_key])[field_key]
 
-                field_values = contigtree.wepy_h5.get_trace_fields(all_trace,
-                                                                   [field_key])[field_key]
-                all_values.append(field_values)
+                contigtree_values.append(contig_values.reshape(-1))
+
+            all_values.extend(contigtree_values)
 
     all_values = np.concatenate(all_values)
     gc.collect()
 
-    bin_edges = np.histogram_bin_edges(all_values, bins=bins)
+    if callable(bins):
+        bin_edges = bins(all_values)
+
+    else:
+        bin_edges = np.histogram_bin_edges(all_values, bins=bins)
 
     # If the histogram_bin_edges actually used the weights we would
     # call it like this and actually have to retrieve the weights,
@@ -366,7 +373,7 @@ class ContigTreeProfiler(object):
 
         """
 
-        all_trace = it.chain(*[span_trace for span_trace in self.contigtree.span_traces.values()])
+        all_trace = list(it.chain(*[span_trace for span_trace in self.contigtree.span_traces.values()]))
 
         # this truncates based on the frame specs so doesn't need to
         # be ordered or anything
@@ -657,13 +664,13 @@ class ContigTreeProfiler(object):
             # we use a trace orientation here for simplicity in truncation
 
             # trace of all of the frames in the contigtree
-            all_trace = it.chain(*[span_trace for span_trace in
-                                   self.contigtree.span_traces.values()])
+            all_trace = list(it.chain(*[span_trace for span_trace in
+                                        self.contigtree.span_traces.values()]))
 
             # filter it for the ignored fields if applicable
             if not ignore_truncate:
                 ignored_trace = []
-                for key in trace:
+                for key in all_trace:
                     if key not in self._ignore_trace:
                         ignored_trace.append(key)
 
@@ -721,9 +728,9 @@ class ContigTreeProfiler(object):
 
         spans_weights_part_gens = []
         spans_values_part_gens = []
-        for span_idx in self.contigtree.span_contig.keys():
+        for span_idx in self.contigtree.span_traces.keys():
 
-            contig = self.contigtree.span_contig(span)
+            contig = self.contigtree.span_contig(span_idx)
 
             if not ignore_truncate:
                 # get the weights
@@ -752,7 +759,7 @@ class ContigTreeProfiler(object):
 
             # we want to include all spans at once so save these for the next part
             spans_weights_part_gens.append(contig_weights_partition_gen)
-            spans_values_part_gens.append(contig_weights_partition_gen)
+            spans_values_part_gens.append(contig_values_partition_gen)
 
 
         part_profiles = []
@@ -762,15 +769,17 @@ class ContigTreeProfiler(object):
             gc.collect()
 
             # then add the other ones
-            weights_parts = [first_weights_part]
+            weights_parts = [first_weights_part.reshape(-1)]
             for other_weights_part_gen in spans_weights_part_gens[1:]:
 
-                weights_parts.append(next(other_weights_part_gen))
+                weights_part = next(other_weights_part_gen)
+                weights_parts.append(weights_part.reshape(-1))
 
             values_parts = []
             for values_part_gen in spans_values_part_gens:
 
-                values_parts.append(next(values_part_gen))
+                values_part = next(values_part_gen)
+                values_parts.append(values_part.reshape(-1))
 
             # concatenate them to feed them to the main function
             agg_weights_part = np.concatenate(weights_parts)
