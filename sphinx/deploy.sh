@@ -13,6 +13,8 @@ git checkout --track github/gh-pages
 
 git checkout gh-pages || { echo "aborting deploy"; exit 1; }
 
+git pull
+
 # merge the new changes from master
 git merge master
 
