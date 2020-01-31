@@ -11,7 +11,7 @@
 git remote add github git@github.com:ADicksonLab/wepy.git || echo "github remote already present"
 git checkout --track github/gh-pages
 
-git checkout gh-pages || echo "aborting deploy" && exit 1
+git checkout gh-pages || { echo "aborting deploy"; exit 1; }
 
 # merge the new changes from master
 git merge master
