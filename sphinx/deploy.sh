@@ -1,13 +1,17 @@
 #!/bin/bash
 
+# STUB: this was for deploying to the local lab web server
+
 # we build directly into this repository
 # rsync -rav ./_build/html/ salotz@volta.bch.msu.edu:/volume1/web/wepy/
 
+
+
 # make sure we have the remote and have fetched the branch
-git remote add github git@github.com:ADicksonLab/wepy.git
+git remote add github git@github.com:ADicksonLab/wepy.git || echo "github remote already present"
 git checkout --track github/gh-pages
 
-git checkout gh-pages
+git checkout gh-pages || echo "aborting deploy" && exit 1
 
 # merge the new changes from master
 git merge master

@@ -185,7 +185,8 @@ def website_deploy_local(ctx):
     # run the server
     ctx.run("bundle exec jekyll serve")
 
-@task(pre=[clean_docs, docs_build])
+#@task(pre=[clean_docs, docs_build])
+@task
 def website_deploy(ctx):
     """Deploy the documentation onto the internet."""
 
