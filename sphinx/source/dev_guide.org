@@ -1,4 +1,203 @@
-* Development Setup
+* Development
+
+
+** Getting Set Up
+
+*** Obtaining the source code
+
+We do development on github:
+
+#+BEGIN_SRC bash
+git clone https://github.com/ADicksonLab/wepy --recurse-submodules
+cd wepy
+#+END_SRC
+
+*** Tooling
+
+To make things easier for developers we provide a set automation
+scripts implemented in ~invoke~ (similar to a makefile if you are
+familiar with that).
+
+So you will want to install invoke somehow to use this tooling. The
+easiest most contained way to do this we have found is to use ~pipx~:
+
+#+begin_src bash
+pipx install invoke
+#+end_src
+
+
+*** Virtual Environments
+
+To develop on ~wepy~ we require OpenMM. By far the easiest way to get
+this is to use conda. Since we already dependent on anaconda for this
+we currently also use anaconda virtual environments rather than the
+standard library ones. It also makes a few things we depend on like
+~pandoc~ easier to install for building docs.
+
+We also require a few shell environmental variables which are exported
+in the ~env.bash~ file. Go ahead and source this before doing anything
+else:
+
+#+begin_src bash
+source env.bash
+#+end_src
+
+To create an env called ~wepy.dev~ just run the ~env~ target from
+~invoke~:
+
+#+begin_src bash
+inv env
+#+end_src
+
+Then activate it:
+
+#+begin_src bash
+conda activate wepy.dev
+#+end_src
+
+If you ever have problems with an environment just rerun this to get a
+clean one. A practice we encourage to do frequently so that developers
+don't diverge in their envs with local modifications. So while you can
+make your env, try to use this one unless you have problems.
+
+We maintain a number of preconfigured environments in the ~envs~
+directory which are used for different purposes. Calling ~inv env -n
+dev~ is the same as ~inv dev~ since it is the default, but any other
+environment can be created by passing the matching name. For instance
+there is an environment that mimics the user's installation
+environment so that we can test experiences upon install, to make sure
+we haven't accidentally depended on something in the dev env. For
+instance:
+
+#+begin_src bash
+inv env -n trial
+conda activate wepy.trial
+#+end_src
+
+If you want to make another environment it is straightforward to copy
+the examples in the ~envs~ dir.
+
+
+*** Documentation
+
+**** Editing and Building Docs
+
+To compile and build the docs just run:
+
+#+begin_src bash
+inv docs-build
+#+end_src
+
+Which will output them to a temporary build directory '_build/html'.
+
+You can clean this build with:
+
+#+begin_src bash
+inv clean-docs
+#+end_src
+
+
+To view how the docs would look as a website you can point your
+browser at the ~_build/html~ folder or run a python http web server
+with this target:
+
+#+begin_src bash
+inv docs-serve
+#+end_src
+
+
+**** COMMENT TODO: WIP: Building and testing the website
+
+The website is still a work in progress and is located in the ~jekyll~
+folder.
+
+The website uses jekyll and so you must have ~ruby~, ~bundler~, and
+~jekyll~ installed.
+
+On ubuntu and debian:
+
+#+begin_src bash
+sudo apt install -y ruby-full build-essential zlib1g-dev
+#+end_src
+
+And then on whichever distro with ~GEM_HOME~ on your ~PATH~:
+
+#+begin_src bash
+gem install jekyll bundler
+#+end_src
+
+
+Then you just need to run this command:
+
+#+begin_src bash
+inv website-deploy-local
+#+end_src
+
+
+**** Deploying the website
+
+We are using github pages. To avoid having to keep the entire built
+website in the main tree we use the alternate ~gh-pages~ branch. To
+make this process easy to deploy we have a script ~sphinx/deploy.sh~
+that checks the ~gh-pages~ branch out, does some necessary cleaning
+up, and copies the built website to the necesary folder (which is the
+toplevel), commits the changes and pushes to github, and then returns
+to your working branch.
+
+The invoke target is:
+
+#+begin_src bash
+inv website-deploy
+#+end_src
+
+*** COMMENT Installing Tooling
+
+# TOREV: I think this isn't necessary since we have these things in
+# the virtual env. Or we could include an arbitrary script into the
+# envs folder for each env if we need to.
+
+To get bootstrapped into the toolchain run the ~tooling.bash~ file:
+
+#+begin_src bash
+./tooling.bash
+#+end_src
+
+
+
+
+** Testing
+
+*** Getting the wepy-tests submodule
+
+The tests for wepy are included as a submodule because some of the
+associated data is large and we want to make the install base for the
+program smaller than that. Development of this is tracked in
+https://gitlab.com/salotz/wepy-tests.
+
+If you cloned without the recurse-submodules flag you can always pull
+them in later like this:
+
+#+begin_src bash
+git submodule update --init --recursive
+#+end_src
+
+
+WARNING: before you start editing the ~wepy-tests~ submodule you need
+to check out master.
+
+#+begin_src bash
+git checkout master
+#+end_src
+
+How many times I have edited it before I checked out master...
+
+If you do edit and commit try to get the hash of the commit and then
+merge with master. If you don't then you need to figure out which
+commit that was.
+
+
+
+* OLD: Development Setup
 
 Get the source code:
 

@@ -121,9 +121,28 @@ def clean_docs(ctx):
 @task
 def clean_website(ctx):
     """Remove all local website build products"""
-
     ctx.run("rm -rf docs/*")
 
+    # if the website accidentally got onto the main branch we remove
+    # that crap too
+    for thing in [
+            '_images',
+            '_modules',
+            '_sources',
+            '_static',
+            'api',
+            'genindex.html',
+            'index.html',
+            'invoke.html',
+            'objects.inv',
+            'py-modindex.html',
+            'search.html',
+            'searchindex.js',
+            'source',
+            'tutorials',
+    ]:
+
+        ctx.run(f"rm -rf {thing}")
 
 @task(pre=[clean_cache, clean_dist, clean_docs, clean_website])
 def clean(ctx):
@@ -143,9 +162,12 @@ def docs_build(ctx):
     """Buld the documenation"""
     ctx.run("(cd sphinx; ./build.sh)")
 
+@task(pre=[docs_build])
+def docs_serve(ctx):
+    """Local server for documenation"""
+    ctx.run("python -m http.server -d sphinx/_build/html")
 
-
-### Website
+### TODO: WIP Website
 
 @task(pre=[clean_docs, clean_website, docs_build])
 def website_deploy_local(ctx):
@@ -154,11 +176,11 @@ def website_deploy_local(ctx):
     # WIP: a more landing page style website for wepy using jekyll
     # which will have the docs linked to from it
 
-    # ctx.cd("jekyll")
+    ctx.cd("jekyll")
 
-    # # update dependencies
-    # ctx.run("bundle install")
-    # ctx.run("bundle update")
+    # update dependencies
+    ctx.run("bundle install")
+    ctx.run("bundle update")
 
     # run the server
     ctx.run("bundle exec jekyll serve")
@@ -296,7 +318,6 @@ def version_which(ctx):
     print(wepy.__version__)
 
 
-# TODO
 @task
 def version_set(ctx):
     """Set the version with a custom string."""
