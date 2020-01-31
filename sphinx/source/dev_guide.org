@@ -78,7 +78,11 @@ If you want to make another environment it is straightforward to copy
 the examples in the ~envs~ dir.
 
 
-*** Documentation
+** Tasks
+
+
+
+*** Documentation and Website
 
 **** Editing and Building Docs
 
@@ -149,21 +153,6 @@ The invoke target is:
 #+begin_src bash
 inv website-deploy
 #+end_src
-
-*** COMMENT Installing Tooling
-
-# TOREV: I think this isn't necessary since we have these things in
-# the virtual env. Or we could include an arbitrary script into the
-# envs folder for each env if we need to.
-
-To get bootstrapped into the toolchain run the ~tooling.bash~ file:
-
-#+begin_src bash
-./tooling.bash
-#+end_src
-
-
-
 
 ** Testing
 
