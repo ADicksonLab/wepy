@@ -13,7 +13,8 @@ git checkout --track github/gh-pages
 
 git checkout gh-pages || { echo "aborting deploy"; exit 1; }
 
-git pull
+# NOTE: we don't use git pull because we are force pushing always
+# git pull
 
 # merge the new changes from master
 git merge master
@@ -37,7 +38,7 @@ git add ../* --force
 git commit -m "Automated commit from deploy.sh"
 
 # push this branch so it gets published
-git push github gh-pages
+git push --force github gh-pages
 
 # go back to the branch you were on
 git checkout -
