@@ -28,6 +28,11 @@ pipx install invoke
 
 *** Virtual Environments
 
+This is for managing environments which are just for the purpose of
+developing wepy, and not necessarily just for running it (as a
+user). See [[*Managing Dependencies][Managing Dependencies]] for details on managing dependencies
+of the installable project.
+
 To develop on ~wepy~ we require OpenMM. By far the easiest way to get
 this is to use conda. Since we already dependent on anaconda for this
 we currently also use anaconda virtual environments rather than the
@@ -80,7 +85,18 @@ the examples in the ~envs~ dir.
 
 ** Tasks
 
+*** Managing Dependencies
 
+# TODO: figure out high level and pinned conda version files
+We write the high-level abstract requirements for our packages
+(i.e. not pinned) in the ~requirements.in~ and the ~env.yaml~ anaconda
+files.
+
+Then we will automatically generate the ~requirements.txt~ and 
+
+#+begin_src bash
+inv 
+#+end_src
 
 *** Documentation and Website
 
@@ -154,9 +170,10 @@ The invoke target is:
 inv website-deploy
 #+end_src
 
-** Testing
 
-*** Getting the wepy-tests submodule
+*** Testing
+
+**** Getting the wepy-tests submodule
 
 The tests for wepy are included as a submodule because some of the
 associated data is large and we want to make the install base for the
@@ -183,6 +200,14 @@ How many times I have edited it before I checked out master...
 If you do edit and commit try to get the hash of the commit and then
 merge with master. If you don't then you need to figure out which
 commit that was.
+
+
+
+
+*** Releases
+
+
+
 
 
 

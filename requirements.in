@@ -1,0 +1,14 @@
+numpy
+h5py
+networkx == 2.3
+pandas
+dill
+click
+scipy
+git+https://github.com/ADicksonLab/geomm.git
+matplotlib
+tabulate
+jinja2
+pint
+multiprocessing_logging
+dask[bag]

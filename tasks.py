@@ -33,49 +33,46 @@ def submodule_tests(ctx):
     ctx.run("git -C wepy-tests checkout master")
 
 
-### Environments
+### Dependencies
+# managing dependencies for the project at runtime
+
+## pip: things that can be controlled by pip
 
 @task
-def deps_run(ctx):
-    """Install bare minimum packages for running wepy with OpenMM."""
+def deps_pip_pin(cx):
+
+    cx.run("python -m piptools compile "
+           "--output-file=requirements.txt "
+           f"requirements.in")
+
+    # SNIPPET: generate hashes is not working right, or just confusing me
+    # cx.run("python -m piptools compile "
+    #        "--generate-hashes "
+    #        "--output-file=requirements.txt "
+    #        f"requirements.in")
 
 
-    ctx.run("pip install -r requirements.txt")
 
-    ctx.run("conda install -y -c omnia {}".format(' '.join(OMNIA_RUN_DEPS)),
-            pty=True)
+@task
+def deps_pip_update(cx):
 
-@task(pre=[deps_run])
-def deps_dev(ctx):
-    """Install dependencies needed for developing in current env."""
+    cx.run("python -m piptools compile "
+           "--upgrade "
+           "--output-file=requirements.txt "
+           f"requirements.in")
 
+## conda: managing conda dependencies
 
-    ctx.run("pip install -r dev.requirements.txt")
-
-    ctx.run("conda install -y -c conda-forge {}".format(' '.join(CONDA_DEV_DEPS)),
-            pty=True)
-
-
-@task(pre=[deps_run])
-def deps_examples(ctx):
-    """Install dependencies needed for running the examples in current env."""
-
-
-    # install the openmmtools dependencies
-    ctx.run("conda install -y -c conda-forge {}".format(
-        ' '.join(OPENMMTOOLS_DEPS)),
-        pty=True)
-
-    # then install openmmtools from pip
-    ctx.run(f"pip install {OPENMMTOOLS_INSTALL_TARGET}",
-            pty=True)
-
-
-@task(pre=[deps_run, deps_dev, deps_examples])
-def deps(ctx):
-    """Install all dependencies for all auxiliary tasks in the repo in current env."""
+## altogether
+@task
+def deps_pin(cx):
     pass
 
+@task
+def deps_pin_update(cx):
+    pass
+
+### Environments
 
 @task
 def env(cx, name='dev'):
@@ -85,11 +82,12 @@ def env(cx, name='dev'):
     cx.run(f"conda create -y -n {env_name} python={PYTHON_VERSION}",
         pty=True)
 
-    # install the pip dev dependencies
+    # install the extra pip dependencies
     cx.run(f"$ANACONDA_DIR/envs/{env_name}/bin/pip install -r envs/{name}.requirements.txt")
 
     # install the conda dev dependencies
     cx.run(f"conda env update -n {env_name} --file envs/{name}.env.yaml")
+
 
     # # install the pip tools dependencies
     # cx.run(f"$ANACONDA_DIR/envs/{env_name}/bin/pip install -r tools.requirements.txt")
@@ -154,6 +152,12 @@ def clean(ctx):
 def sdist(ctx):
     """Make a source distribution"""
     ctx.run("python setup.py sdist")
+
+
+@task
+def conda_build(cx):
+
+    cx.run("conda-build conda-recipe")
 
 ### Docs
 
@@ -340,10 +344,40 @@ def version_bump(ctx, level='patch'):
 
 ## Publishing
 
+# PyPI
+
 @task(pre=[sdist])
 def upload_pypi(ctx):
     ctx.run('twine upload dist/*')
 
+# Omnia conda
+
+OMNIA_RECIPE_PATH="../omnia-conda-recipes"
+
+@task
+def conda_omnia_recipe(cx):
+
+    # copy the recipe to the omnia fork
+    cx.run(f"cp conda/recipe {OMNIA_RECIPE_PATH}/wepy")
+
+    # commit and push
+    cx.run(f"git -C {OMNIA_RECIPE_PATH} commit -m 'update recipe'")
+    cx.run(f"git -C {OMNIA_RECIPE_PATH} push")
+    print(f"make a PR for this in the omnia conda recipes: {OMNIA_RECIPE_PATH}")
+
+# TODO: convert to the regular conda forge repo when this is finished
+CONDA_FORGE_RECIPE_PATH="../conda-forge_staged_recipe/recipes"
+CONDA_FORGE_HASH_URL=""
+@task
+def conda_forge_recipe(cx):
+
+    # copy the recipe to the omnia fork
+    cx.run(f"cp conda/conda-forge {CONDA_FORGE_RECIPE_PATH}/wepy")
+
+    # commit and push
+    cx.run(f"git -C {CONDA_FORGE_RECIPE_PATH} commit -m 'update recipe'")
+    cx.run(f"git -C {CONDA_FORGE_RECIPE_PATH} push")
+    print(f"make a PR for this in the conda-forge conda recipes: {CONDA_FORGE_RECIPE_PATH}")
 
 ## Scrapyard
 

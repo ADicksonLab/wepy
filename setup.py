@@ -18,30 +18,30 @@ import itertools as it
 
 # setuptools only specifies abstract requirements. For the concrete
 # requirements i.e. index or repo URL see requirements.txt
-abstract_requirements = [
-    'numpy',
-    'h5py',
-    'networkx==2.3',
-    'pandas',
-    'dill',
-    'click',
-    'scipy',
-    'geomm',
-    'matplotlib',
-    'tabulate',
-    'jinja2',
-    'pint',
-    'multiprocessing_logging',
-    'dask[bag]',
-    'mdtraj',
-]
+# abstract_requirements = [
+#     'numpy',
+#     'h5py',
+#     'networkx==2.3',
+#     'pandas',
+#     'dill',
+#     'click',
+#     'scipy',
+#     'geomm',
+#     'matplotlib',
+#     'tabulate',
+#     'jinja2',
+#     'pint',
+#     'multiprocessing_logging',
+#     'dask[bag]',
+#     'mdtraj',
+# ]
 
-# extras requirements list
-mdtraj_requirements = ['mdtraj']
+# # extras requirements list
+# mdtraj_requirements = ['mdtraj']
 
 
-# combination of all the extras requirements
-all_requirements = it.chain.from_iterable([mdtraj_requirements, ])
+# # combination of all the extras requirements
+# all_requirements = it.chain.from_iterable([mdtraj_requirements, ])
 
 setup(
     name='wepy',
@@ -80,10 +80,13 @@ setup(
         ]
     },
 
-    install_requires=abstract_requirements,
+    # SNIPPET:
+    # install_requires=abstract_requirements,
+    install_requires=[],
 
-    extras_require={
-        'mdtraj' : mdtraj_requirements,
-        'all' : all_requirements,
-    }
+    # SNIPPET:
+    # extras_require={
+    #     'mdtraj' : mdtraj_requirements,
+    #     'all' : all_requirements,
+    # }
 )
