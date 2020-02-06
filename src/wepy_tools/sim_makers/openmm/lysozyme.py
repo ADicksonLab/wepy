@@ -147,6 +147,15 @@ class LysozymeImplicitOpenMMSimMaker(OpenMMToolsTestSysSimMaker):
 
     @classmethod
     def binding_site_idxs(cls, cutoff):
+        """Find the atoms that are within a distance of the ligand on the
+        receptor.
+
+        Parameters
+        ----------
+
+        cutoff : Quantity
+
+        """
 
         test_sys = LysozymeImplicit()
 

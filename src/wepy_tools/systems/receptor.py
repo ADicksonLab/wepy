@@ -13,9 +13,7 @@ def binding_site_idxs(json_topology,
                       box_vectors,
                       cutoff,
                       periodic=True):
-    """
-
-    Parameters
+    """Parameters
     ----------
 
     json_topology : str
@@ -24,11 +22,17 @@ def binding_site_idxs(json_topology,
 
     receptor_idxs : arraylike (1,)
 
-    coords : simtk.Quantity
+    coords : N x 3 arraylike of float or simtk.Quantity
+        If not a quantity will implicitly be treated as being in
+        nanometers.
 
     box_vectors : simtk.Quantity
+        If not a quantity will implicitly be treated as being in
+        nanometers.
 
-    cutoff : float
+    cutoff : float or simtk.Quantity
+        If not a quantity will implicitly be treated as being in
+        nanometers.
 
     Returns
     -------
@@ -37,11 +41,20 @@ def binding_site_idxs(json_topology,
 
     """
 
-    # convert quantities to numbers in nanometers
-    cutoff = cutoff.value_in_unit(unit.nanometer)
-    coords = coords.value_in_unit(unit.nanometer)
 
-    box_lengths, box_angles = box_vectors_to_lengths_angles(box_vectors.value_in_unit(unit.nanometer))
+    # if they are simtk.units convert quantities to numbers in
+    # nanometers
+    if unit.is_quantity(cutoff):
+        cutoff = cutoff.value_in_unit(unit.nanometer)
+
+    if unit.is_quantity(coords):
+        coords = coords.value_in_unit(unit.nanometer)
+
+    if unit.is_quantity(box_vectors):
+        box_vectors = box_vectors.value_in_unit(unit.nanometer)
+
+
+    box_lengths, box_angles = box_vectors_to_lengths_angles(box_vectors)
 
     # make a trajectory to compute the neighbors from
     traj = mdj.Trajectory(np.array([coords]),
