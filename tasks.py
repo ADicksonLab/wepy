@@ -51,8 +51,6 @@ def deps_pip_pin(cx):
     #        "--output-file=requirements.txt "
     #        f"requirements.in")
 
-
-
 @task
 def deps_pip_update(cx):
 
@@ -63,12 +61,22 @@ def deps_pip_update(cx):
 
 ## conda: managing conda dependencies
 
-## altogether
+# STUB
 @task
+def deps_conda_pin(ctx):
+    pass
+
+# STUB
+@task
+def deps_conda_update(ctx):
+    pass
+
+## altogether
+@task(pre=[deps_pip_pin, deps_conda_pin])
 def deps_pin(cx):
     pass
 
-@task
+@task(pre=[deps_pip_update, deps_conda_update])
 def deps_pin_update(cx):
     pass
 
@@ -254,7 +262,8 @@ def tests_tox(ctx):
 @task
 def lint(ctx):
 
-    ctx.run("flake8 src/wepy")
+    ctx.run("rm -f metrics/lint/flake8.txt")
+    ctx.run("flake8 --output-file=metrics/lint/flake8.txt src/wepy")
 
 @task
 def complexity(ctx):
@@ -263,8 +272,15 @@ def complexity(ctx):
     ctx.run("lizard -o metrics/code_quality/lizard.csv src/wepy")
     ctx.run("lizard -o metrics/code_quality/lizard.html src/wepy")
 
+    # SNIPPET: annoyingly opens the browser
+
     # make a cute word cloud of the things used
-    ctx.run("(cd metrics/code_quality; lizard -EWordCount src/wepy > /dev/null)")
+    # ctx.run("(cd metrics/code_quality; lizard -EWordCount src/wepy > /dev/null)")
+
+@task(pre=[complexity, lint])
+def quality(ctx):
+    pass
+
 
 ### Profiling and Performance
 
@@ -327,16 +343,34 @@ def version_which(ctx):
 def version_set(ctx):
     """Set the version with a custom string."""
 
-    NotImplemented
+    print(NotImplemented)
 
+
+# TODO: bumpversion is a flop don't use it. Just do a normal
+# replacement or do it manually
 @task
-def version_bump(ctx, level='patch'):
+def version_bump(ctx, level='patch', new_version=None):
     """Incrementally increase the version number by specifying the bumpversion level."""
 
+    print(NotImplemented)
     NotImplemented
 
-    # use the bumpversion utility
-    ctx.run("bumpversion {}".format(level))
+    if new_version is None:
+        # use the bumpversion utility
+        ctx.run(f"bumpversion --verbose "
+                f"--new-version {new_version}"
+                f"-m 'bumps version to {new_version}'"
+                f"{level}")
+
+    elif level is not None:
+        # use the bumpversion utility
+        ctx.run(f"bumpversion --verbose "
+                f"-m 'bumps version level: {level}'"
+                f"{level}")
+
+    else:
+        print("must either provide the level to bump or the version specifier")
+
 
     # tag the git repo
     ctx.run("git tag -a ")

@@ -1,3 +1,4 @@
+--index-url https://pypi.python.org/simple/
 numpy
 h5py
 networkx == 2.3
@@ -11,4 +12,5 @@ tabulate
 jinja2
 pint
 multiprocessing_logging
+mdtraj
 dask[bag]

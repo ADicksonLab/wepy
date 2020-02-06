@@ -18,34 +18,36 @@ import itertools as it
 
 # setuptools only specifies abstract requirements. For the concrete
 # requirements i.e. index or repo URL see requirements.txt
-# abstract_requirements = [
-#     'numpy',
-#     'h5py',
-#     'networkx==2.3',
-#     'pandas',
-#     'dill',
-#     'click',
-#     'scipy',
-#     'geomm',
-#     'matplotlib',
-#     'tabulate',
-#     'jinja2',
-#     'pint',
-#     'multiprocessing_logging',
-#     'dask[bag]',
-#     'mdtraj',
-# ]
+base_requirements = [
+    'numpy',
+    'h5py',
+    'networkx==2.3',
+    'pandas',
+    'dill',
+    'click',
+    'scipy',
+    'geomm',
+    'matplotlib',
+    'tabulate',
+    'jinja2',
+    'pint',
+    'multiprocessing_logging',
+]
 
-# # extras requirements list
-# mdtraj_requirements = ['mdtraj']
-
+# extras requirements list
+mdtraj_requirements = ['mdtraj']
+distributed = ['dask[bag]']
 
 # # combination of all the extras requirements
-# all_requirements = it.chain.from_iterable([mdtraj_requirements, ])
+all_requirements = it.chain.from_iterable([
+    base_requirements,
+    mdtraj_requirements,
+    distributed,
+])
 
 setup(
     name='wepy',
-    version='1.0.0-rc',
+    version='1.0.0rc0',
     author="Samuel D. Lotz",
     author_email="samuel.lotz@salotz.info",
     description="Weighted Ensemble Framework",
@@ -80,13 +82,11 @@ setup(
         ]
     },
 
-    # SNIPPET:
-    # install_requires=abstract_requirements,
-    install_requires=[],
+    install_requires=base_requirements,
 
-    # SNIPPET:
-    # extras_require={
-    #     'mdtraj' : mdtraj_requirements,
-    #     'all' : all_requirements,
-    # }
+    extras_require={
+        'mdtraj' : mdtraj_requirements,
+        'distributed' : distributed_requirements,
+        'all' : all_requirements,
+    }
 )

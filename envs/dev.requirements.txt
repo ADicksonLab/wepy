@@ -25,6 +25,7 @@ sphinx
 guzzle_sphinx_theme
 sphinxcontrib-napoleon
 nbsphinx
+notebook
 
 # testing
 pytest
@@ -33,9 +34,9 @@ argcomplete
 flake8
 tox
 coverage
+
 # code quality metrics
 lizard
-
 
 pytest-datadir
 pytest-cov
