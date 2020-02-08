@@ -247,15 +247,7 @@ def tests_all(cx, node='dev'):
     tests_unit(cx, node=node)
     tests_integration(cx, node=node)
 
-@task
-def tests_tox(ctx):
-
-    NotImplemented
-
-    TOX_PYTHON_DIR=None
-
-    ctx.run("env PATH=\"{}/bin:$PATH\" tox".format(
-        TOX_PYTHON_DIR))
+# TODO: tox tests from upstream cookiecutter template
 
 ### Code Quality
 
@@ -284,9 +276,7 @@ def quality(ctx):
 
 ### Profiling and Performance
 
-@task
-def profile(ctx):
-    NotImplemented
+# TODO: include profiling from upstream cookiecutter template
 
 @task
 def benchmark_adhoc(ctx):
@@ -306,27 +296,10 @@ f"""pytest --benchmark-autosave --benchmark-save-data \
 
     ctx.run(run_command)
 
-@task
-def benchmark_compare(ctx):
-
-    # TODO logic for comparing across the last two
-
-    run_command = \
-"""pytest-benchmark \
-                    --storage {storage} \
-                    compare 'Linux-CPython-3.6-64bit/*' \
-                    --csv=\"{csv}\" \
-                    > {output}
-""".format(storage=BENCHMARK_STORAGE_URI,
-           csv="{}/Linux-CPython-3.6-64bit/comparison.csv".format(BENCHMARK_STORAGE_URL),
-           output="{}/Linux-CPython-3.6-64bit/report.pytest.txt".format(BENCHMARK_STORAGE_URL),
-)
-
-    ctx.run(run_command)
-
+# TODO: include compare performances from upstream cookiecutter
+# template
 
 ### Releases
-
 
 ## version management
 
@@ -339,42 +312,9 @@ def version_which(ctx):
     print(wepy.__version__)
 
 
-@task
-def version_set(ctx):
-    """Set the version with a custom string."""
+# TODO: include version set from upstream cookiecutter template
 
-    print(NotImplemented)
-
-
-# TODO: bumpversion is a flop don't use it. Just do a normal
-# replacement or do it manually
-@task
-def version_bump(ctx, level='patch', new_version=None):
-    """Incrementally increase the version number by specifying the bumpversion level."""
-
-    print(NotImplemented)
-    NotImplemented
-
-    if new_version is None:
-        # use the bumpversion utility
-        ctx.run(f"bumpversion --verbose "
-                f"--new-version {new_version}"
-                f"-m 'bumps version to {new_version}'"
-                f"{level}")
-
-    elif level is not None:
-        # use the bumpversion utility
-        ctx.run(f"bumpversion --verbose "
-                f"-m 'bumps version level: {level}'"
-                f"{level}")
-
-    else:
-        print("must either provide the level to bump or the version specifier")
-
-
-    # tag the git repo
-    ctx.run("git tag -a ")
-
+# TODO: include version bump from upstream cookiecutter template
 
 ## Publishing
 

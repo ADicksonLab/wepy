@@ -85,6 +85,24 @@ the examples in the ~envs~ dir.
 
 ** Tasks
 
+*** Licenses and Copyright
+
+The license can be found in the LICENSE file and shouldn't need to be
+updated usually.
+
+However, according to copyright laws (hand waves...) the original date
+in the license establishes the earliest copyright claim to the
+work. The date shouldn't need updated in principle. The only thing you
+could do is add dates to this. Adding dates may be useful if
+significant changes to the software are made.
+
+So rule of thumbs are:
+
+- never remove the original date in the license copyright
+- you can add dates if you want when you make big changes, but it is
+  probably not necessary
+
+
 *** Managing Dependencies
 
 
