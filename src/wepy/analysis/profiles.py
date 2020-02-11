@@ -9,9 +9,85 @@ import numpy as np
 
 from geomm.free_energy import free_energy
 
+def _percentage_cumulative_partitions(ensemble_values,
+                                     percentages=[0.25, 0.5, 0.75, 1.0]):
+
+    n_cycles = ensemble_values.shape[0]
+    n_trajs = ensemble_values.shape[1]
+
+    start_idx = 0
+    partitions = []
+    for percentage in percentages:
+
+        # get the percentage of the cycles based on this percentage
+        end_idx = int(n_cycles // (1 / percentage))
+
+        partitions.append((start_idx, end_idx))
+
+    return partitions
+
+
+def _tranche_cumulative_partitions(ensemble_values,
+                                  time_tranche=None,
+                                  num_partitions=4):
+    n_cycles = ensemble_values.shape[0]
+    n_trajs = ensemble_values.shape[1]
+
+    start_idx = 0
+
+    # if time_tranche was given determine the number of partitions
+    if time_tranche is not None and time_tranche > 0:
+        num_partitions = n_cycles // time_tranche
+
+        # get the end indices for each tranche
+        end_idxs = []
+        for i in range(num_partitions):
+            end_idx = time_tranche * (i + 1)
+
+        # and create the array of partitions
+        partitions = [(start_idx, end_idx) for end_idx in end_idxs]
+
+        # if there is a remainder we will have another partition for
+        # the remainder
+        remainder = n_cycles % time_tranche
+        if remainder > 0:
+            num_partitions += 1
+            end_idx = remainder + (tim_tranche * num_partitions)
+
+            partitions.append((start_idx, end_idx))
+
+    # check that one of them is defined
+    elif num_partitions is None and num_partitions > 0:
+        raise ValueError("Must specify either time_tranche size or partitions ratio")
+
+    # if the partitions are given and the time_tranche is not we
+    # determine the tranche size automatically
+    else:
+        time_tranche = n_cycles // num_partitions
+
+        end_idxs = []
+        for i in range(num_partitions):
+            end_idx = time_tranche * (i + 1)
+
+        # and create the array of partitions
+        partitions = [(start_idx, end_idx) for end_idx in end_idxs]
+
+        # if there is a remainder in this case we add it to the first
+        # partition since the number of partitions is invariant
+        # (unlike time_tranche option)
+        remainder = n_cycles % time_tranche
+        if remainder > 0:
+            partitions[0][1] += remainder
+
+    return partitions
+
+# REFACTOR: this has an overly complex decision process encapsulated
+# here, should be refactored. Was not properly done because of time
+# constraints
 def cumulative_partitions(ensemble_values,
                           time_tranche=None,
-                          num_partitions=5):
+                          num_partitions=5,
+                          percentages=None):
     """Calculate the cumulative free energies for an ensemble of
     trajectory weights.
 
@@ -32,6 +108,8 @@ def cumulative_partitions(ensemble_values,
         dataset. The first partition will carry the
         remainder. Overriden by time_tranche.
 
+    percentages: list of float, optional
+
     Yields
     ------
 
@@ -43,42 +121,20 @@ def cumulative_partitions(ensemble_values,
     """
 
 
-    n_cycles = ensemble_values.shape[0]
-    n_trajs = ensemble_values.shape[1]
+    if percentages is None:
+        partitions = _tranche_cumulative_partitions(ensemble_values,
+                                                    time_tranche=time_tranche,
+                                                    num_partitions=num_partitions)
 
-    # if time_tranche was given determine the number of partitions
-    if time_tranche is not None and time_tranche > 0:
-        num_partitions = n_cycles // time_tranche
-        partitions = [time_tranche for _ in range(num_partitions)]
-
-        # if there is a remainder we will have another partition for
-        # the remainder
-        remainder = n_cycles % time_tranche
-        if remainder > 0:
-            num_partitions += 1
-            partitions.append(remainder)
-
-    # check that one of them is defined
-    elif num_partitions is None and num_partitions > 0:
-        raise ValueError("Must specify either time_tranche size or partitions ratio")
-
-    # if the partitions are given and the time_tranche is not we
-    # determine the tranche size automatically
     else:
-        time_tranche = n_cycles // num_partitions
-        partitions = [time_tranche for _ in range(num_partitions)]
-        remainder = n_cycles % time_tranche
-        if remainder > 0:
-            partitions[0] += remainder
+        partitions = _percentage_cumulative_partitions(ensemble_values,
+                                                       percentages=percentages)
 
     # yield the time-partitioned values when asked for
-    for p_idx in range(len(partitions)):
-
-        # get the index for the end of the slice for this partition
-        end_idx = sum(partitions[0:p_idx+1]) #- 1
+    for start_idx, end_idx in partitions:
 
         # compute the free energies
-        yield ensemble_values[0:end_idx]
+        yield ensemble_values[start_idx:end_idx]
 
 def free_energy_profile(weights, observables, bins=30,
                   max_energy=100,
@@ -595,6 +651,7 @@ class ContigTreeProfiler(object):
                                    bins=None,
                                    time_tranche=None,
                                    num_partitions=5,
+                                   percentages=None,
                                    ignore_truncate=False):
         """Calculate the cumulative free energy histograms for a trajectory
         field for all spans in a contigtree.
@@ -623,6 +680,8 @@ class ContigTreeProfiler(object):
             Will evenly partition the time coordinate given the
             dataset. The first partition will carry the remainder.
             Overriden by time_tranche.
+
+        percentages : list of float
 
         ignore_truncate : bool
             Ignore the truncate_cycles value.
@@ -748,14 +807,15 @@ class ContigTreeProfiler(object):
             contig_weights = contig_weights.reshape((contig_weights.shape[0],
                                                      contig_weights.shape[1]))
 
-
             # make the cumulative generators for each
             contig_weights_partition_gen = cumulative_partitions(contig_weights,
                                                           time_tranche=time_tranche,
-                                                          num_partitions=num_partitions)
+                                                                 num_partitions=num_partitions,
+                                                                 percentages=percentages)
             contig_values_partition_gen = cumulative_partitions(contig_values,
                                                          time_tranche=time_tranche,
-                                                         num_partitions=num_partitions)
+                                                                num_partitions=num_partitions,
+                                                                percentages=percentages)
 
             # we want to include all spans at once so save these for the next part
             spans_weights_part_gens.append(contig_weights_partition_gen)
