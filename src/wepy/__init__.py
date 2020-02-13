@@ -2,6 +2,7 @@
 
 """Top-level package for testing."""
 
+from ._version import __version__
+
 __author__ = """Samuel D. Lotz"""
 __email__ = 'samuel.lotz@salotz.info'
-__version__ = '1.0.0rc0'
