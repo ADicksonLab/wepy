@@ -684,7 +684,7 @@ def publish_test(cx):
 
 # PyPI
 
-PYPI_INDEX_URL = "https://pypi.org//"
+PYPI_INDEX_URL = "https://upload.pypi.org/legacy/"
 
 @task(pre=[clean_dist, build])
 def publish_pypi(cx, version=None):
