@@ -1,0 +1,27 @@
+
+* Wepy
+** Getting Started
+
+- [[file:./quick_start.org][Quick Start]] :: Get up and running as quickly as possible.
+- [[file:./introduction.org][Introduction]] :: Background and motivation on the problem this
+  software solves and the approach it takes to solving it.
+- [[file:./installation.org][Installation]] :: Detailed instructions on how to install.
+
+** Software Documentation
+
+- [[file:./tutorials/README.org][Tutorials]] & [[file:./examples/README.org][Examples]] :: *Learning-oriented* examples for newcomers.
+- [[file:./users_guide.org][User's Guide]] :: *Understanding-Oriented* explanation of how to use
+  and learn this software.
+- [[file:./howtos.org][How-Tos]] :: *Goal-Oriented* solutions to specific problems.
+- [[file:./reference.org][Reference]] :: *Information-oriented* 
+- [[file:./troubleshooting.org][Troubleshooting]] :: Frequently Asked Questions (FAQ) and common
+  troubleshooting strategies.
+
+** Project & Developer Information
+
+- [[file:./project_info.org][General]] :: General information about the project itself.
+- [[file:./new.org][News & Updates]] :: Various new items about the project including
+  release announcements.
+- [[file:./changelog.org][Changelog & History]] :: High-level prose description of changes for
+  each version.
+- [[file:./dev_guide.org][Developer's Guide]] :: Instructions and guides for developers.

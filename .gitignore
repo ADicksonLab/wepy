@@ -13,7 +13,10 @@
 _venv
 _conda_envs
 
+# sphinx stuff
 sphinx/_build
+sphinx/source
+sphinx/_api
 docs/_build
 
 # misc

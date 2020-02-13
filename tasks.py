@@ -296,12 +296,13 @@ ORG_DOCS_SOURCES = [
     'quick_start',
     'troubleshooting',
     'users_guide',
-    'reference',
 ]
 
 RST_DOCS_SOURCES = [
+    'reference',
     'glossary',
     'tutorials/index',
+
 ]
 
 @task
@@ -362,7 +363,7 @@ def docs_build(cx):
     with cx.cd('sphinx'):
 
         # build the API Documentation
-        cx.run("sphinx-apidoc -f --separate --private --ext-autodoc --module-first --maxdepth 1 -o api ../src/geomm")
+        cx.run("sphinx-apidoc -f --separate --private --ext-autodoc --module-first --maxdepth 1 -o api ../src/wepy")
 
         # then do the sphinx build process
         cx.run("sphinx-build -b html -E -a -j 6 . ./_build/html/")

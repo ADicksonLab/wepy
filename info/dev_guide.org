@@ -147,7 +147,7 @@ To compile and build the docs just run:
 inv docs-build
 #+end_src
 
-Which will output them to a temporary build directory '_build/html'.
+Which will output them to a temporary build directory ~_build/html~.
 
 You can clean this build with:
 
@@ -291,7 +291,7 @@ level:
 
 
 
-* OLD: Development Setup
+* COMMENT OLD: Development Setup
 
 Get the source code:
 

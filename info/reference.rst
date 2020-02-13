@@ -1,4 +1,4 @@
-API Reference
+Reference
 =============
 
 This is a listing of the important and most used for an exhaustive

@@ -1,0 +1,20 @@
+
+* Changelog
+
+Adapted from [[https://keepachangelog.com][keepachangelog.com]] for org-mode.
+
+See the git commit log history for full details.
+
+** Unreleased
+
+*** Breakages
+
+*** Regressions
+
+*** Growth
+
+
+
+
+
+
