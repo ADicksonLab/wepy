@@ -36,13 +36,13 @@ base_requirements = [
 
 # extras requirements list
 mdtraj_requirements = ['mdtraj']
-distributed = ['dask[bag]']
+distributed_requirements = ['dask[bag]']
 
 # # combination of all the extras requirements
 all_requirements = it.chain.from_iterable([
     base_requirements,
     mdtraj_requirements,
-    distributed,
+    distributed_requirements,
 ])
 
 setup(
