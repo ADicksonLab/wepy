@@ -110,41 +110,51 @@ class REVOResampler(CloneMergeResampler):
                               ('variation',)
 
 
-    def __init__(self, seed=None, pmin=1e-12, pmax=0.1, dist_exponent=4, merge_dist=None,
-                 char_dist=None, distance=None, init_state=None, weights=True, **kwargs):
+    def __init__(self,
+                 merge_dist=None,
+                 char_dist=None,
+                 distance=None,
+                 init_state=None,
+                 weights=True,
+                 pmin=1e-12,
+                 pmax=0.1,
+                 dist_exponent=4,
+                 seed=None,
+                 **kwargs):
 
         """Constructor for the REVO Resampler.
 
         Parameters
         ----------
 
-        seed : None or int
-            The random seed. If None, the system (random) one will be used.
-
         dist_exponent : int
           The distance exponent that modifies distance and weight novelty
           relative to each other in the variation equation.
 
         merge_dist : float
-            The merge distance threshold. Its value depends on the system
-            of interest. A value of 2.5 is recommended.
+            The merge distance threshold. Units should be the same as
+            the distance metric.
 
         char_dist : float
-            The characteristic distance value. It is calculated by running
-            a single dynamic cycle and then calculating the average distance
-            between all walkers.
+            The characteristic distance value. It is calculated by
+            running a single dynamic cycle and then calculating the
+            average distance between all walkers. Units should be the
+            same as the distance metric.
 
         distance : object implementing Distance
             The distance metric to compare walkers.
 
-        init_state : WalkerState object
-            The state that seeds the first region in the region hierarchy.
-
-        weights : True or False
+        weights : bool
             Turns off or on the weight novelty in
             calculating the variation equation. When weight is
             False, the value of the novelty function is set to 1 for all
-            walkers. Weight on is recomended.
+            walkers.
+
+        init_state : WalkerState object
+            Used for automatically determining the state image shape.
+
+        seed : None or int, optional
+            The random seed. If None, the system (random) one will be used.
 
         """
 
@@ -156,21 +166,25 @@ class REVOResampler(CloneMergeResampler):
                          max_num_walkers=Ellipsis,
                          **kwargs)
 
+        assert merge_dist is not None, "Merge distance must be given."
+        assert distance is not None,  "Distance object must be given."
+        assert char_dist is not None, "Characteristic distance value (d0) must be given"
+        assert init_state is not None,  "An initial state must be given."
+
         # ln(probability_min)
         self.lpmin = np.log(self.pmin/100)
         self.dist_exponent = dist_exponent
+
+        # the distance metric
+
         self.merge_dist = merge_dist
 
         # the distance metric
-        assert merge_dist is not None, "Merge distance must be given."
-        self.merge_dist = merge_dist
 
-        # the distance metric
-        assert distance is not None,  "Distance object must be given."
         self.distance = distance
 
         # the characteristic distance, char_dist
-        assert char_dist is not None, "Characteristic distance value (d0) must be given"
+
         self.char_dist = char_dist
 
         # setting the random seed
@@ -183,7 +197,7 @@ class REVOResampler(CloneMergeResampler):
 
         # we do not know the shape and dtype of the images until
         # runtime so we determine them here
-        assert init_state is not None,  "An initial state must be given."
+
         image = self.distance.image(init_state)
         self.image_dtype = image.dtype
 

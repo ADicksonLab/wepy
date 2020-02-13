@@ -2245,11 +2245,12 @@ class WExploreResampler(CloneMergeResampler):
 
 
     def __init__(self, seed=None,
-                 pmin=1e-12, pmax=0.1,
                  distance=None,
-                 max_n_regions=(10, 10, 10, 10),
-                 max_region_sizes=(1, 0.5, 0.35, 0.25),
+                 max_region_sizes=None,
                  init_state=None,
+                 pmin=1e-12,
+                 pmax=0.1,
+                 max_n_regions=(10, 10, 10, 10),
                  **kwargs
                 ):
         """Constructor for the WExploreResampler.
@@ -2272,7 +2273,9 @@ class WExploreResampler(CloneMergeResampler):
 
         max_region_sizes : tuple of float
             The cutoff distances that trigger the creation of new
-            regions at each level of the hierarchy.
+            regions at each level of the hierarchy. Numbers dependent
+            on the units of your distance metric.
+            For example: (1, 0.5, 0.35, 0.25).
 
         """
 
@@ -2284,8 +2287,8 @@ class WExploreResampler(CloneMergeResampler):
                          max_num_walkers=Ellipsis,
                          **kwargs)
 
-        # TODO refactor out the distance things to a superclass
         assert distance is not None, "Distance object must be given."
+        assert max_region_sizes is not None, "Max region sizes must be given"
 
         self.distance = distance
 
@@ -2304,7 +2307,7 @@ class WExploreResampler(CloneMergeResampler):
 
         self.max_n_regions = max_n_regions
         self.n_levels = len(max_n_regions)
-        self.max_region_sizes = max_region_sizes # in nanometers!
+        self.max_region_sizes = max_region_sizes
 
 
         # we do not know the shape and dtype of the images until
