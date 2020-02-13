@@ -754,71 +754,69 @@ src/wepy/resampling/resamplers/revo.py:104:24: E127 continuation line over-inden
 src/wepy/resampling/resamplers/revo.py:106:24: E127 continuation line over-indented for visual indent
 src/wepy/resampling/resamplers/revo.py:110:31: E127 continuation line over-indented for visual indent
 src/wepy/resampling/resamplers/revo.py:113:5: E303 too many blank lines (2)
-src/wepy/resampling/resamplers/revo.py:113:80: E501 line too long (89 > 79 characters)
-src/wepy/resampling/resamplers/revo.py:114:80: E501 line too long (89 > 79 characters)
-src/wepy/resampling/resamplers/revo.py:173:80: E501 line too long (88 > 79 characters)
-src/wepy/resampling/resamplers/revo.py:246:80: E501 line too long (81 > 79 characters)
-src/wepy/resampling/resamplers/revo.py:277:9: E303 too many blank lines (3)
-src/wepy/resampling/resamplers/revo.py:278:80: E501 line too long (91 > 79 characters)
-src/wepy/resampling/resamplers/revo.py:279:32: E128 continuation line under-indented for visual indent
-src/wepy/resampling/resamplers/revo.py:282:9: E303 too many blank lines (2)
-src/wepy/resampling/resamplers/revo.py:289:9: E303 too many blank lines (2)
-src/wepy/resampling/resamplers/revo.py:297:80: E501 line too long (110 > 79 characters)
-src/wepy/resampling/resamplers/revo.py:298:25: E122 continuation line missing indentation or outdented
-src/wepy/resampling/resamplers/revo.py:300:80: E501 line too long (100 > 79 characters)
-src/wepy/resampling/resamplers/revo.py:301:80: E501 line too long (88 > 79 characters)
-src/wepy/resampling/resamplers/revo.py:302:80: E501 line too long (88 > 79 characters)
-src/wepy/resampling/resamplers/revo.py:343:9: E303 too many blank lines (2)
-src/wepy/resampling/resamplers/revo.py:345:80: E501 line too long (81 > 79 characters)
-src/wepy/resampling/resamplers/revo.py:362:80: E501 line too long (82 > 79 characters)
-src/wepy/resampling/resamplers/revo.py:367:80: E501 line too long (91 > 79 characters)
-src/wepy/resampling/resamplers/revo.py:368:80: E501 line too long (100 > 79 characters)
-src/wepy/resampling/resamplers/revo.py:371:80: E501 line too long (91 > 79 characters)
-src/wepy/resampling/resamplers/revo.py:376:13: E303 too many blank lines (2)
-src/wepy/resampling/resamplers/revo.py:379:80: E501 line too long (82 > 79 characters)
-src/wepy/resampling/resamplers/revo.py:381:41: E231 missing whitespace after ','
-src/wepy/resampling/resamplers/revo.py:382:80: E501 line too long (98 > 79 characters)
-src/wepy/resampling/resamplers/revo.py:382:84: E221 multiple spaces before operator
-src/wepy/resampling/resamplers/revo.py:390:80: E501 line too long (82 > 79 characters)
-src/wepy/resampling/resamplers/revo.py:395:80: E501 line too long (83 > 79 characters)
-src/wepy/resampling/resamplers/revo.py:400:39: E127 continuation line over-indented for visual indent
-src/wepy/resampling/resamplers/revo.py:400:69: E225 missing whitespace around operator
-src/wepy/resampling/resamplers/revo.py:401:40: E127 continuation line over-indented for visual indent
-src/wepy/resampling/resamplers/revo.py:401:80: E501 line too long (106 > 79 characters)
-src/wepy/resampling/resamplers/revo.py:402:39: E124 closing bracket does not match visual indentation
-src/wepy/resampling/resamplers/revo.py:408:80: E501 line too long (92 > 79 characters)
-src/wepy/resampling/resamplers/revo.py:409:45: E127 continuation line over-indented for visual indent
-src/wepy/resampling/resamplers/revo.py:409:80: E501 line too long (95 > 79 characters)
-src/wepy/resampling/resamplers/revo.py:416:13: E303 too many blank lines (2)
-src/wepy/resampling/resamplers/revo.py:417:80: E501 line too long (93 > 79 characters)
-src/wepy/resampling/resamplers/revo.py:418:13: E265 block comment should start with '# '
-src/wepy/resampling/resamplers/revo.py:418:80: E501 line too long (89 > 79 characters)
-src/wepy/resampling/resamplers/revo.py:419:36: E203 whitespace before ':'
-src/wepy/resampling/resamplers/revo.py:422:80: E501 line too long (85 > 79 characters)
-src/wepy/resampling/resamplers/revo.py:423:80: E501 line too long (84 > 79 characters)
-src/wepy/resampling/resamplers/revo.py:424:80: E501 line too long (88 > 79 characters)
-src/wepy/resampling/resamplers/revo.py:428:80: E501 line too long (130 > 79 characters)
-src/wepy/resampling/resamplers/revo.py:433:80: E501 line too long (86 > 79 characters)
-src/wepy/resampling/resamplers/revo.py:441:80: E501 line too long (107 > 79 characters)
-src/wepy/resampling/resamplers/revo.py:442:80: E501 line too long (102 > 79 characters)
-src/wepy/resampling/resamplers/revo.py:444:22: E114 indentation is not a multiple of four (comment)
-src/wepy/resampling/resamplers/revo.py:444:22: E116 unexpected indentation (comment)
-src/wepy/resampling/resamplers/revo.py:455:80: E501 line too long (82 > 79 characters)
-src/wepy/resampling/resamplers/revo.py:477:80: E501 line too long (94 > 79 characters)
-src/wepy/resampling/resamplers/revo.py:478:75: E128 continuation line under-indented for visual indent
-src/wepy/resampling/resamplers/revo.py:478:80: E501 line too long (96 > 79 characters)
-src/wepy/resampling/resamplers/revo.py:479:75: E128 continuation line under-indented for visual indent
-src/wepy/resampling/resamplers/revo.py:479:80: E501 line too long (90 > 79 characters)
-src/wepy/resampling/resamplers/revo.py:482:80: E501 line too long (86 > 79 characters)
-src/wepy/resampling/resamplers/revo.py:560:9: E265 block comment should start with '# '
-src/wepy/resampling/resamplers/revo.py:573:80: E501 line too long (100 > 79 characters)
-src/wepy/resampling/resamplers/revo.py:583:8: E114 indentation is not a multiple of four (comment)
-src/wepy/resampling/resamplers/revo.py:585:45: E203 whitespace before ':'
-src/wepy/resampling/resamplers/revo.py:585:80: E501 line too long (83 > 79 characters)
-src/wepy/resampling/resamplers/revo.py:586:41: E203 whitespace before ':'
-src/wepy/resampling/resamplers/revo.py:587:39: E203 whitespace before ':'
-src/wepy/resampling/resamplers/revo.py:588:36: E203 whitespace before ':'
-src/wepy/resampling/resamplers/revo.py:589:41: E203 whitespace before ':'
+src/wepy/resampling/resamplers/revo.py:171:80: E501 line too long (88 > 79 characters)
+src/wepy/resampling/resamplers/revo.py:260:80: E501 line too long (81 > 79 characters)
+src/wepy/resampling/resamplers/revo.py:291:9: E303 too many blank lines (3)
+src/wepy/resampling/resamplers/revo.py:292:80: E501 line too long (91 > 79 characters)
+src/wepy/resampling/resamplers/revo.py:293:32: E128 continuation line under-indented for visual indent
+src/wepy/resampling/resamplers/revo.py:296:9: E303 too many blank lines (2)
+src/wepy/resampling/resamplers/revo.py:303:9: E303 too many blank lines (2)
+src/wepy/resampling/resamplers/revo.py:311:80: E501 line too long (110 > 79 characters)
+src/wepy/resampling/resamplers/revo.py:312:25: E122 continuation line missing indentation or outdented
+src/wepy/resampling/resamplers/revo.py:314:80: E501 line too long (100 > 79 characters)
+src/wepy/resampling/resamplers/revo.py:315:80: E501 line too long (88 > 79 characters)
+src/wepy/resampling/resamplers/revo.py:316:80: E501 line too long (88 > 79 characters)
+src/wepy/resampling/resamplers/revo.py:357:9: E303 too many blank lines (2)
+src/wepy/resampling/resamplers/revo.py:359:80: E501 line too long (81 > 79 characters)
+src/wepy/resampling/resamplers/revo.py:376:80: E501 line too long (82 > 79 characters)
+src/wepy/resampling/resamplers/revo.py:381:80: E501 line too long (91 > 79 characters)
+src/wepy/resampling/resamplers/revo.py:382:80: E501 line too long (100 > 79 characters)
+src/wepy/resampling/resamplers/revo.py:385:80: E501 line too long (91 > 79 characters)
+src/wepy/resampling/resamplers/revo.py:390:13: E303 too many blank lines (2)
+src/wepy/resampling/resamplers/revo.py:393:80: E501 line too long (82 > 79 characters)
+src/wepy/resampling/resamplers/revo.py:395:41: E231 missing whitespace after ','
+src/wepy/resampling/resamplers/revo.py:396:80: E501 line too long (98 > 79 characters)
+src/wepy/resampling/resamplers/revo.py:396:84: E221 multiple spaces before operator
+src/wepy/resampling/resamplers/revo.py:404:80: E501 line too long (82 > 79 characters)
+src/wepy/resampling/resamplers/revo.py:409:80: E501 line too long (83 > 79 characters)
+src/wepy/resampling/resamplers/revo.py:414:39: E127 continuation line over-indented for visual indent
+src/wepy/resampling/resamplers/revo.py:414:69: E225 missing whitespace around operator
+src/wepy/resampling/resamplers/revo.py:415:40: E127 continuation line over-indented for visual indent
+src/wepy/resampling/resamplers/revo.py:415:80: E501 line too long (106 > 79 characters)
+src/wepy/resampling/resamplers/revo.py:416:39: E124 closing bracket does not match visual indentation
+src/wepy/resampling/resamplers/revo.py:422:80: E501 line too long (92 > 79 characters)
+src/wepy/resampling/resamplers/revo.py:423:45: E127 continuation line over-indented for visual indent
+src/wepy/resampling/resamplers/revo.py:423:80: E501 line too long (95 > 79 characters)
+src/wepy/resampling/resamplers/revo.py:430:13: E303 too many blank lines (2)
+src/wepy/resampling/resamplers/revo.py:431:80: E501 line too long (93 > 79 characters)
+src/wepy/resampling/resamplers/revo.py:432:13: E265 block comment should start with '# '
+src/wepy/resampling/resamplers/revo.py:432:80: E501 line too long (89 > 79 characters)
+src/wepy/resampling/resamplers/revo.py:433:36: E203 whitespace before ':'
+src/wepy/resampling/resamplers/revo.py:436:80: E501 line too long (85 > 79 characters)
+src/wepy/resampling/resamplers/revo.py:437:80: E501 line too long (84 > 79 characters)
+src/wepy/resampling/resamplers/revo.py:438:80: E501 line too long (88 > 79 characters)
+src/wepy/resampling/resamplers/revo.py:442:80: E501 line too long (130 > 79 characters)
+src/wepy/resampling/resamplers/revo.py:447:80: E501 line too long (86 > 79 characters)
+src/wepy/resampling/resamplers/revo.py:455:80: E501 line too long (107 > 79 characters)
+src/wepy/resampling/resamplers/revo.py:456:80: E501 line too long (102 > 79 characters)
+src/wepy/resampling/resamplers/revo.py:458:22: E114 indentation is not a multiple of four (comment)
+src/wepy/resampling/resamplers/revo.py:458:22: E116 unexpected indentation (comment)
+src/wepy/resampling/resamplers/revo.py:469:80: E501 line too long (82 > 79 characters)
+src/wepy/resampling/resamplers/revo.py:491:80: E501 line too long (94 > 79 characters)
+src/wepy/resampling/resamplers/revo.py:492:75: E128 continuation line under-indented for visual indent
+src/wepy/resampling/resamplers/revo.py:492:80: E501 line too long (96 > 79 characters)
+src/wepy/resampling/resamplers/revo.py:493:75: E128 continuation line under-indented for visual indent
+src/wepy/resampling/resamplers/revo.py:493:80: E501 line too long (90 > 79 characters)
+src/wepy/resampling/resamplers/revo.py:496:80: E501 line too long (86 > 79 characters)
+src/wepy/resampling/resamplers/revo.py:574:9: E265 block comment should start with '# '
+src/wepy/resampling/resamplers/revo.py:587:80: E501 line too long (100 > 79 characters)
+src/wepy/resampling/resamplers/revo.py:597:8: E114 indentation is not a multiple of four (comment)
+src/wepy/resampling/resamplers/revo.py:599:45: E203 whitespace before ':'
+src/wepy/resampling/resamplers/revo.py:599:80: E501 line too long (83 > 79 characters)
+src/wepy/resampling/resamplers/revo.py:600:41: E203 whitespace before ':'
+src/wepy/resampling/resamplers/revo.py:601:39: E203 whitespace before ':'
+src/wepy/resampling/resamplers/revo.py:602:36: E203 whitespace before ':'
+src/wepy/resampling/resamplers/revo.py:603:41: E203 whitespace before ':'
 src/wepy/resampling/resamplers/wexplore.py:4:1: F401 'collections.namedtuple' imported but unused
 src/wepy/resampling/resamplers/wexplore.py:11:42: E272 multiple spaces before keyword
 src/wepy/resampling/resamplers/wexplore.py:12:44: E272 multiple spaces before keyword
@@ -1036,45 +1034,44 @@ src/wepy/resampling/resamplers/wexplore.py:2237:24: E127 continuation line over-
 src/wepy/resampling/resamplers/wexplore.py:2239:24: E127 continuation line over-indented for visual indent
 src/wepy/resampling/resamplers/wexplore.py:2243:31: E127 continuation line over-indented for visual indent
 src/wepy/resampling/resamplers/wexplore.py:2247:5: E303 too many blank lines (3)
-src/wepy/resampling/resamplers/wexplore.py:2254:17: E124 closing bracket does not match visual indentation
-src/wepy/resampling/resamplers/wexplore.py:2307:49: E261 at least two spaces before inline comment
-src/wepy/resampling/resamplers/wexplore.py:2310:9: E303 too many blank lines (2)
-src/wepy/resampling/resamplers/wexplore.py:2317:9: E303 too many blank lines (2)
-src/wepy/resampling/resamplers/wexplore.py:2357:5: E303 too many blank lines (2)
-src/wepy/resampling/resamplers/wexplore.py:2374:9: E266 too many leading '#' for block comment
-src/wepy/resampling/resamplers/wexplore.py:2375:9: E266 too many leading '#' for block comment
-src/wepy/resampling/resamplers/wexplore.py:2376:9: E266 too many leading '#' for block comment
+src/wepy/resampling/resamplers/wexplore.py:2255:17: E124 closing bracket does not match visual indentation
+src/wepy/resampling/resamplers/wexplore.py:2313:9: E303 too many blank lines (2)
+src/wepy/resampling/resamplers/wexplore.py:2320:9: E303 too many blank lines (2)
+src/wepy/resampling/resamplers/wexplore.py:2360:5: E303 too many blank lines (2)
 src/wepy/resampling/resamplers/wexplore.py:2377:9: E266 too many leading '#' for block comment
-src/wepy/resampling/resamplers/wexplore.py:2408:9: E266 too many leading '#' for block comment
-src/wepy/resampling/resamplers/wexplore.py:2409:9: E266 too many leading '#' for block comment
-src/wepy/resampling/resamplers/wexplore.py:2415:25: E127 continuation line over-indented for visual indent
-src/wepy/resampling/resamplers/wexplore.py:2415:80: E501 line too long (82 > 79 characters)
-src/wepy/resampling/resamplers/wexplore.py:2419:80: E501 line too long (90 > 79 characters)
-src/wepy/resampling/resamplers/wexplore.py:2420:80: E501 line too long (82 > 79 characters)
-src/wepy/resampling/resamplers/wexplore.py:2429:80: E501 line too long (81 > 79 characters)
-src/wepy/resampling/resamplers/wexplore.py:2437:28: E702 multiple statements on one line (semicolon)
-src/wepy/resampling/resamplers/wexplore.py:2440:9: E303 too many blank lines (2)
-src/wepy/resampling/resamplers/wexplore.py:2443:5: E303 too many blank lines (2)
-src/wepy/resampling/resamplers/wexplore.py:2450:1: W293 blank line contains whitespace
-src/wepy/resampling/resamplers/wexplore.py:2478:9: E303 too many blank lines (2)
-src/wepy/resampling/resamplers/wexplore.py:2482:80: E501 line too long (83 > 79 characters)
-src/wepy/resampling/resamplers/wexplore.py:2484:80: E501 line too long (89 > 79 characters)
-src/wepy/resampling/resamplers/wexplore.py:2486:80: E501 line too long (92 > 79 characters)
-src/wepy/resampling/resamplers/wexplore.py:2489:80: E501 line too long (82 > 79 characters)
-src/wepy/resampling/resamplers/wexplore.py:2490:10: E128 continuation line under-indented for visual indent
-src/wepy/resampling/resamplers/wexplore.py:2491:80: E501 line too long (85 > 79 characters)
-src/wepy/resampling/resamplers/wexplore.py:2499:1: W293 blank line contains whitespace
-src/wepy/resampling/resamplers/wexplore.py:2530:1: W293 blank line contains whitespace
-src/wepy/resampling/resamplers/wexplore.py:2532:1: W293 blank line contains whitespace
-src/wepy/resampling/resamplers/wexplore.py:2534:1: W293 blank line contains whitespace
-src/wepy/resampling/resamplers/wexplore.py:2549:28: E702 multiple statements on one line (semicolon)
-src/wepy/resampling/resamplers/wexplore.py:2579:5: E303 too many blank lines (2)
-src/wepy/resampling/resamplers/wexplore.py:2585:9: E266 too many leading '#' for block comment
-src/wepy/resampling/resamplers/wexplore.py:2586:9: E266 too many leading '#' for block comment
-src/wepy/resampling/resamplers/wexplore.py:2590:9: E303 too many blank lines (2)
-src/wepy/resampling/resamplers/wexplore.py:2615:9: E303 too many blank lines (2)
-src/wepy/resampling/resamplers/wexplore.py:2621:9: E303 too many blank lines (3)
-src/wepy/resampling/resamplers/wexplore.py:2627:1: W391 blank line at end of file
+src/wepy/resampling/resamplers/wexplore.py:2378:9: E266 too many leading '#' for block comment
+src/wepy/resampling/resamplers/wexplore.py:2379:9: E266 too many leading '#' for block comment
+src/wepy/resampling/resamplers/wexplore.py:2380:9: E266 too many leading '#' for block comment
+src/wepy/resampling/resamplers/wexplore.py:2411:9: E266 too many leading '#' for block comment
+src/wepy/resampling/resamplers/wexplore.py:2412:9: E266 too many leading '#' for block comment
+src/wepy/resampling/resamplers/wexplore.py:2418:25: E127 continuation line over-indented for visual indent
+src/wepy/resampling/resamplers/wexplore.py:2418:80: E501 line too long (82 > 79 characters)
+src/wepy/resampling/resamplers/wexplore.py:2422:80: E501 line too long (90 > 79 characters)
+src/wepy/resampling/resamplers/wexplore.py:2423:80: E501 line too long (82 > 79 characters)
+src/wepy/resampling/resamplers/wexplore.py:2432:80: E501 line too long (81 > 79 characters)
+src/wepy/resampling/resamplers/wexplore.py:2440:28: E702 multiple statements on one line (semicolon)
+src/wepy/resampling/resamplers/wexplore.py:2443:9: E303 too many blank lines (2)
+src/wepy/resampling/resamplers/wexplore.py:2446:5: E303 too many blank lines (2)
+src/wepy/resampling/resamplers/wexplore.py:2453:1: W293 blank line contains whitespace
+src/wepy/resampling/resamplers/wexplore.py:2481:9: E303 too many blank lines (2)
+src/wepy/resampling/resamplers/wexplore.py:2485:80: E501 line too long (83 > 79 characters)
+src/wepy/resampling/resamplers/wexplore.py:2487:80: E501 line too long (89 > 79 characters)
+src/wepy/resampling/resamplers/wexplore.py:2489:80: E501 line too long (92 > 79 characters)
+src/wepy/resampling/resamplers/wexplore.py:2492:80: E501 line too long (82 > 79 characters)
+src/wepy/resampling/resamplers/wexplore.py:2493:10: E128 continuation line under-indented for visual indent
+src/wepy/resampling/resamplers/wexplore.py:2494:80: E501 line too long (85 > 79 characters)
+src/wepy/resampling/resamplers/wexplore.py:2502:1: W293 blank line contains whitespace
+src/wepy/resampling/resamplers/wexplore.py:2533:1: W293 blank line contains whitespace
+src/wepy/resampling/resamplers/wexplore.py:2535:1: W293 blank line contains whitespace
+src/wepy/resampling/resamplers/wexplore.py:2537:1: W293 blank line contains whitespace
+src/wepy/resampling/resamplers/wexplore.py:2552:28: E702 multiple statements on one line (semicolon)
+src/wepy/resampling/resamplers/wexplore.py:2582:5: E303 too many blank lines (2)
+src/wepy/resampling/resamplers/wexplore.py:2588:9: E266 too many leading '#' for block comment
+src/wepy/resampling/resamplers/wexplore.py:2589:9: E266 too many leading '#' for block comment
+src/wepy/resampling/resamplers/wexplore.py:2593:9: E303 too many blank lines (2)
+src/wepy/resampling/resamplers/wexplore.py:2618:9: E303 too many blank lines (2)
+src/wepy/resampling/resamplers/wexplore.py:2624:9: E303 too many blank lines (3)
+src/wepy/resampling/resamplers/wexplore.py:2630:1: W391 blank line at end of file
 src/wepy/resampling/distances/receptor.py:20:1: F401 'logging' imported but unused
 src/wepy/resampling/distances/receptor.py:33:1: E302 expected 2 blank lines, found 1
 src/wepy/resampling/distances/receptor.py:72:9: E303 too many blank lines (2)
@@ -2057,67 +2054,71 @@ src/wepy/work_mapper/mapper.py:1048:80: E501 line too long (94 > 79 characters)
 src/wepy/work_mapper/mapper.py:1049:29: E128 continuation line under-indented for visual indent
 src/wepy/work_mapper/mapper.py:1050:29: E128 continuation line under-indented for visual indent
 src/wepy/analysis/profiles.py:12:1: E302 expected 2 blank lines, found 1
-src/wepy/analysis/profiles.py:46:5: E303 too many blank lines (2)
-src/wepy/analysis/profiles.py:47:5: F841 local variable 'n_trajs' is assigned to but never used
-src/wepy/analysis/profiles.py:63:80: E501 line too long (85 > 79 characters)
-src/wepy/analysis/profiles.py:78:45: E261 at least two spaces before inline comment
-src/wepy/analysis/profiles.py:78:46: E262 inline comment should start with '# '
-src/wepy/analysis/profiles.py:83:1: E302 expected 2 blank lines, found 1
-src/wepy/analysis/profiles.py:84:19: E128 continuation line under-indented for visual indent
-src/wepy/analysis/profiles.py:85:19: E128 continuation line under-indented for visual indent
-src/wepy/analysis/profiles.py:111:80: E501 line too long (97 > 79 characters)
-src/wepy/analysis/profiles.py:113:80: E501 line too long (83 > 79 characters)
-src/wepy/analysis/profiles.py:121:1: E302 expected 2 blank lines, found 1
-src/wepy/analysis/profiles.py:167:70: E211 whitespace before '['
-src/wepy/analysis/profiles.py:171:80: E501 line too long (80 > 79 characters)
-src/wepy/analysis/profiles.py:223:80: E501 line too long (90 > 79 characters)
-src/wepy/analysis/profiles.py:299:9: E303 too many blank lines (2)
-src/wepy/analysis/profiles.py:307:80: E501 line too long (88 > 79 characters)
-src/wepy/analysis/profiles.py:318:80: E501 line too long (81 > 79 characters)
-src/wepy/analysis/profiles.py:319:80: E501 line too long (82 > 79 characters)
-src/wepy/analysis/profiles.py:341:9: E303 too many blank lines (2)
-src/wepy/analysis/profiles.py:347:5: E303 too many blank lines (2)
-src/wepy/analysis/profiles.py:376:80: E501 line too long (104 > 79 characters)
-src/wepy/analysis/profiles.py:387:5: E303 too many blank lines (2)
-src/wepy/analysis/profiles.py:429:80: E501 line too long (91 > 79 characters)
-src/wepy/analysis/profiles.py:432:80: E501 line too long (90 > 79 characters)
-src/wepy/analysis/profiles.py:436:80: E501 line too long (91 > 79 characters)
-src/wepy/analysis/profiles.py:439:80: E501 line too long (90 > 79 characters)
-src/wepy/analysis/profiles.py:448:32: E231 missing whitespace after ','
-src/wepy/analysis/profiles.py:452:80: E501 line too long (81 > 79 characters)
-src/wepy/analysis/profiles.py:453:80: E501 line too long (82 > 79 characters)
-src/wepy/analysis/profiles.py:475:9: E303 too many blank lines (2)
-src/wepy/analysis/profiles.py:481:5: E303 too many blank lines (2)
-src/wepy/analysis/profiles.py:537:80: E501 line too long (91 > 79 characters)
-src/wepy/analysis/profiles.py:539:80: E501 line too long (90 > 79 characters)
-src/wepy/analysis/profiles.py:570:9: E303 too many blank lines (2)
-src/wepy/analysis/profiles.py:571:80: E501 line too long (89 > 79 characters)
-src/wepy/analysis/profiles.py:572:80: E501 line too long (84 > 79 characters)
-src/wepy/analysis/profiles.py:573:80: E501 line too long (87 > 79 characters)
-src/wepy/analysis/profiles.py:574:80: E501 line too long (83 > 79 characters)
-src/wepy/analysis/profiles.py:594:5: E303 too many blank lines (2)
-src/wepy/analysis/profiles.py:643:9: E303 too many blank lines (2)
-src/wepy/analysis/profiles.py:683:80: E501 line too long (92 > 79 characters)
-src/wepy/analysis/profiles.py:686:13: E303 too many blank lines (2)
-src/wepy/analysis/profiles.py:700:80: E501 line too long (85 > 79 characters)
-src/wepy/analysis/profiles.py:701:80: E501 line too long (86 > 79 characters)
-src/wepy/analysis/profiles.py:737:80: E501 line too long (102 > 79 characters)
-src/wepy/analysis/profiles.py:739:80: E501 line too long (101 > 79 characters)
-src/wepy/analysis/profiles.py:752:13: E303 too many blank lines (2)
-src/wepy/analysis/profiles.py:753:80: E501 line too long (80 > 79 characters)
-src/wepy/analysis/profiles.py:754:59: E128 continuation line under-indented for visual indent
-src/wepy/analysis/profiles.py:754:80: E501 line too long (84 > 79 characters)
-src/wepy/analysis/profiles.py:755:59: E128 continuation line under-indented for visual indent
-src/wepy/analysis/profiles.py:755:80: E501 line too long (88 > 79 characters)
-src/wepy/analysis/profiles.py:757:58: E128 continuation line under-indented for visual indent
-src/wepy/analysis/profiles.py:757:80: E501 line too long (83 > 79 characters)
-src/wepy/analysis/profiles.py:758:58: E128 continuation line under-indented for visual indent
-src/wepy/analysis/profiles.py:758:80: E501 line too long (87 > 79 characters)
-src/wepy/analysis/profiles.py:760:80: E501 line too long (82 > 79 characters)
-src/wepy/analysis/profiles.py:765:9: E303 too many blank lines (2)
-src/wepy/analysis/profiles.py:825:80: E501 line too long (96 > 79 characters)
-src/wepy/analysis/profiles.py:838:9: E303 too many blank lines (2)
-src/wepy/analysis/profiles.py:839:1: W391 blank line at end of file
+src/wepy/analysis/profiles.py:13:38: E128 continuation line under-indented for visual indent
+src/wepy/analysis/profiles.py:16:5: F841 local variable 'n_trajs' is assigned to but never used
+src/wepy/analysis/profiles.py:31:35: E128 continuation line under-indented for visual indent
+src/wepy/analysis/profiles.py:32:35: E128 continuation line under-indented for visual indent
+src/wepy/analysis/profiles.py:34:5: F841 local variable 'n_trajs' is assigned to but never used
+src/wepy/analysis/profiles.py:55:36: F821 undefined name 'tim_tranche'
+src/wepy/analysis/profiles.py:61:80: E501 line too long (85 > 79 characters)
+src/wepy/analysis/profiles.py:87:1: E302 expected 2 blank lines, found 1
+src/wepy/analysis/profiles.py:124:5: E303 too many blank lines (2)
+src/wepy/analysis/profiles.py:127:80: E501 line too long (82 > 79 characters)
+src/wepy/analysis/profiles.py:139:1: E302 expected 2 blank lines, found 1
+src/wepy/analysis/profiles.py:140:19: E128 continuation line under-indented for visual indent
+src/wepy/analysis/profiles.py:141:19: E128 continuation line under-indented for visual indent
+src/wepy/analysis/profiles.py:167:80: E501 line too long (97 > 79 characters)
+src/wepy/analysis/profiles.py:169:80: E501 line too long (83 > 79 characters)
+src/wepy/analysis/profiles.py:177:1: E302 expected 2 blank lines, found 1
+src/wepy/analysis/profiles.py:223:70: E211 whitespace before '['
+src/wepy/analysis/profiles.py:227:80: E501 line too long (80 > 79 characters)
+src/wepy/analysis/profiles.py:279:80: E501 line too long (90 > 79 characters)
+src/wepy/analysis/profiles.py:355:9: E303 too many blank lines (2)
+src/wepy/analysis/profiles.py:363:80: E501 line too long (88 > 79 characters)
+src/wepy/analysis/profiles.py:374:80: E501 line too long (81 > 79 characters)
+src/wepy/analysis/profiles.py:375:80: E501 line too long (82 > 79 characters)
+src/wepy/analysis/profiles.py:397:9: E303 too many blank lines (2)
+src/wepy/analysis/profiles.py:403:5: E303 too many blank lines (2)
+src/wepy/analysis/profiles.py:432:80: E501 line too long (104 > 79 characters)
+src/wepy/analysis/profiles.py:443:5: E303 too many blank lines (2)
+src/wepy/analysis/profiles.py:485:80: E501 line too long (91 > 79 characters)
+src/wepy/analysis/profiles.py:488:80: E501 line too long (90 > 79 characters)
+src/wepy/analysis/profiles.py:492:80: E501 line too long (91 > 79 characters)
+src/wepy/analysis/profiles.py:495:80: E501 line too long (90 > 79 characters)
+src/wepy/analysis/profiles.py:504:32: E231 missing whitespace after ','
+src/wepy/analysis/profiles.py:508:80: E501 line too long (81 > 79 characters)
+src/wepy/analysis/profiles.py:509:80: E501 line too long (82 > 79 characters)
+src/wepy/analysis/profiles.py:531:9: E303 too many blank lines (2)
+src/wepy/analysis/profiles.py:537:5: E303 too many blank lines (2)
+src/wepy/analysis/profiles.py:593:80: E501 line too long (91 > 79 characters)
+src/wepy/analysis/profiles.py:595:80: E501 line too long (90 > 79 characters)
+src/wepy/analysis/profiles.py:626:9: E303 too many blank lines (2)
+src/wepy/analysis/profiles.py:627:80: E501 line too long (89 > 79 characters)
+src/wepy/analysis/profiles.py:628:80: E501 line too long (84 > 79 characters)
+src/wepy/analysis/profiles.py:629:80: E501 line too long (87 > 79 characters)
+src/wepy/analysis/profiles.py:630:80: E501 line too long (83 > 79 characters)
+src/wepy/analysis/profiles.py:650:5: E303 too many blank lines (2)
+src/wepy/analysis/profiles.py:702:9: E303 too many blank lines (2)
+src/wepy/analysis/profiles.py:742:80: E501 line too long (92 > 79 characters)
+src/wepy/analysis/profiles.py:745:13: E303 too many blank lines (2)
+src/wepy/analysis/profiles.py:759:80: E501 line too long (85 > 79 characters)
+src/wepy/analysis/profiles.py:760:80: E501 line too long (86 > 79 characters)
+src/wepy/analysis/profiles.py:796:80: E501 line too long (102 > 79 characters)
+src/wepy/analysis/profiles.py:798:80: E501 line too long (101 > 79 characters)
+src/wepy/analysis/profiles.py:811:80: E501 line too long (80 > 79 characters)
+src/wepy/analysis/profiles.py:812:59: E128 continuation line under-indented for visual indent
+src/wepy/analysis/profiles.py:812:80: E501 line too long (84 > 79 characters)
+src/wepy/analysis/profiles.py:813:80: E501 line too long (95 > 79 characters)
+src/wepy/analysis/profiles.py:814:80: E501 line too long (89 > 79 characters)
+src/wepy/analysis/profiles.py:816:58: E128 continuation line under-indented for visual indent
+src/wepy/analysis/profiles.py:816:80: E501 line too long (83 > 79 characters)
+src/wepy/analysis/profiles.py:817:80: E501 line too long (94 > 79 characters)
+src/wepy/analysis/profiles.py:818:80: E501 line too long (88 > 79 characters)
+src/wepy/analysis/profiles.py:820:80: E501 line too long (82 > 79 characters)
+src/wepy/analysis/profiles.py:825:9: E303 too many blank lines (2)
+src/wepy/analysis/profiles.py:885:80: E501 line too long (96 > 79 characters)
+src/wepy/analysis/profiles.py:898:9: E303 too many blank lines (2)
+src/wepy/analysis/profiles.py:899:1: W391 blank line at end of file
 src/wepy/analysis/contig_tree.py:23:1: F401 'wepy.analysis.parents.DISCONTINUITY_VALUE' imported but unused
 src/wepy/analysis/contig_tree.py:38:5: F821 undefined name 'warn'
 src/wepy/analysis/contig_tree.py:38:80: E501 line too long (88 > 79 characters)
