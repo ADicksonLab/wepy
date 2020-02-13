@@ -290,6 +290,82 @@ level:
 
 
 
+**** Writing and/or Generating the Changelog and Announcement
+**** Making the release official
+
+To make a release do some changes and make sure they are fully tested
+and functional and commit them in version control. At this point you
+will also want to do any rebasing or cleaning up the actual commits if
+this wasn't already done in the feature branch.
+
+If this is a 'dev' release and you just want to run a version control
+tag triggered CI pipeline go ahead and change the version numbers and
+commit. Then tag the 'dev' release.
+
+If you intend to make a non-dev release you will first want to test it
+out a little bit with a release-candidate prerelease.
+
+So do all the following bookeeping steps in a single but separate git
+commit from the actual changes to the code:
+
+- [ ] write the changelog
+- [ ] write the announcement (optional)
+- [ ] change the version numbers
+- [ ] build to test it out ~inv build~
+
+However, when you change the version number put a 'rc0' at the end of
+the new intended (semantic) number.
+
+Once you have built it and nothing is wrong go ahead and publish it to
+the test indexes (if available):
+
+#+begin_src bash
+inv publish-test
+#+end_src
+
+You can test that it works by installing from the ~base~ env.
+
+Make it if you haven't:
+
+#+begin_src bash
+inv env -n base
+#+end_src
+
+Then activate it:
+
+#+begin_src bash
+source _venv/base/bin/activate
+#+end_src
+
+And install the package from the test repo with no dependencies:
+
+#+begin_src bash
+pip install --index-url https://test.pypi.org/simple/ --no-deps {{cookiecutter.project_name}}-{{cookiecutter.owner_nickname}}
+#+end_src
+
+# QUEST: should this message be the release message we want for the VCS
+# repos to show or should we just point them to the changelog?
+
+Then go ahead and commit the changes after that works. The message
+should follow a fixed form like 
+
+#+begin_src fundamental
+1.0.0rc0 release preparation
+#+end_src
+
+Then you can tag the release in the ~git~ commit history:
+
+#+begin_src bash
+inv release
+#+end_src
+
+Publishing the results will vary but you can start with publishing the
+package to PyPI and the VCS hosts with the real publish target:
+
+#+begin_src bash
+inv publish
+#+end_src
+
 
 * COMMENT OLD: Development Setup
 
