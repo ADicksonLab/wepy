@@ -8,6 +8,11 @@
 *.sqlite
 
 # repo specific
+
+# environments
+_venv
+_conda_envs
+
 sphinx/_build
 docs/_build
 

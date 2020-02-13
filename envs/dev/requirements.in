@@ -51,9 +51,6 @@ multiprocessing_logging
 # the big data until that PR gets accepted
 #git+https://github.com/salotz/pytest-datadir.git
 
-# the wepy source
--e .
-
 # modules just for tests
 
 # Geomm

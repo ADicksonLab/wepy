@@ -1,6 +1,0 @@
-* Change Log
-
-Early commits may not have entries because things move fast at that
-stage.
-
-** v1.0.0-rc
