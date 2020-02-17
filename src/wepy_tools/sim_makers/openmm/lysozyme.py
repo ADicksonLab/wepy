@@ -47,8 +47,33 @@ class LysozymeImplicitOpenMMSimMaker(OpenMMToolsTestSysSimMaker):
         }
     )
 
-
     BOX_SIDE_LENGTH = 20 * unit.nanometer
+
+    WEXPLORE_DEFAULTS = {
+        'pmax' : 0.5,
+        'pmin' : 1e-12,
+        'max_n_regions' : (10, 10, 10, 10),
+        'max_region_sizes' : (1, 0.5, 0.35, 0.25),
+    }
+
+
+    REVO_DEFAULTS = {
+        'pmax' : 0.5,
+        'pmin' : 1e-12,
+        'char_dist' : 1,
+        'merge_dist' : 0.25,
+        'dist_exponent' : 4,
+        'weights' : True,
+    }
+
+
+    DEFAULT_RESAMPLER_PARAMS = OpenMMToolsTestSysSimMaker.DEFAULT_RESAMPLER_PARAMS
+    DEFAULT_RESAMPLER_PARAMS.update(
+        {
+            'WExploreResampler' : WEXPLORE_DEFAULTS,
+            'REVOResampler' : REVO_DEFAULTS,
+        }
+    )
 
     def __init__(self, bs_cutoff=0.8*unit.nanometer):
 
@@ -114,7 +139,11 @@ class LysozymeImplicitOpenMMSimMaker(OpenMMToolsTestSysSimMaker):
         # just customize an option to the runner to not enforce
         # periodic box
         runner_params = {'enforce_box' : False}
+
+        if :
+            resampler_params = {''}
         apparatus = super().make_apparatus(runner_params=runner_params,
+                                           resampler_params=resampler_params,
                                            **kwargs)
 
         return apparatus

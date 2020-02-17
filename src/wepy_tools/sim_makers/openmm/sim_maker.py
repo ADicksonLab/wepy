@@ -80,7 +80,8 @@ class OpenMMSimMaker():
         'pmax' : 0.5,
         'pmin' : 1e-12,
         'max_n_regions' : (10, 10, 10, 10),
-        'max_region_sizes' : (1, 0.5, 0.35, 0.25),
+        # ALERT: shouldn't be automatically setting these distances
+        # 'max_region_sizes' : (1, 0.5, 0.35, 0.25),
     }
 
 
@@ -88,7 +89,8 @@ class OpenMMSimMaker():
         'pmax' : 0.5,
         'pmin' : 1e-12,
         'char_dist' : 1,
-        'merge_dist' : 2.5,
+        # ALERT: shouldn't be automatically setting these distances
+        # 'merge_dist' : 2.5,
         'dist_exponent' : 4,
         'weights' : True,
     }
