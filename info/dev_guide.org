@@ -368,6 +368,14 @@ inv publish
 #+end_src
 
 
+After this you may publish to any of the following: github, gitlab,
+and/or zenodo.org (which provides a persistent DOI and stores the
+project).
+
+For Zenodo and Github just make a release for an existing release tag
+using the github web interface. If Zenodo is linked to your github
+repo it will automatically recognize it and create the DOI for it.
+
 * COMMENT OLD: Development Setup
 
 Get the source code:

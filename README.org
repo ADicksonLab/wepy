@@ -1,5 +1,6 @@
 * Weighted Ensemble Python (wepy)
 
+
 Modular implementation and framework for running weighted ensemble
 simulations in pure python, where the aim is to have simple things
 simple and complicated things possible. The latter being the priority.
@@ -151,4 +152,9 @@ protein with the inhibitor TPPU, which was the subject of this paper:
 Lotz and Dickson. 2018. JACS 140 (2) pp. 618-628 (DOI: 10.1021/jacs.7b08572)
 
 If you plan developing wepy read the [[https://github.com/ADicksonLab/wepy/blob/master/sphinx/source/dev_guide.org][Dev Guide]].
+
+
+** Other Info
+
+Current [[https://zenodo.org/badge/latestdoi/101077926][Zenodo DOI]].
 
