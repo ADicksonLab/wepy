@@ -1,0 +1,47 @@
+{
+    "description": "<p>Testing the infrastructure before the 1.0 release</p>",
+    "license": "MIT",
+    "title": "ADicksonLab/wepy: Development testing release",
+    "version": "v1.0.0rc0.dev0",
+    "upload_type": "software",
+    "publication_date": "2020-02-14",
+    "creators": [
+        {
+            "affiliation": "Michigan State University",
+            "name": "Samuel D. Lotz"
+        },
+        {
+            "affiliation": "Michigan State University",
+            "name": "Nazanin Donyapour"
+        },
+        {
+            "affiliation": "Michigan State University",
+            "name": "Alex Dickson"
+        },
+        {
+            "affiliation": "Michigan State University",
+            "name": "Tom Dixon"
+        },
+        {
+            "affiliation": "Michigan State University",
+            "name": "Rob Hall"
+        },
+        {
+            "affiliation": "Michigan State University",
+            "name": "Nicole Roussey"
+        }
+    ],
+    "access_right": "open",
+    "related_identifiers": [
+        {
+            "scheme": "url",
+            "identifier": "https://github.com/ADicksonLab/wepy/tree/v1.0.0rc0.dev0",
+            "relation": "isSupplementTo"
+        },
+        {
+            "scheme": "doi",
+            "identifier": "10.5281/zenodo.3666944",
+            "relation": "isVersionOf"
+        }
+    ]
+}

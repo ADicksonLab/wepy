@@ -282,6 +282,7 @@ level:
 - [ ] ~setup.py~
 - [ ] ~src/wepy/__init__.py~
 - [ ] ~sphinx/config.py~
+- [ ] ~.zenodo.json~
 - [ ] ~conda/conda-forge/meta.yaml~
 
 
