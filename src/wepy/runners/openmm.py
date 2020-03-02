@@ -106,7 +106,7 @@ class OpenMMRunner(Runner):
 
     def __init__(self, system, topology, integrator,
                  platform=None,
-                 enforce_box=True):
+                 enforce_box=False):
         """Constructor for OpenMMRunner.
 
         Parameters
@@ -128,9 +128,8 @@ class OpenMMRunner(Runner):
             platform determining mechanism in OpenMM will be used.
 
         enforce_box : bool
-            Calls 'context.getState' with 'enforcePeriodicBox' set to
-            'True'.
-             (Default value = True)
+            Calls 'context.getState' with 'enforcePeriodicBox' if True.
+             (Default value = False)
 
         Warnings
         --------
