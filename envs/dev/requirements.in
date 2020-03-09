@@ -1,0 +1,48 @@
+# ALERT: don't include the project itself in this file, do it in the
+# self.requirements.txt file
+
+--index-url https://pypi.python.org/simple/
+
+# packaging
+pip
+wheel
+twine
+pip-tools
+pipdeptree
+
+# interactive and debugging
+ipython
+pdbpp
+remote-pdb
+
+# utilities
+# bumpversion
+
+# task running
+invoke
+fabric
+
+# docs
+sphinx
+guzzle_sphinx_theme
+sphinxcontrib-napoleon
+nbsphinx
+notebook
+
+# testing
+pytest
+pytest-runner
+argcomplete
+flake8
+tox
+coverage
+
+# code quality metrics
+lizard
+
+pytest-datadir
+pytest-cov
+pytest-benchmark
+pytest-profiling
+
+

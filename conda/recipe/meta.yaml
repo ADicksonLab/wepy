@@ -1,0 +1,40 @@
+package:
+  name: python-fstab
+  version: 2020-03-09a0.dev0
+
+source:
+  fn: fstab-2020-03-09a0.dev0.tar.gz
+  url: https://github.com/salotz/python-fstab/releases/download//{{ version }}/{{ name }}-{{ version }}.tar.gz
+  # TODO: way to specify a hole or 
+  sha256:
+
+build:
+  number: 0
+  script: "{{ PYTHON }} -m pip install . -vv"
+  entry_points:
+    - fstab = fstab.cli:cli
+
+requirements:
+  build:
+    - python
+    - setuptools
+    - wheel
+
+  host:
+    - python
+    
+  run:
+    - python
+    
+
+about:
+  home: https://github.com/salotz/python-fstab
+  license: GPLv3
+  license_file: LICENSE
+  summary: "Read, write, and manipulate fstab files"
+  doc_url: https://salotz.github.io/python-fstab
+  dev_url: https://github.com/salotz/python-fstab
+
+extra:
+  recipe-maintainers:
+    - salotz

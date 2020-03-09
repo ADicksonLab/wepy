@@ -1,0 +1,7 @@
+* Credits
+
+** Development Lead
+
+Samuel D. Lotz <samuel.lotz@salotz.info>
+
+** Contributors

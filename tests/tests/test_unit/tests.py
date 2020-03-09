@@ -135,13 +135,13 @@ yo!
     def testParsesLinesButLastTwoAsHavingNoFilesystems(self):
         for line in self.fstab.lines[:-2]:
             self.assertEqual(line.has_filesystem(), False,
-                             msg="Line has filesystem: %s" % 
+                             msg="Line has filesystem: %s" %
                                     line.raw)
 
     def testParsesLastTwoLinesAsHavingFilesystem(self):
         for line in self.fstab.lines[-2:]:
             self.assertEqual(line.has_filesystem(), True,
-                             msg="Line does not have filesystem: %s" % 
+                             msg="Line does not have filesystem: %s" %
                                     line.raw)
 
     def testWritesTheSameOutput(self):
@@ -206,21 +206,21 @@ yo!
     def testLinkFileWorksWhenTargetDoesNotExist(self):
         fd, name1 = tempfile.mkstemp()
         os.close(fd)
-        
+
         fd, name2 = tempfile.mkstemp()
         os.close(fd)
         os.remove(name2)
-        
+
         self.assertEqual(self.fstab.link_file(name1, name2), None)
         os.remove(name1)
 
     def testLinkFileWorksWhenTargetExists(self):
         fd, name1 = tempfile.mkstemp()
         os.close(fd)
-        
+
         fd, name2 = tempfile.mkstemp()
         os.close(fd)
-        
+
         self.assertEqual(self.fstab.link_file(name1, name2), None)
         os.remove(name1)
         os.remove(name2)

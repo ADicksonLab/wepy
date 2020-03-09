@@ -1,0 +1,20 @@
+graft src
+graft examples
+graft docs
+graft envs
+
+include AUTHORS.org
+include CHANGELOG.org
+include LICENSE
+include README.org
+
+include requirements.in
+include requirements.txt
+
+include pyproject.toml
+
+recursive-include sphinx build.sh *.rst conf.py Makefile make.bat *.jpg *.png *.gif
+
+global-exclude *.py[co] __pycache__ *.so
+
+

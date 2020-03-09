@@ -1,0 +1,25 @@
+* Introduction
+
+** Motivation
+
+** Features
+
+** Getting Started
+
+Once you have the package installed
+@@rst::any:`installed <installation>`@@ you can
+check out the @@rst::any:`quickstart <quick_start>`@@ to get a rough
+idea of how it works.
+
+Then you can either read the @@rst::any:`user's guide <users_guide>`@@
+or head on to the @@rst::any:`tutorials <../tutorials>`@@ or execute the
+[[file:../../examples][examples]] in the source code.
+
+For a complete description of the modules and their components check
+out the @@rst::any:`API documentation <../api/modules>`@@.
+
+** Other useful resources
+
+
+** Alternatives
+

@@ -1,0 +1,25 @@
+* python-fstab
+
+~python-fstab~ is a small Python library to read, manipulate, and write
+~/etc/fstab~ files on Unix-like systems.
+
+~python-fstab~ was written by Lars Wirzenius for Canonical Ltd, as part
+of the system-cleaner project.
+
+** Docs and Info
+
+See the [[file:./info][info]] directory for the documentation and history of the
+project. The [[file:./info/README.org][README]] serves as an index. These files are (mostly) in
+emacs org-mode and serve as the primary source of documentation. 
+
+Other "rendered" versions may exist and be published. The default
+location is at
+[[https://salotz.github.io/fstab][salotz.github.io/fstab]]
+in HTML rendered with Sphinx.
+
+** COMMENT Maintenance Intent
+
+** Developing
+
+See the [[file:info/dev_guide.org][Developers Guide]] for developing.
+

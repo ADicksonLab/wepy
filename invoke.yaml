@@ -1,0 +1,4 @@
+run:
+  echo: true
+  pty: true
+  hide: false

@@ -1,0 +1,6 @@
+--index-url https://pypi.python.org/simple/
+
+# ALERT: don't include the project itself in this file, do it in the
+# self.requirements.txt file
+
+

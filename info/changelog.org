@@ -1,0 +1,29 @@
+
+* Changelog
+
+Adapted from [[https://keepachangelog.com][keepachangelog.com]] for org-mode.
+
+Adheres to [[https://github.com/salotz/rfcs/blob/master/rfcs/salotz.002_semantic-changelog.org][RFC: salotz.002_semantic-changelog]].
+
+See the git commit log history for full details.
+
+** Unreleased
+
+*** Breakages
+
+*** Regressions
+
+*** Growth
+
+
+** [2020-03-09a0.dev0] - 2020-03-09
+
+*** Breakages
+
+*** Regressions
+
+*** Growth
+
+
+
+

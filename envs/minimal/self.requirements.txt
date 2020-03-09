@@ -1,0 +1,7 @@
+# this file is to install the package that we are working on.  It is
+# installed separately of our pinned packages because pinning the
+# current working directoy is not a good idea since it will be
+# different on every machine.
+
+# non-develop mode
+.
