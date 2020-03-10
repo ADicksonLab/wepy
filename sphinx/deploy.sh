@@ -15,8 +15,8 @@ git branch gh-pages master
 git remote add github git@github.com:salotz/fshank.git || echo "github remote already present"
 # git checkout --track github/gh-pages
 
-git checkout gh-pages || { echo "aborting deploy"; exit 1; }
-git push --force github gh-pages
+git checkout gh-pages
+git push --force github gh-pages || { echo "aborting deploy"; exit 1; }
 
 # NOTE: we don't use git pull because we are force pushing always
 # git pull
