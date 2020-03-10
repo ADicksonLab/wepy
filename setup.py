@@ -39,7 +39,7 @@ all_requirements = it.chain.from_iterable(_all_requirements)
 
 setup(
     name='fshank',
-    version='2020-03-09a0.dev0',
+    version='2020.03.09a0.dev0',
     author="Samuel D. Lotz",
     author_email="samuel.lotz@salotz.info",
     description="Read, write, and manipulate fstab files",

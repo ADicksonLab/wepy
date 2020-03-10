@@ -8,6 +8,8 @@ from pathlib import Path
 BENCHMARK_STORAGE_URL="./metrics/benchmarks"
 BENCHMARK_STORAGE_URI="\"file://{}\"".format(BENCHMARK_STORAGE_URL)
 
+ENV_SPEC_DIR = 'envs'
+
 ENV_METHOD = 'venv'
 
 # directories the actual environments are stored
@@ -118,6 +120,9 @@ def venv_env(cx, name=DEFAULT_ENV):
     # then install the things we need
     with cx.prefix(f"source {venv_path}/bin/activate"):
 
+        # update pip: necessary for support for build dependencies
+        cx.run("pip install --upgrade pip")
+
         if osp.exists(f"{env_spec_path}/{SELF_REQUIREMENTS}"):
             cx.run(f"pip install -r {env_spec_path}/requirements.txt")
 
@@ -145,6 +150,32 @@ def env(cx, name=DEFAULT_ENV):
 
     elif ENV_METHOD == 'venv':
         venv_env(cx, name=name)
+
+def env_conda_ls(cx):
+    print('\n'.join(os.listdir(CONDA_ENVS_DIR)))
+
+def env_venv_ls(cx):
+
+    print('\n'.join(os.listdir(VENV_DIR)))
+
+@task
+def env_specs(cx):
+
+    print('\n'.join(os.listdir(ENV_SPEC_DIR)))
+
+@task
+def env_ls(cx):
+
+    # choose your method:
+    if ENV_METHOD == 'conda':
+        env_conda_ls(cx)
+
+    elif ENV_METHOD == 'venv':
+        env_venv_ls(cx)
+
+@task
+def env_clean(cx):
+    clean_envs(cx)
 
 ### Repo
 
@@ -191,12 +222,17 @@ def deps_pip_update(cx, name=DEFAULT_ENV):
 ## conda: managing conda dependencies
 
 @task
-def deps_conda_pin(cx, name=DEFAULT_ENV):
+def deps_conda_pin(cx, name=DEFAULT_ENV, optional=False):
 
     env_spec_path = Path('envs') / name
 
-    assert osp.exists(env_spec_path / 'env.yaml'), \
-        "There must be an 'env.yaml' file to compile from"
+    if not optional:
+        assert osp.exists(env_spec_path / 'env.yaml'), \
+            "There must be an 'env.yaml' file to compile from"
+
+    else:
+        if not osp.exists(env_spec_path / 'env.yaml'):
+            return None
 
     # make the environment under a mangled name so we don't screw with
     # the other one
@@ -213,17 +249,21 @@ def deps_conda_pin(cx, name=DEFAULT_ENV):
     cx.run(f"rm -rf {env_dir}")
 
 @task
-def deps_conda_update(cx, name=DEFAULT_ENV):
+def deps_conda_update(cx,
+                      name=DEFAULT_ENV,
+                      optional=False):
 
     # for now we just rewrite it
-    deps_conda_pin(cx, name=name)
+    deps_conda_pin(cx,
+                   name=name,
+                   optional=optional)
 
 # altogether
 @task
 def deps_pin(cx, name=DEFAULT_ENV):
 
     deps_pip_pin(cx, name=name)
-    deps_conda_pin(cx, name=name)
+    deps_conda_pin(cx, name=name, optional=True)
 
     # SNIPPET, IDEA: automatic git commits could be supported but
     # pairs poorly with the rest being automatic, would need better
@@ -240,7 +280,9 @@ def deps_pin_update(cx, name=DEFAULT_ENV):
 
     deps_pip_update(cx, name=name)
 
-    deps_conda_update(cx, name=name)
+    deps_conda_update(cx,
+                      name=name,
+                      optional=True)
 
     # SNIPPET, IDEA: automatic git commits could be supported but
     # pairs poorly with the rest being automatic, would need better
@@ -252,6 +294,10 @@ def deps_pin_update(cx, name=DEFAULT_ENV):
 
 
 ### Cleaning
+
+@task
+def clean_envs(cx):
+    cx.run(f"rm -rf {VENV_DIR}")
 
 @task
 def clean_dist(cx):

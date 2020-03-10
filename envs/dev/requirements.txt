@@ -105,7 +105,6 @@ sphinxcontrib-jsmath==1.0.1  # via sphinx
 sphinxcontrib-napoleon==0.7  # via -r envs/dev/requirements.in (line 28)
 sphinxcontrib-qthelp==1.0.3  # via sphinx
 sphinxcontrib-serializinghtml==1.1.4  # via sphinx
-tabulate==0.8.6           # via -r envs/dev/requirements.in (line 51)
 terminado==0.8.3          # via notebook
 testpath==0.4.4           # via nbconvert
 toml==0.10.0              # via tox

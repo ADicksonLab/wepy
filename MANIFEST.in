@@ -1,6 +1,5 @@
 graft src
-graft examples
-graft docs
+graft info
 graft envs
 
 include AUTHORS.org
