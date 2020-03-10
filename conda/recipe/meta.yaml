@@ -1,10 +1,10 @@
 package:
-  name: python-fstab
+  name: fshank
   version: 2020-03-09a0.dev0
 
 source:
-  fn: fstab-2020-03-09a0.dev0.tar.gz
-  url: https://github.com/salotz/python-fstab/releases/download//{{ version }}/{{ name }}-{{ version }}.tar.gz
+  fn: fshank-2020-03-09a0.dev0.tar.gz
+  url: https://github.com/salotz/fshank/releases/download//{{ version }}/{{ name }}-{{ version }}.tar.gz
   # TODO: way to specify a hole or 
   sha256:
 
@@ -12,7 +12,7 @@ build:
   number: 0
   script: "{{ PYTHON }} -m pip install . -vv"
   entry_points:
-    - fstab = fstab.cli:cli
+    - fshank = fshank.cli:cli
 
 requirements:
   build:
@@ -28,12 +28,12 @@ requirements:
     
 
 about:
-  home: https://github.com/salotz/python-fstab
+  home: https://github.com/salotz/fshank
   license: GPLv3
   license_file: LICENSE
-  summary: "Read, write, and manipulate fstab files"
-  doc_url: https://salotz.github.io/python-fstab
-  dev_url: https://github.com/salotz/python-fstab
+  summary: "Read, write, and manipulate fshank files"
+  doc_url: https://salotz.github.io/fshank
+  dev_url: https://github.com/salotz/fshank
 
 extra:
   recipe-maintainers:

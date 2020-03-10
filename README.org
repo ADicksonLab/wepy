@@ -1,10 +1,51 @@
-* python-fstab
+* fshank
 
-~python-fstab~ is a small Python library to read, manipulate, and write
-~/etc/fstab~ files on Unix-like systems.
+~fshank~ is a small Python library and CLI utility to read,
+manipulate, and write Unixy ~fstab~ format files.
 
-~python-fstab~ was written by Lars Wirzenius for Canonical Ltd, as part
-of the system-cleaner project.
+If you don't know what an "eff-stab" file is it is a tabular data
+format ("tab") that is used to configure the "file systems" ("fs") for
+a unix-like system. It should be pronounced "eff-ess-tab" but I've
+never heard this and I read it the former way for years before I
+became a guru.
+
+Provides two dataclasses:
+
+- ~FstabEntry~ :: for a single file-system entry
+- ~Fstab~ :: for a whole table of them including a header and other
+             concrete syntax things like comments. Can be converted to
+             a ~pandas.DataFrame~.
+
+And a few methods for conversion:
+
+- ~parse_fstab~ :: parse a string in the ~fstab~ format
+- ~from_dataframe~ :: makes an ~Fstab~ from a dataframe.
+- ~from_struct~ ::  makes an ~Fstab~ from a POLD (plain-old lists and
+                   dicts) object (i.e. from a JSON or TOML file etc.)
+
+The idea is that you can configure your filesystems in a central place
+(in your format of choice: CSV, JSON, TOML, or even fstabs) and then
+generate and remix them for colonizing new environments.
+
+*** Future ideas
+
+**** Data Validation and Linting
+
+Validation for ~fstabs~ could be of significant importance considering
+~fstab~ is the root of a lot sysadmin headaches.
+
+It shouldn't be hard to integrate a tool like ~pydantic~ for doing
+some basic validation for strings etc.
+
+More pipe-dream ideas would be to hook up to and provide community
+knowledgebases (drawn from the Arch Wiki for example) to provide
+validation for the actual data. For examle making sure the 'device'
+column is well-formed (e.g. ~LABEL=fs-label~ or ~/dev/sdc1~) or that
+the chosen filesystems are real.
+
+Even more pipe-dream would be to give warnings about potential bad
+configurations. I.e. automounting on thumb drives which causes
+~systemd~ to panc and give you the screen of death.
 
 ** Docs and Info
 
@@ -23,3 +64,11 @@ in HTML rendered with Sphinx.
 
 See the [[file:info/dev_guide.org][Developers Guide]] for developing.
 
+** Attributions
+
+I have taken the regexes from the ~python-fstab~ project which was was
+written by Lars Wirzenius for Canonical Ltd, as part of the
+system-cleaner project.
+
+Otherwise I have made the API modern and very functional so that it
+can be used in many different use-cases.

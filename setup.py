@@ -17,13 +17,17 @@ from setuptools import setup, find_packages
 import itertools as it
 
 # the basic needed requirements for a package
-base_requirements = []
+base_requirements = [
+    "jinja2",
+]
 
 # extras requirements list
 
-# SNIPPET: example extra requirement
-# example_extra_requirements = ['requests']
-# extras = [example_extra_requirements,]
+pretty = [
+    'pandas',
+    'tabulate',
+]
+extras = [pretty,]
 
 # Add your extra requirements lists here:
 extras = [
@@ -34,14 +38,14 @@ _all_requirements = [[base_requirements]] + extras
 all_requirements = it.chain.from_iterable(_all_requirements)
 
 setup(
-    name='python-fstab',
+    name='fshank',
     version='2020-03-09a0.dev0',
     author="Samuel D. Lotz",
     author_email="samuel.lotz@salotz.info",
     description="Read, write, and manipulate fstab files",
     #long_description=open('README.org').read(),
     license="GPLv3",
-    url="https://github.com/salotz/python-fstab",
+    url="https://github.com/salotz/fshank",
     classifiers=[
         "Topic :: Utilities",
         "License :: OSI Approved :: MIT License",
@@ -66,7 +70,7 @@ setup(
 
     entry_points={
         'console_scripts' : [
-            'fstab=fstab.cli:cli',
+            'fshank=fshank.cli:cli',
         ]
     },
 

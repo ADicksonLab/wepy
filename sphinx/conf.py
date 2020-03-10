@@ -18,7 +18,7 @@ sys.path.insert(0, os.path.abspath('..'))
 
 # -- Project information -----------------------------------------------------
 
-project = 'python-fstab'
+project = 'fshank'
 copyright = '2020, Samuel D. Lotz'
 author = 'Samuel D. Lotz'
 
@@ -108,7 +108,7 @@ extensions.append("guzzle_sphinx_theme")
 # Guzzle theme options (see theme.conf for more information)
 html_theme_options = {
     # Set the name of the project to appear in the sidebar
-    "project_nav_name": "python-fstab",
+    "project_nav_name": "fshank",
 }
 
 # Theme options are theme-specific and customize the look and feel of a theme
@@ -136,7 +136,7 @@ html_static_path = ['_static']
 # -- Options for HTMLHelp output ---------------------------------------------
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'fstabdoc'
+htmlhelp_basename = 'fshankdoc'
 
 
 # -- Options for LaTeX output ------------------------------------------------
@@ -163,7 +163,7 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'fstab.tex', 'fstab Documentation',
+    (master_doc, 'fshank.tex', 'fshank Documentation',
      'Samuel D. Lotz', 'manual'),
 ]
 
@@ -173,7 +173,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'fstab', 'fstab Documentation',
+    (master_doc, 'fshank', 'fshank Documentation',
      [author], 1)
 ]
 
@@ -184,8 +184,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, 'fstab', 'fstab Documentation',
-     author, 'fstab', 'Read, write, and manipulate fstab files',
+    (master_doc, 'fshank', 'fshank Documentation',
+     author, 'fshank', 'Read, write, and manipulate fshank files',
      'Miscellaneous'),
 ]
 

@@ -2,6 +2,7 @@
 
 ** Development Lead
 
-Samuel D. Lotz <samuel.lotz@salotz.info>
+2020 Samuel D. Lotz <samuel.lotz@salotz.info> 
+prior Lars Wirzenius Canonical Ltd.
 
 ** Contributors

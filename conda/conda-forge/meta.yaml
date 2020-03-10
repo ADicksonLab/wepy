@@ -3,7 +3,7 @@
 # Jinja variables help maintain the recipe as you'll update the version only here.
 # Using the name variable with the URL in line 14 is convenient
 # when copying and pasting from another recipe, but not really needed.
-{% set name = "fstab"%}
+{% set name = "fshank"%}
 {% set version = "1.0.0rc0" %}
 
 package:
@@ -11,7 +11,7 @@ package:
   version: {{ version }}
 
 source:
-  url: https://github.com/salotz/python-fstab/releases/download//{{ version }}/{{ name }}-{{ version }}.tar.gz
+  url: https://github.com/salotz/fshank/releases/download//{{ version }}/{{ name }}-{{ version }}.tar.gz
   sha256: 
   # sha256 is the preferred checksum -- you can get it for a file with:
   #  `openssl sha256 <file name>`.
@@ -35,13 +35,13 @@ requirements:
     - python
 
 about:
-  home: https://github.com/salotz/python-fstab
+  home: https://github.com/salotz/fshank
   license: GPLv3
   license_family: GPLv3
   license_file: LICENSE
-  summary: Read, write, and manipulate fstab files
-  doc_url: https://salotz.github.io/python-fstab
-  dev_url: https://github.com/salotz/python-fstab
+  summary: Read, write, and manipulate fshank files
+  doc_url: https://salotz.github.io/fshank
+  dev_url: https://github.com/salotz/fshank
 
 extra:
   recipe-maintainers:

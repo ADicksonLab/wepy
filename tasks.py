@@ -154,8 +154,8 @@ def repo_test(cx):
     # TODO: tests to run on the consistency and integrity of the repo
 
     # prefix all of these tests by activating the dev environment
-    with cx.prefix(" fstab.dev"):
-        cx.run("conda activate fstab.dev && inv -l",
+    with cx.prefix(" fshank.dev"):
+        cx.run("conda activate fshank.dev && inv -l",
                pty=True)
 
 ### Dependencies
@@ -379,7 +379,7 @@ def docs_build(cx):
     with cx.cd('sphinx'):
 
         # build the API Documentation
-        cx.run("sphinx-apidoc -f --separate --private --ext-autodoc --module-first --maxdepth 1 -o api ../src/fstab")
+        cx.run("sphinx-apidoc -f --separate --private --ext-autodoc --module-first --maxdepth 1 -o api ../src/fshank")
 
         # then do the sphinx build process
         cx.run("sphinx-build -b html -E -a -j 6 . ./_build/html/")
@@ -424,7 +424,7 @@ def tests_benchmarks(cx):
 
 @task
 def tests_integration(cx, node=DEFAULT_ENV):
-    cx.run(f"(cd tests/tests/test_integration && pytest -m 'not interactive' -m 'node_{node}')")
+    cx.run(f"(cd tests/tests/test_integration && pytest -m 'not interactive')")
 
 # @task
 # def tests_unit(cx, node=DEFAULT_ENV):
@@ -432,7 +432,7 @@ def tests_integration(cx, node=DEFAULT_ENV):
 
 @task
 def tests_unit(cx, node=DEFAULT_ENV):
-    cx.run(f"(cd tests/tests/test_unit && pytest -m 'not interactive' -m 'node_{node}')")
+    cx.run(f"(cd tests/tests/test_unit && pytest -m 'not interactive')")
 
 @task
 def tests_interactive(cx):
@@ -456,9 +456,7 @@ def tests_all(cx, node=DEFAULT_ENV):
 
     """
 
-
-    tests_unit(cx, node=node)
-    tests_integration(cx, node=node)
+    cx.run(f"(cd tests/tests && pytest -m 'not interactive')")
 
 @task
 def tests_tox(cx):
@@ -478,7 +476,7 @@ def lint(cx):
     cx.run("mkdir -p metrics/lint")
 
     cx.run("rm -f metrics/lint/flake8.txt")
-    cx.run("flake8 --output-file=metrics/lint/flake8.txt src/fstab")
+    cx.run("flake8 --output-file=metrics/lint/flake8.txt src/fshank")
 
 @task
 def complexity(cx):
@@ -486,13 +484,13 @@ def complexity(cx):
 
     cx.run("mkdir -p metrics/code_quality")
 
-    cx.run("lizard -o metrics/code_quality/lizard.csv src/fstab")
-    cx.run("lizard -o metrics/code_quality/lizard.html src/fstab")
+    cx.run("lizard -o metrics/code_quality/lizard.csv src/fshank")
+    cx.run("lizard -o metrics/code_quality/lizard.html src/fshank")
 
     # SNIPPET: annoyingly opens the browser
 
     # make a cute word cloud of the things used
-    # cx.run("(cd metrics/code_quality; lizard -EWordCount src/fstab > /dev/null)")
+    # cx.run("(cd metrics/code_quality; lizard -EWordCount src/fshank > /dev/null)")
 
 @task(pre=[complexity, lint])
 def quality(cx):
@@ -560,7 +558,7 @@ def version_which(cx):
     """Tell me what version the project is at."""
 
     # get the current version
-    from fstab import __version__ as proj_version
+    from fshank import __version__ as proj_version
     print(proj_version)
 
 # SNIPPET: not implemented yet
@@ -617,7 +615,7 @@ def release_tag(cx, release=None):
 def release(cx):
 
     # get the release version from the module
-    from fstab import __version__ as proj_version
+    from fshank import __version__ as proj_version
 
     # SNIPPET
     # cx.run("python -m wumpus.version")
@@ -695,13 +693,13 @@ def publish_test_pypi(cx, version=None):
 
     # cx.run("twine upload "
     #        f"--repository-url {TESTING_INDEX_URL} "
-    #        "dist/python-fstab-{version}*")
+    #        "dist/fshank-{version}*")
 
 
 @task(pre=[clean_dist, update_tools, build_sdist])
 def publish_test(cx):
 
-    from fstab import __version__ as version
+    from fshank import __version__ as version
 
     publish_test_pypi(cx, version=version)
 
@@ -738,7 +736,7 @@ def publish(cx, version=None):
 
     # assume the latest
     if version is None:
-        from fstab import __version__ as version
+        from fshank import __version__ as version
 
     publish_tags(cx, version=version)
     publish_pypi(cx, version=version)
@@ -758,7 +756,7 @@ def publish(cx, version=None):
 
 
 #     # copy the recipe to the omnia fork
-#     cx.run(f"cp conda/conda-forge {CONDA_FORGE_RECIPE_PATH}/python-fstab")
+#     cx.run(f"cp conda/conda-forge {CONDA_FORGE_RECIPE_PATH}/fshank")
 
 #     # commit and push
 #     cx.run(f"git -C {CONDA_FORGE_RECIPE_PATH} commit -m 'update recipe'")

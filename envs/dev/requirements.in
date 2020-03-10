@@ -46,3 +46,6 @@ pytest-benchmark
 pytest-profiling
 
 
+jinja2
+pandas
+tabulate

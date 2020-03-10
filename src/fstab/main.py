@@ -14,13 +14,90 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-import os
 import re
-import tempfile
+import dataclasses as dc
+import pkgutil
+from warnings import warn
+
+from jinja2 import Template
+
+# optional imports
+try:
+    import pandas as pd
+except ImportError:
+    warn("Pandas installation not found. Install with 'pretty' extra.")
+
+CONCRETE_COLUMNS = (
+        "ws1",
+        "device",
+        "ws2",
+        "directory",
+        "ws3",
+        "fstype",
+        "ws4",
+        "options",
+        "ws5",
+        "dump",
+        "ws6",
+        "fsck",
+        "ws7",
+    )
+
+ABSTRACT_COLUMNS = (
+        "device",
+        "directory",
+        "fstype",
+        "options",
+        "dump",
+        "fsck",
+    )
+
+FSTAB_REGEX = r"" \
+              r"^(?P<ws1>\s*)" \
+              r"(?P<device>\S*)" \
+              r"(?P<ws2>\s+)" \
+              r"(?P<directory>\S+)" \
+              r"(?P<ws3>\s+)" \
+              r"(?P<fstype>\S+)" \
+              r"(?P<ws4>\s+)" \
+              r"(?P<options>\S+)" \
+              r"(?P<ws5>\s+)" \
+              r"(?P<dump>\d+)" \
+              r"(?P<ws6>\s+)" \
+              r"(?P<fsck>\d+)" \
+              r"(?P<ws7>\s*)$"
+
+COMMENT_CHARACTER = "#"
+
+def parse_line(line_str):
+    """Parses a non-comment line of an fstab file using a regex.
+
+    Does no validation.
+
+    Parameters
+    ----------
+
+    line_str : str
+
+    Returns
+    -------
+
+    entry : FstabEntry obj
+
+    """
 
 
-class Line(object):
+    match = re.match(FSTAB_REGEX, line_str)
 
+    cols = {}
+    for col in ABSTRACT_COLUMNS:
+        cols[col] = match.group(col)
+
+    return FstabEntry(**cols)
+
+
+@dc.dataclass(frozen=True)
+class FstabEntry():
     """A line in an /etc/fstab line.
 
     Lines may or may not have a filesystem specification in them. The
@@ -29,162 +106,152 @@ class Line(object):
     fsck contain the values of the corresponding fields, as instances of
     the sub-classes of the LinePart class. For non-filesystem lines,
     the attributes have the None value.
-    
+
     Lines may or may not be syntactically correct. If they are not,
     they are treated as as non-filesystem lines.
-    
+
     """
 
-    # Lines split this way to shut up coverage.py.
-    attrs = ("ws1", "device", "ws2", "directory", "ws3", "fstype")
-    attrs += ("ws4", "options", "ws5", "dump", "ws6", "fsck", "ws7")
+    device: str
+    directory: str
+    fstype: str
+    options: str
+    dump: str
+    fsck: str
 
-    def __init__(self, raw):
-        self.dict = {}
-        self.raw = raw
+HEADER = "# /etc/fstab: static file system information."
+COLUMN_FIELDS = (
+    'file_system',
+    'mount_point',
+    'type',
+    'options',
+    'dump',
+    'pass',
+)
 
-    def __getattr__(self, name):
-        if name in self.dict:
-            return self.dict[name]
+COLUMN_HEADER = "# <file system> <mount point>   <type>  <options>       <dump>  <pass>"
+
+def default_header():
+    return '\n'.join([HEADER, COLUMN_HEADER])
+
+
+def get_fstab_template():
+
+    path = "fstab_template/fstab.j2"
+
+    return pkgutil.get_data(__name__,
+                         path)\
+                  .decode()
+
+
+def parse_fstab(file_str):
+
+    entries = []
+    header_lines = []
+    for line in file_str.splitlines():
+
+        in_header = True
+
+        if line.startswith("#"):
+            if in_header:
+                header_lines.append(line)
+            else:
+                pass
+        elif line.isspace():
+            if in_header:
+                header_lines.append(line)
+            else:
+                pass
         else:
-            raise AttributeError(name)
+            entries.append(parse_line(line))
+            in_header = False
 
-    def __setattr__(self, name, value):
-        forbidden = ("dict", "dump", "fsck", "options")
-        if name not in forbidden and name in self.dict:
-            if self.dict[name] is None:
-                raise Exception("Cannot set attribute %s when line dies not "
-                                "contain filesystem specification" % name)
-            self.dict[name] = value
-        else:
-            object.__setattr__(self, name, value)
-
-    def get_dump(self):
-        return int(self.dict["dump"])
-    
-    def set_dump(self, value):
-        self.dict["dump"] = str(value)
-
-    dump = property(get_dump, set_dump)
-    
-    def get_fsck(self):
-        return int(self.dict["fsck"])
-
-    def set_fsck(self, value):
-        self.dict["fsck"] = str(value)
-            
-    fsck = property(get_fsck, set_fsck)
-
-    def get_options(self):
-        return self.dict["options"].split(",")
-            
-    def set_options(self, list):
-        self.dict["options"] = ",".join(list)
-        
-    options = property(get_options, set_options)
-            
-    def set_raw(self, raw):
-        match = False
-        
-        if raw.strip() != "" and not raw.strip().startswith("#"):
-            pat = r"^(?P<ws1>\s*)"
-            pat += r"(?P<device>\S*)"
-            pat += r"(?P<ws2>\s+)"
-            pat += r"(?P<directory>\S+)"
-            pat += r"(?P<ws3>\s+)"
-            pat += r"(?P<fstype>\S+)"
-            pat += r"(?P<ws4>\s+)"
-            pat += r"(?P<options>\S+)"
-            pat += r"(?P<ws5>\s+)"
-            pat += r"(?P<dump>\d+)"
-            pat += r"(?P<ws6>\s+)"
-            pat += r"(?P<fsck>\d+)"
-            pat += r"(?P<ws7>\s*)$"
-
-            match = re.match(pat, raw)
-            if match:
-                self.dict.update((attr, match.group(attr)) for attr in self.attrs)
-
-        if not match:
-            self.dict.update((attr, None) for attr in self.attrs)
-
-        self.dict["raw"] = raw
-
-    def get_raw(self):
-        if self.has_filesystem():
-            return "".join(self.dict[attr] for attr in self.attrs)
-        else:
-            return self.dict["raw"]
-        
-    raw = property(get_raw, set_raw)
-
-    def has_filesystem(self):
-        """Does this line have a filesystem specification?"""
-        return self.device is not None
+    header = '\n'.join(header_lines)
+    return Fstab(
+        entries=entries,
+        header=header,
+    )
 
 
-class Fstab(object):
+@dc.dataclass(frozen=True)
+class Fstab():
+    """An /etc/fstab file.
 
-    """An /etc/fstab file."""
+    Parameters
+    ----------
 
-    def __init__(self):
-        self.lines = []
-    
-    def get_perms(self, filename):
-        return os.stat(filename).st_mode # pragma: no cover
+    entries : list of FstabEntry obj, optional
+        Entry objects to put in the Fstab
 
-    def chmod_file(self, filename, mode):
-        os.chmod(filename, mode) # pragma: no cover
+    header : str, optional
+        An optional user defined header for the file. Uses default if Ellipsis
 
-    def link_file(self, oldname, newname):
-        if os.path.exists(newname):
-            os.remove(newname)
-        os.link(oldname, newname)
+    """
 
-    def rename_file(self, oldname, newname):
-        os.rename(oldname, newname) # pragma: no cover
-    
-    def read(self, filespec):
-        """Read in a new file.
-        
-        If filespec is a string, it is used as a filename. Otherwise
-        it is used as an open file.
-        
-        The existing content is replaced.
-        
+    header: str = dc.field(default_factory=default_header)
+    entries: tuple = ()
+
+    def to_df(self):
+
+        df = pd.DataFrame(
+            [dc.asdict(entry) for entry in self.entries],
+        )
+        return df
+
+    def render(self):
         """
-        lines = []
-        with open(filespec) as f:
-            for line in f:
-                lines.append(Line(line))
-        self.lines = lines
+        Returns
+        -------
 
-    def write(self, filespec):
-        """Write out a new file.
-        
-        If filespec is a string, it is used as a filename. Otherwise
-        it is used as an open file.
-        
+        ftab_str : str
+            The formmated fstab table
+
+
         """
-        
-        if type(filespec) in (str, bytes):
-            # We create the temporary file in the directory (/etc) that the
-            # file exists in. This is so that we can do an atomic rename
-            # later, and that only works inside one filesystem. Some systems
-            # have /tmp and /etc on different filesystems, for good reasons,
-            # and we need to support that.
-            dirname = os.path.dirname(filespec)
-            prefix = os.path.basename(filespec) + "."
-            fd, tempname = tempfile.mkstemp(dir=dirname, prefix=prefix)
-            os.close(fd)
-        else:
-            tempname = filespec
-    
-        with open(tempname, "w") as f:
-            for line in self.lines:
-                f.write(line.raw)
 
-        if type(filespec) in (str, bytes):
-            self.chmod_file(tempname, self.get_perms(filespec))
-            self.link_file(filespec, filespec + ".bak")
-            self.rename_file(tempname, filespec)
+        template = Template(get_fstab_template())
+        result = template.render(**dc.asdict(self))
+
+        return result
+
+
+def from_dataframe(fstab_df,
+                   header=None):
+
+    entries = []
+    for row_id, row in fstab_df.iterrows():
+        rec = {}
+        for colname in ABSTRACT_COLUMNS:
+            rec[colname] = row[colname]
+
+        entries.append(FstabEntry(**rec))
+
+    fstab = Fstab(
+        entries=entries,
+        header=header
+    )
+
+    return fstab
+
+def from_struct(fstab_struct):
+    """Read it in from python dicts and lists.
+
+    This could be from a JSON file or something similar.
+
+    Parameters
+    ----------
+
+    fstab_struct : list of dict of str: val
+
+    Returns
+    -------
+
+    fstab : Fstab obj
+
+    """
+
+    entries = []
+    for entry in fstab_struct:
+        entries.append(FstabEntry(**entry))
+
+    return Fstab(entries=entries)

@@ -4,7 +4,7 @@
 To install from pip (which may be out of date):
 
 #+BEGIN_SRC bash
-  pip install fstab[all]
+  pip install fshank[all]
 #+END_SRC
 
 There are some optional features you can install as well using the
@@ -18,12 +18,12 @@ listing.
 You can always install from git as well for the latest:
 
 #+BEGIN_SRC bash
-pip install git+https://github.com/salotz/python-fstab
+pip install git+https://github.com/salotz/fshank
 #+END_SRC
 
 
 If installation went alright this command should succeed:
 
 #+BEGIN_SRC bash
-  python -c "import fstab"
+  python -c "import fshank"
 #+END_SRC

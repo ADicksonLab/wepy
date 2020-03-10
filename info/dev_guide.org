@@ -7,8 +7,8 @@
 For the source code:
 
 #+BEGIN_SRC bash
-git clone https://github.com/salotz/python-fstab
-cd python-fstab
+git clone https://github.com/salotz/fshank
+cd fshank
 #+END_SRC
 
 *** Tooling
@@ -41,7 +41,7 @@ else:
 source env.bash
 #+end_src
 
-To create an env called ~python-fstab.dev~ just run the ~env~ target from
+To create an env called ~fshank.dev~ just run the ~env~ target from
 ~invoke~:
 
 #+begin_src bash
@@ -244,7 +244,7 @@ valid ones.
 The target locations for changing versions are in the following files:
 
 - [ ] ~setup.py~
-- [ ] ~src/python-fstab/__init__.py~
+- [ ] ~src/fshank/__init__.py~
 - [ ] ~sphinx/config.py~
 - [ ] ~conda/conda-forge/meta.yaml~
 
@@ -326,7 +326,7 @@ You can test that it works from the index using the same
 And install the package from the test repo with no dependencies:
 
 #+begin_src bash
-pip install --index-url https://test.pypi.org/simple/ --no-deps python-fstab-salotz
+pip install --index-url https://test.pypi.org/simple/ --no-deps fshank-salotz
 #+end_src
 
 # QUEST: should this message be the release message we want for the VCS
