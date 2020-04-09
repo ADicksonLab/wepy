@@ -1,6 +1,6 @@
 # this is an abstract listing of the requirements for other projects
-which are co-developing with this repo can use to compile dependencies
-for
+# which are co-developing with this repo can use to compile dependencies
+# for
 
 --index-url https://pypi.python.org/simple/
 
