@@ -408,7 +408,8 @@ class WorkerMapper(ABCWorkerMapper):
         """
 
         super().__init__(num_workers=num_workers,
-                         segment_func=segment_func)
+                         segment_func=segment_func,
+                         **kwargs)
 
         # since the workers will be their own process classes we
         # handle this data
