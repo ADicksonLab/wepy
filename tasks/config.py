@@ -6,5 +6,9 @@ from .sysconfig import *
 
 ## Customize these for all features
 
-# PROJECT_SLUG = ""
+PROJECT_SLUG = "wepy"
 
+VERSION = '1.0.0rc0.dev0'
+
+
+ENV_METHOD = 'conda'
