@@ -47,7 +47,7 @@ all_requirements = it.chain.from_iterable([
 
 setup(
     name='wepy',
-    version='1.0.0rc0.dev0',
+    version='1.0.0rc1.dev0',
     author="Samuel D. Lotz",
     author_email="samuel.lotz@salotz.info",
     description="Weighted Ensemble Framework",
