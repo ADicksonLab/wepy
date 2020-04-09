@@ -54,11 +54,6 @@ multiprocessing_logging
 # modules just for tests
 
 # Geomm
-cython
-# simultaneous development
-#-e ../geomm
-# OR just the latest
-git+https://github.com/ADicksonLab/geomm.git
 
 # for the test systems we use openmmtools
 # git+https://github.com/choderalab/openmmtools.git
