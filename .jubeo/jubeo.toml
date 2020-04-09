@@ -1,0 +1,30 @@
+
+# 1. for git repos use the 'git+https'
+# 2. for local files leave scheme bare or use 'file' scheme
+
+# if the files in the repo are not at the top-level use the 'fragment'
+# section (after the #) for the path within the repo
+upstream_url = "git+https://github.com/salotz/jubeo.git#repos/python"
+
+# SNIPPET: for local dev
+# upstream_url = "file://$HOME/tree/personal/devel/jubeo/repos/python"
+
+[modules]
+
+source_url = "git+https://github.com/salotz/jubeo.git#modules"
+
+# SNIPPET: for local dev
+# source_url = "file://$HOME/tree/personal/devel/jubeo/modules"
+
+modules = [
+    'core',
+    'clean',
+    'env',
+    'git',
+    'py',
+]
+
+[taskset]
+
+dirname = "tasks"
+
