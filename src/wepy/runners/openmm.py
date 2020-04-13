@@ -1140,6 +1140,6 @@ class OpenMMGPUWalkerTaskProcess(WalkerTaskProcess):
         device_idx = self.mapper_attributes['device_ids'][self._worker_idx]
 
         # make the platform kwargs dictionary
-        platform_options = {'DeviceIndex' : device_id}
+        platform_options = {'DeviceIndex' : str(device_idx)}
 
         return task(platform_kwargs=platform_options)
