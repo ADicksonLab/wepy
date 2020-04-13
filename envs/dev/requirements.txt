@@ -20,7 +20,7 @@ cffi==1.14.0              # via bcrypt, cryptography, pynacl
 chardet==3.0.4            # via requests
 click==7.1.1              # via -r ./requirements.in, pip-tools
 cloudpickle==1.3.0        # via dask
-coverage==5.0.4           # via -r envs/dev/requirements.in, pytest-cov
+coverage==5.1             # via -r envs/dev/requirements.in, pytest-cov
 cryptography==2.9         # via paramiko, secretstorage
 cycler==0.10.0            # via matplotlib
 dask[bag]==2.14.0         # via -r ./requirements.in
@@ -41,13 +41,14 @@ guzzle-sphinx-theme==0.7.11  # via -r envs/dev/requirements.in
 h5py==2.10.0              # via -r ./requirements.in
 idna==2.9                 # via requests
 imagesize==1.2.0          # via sphinx
+importlib-metadata==1.6.0  # via argcomplete, jsonschema, keyring, pluggy, pytest, tox, twine, virtualenv
 invoke==1.4.1             # via -r envs/dev/requirements.in, fabric
 ipykernel==5.2.0          # via notebook
 ipython-genutils==0.2.0   # via nbformat, notebook, traitlets
 ipython==7.13.0           # via -r envs/dev/requirements.in, ipykernel
 jedi==0.16.0              # via ipython
 jeepney==0.4.3            # via keyring, secretstorage
-jinja2==2.11.1            # via -r ./requirements.in, nbconvert, nbsphinx, notebook, sphinx
+jinja2==2.11.2            # via -r ./requirements.in, nbconvert, nbsphinx, notebook, sphinx
 jsonschema==3.2.0         # via nbformat
 jupyter-client==6.1.2     # via ipykernel, notebook
 jupyter-core==4.6.3       # via jupyter-client, nbconvert, nbformat, notebook
@@ -114,7 +115,7 @@ secretstorage==3.1.2      # via keyring
 send2trash==1.5.0         # via notebook
 six==1.14.0               # via bcrypt, bleach, cryptography, cycler, h5py, jsonschema, packaging, pip-tools, pockets, pynacl, pyrsistent, pytest-profiling, python-dateutil, readme-renderer, sphinxcontrib-napoleon, tox, traitlets, virtualenv
 snowballstemmer==2.0.0    # via sphinx
-sphinx==3.0.0             # via -r envs/dev/requirements.in, guzzle-sphinx-theme, nbsphinx
+sphinx==3.0.1             # via -r envs/dev/requirements.in, guzzle-sphinx-theme, nbsphinx
 sphinxcontrib-applehelp==1.0.2  # via sphinx
 sphinxcontrib-devhelp==1.0.2  # via sphinx
 sphinxcontrib-htmlhelp==1.0.3  # via sphinx
@@ -133,11 +134,12 @@ tqdm==4.45.0              # via twine
 traitlets==4.3.3          # via ipykernel, ipython, jupyter-client, jupyter-core, nbconvert, nbformat, nbsphinx, notebook
 twine==3.1.1              # via -r envs/dev/requirements.in
 urllib3==1.25.8           # via requests
-virtualenv==20.0.16       # via -r envs/dev/requirements.in, tox
+virtualenv==20.0.17       # via -r envs/dev/requirements.in, tox
 wcwidth==0.1.9            # via prompt-toolkit, pytest
 webencodings==0.5.1       # via bleach
 wheel==0.34.2             # via -r envs/dev/requirements.in
 wmctrl==0.3               # via pdbpp
+zipp==3.1.0               # via importlib-metadata
 
 # The following packages are considered to be unsafe in a requirements file:
 # pip
