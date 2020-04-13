@@ -359,6 +359,7 @@ class WalkerTaskProcess(mp.Process):
 
 
         self.walker_idx = walker_idx
+        self._worker_idx = None
         self.mapper_attributes = mapper_attributes
 
         # set the managed datastructure proxies as an attribute so we
@@ -534,6 +535,8 @@ class WalkerTaskProcess(mp.Process):
 
                     return None
 
+        self._worker_idx = worker_idx
+        
         # generate the task thunk
         task = Task(self._func, *self._task_args, **self._task_kwargs)
 
