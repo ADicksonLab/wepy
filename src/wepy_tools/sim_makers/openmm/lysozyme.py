@@ -140,8 +140,7 @@ class LysozymeImplicitOpenMMSimMaker(OpenMMToolsTestSysSimMaker):
         # periodic box
         runner_params = {'enforce_box' : False}
 
-        if :
-            resampler_params = {''}
+        resampler_params = {}
         apparatus = super().make_apparatus(runner_params=runner_params,
                                            resampler_params=resampler_params,
                                            **kwargs)
