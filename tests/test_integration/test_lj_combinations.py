@@ -47,12 +47,11 @@ DEV_NODE_N_WALKER_TESTS = [i for i in (10,)]
 # 1 ps, 5 ps, 10 ps, #20 ps
 N_STEPS_TEST = [10, 50, 100, 200]#[1000, 5000, 10000]
 N_CYCLES_TEST = [1, 10, 100]
-SYSTEMS_TEST = ['LennardJonesPair', 'LysozymeImplicit',]
+SYSTEMS_TEST = ['LennardJonesPair',]# 'LysozymeImplicit',]
 PLATFORMS_TEST = ['OpenCL']
 RESAMPLERS_TEST = ['NoResampler', 'REVOResampler', 'WExploreResampler']
 WORK_MAPPERS_TEST = ['WorkerMapper', 'TaskMapper']
 
-@pytest.mark.node_minor
 class TestCombinationsMinorNode():
 
     @pytest.mark.parametrize('n_walkers', [5,])
@@ -80,8 +79,6 @@ class TestCombinationsMinorNode():
         result = sim_manager.run_simulation(n_cycles, n_steps,
                                               num_workers=DEV_NODE_N_WORKERS)
 
-
-@pytest.mark.node_dev
 class TestCombinationsDevNode():
 
     @pytest.mark.parametrize('n_walkers', [5,])
@@ -108,7 +105,7 @@ class TestCombinationsDevNode():
 
         result = sim_manager.run_simulation(n_cycles, n_steps,
                                               num_workers=DEV_NODE_N_WORKERS)
-@pytest.mark.node_production
+
 class TestCombinationsBigNode():
 
     @pytest.mark.parametrize('n_walkers', BIG_NODE_N_WALKER_TESTS)
