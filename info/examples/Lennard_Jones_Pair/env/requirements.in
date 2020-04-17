@@ -1,3 +1,8 @@
 
 --index-url https://pypi.python.org/simple/
 
+wepy[all]
+
+multiprocessing_logging
+numpy
+scipy

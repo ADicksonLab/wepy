@@ -6,3 +6,22 @@
 #
 --index-url https://pypi.python.org/simple/
 
+click==7.1.1              # via wepy
+cycler==0.10.0            # via matplotlib
+decorator==4.4.2          # via networkx
+dill==0.3.1.1             # via wepy
+geomm==0.1.7              # via wepy
+h5py==2.10.0              # via wepy
+kiwisolver==1.2.0         # via matplotlib
+matplotlib==3.2.1         # via wepy
+mdtraj==1.9.3             # via wepy
+multiprocessing-logging==0.3.1  # via -r info/examples/Lennard_Jones_Pair/env/requirements.in
+networkx==2.4             # via wepy
+numpy==1.18.2             # via -r info/examples/Lennard_Jones_Pair/env/requirements.in, geomm, h5py, matplotlib, mdtraj, pandas, scipy, wepy
+pandas==1.0.3             # via wepy
+pyparsing==2.4.7          # via matplotlib
+python-dateutil==2.8.1    # via matplotlib, pandas
+pytz==2019.3              # via pandas
+scipy==1.4.1              # via -r info/examples/Lennard_Jones_Pair/env/requirements.in, geomm, mdtraj, wepy
+six==1.14.0               # via cycler, h5py, python-dateutil
+wepy[all]==0.10.2         # via -r info/examples/Lennard_Jones_Pair/env/requirements.in
