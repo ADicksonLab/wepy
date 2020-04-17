@@ -1,4 +1,781 @@
-* Development
+* Development Guide
+
+
+** Overview
+
+In this project we use a bunch of extra tools that simplify the
+drudgery of manual maintenance tasks so we can get more coding
+done. Its also probably not how your used to.
+
+This "middleware" includes:
+
+- [[https://www.pyinvoke.org/][invoke]] :: for creating the runnable endpoints or targets.
+- [[https://github.com/salotz/jubeo.git][jubeo]] :: for importing and updating a standard set of project
+  independent invoke targets and endpoints.
+
+~invoke~ is common but ~jubeo~ is a creation of my own and may still
+have some rough edges.
+
+Furthermore, this project is made from a [[https://github.com/salotz/salotz-py-cookiecutter.git][cookiecutter template]] to
+bootstrap it. You may find some odd stubs around and that is why. Feel
+free to get rid of them. If you ever want them back you can
+transcribe from the source.
+
+Ideally you won't have to do much outside of running the ~invoke~
+targets (i.e. any command that starts with ~inv~).
+
+To see all of the commands run:
+
+#+begin_src bash
+inv -l
+#+end_src
+
+You should read and understand the ~jubeo~ documentation so that you
+know how to add your own project-specific targets via ~invoke~.
+
+** Getting Set Up
+
+*** Obtaining the source code
+
+For the source code:
+
+#+BEGIN_SRC bash
+git clone {{ cookiecutter.dev_url }}
+cd {{ cookiecutter.project_name }}
+#+END_SRC
+
+*** Tooling
+
+The project comes configured for use with ~jubeo~ (see the ~.jubeo~
+directory) but without the tasks imported.
+
+To get started you will need to install ~jubeo~ and then run this from
+the project directory:
+
+#+begin_src bash
+jubeo init .
+#+end_src
+
+This will download the appropriate ~invoke~ tasks organized into a
+special structure along with the necessary dependency specs to use
+them.
+
+To be able to run the tasks you should install these dependencies:
+
+#+begin_src bash
+pip install -r .jubeo/requirements.in
+#+end_src
+
+If you add to the libraries needed (through plugins discussed later)
+you will need to edit the ~.jubeo/requirements.txt~ file and recompile
+the ~.jubeo/requirements.in~ file by either manually running
+~pip-compile~ or using the ~inv core.pin-tool-deps~ target.
+
+*** Configuring
+
+We typically manage configuration values in the ~tasks/config.py~ and
+~tasks/sysconfig.py~ files as opposed to global system environment
+variables.
+
+See the ~jubeo~ documentation on how to use these configuration files.
+
+For this python project template we do need to set some values before
+all of the features will work. We also avoid setting these in shell
+configuration variables and as of now it is just up to the user to
+customize these. To the ~tasks/config.py~ file add the following:
+
+#+begin_src python
+PROJECT_SLUG = "{{cookiecutter.project_slug}}"
+VERSION="{{cookiecutter.initial_version}}"
+#+end_src
+
+Just make sure to update the version string here when you do releases
+(included in the checklist for releases).
+
+*** Virtual Environments
+
+There are helpers for pinning and (re)generating python virtual
+environments which are helpful in developing and testing this project,
+and not necessarily just for running it as a user. See [[*Managing Dependencies][Managing
+Dependencies]] for details on managing dependencies of the installable
+project.
+
+If an environment has been already been written and compiled you need
+only create it locally and then activate it.
+
+To create an env called ~dev~ just run the ~env~ (~env.make~) target
+from ~invoke~:
+
+#+begin_src bash
+inv env -n dev
+#+end_src
+
+If it fails double check that all the dependencies have been compiled.
+
+If it still fails, likely the environment is meant to be used for
+simultaneous development of multiple projects.  You can check which
+installable source repos are expected in which locations by looking at
+the ~self.requirements.txt~ file.  If there are simultaneous dev
+requirements make sure these source repos can be found at those
+locations.
+
+Then follow the activation instructions that are printed as different
+projects might use different backends.
+
+For pure python projects the default ~venv~ tool should be used, but
+~conda~ is also an option.
+
+For ~venv~ envs they will be stored in a directory called ~_venvs~ and
+for conda ~_conda_envs~ (this is customizable however). Simply:
+
+#+begin_src bash
+source _venvs/dev/bin/activate_
+#+end_src
+
+or
+
+#+begin_src bash
+conda activate _conda_envs/dev
+#+end_src
+
+In any case the environments are not stored with other user-level
+environments, what we call /ambient/ environments, and are instead
+stored in the project directory.
+
+If you ever have problems with an environment just rerun the
+~env.make~ target to get a clean one. A practice we encourage to do
+frequently so that developers don't diverge in their envs with local
+modifications. So while you can make your env, try to use this one
+unless you have problems.
+
+We maintain a number of preconfigured environments in the ~envs~
+directory which are used for different purposes. Calling ~inv env -n
+dev~ is the same as ~inv dev~ since it is the default, but any other
+environment can be created by passing the matching name. For instance
+there is an environment that mimics the user's installation
+environment so that we can test experiences upon install, to make sure
+we haven't accidentally depended on something in the dev env:
+
+#+begin_src bash
+inv env -n test_install
+#+end_src
+
+
+** Maintenance Tasks
+
+*** Managing Dependencies
+
+**** Quick Reference
+
+To initially pin an environment or when you add requirements run this
+target:
+
+#+begin_src bash
+inv env.deps-pin -n dev
+#+end_src
+
+To update it (should be accompanied by a reason why):
+
+#+begin_src bash
+inv env.deps-pin-update -n dev
+#+end_src
+
+The best practice here is to make initial pinning and updating a
+single commit so that it can easily be rolled back or patched e.g.:
+
+#+begin_src bash
+git add envs/*
+git commit -m "Updates dev environment"
+#+end_src
+
+
+**** Explanation
+
+Reminder that there are two separate goals of managing dependencies
+and where they are managed:
+
+- Python Libraries :: These dependencies are managed in ~setup.py~ and
+  in PyPI or other indices.
+- Python Applications/Deployments :: These are dependencies managed in
+  ~requirements.in~ and ~requirements.txt~ and used for developer
+  environments and deployment environments.
+
+In this template project there are a number of different places
+dependencies are managed according to both of these purposes. As far
+as the python library specs are concerned it is simpler and well
+documented elsewhere. In this template we introduce a few other
+mechanisms for managing development environments. They are as follows
+with the specific purpose of them:
+
+- ~setup.py~ :: specifying high level requirements for installation of
+  a released version from an index by a user or system integrator.
+- ~tools.requirements.txt~ :: A bare minimum high-level listing of
+  dependencies necessary to bootstrap the creation of development
+  environments from the project tooling itself. You are free to
+  install these in any ambient environment you see fit. We suggest
+  using something like ~pyenv-virtualenv~.
+- ~envs/env_name~ dirs :: a directory with a set of files that are used
+  to reproduce development environments the full structure will be
+  discussed separately. There can be any number of these but they
+  shouldn't start with a double-underscore '__' which is used for
+  temporary utility environments.
+- ~requirements.in~ :: An optional high-level specification of install
+  dependencies readable from other projects for simultaneous
+  development. Should be the same as ~setup.py~ install dependencies.
+
+
+The biggest concern for developers is writing env specs in the ~envs~
+dir. These add a few features a simple
+~requirements.in/requirements.txt~ file can't solve alone. Here is the
+full listing of possible files that can be authored by the developer
+in this directory:
+
+- ~requirements.in~ :: (required) abstract specification of packages 
+- ~self.requirements.txt~ :: (required) how to install packages actively
+  being worked on
+- ~dev.requirements.list~ :: A list of paths to other
+  ~requirements.in~ files that will be included in dependency
+  compilation with this env.
+- ~pyversion.txt~ :: the python version specified (if supported)
+
+This also supports the use of ~conda~ for managing environments,
+although this isn't recommended for python packages which are not
+intended to be distributed via ~conda~. This is however, useful for
+projects like the ~analytics-cookiecutter~ project which won't
+actually be distributed to others as general purpose. For this you
+need only add another file for the abstract conda dependencies:
+
+- ~env.yaml~ (required for conda managed envs) an abstract
+  specification for dependencies. Compiled to ~env.pinned.yaml~
+
+All the other files are still valid for conda environments still.
+
+
+***** requirements.in
+
+The basic part of this spec is the ~requirements.in~ and
+~self.requirements.txt~ files. 
+
+The ~requirements.in~ file is as described in the ~pip-tools~
+documentation (i.e. ~pip-compile requirements.in~).
+
+Running ~inv env.deps-pin~ will compile this file to a
+~requirements.txt~ file, which can then be used to create an
+environment via ~inv env~ (i.e. ~pip install -r requirements.txt~).
+
+It should look something like this:
+
+#+begin_src pyreq
+  requests
+  networkx >= 2
+#+end_src
+
+There should be no entries like ~-e .~ for installing the package or
+any local file paths. This should be portable between machines and
+developers.
+
+***** self.requirements.txt
+The ~self.requirements.txt~ file instead is where these kinds of
+specifications should be.
+
+At its simplest it may look like this:
+
+#+begin_src pyreq
+  -e .
+#+end_src
+
+Which means just to install the package of this current repo.
+
+However, it is often that you are working on multiple separate
+projects at once in different version control repos and want to
+develop simultaneously without either releasing them every time you
+want to make changes or even push them to a git repo. You can then
+write a ~self.requirements.txt~ file that looks like this:
+
+#+begin_src pyreq
+  -e .
+
+  -e ../other_project
+  -e $HOME/dev/util_project
+#+end_src
+
+***** dev.requirements.list
+
+During simultaneous development however, the dependencies of these
+other repos won't be included in the compilation of the
+~requirements.txt~ file.
+
+Your options are to:
+
+1. manually transcribe their dependencies into the env's
+   ~requirements.in~ file (not recommended)
+2. write top-level ~requirements.in~ files for each project and
+   include paths to these files in the
+   ~envs/env_name/dev.requirements.list~ file.
+
+The tooling here provides support for the second one. For this you
+must write a ~list~ text file (see
+[[https://github.com/salotz/rfcs/blob/master/rfcs/salotz.016_trivial-plaintext-formats.org#a-list-file][rfc:salotz/016_trivial-plaintext-formats]] for a discussion of the
+format), where each line should be a path to a ~requirements.in~ file,
+e.g.:
+
+#+begin_src trivial-list
+  ../other_project/requirements.in
+  $HOME/dev/util_project/requirements.in
+#+end_src
+
+This will include each of these files in the dependency compilation
+step.  Note that the ~requirements.in~ can come from any location and
+is not a specification other projects /must/ support.
+
+
+***** pyversion.txt
+
+This file should only contain the text that specifies the version of
+python to use that is understood by the env method (e.g. ~conda~).
+
+E.g.:
+
+#+begin_src fundamental
+3.7.6
+#+end_src
+
+Only the ~conda~ method supports this as of now.
+
+For the ~venv~ method it is still encouraged to write this file
+though, as a warning will be generated to remind you.
+
+For managing different python versions we recommend using something
+like ~pyenv~ and we may integrate with this or manually specifiying
+interpreter paths in the future.
+
+*** Documentation and Website
+
+**** Writing Documentation
+
+The primary source of the documentation is in the ~info~ folder and is
+written in Emacs org mode.
+
+Because of the powerful wiki-like capabilities of org mode it can
+serve as a primary source for reading docs. This obviously serves the
+devs more than end user's expecting an HTML website it is a good first
+measure for writing docs.
+
+Org-mode documents can be converted to RestructuredText files for use
+in generators like ~Sphinx~ (for documentation) or ~Nikola~ (for
+static sites) using the ~pandoc~ tool which we expect to be installed.
+
+Furthermore, org-mode & Emacs provides excellent facilities for
+writing foreign source code blocks which allow for literate documents
+which can easily be tangled into code files that can then be tested
+automatically.
+
+The documentation can roughly be broken down into three major parts:
+
+- pages :: Documents the actual project this repo is about. Should
+  always be tested with the same version of the software it is
+  released with. Should not include extra dependencies.
+- examples & tutorials :: Extended documentation of the project,
+  however this may include extra dependencies of the project. These
+  are tested separately from the pages documentation.
+- meta :: General information about the project management
+  itself. Will not be tested and should only contain source code in
+  extremely small doses.
+
+If you write code blocks in your documentation (which is highly
+recommended) you *must* at least write tests which run the code to
+make sure it at least runs.
+
+When you write code blocks you should use this format:
+
+#+begin_src org
+  ,#+begin_src python :tangle ex0.py
+    print("Hello!!!")
+  ,#+end_src
+#+end_src
+
+Notice there is no extra paths to get the tangling right. The tooling
+for running the tests will take care of setting up an environment for
+tangling scripts as the docs shouldn't really be tangled in place in
+the ~info~ tree.
+
+**** Testing Documentation
+
+There is a folder just for tests that target the docs
+~tests/test_docs~. You should be able to run them after tangling:
+
+#+begin_src bash
+  inv docs.tangle
+  inv docs.test
+#+end_src
+
+**** Building Documentation
+
+To compile and build the docs just run:
+
+#+begin_src bash
+inv py.docs-build
+#+end_src
+
+Which will output them to a temporary build directory ~_build/html~.
+
+You can clean this build with:
+
+#+begin_src bash
+inv py.clean-docs
+#+end_src
+
+
+To view how the docs would look as a website you can point your
+browser at the ~_build/html~ folder or run a python http web server
+with this target:
+
+#+begin_src bash
+inv py.docs-serve
+#+end_src
+
+
+**** Building and testing the website
+
+For now we only support deploying the sphinx docs as a website and on
+github pages (via the ~gh-pages~ branch, see [[*Website Admin][Website Admin]]).
+
+So to view your undeployed docs just run:
+
+#+begin_src bash
+inv py.docs-serve
+#+end_src
+
+And open the local URL.
+
+Once you are happy with the result, *you must commit all changes and
+have a clean working tree* then you can push to github pages:
+
+#+begin_src bash
+inv py.website-deploy
+#+end_src
+
+Basically this checks out the ~gh-pages~ branch merges the changes
+from ~master~ builds the docs, commits them (normally these files are
+ignored), and then pushes to github which will render them.
+
+We may also support other common use cases in the future as well like
+Gitlab pages or a web server (via rsync or scp).
+
+We also will support a more traditional static site generator workflow
+instead of relying in addition to the sphinx docs.
+
+
+***** TODO COMMENT Non-sphinx docs web page
+
+The website is still a work in progress and is located in the ~jekyll~
+folder.
+
+The website uses jekyll and so you must have ~ruby~, ~bundler~, and
+~jekyll~ installed.
+
+On ubuntu and debian:
+
+#+begin_src bash
+sudo apt install -y ruby-full build-essential zlib1g-dev
+#+end_src
+
+And then on whichever distro with ~GEM_HOME~ on your ~PATH~:
+
+#+begin_src bash
+gem install jekyll bundler
+#+end_src
+
+
+Then you just need to run this command:
+
+#+begin_src bash
+inv website-deploy-local
+#+end_src
+
+
+**** Deploying the website
+
+We are using github pages. To avoid having to keep the entire built
+website in the main tree we use the alternate ~gh-pages~ branch. To
+make this process easy to deploy we have a script ~sphinx/deploy.sh~
+that checks the ~gh-pages~ branch out, does some necessary cleaning
+up, and copies the built website to the necesary folder (which is the
+toplevel), commits the changes and pushes to github, and then returns
+to your working branch.
+
+The invoke target is:
+
+#+begin_src bash
+inv website-deploy
+#+end_src
+
+*** Testing
+
+*** Code Quality Metrics
+
+Just run the end target:
+
+#+begin_src bash
+inv quality
+#+end_src
+
+This will write files to ~metrics~.
+
+*** Releases
+
+**** Choosing a version number
+
+***** Primordial Epoch
+
+In the pre-covenant releases (think "1.0" release) we just release
+based on the date. So just make the date string and add any release
+candidate, dev, or postrelease additions.
+
+***** Covenental Epoch
+
+After the primordial epoch we have a more semantic meaning behind
+version numbers.
+
+Following PEP 440 epochs these should all be prefixed by '1!' for the
+second epoch.
+
+Otherwise versions should be "canonical" strings following the
+guidelines in PEP 440.
+
+That means we support roughly:
+
+- semver-ish major, minor, and patch parts
+- release candidates
+- dev
+- post release "patches"
+
+However, we don't prescribe explicit semantics to any of the parts as
+this is highly variable depending on the needs of a project and the
+forums by which it is published (e.g. PyPI, Github, etc.).
+
+
+**** Writing and/or Generating the Changelog and Announcement
+**** Changing the version number
+
+You can check the current version number with this command:
+
+#+begin_src bash
+inv py.version-which
+#+end_src
+
+Increase the version number we currently do it by hand (although an
+automatic way would be nice and ~bumpversion~ wasn't working for
+us). So go in and manually edit them. For reference see PEP 440 for
+valid ones.
+
+The target locations for changing versions are in the following files:
+
+- [ ] ~setup.py~
+- [ ] ~src/{{ cookiecutter.project_slug }}/__init__.py~
+- [ ] ~tasks/config.py~
+- [ ] ~sphinx/conf.py~
+- [ ] ~conda/conda-forge/meta.yaml~ (optional)
+
+# IDEA: would like to have this done automatically with some
+# replacement but I need a robust way to do this. Preferrably not
+# using regexs, and still with some interactive intervention and
+# confirmation of correctness
+
+**** Making the release official
+
+To make a release do some changes and make sure they are fully tested
+and functional and commit them in version control. At this point you
+will also want to do any rebasing or cleaning up the actual commits if
+this wasn't already done in the feature branch.
+
+If this is a 'dev' release and you just want to run a version control
+tag triggered CI pipeline go ahead and change the version numbers and
+commit. Then tag the 'dev' release.
+
+If you intend to make a non-dev release you will first want to test it
+out a little bit with a release-candidate prerelease.
+
+So do all the following bookeeping steps in a single but separate git
+commit from the actual changes to the code:
+
+- [ ] write the changelog
+- [ ] write the announcement (optional)
+- [ ] change the version numbers
+- [ ] build to test it out ~inv build~
+
+To test a build go ahead and run:
+
+#+begin_src bash
+inv py.build
+#+end_src
+
+# TODO: add a test builds target
+
+And then try to install it from an empty environment:
+
+#+begin_src bash
+inv env -n test_install
+#+end_src
+
+Activate the environment e.g.:
+
+#+begin_src bash
+source _venv/test_install/bin/activate
+#+end_src
+
+or
+
+#+begin_src bash
+conda activate _conda_envs/test_install
+#+end_src
+
+then run it for each build, e.g.:
+
+#+begin_src bash
+pip install dist/BUILD.tar.gz
+#+end_src
+
+They should all succeed.
+
+
+When you change the version number put a 'rc0' at the end of
+the new intended (semantic) number.
+
+Once you have built it and nothing is wrong go ahead and publish it to
+the test indexes (if available):
+
+#+begin_src bash
+inv py.publish-test
+#+end_src
+
+You can test that it works from the index using the same
+~test_install~ environment above.
+
+And install the package from the test repo with no dependencies:
+
+#+begin_src bash
+pip install --index-url https://test.pypi.org/simple/ --no-deps {{cookiecutter.project_name}}-{{cookiecutter.owner_nickname}}
+#+end_src
+
+# QUEST: should this message be the release message we want for the VCS
+# repos to show or should we just point them to the changelog?
+
+Then go ahead and commit the changes after that works. The message
+should follow a fixed form like 
+
+#+begin_src fundamental
+1.0.0rc0 release preparation
+#+end_src
+
+Then you can tag the release in the ~git~ commit history:
+
+#+begin_src bash
+inv git.release
+#+end_src
+
+Publishing the results will vary but you can start with publishing the
+package to PyPI and the VCS hosts with the real publish target:
+
+#+begin_src bash
+inv git.publish
+inv py.publish
+#+end_src
+
+
+** COMMENT Misc. Tasks
+
+*** COMMENT Updating from upstream cookiecutter
+
+# STUB: DOESN'T work although I want something like this to work
+
+While ~jubeo~ handles updating tooling targets from predefined
+upstream repos it doesn't cover the many other kinds of assets in a
+project.
+
+Lots of these don't really need to change (unless you intentionally do
+for whatever reason) and we have tried to have sane initial
+configuration throughout and isolate the areas that you might actually
+want to write content to. We don't provide an extensive documentation
+of these points but you may discover you do want to "pull" something
+from the upstream cookiecutter.
+
+The way to do this is to use the /ad hoc/ [[https://github.com/mattrobenolt/jinja2-cli][jinja2-cli]] tool, which is
+not installed as part of the tooling.
+
+Just choose the target file from the cookiecutter and run this to fill
+in the template:
+
+
+
+** Initializing this repository
+
+These are tasks that should only be done once at the inception of the
+project but are described for posterity and completeness.
+
+*** Version Control
+
+First we need to initialize the version control system (~git~):
+
+#+begin_src bash
+inv git.init
+#+end_src
+
+If you want to go ahead and add the remote repositories for this
+project. We don't manage this explicitly since ~git~ is treated mostly
+as first class for these kinds of tasks and is better left to special
+purpose tools which are well integrated and developed.
+
+*** Python Packaging
+
+There is a target to initialize python specific packaging things. This
+is because some tools (like ~versioneer~) need to be generated after
+project instantiation.
+
+Make sure you have a clean tree so you can see the changes then:
+
+#+begin_src bash
+inv py.init
+#+end_src
+
+then inspect and commit.
+
+*** Compiling Dependencies
+
+Then add any extra dependencies you want to the development
+environment [[file:../envs/dev/requirements.in][requirements.in]] file and then compile and pin them:
+
+#+begin_src bash
+inv env.deps-pin -n dev env.deps-pin -n test_install
+#+end_src
+
+Then commit this.
+
+*** Creating Environments
+
+Then just create the virtual environment. For portability we use the
+builin ~venv~ package, but this is customizable.
+
+#+begin_src bash
+inv env
+#+end_src
+
+Then you can activate it with the instructions printed to the screen.
+
+*** Website Admin
+
+We use Github Pages by default since it is pretty easy. Because we
+don't want to clutter up the master branch with website build
+artifacts we use the ~gh-pages~ branch approach.
+
+If you just run the ~inv py.website-deploy~ target this will idempotently
+take care of setting this up for you.
+
+However, you will need to create it and push it before you can set
+this in the github settings for the page.
+
+
+* COMMENT Development
 
 ** Getting Set Up
 
@@ -403,330 +1180,4 @@ using the github web interface. If Zenodo is linked to your github
 repo it will automatically recognize it and create the DOI for it.
 
 
-* Architecture
 
-** Record Groups
-
-The protocol by which non-trajectory data is given by the resampler
-and boundary conditions (BC) is unified that makes it simpler to save in
-formats like HDF5.
-
-The resampler and BC both have multiple record groups:
-- resampler
-  - resampling
-  - resampler
-- BC
-  - warping
-  - progress
-  - boundary conditions
-
-A record group can be thought of as a single table in a relational
-database. Each record group corresponds to a class of events that
-occur and each record in a record group corresponds to one event.
-
-Record groups can be *continual* or *sporadic*.
-
-A continual record is recorded once per cycle. A continual record
-reports on the event of a cycle.
-
-A sporadic record can be reported 0 or many times per cycle and
-responds to the event determined by the record group.
-
-- continual
-  - progress
-- sporadic
-  - resampler
-  - resampling
-  - warping
-  - boundary conditions
-
-As you can see currently most records are sporadic. This distinction
-is really only used internally within the ~WepyHDF5~ class to
-distinguish how it stores them, but this distinction is useful in data
-analysis as well.
-
-**** Resampling Records
-The ='resampling'= records are probably the most important records for
-~wepy~ because they are what records the cloning and merging of
-walkers.
-
-Without the ='resampling'= your ~wepy~ simulation would have been wasted
-since you no longer will know the history of any given frame. You will
-just have a bag full of unconnected pictures.
-
-Records for ='resampling'= happen for each "assignment" event of a
-walker during resampling, this minimally should contain two fields:
-='decision_id'= and ='target_idxs'=.
-
-The ='decision_id'= is an integer corresponding to an enumeration of the
-possible decisions that can be made as to the fate of the walker
-during resampling. While technically these decisions are also modular
-it is likely that 99.9% of all users will use the ~CloneMergeDecision~.
-
-Detailed knowledge of this formalism is not usually needed in the
-practice of writing resamplers that behave well, which is another
-topic, and the next few paragraphs can be safely skipped.
-
-The enumerated decisions in this are:
-
-| =NOTHING=    | 1 |
-| =CLONE=      | 2 |
-| =SQUASH=     | 3 |
-| =KEEP_MERGE= | 4 |
-
-
-The =NOTHING= decision means don't clone or merge this walker.
-
-=CLONE= means clone this walker.
-
-=SQUASH= and =KEEP_MERGE= are related in that both involve merging.
-
-A single merge includes a set of walkers that will be merged together,
-there must be at least 2 such walkers in this "merge group".
-
-From the merge group only a single /state/ will be preserved in the
-single resulting walker, while the weight of the final walker will be
-the sum of all those walkers.
-
-The state of the final walker will be drawn from the set of walkers in
-the merge group based on the behavior of the resampler (usually a
-choice weighted by their weights), but will always be identical to one
-of the walkers. The walker with the chosen state is the =KEEP_MERGE=
-walker. The rest are the =SQUASH= walkers.
-
-The second field, ='target_idxs'=, actually determines which walkers
-will be merged with what other walkers, and is a tuple of integers
-indicating the location, or slot.
-
-A 'slot' is simply an available position in the lineup of walkers that
-will be simulated in a single cycle of WE. The number of slots is the
-number of walkers that will be simulated in the next cycle.
-
-As an aside: In general the number of walkers used in a WE simulation
-is not specified (other than there needs to be more than 1). You can
-have a constant number of walkers, or a dynamic one with the number
-fluctuating during the simulation.
-
-If you have too small a number of walkers then you will have a
-relatively sparse coverage of the sample space.
-
-If you have too many the cycle throughput will be very slow.
-
-Additionally, simulations run with GPUs will want to have a number of
-walkers each cycle that is a multiple of the number of GPUs or a
-number of the GPUs will be lying idle when the task queue of running
-walker runner segments is depleted.
-
-So typically there is some constraint on the the number of slots
-available in the next WE cycle. The constraint is decided on and
-enforced by the resampler. So if there is a mismatch in the resampling
-records and the walkers produced the ~wepy~ simulation manager will
-not complain.
-
-WARNING: Currently the ~WepyHDF5~ storage backend and reporter do not
-support dynamic numbers of simulations. While technically the
-none of the other code has any problem with this.
-
-The ='target_idxs'= value for =NOTHING= and =KEEP_MERGE= is a 1-tuple of
-the integer index of slot where the resultant walker will be placed.
-
-The ='target_idxs'= for =CLONE= is an n-tuple of integer indices of
-slots where n is the number of children of the clone and n must be at
-least 2 (or it would've been a =NOTHING=).
-
-The ='target_idxs'= of =SQUASH= is also a 1-tuple like =NOTHING= except
-since a =SQUASH= has no child it indicates the =KEEP_MERGE= walker
-that it's weight is added to. Note that this slot index is the slot
-index that the =KEEP_MERGE= record itself specifies and not the slot
-the =KEEP_MERGE= walker previously occupied (as that index is of no
-consequence to the current collection of walkers).
-
-Thus a =KEEP_MERGE= walker defines a single merge group, and the
-members of that merge group are given by which =SQUASH= targets.
-
-
-Critically, the ='step_idx'= and ='walker_idx'= (slot index of walker in
-last cycle) fields should also be supplied so that the lineage
-histories can be generated.
-
-In addition to the Decision class record fields any other amount of
-data can be attached to these records to report on a resampling event.
-
-For example in the WExplore resampler the region the walker was
-assigned to is also given.
-
-
-**** Warping Records
-
-The next most important record is the warping records.
-
-These are of course only relevant if you are using boundary
-conditions, but among the three BC these are the principal object.
-
-Warping records determine the action that was taken on a walker after
-it met the criteria for a boundary condition event.
-
-Minimally it should specify the ='walker_idx'= that was acted on, and if
-any warping event can be discontinuous the 'weight' of it so this can
-be accounted for in analysis.
-
-The rest of the specification for boundary conditions does not have a
-protocol similar to the one for cloning and merging records and is
-left up to the developer of the class to decide.
-
-For simple boundary conditions where there is only one result an
-additional field is not even necesary.
-
-The colored trajectories examples provides a possible example. In this
-case you could have a field called ='color'= which is the new "color" of
-the walker which indicates the last boundary it crossed and could be a
-string or an integer enumeration.
-
-**** Boundary Condition Records
-
-This and all the other record groups are really optional.
-
-A single boundary condition record reports on the event of a change in
-the state of the boundary condition object.
-
-For example if the cutoff value for a ligand unbinding boundary
-condition changes during a simulation.
-
-**** Resampler Records
-
-These records report on events changing of the state of the resampler.
-
-For example in WExplore a single record is generated every time a new
-region/image is defined giving details on the values that triggered
-this event as well as the image that was created.
-
-This interpretation is semantically useful but in practice this
-reporter could also report on collective attributes of the walkers,
-such as all-to-all distances or histograms of the current batch of
-walkers.
-
-Its up to the writer of the resampler to decide.
-
-**** Progress Records
-
-Progress records are provided mainly as a convenience to get on-line
-data analysis of walkers during a simulation.
-
-For instance in ligand unbinding the progress may be the distance to
-the cutoff, or RMSD to the original state.
-
-While the active observer may note that these calculations may also
-have been implemented in a reporter as well.
-
-There are a few tradeoffs for that approach though.
-
-One, the value may have already been calculated in the process of
-evaluating walkers for warping and double calculation is potentially
-unacceptably wasteful (although one might imagine complex systems
-where reporters perform their actions asynchronously to the flow of
-the simulation manager moving onto new cycles).
-
-Second, the flow of data will be forked. For example when using the
-~WepyHDF5Reporter~ all the data it will report on is assumed to be
-contained in records returned by the runner, resampler, and boundary
-conditions and can't know of another reporter. Nor is it easy nor wise
-to have two reporters acting on the same database.
-
-Perhaps such analysis could be implemented as analysis submodules in
-the ~WepyHDF5Reporter~ to keep a single stream of data, if you think
-that way go ahead and make a pull request.
-
-*** Specifying Record Group Fields
-
-Each record group should have three class constants defined for it.
-
-This is strictly not necessary from the perspective of either the
-simulation manager or the primary consumer of these records, the
-~WepyHDF5Reporter~, but is a very good practice as it will help catch
-bugs and will clarify the results your BC or resampler will produce
-for those inspecting them.
-
-The three definitions are:
-- field names
-- shapes
-- dtypes
-
-
-Each should be defined as a class constant prefixed by the name of the
-record group followed by the definition type, for example the
-resampling record group of WExplore looks like this:
-
-#+BEGIN_SRC python
-    DECISION = MultiCloneMergeDecision
-    RESAMPLING_FIELDS = DECISION.FIELDS + ('step_idx', 'walker_idx', 'region_assignment',)
-    RESAMPLING_SHAPES = DECISION.SHAPES + ((1,), (1,), Ellipsis,)
-    RESAMPLING_DTYPES = DECISION.DTYPES + (np.int, np.int, np.int,)
-#+END_SRC
-
-For the "fields" this is the name of the field and should be a
-string. In the example we are using fields defined from the
-~MultiCloneMergeDecision~ class.
-
-The shapes are the expected shapes of a single element of the
-field. Three types of values are accepted here:
-
-A. A tuple of ints that specify the shape of the field element
-   array.
-
-B. Ellipsis, indicating that the field is variable length and
-   limited to being a rank one array (e.g. =(3,)= or =(1,)=).
-
-C. None, indicating that the first instance of this field will not
-   be known until runtime. Any field that is returned by a record
-   producing method will automatically interpreted as None if not
-   specified here.
-
-Note that the shapes must be tuple and not simple integers for rank-1
-arrays.
-
-It is suggested that if possible use option A. Option B will use a
-special datatype in HDF5 for variable length datasets that can only be
-1 dimensional, in addition to being much less efficient to store.
-
-Option C is not advisable but is there because I know people will be
-lazy and not want to define all these things. By defining things ahead
-of time you will reduce errors by catching differences in what you
-expect a field to look like and what you actually receive at runtime.
-
-If you are actually saving the wrong thing and don't specify the shape
-and dtype then you may run weeks of simulations and never realize you
-never saved the right thing there.
-
-
-The dtypes have similar options but there is no Ellipsis option.
-
-Each non-None dtype should be a numpy dtype object. This is necessary
-for serializing the datatype to the HDF5 (using the
-~numpy.dtype.descr~ attribute).
-
-*** Record Fields
-
-One additional class constant can be defined to make analysis in the
-future easier.
-
-When accessing records from a ~WepyHDF5~ object you can automatically
-generate ~pandas.DataFrames~ from the records, which will select from
-a subset of the fields for a record group. This is because large
-arrays don't fit well into tables!
-
-So you can define a subset of fields to be used as a nice "table"
-report that could be serialized to CSV. For instance in WExplore's
-resampler record group we leave out the multidimensional ='image'=
-field:
-
-#+BEGIN_SRC python
-    RESAMPLER_FIELDS = ('branching_level', 'distance', 'new_leaf_id', 'image')
-    RESAMPLER_SHAPES = ((1,), (1,), Ellipsis, Ellipsis)
-    RESAMPLER_DTYPES = (np.int, np.float, np.int, None)
-
-    # fields that can be used for a table like representation
-    RESAMPLER_RECORD_FIELDS = ('branching_level', 'distance', 'new_leaf_id')
-#+END_SRC
-
-
-Again, its not necessary, but its there to use.

@@ -1,6 +1,159 @@
 * User's Guide
 
-#+RST: .. TODO add abbreviation roles
+** Running Examples & Tutorials
+
+*** Organization & Conventions
+
+Examples are organized in the subdirectories in this folder. To allow
+for effective testing of the examples they follow a specific
+structure. If any example does not follow the rules in this document
+it can (and should if you are willing) be filed as a bug against this
+repository.
+
+Each one has a ~README.org~ document which gives some explanation on
+the example and some tips on executing it. This should explain the
+inputs, outputs, and any arguments, but not the "calling convention"
+of them.
+
+All scripts are expected to be run from the example directory,
+e.g. for and example called ~myexample~ you would run a script called
+~example.py~ like:
+
+#+begin_src bash
+cd info/examples/myexample
+python ./source/myexample.py
+#+end_src
+
+All have a similar structure with these directories before execution:
+
+- ~source~ :: Where the source code files are that will run the examples.
+- ~input~ :: Any additional input files that will be loaded by the
+  source script files.
+- ~env~ :: A specification of the virtual environment that the
+  examples are to be run.
+
+Each example will also have a ~tasks.py~ file which gives some useful
+helper commands (i.e. scripts) that can be run by installing the
+python package ~invoke~:
+
+#+begin_src bash
+  pip install invoke
+#+end_src
+
+Once its installed you can see the available commands which we call
+"targets":
+
+#+begin_src bash
+  inv -l
+#+end_src
+
+You can run some initialization by running:
+
+#+begin_src bash
+  inv init
+#+end_src
+
+*** Tangling Literate Examples
+
+In addition to the ~source~ directory if the ~README.org~ has any
+source code in it this should be able to be "tangled" out of it into
+source code files which are executable. These should end up in the
+~_tangle_source~ folder. These examples are called "literate" because
+the explanation of them is in the document alongside the code.
+
+There should only be one copy of source code so that there is never
+any discrepencies between them. That is there is never the same script
+(or snippets of a script) in both the ~README.org~ and in the ~source~
+directory.
+
+You can "tangle" the source code by running:
+
+#+begin_src bash
+inv tangle
+#+end_src
+
+This expects a local, fairly modern installation of ~emacs~ to be
+present. Although hopefully this restriction will be removed in the
+future.
+
+Then run them just like the ~source~ scripts.
+
+#+begin_src bash
+../_tangle_source/script.py
+#+end_src
+
+*** Making Environments for Running Examples
+
+Examples and tutorials have a bad reputation for quickly going out of
+date. While we can't control whether the content of an example is
+relevant or not, we should make them easy to execute far into the
+future.
+
+To do this we have provided a folder with all of the necessary
+specifications for running the examples which are pinned to the exact
+version numbers as when they were tested. If you can get these
+versions of the software then the example should run.
+
+The easiest way to build an environment is to just run this if you
+cloned the entire repository:
+
+#+begin_src bash
+  inv env
+#+end_src
+
+Environments can be made either with ~conda~ or regular old ~venv~. We
+prefer ~venv~ but sometimes ~conda~ is used because of particularly
+complex dependencies.
+
+The ~pyversion.txt~ indicates which version of python the example
+should be run with. To get different versions of python we recommend
+either ~conda~ or ~pyenv~.
+
+The pinned specifications should be in the ~requirements.txt~ and
+~env.pinned.yaml~ files for ~pip~ and ~conda~ packages
+respectively. If you would like to install dependencies manually read
+the documentation for these tools on how to read these files.
+
+The abstract requirements (from which the pinned specs are compiled)
+are in ~requirements.in~ and ~env.yaml~ which you can also try if you
+want to get the newest versions of the software. Although we don't
+guarantee the example will work then.
+
+
+
+*** Executing Examples
+
+After you have created the virtual environment and tangled any source
+files if necessary you should be able to run the example.
+
+As described above you should run scripts from the example dir and not
+from the ~source~ (or ~_tangle_source~) dirs since paths are typically
+hardcoded for convenience.
+
+I.e. run scripts like:
+
+#+begin_src bash
+  python source/script.py
+  python _tangle_source/script.py
+  ./source/script.sh
+#+end_src
+
+Also hardcoded is where any file outputs go which should always be the
+~_output~ directory.
+
+*** Cleaning Up
+
+You can run the targets:
+
+#+begin_src bash
+  inv clean clean_env
+#+end_src
+
+Or just know that any directory starting with an underscore '_' is
+temporary and may be safely removed.
+
+
+
 
 ** How to approach learning and using wepy
 
