@@ -16,6 +16,8 @@ from setuptools import setup, find_packages
 
 import itertools as it
 
+import versioneer
+
 # setuptools only specifies abstract requirements. For the concrete
 # requirements i.e. index or repo URL see requirements.txt
 base_requirements = [
@@ -47,7 +49,7 @@ all_requirements = it.chain.from_iterable([
 
 setup(
     name='wepy',
-    version='1.0.0rc1.dev0',
+    version=versioneer.get_version(),
     author="Samuel D. Lotz",
     author_email="samuel.lotz@salotz.info",
     description="Weighted Ensemble Framework",
@@ -62,6 +64,8 @@ setup(
     # building/dev
     setup_requires=['pytest-runner'],
     tests_require=['pytest', 'tox'],
+
+    cmdclass=versioneer.get_cmdclass(),
 
     # package
     packages=find_packages(where='src'),

@@ -17,3 +17,5 @@ recursive-include sphinx build.sh *.rst conf.py Makefile make.bat *.jpg *.png *.
 global-exclude *.py[co] __pycache__ *.so
 
 
+include versioneer.py
+include src/wepy/_version.py
