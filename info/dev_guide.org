@@ -399,6 +399,104 @@ for running the tests will take care of setting up an environment for
 tangling scripts as the docs shouldn't really be tangled in place in
 the ~info~ tree.
 
+**** Writing Examples & Tutorials
+
+For our purposes as devs examples and tutorials are almost the same in
+structure. The distinction is mostly for end users that have different
+expecations from examples over tutorials.
+
+Examples should be provide less explanation whereas tutorials are
+likely to be long form prose documents with literate coding and may
+even provide media like graphs and pictures.
+
+Examples can also be literate but they are restricted to formats like
+org mode, whereas the tutorials may also be in formats like Jupyter,
+which integrate well with Sphinx docs.
+
+To write examples and tutorials that play nice with testing and the
+basic rules of the examples (described in the [[./users_guide.org][users_guide]]) there are
+some templates available in the ~templates~ directory for ~templates/examples~,
+~templates/tutorials~, and environment specs ~templates/envs~.
+
+You can either just copy these templates over or use the targets:
+
+#+begin_src bash
+  inv docs.new-example --name='myexample' --template='org'
+  cp -r -u templates/envs/conda_blank info/examples/myexample/env
+  inv docs.new-tutorial  --name='mytutorial --template=jupyter'
+  cp -r -u templates/envs/conda_blank info/examples/mytutorial/env
+#+end_src
+
+After you have your directory set up there are some things to keep in
+mind while you are constructing your tutorial.
+
+First, write source either in the literate document (~README.org~) or
+in the source file. Not both, unless you intend to test both
+separately. For tutorials you should prefer to write them directly in
+the literate doc, but particularly long and uninteresting pieces of
+code can be put into the source.
+
+As you write the code pay attention to your dependencies and virtual
+environment. If you add new dependencies, add them to the
+~requirements.in~ or ~env.yaml~ file and compile:
+
+#+begin_src bash
+cd $PROJECT_DIR
+inv docs.pin-example -n 'myexample'
+#+end_src
+
+You can then make the env 2 ways (the latter is intended to be run by
+users who don't want to be overwhelmed by all the dev options):
+
+#+begin_src bash
+cd $PROJECT_DIR
+inv docs.env-example -n 'myexample'
+#+end_src
+
+or
+
+#+begin_src bash
+inv env
+#+end_src
+
+
+When writing examples and tutorials you should manually write the
+tangle targets to be the ~_tangle_source~ folder:
+
+#+begin_src org
+  Here is some code I am explaining that you will run:
+
+  ,#+begin_src python :tangle _tangle_source/tutorial.py
+    print("Hello!")
+  ,#+end_src
+#+end_src
+
+As stated in the user's guide if you don't follow this rule (or any
+others) then *it is wrong* and an issue should be filed.
+
+
+When using input files, please copy them to the ~input~ dir and
+reference them relative to the example dir. So that when you execute a
+script:
+
+#+begin_src bash
+  python source/script.py
+#+end_src
+
+The code for reading a file would look like:
+
+#+begin_src python
+  with open("input/data.csv", 'r') as rf:
+      table = rf.read()
+#+end_src
+
+and not:
+
+#+begin_src python
+  with open("../data.csv", 'r') as rf:
+      table = rf.read()
+#+end_src
+
 **** Testing Documentation
 
 There is a folder just for tests that target the docs
