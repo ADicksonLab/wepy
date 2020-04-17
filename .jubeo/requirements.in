@@ -1,3 +1,7 @@
 jubeo
 invoke
 pip-tools
+versioneer
+coverage
+pytest
+pytest-runner

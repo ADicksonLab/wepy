@@ -7,6 +7,7 @@ from . import clean
 from . import env
 from . import git
 from . import py
+from . import docs
 
 MODULES = [
     core,
@@ -14,4 +15,5 @@ MODULES = [
     env,
     git,
     py,
+    docs,
 ]

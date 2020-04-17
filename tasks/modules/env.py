@@ -11,6 +11,8 @@ from ..config import (
     ENV_METHOD,
     DEFAULT_ENV,
     ENVS_DIR,
+    PYTHON_VERSION_SOURCE,
+    PYTHON_VERSIONS,
 )
 
 ## user config examples
@@ -27,6 +29,19 @@ from ..config import (
 # # directory where env specs are read from
 # ENVS_DIR = 'envs'
 
+# Python version source, this is how we get the different python
+# versions
+
+# PYTHON_VERSION_SOURCE = "pyenv"
+
+# which versions to install
+
+# PYTHON_VERSIONS = (
+#     '3.8.1',
+#     '3.7.6',
+# )
+
+
 ## Constants
 
 # directories the actual environments are stored
@@ -35,6 +50,8 @@ CONDA_ENVS_DIR = "_conda_envs"
 # this will be set to the PYENV_PREFIX with the path to the project
 # dir
 PYENV_DIR = "_pyenv"
+
+
 
 # specified names of env specs files
 SELF_REQUIREMENTS = 'self.requirements.txt'
@@ -486,3 +503,16 @@ def ls(cx):
 @task
 def clean(cx):
     cx.run(f"rm -rf {VENV_DIR}")
+
+
+@task
+def install_pythons(cx):
+    """Install different python versions."""
+
+    assert PYTHON_VERSION_SOURCE == 'pyenv', \
+        "Only pyenv is supported for different python versions"
+
+    with cx.prefix("unset PYENV_VERSION"):
+        for version in PYTHON_VERSIONS:
+            cx.run(f"pyenv install --skip-existing {version}",
+                   warn=True)

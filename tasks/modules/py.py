@@ -2,11 +2,12 @@ from invoke import task
 
 from ..config import (
     VERSION,
-    BENCHMARK_STORAGE_URL,
+    REPORTS_DIR,
     ORG_DOCS_SOURCES,
     RST_DOCS_SOURCES,
     TESTING_PYPIRC,
     PYPIRC,
+    PYENV_CONDA_NAME,
 )
 
 import sys
@@ -17,7 +18,7 @@ from pathlib import Path
 ## User config examples
 
 # SNIPPET:
-# BENCHMARK_STORAGE_URL="./metrics/benchmarks"
+# REPORTS_DIR = "reports"
 # ORG_DOCS_SOURCES = [
 #     'changelog',
 #     'dev_guide',
@@ -37,10 +38,12 @@ from pathlib import Path
 # PYPIRC = "$HOME/.pypirc"
 # TESTING_PYPIRC = "$HOME/.test-pypirc"
 
+# PYENV_CONDA_NAME = 'miniconda3-latest'
+
 ## CONSTANTS
 
 
-BENCHMARK_STORAGE_URI="\"file://{}\"".format(BENCHMARK_STORAGE_URL)
+BENCHMARK_STORAGE_URI="\"file://{REPORTS_DIR}/benchmarks\""
 
 
 def project_slug():
@@ -51,6 +54,15 @@ def project_slug():
         print("You must set the 'PROJECT_SLUG' in conifig.py to use this")
     else:
         return PROJECT_SLUG
+
+@task
+def init(cx):
+
+    # install the versioneer files
+
+    # this always exits in an annoying way so we just warn here.
+    cx.run("versioneer install",
+           warn=True)
 
 @task
 def clean_dist(cx):
@@ -170,7 +182,7 @@ def docs_build(cx):
 @task(pre=[docs_build])
 def docs_serve(cx):
     """Local server for documenation"""
-    cx.run("python -m http.server -d sphinx/_build/html")
+    cx.run("python -m http.server -d sphinx/_build/html 8022")
 
 ### TODO: WIP Website
 
@@ -202,24 +214,39 @@ def website_deploy(cx):
 
 @task
 def tests_benchmarks(cx):
-    cx.run("(cd tests/tests/test_benchmarks && pytest -m 'not interactive')")
+    cx.run("pytest -m 'not interactive' tests/test_benchmarks",
+           warn=True)
 
 @task
-def tests_integration(cx):
-    cx.run(f"(cd tests/tests/test_integration && pytest -m 'not interactive')")
+def tests_integration(cx, tag=None):
+
+    if tag is None:
+        cx.run(f"coverage run -m pytest -m 'not interactive' tests/test_integration",
+               warn=True)
+    else:
+        cx.run(f"coverage run -m pytest --html=reports/pytest/{tag}/integration/report.html -m 'not interactive' tests/test_integration",
+               warn=True)
+
 
 @task
-def tests_unit(cx):
-    cx.run(f"(cd tests/tests/test_unit && pytest -m 'not interactive')")
+def tests_unit(cx, tag=None):
+
+    if tag is None:
+        cx.run(f"coverage run -m pytest -m 'not interactive' tests/test_unit",
+               warn=True)
+    else:
+        cx.run(f"coverage run -m pytest --html=reports/pytest/{tag}/unit/report.html -m 'not interactive' tests/test_unit",
+               warn=True)
+
 
 @task
 def tests_interactive(cx):
     """Run the interactive tests so we can play with things."""
-
-    cx.run("pytest -m 'interactive'")
+    cx.run("pytest -m 'interactive'",
+           warn=True)
 
 @task()
-def tests_all(cx):
+def tests_all(cx, tag=None):
     """Run all the automated tests. No benchmarks.
 
     There are different kinds of nodes that we can run on that
@@ -234,46 +261,72 @@ def tests_all(cx):
 
     """
 
-
-    tests_unit(cx)
-    tests_integration(cx)
+    tests_unit(cx, tag=tag)
+    tests_integration(cx, tag=tag)
 
 @task
-def tests_tox(cx):
+def tests_nox(cx):
 
-    NotImplemented
+    # run with base venv maker
+    with cx.prefix("unset PYENV_VERSION"):
+        cx.run("nox -s test_user")
 
-    TOX_PYTHON_DIR=None
+    # test running with conda
+    with cx.prefix(f"pyenv shell {PYENV_CONDA_NAME}"):
+        cx.run("nox -s test_user_conda")
 
-    cx.run("env PATH=\"{}/bin:$PATH\" tox".format(
-        TOX_PYTHON_DIR))
 
-### Code Quality
+### Code & Test Quality
+
+@task
+def coverage_report(cx):
+    cx.run("coverage report")
+    cx.run("coverage html")
+    cx.run("coverage xml")
+    cx.run("coverage json")
+
+@task
+def coverage_serve(cx):
+    cx.run("python -m http.server -d reports/coverage/html 8020",
+           asynchronous=True)
+
 
 @task
 def lint(cx):
 
-    cx.run("mkdir -p metrics/lint")
+    cx.run(f"mkdir -p {REPORTS_DIR}/lint")
 
-    cx.run("rm -f metrics/lint/flake8.txt")
-    cx.run(f"flake8 --output-file=metrics/lint/flake8.txt src/{project_slug()}")
+    cx.run(f"rm -f {REPORTS_DIR}/lint/flake8.txt")
+    cx.run(f"flake8 --output-file={REPORTS_DIR}/lint/flake8.txt src/{project_slug()}",
+           warn=True)
 
 @task
 def complexity(cx):
     """Analyze the complexity of the project."""
 
-    cx.run("mkdir -p metrics/code_quality")
+    cx.run(f"mkdir -p {REPORTS_DIR}/code_quality")
 
-    cx.run(f"lizard -o metrics/code_quality/lizard.csv src/{project_slug()}")
-    cx.run(f"lizard -o metrics/code_quality/lizard.html src/{project_slug()}")
+    cx.run(f"lizard -o {REPORTS_DIR}/code_quality/lizard.csv src/{project_slug()}",
+           warn=True)
+    cx.run(f"lizard -o {REPORTS_DIR}/code_quality/lizard.html src/{project_slug()}",
+           warn=True)
 
     # SNIPPET: annoyingly opens the browser
 
     # make a cute word cloud of the things used
-    # cx.run("(cd metrics/code_quality; lizard -EWordCount src/project_slug() > /dev/null)")
+    # cx.run(f"(cd {REPORTS_DIR}/code_quality; lizard -EWordCount src/project_slug() > /dev/null)")
 
-@task(pre=[complexity, lint])
+@task
+def complexity_serve(cx):
+    cx.run("python -m http.server -d reports/conde_quality/lizard.html 8021",
+           asynchronous=True)
+
+@task(pre=[coverage_report, complexity, lint])
 def quality(cx):
+    pass
+
+@task(pre=[coverage_serve, complexity_serve])
+def quality_serve(cx):
     pass
 
 
@@ -287,7 +340,7 @@ def profile(cx):
 def benchmark_adhoc(cx):
     """An ad hoc benchmark that will not be saved."""
 
-    cx.run("pytest tests/tests/test_benchmarks")
+    cx.run("pytest tests/test_benchmarks")
 
 @task
 def benchmark_save(cx):
@@ -296,7 +349,7 @@ def benchmark_save(cx):
     run_command = \
 f"""pytest --benchmark-autosave --benchmark-save-data \
           --benchmark-storage={BENCHMARK_STORAGE_URI} \
-          tests/tests/test_benchmarks
+          tests/test_benchmarks
 """
 
     cx.run(run_command)

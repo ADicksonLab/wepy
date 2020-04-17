@@ -18,7 +18,7 @@ bumpversion==0.5.3        # via -r envs/dev/requirements.in
 certifi==2020.4.5.1       # via requests
 cffi==1.14.0              # via bcrypt, cryptography, pynacl
 chardet==3.0.4            # via requests
-click==7.1.1              # via -r ./requirements.in, pip-tools
+click==7.1.1              # via -r ./requirements.in, jubeo, pip-tools
 cloudpickle==1.3.0        # via dask
 coverage==5.1             # via -r envs/dev/requirements.in, pytest-cov
 cryptography==2.9         # via paramiko, secretstorage
@@ -36,10 +36,13 @@ filelock==3.0.12          # via tox, virtualenv
 flake8==3.7.9             # via -r envs/dev/requirements.in
 fsspec==0.7.2             # via dask
 git+https://github.com/ADicksonLab/geomm  # via -r ./requirements.in
+gitdb==4.0.4              # via gitpython
+gitpython==3.1.1          # via jubeo
 gprof2dot==2019.11.30     # via pytest-profiling
 guzzle-sphinx-theme==0.7.11  # via -r envs/dev/requirements.in
 h5py==2.10.0              # via -r ./requirements.in
-idna==2.9                 # via requests
+hyperlink==19.0.0         # via jubeo
+idna==2.9                 # via hyperlink, requests
 imagesize==1.2.0          # via sphinx
 importlib-metadata==1.6.0  # via argcomplete, jsonschema, keyring, pluggy, pytest, tox, twine, virtualenv
 invoke==1.4.1             # via -r envs/dev/requirements.in, fabric
@@ -50,6 +53,7 @@ jedi==0.16.0              # via ipython
 jeepney==0.4.3            # via keyring, secretstorage
 jinja2==2.11.2            # via -r ./requirements.in, nbconvert, nbsphinx, notebook, sphinx
 jsonschema==3.2.0         # via nbformat
+jubeo==0.0.2a0.dev0       # via -r envs/dev/requirements.in
 jupyter-client==6.1.2     # via ipykernel, notebook
 jupyter-core==4.6.3       # via jupyter-client, nbconvert, nbformat, notebook
 keyring==21.2.0           # via twine
@@ -114,6 +118,7 @@ scipy==1.4.1              # via -r ../geomm/requirements.in, -r ./requirements.i
 secretstorage==3.1.2      # via keyring
 send2trash==1.5.0         # via notebook
 six==1.14.0               # via bcrypt, bleach, cryptography, cycler, h5py, jsonschema, packaging, pip-tools, pockets, pynacl, pyrsistent, pytest-profiling, python-dateutil, readme-renderer, sphinxcontrib-napoleon, tox, traitlets, virtualenv
+smmap==3.0.2              # via gitdb
 snowballstemmer==2.0.0    # via sphinx
 sphinx==3.0.1             # via -r envs/dev/requirements.in, guzzle-sphinx-theme, nbsphinx
 sphinxcontrib-applehelp==1.0.2  # via sphinx
@@ -126,7 +131,7 @@ sphinxcontrib-serializinghtml==1.1.4  # via sphinx
 tabulate==0.8.7           # via -r ./requirements.in
 terminado==0.8.3          # via notebook
 testpath==0.4.4           # via nbconvert
-toml==0.10.0              # via tox
+toml==0.10.0              # via jubeo, tox
 toolz==0.10.0             # via dask, partd
 tornado==6.0.4            # via ipykernel, jupyter-client, notebook, terminado
 tox==3.14.6               # via -r envs/dev/requirements.in
