@@ -53,7 +53,7 @@ jedi==0.16.0              # via ipython
 jeepney==0.4.3            # via keyring, secretstorage
 jinja2==2.11.2            # via -r ./requirements.in, nbconvert, nbsphinx, notebook, sphinx
 jsonschema==3.2.0         # via nbformat
-jubeo==0.0.2a0.dev0       # via -r envs/dev/requirements.in
+jubeo==0.0.3a0.dev0       # via -r envs/dev/requirements.in
 jupyter-client==6.1.2     # via ipykernel, notebook
 jupyter-core==4.6.3       # via jupyter-client, nbconvert, nbformat, notebook
 keyring==21.2.0           # via twine
