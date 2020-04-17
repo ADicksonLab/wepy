@@ -32,17 +32,22 @@ notebook
 pytest
 pytest-runner
 argcomplete
-flake8
-tox
+nox
 coverage
-
-# code quality metrics
-lizard
 
 pytest-datadir
 pytest-cov
 pytest-benchmark
 pytest-profiling
+pytest-html
+pytest-print
+delegator.py
+
+
+# code quality metrics
+lizard
+flake8
+
 
 # need this for using multiprocessing logging in the tests
 multiprocessing_logging
