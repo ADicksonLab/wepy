@@ -15,7 +15,7 @@ We will have advice later in the documentation on how to build systems
 and create inputs for wepy, but in general if you can make an OpenMM
 system go you can use wepy, so check out their documentation.
 
-** Test Drive
+*** Test Drive
 
 If you just want to poke ~wepy~ with a stick to see if the dang thing
 works we have the script for you!
@@ -199,6 +199,4 @@ simulations the orchestration sub-module is available for that.
 So ignore the wepy commands like ~wepy run~ for now.
 
 
-** A somewhat more realistic example
-
-
+** COMMENT A somewhat more realistic example

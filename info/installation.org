@@ -2,7 +2,7 @@
 * Installation
 
 
-To install from pip (which may be out of date):
+To install from pip:
 
 #+BEGIN_SRC bash
   pip install wepy[all]

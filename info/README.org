@@ -20,7 +20,7 @@
 ** Project & Developer Information
 
 - [[file:./project_info.org][General]] :: General information about the project itself.
-- [[file:./new.org][News & Updates]] :: Various new items about the project including
+- [[file:./news.org][News & Updates]] :: Various new items about the project including
   release announcements.
 - [[file:./changelog.org][Changelog & History]] :: High-level prose description of changes for
   each version.
