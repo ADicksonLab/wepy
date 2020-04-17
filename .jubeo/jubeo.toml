@@ -22,6 +22,7 @@ modules = [
     'env',
     'git',
     'py',
+    'docs',
 ]
 
 [taskset]
