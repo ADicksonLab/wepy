@@ -96,10 +96,12 @@ def get_current_pyversion():
 ## pip: things that can be controlled by pip
 
 def deps_pip_pin(cx,
-                 name=DEFAULT_ENV,
+                 path=None,
                  upgrade=False):
 
-    path = Path(ENVS_DIR) / name
+    assert path is not None
+
+    path = Path(path)
 
     # gather any development repos that are colocated on this machine
     # and solve the dependencies together
@@ -145,14 +147,16 @@ def deps_pip_pin(cx,
 
 ## conda: managing conda dependencies
 def deps_conda_pin(cx,
-                   name=DEFAULT_ENV,
+                   path=None,
                    upgrade=False,
                    optional=False,
 ):
 
     # STUB: currently upgrade does nothing
 
-    env_spec_path = Path(ENVS_DIR) / name
+    assert path is not None
+
+    env_spec_path = Path(path)
 
     if not optional:
         assert osp.exists(env_spec_path / CONDA_ABSTRACT_REQUIREMENTS), \
@@ -168,7 +172,7 @@ def deps_conda_pin(cx,
 
     # make the environment under a mangled name so we don't screw with
     # the other one
-    mangled_name = f"__mangled_{name}"
+    mangled_name = f"__mangled_tmp_env"
 
     mangled_env_spec_path = Path(ENVS_DIR) / mangled_name
 
@@ -200,7 +204,10 @@ def deps_conda_pin(cx,
 
 
     # then create the mangled env
-    env_dir = conda_env(cx, name=mangled_name)
+    env_dir = conda_env(cx,
+                        spec=mangled_env_spec_path,
+                        path=Path(CONDA_ENVS_DIR) / mangled_name,
+    )
 
     # then install the packages so we can export them
     with cx.prefix(f'eval "$(conda shell.bash hook)" && conda activate {env_dir}'):
@@ -222,49 +229,61 @@ def deps_conda_pin(cx,
     print("--------------------------------------------------------------------------------")
     print(f"This is an automated process do not attempt to activate the '__mangled' environment")
 
-# altogether
 @task
-def deps_pin(cx, name=DEFAULT_ENV):
+def deps_pin_path(cx,
+                  path=None,
+                  upgrade=False):
+    """Pin an environment given by the path."""
 
     deps_pip_pin(cx,
-                 name=name,
+                 path=path,
                  upgrade=False)
 
     if ENV_METHOD == 'conda':
         deps_conda_pin(cx,
-                       name=name,
+                       path=path,
                        upgrade=False,
                        optional=True,)
 
+
+# altogether
+@task
+def deps_pin(cx, name=DEFAULT_ENV):
+    """Pin an environment in the 'envs' directory."""
+
+    path = Path(ENVS_DIR) / name
+
+    deps_pin_path(cx, path=path)
+
+
 @task
 def deps_pin_update(cx, name=DEFAULT_ENV):
+    """Update the pinned environment in the 'envs' directory."""
 
-    deps_pip_pin(cx,
-                    name=name,
-                    upgrade=True,
+    path = Path(ENVS_DIR) / name
+
+    deps_pin_path(cx,
+                  path=path,
+                  upgrade=True,
     )
-
-    if ENV_METHOD == 'conda':
-
-        deps_conda_pin(cx,
-                       name=name,
-                       optional=True,
-                       upgrade=True)
 
 
 ### Environments
 
-def conda_env(cx, name=DEFAULT_ENV):
-
-    # locally scoped since the environment is global to the
-    # anaconda installation
-    env_name = name
+def conda_env(cx,
+              spec=None,
+              path=None,
+):
 
     # where the specs of the environment are
-    env_spec_path = Path(ENVS_DIR) / name
+    env_spec_path = Path(spec)
 
     # using the local envs dir
-    env_dir = Path(CONDA_ENVS_DIR) / name
+    env_dir = Path(path)
+
+    # ensure the directory
+    cx.run(f"mkdir -p {env_dir}")
+
 
     # clean up old envs if they weren't already
     if osp.exists(env_dir):
@@ -329,15 +348,19 @@ def conda_env(cx, name=DEFAULT_ENV):
     return env_dir
 
 
-def venv_env(cx, name=DEFAULT_ENV):
+def venv_env(cx,
+             spec=None,
+             path=None,
+):
 
-    venv_dir_path = Path(VENV_DIR)
-    venv_path = venv_dir_path / name
+    assert spec is not None
+    assert path is not None
 
-    env_spec_path = Path(ENVS_DIR) / name
+    venv_path = Path(path)
+    env_spec_path = Path(spec)
 
     # ensure the directory
-    cx.run(f"mkdir -p {venv_dir_path}")
+    cx.run(f"mkdir -p {venv_path}")
 
     py_version_path = env_spec_path / PYTHON_VERSION_FILE
 
@@ -384,12 +407,18 @@ def venv_env(cx, name=DEFAULT_ENV):
 
     return venv_path
 
-def pyenv_env(cx, name=DEFAULT_ENV):
+def pyenv_env(cx,
+              spec=None,
+              path=None,
+):
+
+    assert spec is not None
+    assert path is not None
 
     # project has its own pyenv root
-    pyenv_local_dir = Path(os.getcwd()) / PYENV_DIR
+    pyenv_local_dir = Path(path)
 
-    env_spec_path = Path(ENVS_DIR) / name
+    env_spec_path = Path(spec)
 
     # ensure the directory
     cx.run(f"mkdir -p {pyenv_local_dir}")
@@ -460,21 +489,60 @@ def pyenv_env(cx, name=DEFAULT_ENV):
 
     return env_path
 
+@task
+def make_env(cx,
+             spec=None,
+             path=None,
+             venv=ENV_METHOD,
+):
+
+    assert spec is not None
+    assert path is not None
+
+    # choose your method:
+    if venv == 'conda':
+        conda_env(cx,
+                  spec=spec,
+                  path=path,
+        )
+
+    elif venv == 'venv':
+        venv_env(cx,
+                  spec=spec,
+                  path=path,
+        )
+
+
+    elif venv == 'pyenv':
+        pyenv_env(cx,
+                  spec=spec,
+                  path=path,
+        )
+
 
 @task(default=True)
 def make(cx, name=DEFAULT_ENV):
 
-    # choose your method:
+    spec_path = Path(ENVS_DIR) / name
+
+    # get the path to your envs based on the method
     if ENV_METHOD == 'conda':
-        conda_env(cx, name=name)
+        env_path = Path(CONDA_ENVS_DIR) / name
 
     elif ENV_METHOD == 'venv':
-        venv_env(cx, name=name)
+        env_path = Path(VENV_DIR) / name
 
     elif ENV_METHOD == 'pyenv':
-        print("using pyenv")
-        pyenv_env(cx, name=name)
+        env_path = Path(PYENV_DIR) / name
 
+    else:
+        raise ValueError(f"Unrecognized venv type: {ENV_METHOD}")
+
+    make_env(cx,
+             spec=spec_path,
+             path=env_path,
+             venv = ENV_METHOD,
+    )
 
 @task
 def ls_conda(cx):

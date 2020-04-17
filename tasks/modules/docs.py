@@ -62,6 +62,8 @@ DOCS_SPEC = {
     # source dir, this folder will be ignored by VCS
     'EXAMPLE_TANGLE_SOURCE' : "_tangle_source",
 
+    # the actual dir the env will be built into
+    'EXAMPLE_ENV' : "_env",
 
     'TUTORIALS_DIR' : "info/tutorials",
     'TUTORIALS_LISTING_INDEX' : "info/tutorials/README.org",
@@ -95,14 +97,19 @@ DOCS_SPEC = {
     # source dir, this folder will be ignored by VCS
     'TUTORIAL_TANGLE_SOURCE' : "_tangle_source",
 
+    # the actual dir the env will be built into
+    'TUTORIAL_ENV' : "_env",
+
 }
 
 # here for reference potentially could be applied with an init function
 GITIGNORE_LINES = [
     "info/examples/*/_output",
     "info/examples/*/_tangle_source",
+    "info/examples/*/_env",
     "info/tutorials/*/_output",
     "info/tutorials/*/_tangle_source",
+    "info/tutorials/*/_env",
 ]
 
 # TODO: add a docs init task that generates all the files and adds to
@@ -426,7 +433,7 @@ def new_tutorial(cx, name=None, template="org"):
     print(f"New tutorial created at: {target_path}")
 
 
-@task()
+@task
 def test(cx, tag=None):
 
     if tag is None:
@@ -436,3 +443,42 @@ def test(cx, tag=None):
     else:
         cx.run(f"pytest --html=reports/pytest/{tag}/docs/report.html tests/test_docs",
                warn=True)
+
+@task
+def pin_example(cx, name=None):
+
+    assert name is not None
+
+    path = Path(DOCS_SPEC['EXAMPLES_DIR']) / name / 'env'
+
+    assert path.exists() and path.is_dir(), \
+        f"Example {name} doesn't exist"
+
+    cx.run(f"inv env.deps-pin-path -p {path}")
+
+@task
+def pin_tutorial(cx, name=None):
+
+    assert name is not None
+
+    path = Path(DOCS_SPEC['TUTORIALS_DIR']) / name / 'env'
+
+    assert path.exists() and path.is_dir(), \
+        f"Tutorial {name} doesn't exist"
+
+    cx.run(f"inv env.deps-pin-path -p {path}")
+
+@task
+def env_example(cx, name=None):
+    """Make a the example env in its local dir."""
+
+    assert name is not None
+
+    spec_path = Path(DOCS_SPEC['EXAMPLES_DIR']) / name / 'env'
+    env_path = Path(DOCS_SPEC['EXAMPLES_DIR']) / name / DOCS_SPEC['EXAMPLE_ENV']
+
+    assert spec_path.exists() and spec_path.is_dir(), \
+        f"Tutorial {name} doesn't exist"
+
+    cx.run(f"inv env.make-env -s {spec_path} -p {env_path}")
+

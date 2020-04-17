@@ -9,6 +9,8 @@
 
 # repo specific
 
+envs/__*
+
 # environments
 _venv
 _conda_envs
@@ -54,8 +56,10 @@ dist
 
 info/examples/*/_output
 info/examples/*/_tangle_source
+info/examples/*/_env
 info/tutorials/*/_output
 info/tutorials/*/_tangle_source
+info/tutorials/*/_env
 
 # testing the docs output
 tests/test_docs/_tangled_docs
