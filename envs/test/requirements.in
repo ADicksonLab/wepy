@@ -1,0 +1,18 @@
+--index-url https://pypi.python.org/simple/
+
+# ALERT: don't include the project itself in this file, do it in the
+# self.requirements.txt file
+
+### This is a test env. Don't pin dependencies of the project. Only
+### pin the things that are needed to run the tests.
+
+pytest
+pytest-runner
+
+# pytest plugins
+git+https://github.com/salotz/pytest-datadir.git
+pytest-print
+pytest-html
+
+# helpers for tests
+delegator.py

@@ -191,43 +191,6 @@ def visit_tutorials():
 
     return tutorial_dirs
 
-# # TODO
-# def visit_tutorials(cwd):
-
-#     tutorials = [tut for tut in os.listdir(cwd / DOCS_SPEC['TUTORIALS_DIR'])
-#                  if (
-#                          tut != Path(DOCS_SPEC['TUTORIALS_LISTING_INDEX']).parts[-1] and
-#                          tut != 'index.rst' and
-#                          tut != '.keep' and
-#                          not tut.endswith("~")
-#                  )
-#     ]
-
-#     for tutorial in tutorials:
-#         tutorial_dir = cwd / DOCS_SPEC['TUTORIALS_DIR'] / tutorial
-#         tutorial_pages = []
-
-#         index_pages = []
-#         for poss_index in DOCS_SPEC['TUTORIAL_INDEX']:
-
-#             if osp.exists(poss_index):
-#                 tutorial_index = tutorial_dir / poss_index
-#                 tutorial_pages.append(tutorial_index)
-
-#         if len(index_pages) > 1:
-#             warn(f"Multiple index pages exist for {tutorial}, choosing {index_pages[0]}")
-
-#         elif len(index_pages) < 1:
-#             warn(f"No tutorial index page for {tutorial}")
-
-#         else:
-#             tutorial_pages.append(index_pages[0])
-
-#         page_paths.extend(tutorial_pages)
-
-
-
-
 def tangle_orgfile(cx, file_path):
     """Tangle the target file using emacs in batch mode. Implicitly dumps
     things relative to the file."""
@@ -434,7 +397,34 @@ def new_tutorial(cx, name=None, template="org"):
 
 
 @task
-def test(cx, tag=None):
+def test_example(cx,
+                 name=None,
+                 tag=None,
+):
+    """Test a specific doc example in the current virtual environment."""
+
+    assert name is not None
+
+    path = Path(DOCS_SPEC['EXAMPLES_DIR']) / name
+
+    assert path.exists() and path.is_dir(), \
+        f"Example {name} doesn't exist"
+
+    # TODO: add support for reports and such
+    print("tag is ignored")
+
+    cx.run(f"pytest tests/test_docs/test_examples/test_{name}.py",
+           warn=True)
+
+@task
+def test_examples(cx):
+
+    examples = ' '.join(visit_examples())
+    cx.run(f"nox -s test_examples -- {examples}")
+
+@task
+def test_pages(cx, tag=None):
+    """Test the doc pages in the current virtual environment."""
 
     if tag is None:
         cx.run("pytest tests/test_docs",

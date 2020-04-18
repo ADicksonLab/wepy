@@ -46,7 +46,6 @@ h5py==2.10.0              # via -r ./requirements.in
 hyperlink==19.0.0         # via jubeo
 idna==2.9                 # via hyperlink, requests
 imagesize==1.2.0          # via sphinx
-importlib-metadata==1.6.0  # via argcomplete, jsonschema, keyring, pluggy, pytest, twine, virtualenv
 invoke==1.4.1             # via -r envs/dev/requirements.in, fabric
 ipykernel==5.2.0          # via notebook
 ipython-genutils==0.2.0   # via nbformat, notebook, traitlets
@@ -106,7 +105,7 @@ pyrepl==0.9.0             # via fancycompleter
 pyrsistent==0.16.0        # via jsonschema
 pytest-benchmark==3.2.3   # via -r envs/dev/requirements.in
 pytest-cov==2.8.1         # via -r envs/dev/requirements.in
-pytest-datadir==1.3.1     # via -r envs/dev/requirements.in
+git+https://github.com/salotz/pytest-datadir.git  # via -r envs/dev/requirements.in
 pytest-html==2.1.1        # via -r envs/dev/requirements.in
 pytest-metadata==1.8.0    # via pytest-html
 pytest-print==0.1.3       # via -r envs/dev/requirements.in
@@ -149,7 +148,6 @@ wcwidth==0.1.9            # via prompt-toolkit, pytest
 webencodings==0.5.1       # via bleach
 wheel==0.34.2             # via -r envs/dev/requirements.in
 wmctrl==0.3               # via pdbpp
-zipp==3.1.0               # via importlib-metadata
 
 # The following packages are considered to be unsafe in a requirements file:
 # pip

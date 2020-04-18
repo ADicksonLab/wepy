@@ -1,5 +1,7 @@
 import nox
 
+from pathlib import Path
+
 @nox.session(
     python=['3.6', '3.7', '3.8', 'pypy3']
 )
@@ -31,10 +33,10 @@ def test_user_conda(session):
     session.run("inv", "py.tests-all", "-t", f"test-user-conda_{session.python}")
 
 @nox.session(
-    python=['3.6', '3.7', '3.8', 'pypy3']
+    python=['3.6', '3.7', '3.8', 'pypy3'],
 )
-def test_docs(session):
-    """Test using basic pip based installation."""
+def test_doc_pages(session):
+    """Test using the env in each example directory."""
 
     session.install("-r", ".jubeo/requirements.txt")
     session.install("-r", "envs/test/requirements.in")
@@ -46,4 +48,50 @@ def test_docs(session):
 
     # session.run("inv", "docs.tangle")
 
-    session.run("inv", "docs.test", "-t", f"test-docs_{session.python}")
+    session.run("inv", "docs.test-pages", "-t", f"test-docs-pages_{session.python}")
+
+
+@nox.session(
+    python=['3.6', '3.7', '3.8', 'pypy3'],
+)
+def test_examples(session):
+    """Test using the env in each example directory."""
+
+    session.install("-r", ".jubeo/requirements.txt")
+
+    assert len(session.posargs) == 1, \
+        "Must provide exactly one example to run"
+
+    example = session.posargs[0]
+
+    # install the test dependencies
+    test_requirements = Path(f"envs/test/requirements.txt")
+
+    assert test_requirements.is_file()
+
+    session.install("-r", str(test_requirements))
+
+    requirements = Path(f"info/examples/{example}/env/requirements.txt")
+
+    if requirements.is_file():
+        session.install("-r", str(requirements))
+
+    conda_env = Path(f"info/examples/{example}/env/env.pinned.yaml")
+
+    if conda_env.is_file():
+
+        session._run(*[
+                'conda',
+                'env',
+                'update',
+                '--prefix',
+                session.virtualenv.location,
+                '--file',
+                str(conda_env),
+                '--prune',
+        ],
+                     silent=True)
+
+    session.run("inv", "docs.test-example",
+                "-n", f"{example}",
+                "-t", f"test-docs_example-{example}_{session.python}")
