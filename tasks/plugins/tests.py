@@ -41,7 +41,7 @@ def integration(cx, tag=None, node='node_minor'):
         f"tests/test_integration",
     ]
 
-    if node is 'minor':
+    if node == 'minor':
         node = ''
 
     options = {

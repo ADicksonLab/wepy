@@ -420,7 +420,8 @@ def test_example(cx,
 def test_examples(cx):
 
     examples = ' '.join(visit_examples())
-    cx.run(f"nox -s test_examples -- {examples}")
+    for example in examples:
+        cx.run(f"nox -s test_example -- {example}")
 
 @task
 def test_pages(cx, tag=None):

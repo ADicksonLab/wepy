@@ -52,17 +52,19 @@ def test_doc_pages(session):
 
 
 @nox.session(
-    python=['3.6', '3.7', '3.8', 'pypy3'],
+    python=['3.6', '3.7', '3.8'],
 )
-def test_examples(session):
+def test_example(session):
     """Test using the env in each example directory."""
 
-    session.install("-r", ".jubeo/requirements.txt")
-
+    # grab the example from the command line
     assert len(session.posargs) == 1, \
         "Must provide exactly one example to run"
 
     example = session.posargs[0]
+
+    # start installing things
+    session.install("-r", ".jubeo/requirements.txt")
 
     # install the test dependencies
     test_requirements = Path(f"envs/test/requirements.txt")
@@ -92,6 +94,10 @@ def test_examples(session):
         ],
                      silent=True)
 
-    session.run("inv", "docs.test-example",
-                "-n", f"{example}",
-                "-t", f"test-docs_example-{example}_{session.python}")
+    session.run(*[
+        "pytest",
+        f"tests/test_docs/test_examples/test_{example}.py",
+    ])
+    # session.run("inv", "docs.test-example",
+    #             "-n", f"{example}",
+    #             "-t", f"test-docs_example-{example}_{session.python}")
