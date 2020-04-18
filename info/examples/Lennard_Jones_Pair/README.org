@@ -2,13 +2,6 @@
 
 Very simple example using a pair of Lennard-Jones particles.
 
-These examples require the package ~openmmtools~ which can be
-installed from anaconda: ~conda install -c omnia openmmtools~
-
-Openmmtools just provides a ready-made system for the lennard jones
-particles.
-
-
 ** Basic run script
 
 To see a basic and full example of wepy in action just run the ~we.py~
@@ -16,7 +9,7 @@ script with some arguments for the number of cycles, number of steps,
 and number of walkers to use:
 
 #+begin_src bash
-python we.py 10 100 10
+python source/we.py 10 100 10
 #+end_src
 
 You should see an ~outputs~ folder appear with the files:

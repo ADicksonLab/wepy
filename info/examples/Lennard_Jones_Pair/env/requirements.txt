@@ -6,22 +6,45 @@
 #
 --index-url https://pypi.python.org/simple/
 
+backcall==0.1.0           # via ipython
 click==7.1.1              # via wepy
 cycler==0.10.0            # via matplotlib
-decorator==4.4.2          # via networkx
+decorator==4.4.2          # via ipython, networkx, traitlets
 dill==0.3.1.1             # via wepy
+fancycompleter==0.9.1     # via pdbpp
 geomm==0.1.7              # via wepy
 h5py==2.10.0              # via wepy
+invoke==1.4.1             # via -r info/examples/Lennard_Jones_Pair/env/requirements.in
+ipython-genutils==0.2.0   # via traitlets
+ipython==7.13.0           # via -r info/examples/Lennard_Jones_Pair/env/requirements.in
+jedi==0.17.0              # via ipython
+jinja2==2.11.2            # via wepy
 kiwisolver==1.2.0         # via matplotlib
+markupsafe==1.1.1         # via jinja2
 matplotlib==3.2.1         # via wepy
-mdtraj==1.9.3             # via wepy
-multiprocessing-logging==0.3.1  # via -r info/examples/Lennard_Jones_Pair/env/requirements.in
-networkx==2.4             # via wepy
-numpy==1.18.2             # via -r info/examples/Lennard_Jones_Pair/env/requirements.in, geomm, h5py, matplotlib, mdtraj, pandas, scipy, wepy
+multiprocessing-logging==0.3.1  # via -r info/examples/Lennard_Jones_Pair/env/requirements.in, wepy
+networkx==2.3             # via wepy
+numpy==1.18.2             # via -r info/examples/Lennard_Jones_Pair/env/requirements.in, geomm, h5py, matplotlib, pandas, scipy, wepy
 pandas==1.0.3             # via wepy
+parso==0.7.0              # via jedi
+pdbpp==0.10.2             # via -r info/examples/Lennard_Jones_Pair/env/requirements.in
+pexpect==4.8.0            # via ipython
+pickleshare==0.7.5        # via ipython
+pint==0.11                # via wepy
+prompt-toolkit==3.0.5     # via ipython
+ptyprocess==0.6.0         # via pexpect
+pygments==2.6.1           # via ipython, pdbpp
 pyparsing==2.4.7          # via matplotlib
+pyrepl==0.9.0             # via fancycompleter
 python-dateutil==2.8.1    # via matplotlib, pandas
 pytz==2019.3              # via pandas
-scipy==1.4.1              # via -r info/examples/Lennard_Jones_Pair/env/requirements.in, geomm, mdtraj, wepy
-six==1.14.0               # via cycler, h5py, python-dateutil
-wepy[all]==0.10.2         # via -r info/examples/Lennard_Jones_Pair/env/requirements.in
+scipy==1.4.1              # via -r info/examples/Lennard_Jones_Pair/env/requirements.in, geomm, wepy
+six==1.14.0               # via cycler, h5py, python-dateutil, traitlets
+tabulate==0.8.7           # via wepy
+traitlets==4.3.3          # via ipython
+wcwidth==0.1.9            # via prompt-toolkit
+wepy[all]==1.0.0rc1.dev0  # via -r info/examples/Lennard_Jones_Pair/env/requirements.in
+wmctrl==0.3               # via pdbpp
+
+# The following packages are considered to be unsafe in a requirements file:
+# setuptools

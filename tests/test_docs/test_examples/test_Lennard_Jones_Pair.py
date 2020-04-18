@@ -18,7 +18,7 @@ def test_lennard_jones_pair(datadir_factory, printer):
 
     example = "Lennard_Jones_Pair"
 
-    datadir = datadir_factory.mkdatadir(f'_examples/{example}')
+    datadir = datadir_factory.mkdatadir(f'../_examples/{example}')
 
     assert (datadir / "README.org").is_file()
     assert (datadir / "input").is_dir()

@@ -1,7 +1,11 @@
 
 --index-url https://pypi.python.org/simple/
 
-wepy[all]
+ipython
+pdbpp
+invoke
+
+wepy[all]==1.0.0rc1.dev0
 
 multiprocessing_logging
 numpy
