@@ -59,7 +59,7 @@ def test_user_conda(session):
     session.run("inv", "py.tests-all", "-t", f"test-user-conda_{session.python}")
 
 @nox.session(
-    python=['3.6', '3.7', '3.8', 'pypy3'],
+    python=['3.6', '3.7', '3.8'],
     venv_backend="conda",
 )
 def test_doc_pages(session):
