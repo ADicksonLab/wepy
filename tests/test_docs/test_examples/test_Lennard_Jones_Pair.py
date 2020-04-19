@@ -25,7 +25,7 @@ def test_lennard_jones_pair(datadir_factory, printer):
     assert (datadir / "source").is_dir()
 
 
-    ##
+    ## trivial_run.py
 
     assert (datadir / "source/trivial_run.py").is_file()
 
@@ -37,7 +37,7 @@ def test_lennard_jones_pair(datadir_factory, printer):
         ])
 
     if not proc.ok:
-        printer("Error for hello.py:")
+        printer("Error for trivial_run.py:")
         printer(proc.err)
 
     assert proc.ok
