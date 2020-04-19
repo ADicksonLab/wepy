@@ -291,7 +291,6 @@ def tangle_examples(cx):
         sh.copytree(
             example_dir,
             examples_test_dir / example,
-            dirs_exist_ok=False,
             ignore=sh.ignore_patterns("_*"),
         )
 
@@ -319,7 +318,6 @@ def tangle_tutorials(cx):
         sh.copytree(
             tutorial_dir,
             tutorials_test_dir / tutorial,
-            dirs_exist_ok=False,
         )
 
 
@@ -417,11 +415,59 @@ def test_example(cx,
            warn=True)
 
 @task
-def test_examples(cx):
+def test_examples_nox(cx,
+                  name=None):
+    """Test either a specific example when 'name' is given or all of them,
+    using the nox test matrix specified in the noxfile.py file for
+    'test_example' session.
 
-    examples = ' '.join(visit_examples())
+    """
+
+    if name is None:
+        examples = ' '.join(visit_examples())
+    else:
+        examples = [name]
+
     for example in examples:
         cx.run(f"nox -s test_example -- {example}")
+
+@task
+def test_tutorial(cx,
+                 name=None,
+                 tag=None,
+):
+    """Test a specific doc tutorial in the current virtual environment."""
+
+    assert name is not None
+
+    path = Path(DOCS_SPEC['TUTORIALS_DIR']) / name
+
+    assert path.exists() and path.is_dir(), \
+        f"Tutorial {name} doesn't exist"
+
+    # TODO: add support for reports and such
+    print("tag is ignored")
+
+    cx.run(f"pytest tests/test_docs/test_tutorials/test_{name}.py",
+           warn=True)
+
+@task
+def test_tutorials_nox(cx,
+                  name=None):
+    """Test either a specific tutorial when 'name' is given or all of them,
+    using the nox test matrix specified in the noxfile.py file for
+    'test_tutorial' session.
+
+    """
+
+    if name is None:
+        tutorials = ' '.join(visit_tutorials())
+    else:
+        tutorials = [name]
+
+    for tutorial in tutorials:
+        cx.run(f"nox -s test_tutorial -- {tutorial}")
+
 
 @task
 def test_pages(cx, tag=None):
@@ -435,41 +481,85 @@ def test_pages(cx, tag=None):
         cx.run(f"pytest --html=reports/pytest/{tag}/docs/report.html tests/test_docs",
                warn=True)
 
+
+@task
+def test_pages_nox(cx, tag=None):
+    """Test the doc pages in the nox test matrix session."""
+
+    cx.run(f"nox -s test_doc_pages")
+
 @task
 def pin_example(cx, name=None):
+    """Pin the deps for an example or all of them if 'name' is None."""
 
-    assert name is not None
+    if name is None:
+        examples = ' '.join(visit_examples())
+    else:
+        examples = [name]
 
-    path = Path(DOCS_SPEC['EXAMPLES_DIR']) / name / 'env'
+    for example in examples:
 
-    assert path.exists() and path.is_dir(), \
-        f"Example {name} doesn't exist"
+        path = Path(DOCS_SPEC['EXAMPLES_DIR']) / example / 'env'
 
-    cx.run(f"inv env.deps-pin-path -p {path}")
+        assert path.exists() and path.is_dir(), \
+            f"Example {name} doesn't exist"
+
+        cx.run(f"inv env.deps-pin-path -p {path}")
 
 @task
 def pin_tutorial(cx, name=None):
 
-    assert name is not None
+    if name is None:
+        tutorials = ' '.join(visit_tutorials())
+    else:
+        tutorials = [name]
 
-    path = Path(DOCS_SPEC['TUTORIALS_DIR']) / name / 'env'
+    for tutorial in tutorials:
 
-    assert path.exists() and path.is_dir(), \
-        f"Tutorial {name} doesn't exist"
+        path = Path(DOCS_SPEC['TUTORIALS_DIR']) / tutorial / 'env'
 
-    cx.run(f"inv env.deps-pin-path -p {path}")
+        assert path.exists() and path.is_dir(), \
+            f"Tutorial {name} doesn't exist"
+
+        cx.run(f"inv env.deps-pin-path -p {path}")
 
 @task
 def env_example(cx, name=None):
     """Make a the example env in its local dir."""
 
-    assert name is not None
+    if name is None:
+        examples = ' '.join(visit_examples())
+    else:
+        examples = [name]
 
-    spec_path = Path(DOCS_SPEC['EXAMPLES_DIR']) / name / 'env'
-    env_path = Path(DOCS_SPEC['EXAMPLES_DIR']) / name / DOCS_SPEC['EXAMPLE_ENV']
+    for example in examples:
 
-    assert spec_path.exists() and spec_path.is_dir(), \
-        f"Tutorial {name} doesn't exist"
 
-    cx.run(f"inv env.make-env -s {spec_path} -p {env_path}")
+        spec_path = Path(DOCS_SPEC['EXAMPLES_DIR']) / example / 'env'
+        env_path = Path(DOCS_SPEC['EXAMPLES_DIR']) / example / DOCS_SPEC['EXAMPLE_ENV']
+
+        assert spec_path.exists() and spec_path.is_dir(), \
+            f"Tutorial {example} doesn't exist"
+
+        cx.run(f"inv env.make-env -s {spec_path} -p {env_path}")
+
+@task
+def env_tutorial(cx, name=None):
+    """Make a the tutorial env in its local dir."""
+
+    if name is None:
+        tutorials = ' '.join(visit_tutorials())
+    else:
+        tutorials = [name]
+
+    for tutorial in tutorials:
+
+
+        spec_path = Path(DOCS_SPEC['TUTORIALS_DIR']) / tutorial / 'env'
+        env_path = Path(DOCS_SPEC['TUTORIALS_DIR']) / tutorial / DOCS_SPEC['TUTORIAL_ENV']
+
+        assert spec_path.exists() and spec_path.is_dir(), \
+            f"Tutorial {tutorial} doesn't exist"
+
+        cx.run(f"inv env.make-env -s {spec_path} -p {env_path}")
 
