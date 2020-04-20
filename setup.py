@@ -41,11 +41,11 @@ mdtraj_requirements = ['mdtraj']
 distributed_requirements = ['dask[bag]']
 
 # # combination of all the extras requirements
-all_requirements = it.chain.from_iterable([
+all_requirements = list(it.chain.from_iterable([
     base_requirements,
     mdtraj_requirements,
     distributed_requirements,
-])
+]))
 
 setup(
     name='wepy',
