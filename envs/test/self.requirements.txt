@@ -4,4 +4,4 @@
 # different on every machine.
 
 # non-develop mode
-.
+.[all]
