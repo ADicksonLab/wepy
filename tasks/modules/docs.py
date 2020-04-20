@@ -401,18 +401,23 @@ def test_example(cx,
 ):
     """Test a specific doc example in the current virtual environment."""
 
-    assert name is not None
+    if name is None:
+        examples = visit_examples()
+    else:
+        examples = [name]
 
-    path = Path(DOCS_SPEC['EXAMPLES_DIR']) / name
+    for example in examples:
 
-    assert path.exists() and path.is_dir(), \
-        f"Example {name} doesn't exist"
+        path = Path(DOCS_SPEC['EXAMPLES_DIR']) / example
 
-    # TODO: add support for reports and such
-    print("tag is ignored")
+        assert path.exists() and path.is_dir(), \
+            f"Example {example} doesn't exist"
 
-    cx.run(f"pytest tests/test_docs/test_examples/test_{name}.py",
-           warn=True)
+        # TODO: add support for reports and such
+        print("tag is ignored")
+
+        cx.run(f"pytest tests/test_docs/test_examples/test_{example}.py",
+               warn=True)
 
 @task
 def test_examples_nox(cx,
@@ -424,7 +429,7 @@ def test_examples_nox(cx,
     """
 
     if name is None:
-        examples = ' '.join(visit_examples())
+        examples =  visit_examples()
     else:
         examples = [name]
 
@@ -438,18 +443,24 @@ def test_tutorial(cx,
 ):
     """Test a specific doc tutorial in the current virtual environment."""
 
-    assert name is not None
 
-    path = Path(DOCS_SPEC['TUTORIALS_DIR']) / name
+    if name is None:
+        tutorials = visit_tutorials()
+    else:
+        tutorials = [name]
 
-    assert path.exists() and path.is_dir(), \
-        f"Tutorial {name} doesn't exist"
+    for tutorial in tutorials:
 
-    # TODO: add support for reports and such
-    print("tag is ignored")
+        path = Path(DOCS_SPEC['TUTORIALS_DIR']) / tutorial
 
-    cx.run(f"pytest tests/test_docs/test_tutorials/test_{name}.py",
-           warn=True)
+        assert path.exists() and path.is_dir(), \
+            f"Tutorial {tutorial} doesn't exist"
+
+        # TODO: add support for reports and such
+        print("tag is ignored")
+
+        cx.run(f"pytest tests/test_docs/test_tutorials/test_{tutorial}.py",
+               warn=True)
 
 @task
 def test_tutorials_nox(cx,
@@ -461,7 +472,7 @@ def test_tutorials_nox(cx,
     """
 
     if name is None:
-        tutorials = ' '.join(visit_tutorials())
+        tutorials = visit_tutorials()
     else:
         tutorials = [name]
 
@@ -493,7 +504,7 @@ def pin_example(cx, name=None):
     """Pin the deps for an example or all of them if 'name' is None."""
 
     if name is None:
-        examples = ' '.join(visit_examples())
+        examples = visit_examples()
     else:
         examples = [name]
 
@@ -510,7 +521,7 @@ def pin_example(cx, name=None):
 def pin_tutorial(cx, name=None):
 
     if name is None:
-        tutorials = ' '.join(visit_tutorials())
+        tutorials = visit_tutorials()
     else:
         tutorials = [name]
 
@@ -528,7 +539,7 @@ def env_example(cx, name=None):
     """Make a the example env in its local dir."""
 
     if name is None:
-        examples = ' '.join(visit_examples())
+        examples = visit_examples()
     else:
         examples = [name]
 
@@ -548,7 +559,7 @@ def env_tutorial(cx, name=None):
     """Make a the tutorial env in its local dir."""
 
     if name is None:
-        tutorials = ' '.join(visit_tutorials())
+        tutorials = visit_tutorials()
     else:
         tutorials = [name]
 
