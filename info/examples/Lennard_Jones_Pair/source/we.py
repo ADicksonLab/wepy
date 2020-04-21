@@ -96,9 +96,6 @@ CUTOFF_DISTANCE = 1.0 # nm
 # these are the properties of the states (i.e. from OpenMM) which will
 # be saved into the HDF5
 SAVE_FIELDS = ('positions', 'box_vectors', 'velocities')
-# these are the names of the units which will be stored with each
-# field in the HDF5
-UNITS = UNIT_NAMES
 
 ## INPUTS/OUTPUTS
 
