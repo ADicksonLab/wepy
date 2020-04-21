@@ -396,6 +396,7 @@ import json
 from warnings import warn
 from copy import copy
 import logging
+import gc
 
 import numpy as np
 import h5py
