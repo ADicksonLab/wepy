@@ -6,14 +6,17 @@
 #
 --index-url https://pypi.python.org/simple/
 
+apipkg==1.5               # via execnet
 attrs==19.3.0             # via pytest
-delegator.py==0.1.1       # via -r envs/test/requirements.in
-importlib-metadata==1.6.0  # via pluggy, pytest
+contextlib2==0.6.0.post1  # via pytest-shutil
+execnet==1.7.1            # via pytest-shutil
+importlib-metadata==1.6.0  # via path, pluggy, pytest
+mock==4.0.2               # via pytest-shutil
 more-itertools==8.2.0     # via pytest
 packaging==20.3           # via pytest
-pexpect==4.8.0            # via delegator.py
+path.py==12.4.0           # via pytest-shutil
+path==13.1.0              # via path.py
 pluggy==0.13.1            # via pytest
-ptyprocess==0.6.0         # via pexpect
 py==1.8.1                 # via pytest
 pyparsing==2.4.7          # via packaging
 git+https://github.com/salotz/pytest-datadir.git  # via -r envs/test/requirements.in
@@ -21,7 +24,9 @@ pytest-html==2.1.1        # via -r envs/test/requirements.in
 pytest-metadata==1.8.0    # via pytest-html
 pytest-print==0.1.3       # via -r envs/test/requirements.in
 pytest-runner==5.2        # via -r envs/test/requirements.in
-pytest==5.4.1             # via -r envs/test/requirements.in, pytest-datadir, pytest-html, pytest-metadata, pytest-print
-six==1.14.0               # via packaging, pytest-print
+pytest-shutil==1.7.0      # via -r envs/test/requirements.in
+pytest==5.4.1             # via -r envs/test/requirements.in, pytest-datadir, pytest-html, pytest-metadata, pytest-print, pytest-shutil
+six==1.14.0               # via packaging, pytest-print, pytest-shutil
+termcolor==1.1.0          # via pytest-shutil
 wcwidth==0.1.9            # via pytest
 zipp==3.1.0               # via importlib-metadata

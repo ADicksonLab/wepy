@@ -13,6 +13,4 @@ pytest-runner
 git+https://github.com/salotz/pytest-datadir.git
 pytest-print
 pytest-html
-
-# helpers for tests
-delegator.py
+pytest-shutil
