@@ -1201,12 +1201,18 @@ class Orchestrator():
                                             checkpoint_mode=orch_mode)
 
         logging.debug("Finished running snapshot by time")
+
         # if the last cycle in the run was a checkpoint skip this step
         # of saving a checkpoint
-        if checkpoint_freq % last_cycle_idx == 0:
-            logging.debug("Last cycle saved a checkpoint, no need to save one")
+        do_final_checkpoint = True
 
-        else:
+        # make sure the checkpoint_freq is defined before testing it
+        if checkpoint_freq is not None:
+            if checkpoint_freq % last_cycle_idx == 0:
+                logging.debug("Last cycle saved a checkpoint, no need to save one")
+                do_final_checkpoint = False
+
+        if do_final_checkpoint:
 
             logging.debug("Saving a final checkpoint for the end of the run")
             # now that it is finished we save the final snapshot to the
