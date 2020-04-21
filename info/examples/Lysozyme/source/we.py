@@ -5,6 +5,7 @@ if __name__ == "__main__":
     import shutil
     import sys
     import logging
+    from pathlib import Path
 
     from multiprocessing_logging import install_mp_handler
 
@@ -27,13 +28,16 @@ if __name__ == "__main__":
         print("Number of steps: {}".format(n_steps))
         print("Number of cycles: {}".format(n_cycles))
 
+
+    output_dir = Path('_output')
+
     # make the results directory if not already made
     try:
-        shutil.rmtree('result')
+        shutil.rmtree(output_dir / 'we')
     except FileNotFoundError:
         pass
 
-    os.makedirs('result', exist_ok=True)
+    os.makedirs(output_dir / 'we', exist_ok=True)
 
     sim_maker = LysozymeImplicitOpenMMSimMaker()
 
@@ -46,7 +50,7 @@ if __name__ == "__main__":
     config = sim_maker.make_configuration(apparatus,
                                           work_mapper='TaskMapper',
                                           platform=platform,
-                                          work_dir='result')
+                                          work_dir=str(output_dir / 'we'))
 
     sim_manager = sim_maker.make_sim_manager(n_walkers, apparatus, config)
 
