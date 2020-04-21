@@ -512,7 +512,7 @@ class BaseMacroStateNetwork():
             self._layouts.append(layout_name)
 
 
-    def write_gexf(self, filepath, exclude_fields=None, layout='main'):
+    def write_gexf(self, filepath, exclude_fields=None, layout=None):
         """Writes a graph file in the gexf format of the network.
 
         Parameters
