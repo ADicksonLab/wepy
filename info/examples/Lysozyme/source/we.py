@@ -5,6 +5,7 @@ if __name__ == "__main__":
     import shutil
     import sys
     import logging
+
     from multiprocessing_logging import install_mp_handler
 
     from wepy_tools.sim_makers.openmm.lysozyme import LysozymeImplicitOpenMMSimMaker
