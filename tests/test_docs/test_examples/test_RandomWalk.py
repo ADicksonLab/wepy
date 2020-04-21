@@ -36,6 +36,19 @@ def test_scripts(datadir_factory, printer):
     with chdir(datadir):
 
         run(['python',
-            'source/run0.bash',
+            'source/rw_conventional.py',
+             '1', '10', '10', '3'
+            ],
+        )
+
+        run(['python',
+            'source/rw_revo.py',
+             '1', '10', '10', '3'
+            ],
+        )
+
+        run(['python',
+            'source/rw_wexplore.py',
+             '1', '10', '10', '3'
             ],
         )

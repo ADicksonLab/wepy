@@ -14,7 +14,7 @@ from wepy.resampling.distances.randomwalk import RandomWalkDistance
 from wepy.runners.randomwalk import RandomWalkRunner, UNIT_NAMES
 from wepy.walker import Walker, WalkerState
 
-from wepy_tools.toys.randomwalk import RandomwalkProfiler
+from wepy_tools.sim_makers.toys.randomwalk import RandomwalkProfiler
 
 
 

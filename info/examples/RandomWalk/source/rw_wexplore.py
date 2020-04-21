@@ -5,6 +5,7 @@ resampler.
 import sys
 import os
 import os.path as osp
+from pathlib import Path
 
 import numpy as np
 
@@ -13,7 +14,7 @@ from wepy.resampling.distances.randomwalk import RandomWalkDistance
 from wepy.runners.randomwalk import RandomWalkRunner, UNIT_NAMES
 from wepy.walker import Walker, WalkerState
 
-from wepy_tools.toys.randomwalk import RandomwalkProfiler
+from wepy_tools.sim_makers.toys.randomwalk import RandomwalkProfiler
 
 
 ON = True
@@ -42,7 +43,7 @@ MAX_N_REGIONS = (10, 10, 10, 10)
 # already maximal number of regions
 MAX_REGION_SIZES = (16, 4, 1, .25)
 
-outputs_dir = osp.realpath('./outputs')
+outputs_dir = Path('_output')
 if not osp.exists(outputs_dir):
     os.makedirs(outputs_dir)
 
@@ -51,8 +52,8 @@ if not osp.exists(outputs_dir):
 hdf5_filename = 'rw_results.wepy.h5'
 reporter_filename = 'randomwalk_wexplore.org'
 
-hdf5_path= osp.join(outputs_dir, hdf5_filename)
-reporter_path = osp.join(outputs_dir, reporter_filename)
+hdf5_path= outputs_dir / hdf5_filename
+reporter_path = outputs_dir / reporter_filename
 
 
 
@@ -90,8 +91,8 @@ if __name__=="__main__":
     # set up a RandomWalkProfilier
     rw_profiler = RandomwalkProfiler(resampler,
                                      dimension,
-                                     hdf5_filename=hdf5_path,
-                                     reporter_filename=reporter_path)
+                                     hdf5_filename=str(hdf5_path),
+                                     reporter_filename=str(reporter_path))
 
     # runs the simulations and gets the result
     rw_profiler.run(num_runs=n_runs, num_cycles=n_cycles,
