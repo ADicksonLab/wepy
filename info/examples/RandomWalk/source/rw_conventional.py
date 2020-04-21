@@ -5,6 +5,8 @@ no resampling after the random walk dynamics.
 import sys
 import os
 import os.path as osp
+from pathlib import Path
+
 import numpy as np
 
 from wepy.resampling.resamplers.resampler import NoResampler
@@ -20,7 +22,7 @@ SAVE_FIELDS = ('positions')
 # Name of field's unit in the HDF5
 UNITS = UNIT_NAMES
 
-outputs_dir = osp.realpath('./outputs')
+outputs_dir = Path('_output')
 
 if not osp.exists(outputs_dir):
     os.makedirs(outputs_dir)
@@ -29,8 +31,8 @@ if not osp.exists(outputs_dir):
 hdf5_filename = 'rw_results.wepy.h5'
 reporter_filename = 'randomwalk_conventional.org'
 
-hdf5_path= osp.join(outputs_dir, hdf5_filename)
-reporter_path = osp.join(outputs_dir, reporter_filename)
+hdf5_path= outputs_dir / hdf5_filename
+reporter_path = outputs_dir / reporter_filename
 
 
 
@@ -54,9 +56,12 @@ if __name__=="__main__":
     # set up a RandomWalkProfilier
     rw_profiler = RandomwalkProfiler(resampler,
                                      dimension,
-                                     hdf5_filename=hdf5_path,
-                                     reporter_filename=reporter_path)
+                                     hdf5_filename=str(hdf5_path),
+                                     reporter_filename=str(reporter_path))
 
     # runs the simulations and gets the result
-    rw_profiler.run(num_runs=n_runs, num_cycles=n_cycles,
-                    num_walkers=n_walkers)
+    rw_profiler.run(
+        num_runs=n_runs,
+        num_cycles=n_cycles,
+        num_walkers=n_walkers,
+    )

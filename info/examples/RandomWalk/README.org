@@ -10,8 +10,8 @@ N-dimension space.
 To see a REVO example run ~rw_revo.py~ with arguments for the number of runs, number of cycles,
 number of walkers, and the dimension of space.
 
-#+begin_src bash
-python rw_revo.py 3 20 10 5
+#+begin_src bash :tangle _tangle_source/run0.bash
+python source/rw_revo.py 3 20 10 5
 #+end_src
 
 You should see an ~outputs~ folder appear with the files:

@@ -4,6 +4,7 @@ resampler.
 import sys
 import os
 import os.path as osp
+
 import numpy as np
 
 from wepy.resampling.resamplers.revo import REVOResampler
