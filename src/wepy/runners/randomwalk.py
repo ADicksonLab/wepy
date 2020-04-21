@@ -20,20 +20,20 @@ import random as rand
 import logging
 
 import numpy as np
-
-from simtk import unit
+from pint import UnitRegistry
 
 from wepy.runners.runner import Runner
 from wepy.walker import Walker, WalkerState
 
-# the Units objects that OpenMM uses internally and are returned from
-# simulation data
-UNIT_NAMES = (('positions_unit', unit.nanometer.get_name()),
-         ('time_unit', unit.picosecond.get_name()),
+units = UnitRegistry()
+
+# the names of the units. We pass them through pint just to validate
+# them
+UNIT_NAMES = (('positions_unit', str(units('microsecond').units)),
+         ('time_unit', str(units('picosecond').units)),
         )
 
-"""Mapping of units identifiers to the corresponding simtk.units Unit
-objects."""
+"""Mapping of units identifiers to the corresponding pint units."""
 
 
 class RandomWalkRunner(Runner):
@@ -102,7 +102,8 @@ class RandomWalkRunner(Runner):
 
         return new_positions
 
-    def run_segment(self, walker, segment_length):
+    def run_segment(self, walker, segment_length,
+                    **kwargs):
         """Runs a random walk simulation for the given number of steps.
 
         Parameters
