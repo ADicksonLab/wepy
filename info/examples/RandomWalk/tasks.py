@@ -23,6 +23,9 @@ def clean(cx):
 @task(pre=[init])
 def tangle(cx):
     tangle_orgfile(cx, "README.org")
+    cx.run(f"chmod ug+x ./_tangle_source/*.bash", warn=True)
+    cx.run(f"chmod ug+x ./_tangle_source/*.sh", warn=True)
+    cx.run(f"chmod ug+x ./_tangle_source/*.py", warn=True)
 
 @task
 def clean_env(cx):
