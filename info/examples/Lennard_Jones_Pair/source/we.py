@@ -196,7 +196,8 @@ hdf5_reporter = WepyHDF5Reporter(file_path=hdf5_path, mode='w',
                                  units=units)
 
 wexplore_dash = WExploreDashboardSection(resampler=resampler)
-openmm_dash = OpenMMRunnerDashboardSection(runner=runner)
+openmm_dash = OpenMMRunnerDashboardSection(runner=runner,
+                                           step_time=STEP_SIZE)
 ubc_dash = ReceptorBCDashboardSection(bc=ubc)
 
 dashboard_reporter = DashboardReporter(
