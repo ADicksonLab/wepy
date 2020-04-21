@@ -43,7 +43,7 @@ from wepy.sim_manager import Manager
 from wepy.walker import Walker, WalkerState
 from wepy.runners.randomwalk import RandomWalkRunner, UNIT_NAMES
 from wepy.hdf5 import WepyHDF5
-
+from wepy.util.mdtraj import mdtraj_to_json_topology
 
 
 PRECISION = 3
@@ -135,20 +135,8 @@ class RandomwalkProfiler(object):
         unitcell_angles = 90 * np.ones((1, 3))
 
         top = mdj.Topology.from_dataframe(data, bonds=np.zeros((0, 2), dtype='int'))
-        traj = mdj.Trajectory(xyz, top,
-                              unitcell_lengths=unitcell_lengths,
-                              unitcell_angles=unitcell_angles)
-        traj.save_hdf5("tmp_mdtraj_system.h5")
 
-
-        # we need a JSON string for now in the topology section of the
-        # HDF5 so we just load the topology from the hdf5 file
-        top_h5 = h5py.File("tmp_mdtraj_system.h5")
-
-        # it is in bytes so we need to decode to a string, which is in JSON format
-        json_top_str = top_h5['topology'][0].decode()
-        top_h5.close()
-        os.remove("tmp_mdtraj_system.h5")
+        json_top_str = mdtraj_to_json_topology(top)
 
         return json_top_str
 
