@@ -38,13 +38,19 @@ def test_we(datadir_factory, printer):
 
         run(['python',
             'source/we.py',
-             '10', '10', '10', '1', 'CPU', 'REVOResampler'
+             '10', '2', '10', '1', 'CPU', 'NoResampler'
             ],
         )
 
         run(['python',
             'source/we.py',
-             '10', '10', '10', '1', 'CPU', 'WExploreResampler'
+             '10', '2', '10', '1', 'CPU', 'REVOResampler'
+            ],
+        )
+
+        run(['python',
+            'source/we.py',
+             '10', '2', '10', '1', 'CPU', 'WExploreResampler'
             ],
         )
 
