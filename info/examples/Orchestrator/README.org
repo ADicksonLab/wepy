@@ -1,0 +1,118 @@
+* Using Orchestrators
+
+
+There is also a script showing how to create an orchestrator database
+with an initial snapshot that you can run simulations from.
+
+Just run it and a file called ~LJ-pair.orch.sqlite~ should appear:
+
+#+begin_src bash
+  python make_orchestratory.py
+#+end_src
+
+From here we can run simulations from this database using the initial
+snapshot. Snapshots are identified by an MD5 hash so we need to get
+that first:
+
+#+begin_src bash
+  wepy ls snapshots LJ-pair.orch.sqlite
+#+end_src
+
+You should see something like printed to stdout:
+
+#+begin_example
+  4ac37dec60c93bd86468359083bdc310
+#+end_example
+
+This is the hash of the only snapshot in the database.
+
+We also should get the hash of the default configuration as well from
+the database:
+
+#+begin_src bash
+  wepy ls configs LJ-pair.orch.sqlite
+#+end_src
+
+Now we can do a run from this snapshot where we also specify the
+amount of system clock time we want to run for and the number of steps
+to take in each cycle:
+
+#+begin_src bash
+  # set these as shell variables for using elsewhere
+  start_hash='4ac37dec60c93bd86468359083bdc310'
+  config_hash='08db6e4c3679036e01a2db1746067ac0'
+
+  wepy run orch LJ-pair.orch.sqlite "$start_hash" 10 100
+#+end_src
+
+You should now see a folder with the name of the hash (this can be
+customized, see options) and something like this to stdout:
+
+#+begin_example
+Run start and end hashes: 4ac37dec60c93bd86468359083bdc310, 53f0ac18cd4ae284e86dfedcef1433ef
+#+end_example
+
+Which shows the hash you used as input and the end hash of snapshot at
+the end of the run.
+
+In the folder you will see the reporter outputs from before all named
+according the job name (the hash). There is an additional 'gexf' file
+which is a network of the walker family tree. This is an XML file that
+can be opened by the Gephi visualization program.
+
+There is also another file called ~checkpoint.orch.sqlite~, which
+should contain the end snapshot and a record for the completed run. In
+a simulation where we enable checkpointing this file would be written
+every few cycles in order that we can restart the simulation.
+
+Note that the original orchestrator we started with does not get the
+new run added to it. The reason is that if there were to be multiple
+processes from multiple runs attempting to write to the database then
+we would end up with a much more complex concurrency situation
+involving blocking processes, waiting for the write locks to free up
+on the database and the host of monitoring and other things that would
+need to be done in order to implement. Essentially this would be a
+sort of distributed system which is hard. Furthermore, with this
+architecture the data flow and timing is not dependent upon other
+processes (except perhaps for the work mapper).
+
+In the intended work flow the user should manually aggregate or
+*reconcile* the snapshots and files into one, if that is desired. If
+you do this you can keep one "master" orchestrator database with all
+the information about all runs and snapshots and write your scripts
+just to target it for running new simulations.
+
+To reconcile two orchestrator we can again use the command line:
+
+#+begin_src bash
+  wepy reconcile orch LJ-pair.orch.sqlite "$start_hash/checkpoint.orch.sqlite"
+#+end_src
+
+Then see that it contains two snapshots and a run:
+
+#+begin_src bash
+  wepy ls snapshots LJ-pair.orch.sqlite
+  wepy ls runs LJ-pair.orch.sqlite
+#+end_src
+
+
+You can extract snapshots as pickle files (technically we use the
+~dill~ library for this which is just an enhanced pickle. This is how
+they are stored in the orchestrator database as well) if you want and
+run simulations directly from them:
+
+#+begin_src bash
+  wepy get snapshot LJ-pair.orch.sqlite "$start_hash"
+
+  # you also need the configuration file
+  wepy get config LJ-pair.orch.sqlite "$config_hash"
+
+  # we also specify a job name because we already have a run with the
+  # starting hash
+  wepy run snapshot "${start_hash}.snap.dill.pkl" "${config_hash}.config.dill.pkl" \
+       --job-name "${start_hash}_again" \
+       10 100
+#+end_src
+
+
+Now we see another directory for this job.
