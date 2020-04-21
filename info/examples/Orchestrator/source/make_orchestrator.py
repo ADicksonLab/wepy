@@ -1,5 +1,6 @@
 from copy import copy
 import pickle
+from pathlib import Path
 
 import numpy as np
 from scipy.spatial.distance import euclidean
@@ -20,7 +21,13 @@ from wepy.runners.openmm import OpenMMRunner, OpenMMState
 from wepy.walker import Walker
 from wepy.runners.openmm import UNIT_NAMES, GET_STATE_KWARG_DEFAULTS
 from wepy.reporter.hdf5 import WepyHDF5Reporter
-from wepy.reporter.wexplore.dashboard import WExploreDashboardReporter
+
+from wepy.reporter.dashboard import DashboardReporter
+
+from wepy.reporter.receptor.dashboard import ReceptorBCDashboardSection
+from wepy.reporter.wexplore.dashboard import WExploreDashboardSection
+from wepy.reporter.openmm import OpenMMRunnerDashboardSection
+
 from wepy.reporter.restree import ResTreeReporter
 from wepy.util.mdtraj import mdtraj_to_json_topology
 
@@ -31,6 +38,8 @@ from wepy.orchestration.snapshot import WepySimApparatus
 from wepy.orchestration.configuration import Configuration
 
 ## PARAMETERS
+
+output_dir = Path("_output")
 
 # Platform used for OpenMM which uses different hardware computation
 # kernels. Options are: Reference, CPU, OpenCL, CUDA.
@@ -154,10 +163,16 @@ hdf5_reporter_kwargs = {'save_fields' : SAVE_FIELDS,
                         'topology' : json_str_top,
                         'units' : units}
 
-dashboard_reporter_kwargs = {'step_time' : STEP_SIZE.value_in_unit(unit.second),
-                             'max_n_regions' : resampler.max_n_regions,
-                             'max_region_sizes' : resampler.max_region_sizes,
-                             'bc_cutoff_distance' : ubc.cutoff_distance}
+wexplore_dash = WExploreDashboardSection(resampler=resampler)
+openmm_dash = OpenMMRunnerDashboardSection(runner=runner,
+                                           step_time=STEP_SIZE)
+ubc_dash = ReceptorBCDashboardSection(bc=ubc)
+
+dashboard_reporter_kwargs = {
+    'resampler_dash' : wexplore_dash,
+    'runner_dash' : openmm_dash,
+    'bc_dash' : ubc_dash,
+}
 
 # Resampling Tree
 restree_reporter_kwargs = {'resampler' : resampler,
@@ -169,15 +184,22 @@ restree_reporter_kwargs = {'resampler' : resampler,
                            'max_progress_value' : ubc.cutoff_distance,
                            'colormap_name' : 'plasma'}
 
+# TODO make the restree reporter work
 
-reporter_classes = [WepyHDF5Reporter, WExploreDashboardReporter,
-                    ResTreeReporter]
-reporter_kwargs = [hdf5_reporter_kwargs, dashboard_reporter_kwargs,
-                   restree_reporter_kwargs]
+reporter_classes = [
+    WepyHDF5Reporter,
+    DashboardReporter,
+    #ResTreeReporter,
+]
+reporter_kwargs = [
+    hdf5_reporter_kwargs,
+    dashboard_reporter_kwargs,
+    #restree_reporter_kwargs,
+]
 
 
-
-sim_apparatus = WepySimApparatus(runner, resampler=resampler,
+sim_apparatus = WepySimApparatus(runner,
+                                 resampler=resampler,
                                  boundary_conditions=ubc)
 
 # we also create a default configuration for the orchestrator that
@@ -196,8 +218,10 @@ init_walkers = [Walker(OpenMMState(init_sim_state), init_weight) for i in range(
 
 # then create the seed/root/master orchestrator which will be used
 # from here on out
-orch = Orchestrator(orch_path='LJ-pair.orch.sqlite',
-                            mode='w')
+orch = Orchestrator(
+    orch_path=str(output_dir / 'LJ-pair.orch.sqlite'),
+    mode='w',
+)
 
 # set the defaults
 orch.set_default_sim_apparatus(sim_apparatus)

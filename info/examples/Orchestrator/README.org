@@ -6,16 +6,16 @@ with an initial snapshot that you can run simulations from.
 
 Just run it and a file called ~LJ-pair.orch.sqlite~ should appear:
 
-#+begin_src bash
-  python make_orchestratory.py
+#+begin_src bash :tangle _tangle_source/run0.bash
+  python source/make_orchestrator.py
 #+end_src
 
 From here we can run simulations from this database using the initial
 snapshot. Snapshots are identified by an MD5 hash so we need to get
 that first:
 
-#+begin_src bash
-  wepy ls snapshots LJ-pair.orch.sqlite
+#+begin_src bash :tangle _tangle_source/run0.bash
+  wepy ls snapshots _output/LJ-pair.orch.sqlite
 #+end_src
 
 You should see something like printed to stdout:
@@ -29,20 +29,21 @@ This is the hash of the only snapshot in the database.
 We also should get the hash of the default configuration as well from
 the database:
 
-#+begin_src bash
-  wepy ls configs LJ-pair.orch.sqlite
+#+begin_src bash :tangle _tangle_source/run0.bash
+  wepy ls configs _output/LJ-pair.orch.sqlite
 #+end_src
 
 Now we can do a run from this snapshot where we also specify the
 amount of system clock time we want to run for and the number of steps
 to take in each cycle:
 
-#+begin_src bash
-  # set these as shell variables for using elsewhere
-  start_hash='4ac37dec60c93bd86468359083bdc310'
-  config_hash='08db6e4c3679036e01a2db1746067ac0'
+#+begin_src bash :tangle _tangle_source/run0.bash
+  # set these as shell variables for using elsewhere, this only works
+  # when there is one snapshot and config.
+  start_hash=$(wepy ls snapshots _output/LJ-pair.orch.sqlite)
+  config_hash=$(wepy ls configs _output/LJ-pair.orch.sqlite)
 
-  wepy run orch LJ-pair.orch.sqlite "$start_hash" 10 100
+  wepy run orch --job-dir="_output/first_job" _output/LJ-pair.orch.sqlite "$start_hash" 10 10
 #+end_src
 
 You should now see a folder with the name of the hash (this can be
@@ -84,15 +85,15 @@ just to target it for running new simulations.
 
 To reconcile two orchestrator we can again use the command line:
 
-#+begin_src bash
-  wepy reconcile orch LJ-pair.orch.sqlite "$start_hash/checkpoint.orch.sqlite"
+#+begin_src bash :tangle _tangle_source/run0.bash
+  wepy reconcile orch _output/LJ-pair.orch.sqlite _output/first_job/checkpoint.orch.sqlite
 #+end_src
 
 Then see that it contains two snapshots and a run:
 
-#+begin_src bash
-  wepy ls snapshots LJ-pair.orch.sqlite
-  wepy ls runs LJ-pair.orch.sqlite
+#+begin_src bash :tangle _tangle_source/run0.bash
+  wepy ls snapshots _output/LJ-pair.orch.sqlite
+  wepy ls runs _output/LJ-pair.orch.sqlite
 #+end_src
 
 
@@ -101,16 +102,16 @@ You can extract snapshots as pickle files (technically we use the
 they are stored in the orchestrator database as well) if you want and
 run simulations directly from them:
 
-#+begin_src bash
-  wepy get snapshot LJ-pair.orch.sqlite "$start_hash"
+#+begin_src bash :tangle _tangle_source/run0.bash
+  wepy get snapshot --output="_output/${start_hash}.snap.dill.pkl" _output/LJ-pair.orch.sqlite "$start_hash"
 
   # you also need the configuration file
-  wepy get config LJ-pair.orch.sqlite "$config_hash"
+  wepy get config --output="_output/${config_hash}.config.dill.pkl"  _output/LJ-pair.orch.sqlite "$config_hash"
 
   # we also specify a job name because we already have a run with the
   # starting hash
-  wepy run snapshot "${start_hash}.snap.dill.pkl" "${config_hash}.config.dill.pkl" \
-       --job-name "${start_hash}_again" \
+  wepy run snapshot "_output/${start_hash}.snap.dill.pkl" "_output/${config_hash}.config.dill.pkl" \
+       --job-dir "_output/run_again" \
        10 100
 #+end_src
 
