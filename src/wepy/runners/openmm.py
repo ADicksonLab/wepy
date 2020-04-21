@@ -31,9 +31,12 @@ import time
 
 import numpy as np
 
-import simtk.openmm.app as omma
-import simtk.openmm as omm
-import simtk.unit as unit
+try:
+    import simtk.openmm.app as omma
+    import simtk.openmm as omm
+    import simtk.unit as unit
+except ModuleNotFoundError:
+    raise ModuleNotFoundError("OpenMM has not been installed, which this runner requires.")
 
 from wepy.walker import Walker, WalkerState
 from wepy.runners.runner import Runner
@@ -69,16 +72,22 @@ them is handled by the OpenMMState.
 
 # the Units objects that OpenMM uses internally and are returned from
 # simulation data
-UNITS = (('positions_unit', unit.nanometer),
-         ('time_unit', unit.picosecond),
-         ('box_vectors_unit', unit.nanometer),
-         ('velocities_unit', unit.nanometer/unit.picosecond),
-         ('forces_unit', unit.kilojoule / (unit.nanometer * unit.mole)),
-         ('box_volume_unit', unit.nanometer),
-         ('kinetic_energy_unit', unit.kilojoule / unit.mole),
-         ('potential_energy_unit', unit.kilojoule / unit.mole),
-        )
-"""Mapping of units identifiers to the corresponding simtk.units Unit objects."""
+
+# TODO: this is never used and we only need the unit names. Its okay
+# to use simtk.units here but other runners should use a units sytem
+# like pint which is easier to install. So we should remove this since
+# its not used.
+
+# UNITS = (('positions_unit', unit.nanometer),
+#          ('time_unit', unit.picosecond),
+#          ('box_vectors_unit', unit.nanometer),
+#          ('velocities_unit', unit.nanometer/unit.picosecond),
+#          ('forces_unit', unit.kilojoule / (unit.nanometer * unit.mole)),
+#          ('box_volume_unit', unit.nanometer),
+#          ('kinetic_energy_unit', unit.kilojoule / unit.mole),
+#          ('potential_energy_unit', unit.kilojoule / unit.mole),
+#         )
+# """Mapping of units identifiers to the corresponding simtk.units Unit objects."""
 
 # the names of the units from the units objects above. This is used
 # for saving them to files
@@ -97,8 +106,8 @@ UNIT_NAMES = (('positions_unit', unit.nanometer.get_name()),
 # Langevin integrator is created. 0 is the default and special value
 # which will then choose a random value when the integrator is created
 
-#TODO: test this isn't needed
-#RAND_SEED_RANGE_MAX = 1000000
+# TODO: test this isn't needed
+# RAND_SEED_RANGE_MAX = 1000000
 
 # the runner for the simulation which runs the actual dynamics
 class OpenMMRunner(Runner):
