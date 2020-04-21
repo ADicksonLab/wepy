@@ -23,7 +23,7 @@ if __name__ == "__main__":
 
     # load the HDF5 file in read/write so we can save data to the
     # observables
-    wepy_hdf5_path = "../outputs/results.wepy.h5"
+    wepy_hdf5_path = "_output/we/results.wepy.h5"
     wepy_h5 = WepyHDF5(wepy_hdf5_path, mode='r+')
 
     with wepy_h5:

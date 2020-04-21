@@ -1,11 +1,5 @@
 """Very simple example using a pair of Lennard-Jones particles.
 
-Requires the package `openmmtools` which can be installed from
-anaconda: `conda install -c omnia openmmtools`
-
-Openmmtools just provides a ready-made system for the lennard jones
-particles.
-
 This script has several pieces to pay attention to:
 
 - Importing the pieces from wepy to run a WExplore simulation.
@@ -50,7 +44,12 @@ from wepy.runners.openmm import UNIT_NAMES, GET_STATE_KWARG_DEFAULTS
 from wepy.work_mapper.mapper import Mapper
 from wepy.boundary_conditions.receptor import UnbindingBC
 from wepy.reporter.hdf5 import WepyHDF5Reporter
-from wepy.reporter.wexplore.dashboard import WExploreDashboardReporter
+
+from wepy.reporter.dashboard import DashboardReporter
+
+from wepy.reporter.receptor.dashboard import ReceptorBCDashboardSection
+from wepy.reporter.wexplore.dashboard import WExploreDashboardSection
+from wepy.reporter.openmm import OpenMMRunnerDashboardSection
 
 from scipy.spatial.distance import euclidean
 
@@ -104,9 +103,11 @@ UNITS = UNIT_NAMES
 ## INPUTS/OUTPUTS
 
 # the inputs directory
-inputs_dir = osp.realpath('./inputs')
+inputs_dir = osp.realpath('input')
+
 # the outputs path
-outputs_dir = osp.realpath('./outputs')
+outputs_dir = osp.realpath('_output/we')
+
 # make the outputs dir if it doesn't exist
 os.makedirs(outputs_dir, exist_ok=True)
 
@@ -115,16 +116,11 @@ json_top_filename = "pair.top.json"
 
 # outputs
 hdf5_filename = 'results.wepy.h5'
-setup_state_filename = 'setup.pkl'
-restart_state_filename = 'restart.pkl'
-
-# normalize the input paths
-json_top_path = osp.join(inputs_dir, json_top_filename)
+dashboard_filename = 'wepy.dash.org.org'
 
 # normalize the output paths
 hdf5_path = osp.join(outputs_dir, hdf5_filename)
-setup_state_path = osp.join(outputs_dir, setup_state_filename)
-restart_state_path = osp.join(outputs_dir, restart_state_filename)
+dashboard_path = osp.join(outputs_dir, dashboard_filename)
 
 ## System and OpenMMRunner
 
@@ -202,15 +198,19 @@ hdf5_reporter = WepyHDF5Reporter(file_path=hdf5_path, mode='w',
                                  topology=json_str_top,
                                  units=units)
 
-dashboard_reporter = WExploreDashboardReporter(file_path='./outputs/wepy.dash.org.txt', mode='w',
-                                               step_time=STEP_SIZE.value_in_unit(unit.second),
-                                               max_n_regions=resampler.max_n_regions,
-                                               max_region_sizes=resampler.max_region_sizes,
-                                               bc_cutoff_distance=ubc.cutoff_distance)
+wexplore_dash = WExploreDashboardSection(resampler=resampler)
+openmm_dash = OpenMMRunnerDashboardSection(runner=runner)
+ubc_dash = ReceptorBCDashboardSection(bc=ubc)
+
+dashboard_reporter = DashboardReporter(
+    file_path=dashboard_path,
+    mode='w',
+    resampler_dash=wexplore_dash,
+    runner_dash=openmm_dash,
+    bc_dash=ubc_dash,
+)
 
 reporters = [hdf5_reporter, dashboard_reporter]
-
-
 
 ## Work Mapper
 
@@ -230,7 +230,6 @@ if __name__ == "__main__":
         n_cycles = int(sys.argv[1])
         n_steps = int(sys.argv[2])
         n_walkers = int(sys.argv[3])
-        n_workers = int(sys.argv[4])
 
         print("Number of steps: {}".format(n_steps))
         print("Number of cycles: {}".format(n_cycles))
@@ -252,9 +251,6 @@ if __name__ == "__main__":
         steps = [n_steps for i in range(n_cycles)]
 
         # actually run the simulation
-        print("Starting run: {}".format(0))
+        print("Starting run")
         sim_manager.run_simulation(n_cycles, steps)
-        print("Finished run: {}".format(0))
-
-
-        print("Finished first file")
+        print("Finished run")

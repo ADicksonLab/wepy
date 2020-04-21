@@ -9,6 +9,8 @@ if __name__ == "__main__":
 
     from wepy_tools.sim_makers.openmm.lennard_jones import LennardJonesPairOpenMMSimMaker
 
+    OUTPUT_DIR = "_output/sim_maker_run"
+
     logging.getLogger().setLevel(logging.DEBUG)
     install_mp_handler()
 
@@ -28,11 +30,11 @@ if __name__ == "__main__":
 
     # make the results directory if not already made
     try:
-        shutil.rmtree('result')
+        shutil.rmtree(OUTPUT_DIR)
     except FileNotFoundError:
         pass
 
-    os.makedirs('result', exist_ok=True)
+    os.makedirs(OUTPUT_DIR, exist_ok=True)
 
     sim_maker = LennardJonesPairOpenMMSimMaker()
 
@@ -45,7 +47,7 @@ if __name__ == "__main__":
     config = sim_maker.make_configuration(apparatus,
                                           work_mapper='Mapper',
                                           platform=platform,
-                                          work_dir='result')
+                                          work_dir=OUTPUT_DIR)
 
     sim_manager = sim_maker.make_sim_manager(n_walkers, apparatus, config)
 

@@ -8,11 +8,11 @@ To see a basic and full example of wepy in action just run the ~we.py~
 script with some arguments for the number of cycles, number of steps,
 and number of walkers to use:
 
-#+begin_src bash
+#+begin_src bash :tangle _tangle_source/run0.bash
 python source/we.py 10 100 10
 #+end_src
 
-You should see an ~outputs~ folder appear with the files:
+You should see an ~_output/we~ folder appear with the files:
 ~results.wepy.h5~ and ~wepy.dash.org~.
 
 The ~wepy.dash.org.txt~ is a plain text file that gives lots of high
@@ -22,87 +22,28 @@ it runs, hence the 'dash' moniker. It also happens to be in a special
 format called "org-mode" which allows for folding of sections
 etc. when using the right editor which is primarily emacs.
 
-In this file the first section contains general information about wepy
-simulations:
-
-#+begin_src org
-  ,* Weighted Ensemble Simulation
-  Integration Step Size: 2e-15 seconds
-  2.0 femtoseconds
-  Last Cycle Index: 9
-  Number of Cycles: 10
-  Single Walker Sampling Time: 2e-12 seconds
-  1.9999999999999998e-05 microseconds
-  Total Sampling Time: 2e-11 seconds
-  0.00019999999999999998 microseconds
-#+end_src
-
-We see the integration step size for MD in two units, the index of the
-last completed cycle, the current cycle index, the amount of sampling
-time for each individual walker, and the total sampling time of the
-whole ensemble (each in two units).
-
-Further on we have a section specific to the WExplore resampler, which
-I won't describe here.
-
-Finally, we see a section detailing the specific run times for
-different components and individual workers for each cycle.
-
-
-
-The other file is the main data format of wepy ~WepyHDF5~, which we
-typically end with the suffix ~wepy.h5~ to indicate it is a format
-using the wepy schema in the HDF5 format.
-
-The analysis examples will make use of this file so we will only
-briefly mention here how to open it up and start poking around.
-
-#+begin_src python
-  from wepy.hdf5 import WepyHDF5
-
-  wepy_h5 = WepyHDF5('./outputs/results.wepy.h5', mode='r')
-  wepy_h5.open()
-
-  print(wepy_h5.num_runs)
-
-  # for the only run 0
-  print(wepy_h5.num_run_trajs(0))
-  num_cycles = wepy_h5.num_run_cycles(0)
-
-  # positions for trajectory 0 of run 0
-  positions = wepy_h5.get_traj_field(0, 0, 'positions')
-
-
-  # make an mdtraj trajectory and write to a PDB for the last frame
-
-  traj = wepy_h5.to_mdtraj(0, 1, frames=[num_cycles-1])
-  traj.save_pdb("outputs/run0_traj1_frame{}.pdb".format(num_cycles-1))
-
-  wepy_h5.close()
-#+end_src
-
-
 ** Analysis
 
 Before running these you should have produce the
-~outputs/results.wepy.h5~ file from running the ~we.py~ file.
+~_output/results.wepy.h5~ file from running the ~we.py~ file.
 
 *** Computing Observables
 
 This script shows you how to write a function and to apply it to all
 trajectories and save it into the HDF5 file:
 
-#+begin_src bash
-  python compute_distance_observable.py
+#+begin_src bash :tangle _tangle_source/run1.bash
+  python source/compute_distance_observable.py
 #+end_src
 
 After this is run we can open up an interactive python session (we
 recommend using IPython) and see what has been done:
 
-#+begin_src python
+#+begin_src python :tangle _tangle_source/inspect_observable.py
+  import numpy as np
   from wepy.hdf5 import WepyHDF5
 
-  wepy_h5 = WepyHDF5('../outputs/results.wepy.h5', mode='r')
+  wepy_h5 = WepyHDF5('_output/we/results.wepy.h5', mode='r')
 
   wepy_h5.open()
 
@@ -131,127 +72,10 @@ This script shows an example of assigning labels to frames and then
 genrating a network representation.
 
 #+begin_src bash
-  python state_network.py
+  python source/state_network.py
 #+end_src
 
 This will produce a GEXF format file which you can open up in Gephi to
 look at your network.
 
-** Using orchestrators
-
-There is also a script showing how to create an orchestrator database
-with an initial snapshot that you can run simulations from.
-
-Just run it and a file called ~LJ-pair.orch.sqlite~ should appear:
-
-#+begin_src bash
-  python make_orchestratory.py
-#+end_src
-
-From here we can run simulations from this database using the initial
-snapshot. Snapshots are identified by an MD5 hash so we need to get
-that first:
-
-#+begin_src bash
-  wepy ls snapshots LJ-pair.orch.sqlite
-#+end_src
-
-You should see something like printed to stdout:
-
-#+begin_example
-  4ac37dec60c93bd86468359083bdc310
-#+end_example
-
-This is the hash of the only snapshot in the database.
-
-We also should get the hash of the default configuration as well from
-the database:
-
-#+begin_src bash
-  wepy ls configs LJ-pair.orch.sqlite
-#+end_src
-
-Now we can do a run from this snapshot where we also specify the
-amount of system clock time we want to run for and the number of steps
-to take in each cycle:
-
-#+begin_src bash
-  # set these as shell variables for using elsewhere
-  start_hash='4ac37dec60c93bd86468359083bdc310'
-  config_hash='08db6e4c3679036e01a2db1746067ac0'
-
-  wepy run orch LJ-pair.orch.sqlite "$start_hash" 10 100
-#+end_src
-
-You should now see a folder with the name of the hash (this can be
-customized, see options) and something like this to stdout:
-
-#+begin_example
-Run start and end hashes: 4ac37dec60c93bd86468359083bdc310, 53f0ac18cd4ae284e86dfedcef1433ef
-#+end_example
-
-Which shows the hash you used as input and the end hash of snapshot at
-the end of the run.
-
-In the folder you will see the reporter outputs from before all named
-according the job name (the hash). There is an additional 'gexf' file
-which is a network of the walker family tree. This is an XML file that
-can be opened by the Gephi visualization program.
-
-There is also another file called ~checkpoint.orch.sqlite~, which
-should contain the end snapshot and a record for the completed run. In
-a simulation where we enable checkpointing this file would be written
-every few cycles in order that we can restart the simulation.
-
-Note that the original orchestrator we started with does not get the
-new run added to it. The reason is that if there were to be multiple
-processes from multiple runs attempting to write to the database then
-we would end up with a much more complex concurrency situation
-involving blocking processes, waiting for the write locks to free up
-on the database and the host of monitoring and other things that would
-need to be done in order to implement. Essentially this would be a
-sort of distributed system which is hard. Furthermore, with this
-architecture the data flow and timing is not dependent upon other
-processes (except perhaps for the work mapper).
-
-In the intended work flow the user should manually aggregate or
-*reconcile* the snapshots and files into one, if that is desired. If
-you do this you can keep one "master" orchestrator database with all
-the information about all runs and snapshots and write your scripts
-just to target it for running new simulations.
-
-To reconcile two orchestrator we can again use the command line:
-
-#+begin_src bash
-  wepy reconcile orch LJ-pair.orch.sqlite "$start_hash/checkpoint.orch.sqlite"
-#+end_src
-
-Then see that it contains two snapshots and a run:
-
-#+begin_src bash
-  wepy ls snapshots LJ-pair.orch.sqlite
-  wepy ls runs LJ-pair.orch.sqlite
-#+end_src
-
-
-You can extract snapshots as pickle files (technically we use the
-~dill~ library for this which is just an enhanced pickle. This is how
-they are stored in the orchestrator database as well) if you want and
-run simulations directly from them:
-
-#+begin_src bash
-  wepy get snapshot LJ-pair.orch.sqlite "$start_hash"
-
-  # you also need the configuration file
-  wepy get config LJ-pair.orch.sqlite "$config_hash"
-
-  # we also specify a job name because we already have a run with the
-  # starting hash
-  wepy run snapshot "${start_hash}.snap.dill.pkl" "${config_hash}.config.dill.pkl" \
-       --job-name "${start_hash}_again" \
-       10 100
-#+end_src
-
-
-Now we see another directory for this job.
 
