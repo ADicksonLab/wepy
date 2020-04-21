@@ -11,6 +11,8 @@ import os
 import os.path as osp
 from pathlib import Path
 
+import pytest
+
 tests_dir = Path(osp.dirname(__file__))
 utils_dir = tests_dir / 'utils'
 

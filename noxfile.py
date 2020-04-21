@@ -93,8 +93,10 @@ def test_doc_pages(session):
     session.run("inv", "docs.test-pages", "-t", f"test-docs-pages_{session.python}")
 
 
+# DEBUG
+#    python=['3.6', '3.7', '3.8'],
 @nox.session(
-    python=['3.6', '3.7', '3.8'],
+    python=['3.7',],
     venv_backend="conda",
 )
 def test_example(session):
@@ -137,17 +139,20 @@ def test_example(session):
 
     session.install("-r", str(test_requirements))
 
+    # install the example requirements
     requirements = Path(f"info/examples/{example}/env/requirements.txt")
-
     if requirements.is_file():
         session.install("-r", str(requirements))
 
+    # install the package under test
+    self_requirements = Path(f"info/examples/{example}/env/self.requirements.txt")
+    if self_requirements.is_file():
+        session.install("-r", str(self_requirements))
 
     session.run(
         "pytest",
         f"tests/test_docs/test_examples/test_{example}.py",
     )
-
 
 @nox.session(
     python=['3.6', '3.7', '3.8'],
