@@ -115,6 +115,7 @@ class OpenMMRunner(Runner):
 
     def __init__(self, system, topology, integrator,
                  platform=None,
+                 platform_kwargs=None,
                  enforce_box=False):
         """Constructor for OpenMMRunner.
 
@@ -130,11 +131,17 @@ class OpenMMRunner(Runner):
             Integrator for propagating dynamics.
 
         platform : str
-            The specification for the computational platform to
-            use. If None uses OpenMM default platform, see OpenMM
+            The specification for the default computational platform
+            to use. Platform can also be set when run_segment is
+            called. If None uses OpenMM default platform, see OpenMM
             documentation for all value but typical ones are:
             Reference, CUDA, OpenCL. If value is None the automatic
             platform determining mechanism in OpenMM will be used.
+
+        platform_kwargs : dict of str : bool, optional
+            key-values to set for a platform with
+            platform.setPropertyDefaultValue as the default for this
+            runner.
 
         enforce_box : bool
             Calls 'context.getState' with 'enforcePeriodicBox' if True.
@@ -175,6 +182,7 @@ class OpenMMRunner(Runner):
         # these are not SWIG objects
         self.topology = topology
         self.platform_name = platform
+        self.platform_kwargs = platform_kwargs
 
         self.enforce_box = enforce_box
 
@@ -194,8 +202,40 @@ class OpenMMRunner(Runner):
 
         return (self.system, self.integrator)
 
-    def run_segment(self, walker, segment_length,
+    def _resolve_platform(self,
+                          platform,
+                          platform_kwargs,
+        ):
+        # resolve which platform to use
+
+        # force usage of environmental one
+        if platform is Ellipsis:
+            platform_name = None
+            platform_kwargs = None
+
+        # use the runtime given one
+        elif platform is not None:
+            platform_name = platform
+            platform_kwargs = platform_kwargs
+
+        # use the default one
+        elif self.platform_name is not None:
+            platform_name = self.platform_name
+            platform_kwargs = self.platform_kwargs
+
+        # if the default is not set fall back to the environmental one
+        else:
+            platform_name = None
+            platform_kwargs = None
+
+        return platform_name, \
+               platform_kwargs,
+
+    def run_segment(self,
+                    walker,
+                    segment_length,
                     getState_kwargs=None,
+                    platform=None,
                     platform_kwargs=None,
                     **kwargs):
         """Run dynamics for the walker.
@@ -212,6 +252,20 @@ class OpenMMRunner(Runner):
             Specify the key-word arguments to pass to
             simulation.context.getState when getting simulation
             states. If None defaults object values.
+
+        platform : str or None or Ellipsis
+            The specification for the computational platform to
+            use. If None will use the default for the runner and
+            ignore platform_kwargs. If Ellipsis forces the use of the
+            OpenMM default or environmentally defined platform. See
+            OpenMM documentation for all value but typical ones are:
+            Reference, CUDA, OpenCL. If value is None the automatic
+            platform determining mechanism in OpenMM will be used.
+
+        platform_kwargs : dict of str : bool, optional
+            key-values to set for a platform with
+            platform.setPropertyDefaultValue for this segment only.
+
 
         Returns
         -------
@@ -230,10 +284,6 @@ class OpenMMRunner(Runner):
         if tmp_getState_kwargs is not None:
             getState_kwargs.update(tmp_getState_kwargs)
 
-        # just initialize on a no platform kwargs input
-        if platform_kwargs is None:
-            platform_kwargs = {}
-
         gen_sim_start = time.time()
 
         # make a copy of the integrator for this particular segment
@@ -244,18 +294,35 @@ class OpenMMRunner(Runner):
         new_integrator.setRandomNumberSeed(0)
 
 
+        ## Platform
+
+        platform_name, platform_kwargs = self._resolve_platform(
+            platform, platform_kwargs
+        )
+
+
         # create simulation object
 
+        ## create the platform and customize
+
         # if a platform was given we use it to make a Simulation object
-        if self.platform_name is not None:
+        if platform_name is not None:
 
             # get the platform by its name to use
-            platform = omm.Platform.getPlatformByName(self.platform_name)
+            platform = omm.Platform.getPlatformByName(platform_name)
+
+            if platform_kwargs is None:
+                platform_kwargs = {}
 
             # set properties from the kwargs if they apply to the platform
             for key, value in platform_kwargs.items():
+
                 if key in platform.getPropertyNames():
                     platform.setPropertyDefaultValue(key, value)
+
+                else:
+                    warn(f"Platform kwargs given ({key} : {value}) "
+                         f"but is not valid for this platform ({platform_name})")
 
             # make a new simulation object
             simulation = omma.Simulation(self.topology, self.system,
@@ -1087,7 +1154,7 @@ class OpenMMCPUWorker(Worker):
         # documented in superclass
 
         # make the platform kwargs dictionary
-        platform_options = {'CpuThreads' : self.attributes['num_threads']}
+        platform_options = {'Threads' : str(self.attributes['num_threads'])}
 
         # run the task and pass in the DeviceIndex for OpenMM to
         # assign work to the correct GPU
@@ -1116,7 +1183,7 @@ class OpenMMGPUWorker(Worker):
         device_id = self.mapper_attributes['device_ids'][self._worker_idx]
 
         # make the platform kwargs dictionary
-        platform_options = {'DeviceIndex' : device_id}
+        platform_options = {'DeviceIndex' : str(device_id)}
 
         # run the task and pass in the DeviceIndex for OpenMM to
         # assign work to the correct GPU
@@ -1134,7 +1201,7 @@ class OpenMMCPUWalkerTaskProcess(WalkerTaskProcess):
         num_threads = self.attributes['num_threads']
 
         # make the platform kwargs dictionary
-        platform_options = {'CpuThreads' : num_threads}
+        platform_options = {'Threads' : str(num_threads)}
 
         return task(platform_kwargs=platform_options)
 
@@ -1149,6 +1216,6 @@ class OpenMMGPUWalkerTaskProcess(WalkerTaskProcess):
         device_idx = self.mapper_attributes['device_ids'][self._worker_idx]
 
         # make the platform kwargs dictionary
-        platform_options = {'DeviceIndex' : device_id}
+        platform_options = {'DeviceIndex' : str(device_id)}
 
         return task(platform_kwargs=platform_options)
