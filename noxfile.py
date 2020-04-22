@@ -2,28 +2,29 @@ import nox
 
 from pathlib import Path
 
+# @nox.session(
+#     python=['3.6', '3.7', '3.8', 'pypy3'],
+# )
+# def test_user(session):
+#     """Test using basic pip based installation.
+
+#     This won't be able to run things that are based on OpenMM as it
+#     needs to be installed with conda.
+
+#     """
+
+#     session.install("-r", ".jubeo/requirements.txt")
+#     session.install("-r", "envs/test/requirements.in")
+#     session.install("-r", "envs/test/self.requirements.txt")
+
+#     session.run("inv", "py.tests-all", "-t", f"test-user_{session.python}")
+
+#    python=['3.6', '3.7', '3.8'],
 @nox.session(
-    python=['3.6', '3.7', '3.8', 'pypy3'],
-)
-def test_user(session):
-    """Test using basic pip based installation.
-
-    This won't be able to run things that are based on OpenMM as it
-    needs to be installed with conda.
-
-    """
-
-    session.install("-r", ".jubeo/requirements.txt")
-    session.install("-r", "envs/test/requirements.in")
-    session.install("-r", "envs/test/self.requirements.txt")
-
-    session.run("inv", "py.tests-all", "-t", f"test-user_{session.python}")
-
-@nox.session(
-    python=['3.6', '3.7', '3.8'],
+    python=['3.7',],
     venv_backend="conda",
 )
-def test_user_conda(session):
+def test_unit(session):
     """Test with conda as the installer.
 
     This is the full suite of tests and should be favored over the non
@@ -56,7 +57,7 @@ def test_user_conda(session):
 
     # install conda specific things here
 
-    session.run("inv", "py.tests-all", "-t", f"test-user-conda_{session.python}")
+    session.run("inv", "py.tests-unit", "-t", f"test-unit-conda_{session.python}")
 
 @nox.session(
     python=['3.6', '3.7', '3.8'],

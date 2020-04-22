@@ -13,6 +13,12 @@ from pathlib import Path
 
 import pytest
 
+pytest_plugins = [
+    'pytest_wepy.lennard_jones_pair',
+]
+
+
+# NOTE: not used much now, but this is the way to do this properly
 tests_dir = Path(osp.dirname(__file__))
 utils_dir = tests_dir / 'utils'
 
