@@ -13,9 +13,19 @@ See the git commit log history for full details.
 
 *** Growth
 
-Changes from rc0
+Changes in rc2:
+
+- adds support for setting the OpenMM Platform at ~run_segment~ or in
+  ~pre_cycle~
+- add support for parametrizing apparatus components (runner,
+  resampler, or BC) in the orchestration ~Configuration~ object.
+- Fixes ~wepy_tools.sim_makers~ for no longer default arguments for resamplers.
+- minor bugfixes found during testing.
+
+Changes in rc1:
 
 - fixes bug in WorkerMapper
+
 
 
 ** 1.0.0rc0
