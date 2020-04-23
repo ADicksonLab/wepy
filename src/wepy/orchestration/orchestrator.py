@@ -1027,7 +1027,7 @@ class Orchestrator():
                 walkers,
                 n_steps,
                 cycle_idx,
-                runner_opts=config.apparatus['runner'],
+                runner_opts=configuration.apparatus['runner'],
             )
 
             # check to see if a checkpoint is necessary
