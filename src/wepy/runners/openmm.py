@@ -190,17 +190,29 @@ class OpenMMRunner(Runner):
         # update with the user based enforce_box
         self.getState_kwargs['enforcePeriodicBox'] = self.enforce_box
 
-    #TODO: deprecate?
-    def _openmm_swig_objects(self):
-        """Just returns all of the foreign OpenMM module objects this class
-        uses that are actually SWIG wrappers.
+    def pre_cycle(self,
+                  platform=None,
+                  platform_kwargs=None,
+                  **kwargs
+    ):
 
-        Returns
-        -------
+        super().pre_cycle(
+            platform=platform,
+            platform_kwargs=platform_kwargs,
+            **kwargs)
 
-        """
+        # set the platform and kwargs for this cycle
+        self._cycle_platform = platform
+        self._cycle_platform_kwargs = platform_kwargs
 
-        return (self.system, self.integrator)
+    def post_cycle(self, **kwargs):
+
+        super().post_cycle(**kwargs)
+
+        # remove the platform and kwargs for this cycle
+        del self._cycle_platform
+        del self._cycle_platform_kwargs
+
 
     def _resolve_platform(self,
                           platform,
@@ -217,6 +229,12 @@ class OpenMMRunner(Runner):
         elif platform is not None:
             platform_name = platform
             platform_kwargs = platform_kwargs
+
+        # if the pre_cycle configured platform is set use this over
+        # the default
+        elif hasattr(self, '_cycle_platform'):
+            platform_name = self._cycle_platform
+            platform_kwargs = self._cycle_platform_kwargs
 
         # use the default one
         elif self.platform_name is not None:
@@ -295,7 +313,6 @@ class OpenMMRunner(Runner):
 
 
         ## Platform
-
         platform_name, platform_kwargs = self._resolve_platform(
             platform, platform_kwargs
         )

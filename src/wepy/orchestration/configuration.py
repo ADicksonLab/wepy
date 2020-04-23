@@ -13,6 +13,7 @@ class Configuration():
     DEFAULT_CONFIG_NAME = "root"
     DEFAULT_NARRATION = ""
     DEFAULT_REPORTER_CLASS = ""
+
     # if there is to be reporter class in filenames use this template
     # to put it into the filename
     REPORTER_CLASS_SEG_TEMPLATE = ".{}"
@@ -26,7 +27,10 @@ class Configuration():
                  reporter_partial_kwargs=None,
                  # work mappers
                  work_mapper_class=None,
-                 work_mapper_partial_kwargs=None):
+                 work_mapper_partial_kwargs=None,
+                 # apparatus configuration options
+                 apparatus_opts=None,
+    ):
 
         ## reporter stuff
 
@@ -108,6 +112,12 @@ class Configuration():
         # then generate a work mapper
         self._work_mapper = self._work_mapper_class(**self._work_mapper_partial_kwargs)
 
+        ### Apparatus options
+
+        # the runtime configuration of the apparatus can be configured
+        # via these options.
+        self._apparatus_opts = apparatus_opts if apparatus_opts is not None else {}
+
     @property
     def reporter_classes(self):
         """ """
@@ -157,6 +167,12 @@ class Configuration():
     def work_mapper(self):
         """ """
         return self._work_mapper
+
+    @property
+    def apparatus_opts(self):
+        """ """
+        return self._apparatus_opts
+
 
     def _gen_reporters(self):
         """ """
@@ -260,16 +276,20 @@ class Configuration():
 
         # dictionary of the possible reparametrizations from the
         # current configuration
-        params = {# related to the work mapper
-                  'work_mapper_class' : self.work_mapper_class,
-                  'work_mapper_partial_kwargs' : self.work_mapper_partial_kwargs,
-                  # those related to the reporters
-                  'mode' : self.mode,
-                  'config_name' : self.config_name,
-                  'work_dir' : self.work_dir,
-                  'narration' : self.narration,
-                  'reporter_classes' : self.reporter_classes,
-                  'reporter_partial_kwargs' : self.reporter_partial_kwargs}
+        params = {
+            # related to the work mapper
+            'work_mapper_class' : self.work_mapper_class,
+            'work_mapper_partial_kwargs' : self.work_mapper_partial_kwargs,
+            # those related to the reporters
+            'mode' : self.mode,
+            'config_name' : self.config_name,
+            'work_dir' : self.work_dir,
+            'narration' : self.narration,
+            'reporter_classes' : self.reporter_classes,
+            'reporter_partial_kwargs' : self.reporter_partial_kwargs,
+            # apparatus
+            'apparatus_opts' : self.apparatus_opts,
+        }
 
         for key, value in kwargs.items():
 

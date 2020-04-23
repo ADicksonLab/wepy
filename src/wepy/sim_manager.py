@@ -214,7 +214,12 @@ class Manager(object):
 
         return new_walkers
 
-    def run_cycle(self, walkers, n_segment_steps, cycle_idx):
+    def run_cycle(self,
+                  walkers,
+                  n_segment_steps,
+                  cycle_idx,
+                  runner_opts=None,
+    ):
         """Run a full cycle of weighted ensemble simulation using each
         component.
 
@@ -287,17 +292,33 @@ class Manager(object):
         # errors from it so we can cleanup if an error is caught
 
 
-        return self._run_cycle(walkers, n_segment_steps, cycle_idx)
+        return self._run_cycle(
+            walkers,
+            n_segment_steps,
+            cycle_idx,
+            runner_opts=runner_opts,
+        )
 
-    def _run_cycle(self, walkers, n_segment_steps, cycle_idx):
+    def _run_cycle(self,
+                   walkers,
+                   n_segment_steps,
+                   cycle_idx,
+                   runner_opts=None,
+    ):
         """See run_cycle."""
 
         logging.info("Begin cycle {}".format(cycle_idx))
 
+        if runner_opts is None:
+            runner_opts = {}
+
         # run the pre-cycle hook
-        self.runner.pre_cycle(walkers=walkers,
-                              n_segment_steps=n_segment_steps,
-                              cycle_idx=cycle_idx)
+        self.runner.pre_cycle(
+            walkers=walkers,
+            n_segment_steps=n_segment_steps,
+            cycle_idx=cycle_idx,
+            **runner_opts
+        )
 
         # run the segment
         start = time.time()
@@ -355,10 +376,13 @@ class Manager(object):
         resampler_data = resampling_results[2]
 
         # log the weights of the walkers after resampling
-        result_template_str = "|".join(["{:^5}" for i in range(self.n_init_walkers + 1)])
-        walker_weight_str = result_template_str.format("weight",
-            *[round(walker.weight, 3) for walker in resampled_walkers])
-        logging.info(walker_weight_str)
+
+        # DEBUG: commenting this out to make mocking easier. But really I
+        # don't even care if it stays. as its mostly noise.
+        # result_template_str = "|".join(["{:^5}" for i in range(self.n_init_walkers + 1)])
+        # walker_weight_str = result_template_str.format("weight",
+        #     *[round(walker.weight, 3) for walker in resampled_walkers])
+        # logging.info(walker_weight_str)
 
         # make a dictionary of all the results that will be reported
         seg_times = {}

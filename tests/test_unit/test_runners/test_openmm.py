@@ -10,14 +10,7 @@ import simtk.openmm as omm
 
 from openmmtools.testsystems import LennardJonesPair
 
-
-fixtures = [
-    'lj_omm_sys',
-    'lj_integrator',
-    'lj_init_state',
-]
-
-def test_runtime_platform(mocker):
+def test_runtime_platform():
     """Test that the platform can be changed at the time of the call to
     run_segment."""
 

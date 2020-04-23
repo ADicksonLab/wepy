@@ -1023,7 +1023,12 @@ class Orchestrator():
 
             logging.debug("Running cycle {}".format(cycle_idx))
             # run the cycle
-            walkers, filters = sim_manager.run_cycle(walkers, n_steps, cycle_idx)
+            walkers, filters = sim_manager.run_cycle(
+                walkers,
+                n_steps,
+                cycle_idx,
+                runner_opts=config.apparatus['runner'],
+            )
 
             # check to see if a checkpoint is necessary
             if (checkpoint_freq is not None):
