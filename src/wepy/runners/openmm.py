@@ -201,6 +201,9 @@ class OpenMMRunner(Runner):
             platform_kwargs=platform_kwargs,
             **kwargs)
 
+        logging.info(f"Setting the platform ({platform}) in the 'pre_cycle' OpenMM Runner call"
+                     f"with platform kwargs: {platform_kwargs}"
+        )
         # set the platform and kwargs for this cycle
         self._cycle_platform = platform
         self._cycle_platform_kwargs = platform_kwargs
@@ -297,10 +300,20 @@ class OpenMMRunner(Runner):
         # set the kwargs that will be passed to getState
         tmp_getState_kwargs = getState_kwargs
 
+        logging.info("Default 'getState_kwargs' in runner: "
+                     f"{self.getState_kwargs}")
+
+        logging.info("'getState_kwargs' passed to 'run_segment' : "
+                     f"{getState_kwargs}")
+
         # start with the object value
         getState_kwargs = copy(self.getState_kwargs)
         if tmp_getState_kwargs is not None:
             getState_kwargs.update(tmp_getState_kwargs)
+
+        logging.info("After resolving 'getState_kwargs' that will be used are: "
+                     f"{getState_kwargs}")
+
 
         gen_sim_start = time.time()
 
@@ -311,22 +324,55 @@ class OpenMMRunner(Runner):
         # random number
         new_integrator.setRandomNumberSeed(0)
 
-
         ## Platform
+
+        logging.info("Default 'platform' in runner: "
+                     f"{self.platform}")
+
+        logging.info("pre_cycle set 'platform' in runner: "
+                     f"{self._cycle_platform}")
+
+
+        logging.info("'platform' passed to 'run_segment' : "
+                     f"{platform}")
+
+        logging.info("Default 'platform_kwargs' in runner: "
+                     f"{self.platform_kwargs}")
+
+        logging.info("pre_cycle set 'platform_kwargs' in runner: "
+                     f"{self._cycle_platform_kwargs}")
+
+
+        logging.info("'platform_kwargs' passed to 'run_segment' : "
+                     f"{platform_kwargs}")
+
         platform_name, platform_kwargs = self._resolve_platform(
             platform, platform_kwargs
         )
+
+
+        logging.info("Resolved 'platform' : "
+                     f"{platform_name}")
+
+        logging.info("Resolved 'platform_kwargs' : "
+                     f"{platform_kwargs}")
+
 
 
         # create simulation object
 
         ## create the platform and customize
 
+
+
         # if a platform was given we use it to make a Simulation object
         if platform_name is not None:
 
+            logging.info("Using platform configured in code.")
+
             # get the platform by its name to use
             platform = omm.Platform.getPlatformByName(platform_name)
+            logging.info(f"Platform object created: {platform}")
 
             if platform_kwargs is None:
                 platform_kwargs = {}
@@ -335,6 +381,8 @@ class OpenMMRunner(Runner):
             for key, value in platform_kwargs.items():
 
                 if key in platform.getPropertyNames():
+
+                    logging.info(f"Setting platform property: {key} : {value}")
                     platform.setPropertyDefaultValue(key, value)
 
                 else:
@@ -347,6 +395,7 @@ class OpenMMRunner(Runner):
 
         # otherwise just use the default or environmentally defined one
         else:
+            logging.info("Using environmental platform.")
             simulation = omma.Simulation(self.topology, self.system,
                                          new_integrator)
 
