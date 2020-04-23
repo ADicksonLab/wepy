@@ -327,7 +327,7 @@ class OpenMMRunner(Runner):
         ## Platform
 
         logging.info("Default 'platform' in runner: "
-                     f"{self.platform}")
+                     f"{self.platform_name}")
 
         logging.info("pre_cycle set 'platform' in runner: "
                      f"{self._cycle_platform}")
