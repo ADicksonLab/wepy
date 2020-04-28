@@ -29,21 +29,12 @@ nbsphinx
 notebook
 
 # testing
-pytest
-pytest-runner
+
+# NOTE: that we include the test env requirements in the compile so
+# they don't need to be specified twice
 argcomplete
 nox
 coverage
-
-git+https://github.com/salotz/pytest-datadir.git
-#pytest-datadir
-pytest-cov
-pytest-benchmark
-pytest-profiling
-pytest-html
-pytest-print
-delegator.py
-
 
 # code quality metrics
 lizard
