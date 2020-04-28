@@ -41,4 +41,4 @@ def env(cx):
     example_name = Path(os.getcwd()).stem
 
     with cx.cd("../../../"):
-        cx.run(f"inv docs.env-example -n {example_name}")
+        cx.run(f"inv docs.env-tutorial -n {example_name}")
