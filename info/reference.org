@@ -257,11 +257,14 @@ Each should be defined as a class constant prefixed by the name of the
 record group followed by the definition type, for example the
 resampling record group of WExplore looks like this:
 
-#+BEGIN_SRC python
-    DECISION = MultiCloneMergeDecision
-    RESAMPLING_FIELDS = DECISION.FIELDS + ('step_idx', 'walker_idx', 'region_assignment',)
-    RESAMPLING_SHAPES = DECISION.SHAPES + ((1,), (1,), Ellipsis,)
-    RESAMPLING_DTYPES = DECISION.DTYPES + (np.int, np.int, np.int,)
+#+BEGIN_SRC python :tangle decision_fields_0.py
+  import numpy as np
+  from wepy.resampling.decisions.clone_merge import MultiCloneMergeDecision
+
+  DECISION = MultiCloneMergeDecision
+  RESAMPLING_FIELDS = DECISION.FIELDS + ('step_idx', 'walker_idx', 'region_assignment',)
+  RESAMPLING_SHAPES = DECISION.SHAPES + ((1,), (1,), Ellipsis,)
+  RESAMPLING_DTYPES = DECISION.DTYPES + (np.int, np.int, np.int,)
 #+END_SRC
 
 For the "fields" this is the name of the field and should be a
@@ -320,7 +323,8 @@ report that could be serialized to CSV. For instance in WExplore's
 resampler record group we leave out the multidimensional ='image'=
 field:
 
-#+BEGIN_SRC python
+#+BEGIN_SRC python :tangle record_fields_0.py
+    import numpy as np
     RESAMPLER_FIELDS = ('branching_level', 'distance', 'new_leaf_id', 'image')
     RESAMPLER_SHAPES = ((1,), (1,), Ellipsis, Ellipsis)
     RESAMPLER_DTYPES = (np.int, np.float, np.int, None)

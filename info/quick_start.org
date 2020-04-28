@@ -27,7 +27,7 @@ from ~wepy~ simulations.
 Just go to a directory where you want your results to be placed and
 then execute the script with the options that you want to try out.
 
-#+begin_src bash
+#+begin_src bash :tangle test_drive.bash
 mkdir test_drive
 cd test_drive
 #+end_src
@@ -39,7 +39,7 @@ lasts 4 picoseconds (τ = 10 ps in the WE terminology) and we are using
 3 workers. Additionally, it is using a pre-parametrized WExplore
 resampler for simplicity.
 
-#+begin_src bash
+#+begin_src bash :tangle test_drive.bash
   python -m wepy_test_drive -v LennardJonesPair/OpenMM-Reference 20 10 4 3
 #+end_src
 
@@ -107,7 +107,7 @@ This example uses the ~NoResampler~ which performs no resampling so
 this is equivalent to running 10 simulations in parallel.
 
 
-#+BEGIN_SRC python
+#+BEGIN_SRC python :tangle noresampler_example.py
   from copy import copy
 
   import simtk.openmm as omm
@@ -183,8 +183,8 @@ to be used.
 You can run this ~wepy~ simulation by running this on the command line
 after you have copy and pasted it to a file:
 
-#+BEGIN_SRC bash
-python run_wepy.py
+#+BEGIN_SRC bash :tangle noresampler_example.bash
+python noresampler_example.py
 #+END_SRC
 
 The ~wepy~ command line application introduces some useful tools for
@@ -197,6 +197,3 @@ simulations the orchestration sub-module is available for that.
 
 
 So ignore the ~wepy~ commands like ~wepy run~ for now.
-
-
-** COMMENT A somewhat more realistic example

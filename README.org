@@ -2,6 +2,7 @@
 
 [[./info/logo/wepy.svg]]
 
+[[https://adicksonlab.github.io/wepy/][Documentation]]
 
 Modular implementation and framework for running weighted ensemble
 simulations in pure python, where the aim is to have simple things
@@ -25,21 +26,11 @@ This allows freedom for fast development of new methods.
 
 Also see the full [[https://github.com/ADicksonLab/wepy/blob/master/sphinx/source/introduction.org][introduction]].
 
-** Community
-
-Discussion takes place on riot.im (#wepy:matrix.org) which is a slack-like app that works
-on the Matrix protocol:
-[[https://riot.im/app/#/room/#wepy:matrix.org]]
-
-You can also contact me directly:
-
-samuel.lotz@salotz.info
-
 ** Installation
 
-Also see: [[https://github.com/ADicksonLab/wepy/blob/master/sphinx/source/installation.org][Installation Instructions]]
+Also see: [[info/installation.org][Installation Instructions]]
 
-To install from pip (which may be out of date):
+To install from pip:
 
 #+BEGIN_SRC bash
   pip install wepy[all]
@@ -55,108 +46,17 @@ to compile it yourself.
   conda install -c omnia openmm
 #+END_SRC
 
-There are some optional features you can install as well using the
-"extras" spec in pip. The base package aims to be very easy to install
-but lacks a lot of functionality that makes wepy truly
-useful. Currently, these are:
+Check its installed by running the command line interface:
 
-- mdtraj :: allows export of structures to the mdtraj format which has
-            many writers for serialization, e.g. pdb, dcd, etc.
-- all :: installs all extras
-
-Check the setup.py file under 'extras_requirements' for the full listing.
-
-#+BEGIN_SRC bash
-pip install wepy[mdtraj]
-#+END_SRC
-
-You can always install from git as well for the latest:
-
-#+BEGIN_SRC bash
-pip install git+https://github.com/ADicksonLab/wepy.git
-#+END_SRC
-
-
-If installation went alright you should have this command line
-interface for working with orchestration available:
-
-#+BEGIN_SRC bash
-  wepy --help
-#+END_SRC
-
-*** Using automation tool
-
-You can also try some of the scripting and automation tools the wepy
-repo uses.
-
-For this you will need the invoke package (which we use kind of like
-the make tool).
-
-So either install invoke via pip how you normally would on your system:
-
-#+begin_src bash
-  pip3 install invoke
+#+begin_src bash :tangle check_installation.bash
+wepy --help
 #+end_src
 
-Or source the bootstraph.sh file which will infer the directory you
-have installed anaconda in and install invoke to the base environment
-there:
+** Citations
 
-#+begin_src bash
-  . tooling.sh
-#+end_src
+Current [[https://zenodo.org/badge/latestdoi/101077926][Zenodo DOI]]
 
-Note if you don't use the bootstrap config here you will have to set
-the 'ANACONDA_DIR' environmental variable in your shell for the
-automation to work properly. This can be done temporarily like in the
-bootstrap.sh configuration file, but probably you should be doing this
-in your shell configs.
-
-Then you can run tasks via the invoke command line 'inv'. To list the
-available tasks and their descriptions run:
-
-#+begin_src bash
-  inv -l
-#+end_src
+Lotz and Dickson. 2020. in preparation.
 
 
-# TODO: install the package using the automation tooling
-
-** Getting Started
-
-ATTENTION: these parts of the documentation are under construction
-now. Please check back for updates.
-
-For a very quick sketch of how to use wepy see the [[https://github.com/ADicksonLab/wepy/blob/master/sphinx/source/quick_start.org][quickstart]].
-
-It is recommended to read the [[https://github.com/ADicksonLab/wepy/blob/master/sphinx/source/users_guide.org][User's Guide]] before starting to use
-wepy, especially if you are new to programming or only have experience
-with older simulation engines and packages, as it will focus your
-attention on the relevant aspects.
-
-If you are competent in object-oriented programming and python you can
-probably skip the first sections and head straight to the outline of
-simulation manager and its components in the user's guide.
-
-Otherwise you can head straight to the [[https://github.com/ADicksonLab/wepy/tree/master/sphinx/tutorials][tutorials]] and [[https://github.com/ADicksonLab/wepy/tree/master/examples][examples]].
-
-The tutorials are ipython notebooks while the examples are collections
-of scripts showing you how you might actually run wepy in production.
-
-There is an example with a pair of Lennard-Jones particles that runs
-on the reference implementation. This is the "Hello World" example and
-should be your starting point.
-
-A more advanced (and interesting) example is a non-equilibrium
-unbinding WExplore simulation of the soluble epoxide hydrolase (sEH)
-protein with the inhibitor TPPU, which was the subject of this paper:
-
-Lotz and Dickson. 2018. JACS 140 (2) pp. 618-628 (DOI: 10.1021/jacs.7b08572)
-
-If you plan developing wepy read the [[https://github.com/ADicksonLab/wepy/blob/master/sphinx/source/dev_guide.org][Dev Guide]].
-
-
-** Other Info
-
-Current [[https://zenodo.org/badge/latestdoi/101077926][Zenodo DOI]].
 

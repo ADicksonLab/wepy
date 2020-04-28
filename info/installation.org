@@ -51,6 +51,6 @@ pip install git+https://github.com/ADicksonLab/wepy.git
 If installation went alright you should have this command line
 interface for working with orchestration available:
 
-#+BEGIN_SRC bash
+#+BEGIN_SRC bash :tangle check_installation.bash
   wepy --help
 #+END_SRC

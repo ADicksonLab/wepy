@@ -3,8 +3,27 @@
 
 ** Bugs, issues, and feature requests
 
+- [[https://github.com/ADicksonLab/wepy/issues][Issue Tracker]]
+
 ** Builds, Distributions, and Packages
 
-** Contacting other users
+~wepy~ releases and packages are available on:
+
+- [[https://pypi.org/project/wepy/][PyPI]]
+- [[https://github.com/ADicksonLab/wepy/releases][Github Releases]]
+
+** Community & Related Projects
+
+Discussion takes place on riot.im (#wepy:matrix.org) which is a slack-like app that works
+on the Matrix protocol:
+[[https://riot.im/app/#/room/#wepy:matrix.org]]
+
+We will also list any projects using ~wepy~ in the
+@@rst::doc:`Introduction <introduction>`@@.
+
+Just make a PR or issue to add your own.
 
 ** Contacting the developers
+
+You can contact developers directly via their contact info on the
+[[https://www.egr.msu.edu/~alexrd/][Dickson Lab website]] or using the [[https://github.com/ADicksonLab/wepy/issues][issue tracker]].
