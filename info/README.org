@@ -2,10 +2,10 @@
 * Wepy
 ** Getting Started
 
+- [[file:./installation.org][Installation]] :: Detailed instructions on how to install.
 - [[file:./quick_start.org][Quick Start]] :: Get up and running as quickly as possible.
 - [[file:./introduction.org][Introduction]] :: Background and motivation on the problem this
   software solves and the approach it takes to solving it.
-- [[file:./installation.org][Installation]] :: Detailed instructions on how to install.
 
 ** Software Documentation
 

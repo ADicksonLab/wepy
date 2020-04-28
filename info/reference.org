@@ -4,6 +4,8 @@
 
 ** Architecture
 
+# TODO
+
 ** Record Groups
 
 The protocol by which non-trajectory data is given by the resampler

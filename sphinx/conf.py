@@ -6,6 +6,12 @@
 # full list see the documentation:
 # http://www.sphinx-doc.org/en/master/config
 
+try:
+    import importlib.metadata as metadata
+except ImportError:
+    import importlib_metadata as metadata
+
+
 # -- Path setup --------------------------------------------------------------
 
 # If extensions (or modules to document with autodoc) are in another directory,
@@ -22,10 +28,14 @@ project = 'wepy'
 copyright = '2018, Samuel D. Lotz'
 author = 'Samuel D. Lotz'
 
-# The short X.Y version
-version = '1.0.0'
-# The full version, including alpha/beta/rc tags
-release = '1.0.0rc1.dev0'
+version = metadata.version('wepy')
+release = version
+
+# NOTE: this was the manual way
+# # The short X.Y version
+# version = '1.0.0'
+# # The full version, including alpha/beta/rc tags
+# release = '1.0.0rc1.dev0'
 
 
 # -- General configuration ---------------------------------------------------
@@ -75,61 +85,89 @@ language = None
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 
 # The name of the Pygments (syntax highlighting) style to use.
-pygments_style = None
+
+# some other good ones are: 'manni', 'pastie', 'emacs', 'perldoc'
+
+pygments_style = 'manni'
 
 
 # -- Options for HTML output -------------------------------------------------
 
-# The theme to use for HTML and HTML Help pages.  See the documentation for
-# a list of builtin themes.
-#
-# html_theme = "alabaster"
+### Alabaster
 
-# Extra themes custom configs
+html_theme = "alabaster"
 
-# read the docs
-#html_theme = 'sphinx_rtd_theme'
-
-# bootstrap
-# import sphinx_bootstrap_theme
-# html_theme = 'bootstrap'
-# html_theme_path = sphinx_bootstrap_theme.get_html_theme_path()
-
-# guzzle
-import guzzle_sphinx_theme
-
-html_theme_path = guzzle_sphinx_theme.html_theme_path()
-html_theme = 'guzzle_sphinx_theme'
-
-# Register the theme as an extension to generate a sitemap.xml
-extensions.append("guzzle_sphinx_theme")
-
-# Guzzle theme options (see theme.conf for more information)
 html_theme_options = {
-    # Set the name of the project to appear in the sidebar
-    "project_nav_name": "Wepy",
+    'logo': 'wepy.svg',
+    'logo_name': True,
+    'description': 'A Weighted Ensemble  (WE) simulation framework',
+    'github_user': 'ADicksonLab',
+    'github_repo': 'wepy',
+    'github_banner': True,
+    'github_button': False,
+    'travis_button': False,
+    'codecov_button': False,
+    'analytics_id': False,  # TODO
+    'font_family': "'Roboto', Georgia, sans",
+    'head_font_family': "'Roboto', Georgia, serif",
+    'code_font_family': "'Roboto Mono', 'Consolas', monospace",
+    'page_width' : '90%',
+    'sidebar_width' : '20%',
+    'sidebar_collapse' : True,
+    'show_relbars' : True,
+    # 'pre_bg': '#433e56'
 }
 
-# Theme options are theme-specific and customize the look and feel of a theme
-# further.  For a list of options available for each theme, see the
-# documentation.
-#
-# html_theme_options = {}
-
-# Add any paths that contain custom static files (such as style sheets) here,
-# relative to this directory. They are copied after the builtin static files,
-# so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']
+html_css_files = ['custom.css']
 
-# Custom sidebar templates, must be a dictionary that maps document names
-# to template names.
-#
-# The default sidebars (for documents that don't match any pattern) are
-# defined by theme itself.  Builtin themes are using these templates by
-# default: ``['localtoc.html', 'relations.html', 'sourcelink.html',
-# 'searchbox.html']``.
-#
-# html_sidebars = {}
+html_sidebars = {
+    '**': [
+        'about.html',
+        'navigation.html',
+        'relations.html',
+        'searchbox.html',
+        'donate.html',
+    ]
+}
+
+### END Alabaster
+
+### guzzle
+# import guzzle_sphinx_theme
+
+# html_theme_path = guzzle_sphinx_theme.html_theme_path()
+# html_theme = 'guzzle_sphinx_theme'
+
+# # Register the theme as an extension to generate a sitemap.xml
+# extensions.append("guzzle_sphinx_theme")
+
+# # Guzzle theme options (see theme.conf for more information)
+# html_theme_options = {
+#     # Set the name of the project to appear in the sidebar
+#     "project_nav_name": "Wepy",
+#     'base_url' : 'https://adicksonlab.github.io/wepy/',
+# }
+
+# # Theme options are theme-specific and customize the look and feel of a theme
+# # further.  For a list of options available for each theme, see the
+# # documentation.
+# #
+# # html_theme_options = {}
+
+# # Add any paths that contain custom static files (such as style sheets) here,
+# # relative to this directory. They are copied after the builtin static files,
+# # so a file named "default.css" will overwrite the builtin "default.css".
+# html_static_path = ['_static']
+
+# html_sidebars = {
+#     '**': ['logo-text.html',
+#            'globaltoc.html',
+#            'localtoc.html',
+#            'searchbox.html']
+# }
+
+### END Guzzle
 
 
 # -- Options for HTMLHelp output ---------------------------------------------

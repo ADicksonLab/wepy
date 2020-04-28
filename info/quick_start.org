@@ -8,12 +8,12 @@ their website, e.g.:
 conda install -c conda-forge openmmtools
 #+END_SRC
 
-We promise this will make starting up with wepy faster since building
-systems from scratch can be pretty complex and non-portable in real.
+This will make starting up with ~wepy~ faster since building systems
+from scratch can be pretty complex and non-portable.
 
 We will have advice later in the documentation on how to build systems
-and create inputs for wepy, but in general if you can make an OpenMM
-system go you can use wepy, so check out their documentation.
+and create inputs for ~wepy~, but in general if you can make an OpenMM
+system go you can use ~wepy~, so check out their documentation.
 
 *** Test Drive
 
@@ -22,7 +22,7 @@ works we have the script for you!
 
 While this script is unlikely to do anything worthwhile it is a pretty
 good introduction to the inputs and kind of results you can expect
-from wepy simulations.
+from ~wepy~ simulations.
 
 Just go to a directory where you want your results to be placed and
 then execute the script with the options that you want to try out.
@@ -55,7 +55,7 @@ The ~root~ base file name is just a default name given for the
 simulation run.
 
 If you want to run again make sure you either delete the files or do
-it in another folder because wepy won't unintentionally overwrite
+it in another folder because ~wepy~ won't unintentionally overwrite
 already existing files.
 
 ~root.dash.org~ is just a plain text file that can be viewed in any
@@ -71,7 +71,7 @@ happened in the simulation.
 However, the main data output is in ~root.wepy.h5~. This contains all
 of the data from the simulation and is the only necessary output file,
 the rest are just for convenience.  This file is in the HDF5 format
-with a schema designed specifically for wepy, which we typically call
+with a schema designed specifically for ~wepy~, which we typically call
 the *WepyHDF5* schema.
 
 There is a lot of things we can do this file and you should check out
@@ -99,7 +99,7 @@ need to get useful simulations.
 
 ~wepy~ is extremely customizable and just about any component can be
 changed to match your needs. For now we just show you one of the
-simplest possible examples of running wepy using OpenMM to give you a
+simplest possible examples of running ~wepy~ using OpenMM to give you a
 flavor of how this looks like.
 
 
@@ -163,9 +163,9 @@ this is equivalent to running 10 simulations in parallel.
 #+END_SRC
 
 
-In this example we see the core components of a wepy simulation: 
+In this example we see the core components of a ~wepy~ simulation: 
 
-- *Runner*: for running dynamics ('sampling' in wepy parlance)
+- *Runner*: for running dynamics ('sampling' in ~wepy~ parlance)
 - *Resampler*: for performing resampling (i.e. cloning and merging of walkers)
 - *Manager*: the main simulation loop
 
@@ -177,10 +177,10 @@ Further in the docs we will show how to add reporters to the
 simulation so that your results can be saved and how to use and
 customize resamplers that do useful work.
 
-Writing scripts like this is the primary way in which wepy is intended
+Writing scripts like this is the primary way in which ~wepy~ is intended
 to be used.
 
-You can run this wepy simulation by running this on the command line
+You can run this ~wepy~ simulation by running this on the command line
 after you have copy and pasted it to a file:
 
 #+BEGIN_SRC bash
@@ -196,7 +196,7 @@ to hardware issues, or if you need to repeatedly stop and restart
 simulations the orchestration sub-module is available for that.
 
 
-So ignore the wepy commands like ~wepy run~ for now.
+So ignore the ~wepy~ commands like ~wepy run~ for now.
 
 
 ** COMMENT A somewhat more realistic example

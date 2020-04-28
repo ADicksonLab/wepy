@@ -28,14 +28,14 @@ on CUDA 10.0 you can use the channel 'omnia/label/cuda100', e.g.:
 
 There are some optional features you can install as well using the
 "extras" spec in pip. The base package aims to be very easy to install
-but lacks a lot of functionality that makes wepy truly
-useful. Currently, these are:
+but lacks a lot of functionality that makes ~wepy~ useful for
+molecular dynamics. Currently, these are:
 
 - mdtraj :: allows export of structures to the mdtraj format which has
             many writers for serialization, e.g. pdb, dcd, etc.
 - all :: installs all extras
 
-Check the setup.py file under 'extras_requirements' for the full listing.
+Check the setup.py file under ~extras_requirements~ for the full listing.
 
 #+BEGIN_SRC bash
 pip install wepy[mdtraj]

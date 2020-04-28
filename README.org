@@ -1,5 +1,7 @@
 * Weighted Ensemble Python (wepy)
 
+[[./info/logo/wepy.svg]]
+
 
 Modular implementation and framework for running weighted ensemble
 simulations in pure python, where the aim is to have simple things

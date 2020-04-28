@@ -63,9 +63,11 @@ ORG_DOCS_SOURCES = [
 
 RST_DOCS_SOURCES = [
     'glossary',
-    'tutorials/index',
+    'api',
 ]
 """Which info pages are in raw rst"""
+
+LOGO_DIR = "info/logo"
 
 PYPIRC="$HOME/.pypirc"
 TESTING_PYPIRC="$HOME/.pypirc"

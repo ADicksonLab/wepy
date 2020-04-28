@@ -17,7 +17,8 @@ _conda_envs
 
 # sphinx stuff
 sphinx/_build
-sphinx/source
+sphinx/_source
+sphinx/_static
 sphinx/_api
 docs/_build
 

@@ -5,6 +5,7 @@ from ..config import (
     REPORTS_DIR,
     ORG_DOCS_SOURCES,
     RST_DOCS_SOURCES,
+    LOGO_DIR,
     TESTING_PYPIRC,
     PYPIRC,
     PYENV_CONDA_NAME,
@@ -14,6 +15,7 @@ import sys
 import os
 import os.path as osp
 from pathlib import Path
+import shutil as sh
 
 ## User config examples
 
@@ -119,21 +121,30 @@ def clean(cx):
 def docs_clean(cx):
 
     cx.run("cd sphinx && make clean")
-    cx.run("rm -rf sphinx/_build/*")
-    cx.run("rm -rf sphinx/source/*")
-    cx.run("rm -rf sphinx/api/*")
+    cx.run("rm -rf sphinx/_build")
+    cx.run("rm -rf sphinx/_source")
+    cx.run("rm -rf sphinx/_api")
+    cx.run("rm -rf sphinx/_static")
 
 @task(pre=[docs_clean,])
 def docs_build(cx):
-    """Buld the documenation"""
+    """Buld the documentation"""
 
     # make sure the 'source' folder exists
-    cx.run("mkdir -p sphinx/source")
-    cx.run("mkdir -p sphinx/source/tutorials")
+    cx.run("mkdir -p sphinx/_source")
+    cx.run("mkdir -p sphinx/_source/tutorials")
+    cx.run("mkdir -p sphinx/_source/examples")
+    cx.run("mkdir -p sphinx/_static")
+
+    # copy the logo over
+    cx.run(f"cp {LOGO_DIR}/* sphinx/_static/")
+
+    # and the other theming things
+    cx.run(f"cp sphinx/static/* sphinx/_static/")
 
     # copy the plain RST files over to the sources
     for source in RST_DOCS_SOURCES:
-        cx.run(f"cp info/{source}.rst sphinx/source/{source}.rst")
+        cx.run(f"cp info/{source}.rst sphinx/_source/{source}.rst")
 
     # convert the org mode to rst in the source folder
     for source in ORG_DOCS_SOURCES:
@@ -144,39 +155,82 @@ def docs_build(cx):
         cx.run("pandoc "
                "-f org "
                "-t rst "
-               f"-o sphinx/source/{target}.rst "
+               f"-o sphinx/_source/{target}.rst "
                f"info/{source}.org")
 
+    ## Examples
+
+    # examples don't get put into the documentation and rendered like
+    # the tutorials do, but we do copy the README as the index
+
+    # copy the tutorials_index.rst file to the tutorials in _source
+    # TODO: remove, don't think I will use this
+    # sh.copyfile(
+    #     "sphinx/examples_index.rst",
+    #     "sphinx/_source/examples/index.rst",
+    # )
+
+
+    ## Tutorials
+
+    # convert the README
+    sh.copyfile(
+        "sphinx/tutorials_index.rst",
+        "sphinx/_source/tutorials/index.rst",
+    )
+
     # convert any of the tutorials that exist with an org mode extension as well
-    for source in os.listdir('info/tutorials'):
-        source = Path(source)
+    for item in os.listdir('info/tutorials'):
+        item = Path('info/tutorials') / item
 
-        # if it is org mode convert it and put it into the sources
-        if source.suffix == '.org':
+        # tutorials are in their own dirs
+        if item.is_dir():
 
-            source = source.stem
-            cx.run("pandoc "
-                   "-f org "
-                   "-t rst "
-                   f"-o sphinx/source/tutorials/{source}.rst "
-                   f"info/tutorials/{source}.org")
+            docs = list(item.glob("README.org")) + \
+                list(item.glob("README.ipynb")) + \
+                list(item.glob("README.rst"))
 
-        # otherwise just move it
-        else:
+            if len(docs) > 1:
+                raise ValueError(f"Multiple tutorial files for {item}")
+            else:
+                readme_path = docs[0]
 
-            # quick check for other kinds of supported files
-            assert source.suffix in ['.ipynb', '.rst',]
+            tutorial = item.stem
 
-            cx.run(f"cp info/tutorials/{source} sphinx/source/tutorials/{source}")
+            os.makedirs(f"sphinx/_source/tutorials/{tutorial}",
+                        exist_ok=True)
+
+            # we must convert org mode files to rst
+            if readme_path.suffix == '.org':
+
+                cx.run("pandoc "
+                       "-f org "
+                       "-t rst "
+                       f"-o sphinx/_source/tutorials/{tutorial}/README.rst "
+                       f"info/tutorials/{tutorial}/README.org")
+
+            # just copy notebooks since teh sphinx extension handles
+            # them
+            elif readme_path.suffix in ('.ipynb', '.rst',):
+
+                sh.copyfile(
+                    readme_path,
+                    f"sphinx/_source/tutorials/{tutorial}/{readme_path.stem}{readme_path.suffix}",
+                )
+
+            # otherwise just move it
+            else:
+                raise ValueError(f"Unkown tutorial type for file: {readme_path.stem}{readme_path.suffix}")
+
 
     # run the build steps for sphinx
     with cx.cd('sphinx'):
 
         # build the API Documentation
-        cx.run(f"sphinx-apidoc -f --separate --private --ext-autodoc --module-first --maxdepth 1 -o api ../src/{project_slug()}")
+        cx.run(f"sphinx-apidoc -f --separate --private --ext-autodoc --module-first --maxdepth 1 -o _api ../src/{project_slug()}")
 
         # then do the sphinx build process
-        cx.run("sphinx-build -b html -E -a -j 6 . ./_build/html/")
+        cx.run("sphinx-build -b html -E -a -j 6 -c . . ./_build/html/")
 
 
 @task(pre=[docs_build])
