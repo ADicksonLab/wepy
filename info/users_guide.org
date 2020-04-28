@@ -53,35 +53,6 @@ You can run some initialization by running:
   inv init
 #+end_src
 
-*** Tangling Literate Examples
-
-In addition to the ~source~ directory if the ~README.org~ has any
-source code in it this should be able to be "tangled" out of it into
-source code files which are executable. These should end up in the
-~_tangle_source~ folder. These examples are called "literate" because
-the explanation of them is in the document alongside the code.
-
-There should only be one copy of source code so that there is never
-any discrepencies between them. That is there is never the same script
-(or snippets of a script) in both the ~README.org~ and in the ~source~
-directory.
-
-You can "tangle" the source code by running:
-
-#+begin_src bash
-inv tangle
-#+end_src
-
-This expects a local, fairly modern installation of ~emacs~ to be
-present. Although hopefully this restriction will be removed in the
-future.
-
-Then run them just like the ~source~ scripts.
-
-#+begin_src bash
-../_tangle_source/script.py
-#+end_src
-
 *** Making Environments for Running Examples
 
 Examples and tutorials have a bad reputation for quickly going out of
@@ -112,14 +83,45 @@ either ~conda~ or ~pyenv~.
 The pinned specifications should be in the ~requirements.txt~ and
 ~env.pinned.yaml~ files for ~pip~ and ~conda~ packages
 respectively. If you would like to install dependencies manually read
-the documentation for these tools on how to read these files.
+the documentation for these tools on how to install dependencies with
+these files. But typically it should be like this inside a ~conda~
+env for the pinned versions:
+
+#+begin_src bash
+pip install -r env/requirements.txt
+conda env update --prefix env --file env/env.pinned.yaml
+#+end_src
 
 The abstract requirements (from which the pinned specs are compiled)
 are in ~requirements.in~ and ~env.yaml~ which you can also try if you
 want to get the newest versions of the software. Although we don't
 guarantee the example will work then.
 
+#+begin_src bash
+pip install -r env/requirements.in
+conda env update --prefix env --file env/env.yaml
+#+end_src
 
+*** Running Jupyter Notebook Tutorials
+
+To get started check the instructions in the user manual first.
+
+After you have made your environment, you can install some of the
+Jupyter extensions for viewing structures by running the
+~post_install~ target with invoke i.e.:
+
+#+begin_src bash
+inv env
+conda activate ./_env
+inv post-install
+jupyter-notebook
+#+end_src
+
+Then launch the jupyter notebook:
+
+#+begin_src bash
+jupyter-notebook
+#+end_src
 
 *** Executing Examples
 
@@ -153,6 +155,36 @@ Or just know that any directory starting with an underscore '_' is
 temporary and may be safely removed.
 
 
+
+
+*** Tangling Literate Examples
+
+In addition to the ~source~ directory if the ~README.org~ has any
+source code in it this should be able to be "tangled" out of it into
+source code files which are executable. These should end up in the
+~_tangle_source~ folder. These examples are called "literate" because
+the explanation of them is in the document alongside the code.
+
+There should only be one copy of source code so that there is never
+any discrepencies between them. That is there is never the same script
+(or snippets of a script) in both the ~README.org~ and in the ~source~
+directory.
+
+You can "tangle" the source code by running:
+
+#+begin_src bash
+inv tangle
+#+end_src
+
+This expects a local, fairly modern installation of ~emacs~ to be
+present. Although hopefully this restriction will be removed in the
+future.
+
+Then run them just like the ~source~ scripts.
+
+#+begin_src bash
+../_tangle_source/script.py
+#+end_src
 
 
 ** How to approach learning and using wepy
