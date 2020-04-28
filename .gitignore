@@ -11,6 +11,9 @@
 
 envs/__*
 
+# jupyter stuff
+.ipynb_checkpoints
+
 # environments
 _venv
 _conda_envs
