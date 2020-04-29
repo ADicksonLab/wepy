@@ -5029,7 +5029,7 @@ class WepyHDF5(object):
         fields : list of str
             A list of trajectory field names to pass to the mapped function.
 
-        args : None or or tuple
+        args : tuple
             A single tuple of arguments which will be expanded and
             passed to the mapped function for every evaluation.
 

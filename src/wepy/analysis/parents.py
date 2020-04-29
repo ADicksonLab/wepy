@@ -383,7 +383,6 @@ def ancestors(parent_table, cycle_idx, walker_idx, ancestor_cycle=0):
         Walker index in to query along with cycle_idx.
     ancestor_cycle : int
         Index of cycle in history to go back to. Must be less than cycle_idx.
-         (Default value = 0)
 
     Returns
     -------

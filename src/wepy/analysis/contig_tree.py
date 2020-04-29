@@ -1455,7 +1455,17 @@ class ContigTree(BaseContigTree):
         return list(set(big_trace))
 
     def resampling_trace(self, decision_id):
-        """Get the trace for all unique warping events from all contigs."""
+        """Return full run traces for every specified type of resampling
+        event.
+
+        Parameters
+        ----------
+
+        decision_id : int
+            The string ID of the decision you want to match on and get
+            lineages for.
+
+        """
 
         with self:
             big_trace = []
@@ -1468,7 +1478,7 @@ class ContigTree(BaseContigTree):
         return list(set(big_trace))
 
     def final_trace(self):
-        """Get the trace for all unique warping events from all contigs."""
+        """Return a trace of all the walkers at the end of the contig."""
 
         with self:
             big_trace = []
@@ -1482,6 +1492,8 @@ class ContigTree(BaseContigTree):
 
 
     def lineages(self, trace):
+        """Get the ancestry lineage for each element of the trace as a run
+        trace."""
 
         lines = []
         # for each element of the trace we need to get it's lineage

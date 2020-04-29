@@ -629,8 +629,8 @@ class Manager(object):
             The resulting walkers of the cycle
 
         sim_components : list
-            Deep copies of the runner, resampler, and boundary
-            conditions objects at the end of the cycle.
+            Deep copies of the runner, boundary conditions, and
+            resampler objects at the end of the simulation.
 
         See Also
         --------
