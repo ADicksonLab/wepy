@@ -2,8 +2,11 @@
 pip
 wheel
 twine
-pip-tools
-pipdeptree
+
+
+# meta repo tooling
+
+# NOTE: we are including the .jubeo/requirements.in in the dev.requirements.list so you need not write them all here
 
 # virtual environments
 virtualenv
@@ -13,13 +16,8 @@ ipython
 pdbpp
 remote-pdb
 
-# utilities
-bumpversion
+# repo meta-utilities
 
-# task running
-invoke
-fabric
-jubeo
 
 # docs
 sphinx
