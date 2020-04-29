@@ -23,7 +23,6 @@ jubeo
 
 # docs
 sphinx
-guzzle_sphinx_theme
 sphinxcontrib-napoleon
 nbsphinx
 notebook
