@@ -313,6 +313,9 @@ div.rendered_html tbody tr:hover {
 
 <span class="c1"># load all the images</span>
 <span class="n">CSN_workflow_longway_im</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">media_dir</span> <span class="o">/</span> <span class="s2">&quot;CSN_workflow_longway.png&quot;</span><span class="p">)</span>
+<span class="n">walker_history_im</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">media_dir</span> <span class="o">/</span> <span class="s2">&quot;walker_history_schematic.png&quot;</span><span class="p">)</span>
+<span class="n">sim_manager_dataflow_im</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">media_dir</span> <span class="o">/</span> <span class="s2">&quot;sim_manager_dataflow.png&quot;</span><span class="p">)</span>
+
 <span class="n">trad_md_windows_im</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">media_dir</span> <span class="o">/</span> <span class="s2">&quot;trad_MD_windows.png&quot;</span><span class="p">)</span>
 <span class="n">we_md_windows_im</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">media_dir</span> <span class="o">/</span> <span class="s2">&quot;we_MD_windows.png&quot;</span><span class="p">)</span>
 <span class="n">continuation_runs_im</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">media_dir</span> <span class="o">/</span> <span class="s2">&quot;continuation_runs.png&quot;</span><span class="p">)</span>
@@ -327,7 +330,7 @@ div.rendered_html tbody tr:hover {
 <p>Here we run some simulations so that we can showcase combining them for analysis. Since this tutorial isn’t about running simulations we won’t discuss this part much.</p>
 <p>This first block is just to set up all the parameters and components for the simulation. We will be running multiple simulations with these and just change the reporters we are using.</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -506,7 +509,7 @@ div.rendered_html tbody tr:hover {
 <h3>First Simulation<a class="headerlink" href="#First-Simulation" title="Permalink to this headline">¶</a></h3>
 <p>Nothing fancy here, we just make a reporter that will generate the <code class="docutils literal notranslate"><span class="pre">WepyHDF5</span></code> file. We need to do <code class="docutils literal notranslate"><span class="pre">deepcopy</span></code> on all the components because we will be reusing this initial state for the other simulations and passing them by reference here will mutate them. The <code class="docutils literal notranslate"><span class="pre">Manager</span></code> won’t do copies automatically for you as this may be expensive in some situations.</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -538,7 +541,7 @@ div.rendered_html tbody tr:hover {
 <h3>Second Simulation<a class="headerlink" href="#Second-Simulation" title="Permalink to this headline">¶</a></h3>
 <p>Same as the first one but we just want a separate dataset so we can demonstrate how to aggregate independently generated datasets later.</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -569,7 +572,7 @@ div.rendered_html tbody tr:hover {
 <h4>Third Simulation<a class="headerlink" href="#Third-Simulation" title="Permalink to this headline">¶</a></h4>
 <p>For this simulation we will continue the second simulation using the outputs. While this isn’t something you would likely do in practice all in the same script, this is something that must be dealt with when running very long simulations on machines which have restrictions on how long you can run them. To support this in a more robust way, there is the <code class="docutils literal notranslate"><span class="pre">orchestration</span></code> module which we encourage you to check out.</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -597,14 +600,14 @@ div.rendered_html tbody tr:hover {
 </div>
 </div>
 </div>
-<div class="section" id="Analysis-Workflow-1">
-<h4>Analysis Workflow 1<a class="headerlink" href="#Analysis-Workflow-1" title="Permalink to this headline">¶</a></h4>
+<div class="section" id="Analysis-Workflow">
+<h4>Analysis Workflow<a class="headerlink" href="#Analysis-Workflow" title="Permalink to this headline">¶</a></h4>
 <p>Now that we have generated all of our simulation data we can start analyzing it.</p>
 <p>We will start with a workflow something like this, where on one branch (green) we want to do some dimensionally reduction and cluster the states we collected into “macrostates”.</p>
 <p>On the other branch (blue, red, purple) we will do the necessary bookkeeping to get the walker family tree taking into account both the cloning &amp; merging as well as any walkers that have warped through boundary conditions.</p>
 <p>In the end we can combine these states with the walker family tree to calculate the transition probabilities between those macrostates. This end result is something similar to a Markov State Model (MSM) which we call a Conformation State Model (CSN). The distinction merely refers to some rather rigorous requirements a true Markov State Model must have that we aren’t directly attempting to verify here.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[24]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -613,7 +616,7 @@ div.rendered_html tbody tr:hover {
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[24]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
@@ -629,7 +632,7 @@ div.rendered_html tbody tr:hover {
 <p>To do this we have to define a function <code class="docutils literal notranslate"><span class="pre">pair_dist_obs</span></code> of a particular form that we can then pass to the <code class="docutils literal notranslate"><span class="pre">WepyHDF5.compute_observable</span></code> function which maps it over the data. Since this is a small simulation with small molecules we can do it in memory in a single process. Real simulation data can be much larger, for this you are free to implement your own computational strategies using a lower level API or you can see if the methods in the <code class="docutils literal notranslate"><span class="pre">wepy.analysis.distributed</span></code> module are suitable,
 which uses the distributed computing framework <code class="docutils literal notranslate"><span class="pre">dask</span></code>.</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -662,7 +665,7 @@ which uses the distributed computing framework <code class="docutils literal not
 <p>We can see what the shape of this data is and that it matches the number of walkers (4) and cycles (100) we ran the simulation with.</p>
 <p>We can also see that the computed feature is a 1-D feature vector. We retain the rank of a vector rather than a scalar because in most machine learning pipelines a vector is expected. Even if in this case its only length one.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -688,7 +691,7 @@ feature vector shape: (1,)
 <p>For our purposes here we will just use a simple fast clustering method from <code class="docutils literal notranslate"><span class="pre">sklearn</span></code>, i.e. the <code class="docutils literal notranslate"><span class="pre">MiniBatchKMeans</span></code> algorithm just so you can appreciate the mechanism and so we have some macrostate labels to use for the later analyses.</p>
 <p>First we have to get our data as a uniform array of feature vectors which is simple as concatenating the features for each walker trajectory together:</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -710,7 +713,7 @@ feature vector shape: (1,)
 </div>
 <p>Then we can choose our classifier hyperparameters and train it:</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -731,12 +734,12 @@ feature vector shape: (1,)
 <div class="output_area docutils container">
 <div class="highlight"><pre>
 (400,)
-[2 2 1 2 3 1 2 2 1 1]
+[3 1 3 1 1 2 0 2 0 3]
 </pre></div></div>
 </div>
 <p>Once we have the trained classifier and we don’t have a test set, we can just use the already determined labels for the feature vectors and then assign this to the simulation dataset as it’s own observable. To do this we just need to destructure the feature set back into trajectory shapes and use the <code class="docutils literal notranslate"><span class="pre">add_observable</span></code> method on our <code class="docutils literal notranslate"><span class="pre">WepyHDF5</span></code> dataset:</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[31]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -805,7 +808,7 @@ observables shape: 4 100
 
 <span class="n">parent_table</span> <span class="o">=</span> <span class="n">net_parent_table</span><span class="p">(</span><span class="n">parent_panel</span><span class="p">)</span>
 
-<span class="n">parent_matrix</span> <span class="o">=</span> <span class="n">parent_table_discontinuities</span><span class="p">(</span>
+<span class="n">parent_table_discs</span> <span class="o">=</span> <span class="n">parent_table_discontinuities</span><span class="p">(</span>
     <span class="n">UnbindingBC</span><span class="p">,</span>
     <span class="n">parent_table</span><span class="p">,</span>
     <span class="n">warping_records</span>
@@ -813,18 +816,185 @@ observables shape: 4 100
 </pre></div>
 </div>
 </div>
-<p>Now that we have the entire table (which represents the walker tree) we can find contiguous trajectories from it.</p>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</div>
+</div>
+<div class="section" id="Side-Notes-on-Lineages-and-Continuous-Trajectories">
+<h3>Side Notes on Lineages and Continuous Trajectories<a class="headerlink" href="#Side-Notes-on-Lineages-and-Continuous-Trajectories" title="Permalink to this headline">¶</a></h3>
+<p>Now that we have the entire table (which represents the walker tree) we can find contiguous trajectories from it. One way to do this is via the <code class="docutils literal notranslate"><span class="pre">ancestors</span></code> function which works on the parent table. We just need to choose a walker at a certain point of time and it will retrieve the entire history of this walker up until that point.</p>
+<p>In this example I picked one of the walkers at the end of the simulation and showed the first few entries from the resulting “trace”. Traces in <code class="docutils literal notranslate"><span class="pre">wepy</span></code> are essentially collections of complex indices on the runs, trajectories, and frames (and also <em>contigs</em> which will be discussed later) in the data. Because these traces are untyped it can sometimes be confusing as to what the indices are. Be sure to pay close attention to the documentation which should tell you. There are also some
+disambiguations in the glossary as to the different types of traces.</p>
+<p>Also pay attention to the fact that we are using the <code class="docutils literal notranslate"><span class="pre">parent_table</span></code>, not <code class="docutils literal notranslate"><span class="pre">parent_table_discs</span></code>. A discontinuous warp breaks a lineage from the <code class="docutils literal notranslate"><span class="pre">ancestors</span></code> function.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[33]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span>
+<span></span><span class="kn">from</span> <span class="nn">wepy.analysis.parents</span> <span class="kn">import</span> <span class="n">ancestors</span>
+
+<span class="n">lineage_trace</span> <span class="o">=</span> <span class="n">ancestors</span><span class="p">(</span><span class="n">parent_table</span><span class="p">,</span>
+                          <span class="mi">100</span><span class="p">,</span>
+                          <span class="mi">3</span>
+                         <span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">lineage_trace</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">3</span><span class="p">])</span>
 </pre></div>
 </div>
 </div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+[(3, 0), (3, 1), (3, 2)]
+</pre></div></div>
+</div>
+<p>In this trace the tuples are complex indices where the values are: <code class="docutils literal notranslate"><span class="pre">traj_idx</span></code>, <code class="docutils literal notranslate"><span class="pre">cycle_idx</span></code>. Which uniquely identifies a walker at a single point in time relative to the parent table. Because the parent table was created straight from run 0 these indices are valid for that run.</p>
+<p>Using this information we can extract the fields of these walkers as a collection of arrays. For this kind of trace we use the <code class="docutils literal notranslate"><span class="pre">get_run_trace_fields</span></code> since we only are concerned with a single run. Here we are getting the weights of the walkers and the pair distance which calculated earlier.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[34]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="k">with</span> <span class="n">wepy1</span><span class="p">:</span>
+    <span class="n">lineage_fields</span> <span class="o">=</span> <span class="n">wepy1</span><span class="o">.</span><span class="n">get_run_trace_fields</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span>
+                                                <span class="n">lineage_trace</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span>
+                                               <span class="p">[</span><span class="s1">&#39;weights&#39;</span><span class="p">,</span>
+                                               <span class="s1">&#39;observables/pair_dist&#39;</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;weights:&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">lineage_fields</span><span class="p">[</span><span class="s1">&#39;weights&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">:</span><span class="mi">3</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;LJ-pair distance:&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">lineage_fields</span><span class="p">[</span><span class="s1">&#39;observables/pair_dist&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">:</span><span class="mi">3</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+weights:
+[[0.25]
+ [0.25]
+ [0.25]]
+LJ-pair distance:
+[[0.36995744]
+ [0.39919709]
+ [0.37443133]]
+</pre></div></div>
+</div>
+<p>Notice that we are excluding the last entry in the trace. Is this an error? It is not, but sometimes the indexes can be confusing. When trying to debug these kinds of issues, it can be very useful to have these two diagrams handy as a reference to the order of events taking place in the simulation.</p>
+<p>The first is a schematic that focuses on the generation and inheritance of walker states at an abstract level. In this diagram the colors indicate unique states and the boxes they sit in represent the walker index, which is the trajectory index in a <code class="docutils literal notranslate"><span class="pre">WepyHDF5</span></code> run.</p>
+<p>This figure is particularly helpful in understanding things like the parent table, especially when combined with boundary conditions. The dot and slash in the boundary condition lines indicate that boundary warping can be continuous or discontinuous. As you can see the slash is a discontinuous even because the purple state is replaced with the original white state. Indicating a source-sink non-equilibrium cycle. The dotted line in the resampling portion indicates that walker 1 was merged into
+walker 2 (AKA “squashed”) and donated its weight to it but ending the lineage of it’s state.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[35]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">rescale</span><span class="p">(</span><span class="n">walker_history_im</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[35]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<img alt="../../../_images/_source_tutorials_data_analysis_README_30_0.png" src="../../../_images/_source_tutorials_data_analysis_README_30_0.png" />
+</div>
+</div>
+<p>In this diagram we show the actual flow of data in the <code class="docutils literal notranslate"><span class="pre">wepy</span></code> simulation manager and components.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[36]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">rescale</span><span class="p">(</span><span class="n">sim_manager_dataflow_im</span><span class="p">,</span> <span class="mf">0.65</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[36]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<img alt="../../../_images/_source_tutorials_data_analysis_README_32_0.png" src="../../../_images/_source_tutorials_data_analysis_README_32_0.png" />
+</div>
+</div>
+<p>To explain the wrinkle in the trace indexing above we must consider that the parent table above was generated from all of the resampling records available. Resampling occurs after dynamics is finished, and as the name implies generates no novel samples. And so rather than recording frames twice in the HDF5 before and after sampling we simply record the action of what happens.</p>
+<p>When we ran the simulation above and returned the walkers from <code class="docutils literal notranslate"><span class="pre">run_simulation</span></code> these walkers were the resampled walkers, but those in the HDF5 are those directly produced by the runner. This way we never lose any sampled data. Even if that walker is subsequently warped or merged away.</p>
+<p>Because <code class="docutils literal notranslate"><span class="pre">wepy</span></code> is focused on molecular dynamics simulations we even provide a method for generating <code class="docutils literal notranslate"><span class="pre">mdtraj</span></code> trajectories from traces. This is hugely useful for quickly converting to a more common format that can be then read by molecular structure viewers like VMD, PyMOL, or Chimera. This relies on the topology of the molecule also being stored in the HDF5 file (currently this is achieved using a JSON format file). But just know that you never need to rely on this method to get the data you
+need for this kind of conversion i.e. positions and box vectors.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[37]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="k">with</span> <span class="n">wepy1</span><span class="p">:</span>
+    <span class="n">mdj_traj</span> <span class="o">=</span> <span class="n">wepy1</span><span class="o">.</span><span class="n">run_trace_to_mdtraj</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span>
+                                         <span class="n">lineage_trace</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">mdj_traj</span><span class="p">)</span>
+<span class="c1"># save one of the frames as a PDB as a reference topology</span>
+<span class="n">mdj_traj</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">save_pdb</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">outputs_dir</span> <span class="o">/</span> <span class="s1">&#39;lj-pair.pdb&#39;</span><span class="p">))</span>
+<span class="c1"># save the lineage as a DCD trajectory</span>
+<span class="n">mdj_traj</span><span class="o">.</span><span class="n">save_dcd</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">outputs_dir</span> <span class="o">/</span> <span class="s1">&#39;lj-pair_walker_lineage.pdb&#39;</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+&lt;mdtraj.Trajectory with 100 frames, 2 atoms, 2 residues, and unitcells&gt;
+</pre></div></div>
+</div>
+<p>Also note that these trajectories do not include the actual initial structures that started the simulations. These too can be accessed if you need them via the <code class="docutils literal notranslate"><span class="pre">initial_walker_fields</span></code> and <code class="docutils literal notranslate"><span class="pre">initial_walkers_to_mdtraj</span></code> methods.</p>
+</div>
+<div class="section" id="Back-to-calculating-Transition-Probabilities">
+<h3>Back to calculating Transition Probabilities<a class="headerlink" href="#Back-to-calculating-Transition-Probabilities" title="Permalink to this headline">¶</a></h3>
+<p>Now that we have a better idea of the continuity of walker trajectories in our simulation data we can turn our attention back to generating transition probabilities between our labelled macrostates.</p>
+<p>The simplest way to do this is simply to go through the continuous trajectories and take each pair of states <code class="docutils literal notranslate"><span class="pre">A</span> <span class="pre">-&gt;</span> <span class="pre">B</span></code>, look at the labels and then tally the macrostate transition counts.</p>
+<p>Naively it seems our job is done. However, things get complicated when we want to consider lag times over the trajectories. That is recording the macrostate transition between not just <code class="docutils literal notranslate"><span class="pre">A</span> <span class="pre">-&gt;</span> <span class="pre">B</span></code> but rather the <code class="docutils literal notranslate"><span class="pre">A</span> <span class="pre">-&gt;</span> <span class="pre">C</span></code> transition given <code class="docutils literal notranslate"><span class="pre">A</span> <span class="pre">-&gt;</span> <span class="pre">B</span> <span class="pre">-&gt;</span> <span class="pre">C</span></code>. This is desirable for a number of reasons when computing probabilities using stochastic methods like Markov State Models where we want memoryless transitions.</p>
+<p>Doing this over trajectory trees is not as trivial. First consider what this lag time of 3 would look like for linear MD.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[38]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">rescale</span><span class="p">(</span><span class="n">trad_md_windows_im</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[38]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<img alt="../../../_images/_source_tutorials_data_analysis_README_37_0.png" src="../../../_images/_source_tutorials_data_analysis_README_37_0.png" />
+</div>
+</div>
+<p>Now consider a branchpoint in a tree of trajectories. We must be very careful not to double count or undercount transitions.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[39]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">rescale</span><span class="p">(</span><span class="n">we_md_windows_im</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[39]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<img alt="../../../_images/_source_tutorials_data_analysis_README_39_0.png" src="../../../_images/_source_tutorials_data_analysis_README_39_0.png" />
+</div>
+</div>
+<p>The algorithm to achieve this has been implemented in the <code class="docutils literal notranslate"><span class="pre">sliding_window</span></code> function which generates traces corresponding to the red segments in the above figures.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[42]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -832,12 +1002,24 @@ observables shape: 4 100
 <span class="kn">from</span> <span class="nn">wepy.analysis.transitions</span> <span class="kn">import</span> <span class="n">run_transition_probability_matrix</span>
 
 <span class="c1"># use the parent matrix to generate the sliding windows</span>
-<span class="n">window_length</span> <span class="o">=</span> <span class="mi">10</span>
-<span class="n">windows</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">sliding_window</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">parent_matrix</span><span class="p">),</span> <span class="n">window_length</span><span class="p">))</span>
+<span class="n">windows</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">sliding_window</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">parent_table_discs</span><span class="p">),</span> <span class="mi">10</span><span class="p">))</span>
 
-<span class="c1"># make the transition matrix from the windows</span>
-<span class="n">transprob_mat</span> <span class="o">=</span> <span class="n">run_transition_probability_matrix</span><span class="p">(</span><span class="n">wepy1</span><span class="p">,</span> <span class="n">run_idx</span><span class="p">,</span>
-                                                  <span class="s2">&quot;observables/</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">assg_key</span><span class="p">),</span> <span class="n">windows</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>These window traces can then be combined with cluster labels (as an observable) to produce a transition probability matrix directly. See the <code class="docutils literal notranslate"><span class="pre">wepy.analysis.transitions</span></code> module for other similar functions if you want to control how you are aggregating forward and backward transitions.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[44]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1"># make the transition matrix from the windows</span>
+<span class="k">with</span> <span class="n">wepy1</span><span class="p">:</span>
+    <span class="n">transprob_mat</span> <span class="o">=</span> <span class="n">run_transition_probability_matrix</span><span class="p">(</span>
+        <span class="n">wepy1</span><span class="p">,</span>
+        <span class="mi">0</span><span class="p">,</span>
+        <span class="s2">&quot;observables/minibatch-kmeans_pair-dist_4_10_1&quot;</span><span class="p">,</span>
+        <span class="n">windows</span><span class="p">)</span>
 
 <span class="nb">print</span><span class="p">(</span><span class="n">transprob_mat</span><span class="p">)</span>
 </pre></div>
@@ -848,61 +1030,145 @@ observables shape: 4 100
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-[[0.  0.  0.  ... 0.  0.  0. ]
- [0.  0.  0.  ... 0.  0.  0.5]
- [0.  0.  0.  ... 0.  0.  0. ]
- ...
- [0.  0.  0.  ... 0.  0.  0. ]
- [0.  0.  0.  ... 0.  0.  0. ]
- [0.  0.  0.  ... 0.  0.  0. ]]
+[[0.26923077 0.27586207 0.28571429 0.22727273]
+ [0.34615385 0.27586207 0.35714286 0.36363636]
+ [0.23076923 0.13793103 0.21428571 0.13636364]
+ [0.15384615 0.31034483 0.14285714 0.27272727]]
 </pre></div></div>
 </div>
+<div class="section" id="Contig-Trees">
+<h4>Contig Trees<a class="headerlink" href="#Contig-Trees" title="Permalink to this headline">¶</a></h4>
+<p>The final step before we can construct a network of macrostates is to combine everything into a <code class="docutils literal notranslate"><span class="pre">ContigTree</span></code> abstract data type. In early prototypes we supported construction of networks from both <code class="docutils literal notranslate"><span class="pre">ContigTree</span></code> and parent-table/transition-matrix. This was cumbersome and confusing and so we consolidated this interface to only use <code class="docutils literal notranslate"><span class="pre">ContigTree</span></code> as it is more general, powerful, and easier to use as a user.</p>
+<p>If you have fastidiously followed up until this point you may be disappointed to learn that most of these steps are also not exactly needed when using the <code class="docutils literal notranslate"><span class="pre">ContigTree</span></code>. However, these data structures are still used in certain contexts and are useful in helping to understand all the layers of structure.</p>
+<p>So lets update our original workflow to see where the <code class="docutils literal notranslate"><span class="pre">ContigTree</span></code> fits in.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[45]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">rescale</span><span class="p">(</span><span class="n">trad_md_windows_im</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
+<span></span><span class="n">rescale</span><span class="p">(</span><span class="n">CSN_workflow_shortway_im</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[45]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
-<img alt="../../../_images/_source_tutorials_data_analysis_README_28_0.png" src="../../../_images/_source_tutorials_data_analysis_README_28_0.png" />
+<img alt="../../../_images/_source_tutorials_data_analysis_README_45_0.png" src="../../../_images/_source_tutorials_data_analysis_README_45_0.png" />
 </div>
 </div>
-</div>
-<div class="section" id="Lagged-Transitions-in-traditional-linear-MD">
-<h4>Lagged Transitions in traditional linear MD<a class="headerlink" href="#Lagged-Transitions-in-traditional-linear-MD" title="Permalink to this headline">¶</a></h4>
-</div>
-<div class="section" id="Sliding-Windows-Algorithm">
-<h4>Sliding Windows Algorithm<a class="headerlink" href="#Sliding-Windows-Algorithm" title="Permalink to this headline">¶</a></h4>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+<p>As you can see most of those complex intermediary formats are folded into the <code class="docutils literal notranslate"><span class="pre">ContigTree</span></code> representation. The <code class="docutils literal notranslate"><span class="pre">ContigTre</span></code> is a combination of a network data structure (<code class="docutils literal notranslate"><span class="pre">networkx.DiGraph</span></code>) and the <code class="docutils literal notranslate"><span class="pre">WepyHDF5</span></code> data.</p>
+<p>In this tree each node is a single cycle of a simulation. Thus it can express not only ensembles of walkers cloning and merging but whole simulations of ensembles which are branching. Its like there is a tree inside of a tree. Technically, they are forests as well since there is often multiple roots. This whole tree inside a tree is too much complexity for what we are doing at the moment so we will defer our discussion of it until we need it when analyzing multiple simulations.</p>
+<p>What we want is to get back to the part where we had a transition probability matrix and combine that with our macrostate labels to make a CSN.</p>
+<p>So we simply construct the <code class="docutils literal notranslate"><span class="pre">ContigTree</span></code> with our dataset and the classes that describe the cloning &amp; merging and boundary conditions like we did before.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[63]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">we_md_windows_im</span>
+<span></span><span class="kn">from</span> <span class="nn">wepy.analysis.contig_tree</span> <span class="kn">import</span> <span class="n">ContigTree</span>
+<span class="n">contigtree</span> <span class="o">=</span> <span class="n">ContigTree</span><span class="p">(</span><span class="n">wepy1</span><span class="p">,</span>
+                         <span class="n">decision_class</span><span class="o">=</span><span class="n">resampler</span><span class="o">.</span><span class="n">DECISION</span><span class="p">,</span>
+                         <span class="n">boundary_condition_class</span><span class="o">=</span><span class="n">UnbindingBC</span><span class="p">,</span>
+                        <span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[64]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">resampler</span><span class="o">.</span><span class="n">DECISION</span><span class="o">.</span><span class="n">ENUM</span><span class="o">.</span><span class="n">SQUASH</span>
 </pre></div>
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[64]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
-<img alt="../../../_images/_source_tutorials_data_analysis_README_31_0.png" src="../../../_images/_source_tutorials_data_analysis_README_31_0.png" />
+<div class="highlight"><pre>
+&lt;CloneMergeDecisionEnum.SQUASH: 3&gt;
+</pre></div></div>
+</div>
+<p>What have we done? Well the <code class="docutils literal notranslate"><span class="pre">ContigTree</span></code> has an extensive API for a lot of stuff so lets try to focus in on a few interesting ones before we get to the transition probabilities.</p>
+<p>One of the main features is a richer set of functions for generating commonly useful continuous trajectories.</p>
+<p>Here we can get the indices (as unorderd traces) for:</p>
+<ul class="simple">
+<li><p>all walkers were warped</p></li>
+<li><p>all of the final walkers in the simulation</p></li>
+<li><p>all of the squashed walkers</p></li>
+</ul>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[70]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">warp_events</span> <span class="o">=</span> <span class="n">contigtree</span><span class="o">.</span><span class="n">warp_trace</span><span class="p">()</span>
+<span class="n">final_walkers</span> <span class="o">=</span> <span class="n">contigtree</span><span class="o">.</span><span class="n">final_trace</span><span class="p">()</span>
+<span class="n">squashed_walkers</span> <span class="o">=</span> <span class="n">contigtree</span><span class="o">.</span><span class="n">resampling_trace</span><span class="p">(</span><span class="n">resampler</span><span class="o">.</span><span class="n">DECISION</span><span class="o">.</span><span class="n">ENUM</span><span class="o">.</span><span class="n">SQUASH</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>And then we can take these events and generate all of the full lineages for them in one line.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[76]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">warp_lineages</span> <span class="o">=</span> <span class="n">contigtree</span><span class="o">.</span><span class="n">lineages</span><span class="p">(</span><span class="n">squashed_walkers</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">warp_lineages</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+[]
+</pre></div></div>
+</div>
+<p>Since we only have a single run our contig tree is really just a single contig which we can get with this little bit of magic:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[58]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="k">with</span> <span class="n">contigtree</span><span class="p">:</span>
+    <span class="n">contig</span> <span class="o">=</span> <span class="n">contigtree</span><span class="o">.</span><span class="n">make_contig</span><span class="p">(</span><span class="n">contigtree</span><span class="o">.</span><span class="n">spanning_contig_traces</span><span class="p">()[</span><span class="mi">0</span><span class="p">])</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">contig</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+&lt;wepy.analysis.contig_tree.Contig object at 0x7f77633def50&gt;
+</pre></div></div>
+</div>
+<p>This <code class="docutils literal notranslate"><span class="pre">Contig</span></code> object is a subclass of the <code class="docutils literal notranslate"><span class="pre">ContigTree</span></code> but isn’t a tree. This restriction opens a few more doors to us that we will use, but for now it makes the abstraction simpler.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">contig_tree</span><span class="o">.</span><span class="n">sliding_windows</span><span class="p">(</span><span class="mi">3</span><span class="p">)[</span><span class="o">-</span><span class="mi">5</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+</pre></div>
 </div>
 </div>
 </div>
 <div class="section" id="Multi-Run-Data-Analysis">
 <h4>Multi-Run Data Analysis<a class="headerlink" href="#Multi-Run-Data-Analysis" title="Permalink to this headline">¶</a></h4>
 <p>So far we have assumed nice contiguous data. This is not so with MD data in general which may be split up into different runs.</p>
+<p>If you’ve checked out thinking about meta-trees, don’t worry. You don’t really have to think about it. The benefit is however that if the need ever arises and you have multiple simulations run from a single intermediary checkpoint, you won’t have to throw out one or the other continuations</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[47]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -911,11 +1177,11 @@ observables shape: 4 100
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[47]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
-<img alt="../../../_images/_source_tutorials_data_analysis_README_33_0.png" src="../../../_images/_source_tutorials_data_analysis_README_33_0.png" />
+<img alt="../../../_images/_source_tutorials_data_analysis_README_58_0.png" src="../../../_images/_source_tutorials_data_analysis_README_58_0.png" />
 </div>
 </div>
 <p>We want to be able to get transitions between the original run and all of its continuations without double counting.</p>
@@ -924,7 +1190,7 @@ observables shape: 4 100
 <h4>Contig Tree<a class="headerlink" href="#Contig-Tree" title="Permalink to this headline">¶</a></h4>
 <p>The contig tree is a tree (technically forest) of continuous simulations. For us the branchings happen when a run is continued multiple times.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[46]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -933,11 +1199,11 @@ observables shape: 4 100
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[46]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
-<img alt="../../../_images/_source_tutorials_data_analysis_README_36_0.png" src="../../../_images/_source_tutorials_data_analysis_README_36_0.png" />
+<img alt="../../../_images/_source_tutorials_data_analysis_README_61_0.png" src="../../../_images/_source_tutorials_data_analysis_README_61_0.png" />
 </div>
 </div>
 <p>The Spanning Contigs are the contigs drawn before: (0,3) (0,4) (0,5) (1,) (2,)</p>
@@ -945,8 +1211,8 @@ observables shape: 4 100
 <div class="section" id="Storage-Implementation:-Continuations">
 <h4>Storage Implementation: Continuations<a class="headerlink" href="#Storage-Implementation:-Continuations" title="Permalink to this headline">¶</a></h4>
 <p>The only thing that must exist is a specification of the continuations that exist in a <code class="docutils literal notranslate"><span class="pre">WepyHDF5</span></code> file.</p>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -956,20 +1222,6 @@ observables shape: 4 100
 </pre></div>
 </div>
 </div>
-<div class="nboutput nblast docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-Runs in this file: [0, 1, 2]
-Continuations using the API method:
- [[1 0]
- [2 0]]
-Where it is actually stored in the HDF5:
- [[1 0]
- [2 0]]
-</pre></div></div>
-</div>
 <p>Run 1 continues run 0, and run 2 continues run 0.</p>
 <p>This only works within a single file (but we can do interfile linking).</p>
 </div>
@@ -978,8 +1230,8 @@ Where it is actually stored in the HDF5:
 <p>A contig is a list of runs that form a contiguous dataset.</p>
 <p>For the continuation (1,0) the contig is (0,1).</p>
 <p>Contigs can be any number of runs.</p>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -992,21 +1244,9 @@ Where it is actually stored in the HDF5:
 </pre></div>
 </div>
 </div>
-<div class="nboutput nblast docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-Contig [0] has 100 frames
-Contig [1] has 100 frames
-Contig [2] has 100 frames
-Contig [0, 1] has 200 frames
-Contig [0, 2] has 200 frames
-</pre></div></div>
-</div>
 <p>A <em>spanning contig</em> is a contig which goes from a root run (a run that does not continue another run) and a leaf run (a run which is not continued). These can be enumerated:</p>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -1015,58 +1255,17 @@ Contig [0, 2] has 200 frames
 </pre></div>
 </div>
 </div>
-<div class="nboutput nblast docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-The spanning contigs: [[0, 1], [0, 2]]
-</pre></div></div>
-</div>
 </div>
 </div>
 <div class="section" id="The-Contig-Tree-Class">
 <h3>The Contig Tree Class<a class="headerlink" href="#The-Contig-Tree-Class" title="Permalink to this headline">¶</a></h3>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">wepy.analysis.contig_tree</span> <span class="kn">import</span> <span class="n">ContigTree</span>
-<span class="n">contig_tree</span> <span class="o">=</span> <span class="n">ContigTree</span><span class="p">(</span><span class="n">wepy1</span><span class="p">,</span> <span class="n">decision_class</span><span class="o">=</span><span class="n">MultiCloneMergeDecision</span><span class="p">,</span>
-                         <span class="n">boundary_condition_class</span><span class="o">=</span><span class="n">UnbindingBC</span><span class="p">,</span>
-                        <span class="p">)</span>
-</pre></div>
-</div>
-</div>
 <p>Since we have given it everything it needs to make the parent table from the previous example it can automate it all with the appropriate sliding windows algorithms for multiple runs!</p>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">contig_tree</span><span class="o">.</span><span class="n">sliding_windows</span><span class="p">(</span><span class="mi">3</span><span class="p">)[</span><span class="o">-</span><span class="mi">5</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-</pre></div>
-</div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
-</pre></div>
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-[[(0, 3, 1), (0, 3, 2), (0, 3, 3)],
- [(0, 2, 0), (0, 0, 1), (0, 0, 2)],
- [(0, 1, 0), (0, 1, 1), (0, 1, 2)],
- [(0, 2, 0), (0, 2, 1), (0, 2, 2)]]
-</pre></div></div>
-</div>
 <div class="section" id="The-Macro-State-Network-Class">
 <h4>The Macro-State Network Class<a class="headerlink" href="#The-Macro-State-Network-Class" title="Permalink to this headline">¶</a></h4>
 <p>In order to make a Conformation State Network (CSN) we need to have the transitions (end-points of sliding windows) and the labels of the micro-states (frames of simulations) which can be from clustering or whatever else.</p>
 <p>Because, a ContigTree can in the most degenerate form be a single run it is the most appropriate inputs for a general macro-state network.</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[22]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -1082,8 +1281,8 @@ The spanning contigs: [[0, 1], [0, 2]]
 <div class="section" id="Weights/Free-Energy-of-the-Macrostates">
 <h4>Weights/Free Energy of the Macrostates<a class="headerlink" href="#Weights/Free-Energy-of-the-Macrostates" title="Permalink to this headline">¶</a></h4>
 <p>Since we are principally interested in the free energy of macrostates the weights of the macrostates are a canonical example.</p>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[23]:
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -1095,20 +1294,12 @@ The spanning contigs: [[0, 1], [0, 2]]
 </pre></div>
 </div>
 </div>
-<div class="nboutput nblast docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-3.2531508449465036
-</pre></div></div>
-</div>
 </div>
 <div class="section" id="Transition-Probabilitiy-Matrix">
 <h4>Transition Probabilitiy Matrix<a class="headerlink" href="#Transition-Probabilitiy-Matrix" title="Permalink to this headline">¶</a></h4>
 <p>To make an actual network we would need the transition probabilities as well, which were calculated with the lag time given when we created the network.</p>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[24]:
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -1116,47 +1307,16 @@ The spanning contigs: [[0, 1], [0, 2]]
 </pre></div>
 </div>
 </div>
-<div class="nboutput nblast docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-[[0.         0.         0.03225806 ... 0.04347826 0.04545455 0.03125   ]
- [0.07692308 0.05555556 0.         ... 0.         0.         0.        ]
- [0.         0.05555556 0.06451613 ... 0.         0.         0.        ]
- ...
- [0.         0.         0.         ... 0.04347826 0.         0.        ]
- [0.         0.         0.         ... 0.         0.         0.09375   ]
- [0.07692308 0.         0.06451613 ... 0.         0.         0.03125   ]]
-</pre></div></div>
-</div>
 </div>
 <div class="section" id="Updated-User-Workflow">
 <h4>Updated User Workflow<a class="headerlink" href="#Updated-User-Workflow" title="Permalink to this headline">¶</a></h4>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">rescale</span><span class="p">(</span><span class="n">CSN_workflow_shortway_im</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
-</pre></div>
-</div>
-<div class="output_area docutils container">
-<img alt="../../../_images/_source_tutorials_data_analysis_README_57_0.png" src="../../../_images/_source_tutorials_data_analysis_README_57_0.png" />
-</div>
-</div>
 </div>
 <div class="section" id="Synergism-with-CSNAnalysis">
 <h4>Synergism with CSNAnalysis<a class="headerlink" href="#Synergism-with-CSNAnalysis" title="Permalink to this headline">¶</a></h4>
 <p>This is the assymetric probability matrix. You can calculate interesting things with it related to paths etc. with the <code class="docutils literal notranslate"><span class="pre">CSNAnalysis</span></code> package from here on.</p>
 <p>The purpose of this class is to calculate transition probabilities and create a direct interface to microstates in the HDF5 from a macrostate perspective.</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[25]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -1172,7 +1332,7 @@ The spanning contigs: [[0, 1], [0, 2]]
 <h4>Committor Probabilities<a class="headerlink" href="#Committor-Probabilities" title="Permalink to this headline">¶</a></h4>
 <p>Calculate the distance between the two particles:</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[26]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -1191,8 +1351,8 @@ The spanning contigs: [[0, 1], [0, 2]]
 </div>
 </div>
 <p>Determine the source and sink basins and compute the committor probabilities:</p>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[27]:
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -1209,30 +1369,12 @@ The spanning contigs: [[0, 1], [0, 2]]
 </pre></div>
 </div>
 </div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-Number of sink states: 2
-Number of source states: 3
-</pre></div></div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[27]:
-</pre></div>
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-array([0.5639545, 0.4360455])
-</pre></div></div>
-</div>
 </div>
 <div class="section" id="Microstates-in-the-Macrostate">
 <h4>Microstates in the Macrostate<a class="headerlink" href="#Microstates-in-the-Macrostate" title="Permalink to this headline">¶</a></h4>
 <p>The macrostate keeps track of the microstates by a ‘trace’ which in <code class="docutils literal notranslate"><span class="pre">wepy</span></code> parlance is just a list of indices into the main wepy HDF5 data structure to a specific microstate, i.e. list of (run index, walker index, cycle index) tuples.</p>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[28]:
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -1241,20 +1383,12 @@ array([0.5639545, 0.4360455])
 </pre></div>
 </div>
 </div>
-<div class="nboutput nblast docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-[(0, 0, 32), (0, 0, 56), (0, 0, 65), (0, 1, 13), (0, 1, 18), (0, 1, 43), (0, 1, 71), (0, 1, 73), (0, 1, 97), (0, 2, 22), (0, 2, 69), (0, 3, 44), (1, 0, 32), (1, 0, 57), (1, 0, 59), (1, 1, 28), (1, 2, 45), (1, 2, 68), (1, 2, 76), (1, 3, 37), (1, 3, 61), (2, 0, 39), (2, 0, 45), (2, 1, 16), (2, 2, 81), (2, 3, 41), (2, 3, 46), (2, 3, 65)]
-</pre></div></div>
-</div>
 </div>
 <div class="section" id="Visualizing-Microstates">
 <h4>Visualizing Microstates<a class="headerlink" href="#Visualizing-Microstates" title="Permalink to this headline">¶</a></h4>
 <p>This is used to make it very easy to visualize the microstates by allowing export to other trajectory software better supported by viewers like <code class="docutils literal notranslate"><span class="pre">mdtraj</span></code>.</p>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[29]:
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -1268,20 +1402,6 @@ array([0.5639545, 0.4360455])
 </pre></div>
 </div>
 </div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-28 frames in macrostate 8
-</pre></div></div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<script type="application/vnd.jupyter.widget-view+json">{"model_id": "e978a698de1345c8b15988c7f318b346", "version_major": 2, "version_minor": 0}</script></div>
-</div>
 </div>
 <div class="section" id="Linking-Runs-Together">
 <h4>Linking Runs Together<a class="headerlink" href="#Linking-Runs-Together" title="Permalink to this headline">¶</a></h4>
@@ -1292,8 +1412,8 @@ array([0.5639545, 0.4360455])
 </div>
 <div class="section" id="Example-Datasets">
 <h3>Example Datasets<a class="headerlink" href="#Example-Datasets" title="Permalink to this headline">¶</a></h3>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -1301,16 +1421,8 @@ array([0.5639545, 0.4360455])
 </pre></div>
 </div>
 </div>
-<div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
-</pre></div>
-</div>
-<div class="output_area docutils container">
-<img alt="../../../_images/_source_tutorials_data_analysis_README_71_0.png" src="../../../_images/_source_tutorials_data_analysis_README_71_0.png" />
-</div>
-</div>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[22]:
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -1323,19 +1435,10 @@ array([0.5639545, 0.4360455])
 </pre></div>
 </div>
 </div>
-<div class="nboutput nblast docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-File 2 runs: [0]
-File 3 runs: [0]
-</pre></div></div>
-</div>
 <div class="section" id="Code:">
 <h4>Code:<a class="headerlink" href="#Code:" title="Permalink to this headline">¶</a></h4>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[23]:
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -1362,16 +1465,8 @@ File 3 runs: [0]
 </pre></div>
 </div>
 </div>
-<div class="nboutput nblast docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-[[0, 1], [0, 2], [3, 4]]
-</pre></div></div>
-</div>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[24]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>

@@ -831,19 +831,28 @@ get erroneous contiguous trajectories.</p>
 <dl class="py method">
 <dt id="wepy.analysis.contig_tree.ContigTree.resampling_trace">
 <code class="sig-name descname">resampling_trace</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">decision_id</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/contig_tree.html#ContigTree.resampling_trace"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.contig_tree.ContigTree.resampling_trace" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get the trace for all unique warping events from all contigs.</p>
+<dd><p>Return full run traces for every specified type of resampling
+event.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>decision_id</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – The string ID of the decision you want to match on and get
+lineages for.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt id="wepy.analysis.contig_tree.ContigTree.final_trace">
 <code class="sig-name descname">final_trace</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/contig_tree.html#ContigTree.final_trace"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.contig_tree.ContigTree.final_trace" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get the trace for all unique warping events from all contigs.</p>
+<dd><p>Return a trace of all the walkers at the end of the contig.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="wepy.analysis.contig_tree.ContigTree.lineages">
 <code class="sig-name descname">lineages</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">trace</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/contig_tree.html#ContigTree.lineages"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.contig_tree.ContigTree.lineages" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Get the ancestry lineage for each element of the trace as a run
+trace.</p>
+</dd></dl>
 
 <dl class="py attribute">
 <dt id="wepy.analysis.contig_tree.ContigTree.DISCONTINUITY_KEY">

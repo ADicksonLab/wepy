@@ -1499,7 +1499,17 @@
         <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">big_trace</span><span class="p">))</span></div>
 
 <div class="viewcode-block" id="ContigTree.resampling_trace"><a class="viewcode-back" href="../../../_api/wepy.analysis.contig_tree.html#wepy.analysis.contig_tree.ContigTree.resampling_trace">[docs]</a>    <span class="k">def</span> <span class="nf">resampling_trace</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">decision_id</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Get the trace for all unique warping events from all contigs.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Return full run traces for every specified type of resampling</span>
+<span class="sd">        event.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        decision_id : int</span>
+<span class="sd">            The string ID of the decision you want to match on and get</span>
+<span class="sd">            lineages for.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">with</span> <span class="bp">self</span><span class="p">:</span>
             <span class="n">big_trace</span> <span class="o">=</span> <span class="p">[]</span>
@@ -1512,7 +1522,7 @@
         <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">big_trace</span><span class="p">))</span></div>
 
 <div class="viewcode-block" id="ContigTree.final_trace"><a class="viewcode-back" href="../../../_api/wepy.analysis.contig_tree.html#wepy.analysis.contig_tree.ContigTree.final_trace">[docs]</a>    <span class="k">def</span> <span class="nf">final_trace</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Get the trace for all unique warping events from all contigs.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Return a trace of all the walkers at the end of the contig.&quot;&quot;&quot;</span>
 
         <span class="k">with</span> <span class="bp">self</span><span class="p">:</span>
             <span class="n">big_trace</span> <span class="o">=</span> <span class="p">[]</span>
@@ -1526,6 +1536,8 @@
 
 
 <div class="viewcode-block" id="ContigTree.lineages"><a class="viewcode-back" href="../../../_api/wepy.analysis.contig_tree.html#wepy.analysis.contig_tree.ContigTree.lineages">[docs]</a>    <span class="k">def</span> <span class="nf">lineages</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">trace</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get the ancestry lineage for each element of the trace as a run</span>
+<span class="sd">        trace.&quot;&quot;&quot;</span>
 
         <span class="n">lines</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="c1"># for each element of the trace we need to get it&#39;s lineage</span>
