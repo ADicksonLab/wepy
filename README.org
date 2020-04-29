@@ -2,9 +2,11 @@
 
 [[./info/logo/wepy.svg]]
 
-[[https://adicksonlab.github.io/wepy/][Documentation]]
+[[https://adicksonlab.github.io/wepy/index.html][Sphinx Documentation]]
 
-Modular implementation and framework for running weighted ensemble
+[[https://github.com/ADicksonLab/wepy/blob/master/info/README.org][Plaintext Org-Mode Docs]]
+
+Modular implementation and framework for running weighted ensemble (WE)
 simulations in pure python, where the aim is to have simple things
 simple and complicated things possible. The latter being the priority.
 
@@ -24,7 +26,7 @@ integrated for the most common of use cases, i.e. molecular dynamics.
 
 This allows freedom for fast development of new methods.
 
-Also see the full [[https://github.com/ADicksonLab/wepy/blob/master/sphinx/source/introduction.org][introduction]].
+Full [[https://github.com/ADicksonLab/wepy/blob/master/info/introduction.org][introduction]].
 
 ** Installation
 
