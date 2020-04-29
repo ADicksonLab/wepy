@@ -23,6 +23,12 @@ def tangle(cx):
 def clean_env(cx):
     cx.run("rm -rf _env")
 
+@task
+def post_install(cx):
+
+    # install the jupyter extensions
+    cx.run("jupyter-nbextension enable nglview --py --sys-prefix")
+
 @task(pre=[init])
 def env(cx):
     """Create the environment from the specs in 'env'. Must have the
@@ -33,4 +39,4 @@ def env(cx):
     example_name = Path(os.getcwd()).stem
 
     with cx.cd("../../../"):
-        cx.run(f"inv docs.env-example -n {example_name}")
+        cx.run(f"inv docs.env-tutorial -n {example_name}")

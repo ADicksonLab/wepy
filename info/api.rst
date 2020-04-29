@@ -9,9 +9,12 @@ Analysis
 --------
 
 * :any:`Free Energy Profiles of Observables </_api/wepy.analysis.profiles>`
+* :any:`Contigs and Contig Tree/Forest </_api/wepy.analysis.contig_tree>`
+* :any:`Parent Tables & Lineage Traces </_api/wepy.analysis.parents>`
+* :any:`Warping Rates </_api/wepy.analysis.rates>`
 * :any:`Macro-State Network </_api/wepy.analysis.network>`
 * :any:`Network Transition Probabilities </_api/wepy.analysis.transitions>`
-* :any:`Contigs and Contig Tree/Forest </_api/wepy.analysis.contig_tree>`
+
 
 
 Data Storage

@@ -1,0 +1,16 @@
+--index-url https://pypi.python.org/simple/
+
+jupyter
+invoke
+
+# presentation
+pillow
+
+# analysis
+numpy
+scipy
+sklearn
+mdtraj
+nglview
+
+git+https://github.com/ADicksonLab/CSNAnalysis
