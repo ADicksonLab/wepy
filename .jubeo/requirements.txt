@@ -5,8 +5,9 @@
 #    pip-compile --output-file=repos/python/.jubeo/requirements.txt repos/python/.jubeo/requirements.in
 #
 attrs==19.3.0             # via pytest
-click==7.1.1              # via jubeo, pip-tools
+click==7.1.2              # via jubeo, pip-tools
 coverage==5.1             # via -r repos/python/.jubeo/requirements.in
+ghp-import==0.5.5         # via -r repos/python/.jubeo/requirements.in
 gitdb==4.0.4              # via gitpython
 gitpython==3.1.1          # via jubeo
 hyperlink==19.0.0         # via jubeo
@@ -15,7 +16,7 @@ invoke==1.4.1             # via -r repos/python/.jubeo/requirements.in
 jubeo==0.0.3a0.dev0       # via -r repos/python/.jubeo/requirements.in
 more-itertools==8.2.0     # via pytest
 packaging==20.3           # via pytest
-pip-tools==4.5.1          # via -r repos/python/.jubeo/requirements.in
+pip-tools==5.1.0          # via -r repos/python/.jubeo/requirements.in
 pluggy==0.13.1            # via pytest
 py==1.8.1                 # via pytest
 pyparsing==2.4.7          # via packaging
@@ -26,3 +27,6 @@ smmap==3.0.2              # via gitdb
 toml==0.10.0              # via jubeo
 versioneer==0.18          # via -r repos/python/.jubeo/requirements.in
 wcwidth==0.1.9            # via pytest
+
+# The following packages are considered to be unsafe in a requirements file:
+# pip

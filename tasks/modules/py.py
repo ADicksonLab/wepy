@@ -242,24 +242,20 @@ def docs_serve(cx):
 
 @task(pre=[clean_docs, clean_website, docs_build])
 def website_deploy_local(cx):
-    """Deploy the docs locally for development. Must have bundler and jekyll installed"""
+    """WIP Deploy the docs locally for development."""
 
+    # TODO: implement using Nikola
+    pass
 
-    cx.cd("jekyll")
-
-    # update dependencies
-    cx.run("bundle install")
-    cx.run("bundle update")
-
-    # run the server
-    cx.run("bundle exec jekyll serve")
 
 # STUB: @task(pre=[clean_docs, docs_build])
 @task
 def website_deploy(cx):
     """Deploy the documentation onto the internet."""
 
-    cx.run("(cd sphinx; ./deploy.sh)")
+    # use the ghp-import tool which handles the branch switching to
+    # `gh-pages` for you
+    cx.run("ghp-import --no-jekyll --push --force sphinx/_build/html")
 
 
 
