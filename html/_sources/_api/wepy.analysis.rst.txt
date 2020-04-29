@@ -1,0 +1,30 @@
+wepy.analysis package
+=====================
+
+.. automodule:: wepy.analysis
+   :members:
+   :undoc-members:
+   :show-inheritance:
+   :private-members:
+
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 1
+
+   wepy.analysis.network_layouts
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 1
+
+   wepy.analysis.contig_tree
+   wepy.analysis.distributed
+   wepy.analysis.network
+   wepy.analysis.parents
+   wepy.analysis.profiles
+   wepy.analysis.rates
+   wepy.analysis.transitions

@@ -1,0 +1,438 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>wepy.analysis.network_layouts.tree module &#8212; wepy 1.0.0rc1.dev0+69.g7e50dcf documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="wepy.analysis.contig_tree module" href="wepy.analysis.contig_tree.html" />
+    <link rel="prev" title="wepy.analysis.network_layouts.layout_graph module" href="wepy.analysis.network_layouts.layout_graph.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+              <div class="related top">
+                &nbsp;
+  <nav id="rellinks">
+    <ul>
+        <li>
+          &larr;
+          <a href="wepy.analysis.network_layouts.layout_graph.html" title="Previous document">wepy.analysis.network_layouts.layout_graph module</a>
+        </li>
+        <li>
+          <a href="wepy.analysis.contig_tree.html" title="Next document">wepy.analysis.contig_tree module</a>
+          &rarr;
+        </li>
+    </ul>
+  </nav>
+              </div>
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="module-wepy.analysis.network_layouts.tree">
+<span id="wepy-analysis-network-layouts-tree-module"></span><h1>wepy.analysis.network_layouts.tree module<a class="headerlink" href="#module-wepy.analysis.network_layouts.tree" title="Permalink to this headline">¶</a></h1>
+<p>Class for generating layouts for resampling trees.</p>
+<div class="section" id="routines">
+<h2>Routines<a class="headerlink" href="#routines" title="Permalink to this headline">¶</a></h2>
+<p>ResamplingTreeLayout.layout</p>
+<dl class="py class">
+<dt id="wepy.analysis.network_layouts.tree.ResamplingTreeLayout">
+<em class="property">class </em><code class="sig-prename descclassname">wepy.analysis.network_layouts.tree.</code><code class="sig-name descname">ResamplingTreeLayout</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">node_radius</span><span class="o">=</span><span class="default_value">1.0</span></em>, <em class="sig-param"><span class="n">row_spacing</span><span class="o">=</span><span class="default_value">5.0</span></em>, <em class="sig-param"><span class="n">step_spacing</span><span class="o">=</span><span class="default_value">20.0</span></em>, <em class="sig-param"><span class="n">central_axis</span><span class="o">=</span><span class="default_value">0.0</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/network_layouts/tree.html#ResamplingTreeLayout"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.network_layouts.tree.ResamplingTreeLayout" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Class that wraps the parameters for generating resampling tree layouts.</p>
+<p>Use the ‘layout’ method to generate inputs to a LayoutGraph for rendering.</p>
+<dl class="py attribute">
+<dt id="wepy.analysis.network_layouts.tree.ResamplingTreeLayout.node_radius">
+<code class="sig-name descname">node_radius</code><a class="headerlink" href="#wepy.analysis.network_layouts.tree.ResamplingTreeLayout.node_radius" title="Permalink to this definition">¶</a></dt>
+<dd><p>Default node radius to use.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="wepy.analysis.network_layouts.tree.ResamplingTreeLayout.row_spacing">
+<code class="sig-name descname">row_spacing</code><a class="headerlink" href="#wepy.analysis.network_layouts.tree.ResamplingTreeLayout.row_spacing" title="Permalink to this definition">¶</a></dt>
+<dd><p>Spacing between nodes in a single row in layout.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="wepy.analysis.network_layouts.tree.ResamplingTreeLayout.step_spacing">
+<code class="sig-name descname">step_spacing</code><a class="headerlink" href="#wepy.analysis.network_layouts.tree.ResamplingTreeLayout.step_spacing" title="Permalink to this definition">¶</a></dt>
+<dd><p>Spacing between the rows of nodes in each step of the layout.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="wepy.analysis.network_layouts.tree.ResamplingTreeLayout.central_axis">
+<code class="sig-name descname">central_axis</code><a class="headerlink" href="#wepy.analysis.network_layouts.tree.ResamplingTreeLayout.central_axis" title="Permalink to this definition">¶</a></dt>
+<dd><p>X coordinate value to center each row around in the tree layout.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<p>Constructing the object is just a setting of the parameters and
+collection of methods for generating layout positions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>node_radius</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a><em>, </em><em>optional</em>) – <dl class="simple">
+<dt>Default node radius to use.</dt><dd><p>(Default value = 1.0)</p>
+</dd>
+</dl>
+</p></li>
+<li><p><strong>row_spacing</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a>) – <dl class="simple">
+<dt>Spacing between nodes in a single row in layout.</dt><dd><p>(Default value = 5.0)</p>
+</dd>
+</dl>
+</p></li>
+<li><p><strong>step_spacing</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a>) – <dl class="simple">
+<dt>Spacing between the rows of nodes in each step of the layout.</dt><dd><p>(Default value = 20.0)</p>
+</dd>
+</dl>
+</p></li>
+<li><p><strong>central_axis</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a>) – <dl class="simple">
+<dt>X coordinate value to center each row around in the tree layout.</dt><dd><p>(Default value = 0.0)</p>
+</dd>
+</dl>
+</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="wepy.analysis.network_layouts.tree.ResamplingTreeLayout._overlaps">
+<code class="sig-name descname">_overlaps</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">positions</span></em>, <em class="sig-param"><span class="n">node_radii</span></em>, <em class="sig-param"><span class="n">node_idx</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/network_layouts/tree.html#ResamplingTreeLayout._overlaps"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.network_layouts.tree.ResamplingTreeLayout._overlaps" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>positions</strong> – </p></li>
+<li><p><strong>node_radii</strong> – </p></li>
+<li><p><strong>node_idx</strong> – </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.analysis.network_layouts.tree.ResamplingTreeLayout._node_row_length">
+<code class="sig-name descname">_node_row_length</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">node_positions</span></em>, <em class="sig-param"><span class="n">node_radii</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/network_layouts/tree.html#ResamplingTreeLayout._node_row_length"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.network_layouts.tree.ResamplingTreeLayout._node_row_length" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the edge to edge length of a row of nodes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>node_positions</strong> – </p></li>
+<li><p><strong>node_radii</strong> – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>row_length</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.analysis.network_layouts.tree.ResamplingTreeLayout._simple_gen_distribution">
+<code class="sig-name descname">_simple_gen_distribution</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">nodes_x</span></em>, <em class="sig-param"><span class="n">node_radii</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/network_layouts/tree.html#ResamplingTreeLayout._simple_gen_distribution"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.network_layouts.tree.ResamplingTreeLayout._simple_gen_distribution" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>nodes_x</strong> – </p></li>
+<li><p><strong>node_radii</strong> – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>new_nodes_positions</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.analysis.network_layouts.tree.ResamplingTreeLayout._simple_next_gen">
+<code class="sig-name descname">_simple_next_gen</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">parents_x</span></em>, <em class="sig-param"><span class="n">children_parent_idxs</span></em>, <em class="sig-param"><span class="n">node_radii</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/network_layouts/tree.html#ResamplingTreeLayout._simple_next_gen"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.network_layouts.tree.ResamplingTreeLayout._simple_next_gen" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>parents_x</strong> – </p></li>
+<li><p><strong>children_parent_idxs</strong> – </p></li>
+<li><p><strong>node_radii</strong> – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>children_x</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.analysis.network_layouts.tree.ResamplingTreeLayout._initial_parent_distribution">
+<code class="sig-name descname">_initial_parent_distribution</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">node_radii</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/network_layouts/tree.html#ResamplingTreeLayout._initial_parent_distribution"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.network_layouts.tree.ResamplingTreeLayout._initial_parent_distribution" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>node_radii</strong> – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>positions</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.analysis.network_layouts.tree.ResamplingTreeLayout._center_row">
+<code class="sig-name descname">_center_row</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">positions</span></em>, <em class="sig-param"><span class="n">radii</span></em>, <em class="sig-param"><span class="n">center</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/network_layouts/tree.html#ResamplingTreeLayout._center_row"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.network_layouts.tree.ResamplingTreeLayout._center_row" title="Permalink to this definition">¶</a></dt>
+<dd><p>Centers the midpoint of a row of nodes around a number.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>positions</strong> – </p></li>
+<li><p><strong>radii</strong> – </p></li>
+<li><p><strong>center</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>centered_positions</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.analysis.network_layouts.tree.ResamplingTreeLayout._layout_array">
+<code class="sig-name descname">_layout_array</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">parent_table</span></em>, <em class="sig-param"><span class="n">radii_array</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/network_layouts/tree.html#ResamplingTreeLayout._layout_array"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.network_layouts.tree.ResamplingTreeLayout._layout_array" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates the structured array of positions for nodes in the parent
+forest tree layout given the corresponding radii.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>parent_table</strong> – </p></li>
+<li><p><strong>radii_array</strong> – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>node_positions</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.analysis.network_layouts.tree.ResamplingTreeLayout.layout">
+<code class="sig-name descname">layout</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">parent_forest</span></em>, <em class="sig-param"><span class="n">node_radii</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/network_layouts/tree.html#ResamplingTreeLayout.layout"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.network_layouts.tree.ResamplingTreeLayout.layout" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a parent forest object, returns a dictionary
+mapping nodes to their xyz layout coordinates.</p>
+<p>If the node radii are given (as a dictionary mapping node ID
+to the desired radius) these are used as the the node radii
+and the default node radius parameter of the layout object is
+ignored.</p>
+<p>Radii are needed to calculate the proper positions so there is
+no overlaps between nodes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>parent_forest</strong> (<em>ParentForest object</em>) – </p></li>
+<li><p><strong>node_radii</strong> (<em>dict of node_id: float</em>) – <dl class="simple">
+<dt>A dictionary mapping the nodes to node radii.</dt><dd><p>(Default value = None)</p>
+</dd>
+</dl>
+</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>node_coords</strong> – x, y, z coordinates for all nodes. Z will be 0 for all.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict of node_id: array_like of float of dim (3,)</p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.8)"><strong>ValueError</strong></a> – If an invalid node_id is given.</p>
+</dd>
+<dt class="field-odd">Warns</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>If some but not all nodes were given assigned radii. Uses</strong></p></li>
+<li><p><strong>default value for unspecified nodes.</strong></p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+              <div class="related bottom">
+                &nbsp;
+  <nav id="rellinks">
+    <ul>
+        <li>
+          &larr;
+          <a href="wepy.analysis.network_layouts.layout_graph.html" title="Previous document">wepy.analysis.network_layouts.layout_graph module</a>
+        </li>
+        <li>
+          <a href="wepy.analysis.contig_tree.html" title="Next document">wepy.analysis.contig_tree module</a>
+          &rarr;
+        </li>
+    </ul>
+  </nav>
+              </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<p class="logo">
+  <a href="../index.html">
+    <img class="logo" src="../_static/wepy.svg" alt="Logo"/>
+    
+    <h1 class="logo logo-name">wepy</h1>
+    
+  </a>
+</p>
+
+
+
+<p class="blurb">A Weighted Ensemble  (WE) simulation framework</p>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../_source/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_source/quick_start.html">Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_source/introduction.html">Introduction &amp; Features</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../_source/tutorials/index.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_source/users_guide.html">User’s Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_source/troubleshooting.html">Common Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_source/troubleshooting.html#faq">FAQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_source/reference.html">Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_source/glossary.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_source/api.html">API Overview</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">Full API</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../_source/general_info.html">General Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_source/news.html">News and Updates</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_source/changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_source/dev_guide.html">Development Guide</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="modules.html">wepy</a><ul>
+  <li><a href="wepy.html">wepy package</a><ul>
+  <li><a href="wepy.analysis.html">wepy.analysis package</a><ul>
+  <li><a href="wepy.analysis.network_layouts.html">wepy.analysis.network_layouts package</a><ul>
+      <li>Previous: <a href="wepy.analysis.network_layouts.layout_graph.html" title="previous chapter">wepy.analysis.network_layouts.layout_graph module</a></li>
+      <li>Next: <a href="wepy.analysis.contig_tree.html" title="next chapter">wepy.analysis.contig_tree module</a></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, Samuel D. Lotz.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.0.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../_sources/_api/wepy.analysis.network_layouts.tree.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+    <a href="https://github.com/ADicksonLab/wepy" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
+    
+
+    
+  </body>
+</html>

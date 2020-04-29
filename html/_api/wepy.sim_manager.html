@@ -1,0 +1,578 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>wepy.sim_manager module &#8212; wepy 1.0.0rc1.dev0+69.g7e50dcf documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="wepy.walker module" href="wepy.walker.html" />
+    <link rel="prev" title="wepy.hdf5 module" href="wepy.hdf5.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+              <div class="related top">
+                &nbsp;
+  <nav id="rellinks">
+    <ul>
+        <li>
+          &larr;
+          <a href="wepy.hdf5.html" title="Previous document">wepy.hdf5 module</a>
+        </li>
+        <li>
+          <a href="wepy.walker.html" title="Next document">wepy.walker module</a>
+          &rarr;
+        </li>
+    </ul>
+  </nav>
+              </div>
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="module-wepy.sim_manager">
+<span id="wepy-sim-manager-module"></span><h1>wepy.sim_manager module<a class="headerlink" href="#module-wepy.sim_manager" title="Permalink to this headline">¶</a></h1>
+<p>Module for the main simulation management class.</p>
+<p>All component class interfaces are set by how the manager interacts
+with them.</p>
+<p>Managers should implement a three phase protocol for running
+simulations:</p>
+<ul class="simple">
+<li><p>init</p></li>
+<li><p>run_simulation</p></li>
+<li><p>cleanup</p></li>
+</ul>
+<p>The separate <cite>init</cite> method is different than the constructor
+<cite>__init__</cite> method and instead calls the special <cite>init</cite> method on all
+wepy components (runner, resampler, boundary conditions, and
+reporters) at runtime.</p>
+<p>This allows for a things that need to be done at runtime before a
+simulation begins, e.g. opening files, that you don’t want done at
+construction time.</p>
+<p>This is useful for orchestration because the complete simulation
+‘image’ can be made before runtime (and pickled or otherwise
+persisted) without producing external effects.</p>
+<p>This is used primarily for reporters, which perform I/O, and work
+mappers which may spawn processes.</p>
+<p>The <cite>cleanup</cite> method should be called either when the simulation ends
+normally as well as when the simulation ends abnormally.</p>
+<p>This allows file handles to be closed and processes to be killed at
+the end of a simulation and upon failure.</p>
+<p>The base methods for running simulations is <cite>run_cycle</cite> which runs
+a cycle of weighted ensemble given the state of all the components.</p>
+<p>The simulation manager should provide multiple ways of running
+simulations depending on if the number of cycles is known up front or
+to be determined adaptively (e.g. according to some time limit).</p>
+<dl class="py class">
+<dt id="wepy.sim_manager.Manager">
+<em class="property">class </em><code class="sig-prename descclassname">wepy.sim_manager.</code><code class="sig-name descname">Manager</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">init_walkers</span></em>, <em class="sig-param"><span class="n">runner</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">work_mapper</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">resampler</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">boundary_conditions</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">reporters</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/sim_manager.html#Manager"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.sim_manager.Manager" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>The class that coordinates wepy simulations.</p>
+<p>The Manager class is the lynchpin of wepy simulations and is where
+all the different components are composed.</p>
+<p>Strictly speaking the Manager defines the interfaces each
+component must provide to function.</p>
+<p>Developers can call <cite>run_cycle</cite> directly but the following
+convenience functions are provided to run many cycles in
+succession as a single ‘run’ with consecutive cycle idxs:</p>
+<ul class="simple">
+<li><p>run_simulation_by_time</p></li>
+<li><p>run_simulation</p></li>
+</ul>
+<p>The corresponding ‘continue’ run methods will simply pass a run
+index to reporters indicating that the run continues another.</p>
+<p>For these run methods the <cite>init</cite> method is called followed by
+iterative calls to <cite>run_cycle</cite> and finally with a call to
+<cite>cleanup</cite>.</p>
+<p>The order of application of wepy components are:</p>
+<ul class="simple">
+<li><p>runner</p></li>
+<li><p>boundary_conditions</p></li>
+<li><p>resampler</p></li>
+<li><p>reporters</p></li>
+</ul>
+<p>Constructor for Manager.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>init_walkers</strong> (<em>list of walkers</em>) – The list of the initial walkers that will be run.</p></li>
+<li><p><strong>runner</strong> (<em>object implementing the Runner interface</em>) – The runner to be used for propagating sampling segments of walkers.</p></li>
+<li><p><strong>work_mapper</strong> (<em>object implementing the WorkMapper interface</em>) – The object that will be used to perform a set of runner
+segments in a cycle.</p></li>
+<li><p><strong>resampler</strong> (<em>object implementing the Resampler interface</em>) – The resampler to be used in the simulation</p></li>
+<li><p><strong>boundary_conditions</strong> (<em>object implementing BoundaryCondition interface</em><em>, </em><em>optional</em>) – The boundary conditions to apply to walkers</p></li>
+<li><p><strong>reporters</strong> (<em>list of objects implenting the Reporter interface</em><em>, </em><em>optional</em>) – Reporters to be used. You should provide these if you want to keep data.</p></li>
+</ul>
+</dd>
+</dl>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>While reporters are strictly optional, you probably want to
+provide some because the simulation manager provides no
+utilities for saving data from the simulations except for the
+walkers at the end of a cycle or simulation.</p>
+</div>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="wepy.reporter.hdf5.html#module-wepy.reporter.hdf5" title="wepy.reporter.hdf5"><code class="xref py py-class docutils literal notranslate"><span class="pre">wepy.reporter.hdf5</span></code></a></dt><dd><p>The standard reporter for molecular simulations in wepy.</p>
+</dd>
+<dt><a class="reference internal" href="wepy.orchestration.orchestrator.html#wepy.orchestration.orchestrator.Orchestrator" title="wepy.orchestration.orchestrator.Orchestrator"><code class="xref py py-class docutils literal notranslate"><span class="pre">wepy.orchestration.orchestrator.Orchestrator</span></code></a></dt><dd><p>for running simulations with checkpointing, restarting, reporter localization, and configuration hotswapping with command line interface.</p>
+</dd>
+</dl>
+</div>
+<dl class="py attribute">
+<dt id="wepy.sim_manager.Manager.REPORT_ITEM_KEYS">
+<code class="sig-name descname">REPORT_ITEM_KEYS</code><em class="property"> = ('cycle_idx', 'n_segment_steps', 'new_walkers', 'resampled_walkers', 'warp_data', 'bc_data', 'progress_data', 'resampling_data', 'resampler_data', 'worker_segment_times', 'cycle_runner_time', 'cycle_bc_time', 'cycle_resampling_time')</em><a class="headerlink" href="#wepy.sim_manager.Manager.REPORT_ITEM_KEYS" title="Permalink to this definition">¶</a></dt>
+<dd><p>Keys of values that will be passed to reporters.</p>
+<p>This indicates the values that the reporters will have access to.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.sim_manager.Manager.run_segment">
+<code class="sig-name descname">run_segment</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">walkers</span></em>, <em class="sig-param"><span class="n">segment_length</span></em>, <em class="sig-param"><span class="n">cycle_idx</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/sim_manager.html#Manager.run_segment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.sim_manager.Manager.run_segment" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run a time segment for all walkers using the available workers.</p>
+<p>Maps the work for running each segment for each walker using
+the work mapper.</p>
+<p>Walkers will have the same weights but different states.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>walkers</strong> (<em>list of walkers</em>) – </p></li>
+<li><p><strong>segment_length</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – Number of steps to run in each segment.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>new_walkers</strong> – The walkers after the segment of sampling simulation.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list of walkers</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.sim_manager.Manager.run_cycle">
+<code class="sig-name descname">run_cycle</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">walkers</span></em>, <em class="sig-param"><span class="n">n_segment_steps</span></em>, <em class="sig-param"><span class="n">cycle_idx</span></em>, <em class="sig-param"><span class="n">runner_opts</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/sim_manager.html#Manager.run_cycle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.sim_manager.Manager.run_cycle" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run a full cycle of weighted ensemble simulation using each
+component.</p>
+<p>The order of application of wepy components are:</p>
+<ul class="simple">
+<li><p>runner</p></li>
+<li><p>boundary_conditions</p></li>
+<li><p>resampler</p></li>
+<li><p>reporters</p></li>
+</ul>
+<p>The <cite>init</cite> method should have been called before this or
+components may fail.</p>
+<p>This method is not idempotent and will alter the state of wepy
+components.</p>
+<p>The cycle is not kept as a state variable of the simulation
+manager and so myst be provided here. This motivation for this
+is that a cycle index is really a property of a run and runs
+can be composed in many ways and is then handled by
+higher-level methods calling run_cycle.</p>
+<p>Each component should implement its respective interface to be
+called in this method, the order and names of the methods
+called are as follows:</p>
+<ol class="arabic simple">
+<li><p>runner.pre_cycle</p></li>
+<li><p>run_segment -&gt; work_mapper.map(runner.run_segment)</p></li>
+<li><p>runner.post_cycle</p></li>
+<li><p>boundary_conditions.warp_walkers (if present)</p></li>
+<li><p>resampler.resample</p></li>
+<li><p>reporter.report for all reporters</p></li>
+</ol>
+<p>The pre and post cycle calls to the runner allow for a parity
+of one call per cycle to the runner.</p>
+<p>The boundary_conditions component is optional, as are the
+reporters (although it won’t be very useful to run this
+without any).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>walkers</strong> (<em>list of walkers</em>) – </p></li>
+<li><p><strong>n_segment_steps</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – Number of steps to run in each segment.</p></li>
+<li><p><strong>cycle_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – The index of this cycle.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>new_walkers</strong> (<em>list of walkers</em>) – The resulting walkers of the cycle</p></li>
+<li><p><strong>sim_components</strong> (<em>list</em>) – The runner, resampler, and boundary conditions
+objects at the end of the cycle.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#wepy.sim_manager.Manager.run_simulation" title="wepy.sim_manager.Manager.run_simulation"><code class="xref py py-meth docutils literal notranslate"><span class="pre">run_simulation()</span></code></a></dt><dd><p>To run a simulation by the number of cycles</p>
+</dd>
+</dl>
+<p><a class="reference internal" href="#wepy.sim_manager.Manager.run_simulation_by_time" title="wepy.sim_manager.Manager.run_simulation_by_time"><code class="xref py py-meth docutils literal notranslate"><span class="pre">run_simulation_by_time()</span></code></a></p>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.sim_manager.Manager._run_cycle">
+<code class="sig-name descname">_run_cycle</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">walkers</span></em>, <em class="sig-param"><span class="n">n_segment_steps</span></em>, <em class="sig-param"><span class="n">cycle_idx</span></em>, <em class="sig-param"><span class="n">runner_opts</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/sim_manager.html#Manager._run_cycle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.sim_manager.Manager._run_cycle" title="Permalink to this definition">¶</a></dt>
+<dd><p>See run_cycle.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.sim_manager.Manager.init">
+<code class="sig-name descname">init</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">num_workers</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">continue_run</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/sim_manager.html#Manager.init"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.sim_manager.Manager.init" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize wepy configuration components for use at runtime.</p>
+<p>This <cite>init</cite> method is different than the constructor
+<cite>__init__</cite> method and instead calls the special <cite>init</cite> method
+on all wepy components (runner, resampler, boundary
+conditions, and reporters) at runtime.</p>
+<p>This allows for a things that need to be done at runtime before a
+simulation begins, e.g. opening files, that you don’t want done at
+construction time.</p>
+<p>It calls the <cite>init</cite> methods on:</p>
+<ul class="simple">
+<li><p>work_mapper</p></li>
+<li><p>reporters</p></li>
+</ul>
+<p>Passes the segment_func of the runner and the number of
+workers to the work_mapper.</p>
+<p>Passes the following things to each reporter <cite>init</cite> method:</p>
+<ul class="simple">
+<li><p>init_walkers</p></li>
+<li><p>runner</p></li>
+<li><p>resampler</p></li>
+<li><p>boundary_conditions</p></li>
+<li><p>work_mapper</p></li>
+<li><p>reporters</p></li>
+<li><p>continue_run</p></li>
+</ul>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>num_workers</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – <dl class="simple">
+<dt>The number of workers to use in the work mapper.</dt><dd><p>(Default value = None)</p>
+</dd>
+</dl>
+</p></li>
+<li><p><strong>continue_run</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – <dl class="simple">
+<dt>Index of a run this one is continuing.</dt><dd><p>(Default value = None)</p>
+</dd>
+</dl>
+</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.sim_manager.Manager.cleanup">
+<code class="sig-name descname">cleanup</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/sim_manager.html#Manager.cleanup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.sim_manager.Manager.cleanup" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform cleanup actions for wepy configuration components.</p>
+<p>Allow components to perform actions before ending the main
+simulation manager process.</p>
+<p>Calls the <cite>cleanup</cite> method on:</p>
+<ul class="simple">
+<li><p>work_mapper</p></li>
+<li><p>reporters</p></li>
+</ul>
+<p>Passes nothing to the work mapper.</p>
+<p>Passes the following to each reporter:</p>
+<ul class="simple">
+<li><p>runner</p></li>
+<li><p>work_mapper</p></li>
+<li><p>resampler</p></li>
+<li><p>boundary_conditions</p></li>
+<li><p>reporters</p></li>
+</ul>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.sim_manager.Manager.run_simulation_by_time">
+<code class="sig-name descname">run_simulation_by_time</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">run_time</span></em>, <em class="sig-param"><span class="n">segments_length</span></em>, <em class="sig-param"><span class="n">num_workers</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/sim_manager.html#Manager.run_simulation_by_time"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.sim_manager.Manager.run_simulation_by_time" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run a simulation for a certain amount of time.</p>
+<p>This starts timing as soon as this is called. If the time
+before running a new cycle is greater than the runtime the run
+will exit after cleaning up. Once a cycle is started it may
+also run over the wall time.</p>
+<p>All this does is provide a run idx to the reporters, which is
+the run that is intended to be continued. This simulation
+manager knows no details and is left up to the reporters to
+handle this appropriately.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>run_time</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a>) – The time to run in seconds.</p></li>
+<li><p><strong>segments_length</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – The number of steps for each runner segment.</p></li>
+<li><p><strong>num_workers</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – <dl class="simple">
+<dt>The number of workers to use for the work mapper.</dt><dd><p>(Default value = None)</p>
+</dd>
+</dl>
+</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>new_walkers</strong> (<em>list of walkers</em>) – The resulting walkers of the cycle</p></li>
+<li><p><strong>sim_components</strong> (<em>list</em>) – Deep copies of the runner, resampler, and boundary
+conditions objects at the end of the cycle.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="wepy.orchestration.orchestrator.html#wepy.orchestration.orchestrator.Orchestrator" title="wepy.orchestration.orchestrator.Orchestrator"><code class="xref py py-meth docutils literal notranslate"><span class="pre">wepy.orchestration.orchestrator.Orchestrator()</span></code></a></dt><dd><p>for running simulations with checkpointing, restarting, reporter localization, and configuration hotswapping with command line interface.</p>
+</dd>
+</dl>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.sim_manager.Manager.run_simulation">
+<code class="sig-name descname">run_simulation</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">n_cycles</span></em>, <em class="sig-param"><span class="n">segment_lengths</span></em>, <em class="sig-param"><span class="n">num_workers</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/sim_manager.html#Manager.run_simulation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.sim_manager.Manager.run_simulation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run a simulation for an explicit number of cycles.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>n_cycles</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – Number of cycles to perform.</p></li>
+<li><p><strong>segment_lengths</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – The number of steps for each runner segment.</p></li>
+<li><p><strong>num_workers</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – <dl class="simple">
+<dt>The number of workers to use for the work mapper.</dt><dd><p>(Default value = None)</p>
+</dd>
+</dl>
+</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>new_walkers</strong> (<em>list of walkers</em>) – The resulting walkers of the cycle</p></li>
+<li><p><strong>sim_components</strong> (<em>list</em>) – Deep copies of the runner, boundary conditions, and
+resampler objects at the end of the simulation.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="wepy.orchestration.orchestrator.html#wepy.orchestration.orchestrator.Orchestrator" title="wepy.orchestration.orchestrator.Orchestrator"><code class="xref py py-meth docutils literal notranslate"><span class="pre">wepy.orchestration.orchestrator.Orchestrator()</span></code></a></dt><dd><p>for running simulations with checkpointing, restarting, reporter localization, and configuration hotswapping with command line interface.</p>
+</dd>
+</dl>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.sim_manager.Manager.continue_run_simulation">
+<code class="sig-name descname">continue_run_simulation</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">run_idx</span></em>, <em class="sig-param"><span class="n">n_cycles</span></em>, <em class="sig-param"><span class="n">segment_lengths</span></em>, <em class="sig-param"><span class="n">num_workers</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/sim_manager.html#Manager.continue_run_simulation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.sim_manager.Manager.continue_run_simulation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Continue a simulation. All this does is provide a run idx to the
+reporters, which is the run that is intended to be
+continued. This simulation manager knows no details and is
+left up to the reporters to handle this appropriately.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>run_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – Index of the run you are continuing.</p></li>
+<li><p><strong>n_cycles</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – Number of cycles to perform.</p></li>
+<li><p><strong>segment_lengths</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – The number of steps for each runner segment.</p></li>
+<li><p><strong>num_workers</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – <dl class="simple">
+<dt>The number of workers to use for the work mapper.</dt><dd><p>(Default value = None)</p>
+</dd>
+</dl>
+</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>new_walkers</strong> (<em>list of walkers</em>) – The resulting walkers of the cycle</p></li>
+<li><p><strong>sim_components</strong> (<em>list</em>) – Deep copies of the runner, resampler, and boundary
+conditions objects at the end of the cycle.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="wepy.orchestration.orchestrator.html#wepy.orchestration.orchestrator.Orchestrator" title="wepy.orchestration.orchestrator.Orchestrator"><code class="xref py py-meth docutils literal notranslate"><span class="pre">wepy.orchestration.orchestrator.Orchestrator()</span></code></a></dt><dd><p>for running simulations with checkpointing, restarting, reporter localization, and configuration hotswapping with command line interface.</p>
+</dd>
+</dl>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.sim_manager.Manager.continue_run_simulation_by_time">
+<code class="sig-name descname">continue_run_simulation_by_time</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">run_idx</span></em>, <em class="sig-param"><span class="n">run_time</span></em>, <em class="sig-param"><span class="n">segments_length</span></em>, <em class="sig-param"><span class="n">num_workers</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/sim_manager.html#Manager.continue_run_simulation_by_time"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.sim_manager.Manager.continue_run_simulation_by_time" title="Permalink to this definition">¶</a></dt>
+<dd><p>Continue a simulation with a separate run by time.</p>
+<p>This starts timing as soon as this is called. If the time
+before running a new cycle is greater than the runtime the run
+will exit after cleaning up. Once a cycle is started it may
+also run over the wall time.</p>
+<p>All this does is provide a run idx to the reporters, which is
+the run that is intended to be continued. This simulation
+manager knows no details and is left up to the reporters to
+handle this appropriately.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>run_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – Deep copies of the runner, resampler, and boundary
+conditions objects at the end of the cycle.</p>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="wepy.orchestration.orchestrator.html#wepy.orchestration.orchestrator.Orchestrator" title="wepy.orchestration.orchestrator.Orchestrator"><code class="xref py py-meth docutils literal notranslate"><span class="pre">wepy.orchestration.orchestrator.Orchestrator()</span></code></a></dt><dd><p>for running simulations with checkpointing, restarting, reporter localization, and configuration hotswapping with command line interface.</p>
+</dd>
+</dl>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+              <div class="related bottom">
+                &nbsp;
+  <nav id="rellinks">
+    <ul>
+        <li>
+          &larr;
+          <a href="wepy.hdf5.html" title="Previous document">wepy.hdf5 module</a>
+        </li>
+        <li>
+          <a href="wepy.walker.html" title="Next document">wepy.walker module</a>
+          &rarr;
+        </li>
+    </ul>
+  </nav>
+              </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<p class="logo">
+  <a href="../index.html">
+    <img class="logo" src="../_static/wepy.svg" alt="Logo"/>
+    
+    <h1 class="logo logo-name">wepy</h1>
+    
+  </a>
+</p>
+
+
+
+<p class="blurb">A Weighted Ensemble  (WE) simulation framework</p>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../_source/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_source/quick_start.html">Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_source/introduction.html">Introduction &amp; Features</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../_source/tutorials/index.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_source/users_guide.html">User’s Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_source/troubleshooting.html">Common Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_source/troubleshooting.html#faq">FAQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_source/reference.html">Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_source/glossary.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_source/api.html">API Overview</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">Full API</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../_source/general_info.html">General Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_source/news.html">News and Updates</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_source/changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_source/dev_guide.html">Development Guide</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="modules.html">wepy</a><ul>
+  <li><a href="wepy.html">wepy package</a><ul>
+      <li>Previous: <a href="wepy.hdf5.html" title="previous chapter">wepy.hdf5 module</a></li>
+      <li>Next: <a href="wepy.walker.html" title="next chapter">wepy.walker module</a></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, Samuel D. Lotz.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.0.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../_sources/_api/wepy.sim_manager.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+    <a href="https://github.com/ADicksonLab/wepy" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
+    
+
+    
+  </body>
+</html>

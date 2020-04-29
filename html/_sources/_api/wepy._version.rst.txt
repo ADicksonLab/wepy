@@ -1,0 +1,8 @@
+wepy.\_version module
+=====================
+
+.. automodule:: wepy._version
+   :members:
+   :undoc-members:
+   :show-inheritance:
+   :private-members:

@@ -1,0 +1,221 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>wepy.orchestration.cli module &#8212; wepy 1.0.0rc1.dev0+69.g7e50dcf documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="wepy.orchestration.configuration module" href="wepy.orchestration.configuration.html" />
+    <link rel="prev" title="wepy.orchestration package" href="wepy.orchestration.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+              <div class="related top">
+                &nbsp;
+  <nav id="rellinks">
+    <ul>
+        <li>
+          &larr;
+          <a href="wepy.orchestration.html" title="Previous document">wepy.orchestration package</a>
+        </li>
+        <li>
+          <a href="wepy.orchestration.configuration.html" title="Next document">wepy.orchestration.configuration module</a>
+          &rarr;
+        </li>
+    </ul>
+  </nav>
+              </div>
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="module-wepy.orchestration.cli">
+<span id="wepy-orchestration-cli-module"></span><h1>wepy.orchestration.cli module<a class="headerlink" href="#module-wepy.orchestration.cli" title="Permalink to this headline">¶</a></h1>
+<dl class="py function">
+<dt id="wepy.orchestration.cli.set_loglevel">
+<code class="sig-prename descclassname">wepy.orchestration.cli.</code><code class="sig-name descname">set_loglevel</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">loglevel</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/orchestration/cli.html#set_loglevel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.orchestration.cli.set_loglevel" title="Permalink to this definition">¶</a></dt>
+<dd><p>
+:param loglevel:</p>
+<p></p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="wepy.orchestration.cli.settle_run_options">
+<code class="sig-prename descclassname">wepy.orchestration.cli.</code><code class="sig-name descname">settle_run_options</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">n_workers</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">job_dir</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">job_name</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">narration</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">configuration</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">start_hash</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/orchestration/cli.html#settle_run_options"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.orchestration.cli.settle_run_options" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>n_workers</strong> – (Default value = None)</p></li>
+<li><p><strong>job_dir</strong> – (Default value = None)</p></li>
+<li><p><strong>job_name</strong> – (Default value = None)</p></li>
+<li><p><strong>narration</strong> – (Default value = None)</p></li>
+<li><p><strong></strong> – </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="wepy.orchestration.cli.combine_orch_wepy_hdf5s">
+<code class="sig-prename descclassname">wepy.orchestration.cli.</code><code class="sig-name descname">combine_orch_wepy_hdf5s</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">new_orch</span></em>, <em class="sig-param"><span class="n">new_hdf5_path</span></em>, <em class="sig-param"><span class="n">run_ids</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/orchestration/cli.html#combine_orch_wepy_hdf5s"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.orchestration.cli.combine_orch_wepy_hdf5s" title="Permalink to this definition">¶</a></dt>
+<dd><p>
+:param new_orch:
+:param new_hdf5_path:</p>
+<p></p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="wepy.orchestration.cli.hash_listing_formatter">
+<code class="sig-prename descclassname">wepy.orchestration.cli.</code><code class="sig-name descname">hash_listing_formatter</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">hashes</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/orchestration/cli.html#hash_listing_formatter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.orchestration.cli.hash_listing_formatter" title="Permalink to this definition">¶</a></dt>
+<dd><p>
+:param hashes:</p>
+<p></p>
+</dd></dl>
+
+</div>
+
+
+          </div>
+              <div class="related bottom">
+                &nbsp;
+  <nav id="rellinks">
+    <ul>
+        <li>
+          &larr;
+          <a href="wepy.orchestration.html" title="Previous document">wepy.orchestration package</a>
+        </li>
+        <li>
+          <a href="wepy.orchestration.configuration.html" title="Next document">wepy.orchestration.configuration module</a>
+          &rarr;
+        </li>
+    </ul>
+  </nav>
+              </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<p class="logo">
+  <a href="../index.html">
+    <img class="logo" src="../_static/wepy.svg" alt="Logo"/>
+    
+    <h1 class="logo logo-name">wepy</h1>
+    
+  </a>
+</p>
+
+
+
+<p class="blurb">A Weighted Ensemble  (WE) simulation framework</p>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../_source/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_source/quick_start.html">Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_source/introduction.html">Introduction &amp; Features</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../_source/tutorials/index.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_source/users_guide.html">User’s Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_source/troubleshooting.html">Common Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_source/troubleshooting.html#faq">FAQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_source/reference.html">Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_source/glossary.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_source/api.html">API Overview</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">Full API</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../_source/general_info.html">General Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_source/news.html">News and Updates</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_source/changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_source/dev_guide.html">Development Guide</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="modules.html">wepy</a><ul>
+  <li><a href="wepy.html">wepy package</a><ul>
+  <li><a href="wepy.orchestration.html">wepy.orchestration package</a><ul>
+      <li>Previous: <a href="wepy.orchestration.html" title="previous chapter">wepy.orchestration package</a></li>
+      <li>Next: <a href="wepy.orchestration.configuration.html" title="next chapter">wepy.orchestration.configuration module</a></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, Samuel D. Lotz.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.0.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../_sources/_api/wepy.orchestration.cli.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+    <a href="https://github.com/ADicksonLab/wepy" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
+    
+
+    
+  </body>
+</html>

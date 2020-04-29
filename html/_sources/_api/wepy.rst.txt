@@ -1,0 +1,36 @@
+wepy package
+============
+
+.. automodule:: wepy
+   :members:
+   :undoc-members:
+   :show-inheritance:
+   :private-members:
+
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 1
+
+   wepy.analysis
+   wepy.boundary_conditions
+   wepy.orchestration
+   wepy.reporter
+   wepy.resampling
+   wepy.runners
+   wepy.util
+   wepy.work_mapper
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 1
+
+   wepy._print_version
+   wepy._version
+   wepy.cli
+   wepy.hdf5
+   wepy.sim_manager
+   wepy.walker

@@ -1,0 +1,18 @@
+wepy.resampling package
+=======================
+
+.. automodule:: wepy.resampling
+   :members:
+   :undoc-members:
+   :show-inheritance:
+   :private-members:
+
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 1
+
+   wepy.resampling.decisions
+   wepy.resampling.distances
+   wepy.resampling.resamplers

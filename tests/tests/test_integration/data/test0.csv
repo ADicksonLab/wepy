@@ -1,9 +1,0 @@
-,device,directory,fstype,options,dump,fsck
-0,UUID=ASDOINADNSON,/,ext4,errors=remount-ro,0,1
-1,UUID=SANSDNIONION,/boot/efi,vfat,umask=0077,0,1
-2,/swapfile,none,swap,sw,0,0
-3,UUID=ASFASIDUSADKNS,/media/shmo/allegheny,ntfs,"noauto,user,permissions,x-gvfs-show,x-gvfs-name=allegheny",0,0
-4,UUID=SDFSDUINOIDNIOW,/media/shmo/buckthorn,auto,"noauto,user,permissions,x-gvfs-show,x-gvfs-name=buckthorn",0,0
-5,UUID=SAIDOJANSA,/media/shmo/camellia,auto,"noauto,user,permissions,x-gvfs-show,x-gvfs-name=camellia",0,0
-6,UUID=AOSNDOISNDIONSW,/media/shmo/rhododendron,auto,"noauto,x-gvfs-show,x-gvfs-name=rhododendron",0,0
-7,LABEL=birch,/media/shmo/birch,auto,"user,permissions,nosuid,nodev,nofail,noauto,x-gvfs-show,x-gvfs-name=birch",0,0

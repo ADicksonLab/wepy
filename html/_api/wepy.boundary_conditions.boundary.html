@@ -1,0 +1,1051 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>wepy.boundary_conditions.boundary module &#8212; wepy 1.0.0rc1.dev0+69.g7e50dcf documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="wepy.boundary_conditions.receptor module" href="wepy.boundary_conditions.receptor.html" />
+    <link rel="prev" title="wepy.boundary_conditions package" href="wepy.boundary_conditions.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+              <div class="related top">
+                &nbsp;
+  <nav id="rellinks">
+    <ul>
+        <li>
+          &larr;
+          <a href="wepy.boundary_conditions.html" title="Previous document">wepy.boundary_conditions package</a>
+        </li>
+        <li>
+          <a href="wepy.boundary_conditions.receptor.html" title="Next document">wepy.boundary_conditions.receptor module</a>
+          &rarr;
+        </li>
+    </ul>
+  </nav>
+              </div>
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="module-wepy.boundary_conditions.boundary">
+<span id="wepy-boundary-conditions-boundary-module"></span><h1>wepy.boundary_conditions.boundary module<a class="headerlink" href="#module-wepy.boundary_conditions.boundary" title="Permalink to this headline">¶</a></h1>
+<p>Abstract base class and null boundary condition class for
+conveniently making compliant boundary condition classes for use in
+wepy.</p>
+<dl class="py class">
+<dt id="wepy.boundary_conditions.boundary.BoundaryConditions">
+<em class="property">class </em><code class="sig-prename descclassname">wepy.boundary_conditions.boundary.</code><code class="sig-name descname">BoundaryConditions</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/boundary_conditions/boundary.html#BoundaryConditions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.boundary_conditions.boundary.BoundaryConditions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Abstract base class for conveniently making compliant boundary condition classes.</p>
+<p>Includes empty record group definitions and useful getters for those.</p>
+<p>Null constructor accepts and ignores any key word arguments.</p>
+<dl class="py attribute">
+<dt id="wepy.boundary_conditions.boundary.BoundaryConditions.BC_FIELDS">
+<code class="sig-name descname">BC_FIELDS</code><em class="property"> = ()</em><a class="headerlink" href="#wepy.boundary_conditions.boundary.BoundaryConditions.BC_FIELDS" title="Permalink to this definition">¶</a></dt>
+<dd><p>String names of fields produced in this record group.</p>
+<p>Boundary condition (BC) records are typically used to report on
+changes to the state of the BC object.</p>
+<p class="rubric">Notes</p>
+<p>These fields are not critical to the proper functioning of the
+rest of the wepy framework and can be modified freely.</p>
+<p>However, reporters specific to this boundary condition probably
+will make use of these records.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="wepy.boundary_conditions.boundary.BoundaryConditions.BC_SHAPES">
+<code class="sig-name descname">BC_SHAPES</code><em class="property"> = ()</em><a class="headerlink" href="#wepy.boundary_conditions.boundary.BoundaryConditions.BC_SHAPES" title="Permalink to this definition">¶</a></dt>
+<dd><p>Numpy-style shapes of all fields produced in records.</p>
+<p>There should be the same number of elements as there are in the
+corresponding ‘FIELDS’ class constant.</p>
+<p>Each entry should either be:</p>
+<ol class="upperalpha simple">
+<li><p>A tuple of ints that specify the shape of the field element
+array.</p></li>
+<li><p>Ellipsis, indicating that the field is variable length and
+limited to being a rank one array (e.g. (3,) or (1,)).</p></li>
+<li><p>None, indicating that the first instance of this field will not
+be known until runtime. Any field that is returned by a record
+producing method will automatically interpreted as None if not
+specified here.</p></li>
+</ol>
+<p>Note that the shapes must be tuple and not simple integers for rank-1
+arrays.</p>
+<p>Option B will result in the special h5py datatype ‘vlen’ and
+should not be used for large datasets for efficiency reasons.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="wepy.boundary_conditions.boundary.BoundaryConditions.BC_DTYPES">
+<code class="sig-name descname">BC_DTYPES</code><em class="property"> = ()</em><a class="headerlink" href="#wepy.boundary_conditions.boundary.BoundaryConditions.BC_DTYPES" title="Permalink to this definition">¶</a></dt>
+<dd><p>Specifies the numpy dtypes to be used for records.</p>
+<p>There should be the same number of elements as there are in the
+corresponding ‘FIELDS’ class constant.</p>
+<p>Each entry should either be:</p>
+<ol class="upperalpha simple">
+<li><p>A <cite>numpy.dtype</cite> object.</p></li>
+</ol>
+<ol class="upperalpha simple" start="4">
+<li><p>None, indicating that the first instance of this field will not
+be known until runtime. Any field that is returned by a record
+producing method will automatically interpreted as None if not
+specified here.</p></li>
+</ol>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="wepy.boundary_conditions.boundary.BoundaryConditions.BC_RECORD_FIELDS">
+<code class="sig-name descname">BC_RECORD_FIELDS</code><em class="property"> = ()</em><a class="headerlink" href="#wepy.boundary_conditions.boundary.BoundaryConditions.BC_RECORD_FIELDS" title="Permalink to this definition">¶</a></dt>
+<dd><p>Optional, names of fields to be selected for truncated
+representation of the record group.</p>
+<p>These entries should be strings that are previously contained in
+the ‘FIELDS’ class constant.</p>
+<p>While strictly no constraints on to which fields can be added here
+you should only choose those fields whose features could fit into
+a plaintext csv or similar format.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="wepy.boundary_conditions.boundary.BoundaryConditions.WARPING_FIELDS">
+<code class="sig-name descname">WARPING_FIELDS</code><em class="property"> = ('walker_idx', 'target_idx', 'weight')</em><a class="headerlink" href="#wepy.boundary_conditions.boundary.BoundaryConditions.WARPING_FIELDS" title="Permalink to this definition">¶</a></dt>
+<dd><p>String names of fields produced in this record group.</p>
+<p>Warping records are typically used to report whenever a walker
+satisfied the boundary conditions and was warped and had its
+state changed.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Be careful when modifying these fields as they may be integrated
+with other wepy framework features. Namely recognition of
+discontinuous warping events for making contiguous trajectories
+from cloning and merging lineages.</p>
+<p>The behavior of whether or not a warping event is discontinuous is
+given by a <cite>BoundaryCondition</cite> class’s <cite>warping_discontinuity</cite>
+which likely depends on the existence of particular fields.</p>
+</div>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="wepy.boundary_conditions.boundary.BoundaryConditions.WARPING_SHAPES">
+<code class="sig-name descname">WARPING_SHAPES</code><em class="property"> = ((1,), (1,), (1,))</em><a class="headerlink" href="#wepy.boundary_conditions.boundary.BoundaryConditions.WARPING_SHAPES" title="Permalink to this definition">¶</a></dt>
+<dd><p>Numpy-style shapes of all fields produced in records.</p>
+<p>There should be the same number of elements as there are in the
+corresponding ‘FIELDS’ class constant.</p>
+<p>Each entry should either be:</p>
+<ol class="upperalpha simple">
+<li><p>A tuple of ints that specify the shape of the field element
+array.</p></li>
+<li><p>Ellipsis, indicating that the field is variable length and
+limited to being a rank one array (e.g. (3,) or (1,)).</p></li>
+<li><p>None, indicating that the first instance of this field will not
+be known until runtime. Any field that is returned by a record
+producing method will automatically interpreted as None if not
+specified here.</p></li>
+</ol>
+<p>Note that the shapes must be tuple and not simple integers for rank-1
+arrays.</p>
+<p>Option B will result in the special h5py datatype ‘vlen’ and
+should not be used for large datasets for efficiency reasons.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="wepy.boundary_conditions.boundary.BoundaryConditions.WARPING_DTYPES">
+<code class="sig-name descname">WARPING_DTYPES</code><em class="property"> = (&lt;class 'int'&gt;, &lt;class 'int'&gt;, &lt;class 'float'&gt;)</em><a class="headerlink" href="#wepy.boundary_conditions.boundary.BoundaryConditions.WARPING_DTYPES" title="Permalink to this definition">¶</a></dt>
+<dd><p>Specifies the numpy dtypes to be used for records.</p>
+<p>There should be the same number of elements as there are in the
+corresponding ‘FIELDS’ class constant.</p>
+<p>Each entry should either be:</p>
+<ol class="upperalpha simple">
+<li><p>A <cite>numpy.dtype</cite> object.</p></li>
+</ol>
+<ol class="upperalpha simple" start="4">
+<li><p>None, indicating that the first instance of this field will not
+be known until runtime. Any field that is returned by a record
+producing method will automatically interpreted as None if not
+specified here.</p></li>
+</ol>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="wepy.boundary_conditions.boundary.BoundaryConditions.WARPING_RECORD_FIELDS">
+<code class="sig-name descname">WARPING_RECORD_FIELDS</code><em class="property"> = ('walker_idx', 'target_idx', 'weight')</em><a class="headerlink" href="#wepy.boundary_conditions.boundary.BoundaryConditions.WARPING_RECORD_FIELDS" title="Permalink to this definition">¶</a></dt>
+<dd><p>Optional, names of fields to be selected for truncated
+representation of the record group.</p>
+<p>These entries should be strings that are previously contained in
+the ‘FIELDS’ class constant.</p>
+<p>While strictly no constraints on to which fields can be added here
+you should only choose those fields whose features could fit into
+a plaintext csv or similar format.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="wepy.boundary_conditions.boundary.BoundaryConditions.PROGRESS_FIELDS">
+<code class="sig-name descname">PROGRESS_FIELDS</code><em class="property"> = ()</em><a class="headerlink" href="#wepy.boundary_conditions.boundary.BoundaryConditions.PROGRESS_FIELDS" title="Permalink to this definition">¶</a></dt>
+<dd><p>String names of fields produced in this record group.</p>
+<p>Progress records are typically used to report on measures of
+walkers at each cycle.</p>
+<p class="rubric">Notes</p>
+<p>These fields are not critical to the proper functioning of the
+rest of the wepy framework and can be modified freely.</p>
+<p>However, reporters specific to this boundary condition probably
+will make use of these records.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="wepy.boundary_conditions.boundary.BoundaryConditions.PROGRESS_SHAPES">
+<code class="sig-name descname">PROGRESS_SHAPES</code><em class="property"> = ()</em><a class="headerlink" href="#wepy.boundary_conditions.boundary.BoundaryConditions.PROGRESS_SHAPES" title="Permalink to this definition">¶</a></dt>
+<dd><p>Numpy-style shapes of all fields produced in records.</p>
+<p>There should be the same number of elements as there are in the
+corresponding ‘FIELDS’ class constant.</p>
+<p>Each entry should either be:</p>
+<ol class="upperalpha simple">
+<li><p>A tuple of ints that specify the shape of the field element
+array.</p></li>
+<li><p>Ellipsis, indicating that the field is variable length and
+limited to being a rank one array (e.g. (3,) or (1,)).</p></li>
+<li><p>None, indicating that the first instance of this field will not
+be known until runtime. Any field that is returned by a record
+producing method will automatically interpreted as None if not
+specified here.</p></li>
+</ol>
+<p>Note that the shapes must be tuple and not simple integers for rank-1
+arrays.</p>
+<p>Option B will result in the special h5py datatype ‘vlen’ and
+should not be used for large datasets for efficiency reasons.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="wepy.boundary_conditions.boundary.BoundaryConditions.PROGRESS_DTYPES">
+<code class="sig-name descname">PROGRESS_DTYPES</code><em class="property"> = ()</em><a class="headerlink" href="#wepy.boundary_conditions.boundary.BoundaryConditions.PROGRESS_DTYPES" title="Permalink to this definition">¶</a></dt>
+<dd><p>Specifies the numpy dtypes to be used for records.</p>
+<p>There should be the same number of elements as there are in the
+corresponding ‘FIELDS’ class constant.</p>
+<p>Each entry should either be:</p>
+<ol class="upperalpha simple">
+<li><p>A <cite>numpy.dtype</cite> object.</p></li>
+</ol>
+<ol class="upperalpha simple" start="4">
+<li><p>None, indicating that the first instance of this field will not
+be known until runtime. Any field that is returned by a record
+producing method will automatically interpreted as None if not
+specified here.</p></li>
+</ol>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="wepy.boundary_conditions.boundary.BoundaryConditions.PROGRESS_RECORD_FIELDS">
+<code class="sig-name descname">PROGRESS_RECORD_FIELDS</code><em class="property"> = ()</em><a class="headerlink" href="#wepy.boundary_conditions.boundary.BoundaryConditions.PROGRESS_RECORD_FIELDS" title="Permalink to this definition">¶</a></dt>
+<dd><p>Optional, names of fields to be selected for truncated
+representation of the record group.</p>
+<p>These entries should be strings that are previously contained in
+the ‘FIELDS’ class constant.</p>
+<p>While strictly no constraints on to which fields can be added here
+you should only choose those fields whose features could fit into
+a plaintext csv or similar format.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.boundary_conditions.boundary.BoundaryConditions.bc_field_names">
+<code class="sig-name descname">bc_field_names</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/boundary_conditions/boundary.html#BoundaryConditions.bc_field_names"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.boundary_conditions.boundary.BoundaryConditions.bc_field_names" title="Permalink to this definition">¶</a></dt>
+<dd><p>Access the class level FIELDS constant for this record group.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.boundary_conditions.boundary.BoundaryConditions.bc_field_shapes">
+<code class="sig-name descname">bc_field_shapes</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/boundary_conditions/boundary.html#BoundaryConditions.bc_field_shapes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.boundary_conditions.boundary.BoundaryConditions.bc_field_shapes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Access the class level SHAPES constant for this record group.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.boundary_conditions.boundary.BoundaryConditions.bc_field_dtypes">
+<code class="sig-name descname">bc_field_dtypes</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/boundary_conditions/boundary.html#BoundaryConditions.bc_field_dtypes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.boundary_conditions.boundary.BoundaryConditions.bc_field_dtypes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Access the class level DTYPES constant for this record group.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.boundary_conditions.boundary.BoundaryConditions.bc_fields">
+<code class="sig-name descname">bc_fields</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/boundary_conditions/boundary.html#BoundaryConditions.bc_fields"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.boundary_conditions.boundary.BoundaryConditions.bc_fields" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a list of zipped field specs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>record_specs</strong> – A list of the specs for each field, a spec is a tuple of
+type (field_name, shape_spec, dtype_spec)</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>list of tuple</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.boundary_conditions.boundary.BoundaryConditions.bc_record_field_names">
+<code class="sig-name descname">bc_record_field_names</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/boundary_conditions/boundary.html#BoundaryConditions.bc_record_field_names"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.boundary_conditions.boundary.BoundaryConditions.bc_record_field_names" title="Permalink to this definition">¶</a></dt>
+<dd><p>Access the class level RECORD_FIELDS constant for this record group.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.boundary_conditions.boundary.BoundaryConditions.warping_field_names">
+<code class="sig-name descname">warping_field_names</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/boundary_conditions/boundary.html#BoundaryConditions.warping_field_names"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.boundary_conditions.boundary.BoundaryConditions.warping_field_names" title="Permalink to this definition">¶</a></dt>
+<dd><p>Access the class level FIELDS constant for this record group.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.boundary_conditions.boundary.BoundaryConditions.warping_field_shapes">
+<code class="sig-name descname">warping_field_shapes</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/boundary_conditions/boundary.html#BoundaryConditions.warping_field_shapes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.boundary_conditions.boundary.BoundaryConditions.warping_field_shapes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Access the class level SHAPES constant for this record group.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.boundary_conditions.boundary.BoundaryConditions.warping_field_dtypes">
+<code class="sig-name descname">warping_field_dtypes</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/boundary_conditions/boundary.html#BoundaryConditions.warping_field_dtypes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.boundary_conditions.boundary.BoundaryConditions.warping_field_dtypes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Access the class level DTYPES constant for this record group.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.boundary_conditions.boundary.BoundaryConditions.warping_fields">
+<code class="sig-name descname">warping_fields</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/boundary_conditions/boundary.html#BoundaryConditions.warping_fields"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.boundary_conditions.boundary.BoundaryConditions.warping_fields" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a list of zipped field specs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>record_specs</strong> – A list of the specs for each field, a spec is a tuple of
+type (field_name, shape_spec, dtype_spec)</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>list of tuple</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.boundary_conditions.boundary.BoundaryConditions.warping_record_field_names">
+<code class="sig-name descname">warping_record_field_names</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/boundary_conditions/boundary.html#BoundaryConditions.warping_record_field_names"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.boundary_conditions.boundary.BoundaryConditions.warping_record_field_names" title="Permalink to this definition">¶</a></dt>
+<dd><p>Access the class level RECORD_FIELDS constant for this record group.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.boundary_conditions.boundary.BoundaryConditions.progress_field_names">
+<code class="sig-name descname">progress_field_names</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/boundary_conditions/boundary.html#BoundaryConditions.progress_field_names"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.boundary_conditions.boundary.BoundaryConditions.progress_field_names" title="Permalink to this definition">¶</a></dt>
+<dd><p>Access the class level FIELDS constant for this record group.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.boundary_conditions.boundary.BoundaryConditions.progress_field_shapes">
+<code class="sig-name descname">progress_field_shapes</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/boundary_conditions/boundary.html#BoundaryConditions.progress_field_shapes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.boundary_conditions.boundary.BoundaryConditions.progress_field_shapes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Access the class level SHAPES constant for this record group.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.boundary_conditions.boundary.BoundaryConditions.progress_field_dtypes">
+<code class="sig-name descname">progress_field_dtypes</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/boundary_conditions/boundary.html#BoundaryConditions.progress_field_dtypes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.boundary_conditions.boundary.BoundaryConditions.progress_field_dtypes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Access the class level DTYPES constant for this record group.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.boundary_conditions.boundary.BoundaryConditions.progress_fields">
+<code class="sig-name descname">progress_fields</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/boundary_conditions/boundary.html#BoundaryConditions.progress_fields"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.boundary_conditions.boundary.BoundaryConditions.progress_fields" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a list of zipped field specs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>record_specs</strong> – A list of the specs for each field, a spec is a tuple of
+type (field_name, shape_spec, dtype_spec)</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>list of tuple</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.boundary_conditions.boundary.BoundaryConditions.progress_record_field_names">
+<code class="sig-name descname">progress_record_field_names</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/boundary_conditions/boundary.html#BoundaryConditions.progress_record_field_names"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.boundary_conditions.boundary.BoundaryConditions.progress_record_field_names" title="Permalink to this definition">¶</a></dt>
+<dd><p>Access the class level RECORD_FIELDS constant for this record group.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.boundary_conditions.boundary.BoundaryConditions.warp_walkers">
+<code class="sig-name descname">warp_walkers</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">walkers</span></em>, <em class="sig-param"><span class="n">cycle</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/boundary_conditions/boundary.html#BoundaryConditions.warp_walkers"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.boundary_conditions.boundary.BoundaryConditions.warp_walkers" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply boundary condition logic to walkers.</p>
+<p>If walkers satisfy the boundary conditions then they will be
+‘warped’ and have a corresponding state change take
+place. Each event recorded is returned as a single
+dictionary-style record in ‘warp_data’ list. These records
+correspond to the ‘WARPING’ record group.</p>
+<p>Additional data calculated on walkers may be returned in the
+single ‘progress_data’ dictionary-style record, which
+corresponds to the ‘PROGRESS’ record group.</p>
+<p>Any changes to the internal state of the boundary condition
+object (e.g. modification of parameters) should be recorded in
+at least one dictionary-style record in the ‘bc_data’
+list. This corresponds to the ‘BC’ record group.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>walkers</strong> (<em>list of walkers</em>) – A list of objects implementing the Walker interface</p></li>
+<li><p><strong>cycle</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – The index of the cycle this is for. Used to generate proper records.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>new_walkers</strong> (<em>list of walkers</em>) – A list of objects implementing the Walker interface, that have had
+boundary condition logic applied.</p></li>
+<li><p><strong>warp_data</strong> (<em>list of dict of str : value</em>) – A list of dictionary style records for each warping event that occured.</p></li>
+<li><p><strong>bc_data</strong> (<em>list of dict of str : value</em>) – A list of dictionary style records for each boundary condition state change
+event record that occured.</p></li>
+<li><p><strong>progress_data</strong> (<em>dict of str : list of value</em>) – Dictionary style progress records. The values should be lists
+corresponding to each walker.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.boundary_conditions.boundary.BoundaryConditions.warping_discontinuity">
+<em class="property">classmethod </em><code class="sig-name descname">warping_discontinuity</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">warping_record</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/boundary_conditions/boundary.html#BoundaryConditions.warping_discontinuity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.boundary_conditions.boundary.BoundaryConditions.warping_discontinuity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a warping record returns either True for a discontiuity
+occured or False if a discontinuity did not occur.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>warping_record</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.8)"><em>tuple</em></a>) – A tuple record of type ‘WARPING’</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>is_discontinuous</strong> – True if discontinuous warping record False if continuous.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="wepy.boundary_conditions.boundary.NoBC">
+<em class="property">class </em><code class="sig-prename descclassname">wepy.boundary_conditions.boundary.</code><code class="sig-name descname">NoBC</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/boundary_conditions/boundary.html#NoBC"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.boundary_conditions.boundary.NoBC" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#wepy.boundary_conditions.boundary.BoundaryConditions" title="wepy.boundary_conditions.boundary.BoundaryConditions"><code class="xref py py-class docutils literal notranslate"><span class="pre">wepy.boundary_conditions.boundary.BoundaryConditions</span></code></a></p>
+<p>Boundary conditions class that does nothing.</p>
+<p>You may use this class as a stub in order to have an boundary
+condition class. However, this is not necessary since boundary
+conditions are optional in the sim_manager anyhow.</p>
+<p>Null constructor accepts and ignores any key word arguments.</p>
+<dl class="py method">
+<dt id="wepy.boundary_conditions.boundary.NoBC.warp_walkers">
+<code class="sig-name descname">warp_walkers</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">walkers</span></em>, <em class="sig-param"><span class="n">cycle</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/boundary_conditions/boundary.html#NoBC.warp_walkers"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.boundary_conditions.boundary.NoBC.warp_walkers" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply boundary condition logic to walkers, of which there is none.</p>
+<p>Simply returns all walkers provided with empty records data
+since there is nothing to do.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>walkers</strong> (<em>list of walkers</em>) – A list of objects implementing the Walker interface</p></li>
+<li><p><strong>cycle</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – The index of the cycle this is for. Used to generate proper records.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>new_walkers</strong> (<em>list of walkers</em>) – A list of objects implementing the Walker interface, that have had
+boundary condition logic applied.</p></li>
+<li><p><strong>warp_data</strong> (<em>list of dict of str : value</em>) – A list of dictionary style records for each warping event that occured.</p></li>
+<li><p><strong>bc_data</strong> (<em>list of dict of str : value</em>) – A list of dictionary style records for each boundary condition state change
+event record that occured.</p></li>
+<li><p><strong>progress_data</strong> (<em>dict of str : list of value</em>) – Dictionary style progress records. The values should be lists
+corresponding to each walker.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="wepy.boundary_conditions.boundary.NoBC.BC_DTYPES">
+<code class="sig-name descname">BC_DTYPES</code><em class="property"> = ()</em><a class="headerlink" href="#wepy.boundary_conditions.boundary.NoBC.BC_DTYPES" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="wepy.boundary_conditions.boundary.NoBC.BC_FIELDS">
+<code class="sig-name descname">BC_FIELDS</code><em class="property"> = ()</em><a class="headerlink" href="#wepy.boundary_conditions.boundary.NoBC.BC_FIELDS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="wepy.boundary_conditions.boundary.NoBC.BC_RECORD_FIELDS">
+<code class="sig-name descname">BC_RECORD_FIELDS</code><em class="property"> = ()</em><a class="headerlink" href="#wepy.boundary_conditions.boundary.NoBC.BC_RECORD_FIELDS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="wepy.boundary_conditions.boundary.NoBC.BC_SHAPES">
+<code class="sig-name descname">BC_SHAPES</code><em class="property"> = ()</em><a class="headerlink" href="#wepy.boundary_conditions.boundary.NoBC.BC_SHAPES" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="wepy.boundary_conditions.boundary.NoBC.PROGRESS_DTYPES">
+<code class="sig-name descname">PROGRESS_DTYPES</code><em class="property"> = ()</em><a class="headerlink" href="#wepy.boundary_conditions.boundary.NoBC.PROGRESS_DTYPES" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="wepy.boundary_conditions.boundary.NoBC.PROGRESS_FIELDS">
+<code class="sig-name descname">PROGRESS_FIELDS</code><em class="property"> = ()</em><a class="headerlink" href="#wepy.boundary_conditions.boundary.NoBC.PROGRESS_FIELDS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="wepy.boundary_conditions.boundary.NoBC.PROGRESS_RECORD_FIELDS">
+<code class="sig-name descname">PROGRESS_RECORD_FIELDS</code><em class="property"> = ()</em><a class="headerlink" href="#wepy.boundary_conditions.boundary.NoBC.PROGRESS_RECORD_FIELDS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="wepy.boundary_conditions.boundary.NoBC.PROGRESS_SHAPES">
+<code class="sig-name descname">PROGRESS_SHAPES</code><em class="property"> = ()</em><a class="headerlink" href="#wepy.boundary_conditions.boundary.NoBC.PROGRESS_SHAPES" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="wepy.boundary_conditions.boundary.NoBC.WARPING_DTYPES">
+<code class="sig-name descname">WARPING_DTYPES</code><em class="property"> = (&lt;class 'int'&gt;, &lt;class 'int'&gt;, &lt;class 'float'&gt;)</em><a class="headerlink" href="#wepy.boundary_conditions.boundary.NoBC.WARPING_DTYPES" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="wepy.boundary_conditions.boundary.NoBC.WARPING_FIELDS">
+<code class="sig-name descname">WARPING_FIELDS</code><em class="property"> = ('walker_idx', 'target_idx', 'weight')</em><a class="headerlink" href="#wepy.boundary_conditions.boundary.NoBC.WARPING_FIELDS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="wepy.boundary_conditions.boundary.NoBC.WARPING_RECORD_FIELDS">
+<code class="sig-name descname">WARPING_RECORD_FIELDS</code><em class="property"> = ('walker_idx', 'target_idx', 'weight')</em><a class="headerlink" href="#wepy.boundary_conditions.boundary.NoBC.WARPING_RECORD_FIELDS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="wepy.boundary_conditions.boundary.NoBC.WARPING_SHAPES">
+<code class="sig-name descname">WARPING_SHAPES</code><em class="property"> = ((1,), (1,), (1,))</em><a class="headerlink" href="#wepy.boundary_conditions.boundary.NoBC.WARPING_SHAPES" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="wepy.boundary_conditions.boundary.NoBC.bc_field_dtypes">
+<code class="sig-name descname">bc_field_dtypes</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.boundary_conditions.boundary.NoBC.bc_field_dtypes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Access the class level DTYPES constant for this record group.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.boundary_conditions.boundary.NoBC.bc_field_names">
+<code class="sig-name descname">bc_field_names</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.boundary_conditions.boundary.NoBC.bc_field_names" title="Permalink to this definition">¶</a></dt>
+<dd><p>Access the class level FIELDS constant for this record group.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.boundary_conditions.boundary.NoBC.bc_field_shapes">
+<code class="sig-name descname">bc_field_shapes</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.boundary_conditions.boundary.NoBC.bc_field_shapes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Access the class level SHAPES constant for this record group.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.boundary_conditions.boundary.NoBC.bc_fields">
+<code class="sig-name descname">bc_fields</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.boundary_conditions.boundary.NoBC.bc_fields" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a list of zipped field specs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>record_specs</strong> – A list of the specs for each field, a spec is a tuple of
+type (field_name, shape_spec, dtype_spec)</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>list of tuple</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.boundary_conditions.boundary.NoBC.bc_record_field_names">
+<code class="sig-name descname">bc_record_field_names</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.boundary_conditions.boundary.NoBC.bc_record_field_names" title="Permalink to this definition">¶</a></dt>
+<dd><p>Access the class level RECORD_FIELDS constant for this record group.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.boundary_conditions.boundary.NoBC.progress_field_dtypes">
+<code class="sig-name descname">progress_field_dtypes</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.boundary_conditions.boundary.NoBC.progress_field_dtypes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Access the class level DTYPES constant for this record group.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.boundary_conditions.boundary.NoBC.progress_field_names">
+<code class="sig-name descname">progress_field_names</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.boundary_conditions.boundary.NoBC.progress_field_names" title="Permalink to this definition">¶</a></dt>
+<dd><p>Access the class level FIELDS constant for this record group.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.boundary_conditions.boundary.NoBC.progress_field_shapes">
+<code class="sig-name descname">progress_field_shapes</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.boundary_conditions.boundary.NoBC.progress_field_shapes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Access the class level SHAPES constant for this record group.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.boundary_conditions.boundary.NoBC.progress_fields">
+<code class="sig-name descname">progress_fields</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.boundary_conditions.boundary.NoBC.progress_fields" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a list of zipped field specs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>record_specs</strong> – A list of the specs for each field, a spec is a tuple of
+type (field_name, shape_spec, dtype_spec)</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>list of tuple</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.boundary_conditions.boundary.NoBC.progress_record_field_names">
+<code class="sig-name descname">progress_record_field_names</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.boundary_conditions.boundary.NoBC.progress_record_field_names" title="Permalink to this definition">¶</a></dt>
+<dd><p>Access the class level RECORD_FIELDS constant for this record group.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.boundary_conditions.boundary.NoBC.warping_discontinuity">
+<em class="property">classmethod </em><code class="sig-name descname">warping_discontinuity</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">warping_record</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/boundary_conditions/boundary.html#NoBC.warping_discontinuity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.boundary_conditions.boundary.NoBC.warping_discontinuity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a warping record returns either True for a discontiuity
+occured or False if a discontinuity did not occur.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>warping_record</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.8)"><em>tuple</em></a>) – A tuple record of type ‘WARPING’</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>is_discontinuous</strong> – True if discontinuous warping record False if continuous.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.boundary_conditions.boundary.NoBC.warping_field_dtypes">
+<code class="sig-name descname">warping_field_dtypes</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.boundary_conditions.boundary.NoBC.warping_field_dtypes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Access the class level DTYPES constant for this record group.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.boundary_conditions.boundary.NoBC.warping_field_names">
+<code class="sig-name descname">warping_field_names</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.boundary_conditions.boundary.NoBC.warping_field_names" title="Permalink to this definition">¶</a></dt>
+<dd><p>Access the class level FIELDS constant for this record group.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.boundary_conditions.boundary.NoBC.warping_field_shapes">
+<code class="sig-name descname">warping_field_shapes</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.boundary_conditions.boundary.NoBC.warping_field_shapes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Access the class level SHAPES constant for this record group.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.boundary_conditions.boundary.NoBC.warping_fields">
+<code class="sig-name descname">warping_fields</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.boundary_conditions.boundary.NoBC.warping_fields" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a list of zipped field specs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>record_specs</strong> – A list of the specs for each field, a spec is a tuple of
+type (field_name, shape_spec, dtype_spec)</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>list of tuple</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.boundary_conditions.boundary.NoBC.warping_record_field_names">
+<code class="sig-name descname">warping_record_field_names</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.boundary_conditions.boundary.NoBC.warping_record_field_names" title="Permalink to this definition">¶</a></dt>
+<dd><p>Access the class level RECORD_FIELDS constant for this record group.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="wepy.boundary_conditions.boundary.RandomBC">
+<em class="property">class </em><code class="sig-prename descclassname">wepy.boundary_conditions.boundary.</code><code class="sig-name descname">RandomBC</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/boundary_conditions/boundary.html#RandomBC"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.boundary_conditions.boundary.RandomBC" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#wepy.boundary_conditions.boundary.BoundaryConditions" title="wepy.boundary_conditions.boundary.BoundaryConditions"><code class="xref py py-class docutils literal notranslate"><span class="pre">wepy.boundary_conditions.boundary.BoundaryConditions</span></code></a></p>
+<p>Boundary conditions that randomly warps both continuously and
+discontinuously.</p>
+<p>Can be used with any system as it won’t actually mutate states.</p>
+<p>Null constructor accepts and ignores any key word arguments.</p>
+<dl class="py attribute">
+<dt id="wepy.boundary_conditions.boundary.RandomBC.WARPING_DTYPES">
+<code class="sig-name descname">WARPING_DTYPES</code><em class="property"> = (&lt;class 'int'&gt;, &lt;class 'int'&gt;, &lt;class 'float'&gt;)</em><a class="headerlink" href="#wepy.boundary_conditions.boundary.RandomBC.WARPING_DTYPES" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="wepy.boundary_conditions.boundary.RandomBC.WARPING_FIELDS">
+<code class="sig-name descname">WARPING_FIELDS</code><em class="property"> = ('walker_idx', 'target_idx', 'weight')</em><a class="headerlink" href="#wepy.boundary_conditions.boundary.RandomBC.WARPING_FIELDS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="wepy.boundary_conditions.boundary.RandomBC.WARPING_RECORD_FIELDS">
+<code class="sig-name descname">WARPING_RECORD_FIELDS</code><em class="property"> = ('walker_idx', 'target_idx', 'weight')</em><a class="headerlink" href="#wepy.boundary_conditions.boundary.RandomBC.WARPING_RECORD_FIELDS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="wepy.boundary_conditions.boundary.RandomBC.WARPING_SHAPES">
+<code class="sig-name descname">WARPING_SHAPES</code><em class="property"> = ((1,), (1,), (1,))</em><a class="headerlink" href="#wepy.boundary_conditions.boundary.RandomBC.WARPING_SHAPES" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="wepy.boundary_conditions.boundary.RandomBC.bc_field_dtypes">
+<code class="sig-name descname">bc_field_dtypes</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.boundary_conditions.boundary.RandomBC.bc_field_dtypes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Access the class level DTYPES constant for this record group.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.boundary_conditions.boundary.RandomBC.bc_field_names">
+<code class="sig-name descname">bc_field_names</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.boundary_conditions.boundary.RandomBC.bc_field_names" title="Permalink to this definition">¶</a></dt>
+<dd><p>Access the class level FIELDS constant for this record group.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.boundary_conditions.boundary.RandomBC.bc_field_shapes">
+<code class="sig-name descname">bc_field_shapes</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.boundary_conditions.boundary.RandomBC.bc_field_shapes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Access the class level SHAPES constant for this record group.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.boundary_conditions.boundary.RandomBC.bc_fields">
+<code class="sig-name descname">bc_fields</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.boundary_conditions.boundary.RandomBC.bc_fields" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a list of zipped field specs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>record_specs</strong> – A list of the specs for each field, a spec is a tuple of
+type (field_name, shape_spec, dtype_spec)</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>list of tuple</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.boundary_conditions.boundary.RandomBC.bc_record_field_names">
+<code class="sig-name descname">bc_record_field_names</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.boundary_conditions.boundary.RandomBC.bc_record_field_names" title="Permalink to this definition">¶</a></dt>
+<dd><p>Access the class level RECORD_FIELDS constant for this record group.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.boundary_conditions.boundary.RandomBC.progress_field_dtypes">
+<code class="sig-name descname">progress_field_dtypes</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.boundary_conditions.boundary.RandomBC.progress_field_dtypes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Access the class level DTYPES constant for this record group.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.boundary_conditions.boundary.RandomBC.progress_field_names">
+<code class="sig-name descname">progress_field_names</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.boundary_conditions.boundary.RandomBC.progress_field_names" title="Permalink to this definition">¶</a></dt>
+<dd><p>Access the class level FIELDS constant for this record group.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.boundary_conditions.boundary.RandomBC.progress_field_shapes">
+<code class="sig-name descname">progress_field_shapes</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.boundary_conditions.boundary.RandomBC.progress_field_shapes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Access the class level SHAPES constant for this record group.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.boundary_conditions.boundary.RandomBC.progress_fields">
+<code class="sig-name descname">progress_fields</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.boundary_conditions.boundary.RandomBC.progress_fields" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a list of zipped field specs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>record_specs</strong> – A list of the specs for each field, a spec is a tuple of
+type (field_name, shape_spec, dtype_spec)</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>list of tuple</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.boundary_conditions.boundary.RandomBC.progress_record_field_names">
+<code class="sig-name descname">progress_record_field_names</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.boundary_conditions.boundary.RandomBC.progress_record_field_names" title="Permalink to this definition">¶</a></dt>
+<dd><p>Access the class level RECORD_FIELDS constant for this record group.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.boundary_conditions.boundary.RandomBC.warping_discontinuity">
+<em class="property">classmethod </em><code class="sig-name descname">warping_discontinuity</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">warping_record</span></em><span class="sig-paren">)</span><a class="headerlink" href="#wepy.boundary_conditions.boundary.RandomBC.warping_discontinuity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a warping record returns either True for a discontiuity
+occured or False if a discontinuity did not occur.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>warping_record</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.8)"><em>tuple</em></a>) – A tuple record of type ‘WARPING’</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>is_discontinuous</strong> – True if discontinuous warping record False if continuous.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.boundary_conditions.boundary.RandomBC.warping_field_dtypes">
+<code class="sig-name descname">warping_field_dtypes</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.boundary_conditions.boundary.RandomBC.warping_field_dtypes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Access the class level DTYPES constant for this record group.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.boundary_conditions.boundary.RandomBC.warping_field_names">
+<code class="sig-name descname">warping_field_names</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.boundary_conditions.boundary.RandomBC.warping_field_names" title="Permalink to this definition">¶</a></dt>
+<dd><p>Access the class level FIELDS constant for this record group.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.boundary_conditions.boundary.RandomBC.warping_field_shapes">
+<code class="sig-name descname">warping_field_shapes</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.boundary_conditions.boundary.RandomBC.warping_field_shapes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Access the class level SHAPES constant for this record group.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.boundary_conditions.boundary.RandomBC.warping_fields">
+<code class="sig-name descname">warping_fields</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.boundary_conditions.boundary.RandomBC.warping_fields" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a list of zipped field specs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>record_specs</strong> – A list of the specs for each field, a spec is a tuple of
+type (field_name, shape_spec, dtype_spec)</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>list of tuple</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.boundary_conditions.boundary.RandomBC.warping_record_field_names">
+<code class="sig-name descname">warping_record_field_names</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.boundary_conditions.boundary.RandomBC.warping_record_field_names" title="Permalink to this definition">¶</a></dt>
+<dd><p>Access the class level RECORD_FIELDS constant for this record group.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="wepy.boundary_conditions.boundary.RandomBC.BC_FIELDS">
+<code class="sig-name descname">BC_FIELDS</code><em class="property"> = ('ping',)</em><a class="headerlink" href="#wepy.boundary_conditions.boundary.RandomBC.BC_FIELDS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="wepy.boundary_conditions.boundary.RandomBC.BC_SHAPES">
+<code class="sig-name descname">BC_SHAPES</code><em class="property"> = ((1,),)</em><a class="headerlink" href="#wepy.boundary_conditions.boundary.RandomBC.BC_SHAPES" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="wepy.boundary_conditions.boundary.RandomBC.BC_DTYPES">
+<code class="sig-name descname">BC_DTYPES</code><em class="property"> = (&lt;class 'int'&gt;,)</em><a class="headerlink" href="#wepy.boundary_conditions.boundary.RandomBC.BC_DTYPES" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="wepy.boundary_conditions.boundary.RandomBC.BC_RECORD_FIELDS">
+<code class="sig-name descname">BC_RECORD_FIELDS</code><em class="property"> = ('ping',)</em><a class="headerlink" href="#wepy.boundary_conditions.boundary.RandomBC.BC_RECORD_FIELDS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="wepy.boundary_conditions.boundary.RandomBC.PROGRESS_FIELDS">
+<code class="sig-name descname">PROGRESS_FIELDS</code><em class="property"> = ('weight',)</em><a class="headerlink" href="#wepy.boundary_conditions.boundary.RandomBC.PROGRESS_FIELDS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="wepy.boundary_conditions.boundary.RandomBC.PROGRESS_SHAPES">
+<code class="sig-name descname">PROGRESS_SHAPES</code><em class="property"> = (Ellipsis,)</em><a class="headerlink" href="#wepy.boundary_conditions.boundary.RandomBC.PROGRESS_SHAPES" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="wepy.boundary_conditions.boundary.RandomBC.PROGRESS_DTYPES">
+<code class="sig-name descname">PROGRESS_DTYPES</code><em class="property"> = (&lt;class 'float'&gt;,)</em><a class="headerlink" href="#wepy.boundary_conditions.boundary.RandomBC.PROGRESS_DTYPES" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="wepy.boundary_conditions.boundary.RandomBC.PROGRESS_RECORD_FIELDS">
+<code class="sig-name descname">PROGRESS_RECORD_FIELDS</code><em class="property"> = ('weight',)</em><a class="headerlink" href="#wepy.boundary_conditions.boundary.RandomBC.PROGRESS_RECORD_FIELDS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="wepy.boundary_conditions.boundary.RandomBC.DISCONTINUITY_TARGET_IDXS">
+<code class="sig-name descname">DISCONTINUITY_TARGET_IDXS</code><em class="property"> = (0,)</em><a class="headerlink" href="#wepy.boundary_conditions.boundary.RandomBC.DISCONTINUITY_TARGET_IDXS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="wepy.boundary_conditions.boundary.RandomBC.warp_walkers">
+<code class="sig-name descname">warp_walkers</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">walkers</span></em>, <em class="sig-param"><span class="n">cycle</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/boundary_conditions/boundary.html#RandomBC.warp_walkers"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.boundary_conditions.boundary.RandomBC.warp_walkers" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply boundary condition logic to walkers.</p>
+<p>If walkers satisfy the boundary conditions then they will be
+‘warped’ and have a corresponding state change take
+place. Each event recorded is returned as a single
+dictionary-style record in ‘warp_data’ list. These records
+correspond to the ‘WARPING’ record group.</p>
+<p>Additional data calculated on walkers may be returned in the
+single ‘progress_data’ dictionary-style record, which
+corresponds to the ‘PROGRESS’ record group.</p>
+<p>Any changes to the internal state of the boundary condition
+object (e.g. modification of parameters) should be recorded in
+at least one dictionary-style record in the ‘bc_data’
+list. This corresponds to the ‘BC’ record group.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>walkers</strong> (<em>list of walkers</em>) – A list of objects implementing the Walker interface</p></li>
+<li><p><strong>cycle</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – The index of the cycle this is for. Used to generate proper records.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>new_walkers</strong> (<em>list of walkers</em>) – A list of objects implementing the Walker interface, that have had
+boundary condition logic applied.</p></li>
+<li><p><strong>warp_data</strong> (<em>list of dict of str : value</em>) – A list of dictionary style records for each warping event that occured.</p></li>
+<li><p><strong>bc_data</strong> (<em>list of dict of str : value</em>) – A list of dictionary style records for each boundary condition state change
+event record that occured.</p></li>
+<li><p><strong>progress_data</strong> (<em>dict of str : list of value</em>) – Dictionary style progress records. The values should be lists
+corresponding to each walker.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+              <div class="related bottom">
+                &nbsp;
+  <nav id="rellinks">
+    <ul>
+        <li>
+          &larr;
+          <a href="wepy.boundary_conditions.html" title="Previous document">wepy.boundary_conditions package</a>
+        </li>
+        <li>
+          <a href="wepy.boundary_conditions.receptor.html" title="Next document">wepy.boundary_conditions.receptor module</a>
+          &rarr;
+        </li>
+    </ul>
+  </nav>
+              </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<p class="logo">
+  <a href="../index.html">
+    <img class="logo" src="../_static/wepy.svg" alt="Logo"/>
+    
+    <h1 class="logo logo-name">wepy</h1>
+    
+  </a>
+</p>
+
+
+
+<p class="blurb">A Weighted Ensemble  (WE) simulation framework</p>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../_source/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_source/quick_start.html">Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_source/introduction.html">Introduction &amp; Features</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../_source/tutorials/index.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_source/users_guide.html">User’s Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_source/troubleshooting.html">Common Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_source/troubleshooting.html#faq">FAQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_source/reference.html">Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_source/glossary.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_source/api.html">API Overview</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">Full API</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../_source/general_info.html">General Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_source/news.html">News and Updates</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_source/changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_source/dev_guide.html">Development Guide</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="modules.html">wepy</a><ul>
+  <li><a href="wepy.html">wepy package</a><ul>
+  <li><a href="wepy.boundary_conditions.html">wepy.boundary_conditions package</a><ul>
+      <li>Previous: <a href="wepy.boundary_conditions.html" title="previous chapter">wepy.boundary_conditions package</a></li>
+      <li>Next: <a href="wepy.boundary_conditions.receptor.html" title="next chapter">wepy.boundary_conditions.receptor module</a></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, Samuel D. Lotz.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.0.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../_sources/_api/wepy.boundary_conditions.boundary.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+    <a href="https://github.com/ADicksonLab/wepy" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
+    
+
+    
+  </body>
+</html>

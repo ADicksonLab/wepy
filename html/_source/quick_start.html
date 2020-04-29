@@ -1,0 +1,339 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Quick Start &#8212; wepy 1.0.0rc1.dev0+69.g7e50dcf documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Introduction &amp; Features" href="introduction.html" />
+    <link rel="prev" title="Installation" href="installation.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+              <div class="related top">
+                &nbsp;
+  <nav id="rellinks">
+    <ul>
+        <li>
+          &larr;
+          <a href="installation.html" title="Previous document">Installation</a>
+        </li>
+        <li>
+          <a href="introduction.html" title="Next document">Introduction &amp; Features</a>
+          &rarr;
+        </li>
+    </ul>
+  </nav>
+              </div>
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="quick-start">
+<h1>Quick Start<a class="headerlink" href="#quick-start" title="Permalink to this headline">¶</a></h1>
+<p>These examples make use of ready-made MD systems in the openmmtools
+library, so install that from conda or following the instructions on
+their website, e.g.:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>conda install -c conda-forge openmmtools
+</pre></div>
+</div>
+<p>This will make starting up with <code class="docutils literal notranslate"><span class="pre">wepy</span></code> faster since building systems
+from scratch can be pretty complex and non-portable.</p>
+<p>We will have advice later in the documentation on how to build systems
+and create inputs for <code class="docutils literal notranslate"><span class="pre">wepy</span></code>, but in general if you can make an OpenMM
+system go you can use <code class="docutils literal notranslate"><span class="pre">wepy</span></code>, so check out their documentation.</p>
+<div class="section" id="test-drive">
+<h2>Test Drive<a class="headerlink" href="#test-drive" title="Permalink to this headline">¶</a></h2>
+<p>If you just want to poke <code class="docutils literal notranslate"><span class="pre">wepy</span></code> with a stick to see if the dang thing
+works we have the script for you!</p>
+<p>While this script is unlikely to do anything worthwhile it is a pretty
+good introduction to the inputs and kind of results you can expect from
+<code class="docutils literal notranslate"><span class="pre">wepy</span></code> simulations.</p>
+<p>Just go to a directory where you want your results to be placed and then
+execute the script with the options that you want to try out.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>mkdir test_drive
+<span class="nb">cd</span> test_drive
+</pre></div>
+</div>
+<p>Here is an example where we are running a simulation of pair of
+Lennard-Jones particles using OpenMM’s ‘Reference’ platform. In that
+simulation we are using 20 walkers for 10 cycles, where each cycle lasts
+4 picoseconds (τ = 10 ps in the WE terminology) and we are using 3
+workers. Additionally, it is using a pre-parametrized WExplore resampler
+for simplicity.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python -m wepy_test_drive -v LennardJonesPair/OpenMM-Reference <span class="m">20</span> <span class="m">10</span> <span class="m">4</span> <span class="m">3</span>
+</pre></div>
+</div>
+<p>You should see a couple files appear in your directory:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">root.dash.org</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">root.wepy.h5</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">root.init_top.pdb</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">root.walkers.dcd</span></code></p></li>
+</ul>
+<p>The <code class="docutils literal notranslate"><span class="pre">root</span></code> base file name is just a default name given for the
+simulation run.</p>
+<p>If you want to run again make sure you either delete the files or do it
+in another folder because <code class="docutils literal notranslate"><span class="pre">wepy</span></code> won’t unintentionally overwrite
+already existing files.</p>
+<p><code class="docutils literal notranslate"><span class="pre">root.dash.org</span></code> is just a plain text file that can be viewed in any
+text editor. It formatted in emacs org-mode and so there are some
+enhanced features for folding and tables if you open it in emacs or
+other editor that supports org-mode files.</p>
+<p>This “dashboard” is updated every cycle with the current results and so
+is useful for checking in on the progress of a long running simulations.
+It also provides a nice high-level overview of what happened in the
+simulation.</p>
+<p>However, the main data output is in <code class="docutils literal notranslate"><span class="pre">root.wepy.h5</span></code>. This contains all
+of the data from the simulation and is the only necessary output file,
+the rest are just for convenience. This file is in the HDF5 format with
+a schema designed specifically for <code class="docutils literal notranslate"><span class="pre">wepy</span></code>, which we typically call the
+<strong>WepyHDF5</strong> schema.</p>
+<p>There is a lot of things we can do this file and you should check out
+the documentation on analysis to get a feel for what you can do and how.
+You will have to do this in python itself, either by writing your own
+scripts or in a Jupyter notebook.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">root.init_top.pdb</span></code> and <code class="docutils literal notranslate"><span class="pre">root.walkers.dcd</span></code> files are for doing
+3D visualizations. The <code class="docutils literal notranslate"><span class="pre">root.init_top.pdb</span></code> is a PDB file with the
+initial structure, which can be used as a topology template for the DCD
+file, which has one frame for each walker of the last cycle. It is only
+useful for getting a quick snapshot of what the results of the
+simulation are.</p>
+<p><code class="docutils literal notranslate"><span class="pre">wepy</span></code> can be customized with arbitrary reporters to generate more
+kinds of files if you wish, but this is sufficient for getting started.</p>
+<div class="section" id="trivial-example-setting-up-a-simulation">
+<h3>Trivial example: Setting up a simulation<a class="headerlink" href="#trivial-example-setting-up-a-simulation" title="Permalink to this headline">¶</a></h3>
+<p>In the test drive everything was set up for you and we could only
+control how long, how many walkers, and which system to use. We couldn’t
+choose the resampler or even change the parameters we might need to get
+useful simulations.</p>
+<p><code class="docutils literal notranslate"><span class="pre">wepy</span></code> is extremely customizable and just about any component can be
+changed to match your needs. For now we just show you one of the
+simplest possible examples of running <code class="docutils literal notranslate"><span class="pre">wepy</span></code> using OpenMM to give you
+a flavor of how this looks like.</p>
+<p>This example uses the <code class="docutils literal notranslate"><span class="pre">NoResampler</span></code> which performs no resampling so
+this is equivalent to running 10 simulations in parallel.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">copy</span> <span class="kn">import</span> <span class="n">copy</span>
+
+<span class="kn">import</span> <span class="nn">simtk.openmm</span> <span class="k">as</span> <span class="nn">omm</span>
+<span class="kn">import</span> <span class="nn">simtk.unit</span> <span class="k">as</span> <span class="nn">unit</span>
+
+<span class="kn">from</span> <span class="nn">openmmtools.testsystems</span> <span class="kn">import</span> <span class="n">LennardJonesPair</span>
+
+<span class="kn">from</span> <span class="nn">wepy.resampling.resamplers.resampler</span> <span class="kn">import</span> <span class="n">NoResampler</span>
+<span class="kn">from</span> <span class="nn">wepy.runners.openmm</span> <span class="kn">import</span> <span class="n">OpenMMRunner</span><span class="p">,</span> <span class="n">gen_walker_state</span>
+<span class="kn">from</span> <span class="nn">wepy.walker</span> <span class="kn">import</span> <span class="n">Walker</span>
+<span class="kn">from</span> <span class="nn">wepy.sim_manager</span> <span class="kn">import</span> <span class="n">Manager</span>
+
+<span class="c1"># use a ready made system for OpenMM MD simulation</span>
+<span class="n">test_sys</span> <span class="o">=</span> <span class="n">LennardJonesPair</span><span class="p">()</span>
+
+<span class="n">integrator</span> <span class="o">=</span> <span class="n">omm</span><span class="o">.</span><span class="n">LangevinIntegrator</span><span class="p">(</span><span class="mf">300.0</span><span class="o">*</span><span class="n">unit</span><span class="o">.</span><span class="n">kelvin</span><span class="p">,</span>
+                                    <span class="mi">1</span><span class="o">/</span><span class="n">unit</span><span class="o">.</span><span class="n">picosecond</span><span class="p">,</span>
+                                    <span class="mf">0.002</span><span class="o">*</span><span class="n">unit</span><span class="o">.</span><span class="n">picoseconds</span><span class="p">)</span>
+
+<span class="n">init_state</span> <span class="o">=</span> <span class="n">gen_walker_state</span><span class="p">(</span><span class="n">test_sys</span><span class="o">.</span><span class="n">positions</span><span class="p">,</span> <span class="n">test_sys</span><span class="o">.</span><span class="n">system</span><span class="p">,</span> <span class="n">integrator</span><span class="p">)</span>
+
+<span class="n">runner</span> <span class="o">=</span> <span class="n">OpenMMRunner</span><span class="p">(</span><span class="n">test_sys</span><span class="o">.</span><span class="n">system</span><span class="p">,</span> <span class="n">test_sys</span><span class="o">.</span><span class="n">topology</span><span class="p">,</span> <span class="n">integrator</span><span class="p">,</span>
+                      <span class="n">platform</span><span class="o">=</span><span class="s1">&#39;Reference&#39;</span><span class="p">)</span>
+
+<span class="c1"># a trivial resampler which does nothing</span>
+<span class="n">resampler</span> <span class="o">=</span> <span class="n">NoResampler</span><span class="p">()</span>
+
+<span class="c1"># Run the simulation</span>
+
+<span class="c1"># number of cycles of WE to perform</span>
+<span class="n">n_cycles</span> <span class="o">=</span> <span class="mi">5</span>
+
+<span class="c1"># the number of MD dynamics steps for each cycle</span>
+<span class="n">n_steps</span> <span class="o">=</span> <span class="mi">1000</span>
+<span class="n">steps</span> <span class="o">=</span> <span class="p">[</span><span class="n">n_steps</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_cycles</span><span class="p">)]</span>
+
+<span class="c1"># number of parallel simulations</span>
+<span class="n">n_walkers</span> <span class="o">=</span> <span class="mi">10</span>
+
+
+
+<span class="c1"># create the initial walkers with equal weights</span>
+<span class="n">init_weight</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">n_walkers</span>
+<span class="n">init_walkers</span> <span class="o">=</span> <span class="p">[</span><span class="n">Walker</span><span class="p">(</span><span class="n">copy</span><span class="p">(</span><span class="n">init_state</span><span class="p">),</span> <span class="n">init_weight</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_walkers</span><span class="p">)]</span>
+
+<span class="n">sim_manager</span> <span class="o">=</span> <span class="n">Manager</span><span class="p">(</span><span class="n">init_walkers</span><span class="p">,</span>
+                      <span class="n">runner</span><span class="o">=</span><span class="n">runner</span><span class="p">,</span>
+                      <span class="n">resampler</span><span class="o">=</span><span class="n">resampler</span><span class="p">)</span>
+
+<span class="c1"># run the simulation and get the results</span>
+<span class="n">final_walkers</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">sim_manager</span><span class="o">.</span><span class="n">run_simulation</span><span class="p">(</span><span class="n">n_cycles</span><span class="p">,</span> <span class="n">steps</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>In this example we see the core components of a <code class="docutils literal notranslate"><span class="pre">wepy</span></code> simulation:</p>
+<ul class="simple">
+<li><p><strong>Runner</strong>: for running dynamics (‘sampling’ in <code class="docutils literal notranslate"><span class="pre">wepy</span></code> parlance)</p></li>
+<li><p><strong>Resampler</strong>: for performing resampling (i.e. cloning and merging of
+walkers)</p></li>
+<li><p><strong>Manager</strong>: the main simulation loop</p></li>
+</ul>
+<p>Being the trivial example it is, not only does it do no resampling it
+produces no output other than the final walkers and then only in memory
+as <code class="docutils literal notranslate"><span class="pre">Walker</span></code> objects.</p>
+<p>Further in the docs we will show how to add reporters to the simulation
+so that your results can be saved and how to use and customize
+resamplers that do useful work.</p>
+<p>Writing scripts like this is the primary way in which <code class="docutils literal notranslate"><span class="pre">wepy</span></code> is
+intended to be used.</p>
+<p>You can run this <code class="docutils literal notranslate"><span class="pre">wepy</span></code> simulation by running this on the command line
+after you have copy and pasted it to a file:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python noresampler_example.py
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">wepy</span></code> command line application introduces some useful tools for
+working with and managing many interconnected simulations with
+checkpointing capabilities. This is the <code class="docutils literal notranslate"><span class="pre">orchestration</span></code> sub-module and
+should be a considered an advanced feature. Just know that if you are
+running a lot of simulations, long simulations which tend to fail due to
+hardware issues, or if you need to repeatedly stop and restart
+simulations the orchestration sub-module is available for that.</p>
+<p>So ignore the <code class="docutils literal notranslate"><span class="pre">wepy</span></code> commands like <code class="docutils literal notranslate"><span class="pre">wepy</span> <span class="pre">run</span></code> for now.</p>
+</div>
+</div>
+</div>
+
+
+          </div>
+              <div class="related bottom">
+                &nbsp;
+  <nav id="rellinks">
+    <ul>
+        <li>
+          &larr;
+          <a href="installation.html" title="Previous document">Installation</a>
+        </li>
+        <li>
+          <a href="introduction.html" title="Next document">Introduction &amp; Features</a>
+          &rarr;
+        </li>
+    </ul>
+  </nav>
+              </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<p class="logo">
+  <a href="../index.html">
+    <img class="logo" src="../_static/wepy.svg" alt="Logo"/>
+    
+    <h1 class="logo logo-name">wepy</h1>
+    
+  </a>
+</p>
+
+
+
+<p class="blurb">A Weighted Ensemble  (WE) simulation framework</p>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction &amp; Features</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/index.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="users_guide.html">User’s Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="troubleshooting.html">Common Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="troubleshooting.html#faq">FAQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reference.html">Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="glossary.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_api/modules.html">Full API</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="general_info.html">General Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="news.html">News and Updates</a></li>
+<li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dev_guide.html">Development Guide</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="installation.html" title="previous chapter">Installation</a></li>
+      <li>Next: <a href="introduction.html" title="next chapter">Introduction &amp; Features</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, Samuel D. Lotz.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.0.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../_sources/_source/quick_start.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+    <a href="https://github.com/ADicksonLab/wepy" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
+    
+
+    
+  </body>
+</html>

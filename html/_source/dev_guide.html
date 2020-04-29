@@ -1,0 +1,840 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Development Guide &#8212; wepy 1.0.0rc1.dev0+69.g7e50dcf documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="prev" title="Changelog" href="changelog.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+              <div class="related top">
+                &nbsp;
+  <nav id="rellinks">
+    <ul>
+        <li>
+          &larr;
+          <a href="changelog.html" title="Previous document">Changelog</a>
+        </li>
+    </ul>
+  </nav>
+              </div>
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="development-guide">
+<h1>Development Guide<a class="headerlink" href="#development-guide" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h2>
+<p>In this project we use a bunch of extra tools that simplify the drudgery
+of manual maintenance tasks so we can get more coding done. Its also
+probably not how your used to.</p>
+<p>This “middleware” includes:</p>
+<dl class="simple">
+<dt><a class="reference external" href="https://www.pyinvoke.org/">invoke</a></dt><dd><p>for creating the runnable endpoints or targets.</p>
+</dd>
+<dt><a class="reference external" href="https://github.com/salotz/jubeo.git">jubeo</a></dt><dd><p>for importing and updating a standard set of project independent
+invoke targets and endpoints.</p>
+</dd>
+</dl>
+<p><code class="docutils literal notranslate"><span class="pre">invoke</span></code> is common but <code class="docutils literal notranslate"><span class="pre">jubeo</span></code> is a creation of my own and may still
+have some rough edges.</p>
+<p>Furthermore, this project is made from a <a class="reference external" href="https://github.com/salotz/salotz-py-cookiecutter.git">cookiecutter
+template</a> to
+bootstrap it. You may find some odd stubs around and that is why. Feel
+free to get rid of them. If you ever want them back you can transcribe
+from the source.</p>
+<p>Ideally you won’t have to do much outside of running the <code class="docutils literal notranslate"><span class="pre">invoke</span></code>
+targets (i.e. any command that starts with <code class="docutils literal notranslate"><span class="pre">inv</span></code>).</p>
+<p>To see all of the commands run:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>inv -l
+</pre></div>
+</div>
+<p>You should read and understand the <code class="docutils literal notranslate"><span class="pre">jubeo</span></code> documentation so that you
+know how to add your own project-specific targets via <code class="docutils literal notranslate"><span class="pre">invoke</span></code>.</p>
+</div>
+<div class="section" id="getting-set-up">
+<h2>Getting Set Up<a class="headerlink" href="#getting-set-up" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="obtaining-the-source-code">
+<h3>Obtaining the source code<a class="headerlink" href="#obtaining-the-source-code" title="Permalink to this headline">¶</a></h3>
+<p>For the source code:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git clone <span class="o">{{</span> cookiecutter.dev_url <span class="o">}}</span>
+<span class="nb">cd</span> <span class="o">{{</span> cookiecutter.project_name <span class="o">}}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="tooling">
+<h3>Tooling<a class="headerlink" href="#tooling" title="Permalink to this headline">¶</a></h3>
+<p>The project comes configured for use with <code class="docutils literal notranslate"><span class="pre">jubeo</span></code> (see the <code class="docutils literal notranslate"><span class="pre">.jubeo</span></code>
+directory) but without the tasks imported.</p>
+<p>To get started you will need to install <code class="docutils literal notranslate"><span class="pre">jubeo</span></code> and then run this from
+the project directory:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>jubeo init .
+</pre></div>
+</div>
+<p>This will download the appropriate <code class="docutils literal notranslate"><span class="pre">invoke</span></code> tasks organized into a
+special structure along with the necessary dependency specs to use them.</p>
+<p>To be able to run the tasks you should install these dependencies:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip install -r .jubeo/requirements.in
+</pre></div>
+</div>
+<p>If you add to the libraries needed (through plugins discussed later) you
+will need to edit the <code class="docutils literal notranslate"><span class="pre">.jubeo/requirements.txt</span></code> file and recompile the
+<code class="docutils literal notranslate"><span class="pre">.jubeo/requirements.in</span></code> file by either manually running
+<code class="docutils literal notranslate"><span class="pre">pip-compile</span></code> or using the <code class="docutils literal notranslate"><span class="pre">inv</span> <span class="pre">core.pin-tool-deps</span></code> target.</p>
+</div>
+<div class="section" id="configuring">
+<h3>Configuring<a class="headerlink" href="#configuring" title="Permalink to this headline">¶</a></h3>
+<p>We typically manage configuration values in the <code class="docutils literal notranslate"><span class="pre">tasks/config.py</span></code> and
+<code class="docutils literal notranslate"><span class="pre">tasks/sysconfig.py</span></code> files as opposed to global system environment
+variables.</p>
+<p>See the <code class="docutils literal notranslate"><span class="pre">jubeo</span></code> documentation on how to use these configuration files.</p>
+<p>For this python project template we do need to set some values before
+all of the features will work. We also avoid setting these in shell
+configuration variables and as of now it is just up to the user to
+customize these. To the <code class="docutils literal notranslate"><span class="pre">tasks/config.py</span></code> file add the following:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">PROJECT_SLUG</span> <span class="o">=</span> <span class="s2">&quot;{{cookiecutter.project_slug}}&quot;</span>
+<span class="n">VERSION</span><span class="o">=</span><span class="s2">&quot;{{cookiecutter.initial_version}}&quot;</span>
+</pre></div>
+</div>
+<p>Just make sure to update the version string here when you do releases
+(included in the checklist for releases).</p>
+</div>
+<div class="section" id="virtual-environments">
+<h3>Virtual Environments<a class="headerlink" href="#virtual-environments" title="Permalink to this headline">¶</a></h3>
+<p>There are helpers for pinning and (re)generating python virtual
+environments which are helpful in developing and testing this project,
+and not necessarily just for running it as a user. See <em>Managing
+Dependencies</em> for details on managing dependencies of the installable
+project.</p>
+<p>If an environment has been already been written and compiled you need
+only create it locally and then activate it.</p>
+<p>To create an env called <code class="docutils literal notranslate"><span class="pre">dev</span></code> just run the <code class="docutils literal notranslate"><span class="pre">env</span></code> (<code class="docutils literal notranslate"><span class="pre">env.make</span></code>)
+target from <code class="docutils literal notranslate"><span class="pre">invoke</span></code>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>inv env -n dev
+</pre></div>
+</div>
+<p>If it fails double check that all the dependencies have been compiled.</p>
+<p>If it still fails, likely the environment is meant to be used for
+simultaneous development of multiple projects. You can check which
+installable source repos are expected in which locations by looking at
+the <code class="docutils literal notranslate"><span class="pre">self.requirements.txt</span></code> file. If there are simultaneous dev
+requirements make sure these source repos can be found at those
+locations.</p>
+<p>Then follow the activation instructions that are printed as different
+projects might use different backends.</p>
+<p>For pure python projects the default <code class="docutils literal notranslate"><span class="pre">venv</span></code> tool should be used, but
+<code class="docutils literal notranslate"><span class="pre">conda</span></code> is also an option.</p>
+<p>For <code class="docutils literal notranslate"><span class="pre">venv</span></code> envs they will be stored in a directory called <code class="docutils literal notranslate"><span class="pre">_venvs</span></code>
+and for conda <code class="docutils literal notranslate"><span class="pre">_conda_envs</span></code> (this is customizable however). Simply:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">source</span> _venvs/dev/bin/activate_
+</pre></div>
+</div>
+<p>or</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>conda activate _conda_envs/dev
+</pre></div>
+</div>
+<p>In any case the environments are not stored with other user-level
+environments, what we call <em>ambient</em> environments, and are instead
+stored in the project directory.</p>
+<p>If you ever have problems with an environment just rerun the
+<code class="docutils literal notranslate"><span class="pre">env.make</span></code> target to get a clean one. A practice we encourage to do
+frequently so that developers don’t diverge in their envs with local
+modifications. So while you can make your env, try to use this one
+unless you have problems.</p>
+<p>We maintain a number of preconfigured environments in the <code class="docutils literal notranslate"><span class="pre">envs</span></code>
+directory which are used for different purposes. Calling <code class="docutils literal notranslate"><span class="pre">inv</span> <span class="pre">env</span> <span class="pre">-n</span>
+<span class="pre">dev</span></code> is the same as <code class="docutils literal notranslate"><span class="pre">inv</span> <span class="pre">dev</span></code> since it is the default, but any other
+environment can be created by passing the matching name. For instance
+there is an environment that mimics the user’s installation environment
+so that we can test experiences upon install, to make sure we haven’t
+accidentally depended on something in the dev env:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>inv env -n test_install
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="maintenance-tasks">
+<h2>Maintenance Tasks<a class="headerlink" href="#maintenance-tasks" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="managing-dependencies">
+<h3>Managing Dependencies<a class="headerlink" href="#managing-dependencies" title="Permalink to this headline">¶</a></h3>
+<ol class="arabic">
+<li><p>Quick Reference</p>
+<p>To initially pin an environment or when you add requirements run this
+target:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>inv env.deps-pin -n dev
+</pre></div>
+</div>
+<p>To update it (should be accompanied by a reason why):</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>inv env.deps-pin-update -n dev
+</pre></div>
+</div>
+<p>The best practice here is to make initial pinning and updating a
+single commit so that it can easily be rolled back or patched e.g.:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git add envs/*
+git commit -m <span class="s2">&quot;Updates dev environment&quot;</span>
+</pre></div>
+</div>
+</li>
+<li><p>Explanation</p>
+<p>Reminder that there are two separate goals of managing dependencies
+and where they are managed:</p>
+<dl class="simple">
+<dt>Python Libraries</dt><dd><p>These dependencies are managed in <code class="docutils literal notranslate"><span class="pre">setup.py</span></code> and in PyPI or
+other indices.</p>
+</dd>
+<dt>Python Applications/Deployments</dt><dd><p>These are dependencies managed in <code class="docutils literal notranslate"><span class="pre">requirements.in</span></code> and
+<code class="docutils literal notranslate"><span class="pre">requirements.txt</span></code> and used for developer environments and
+deployment environments.</p>
+</dd>
+</dl>
+<p>In this template project there are a number of different places
+dependencies are managed according to both of these purposes. As far
+as the python library specs are concerned it is simpler and well
+documented elsewhere. In this template we introduce a few other
+mechanisms for managing development environments. They are as follows
+with the specific purpose of them:</p>
+<dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">setup.py</span></code></dt><dd><p>specifying high level requirements for installation of a released
+version from an index by a user or system integrator.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">tools.requirements.txt</span></code></dt><dd><p>A bare minimum high-level listing of dependencies necessary to
+bootstrap the creation of development environments from the
+project tooling itself. You are free to install these in any
+ambient environment you see fit. We suggest using something like
+<code class="docutils literal notranslate"><span class="pre">pyenv-virtualenv</span></code>.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">envs/env_name</span></code> dirs</dt><dd><p>a directory with a set of files that are used to reproduce
+development environments the full structure will be discussed
+separately. There can be any number of these but they shouldn’t
+start with a double-underscore ‘__’ which is used for temporary
+utility environments.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">requirements.in</span></code></dt><dd><p>An optional high-level specification of install dependencies
+readable from other projects for simultaneous development. Should
+be the same as <code class="docutils literal notranslate"><span class="pre">setup.py</span></code> install dependencies.</p>
+</dd>
+</dl>
+<p>The biggest concern for developers is writing env specs in the
+<code class="docutils literal notranslate"><span class="pre">envs</span></code> dir. These add a few features a simple
+<code class="docutils literal notranslate"><span class="pre">requirements.in/requirements.txt</span></code> file can’t solve alone. Here is
+the full listing of possible files that can be authored by the
+developer in this directory:</p>
+<dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">requirements.in</span></code></dt><dd><p>(required) abstract specification of packages</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">self.requirements.txt</span></code></dt><dd><p>(required) how to install packages actively being worked on</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">dev.requirements.list</span></code></dt><dd><p>A list of paths to other <code class="docutils literal notranslate"><span class="pre">requirements.in</span></code> files that will be
+included in dependency compilation with this env.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">pyversion.txt</span></code></dt><dd><p>the python version specified (if supported)</p>
+</dd>
+</dl>
+<p>This also supports the use of <code class="docutils literal notranslate"><span class="pre">conda</span></code> for managing environments,
+although this isn’t recommended for python packages which are not
+intended to be distributed via <code class="docutils literal notranslate"><span class="pre">conda</span></code>. This is however, useful for
+projects like the <code class="docutils literal notranslate"><span class="pre">analytics-cookiecutter</span></code> project which won’t
+actually be distributed to others as general purpose. For this you
+need only add another file for the abstract conda dependencies:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">env.yaml</span></code> (required for conda managed envs) an abstract
+specification for dependencies. Compiled to <code class="docutils literal notranslate"><span class="pre">env.pinned.yaml</span></code></p></li>
+</ul>
+<p>All the other files are still valid for conda environments still.</p>
+<ol class="arabic">
+<li><p>requirements.in</p>
+<p>The basic part of this spec is the <code class="docutils literal notranslate"><span class="pre">requirements.in</span></code> and
+<code class="docutils literal notranslate"><span class="pre">self.requirements.txt</span></code> files.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">requirements.in</span></code> file is as described in the <code class="docutils literal notranslate"><span class="pre">pip-tools</span></code>
+documentation (i.e. <code class="docutils literal notranslate"><span class="pre">pip-compile</span> <span class="pre">requirements.in</span></code>).</p>
+<p>Running <code class="docutils literal notranslate"><span class="pre">inv</span> <span class="pre">env.deps-pin</span></code> will compile this file to a
+<code class="docutils literal notranslate"><span class="pre">requirements.txt</span></code> file, which can then be used to create an
+environment via <code class="docutils literal notranslate"><span class="pre">inv</span> <span class="pre">env</span></code> (i.e.
+<code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">-r</span> <span class="pre">requirements.txt</span></code>).</p>
+<p>It should look something like this:</p>
+<div class="highlight-pyreq notranslate"><div class="highlight"><pre><span></span>requests
+networkx &gt;= 2
+</pre></div>
+</div>
+<p>There should be no entries like <code class="docutils literal notranslate"><span class="pre">-e</span> <span class="pre">.</span></code> for installing the
+package or any local file paths. This should be portable between
+machines and developers.</p>
+</li>
+<li><p>self.requirements.txt</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">self.requirements.txt</span></code> file instead is where these kinds of
+specifications should be.</p>
+<p>At its simplest it may look like this:</p>
+<div class="highlight-pyreq notranslate"><div class="highlight"><pre><span></span>-e .
+</pre></div>
+</div>
+<p>Which means just to install the package of this current repo.</p>
+<p>However, it is often that you are working on multiple separate
+projects at once in different version control repos and want to
+develop simultaneously without either releasing them every time
+you want to make changes or even push them to a git repo. You can
+then write a <code class="docutils literal notranslate"><span class="pre">self.requirements.txt</span></code> file that looks like this:</p>
+<div class="highlight-pyreq notranslate"><div class="highlight"><pre><span></span>-e .
+
+-e ../other_project
+-e $HOME/dev/util_project
+</pre></div>
+</div>
+</li>
+<li><p>dev.requirements.list</p>
+<p>During simultaneous development however, the dependencies of these
+other repos won’t be included in the compilation of the
+<code class="docutils literal notranslate"><span class="pre">requirements.txt</span></code> file.</p>
+<p>Your options are to:</p>
+<ol class="arabic simple">
+<li><p>manually transcribe their dependencies into the env’s
+<code class="docutils literal notranslate"><span class="pre">requirements.in</span></code> file (not recommended)</p></li>
+<li><p>write top-level <code class="docutils literal notranslate"><span class="pre">requirements.in</span></code> files for each project and
+include paths to these files in the
+<code class="docutils literal notranslate"><span class="pre">envs/env_name/dev.requirements.list</span></code> file.</p></li>
+</ol>
+<p>The tooling here provides support for the second one. For this you
+must write a <code class="docutils literal notranslate"><span class="pre">list</span></code> text file (see
+<a class="reference external" href="https://github.com/salotz/rfcs/blob/master/rfcs/salotz.016_trivial-plaintext-formats.org#a-list-file">rfc:salotz/016trivial-plaintext-formats</a>
+for a discussion of the format), where each line should be a path
+to a <code class="docutils literal notranslate"><span class="pre">requirements.in</span></code> file, e.g.:</p>
+<div class="highlight-trivial-list notranslate"><div class="highlight"><pre><span></span>../other_project/requirements.in
+$HOME/dev/util_project/requirements.in
+</pre></div>
+</div>
+<p>This will include each of these files in the dependency
+compilation step. Note that the <code class="docutils literal notranslate"><span class="pre">requirements.in</span></code> can come from
+any location and is not a specification other projects <em>must</em>
+support.</p>
+</li>
+<li><p>pyversion.txt</p>
+<p>This file should only contain the text that specifies the version
+of python to use that is understood by the env method (e.g.
+<code class="docutils literal notranslate"><span class="pre">conda</span></code>).</p>
+<p>E.g.:</p>
+<div class="highlight-fundamental notranslate"><div class="highlight"><pre><span></span>3.7.6
+</pre></div>
+</div>
+<p>Only the <code class="docutils literal notranslate"><span class="pre">conda</span></code> method supports this as of now.</p>
+<p>For the <code class="docutils literal notranslate"><span class="pre">venv</span></code> method it is still encouraged to write this file
+though, as a warning will be generated to remind you.</p>
+<p>For managing different python versions we recommend using
+something like <code class="docutils literal notranslate"><span class="pre">pyenv</span></code> and we may integrate with this or
+manually specifiying interpreter paths in the future.</p>
+</li>
+</ol>
+</li>
+</ol>
+</div>
+<div class="section" id="documentation-and-website">
+<h3>Documentation and Website<a class="headerlink" href="#documentation-and-website" title="Permalink to this headline">¶</a></h3>
+<ol class="arabic">
+<li><p>Writing Documentation</p>
+<p>The primary source of the documentation is in the <code class="docutils literal notranslate"><span class="pre">info</span></code> folder and
+is written in Emacs org mode.</p>
+<p>Because of the powerful wiki-like capabilities of org mode it can
+serve as a primary source for reading docs. This obviously serves the
+devs more than end user’s expecting an HTML website it is a good
+first measure for writing docs.</p>
+<p>Org-mode documents can be converted to RestructuredText files for use
+in generators like <code class="docutils literal notranslate"><span class="pre">Sphinx</span></code> (for documentation) or <code class="docutils literal notranslate"><span class="pre">Nikola</span></code> (for
+static sites) using the <code class="docutils literal notranslate"><span class="pre">pandoc</span></code> tool which we expect to be
+installed.</p>
+<p>Furthermore, org-mode &amp; Emacs provides excellent facilities for
+writing foreign source code blocks which allow for literate documents
+which can easily be tangled into code files that can then be tested
+automatically.</p>
+<p>The documentation can roughly be broken down into three major parts:</p>
+<dl class="simple">
+<dt>pages</dt><dd><p>Documents the actual project this repo is about. Should always be
+tested with the same version of the software it is released with.
+Should not include extra dependencies.</p>
+</dd>
+<dt>examples &amp; tutorials</dt><dd><p>Extended documentation of the project, however this may include
+extra dependencies of the project. These are tested separately
+from the pages documentation.</p>
+</dd>
+<dt>meta</dt><dd><p>General information about the project management itself. Will not
+be tested and should only contain source code in extremely small
+doses.</p>
+</dd>
+</dl>
+<p>If you write code blocks in your documentation (which is highly
+recommended) you <strong>must</strong> at least write tests which run the code to
+make sure it at least runs.</p>
+<p>When you write code blocks you should use this format:</p>
+<div class="highlight-org notranslate"><div class="highlight"><pre><span></span>#+begin_src python :tangle ex0.py
+  print(&quot;Hello!!!&quot;)
+#+end_src
+</pre></div>
+</div>
+<p>Notice there is no extra paths to get the tangling right. The tooling
+for running the tests will take care of setting up an environment for
+tangling scripts as the docs shouldn’t really be tangled in place in
+the <code class="docutils literal notranslate"><span class="pre">info</span></code> tree.</p>
+</li>
+<li><p>Writing Examples &amp; Tutorials</p>
+<p>For our purposes as devs examples and tutorials are almost the same
+in structure. The distinction is mostly for end users that have
+different expecations from examples over tutorials.</p>
+<p>Examples should be provide less explanation whereas tutorials are
+likely to be long form prose documents with literate coding and may
+even provide media like graphs and pictures.</p>
+<p>Examples can also be literate but they are restricted to formats like
+org mode, whereas the tutorials may also be in formats like Jupyter,
+which integrate well with Sphinx docs.</p>
+<p>To write examples and tutorials that play nice with testing and the
+basic rules of the examples (described in the
+<a class="reference external" href="./users_guide.org">usersguide</a>) there are some templates
+available in the <code class="docutils literal notranslate"><span class="pre">templates</span></code> directory for <code class="docutils literal notranslate"><span class="pre">templates/examples</span></code>,
+<code class="docutils literal notranslate"><span class="pre">templates/tutorials</span></code>, and environment specs <code class="docutils literal notranslate"><span class="pre">templates/envs</span></code>.</p>
+<p>You can either just copy these templates over or use the targets:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>inv docs.new-example --name<span class="o">=</span><span class="s1">&#39;myexample&#39;</span> --template<span class="o">=</span><span class="s1">&#39;org&#39;</span>
+cp -r -u templates/envs/conda_blank info/examples/myexample/env
+inv docs.new-tutorial  --name<span class="o">=</span><span class="s1">&#39;mytutorial --template=jupyter&#39;</span>
+cp -r -u templates/envs/conda_blank info/examples/mytutorial/env
+</pre></div>
+</div>
+<p>After you have your directory set up there are some things to keep in
+mind while you are constructing your tutorial.</p>
+<p>First, write source either in the literate document (<code class="docutils literal notranslate"><span class="pre">README.org</span></code>)
+or in the source file. Not both, unless you intend to test both
+separately. For tutorials you should prefer to write them directly in
+the literate doc, but particularly long and uninteresting pieces of
+code can be put into the source.</p>
+<p>As you write the code pay attention to your dependencies and virtual
+environment. If you add new dependencies, add them to the
+<code class="docutils literal notranslate"><span class="pre">requirements.in</span></code> or <code class="docutils literal notranslate"><span class="pre">env.yaml</span></code> file and compile:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span> <span class="nv">$PROJECT_DIR</span>
+inv docs.pin-example -n <span class="s1">&#39;myexample&#39;</span>
+</pre></div>
+</div>
+<p>You can then make the env 2 ways (the latter is intended to be run by
+users who don’t want to be overwhelmed by all the dev options):</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span> <span class="nv">$PROJECT_DIR</span>
+inv docs.env-example -n <span class="s1">&#39;myexample&#39;</span>
+</pre></div>
+</div>
+<p>or</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>inv env
+</pre></div>
+</div>
+<p>When writing examples and tutorials you should manually write the
+tangle targets to be the <code class="docutils literal notranslate"><span class="pre">_tangle_source</span></code> folder:</p>
+<div class="highlight-org notranslate"><div class="highlight"><pre><span></span>Here is some code I am explaining that you will run:
+
+#+begin_src python :tangle _tangle_source/tutorial.py
+  print(&quot;Hello!&quot;)
+#+end_src
+</pre></div>
+</div>
+<p>As stated in the user’s guide if you don’t follow this rule (or any
+others) then <strong>it is wrong</strong> and an issue should be filed.</p>
+<p>When using input files, please copy them to the <code class="docutils literal notranslate"><span class="pre">input</span></code> dir and
+reference them relative to the example dir. So that when you execute
+a script:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python source/script.py
+</pre></div>
+</div>
+<p>The code for reading a file would look like:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;input/data.csv&quot;</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">rf</span><span class="p">:</span>
+    <span class="n">table</span> <span class="o">=</span> <span class="n">rf</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>and not:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;../data.csv&quot;</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">rf</span><span class="p">:</span>
+    <span class="n">table</span> <span class="o">=</span> <span class="n">rf</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+</pre></div>
+</div>
+</li>
+<li><p>Testing Documentation</p>
+<p>There is a folder just for tests that target the docs
+<code class="docutils literal notranslate"><span class="pre">tests/test_docs</span></code>. You should be able to run them after tangling:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>inv docs.tangle
+inv docs.test
+</pre></div>
+</div>
+</li>
+<li><p>Building Documentation</p>
+<p>To compile and build the docs just run:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>inv py.docs-build
+</pre></div>
+</div>
+<p>Which will output them to a temporary build directory
+<code class="docutils literal notranslate"><span class="pre">_build/html</span></code>.</p>
+<p>You can clean this build with:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>inv py.clean-docs
+</pre></div>
+</div>
+<p>To view how the docs would look as a website you can point your
+browser at the <code class="docutils literal notranslate"><span class="pre">_build/html</span></code> folder or run a python http web server
+with this target:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>inv py.docs-serve
+</pre></div>
+</div>
+</li>
+<li><p>Building and testing the website</p>
+<p>For now we only support deploying the sphinx docs as a website and on
+github pages (via the <code class="docutils literal notranslate"><span class="pre">gh-pages</span></code> branch, see <em>Website Admin</em>).</p>
+<p>So to view your undeployed docs just run:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>inv py.docs-serve
+</pre></div>
+</div>
+<p>And open the local URL.</p>
+<p>Once you are happy with the result, <strong>you must commit all changes and
+have a clean working tree</strong> then you can push to github pages:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>inv py.website-deploy
+</pre></div>
+</div>
+<p>Basically this checks out the <code class="docutils literal notranslate"><span class="pre">gh-pages</span></code> branch merges the changes
+from <code class="docutils literal notranslate"><span class="pre">master</span></code> builds the docs, commits them (normally these files
+are ignored), and then pushes to github which will render them.</p>
+<p>We may also support other common use cases in the future as well like
+Gitlab pages or a web server (via rsync or scp).</p>
+<p>We also will support a more traditional static site generator
+workflow instead of relying in addition to the sphinx docs.</p>
+<ol class="arabic simple">
+<li></li>
+</ol>
+</li>
+<li><p>Deploying the website</p>
+<p>We are using github pages. To avoid having to keep the entire built
+website in the main tree we use the alternate <code class="docutils literal notranslate"><span class="pre">gh-pages</span></code> branch. To
+make this process easy to deploy we have a script
+<code class="docutils literal notranslate"><span class="pre">sphinx/deploy.sh</span></code> that checks the <code class="docutils literal notranslate"><span class="pre">gh-pages</span></code> branch out, does
+some necessary cleaning up, and copies the built website to the
+necesary folder (which is the toplevel), commits the changes and
+pushes to github, and then returns to your working branch.</p>
+<p>The invoke target is:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>inv website-deploy
+</pre></div>
+</div>
+</li>
+</ol>
+</div>
+<div class="section" id="testing">
+<h3>Testing<a class="headerlink" href="#testing" title="Permalink to this headline">¶</a></h3>
+</div>
+<div class="section" id="code-quality-metrics">
+<h3>Code Quality Metrics<a class="headerlink" href="#code-quality-metrics" title="Permalink to this headline">¶</a></h3>
+<p>Just run the end target:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>inv quality
+</pre></div>
+</div>
+<p>This will write files to <code class="docutils literal notranslate"><span class="pre">metrics</span></code>.</p>
+</div>
+<div class="section" id="releases">
+<h3>Releases<a class="headerlink" href="#releases" title="Permalink to this headline">¶</a></h3>
+<ol class="arabic">
+<li><p>Choosing a version number</p>
+<ol class="arabic">
+<li><p>Primordial Epoch</p>
+<p>In the pre-covenant releases (think “1.0” release) we just release
+based on the date. So just make the date string and add any
+release candidate, dev, or postrelease additions.</p>
+</li>
+<li><p>Covenental Epoch</p>
+<p>After the primordial epoch we have a more semantic meaning behind
+version numbers.</p>
+<p>Following PEP 440 epochs these should all be prefixed by ‘1!’ for
+the second epoch.</p>
+<p>Otherwise versions should be “canonical” strings following the
+guidelines in PEP 440.</p>
+<p>That means we support roughly:</p>
+<ul class="simple">
+<li><p>semver-ish major, minor, and patch parts</p></li>
+<li><p>release candidates</p></li>
+<li><p>dev</p></li>
+<li><p>post release “patches”</p></li>
+</ul>
+<p>However, we don’t prescribe explicit semantics to any of the parts
+as this is highly variable depending on the needs of a project and
+the forums by which it is published (e.g. PyPI, Github, etc.).</p>
+</li>
+</ol>
+</li>
+<li><p>Writing and/or Generating the Changelog and Announcement</p></li>
+<li><p>Changing the version number</p>
+<p>You can check the current version number with this command:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>inv py.version-which
+</pre></div>
+</div>
+<p>Increase the version number we currently do it by hand (although an
+automatic way would be nice and <code class="docutils literal notranslate"><span class="pre">bumpversion</span></code> wasn’t working for
+us). So go in and manually edit them. For reference see PEP 440 for
+valid ones.</p>
+<p>The target locations for changing versions are in the following
+files:</p>
+<ul class="simple">
+<li><p>[ ] <code class="docutils literal notranslate"><span class="pre">setup.py</span></code></p></li>
+<li><p>[ ] <code class="docutils literal notranslate"><span class="pre">src/{{</span> <span class="pre">cookiecutter.project_slug</span> <span class="pre">}}/__init__.py</span></code></p></li>
+<li><p>[ ] <code class="docutils literal notranslate"><span class="pre">tasks/config.py</span></code></p></li>
+<li><p>[ ] <code class="docutils literal notranslate"><span class="pre">sphinx/conf.py</span></code></p></li>
+<li><p>[ ] <code class="docutils literal notranslate"><span class="pre">conda/conda-forge/meta.yaml</span></code> (optional)</p></li>
+</ul>
+</li>
+<li><p>Making the release official</p>
+<p>To make a release do some changes and make sure they are fully tested
+and functional and commit them in version control. At this point you
+will also want to do any rebasing or cleaning up the actual commits
+if this wasn’t already done in the feature branch.</p>
+<p>If this is a ‘dev’ release and you just want to run a version control
+tag triggered CI pipeline go ahead and change the version numbers and
+commit. Then tag the ‘dev’ release.</p>
+<p>If you intend to make a non-dev release you will first want to test
+it out a little bit with a release-candidate prerelease.</p>
+<p>So do all the following bookeeping steps in a single but separate git
+commit from the actual changes to the code:</p>
+<ul class="simple">
+<li><p>[ ] write the changelog</p></li>
+<li><p>[ ] write the announcement (optional)</p></li>
+<li><p>[ ] change the version numbers</p></li>
+<li><p>[ ] build to test it out <code class="docutils literal notranslate"><span class="pre">inv</span> <span class="pre">build</span></code></p></li>
+</ul>
+<p>To test a build go ahead and run:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>inv py.build
+</pre></div>
+</div>
+<p>And then try to install it from an empty environment:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>inv env -n test_install
+</pre></div>
+</div>
+<p>Activate the environment e.g.:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">source</span> _venv/test_install/bin/activate
+</pre></div>
+</div>
+<p>or</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>conda activate _conda_envs/test_install
+</pre></div>
+</div>
+<p>then run it for each build, e.g.:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip install dist/BUILD.tar.gz
+</pre></div>
+</div>
+<p>They should all succeed.</p>
+<p>When you change the version number put a ‘rc0’ at the end of the new
+intended (semantic) number.</p>
+<p>Once you have built it and nothing is wrong go ahead and publish it
+to the test indexes (if available):</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>inv py.publish-test
+</pre></div>
+</div>
+<p>You can test that it works from the index using the same
+<code class="docutils literal notranslate"><span class="pre">test_install</span></code> environment above.</p>
+<p>And install the package from the test repo with no dependencies:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip install --index-url https://test.pypi.org/simple/ --no-deps <span class="o">{{</span>cookiecutter.project_name<span class="o">}}</span>-<span class="o">{{</span>cookiecutter.owner_nickname<span class="o">}}</span>
+</pre></div>
+</div>
+<p>Then go ahead and commit the changes after that works. The message
+should follow a fixed form like</p>
+<div class="highlight-fundamental notranslate"><div class="highlight"><pre><span></span>1.0.0rc0 release preparation
+</pre></div>
+</div>
+<p>Then you can tag the release in the <code class="docutils literal notranslate"><span class="pre">git</span></code> commit history:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>inv git.release
+</pre></div>
+</div>
+<p>Publishing the results will vary but you can start with publishing
+the package to PyPI and the VCS hosts with the real publish target:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>inv git.publish
+inv py.publish
+</pre></div>
+</div>
+</li>
+</ol>
+</div>
+</div>
+<div class="section" id="initializing-this-repository">
+<h2>Initializing this repository<a class="headerlink" href="#initializing-this-repository" title="Permalink to this headline">¶</a></h2>
+<p>These are tasks that should only be done once at the inception of the
+project but are described for posterity and completeness.</p>
+<div class="section" id="version-control">
+<h3>Version Control<a class="headerlink" href="#version-control" title="Permalink to this headline">¶</a></h3>
+<p>First we need to initialize the version control system (<code class="docutils literal notranslate"><span class="pre">git</span></code>):</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>inv git.init
+</pre></div>
+</div>
+<p>If you want to go ahead and add the remote repositories for this
+project. We don’t manage this explicitly since <code class="docutils literal notranslate"><span class="pre">git</span></code> is treated mostly
+as first class for these kinds of tasks and is better left to special
+purpose tools which are well integrated and developed.</p>
+</div>
+<div class="section" id="python-packaging">
+<h3>Python Packaging<a class="headerlink" href="#python-packaging" title="Permalink to this headline">¶</a></h3>
+<p>There is a target to initialize python specific packaging things. This
+is because some tools (like <code class="docutils literal notranslate"><span class="pre">versioneer</span></code>) need to be generated after
+project instantiation.</p>
+<p>Make sure you have a clean tree so you can see the changes then:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>inv py.init
+</pre></div>
+</div>
+<p>then inspect and commit.</p>
+</div>
+<div class="section" id="compiling-dependencies">
+<h3>Compiling Dependencies<a class="headerlink" href="#compiling-dependencies" title="Permalink to this headline">¶</a></h3>
+<p>Then add any extra dependencies you want to the development environment
+<a class="reference external" href="../envs/dev/requirements.in">requirements.in</a> file and then compile
+and pin them:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>inv env.deps-pin -n dev env.deps-pin -n test_install
+</pre></div>
+</div>
+<p>Then commit this.</p>
+</div>
+<div class="section" id="creating-environments">
+<h3>Creating Environments<a class="headerlink" href="#creating-environments" title="Permalink to this headline">¶</a></h3>
+<p>Then just create the virtual environment. For portability we use the
+builin <code class="docutils literal notranslate"><span class="pre">venv</span></code> package, but this is customizable.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>inv env
+</pre></div>
+</div>
+<p>Then you can activate it with the instructions printed to the screen.</p>
+</div>
+<div class="section" id="website-admin">
+<h3>Website Admin<a class="headerlink" href="#website-admin" title="Permalink to this headline">¶</a></h3>
+<p>We use Github Pages by default since it is pretty easy. Because we don’t
+want to clutter up the master branch with website build artifacts we use
+the <code class="docutils literal notranslate"><span class="pre">gh-pages</span></code> branch approach.</p>
+<p>If you just run the <code class="docutils literal notranslate"><span class="pre">inv</span> <span class="pre">py.website-deploy</span></code> target this will
+idempotently take care of setting this up for you.</p>
+<p>However, you will need to create it and push it before you can set this
+in the github settings for the page.</p>
+</div>
+</div>
+</div>
+
+
+          </div>
+              <div class="related bottom">
+                &nbsp;
+  <nav id="rellinks">
+    <ul>
+        <li>
+          &larr;
+          <a href="changelog.html" title="Previous document">Changelog</a>
+        </li>
+    </ul>
+  </nav>
+              </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<p class="logo">
+  <a href="../index.html">
+    <img class="logo" src="../_static/wepy.svg" alt="Logo"/>
+    
+    <h1 class="logo logo-name">wepy</h1>
+    
+  </a>
+</p>
+
+
+
+<p class="blurb">A Weighted Ensemble  (WE) simulation framework</p>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quick_start.html">Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction &amp; Features</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/index.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="users_guide.html">User’s Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="troubleshooting.html">Common Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="troubleshooting.html#faq">FAQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reference.html">Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="glossary.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_api/modules.html">Full API</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="general_info.html">General Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="news.html">News and Updates</a></li>
+<li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Development Guide</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="changelog.html" title="previous chapter">Changelog</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, Samuel D. Lotz.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.0.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../_sources/_source/dev_guide.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+    <a href="https://github.com/ADicksonLab/wepy" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
+    
+
+    
+  </body>
+</html>
