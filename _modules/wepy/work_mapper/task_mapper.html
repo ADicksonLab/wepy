@@ -56,13 +56,13 @@
 
 <span class="kn">from</span> <span class="nn">wepy.walker</span> <span class="kn">import</span> <span class="n">Walker</span>
 
-<div class="viewcode-block" id="TaskProcessException"><a class="viewcode-back" href="../../../_api/wepy.work_mapper.task_mapper.html#wepy.work_mapper.task_mapper.TaskProcessException">[docs]</a><span class="k">class</span> <span class="nc">TaskProcessException</span><span class="p">(</span><span class="n">WrapperException</span><span class="p">):</span>
+<div class="viewcode-block" id="TaskProcessException"><a class="viewcode-back" href="../../../_api/wepy.work_mapper.task_mapper.html#wepy.runners.openmm.TaskProcessException">[docs]</a><span class="k">class</span> <span class="nc">TaskProcessException</span><span class="p">(</span><span class="n">WrapperException</span><span class="p">):</span>
     <span class="k">pass</span></div>
 
-<div class="viewcode-block" id="TaskProcessKilledError"><a class="viewcode-back" href="../../../_api/wepy.work_mapper.task_mapper.html#wepy.work_mapper.task_mapper.TaskProcessKilledError">[docs]</a><span class="k">class</span> <span class="nc">TaskProcessKilledError</span><span class="p">(</span><span class="ne">ChildProcessError</span><span class="p">):</span>
+<div class="viewcode-block" id="TaskProcessKilledError"><a class="viewcode-back" href="../../../_api/wepy.work_mapper.task_mapper.html#wepy.runners.openmm.TaskProcessKilledError">[docs]</a><span class="k">class</span> <span class="nc">TaskProcessKilledError</span><span class="p">(</span><span class="ne">ChildProcessError</span><span class="p">):</span>
     <span class="k">pass</span></div>
 
-<div class="viewcode-block" id="TaskMapper"><a class="viewcode-back" href="../../../_api/wepy.work_mapper.task_mapper.html#wepy.work_mapper.task_mapper.TaskMapper">[docs]</a><span class="k">class</span> <span class="nc">TaskMapper</span><span class="p">(</span><span class="n">ABCWorkerMapper</span><span class="p">):</span>
+<div class="viewcode-block" id="TaskMapper"><a class="viewcode-back" href="../../../_api/wepy.work_mapper.task_mapper.html#wepy.runners.openmm.TaskMapper">[docs]</a><span class="k">class</span> <span class="nc">TaskMapper</span><span class="p">(</span><span class="n">ABCWorkerMapper</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Process-per-task mapper.</span>
 
 <span class="sd">    This method of work mapper starts new processes for each runner</span>
@@ -113,7 +113,7 @@
         <span class="c1"># this is meant to be a transient variable, will be initialized and deinitialized</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_walker_processes</span> <span class="o">=</span> <span class="kc">None</span>
 
-<div class="viewcode-block" id="TaskMapper.init"><a class="viewcode-back" href="../../../_api/wepy.work_mapper.task_mapper.html#wepy.work_mapper.task_mapper.TaskMapper.init">[docs]</a>    <span class="k">def</span> <span class="nf">init</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="TaskMapper.init"><a class="viewcode-back" href="../../../_api/wepy.work_mapper.task_mapper.html#wepy.runners.openmm.TaskMapper.init">[docs]</a>    <span class="k">def</span> <span class="nf">init</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">init</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
@@ -121,7 +121,7 @@
         <span class="c1"># for SIGTERM signals that will clean up our children cleanly</span>
         <span class="n">signal</span><span class="o">.</span><span class="n">signal</span><span class="p">(</span><span class="n">signal</span><span class="o">.</span><span class="n">SIGTERM</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sigterm_shutdown</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="TaskMapper._sigterm_shutdown"><a class="viewcode-back" href="../../../_api/wepy.work_mapper.task_mapper.html#wepy.work_mapper.task_mapper.TaskMapper._sigterm_shutdown">[docs]</a>    <span class="k">def</span> <span class="nf">_sigterm_shutdown</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">signum</span><span class="p">,</span> <span class="n">frame</span><span class="p">):</span>
+<div class="viewcode-block" id="TaskMapper._sigterm_shutdown"><a class="viewcode-back" href="../../../_api/wepy.work_mapper.task_mapper.html#wepy.runners.openmm.TaskMapper._sigterm_shutdown">[docs]</a>    <span class="k">def</span> <span class="nf">_sigterm_shutdown</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">signum</span><span class="p">,</span> <span class="n">frame</span><span class="p">):</span>
 
         <span class="n">logging</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span><span class="s2">&quot;Received external SIGTERM, forcing shutdown.&quot;</span><span class="p">)</span>
 
@@ -142,7 +142,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_walker_task_type</span>
 
 
-<div class="viewcode-block" id="TaskMapper.force_shutdown"><a class="viewcode-back" href="../../../_api/wepy.work_mapper.task_mapper.html#wepy.work_mapper.task_mapper.TaskMapper.force_shutdown">[docs]</a>    <span class="k">def</span> <span class="nf">force_shutdown</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="TaskMapper.force_shutdown"><a class="viewcode-back" href="../../../_api/wepy.work_mapper.task_mapper.html#wepy.runners.openmm.TaskMapper.force_shutdown">[docs]</a>    <span class="k">def</span> <span class="nf">force_shutdown</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 
         <span class="c1"># TODO send sigterms to processes</span>
 
@@ -168,7 +168,7 @@
 
 
 
-<div class="viewcode-block" id="TaskMapper.map"><a class="viewcode-back" href="../../../_api/wepy.work_mapper.task_mapper.html#wepy.work_mapper.task_mapper.TaskMapper.map">[docs]</a>    <span class="k">def</span> <span class="nf">map</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="TaskMapper.map"><a class="viewcode-back" href="../../../_api/wepy.work_mapper.task_mapper.html#wepy.runners.openmm.TaskMapper.map">[docs]</a>    <span class="k">def</span> <span class="nf">map</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 
         <span class="c1"># run computations in a Manager context</span>
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mp_ctx</span><span class="o">.</span><span class="n">Manager</span><span class="p">()</span> <span class="k">as</span> <span class="n">manager</span><span class="p">:</span>
@@ -376,7 +376,7 @@
         <span class="k">return</span> <span class="n">new_walkers</span></div></div>
 
 
-<div class="viewcode-block" id="WalkerTaskProcess"><a class="viewcode-back" href="../../../_api/wepy.work_mapper.task_mapper.html#wepy.work_mapper.task_mapper.WalkerTaskProcess">[docs]</a><span class="k">class</span> <span class="nc">WalkerTaskProcess</span><span class="p">(</span><span class="n">mp</span><span class="o">.</span><span class="n">Process</span><span class="p">):</span>
+<div class="viewcode-block" id="WalkerTaskProcess"><a class="viewcode-back" href="../../../_api/wepy.work_mapper.task_mapper.html#wepy.runners.openmm.WalkerTaskProcess">[docs]</a><span class="k">class</span> <span class="nc">WalkerTaskProcess</span><span class="p">(</span><span class="n">mp</span><span class="o">.</span><span class="n">Process</span><span class="p">):</span>
 
     <span class="n">NAME_TEMPLATE</span> <span class="o">=</span> <span class="s2">&quot;Walker-</span><span class="si">{}</span><span class="s2">&quot;</span>
 
@@ -417,7 +417,7 @@
         <span class="n">signal</span><span class="o">.</span><span class="n">signal</span><span class="p">(</span><span class="n">signal</span><span class="o">.</span><span class="n">SIGTERM</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sigterm_shutdown</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="WalkerTaskProcess._sigterm_shutdown"><a class="viewcode-back" href="../../../_api/wepy.work_mapper.task_mapper.html#wepy.work_mapper.task_mapper.WalkerTaskProcess._sigterm_shutdown">[docs]</a>    <span class="k">def</span> <span class="nf">_sigterm_shutdown</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">signum</span><span class="p">,</span> <span class="n">frame</span><span class="p">):</span>
+<div class="viewcode-block" id="WalkerTaskProcess._sigterm_shutdown"><a class="viewcode-back" href="../../../_api/wepy.work_mapper.task_mapper.html#wepy.runners.openmm.WalkerTaskProcess._sigterm_shutdown">[docs]</a>    <span class="k">def</span> <span class="nf">_sigterm_shutdown</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">signum</span><span class="p">,</span> <span class="n">frame</span><span class="p">):</span>
 
         <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Received external SIGTERM kill command.&quot;</span><span class="p">)</span>
 
@@ -440,7 +440,7 @@
     <span class="k">def</span> <span class="nf">attributes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_attributes</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
 
-<div class="viewcode-block" id="WalkerTaskProcess._run_task"><a class="viewcode-back" href="../../../_api/wepy.work_mapper.task_mapper.html#wepy.work_mapper.task_mapper.WalkerTaskProcess._run_task">[docs]</a>    <span class="k">def</span> <span class="nf">_run_task</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task</span><span class="p">):</span>
+<div class="viewcode-block" id="WalkerTaskProcess._run_task"><a class="viewcode-back" href="../../../_api/wepy.work_mapper.task_mapper.html#wepy.runners.openmm.WalkerTaskProcess._run_task">[docs]</a>    <span class="k">def</span> <span class="nf">_run_task</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task</span><span class="p">):</span>
 
         <span class="c1"># run the task thunk</span>
         <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">: Running task&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
@@ -473,11 +473,11 @@
 
         <span class="k">return</span> <span class="n">result</span></div>
 
-<div class="viewcode-block" id="WalkerTaskProcess.run_task"><a class="viewcode-back" href="../../../_api/wepy.work_mapper.task_mapper.html#wepy.work_mapper.task_mapper.WalkerTaskProcess.run_task">[docs]</a>    <span class="k">def</span> <span class="nf">run_task</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task</span><span class="p">):</span>
+<div class="viewcode-block" id="WalkerTaskProcess.run_task"><a class="viewcode-back" href="../../../_api/wepy.work_mapper.task_mapper.html#wepy.runners.openmm.WalkerTaskProcess.run_task">[docs]</a>    <span class="k">def</span> <span class="nf">run_task</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task</span><span class="p">):</span>
 
         <span class="k">return</span> <span class="n">task</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="WalkerTaskProcess.run"><a class="viewcode-back" href="../../../_api/wepy.work_mapper.task_mapper.html#wepy.work_mapper.task_mapper.WalkerTaskProcess.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="WalkerTaskProcess.run"><a class="viewcode-back" href="../../../_api/wepy.work_mapper.task_mapper.html#wepy.runners.openmm.WalkerTaskProcess.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 
         <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">: starting to run&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
 
@@ -550,7 +550,7 @@
                     <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">: Pipe is broken indicating the root process has already exited:</span><span class="se">\n</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">exc</span><span class="p">))</span></div>
 
-<div class="viewcode-block" id="WalkerTaskProcess._run_walker"><a class="viewcode-back" href="../../../_api/wepy.work_mapper.task_mapper.html#wepy.work_mapper.task_mapper.WalkerTaskProcess._run_walker">[docs]</a>    <span class="k">def</span> <span class="nf">_run_walker</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="WalkerTaskProcess._run_walker"><a class="viewcode-back" href="../../../_api/wepy.work_mapper.task_mapper.html#wepy.runners.openmm.WalkerTaskProcess._run_walker">[docs]</a>    <span class="k">def</span> <span class="nf">_run_walker</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 
         <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Walker process started as name: </span><span class="si">{}</span><span class="s2">; PID: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
                                                                           <span class="bp">self</span><span class="o">.</span><span class="n">pid</span><span class="p">))</span>

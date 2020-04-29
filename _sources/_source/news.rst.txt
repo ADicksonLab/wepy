@@ -16,7 +16,10 @@ them in the main ``wepy`` tree nor do we guarantee they will work in
 perpetuity.
 
 Today we are running a workshop on getting people started running &
-writing examples for ``wepy``.
+writing examples for ``wepy``:
+
+`Examples & Tutorials
+HOWTO <https://gitlab.com/ADicksonLab/wepy-developer-resources/-/tree/master/workshops/2020-04-29_Examples-Tutorials-HOWTO>`__
 
 In the ``wepy`` project we have a number of utilities which we think
 will help us in keeping the examples in our docs up to date with the
