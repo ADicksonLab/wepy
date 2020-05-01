@@ -620,8 +620,66 @@ inv docs.website-deploy
 #+end_src
 
 
-
 *** Testing
+
+This is about testing the actual source tree (see [[*Testing Documentation][Testing
+Documentation]] for testing the docs).
+
+**** Testing in the Dev Cycle
+
+You can either test in the ~dev~ (or ~test~) environment while working:
+
+#+begin_src bash
+inv py.tests-all
+#+end_src
+
+There are specific commands for each section of tests, primarily:
+
+#+begin_src bash
+inv py.tests-integration
+inv py.tests-unit
+#+end_src
+
+If you use the ~-t~ option you can specify a tag. The tag will be used
+as an identifying string for output to reports etc. Currently it will
+generate test results into the ~reports~
+
+**** Automated Test Matrix
+
+We use ~nox~ as the runner for parametrizing and running tests in
+isolated environments for the test matrix. See the ~noxfile.py~ on how
+this is configured.
+
+You can run the "session" directly since there are other session
+definitions for docs etc.:
+
+#+begin_src bash
+nox -s test
+#+end_src
+
+There is also a target for this:
+
+#+begin_src bash
+inv py.tests-nox
+#+end_src
+
+
+**** Auxiliary "tests"
+
+We also have two other "testing" targets for the benchmarks and the
+"interactive" tests.
+
+Benchmarks have a special toolchain for recording and publishing them
+as metrics.
+
+The 'interactive' tests are just tests which have something like a
+~breakpoint()~ in them. This is kind of an experimental thing, and
+probably more useful for you to write and call them individually for
+different purposes. The idea is that you can write "tests" that
+generate something like realistic live environment (kind of like
+integration tests) that you can drop into a debugger with and poke
+around in.
+
 
 *** Code Quality Metrics
 

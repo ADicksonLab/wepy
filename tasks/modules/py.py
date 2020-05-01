@@ -9,6 +9,7 @@ from ..config import (
     TESTING_PYPIRC,
     PYPIRC,
     PYENV_CONDA_NAME,
+    ENV_METHOD,
 )
 
 import sys
@@ -317,13 +318,21 @@ def tests_all(cx, tag=None):
 @task
 def tests_nox(cx):
 
-    # run with base venv maker
-    with cx.prefix("unset PYENV_VERSION"):
-        cx.run("nox -s test_user")
+    if ENV_METHOD == 'pyenv':
 
-    # test running with conda
-    with cx.prefix(f"pyenv shell {PYENV_CONDA_NAME}"):
-        cx.run("nox -s test_user_conda")
+        # run with base venv maker
+        with cx.prefix("unset PYENV_VERSION"):
+            cx.run("nox -s test")
+
+    elif ENV_METHOD == 'conda':
+
+        # test running with conda
+        with cx.prefix(f"pyenv shell {PYENV_CONDA_NAME}"):
+            cx.run("nox -s test")
+
+    else:
+
+        raise ValueError(f"Unsupported ENV_METHOD: {ENV_METHOD}")
 
 
 ### Code & Test Quality

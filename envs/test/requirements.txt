@@ -22,17 +22,17 @@ pluggy==0.13.1            # via pytest
 py-cpuinfo==5.0.0         # via pytest-benchmark
 py==1.8.1                 # via pytest
 pyparsing==2.4.7          # via packaging
-pytest-benchmark==3.2.3   # via -r envs/test/requirements.in (line 20)
-pytest-cov==2.8.1         # via -r envs/test/requirements.in (line 19)
-git+https://github.com/salotz/pytest-datadir.git  # via -r envs/test/requirements.in (line 13)
-pytest-html==2.1.1        # via -r envs/test/requirements.in (line 16)
+pytest-benchmark==3.2.3   # via -r envs/test/requirements.in
+pytest-cov==2.8.1         # via -r envs/test/requirements.in
+git+https://github.com/salotz/pytest-datadir.git  # via -r envs/test/requirements.in
+pytest-html==2.1.1        # via -r envs/test/requirements.in
 pytest-metadata==1.8.0    # via pytest-html
-pytest-mock==3.1.0        # via -r envs/test/requirements.in (line 18)
-pytest-print==0.1.3       # via -r envs/test/requirements.in (line 15)
-pytest-profiling==1.7.0   # via -r envs/test/requirements.in (line 21)
-pytest-runner==5.2        # via -r envs/test/requirements.in (line 10)
-pytest-shutil==1.7.0      # via -r envs/test/requirements.in (line 17)
-pytest==5.4.1             # via -r envs/test/requirements.in (line 9), pytest-benchmark, pytest-cov, pytest-datadir, pytest-html, pytest-metadata, pytest-mock, pytest-print, pytest-profiling, pytest-shutil
+pytest-mock==3.1.0        # via -r envs/test/requirements.in
+pytest-print==0.1.3       # via -r envs/test/requirements.in
+pytest-profiling==1.7.0   # via -r envs/test/requirements.in
+pytest-runner==5.2        # via -r envs/test/requirements.in
+pytest-shutil==1.7.0      # via -r envs/test/requirements.in
+pytest==5.4.1             # via -r envs/test/requirements.in, pytest-benchmark, pytest-cov, pytest-datadir, pytest-html, pytest-metadata, pytest-mock, pytest-print, pytest-profiling, pytest-shutil
 six==1.14.0               # via packaging, pytest-print, pytest-profiling, pytest-shutil
 termcolor==1.1.0          # via pytest-shutil
 wcwidth==0.1.9            # via pytest

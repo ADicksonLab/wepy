@@ -2,29 +2,15 @@ import nox
 
 from pathlib import Path
 
-# @nox.session(
-#     python=['3.6', '3.7', '3.8', 'pypy3'],
-# )
-# def test_user(session):
-#     """Test using basic pip based installation.
-
-#     This won't be able to run things that are based on OpenMM as it
-#     needs to be installed with conda.
-
-#     """
-
-#     session.install("-r", ".jubeo/requirements.txt")
-#     session.install("-r", "envs/test/requirements.in")
-#     session.install("-r", "envs/test/self.requirements.txt")
-
-#     session.run("inv", "py.tests-all", "-t", f"test-user_{session.python}")
-
-#    python=['3.6', '3.7', '3.8'],
 @nox.session(
-    python=['3.7',],
+    python=['3.6', '3.7', '3.8'],
     venv_backend="conda",
 )
-def test_unit(session):
+@nox.parametrize("openmm", [
+    '7.4.1',
+    '7.3.1',
+])
+def test(session, openmm):
     """Test with conda as the installer.
 
     This is the full suite of tests and should be favored over the non
@@ -33,30 +19,16 @@ def test_unit(session):
 
     """
 
-    ## install the conda dependencies
-    conda_env = Path(f"envs/test/env.pinned.yaml")
-
-    print("Session location: ", session.virtualenv.location)
-    if conda_env.is_file():
-
-        session.run(
-            'conda',
-            'env',
-            'update',
-            '--prefix',
-            session.virtualenv.location,
-            '--file',
-            str(conda_env),
-            # options
-            silent=True)
-
     # install the pip things first
     session.install("-r", ".jubeo/requirements.txt")
     session.install("-r", "envs/test/requirements.in")
     session.install("-r", "envs/test/self.requirements.txt")
 
-    # install conda specific things here
+    # install different openmm versions
+    session.conda_install('-c', 'omnia',
+                          f'openmm={openmm}')
 
+    # only
     session.run("inv", "py.tests-unit", "-t", f"test-unit-conda_{session.python}")
 
 @nox.session(

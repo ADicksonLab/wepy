@@ -190,6 +190,9 @@ class OpenMMRunner(Runner):
         # update with the user based enforce_box
         self.getState_kwargs['enforcePeriodicBox'] = self.enforce_box
 
+        self._cycle_platform = None
+        self._cycle_platform_kwargs = None
+
     def pre_cycle(self,
                   platform=None,
                   platform_kwargs=None,
@@ -213,8 +216,8 @@ class OpenMMRunner(Runner):
         super().post_cycle(**kwargs)
 
         # remove the platform and kwargs for this cycle
-        del self._cycle_platform
-        del self._cycle_platform_kwargs
+        self._cycle_platform = None
+        self._cycle_platform_kwargs = None
 
 
     def _resolve_platform(self,
@@ -235,7 +238,7 @@ class OpenMMRunner(Runner):
 
         # if the pre_cycle configured platform is set use this over
         # the default
-        elif hasattr(self, '_cycle_platform'):
+        elif self._cycle_platform is not None:
             platform_name = self._cycle_platform
             platform_kwargs = self._cycle_platform_kwargs
 
@@ -331,7 +334,6 @@ class OpenMMRunner(Runner):
 
         logging.info("pre_cycle set 'platform' in runner: "
                      f"{self._cycle_platform}")
-
 
         logging.info("'platform' passed to 'run_segment' : "
                      f"{platform}")

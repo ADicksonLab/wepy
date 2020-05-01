@@ -15,7 +15,7 @@ import simtk.unit as unit
 
 import mdtraj as mdj
 
-from openmmtools.testsystems import LennardJonesPair
+from openmm_systems.test_systems import LennardJonesPair
 
 from wepy.sim_manager import Manager
 

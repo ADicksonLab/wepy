@@ -96,7 +96,7 @@ setup(
     install_requires=base_requirements,
 
     extras_require={
-        'mdtraj' : mdtraj_requirements,
+        'md' : md_requirements,
         'distributed' : distributed_requirements,
         'all' : all_requirements,
     }

@@ -30,7 +30,7 @@ import simtk.openmm.app as omma
 import simtk.openmm as omm
 import simtk.unit as unit
 
-from openmmtools.testsystems import LennardJonesPair
+from openmm_systems.test_systems import LennardJonesPair
 import mdtraj as mdj
 from wepy.util.mdtraj import mdtraj_to_json_topology
 
@@ -121,7 +121,7 @@ dashboard_path = osp.join(outputs_dir, dashboard_filename)
 
 ## System and OpenMMRunner
 
-# make the test system from openmmtools
+# make the test system
 test_sys = LennardJonesPair()
 
 # make the integrator

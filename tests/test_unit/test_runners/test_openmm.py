@@ -8,7 +8,7 @@ from wepy.runners.openmm import (
 
 import simtk.openmm as omm
 
-from openmmtools.testsystems import LennardJonesPair
+from openmm_systems.test_systems import LennardJonesPair
 
 def test_runtime_platform():
     """Test that the platform can be changed at the time of the call to

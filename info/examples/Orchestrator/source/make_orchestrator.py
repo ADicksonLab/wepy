@@ -11,7 +11,7 @@ import simtk.unit as unit
 
 import mdtraj as mdj
 
-from openmmtools.testsystems import LennardJonesPair
+from openmm_systems.test_systems import LennardJonesPair
 
 # components for the apparatus
 from wepy.resampling.distances.distance import Distance
@@ -91,7 +91,7 @@ N_WALKERS = 48
 
 ## System and OpenMMRunner
 
-# make the test system from openmmtools
+# make the test system
 test_sys = LennardJonesPair()
 
 # make the integrator

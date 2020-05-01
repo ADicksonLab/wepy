@@ -408,15 +408,15 @@ def test_example(cx,
 
     for example in examples:
 
-        path = Path(DOCS_SPEC['EXAMPLES_DIR']) / example
+        path = example
 
         assert path.exists() and path.is_dir(), \
-            f"Example {example} doesn't exist"
+            f"Example {example.stem} doesn't exist at {path}"
 
         # TODO: add support for reports and such
         print("tag is ignored")
 
-        cx.run(f"pytest tests/test_docs/test_examples/test_{example}.py",
+        cx.run(f"pytest tests/test_docs/test_examples/test_{example.stem}.py",
                warn=True)
 
 @task
@@ -451,15 +451,15 @@ def test_tutorial(cx,
 
     for tutorial in tutorials:
 
-        path = Path(DOCS_SPEC['TUTORIALS_DIR']) / tutorial
+        path = tutorial
 
         assert path.exists() and path.is_dir(), \
-            f"Tutorial {tutorial} doesn't exist"
+            f"Tutorial {tutorial} doesn't exist at {path}"
 
         # TODO: add support for reports and such
         print("tag is ignored")
 
-        cx.run(f"pytest tests/test_docs/test_tutorials/test_{tutorial}.py",
+        cx.run(f"pytest tests/test_docs/test_tutorials/test_{tutorial.stem}.py",
                warn=True)
 
 @task
@@ -508,12 +508,13 @@ def pin_example(cx, name=None):
     else:
         examples = [name]
 
+    print(examples)
     for example in examples:
 
-        path = Path(DOCS_SPEC['EXAMPLES_DIR']) / example / 'env'
+        path = example / 'env'
 
         assert path.exists() and path.is_dir(), \
-            f"Example {name} doesn't exist"
+            f"Env for Example {example} doesn't exist"
 
         cx.run(f"inv env.deps-pin-path -p {path}")
 
@@ -527,10 +528,10 @@ def pin_tutorial(cx, name=None):
 
     for tutorial in tutorials:
 
-        path = Path(DOCS_SPEC['TUTORIALS_DIR']) / tutorial / 'env'
+        path = tutorial / 'env'
 
         assert path.exists() and path.is_dir(), \
-            f"Tutorial {name} doesn't exist"
+            f"Env for Tutorial {tutorial} doesn't exist"
 
         cx.run(f"inv env.deps-pin-path -p {path}")
 

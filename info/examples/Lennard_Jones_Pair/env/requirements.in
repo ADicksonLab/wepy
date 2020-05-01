@@ -5,9 +5,10 @@ ipython
 pdbpp
 invoke
 
+# TODO: set after release
 # wepy[all]==1.0.0rc1.dev0
-# .
 
 multiprocessing_logging
 numpy
 scipy
+mdtraj

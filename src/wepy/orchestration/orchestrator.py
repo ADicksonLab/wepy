@@ -1003,12 +1003,19 @@ class Orchestrator():
                                                                               mode=checkpoint_mode)
             logging.debug("finished initializing checkpoint database")
 
+
         # get the snapshot and the configuration to use for the sim_manager
         start_snapshot = self.get_snapshot(start_hash)
 
         # generate the simulation manager given the snapshot and the
         # configuration
         sim_manager = self.gen_sim_manager(start_snapshot, configuration)
+
+        # handle and process the optional arguments for running simulation
+        if 'runner' in configuration.apparatus_opts:
+            runner_opts = configuration.apparatus_opts['runner']
+        else:
+            runner_opts = None
 
         # run the init subroutine for the simulation manager
         logging.debug("Running sim_manager.init")
@@ -1027,7 +1034,7 @@ class Orchestrator():
                 walkers,
                 n_steps,
                 cycle_idx,
-                runner_opts=configuration.apparatus_opts['runner'],
+                runner_opts=runner_opts,
             )
 
             # check to see if a checkpoint is necessary

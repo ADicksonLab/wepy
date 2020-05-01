@@ -20,17 +20,18 @@ kiwisolver==1.2.0         # via matplotlib
 locket==0.2.0             # via partd
 markupsafe==1.1.1         # via jinja2
 matplotlib==3.2.1         # via -r ./requirements.in
-mdtraj==1.9.3             # via -r ./requirements.in
+mdtraj==1.9.3             # via -r ./requirements.in, openmm-systems
 multiprocessing-logging==0.3.1  # via -r ./requirements.in, -r info/examples/Lysozyme/env/requirements.in
 networkx==2.3             # via -r ./requirements.in
-numpy==1.18.3             # via -r ./requirements.in, geomm, h5py, matplotlib, mdtraj, pandas, scipy
+numpy==1.18.3             # via -r ./requirements.in, geomm, h5py, matplotlib, mdtraj, openmm-systems, pandas, scipy
+git+https://github.com/ADicksonLab/openmm_systems  # via -r ./requirements.in
 pandas==1.0.3             # via -r ./requirements.in
 partd==1.1.0              # via dask
 pint==0.11                # via -r ./requirements.in, geomm
 pyparsing==2.4.7          # via matplotlib
 python-dateutil==2.8.1    # via matplotlib, pandas
 pytz==2019.3              # via pandas
-scipy==1.4.1              # via -r ./requirements.in, geomm, mdtraj
+scipy==1.4.1              # via -r ./requirements.in, geomm, mdtraj, openmm-systems
 six==1.14.0               # via cycler, h5py, python-dateutil
 tabulate==0.8.7           # via -r ./requirements.in
 toolz==0.10.0             # via dask, partd

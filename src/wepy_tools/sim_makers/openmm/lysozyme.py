@@ -22,7 +22,7 @@ import mdtraj as mdj
 import numpy as np
 import simtk.unit as unit
 
-from openmmtools.testsystems import LysozymeImplicit
+from openmm_systems.test_systems import LysozymeImplicit
 
 class LysozymeImplicitOpenMMSimMaker(OpenMMToolsTestSysSimMaker):
 

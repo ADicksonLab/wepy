@@ -6,7 +6,7 @@ from copy import copy
 import simtk.openmm as omm
 import simtk.unit as unit
 
-from openmmtools.testsystems import LennardJonesPair
+from openmm_systems.test_systems import LennardJonesPair
 
 from wepy.resampling.resamplers.resampler import NoResampler
 from wepy.runners.openmm import OpenMMRunner, gen_walker_state

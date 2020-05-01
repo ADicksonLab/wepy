@@ -1,14 +1,11 @@
-
 * Installation
 
 
 To install from pip:
 
 #+BEGIN_SRC bash
-  pip install wepy[all]
+  pip install wepy
 #+END_SRC
-
-Which will install most dependencies.
 
 To install the optional, but likely desired feature, OpenMM you should
 probably just use the omnia channel on conda, otherwise you will need

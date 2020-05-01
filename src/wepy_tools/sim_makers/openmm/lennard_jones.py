@@ -5,7 +5,7 @@ from wepy.runners.openmm import GET_STATE_KWARG_DEFAULTS
 from wepy.resampling.distances.distance import Distance
 from wepy.boundary_conditions.receptor import UnbindingBC
 
-from openmmtools.testsystems import LennardJonesPair
+from openmm_systems.test_systems import LennardJonesPair
 
 from wepy_tools.sim_makers.openmm import OpenMMToolsTestSysSimMaker
 
