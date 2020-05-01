@@ -2,16 +2,25 @@ graft src
 graft info
 graft envs
 
+prune sphinx
+
+prune info/examples/*/_env
+prune info/examples/*/_output
+prune info/examples/*/_tangle_source
+
+prune info/tutorials/*/_env
+prune info/tutorials/*/_output
+prune info/tutorials/*/_tangle_source
+
 include AUTHORS.org
 include CHANGELOG.org
 include LICENSE
 include README.org
 
-include requirements.in
-
 include pyproject.toml
 
-global-exclude *.py[co] __pycache__ *.so
-
+include requirements.in
 include versioneer.py
+
+global-exclude *.py[co] __pycache__ *.so *~
 
