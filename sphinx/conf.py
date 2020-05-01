@@ -93,8 +93,6 @@ pygments_style = 'manni'
 
 # -- Options for HTML output -------------------------------------------------
 
-### Alabaster
-
 html_theme = "alabaster"
 
 html_theme_options = {
@@ -115,7 +113,6 @@ html_theme_options = {
     'sidebar_width' : '20%',
     'sidebar_collapse' : True,
     'show_relbars' : True,
-    # 'pre_bg': '#433e56'
 }
 
 html_static_path = ['_static']
@@ -130,45 +127,6 @@ html_sidebars = {
         'donate.html',
     ]
 }
-
-### END Alabaster
-
-### guzzle
-# import guzzle_sphinx_theme
-
-# html_theme_path = guzzle_sphinx_theme.html_theme_path()
-# html_theme = 'guzzle_sphinx_theme'
-
-# # Register the theme as an extension to generate a sitemap.xml
-# extensions.append("guzzle_sphinx_theme")
-
-# # Guzzle theme options (see theme.conf for more information)
-# html_theme_options = {
-#     # Set the name of the project to appear in the sidebar
-#     "project_nav_name": "Wepy",
-#     'base_url' : 'https://adicksonlab.github.io/wepy/',
-# }
-
-# # Theme options are theme-specific and customize the look and feel of a theme
-# # further.  For a list of options available for each theme, see the
-# # documentation.
-# #
-# # html_theme_options = {}
-
-# # Add any paths that contain custom static files (such as style sheets) here,
-# # relative to this directory. They are copied after the builtin static files,
-# # so a file named "default.css" will overwrite the builtin "default.css".
-# html_static_path = ['_static']
-
-# html_sidebars = {
-#     '**': ['logo-text.html',
-#            'globaltoc.html',
-#            'localtoc.html',
-#            'searchbox.html']
-# }
-
-### END Guzzle
-
 
 # -- Options for HTMLHelp output ---------------------------------------------
 
