@@ -40,12 +40,3 @@ flake8
 
 # need this for using multiprocessing logging in the tests
 multiprocessing_logging
-
-
-
-# modules just for tests
-
-# Geomm
-
-# for the test systems we use openmmtools
-# git+https://github.com/choderalab/openmmtools.git

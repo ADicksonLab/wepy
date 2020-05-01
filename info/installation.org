@@ -31,14 +31,14 @@ There are some optional features you can install as well using the
 but lacks a lot of functionality that makes ~wepy~ useful for
 molecular dynamics. Currently, these are:
 
-- mdtraj :: allows export of structures to the mdtraj format which has
-            many writers for serialization, e.g. pdb, dcd, etc.
+- md :: extra packages for molecular dynamics
+- distributed :: extra packages to allow for distributed analysis
 - all :: installs all extras
 
 Check the setup.py file under ~extras_requirements~ for the full listing.
 
 #+BEGIN_SRC bash
-pip install wepy[mdtraj]
+pip install wepy[md]
 #+END_SRC
 
 You can always install from git as well for the latest:

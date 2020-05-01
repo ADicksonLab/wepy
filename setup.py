@@ -37,13 +37,16 @@ base_requirements = [
 ]
 
 # extras requirements list
-mdtraj_requirements = ['mdtraj']
+md_requirements = [
+    'mdtraj',
+    'openmm_systems==0.0.0',
+]
 distributed_requirements = ['dask[bag]']
 
 # # combination of all the extras requirements
 all_requirements = list(it.chain.from_iterable([
     base_requirements,
-    mdtraj_requirements,
+    md_requirements,
     distributed_requirements,
 ]))
 

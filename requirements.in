@@ -20,3 +20,4 @@ mdtraj
 dask[bag]
 
 git+https://github.com/ADicksonLab/geomm
+git+https://github.com/ADicksonLab/openmm_systems
