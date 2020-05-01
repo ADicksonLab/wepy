@@ -497,6 +497,7 @@ and not:
       table = rf.read()
 #+end_src
 
+
 **** Testing Documentation
 
 There is a folder just for tests that target the docs
@@ -504,7 +505,17 @@ There is a folder just for tests that target the docs
 
 #+begin_src bash
   inv docs.tangle
-  inv docs.test
+  inv docs.test-example
+  inv docs.test-tutorial
+  inv docs.test-pages
+#+end_src
+
+See these targets for more fine-grained tests or to run them using
+~nox~ for the python version matrix or just to have a more minimal and
+reproducible test environment.
+
+#+begin_src bash
+inv -l | grep docs.test
 #+end_src
 
 **** Building Documentation
@@ -605,8 +616,10 @@ to your working branch.
 The invoke target is:
 
 #+begin_src bash
-inv website-deploy
+inv docs.website-deploy
 #+end_src
+
+
 
 *** Testing
 
@@ -622,65 +635,30 @@ This will write files to ~metrics~.
 
 *** Releases
 
-**** Choosing a version number
+The typical pre-requisites for a release are that:
 
-***** Primordial Epoch
+- the documentation has been updated and tested
+- the tests have been run and results are recorded
+- the quality metrics have been run and are recorded
+- the changelog has been written
 
-In the pre-covenant releases (think "1.0" release) we just release
-based on the date. So just make the date string and add any release
-candidate, dev, or postrelease additions.
+Making a release then follows these steps:
 
-***** Covenental Epoch
-
-After the primordial epoch we have a more semantic meaning behind
-version numbers.
-
-Following PEP 440 epochs these should all be prefixed by '1!' for the
-second epoch.
-
-Otherwise versions should be "canonical" strings following the
-guidelines in PEP 440.
-
-That means we support roughly:
-
-- semver-ish major, minor, and patch parts
-- release candidates
-- dev
-- post release "patches"
-
-However, we don't prescribe explicit semantics to any of the parts as
-this is highly variable depending on the needs of a project and the
-forums by which it is published (e.g. PyPI, Github, etc.).
-
+1. test the build
+2. make a pre-release build and publish
+3. make the release build and publish
+4. build and publish documentation, website, etc.
 
 **** Writing and/or Generating the Changelog and Announcement
-**** Changing the version number
 
-You can check the current version number with this command:
+Simply go into the ~info/changelog.org~ file and write it.
 
-#+begin_src bash
-inv py.version-which
-#+end_src
+There are conventions here per-project. Follow them.
 
-Increase the version number we currently do it by hand (although an
-automatic way would be nice and ~bumpversion~ wasn't working for
-us). So go in and manually edit them. For reference see PEP 440 for
-valid ones.
+**** Choosing a version number
 
-The target locations for changing versions are in the following files:
-
-- [ ] ~setup.py~
-- [ ] ~src/{{ cookiecutter.project_slug }}/__init__.py~
-- [ ] ~tasks/config.py~
-- [ ] ~sphinx/conf.py~
-- [ ] ~conda/conda-forge/meta.yaml~ (optional)
-
-# IDEA: would like to have this done automatically with some
-# replacement but I need a robust way to do this. Preferrably not
-# using regexs, and still with some interactive intervention and
-# confirmation of correctness
-
-**** Making the release official
+There are some semantics around changing the version number beyond the
+'semver' sense of the 'v.X.Y.Z' meanings.
 
 To make a release do some changes and make sure they are fully tested
 and functional and commit them in version control. At this point you
@@ -694,21 +672,70 @@ commit. Then tag the 'dev' release.
 If you intend to make a non-dev release you will first want to test it
 out a little bit with a release-candidate prerelease.
 
-So do all the following bookeeping steps in a single but separate git
-commit from the actual changes to the code:
 
-- [ ] write the changelog
-- [ ] write the announcement (optional)
-- [ ] change the version numbers
-- [ ] build to test it out ~inv build~
+**** Changing the version number
 
-To test a build go ahead and run:
+You can check the current version number with this command:
+
+#+begin_src bash
+inv py.version-which
+#+end_src
+
+The places where an actual version are needed are:
+
+- ~setup.py~
+- ~sphinx/conf.py~
+- ~src/package/__init__.py~
+- ~tasks/config.py~
+- ~conda/conda-forge/meta.yaml~ (optional)
+- the git tag
+
+The ~setup.py~ and ~src/package/__init__.py~ version is handled by
+~versioneer~ using the git tag for the release. This allows for
+fine-grained versions using git hashes on "dirty" releases.
+
+The ~sphinx/conf.py~ just gets the current version from ~__init__.py~
+so it is also downstream of versioneer.
+
+So currently only the ~tasks/config.py~ and conda versions need to be
+updated manually.
+
+In this project we never like to initiate configuration tasks at the
+REPL/shell so we never actually run ~git tag~ under normal
+circumstances.
+
+Instead we configure the desired version "bump" in one place
+~tasks/config.py~ and then generate the rest downstream through
+~invoke~ endpoints.
+
+So simply edit the ~tasks/config.py~ ~VERSION~ variable and then run:
+
+#+begin_src bash
+inv git.release
+#+end_src
+
+Which will write the git tag in the correct format. ~versioneer~ takes
+over from there.
+
+Here then is the checklist of manually edited versions (currently the
+conda packaging stuff is not supported):
+
+- [ ] ~tasks/config.py~
+- [ ] ~inv git.release~
+
+Changing the version may happen a few times through the release
+process in order to debug wrinkles in the process so its useful to
+have this workflow in mind.
+
+**** Release Process
+
+***** Testing the build
+
+To test a build with whatever work you have go ahead and run:
 
 #+begin_src bash
 inv py.build
 #+end_src
-
-# TODO: add a test builds target
 
 And then try to install it from an empty environment:
 
@@ -734,11 +761,32 @@ then run it for each build, e.g.:
 pip install dist/BUILD.tar.gz
 #+end_src
 
-They should all succeed.
+They should all succeed. You should also test the installation somehow
+so that we know that we got the dependencies correct.
 
+***** Making the Pre-Release
 
-When you change the version number put a 'rc0' at the end of
-the new intended (semantic) number.
+All releases should be preceded by a release candidate just to make
+sure the process is working as intended.
+
+So after this testing of your potentially "dirty" tree (which is
+anything that is not equal to a 'vX.Y.Z.etc' git tag) change the
+versions to have 'rc0' at the end of the new intended
+(semantic) number, e.g. ~v1.0.0.rc0~.
+
+Then go ahead and commit the changes with a message like this:
+
+#+begin_src fundamental
+1.0.0rc0 release preparation
+#+end_src
+
+Then do the git release (just tags it doesn't 'publish' it) and
+rebuild before doing the next steps:
+
+#+begin_src bash
+inv git.release
+inv py.build
+#+end_src
 
 Once you have built it and nothing is wrong go ahead and publish it to
 the test indexes (if available):
@@ -753,24 +801,10 @@ You can test that it works from the index using the same
 And install the package from the test repo with no dependencies:
 
 #+begin_src bash
-pip install --index-url https://test.pypi.org/simple/ --no-deps {{cookiecutter.project_name}}-{{cookiecutter.owner_nickname}}
+pip install --index-url https://test.pypi.org/simple/ --no-deps package
 #+end_src
 
-# QUEST: should this message be the release message we want for the VCS
-# repos to show or should we just point them to the changelog?
-
-Then go ahead and commit the changes after that works. The message
-should follow a fixed form like 
-
-#+begin_src fundamental
-1.0.0rc0 release preparation
-#+end_src
-
-Then you can tag the release in the ~git~ commit history:
-
-#+begin_src bash
-inv git.release
-#+end_src
+Then you can publish this pre-release build.
 
 Publishing the results will vary but you can start with publishing the
 package to PyPI and the VCS hosts with the real publish target:
@@ -778,6 +812,21 @@ package to PyPI and the VCS hosts with the real publish target:
 #+begin_src bash
 inv git.publish
 inv py.publish
+#+end_src
+
+
+***** The final public release
+
+Edit the version number to something clean that won't be hidden on
+PyPI etc.
+
+Then:
+
+#+begin_src bash
+inv git.release
+inv py.build
+inv py.publish
+inv git.publish
 #+end_src
 
 
