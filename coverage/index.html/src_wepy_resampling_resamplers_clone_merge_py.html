@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=emulateIE7" />
+    <title>Coverage for src/wepy/resampling/resamplers/clone_merge.py: 28%</title>
+    <link rel="stylesheet" href="style.css" type="text/css">
+    <script type="text/javascript" src="jquery.min.js"></script>
+    <script type="text/javascript" src="jquery.hotkeys.js"></script>
+    <script type="text/javascript" src="jquery.isonscreen.js"></script>
+    <script type="text/javascript" src="coverage_html.js"></script>
+    <script type="text/javascript">
+        jQuery(document).ready(coverage.pyfile_ready);
+    </script>
+</head>
+<body class="pyfile">
+<div id="header">
+    <div class="content">
+        <h1>Coverage for <b>src/wepy/resampling/resamplers/clone_merge.py</b> :
+            <span class="pc_cov">28%</span>
+        </h1>
+        <img id="keyboard_icon" src="keybd_closed.png" alt="Show keyboard shortcuts" />
+        <h2 class="stats">
+            53 statements &nbsp;
+            <span class="run shortkey_r button_toggle_run">15 run</span>
+            <span class="mis show_mis shortkey_m button_toggle_mis">38 missing</span>
+            <span class="exc show_exc shortkey_x button_toggle_exc">0 excluded</span>
+        </h2>
+    </div>
+</div>
+<div class="help_panel">
+    <img id="panel_icon" src="keybd_open.png" alt="Hide keyboard shortcuts" />
+    <p class="legend">Hot-keys on this page</p>
+    <div>
+    <p class="keyhelp">
+        <span class="key">r</span>
+        <span class="key">m</span>
+        <span class="key">x</span>
+        <span class="key">p</span> &nbsp; toggle line displays
+    </p>
+    <p class="keyhelp">
+        <span class="key">j</span>
+        <span class="key">k</span> &nbsp; next/prev highlighted chunk
+    </p>
+    <p class="keyhelp">
+        <span class="key">0</span> &nbsp; (zero) top of page
+    </p>
+    <p class="keyhelp">
+        <span class="key">1</span> &nbsp; (one) first highlighted chunk
+    </p>
+    </div>
+</div>
+<div id="source">
+    <p id="t1" class="run"><span class="n"><a href="#t1">1</a></span><span class="t"><span class="key">import</span> <span class="nam">numpy</span> <span class="key">as</span> <span class="nam">np</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t2" class="pln"><span class="n"><a href="#t2">2</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p id="t3" class="run"><span class="n"><a href="#t3">3</a></span><span class="t"><span class="key">from</span> <span class="nam">wepy</span><span class="op">.</span><span class="nam">resampling</span><span class="op">.</span><span class="nam">resamplers</span><span class="op">.</span><span class="nam">resampler</span> <span class="key">import</span> <span class="nam">Resampler</span><span class="op">,</span> <span class="nam">ResamplerError</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t4" class="run"><span class="n"><a href="#t4">4</a></span><span class="t"><span class="key">from</span> <span class="nam">wepy</span><span class="op">.</span><span class="nam">resampling</span><span class="op">.</span><span class="nam">decisions</span><span class="op">.</span><span class="nam">clone_merge</span> <span class="key">import</span> <span class="nam">MultiCloneMergeDecision</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t5" class="pln"><span class="n"><a href="#t5">5</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p id="t6" class="pln"><span class="n"><a href="#t6">6</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p id="t7" class="run"><span class="n"><a href="#t7">7</a></span><span class="t"><span class="key">class</span> <span class="nam">CloneMergeResampler</span><span class="op">(</span><span class="nam">Resampler</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t8" class="pln"><span class="n"><a href="#t8">8</a></span><span class="t">    <span class="str">"""Abstract base class for resamplers using the clone-merge decision</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t9" class="pln"><span class="n"><a href="#t9">9</a></span><span class="t"><span class="str">    class.</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t10" class="pln"><span class="n"><a href="#t10">10</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p id="t11" class="pln"><span class="n"><a href="#t11">11</a></span><span class="t"><span class="str">    Provides some common functionality including handling minimum and</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t12" class="pln"><span class="n"><a href="#t12">12</a></span><span class="t"><span class="str">    maximum numbers of walkers and checking constraints on that.</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t13" class="pln"><span class="n"><a href="#t13">13</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p id="t14" class="pln"><span class="n"><a href="#t14">14</a></span><span class="t"><span class="str">    The 'assign_clones' method is a convenience method for generating</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t15" class="pln"><span class="n"><a href="#t15">15</a></span><span class="t"><span class="str">    decision records from two intermediate representation data</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t16" class="pln"><span class="n"><a href="#t16">16</a></span><span class="t"><span class="str">    structures which are convenient to produce: merge_groups and</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t17" class="pln"><span class="n"><a href="#t17">17</a></span><span class="t"><span class="str">    walker_clone_nums. See the docstring for more details on the</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t18" class="pln"><span class="n"><a href="#t18">18</a></span><span class="t"><span class="str">    format of these.</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t19" class="pln"><span class="n"><a href="#t19">19</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p id="t20" class="pln"><span class="n"><a href="#t20">20</a></span><span class="t"><span class="str">    """</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t21" class="pln"><span class="n"><a href="#t21">21</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p id="t22" class="run"><span class="n"><a href="#t22">22</a></span><span class="t">    <span class="nam">DECISION</span> <span class="op">=</span> <span class="nam">MultiCloneMergeDecision</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t23" class="pln"><span class="n"><a href="#t23">23</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p id="t24" class="run"><span class="n"><a href="#t24">24</a></span><span class="t">    <span class="nam">RESAMPLING_FIELDS</span> <span class="op">=</span> <span class="nam">DECISION</span><span class="op">.</span><span class="nam">FIELDS</span> <span class="op">+</span> <span class="nam">Resampler</span><span class="op">.</span><span class="nam">CYCLE_FIELDS</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t25" class="run"><span class="n"><a href="#t25">25</a></span><span class="t">    <span class="nam">RESAMPLING_SHAPES</span> <span class="op">=</span> <span class="nam">DECISION</span><span class="op">.</span><span class="nam">SHAPES</span> <span class="op">+</span> <span class="nam">Resampler</span><span class="op">.</span><span class="nam">CYCLE_SHAPES</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t26" class="run"><span class="n"><a href="#t26">26</a></span><span class="t">    <span class="nam">RESAMPLING_DTYPES</span> <span class="op">=</span> <span class="nam">DECISION</span><span class="op">.</span><span class="nam">DTYPES</span> <span class="op">+</span> <span class="nam">Resampler</span><span class="op">.</span><span class="nam">CYCLE_DTYPES</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t27" class="pln"><span class="n"><a href="#t27">27</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p id="t28" class="run"><span class="n"><a href="#t28">28</a></span><span class="t">    <span class="nam">RESAMPLING_RECORD_FIELDS</span> <span class="op">=</span> <span class="nam">DECISION</span><span class="op">.</span><span class="nam">RECORD_FIELDS</span> <span class="op">+</span> <span class="nam">Resampler</span><span class="op">.</span><span class="nam">CYCLE_RECORD_FIELDS</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t29" class="pln"><span class="n"><a href="#t29">29</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p id="t30" class="run"><span class="n"><a href="#t30">30</a></span><span class="t">    <span class="key">def</span> <span class="nam">__init__</span><span class="op">(</span><span class="nam">self</span><span class="op">,</span> <span class="nam">pmin</span><span class="op">=</span><span class="num">1e-12</span><span class="op">,</span> <span class="nam">pmax</span><span class="op">=</span><span class="num">0.1</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t31" class="pln"><span class="n"><a href="#t31">31</a></span><span class="t">                 <span class="nam">min_num_walkers</span><span class="op">=</span><span class="nam">Ellipsis</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t32" class="pln"><span class="n"><a href="#t32">32</a></span><span class="t">                 <span class="nam">max_num_walkers</span><span class="op">=</span><span class="nam">Ellipsis</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t33" class="pln"><span class="n"><a href="#t33">33</a></span><span class="t">                 <span class="op">**</span><span class="nam">kwargs</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t34" class="pln"><span class="n"><a href="#t34">34</a></span><span class="t">        <span class="str">"""Constructor for CloneMegerResampler class.</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t35" class="pln"><span class="n"><a href="#t35">35</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p id="t36" class="pln"><span class="n"><a href="#t36">36</a></span><span class="t"><span class="str">        Parameters</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t37" class="pln"><span class="n"><a href="#t37">37</a></span><span class="t"><span class="str">        ----------</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t38" class="pln"><span class="n"><a href="#t38">38</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p id="t39" class="pln"><span class="n"><a href="#t39">39</a></span><span class="t"><span class="str">        pmin : float</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t40" class="pln"><span class="n"><a href="#t40">40</a></span><span class="t"><span class="str">            The minimum probability any walker is allowed to have.</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t41" class="pln"><span class="n"><a href="#t41">41</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p id="t42" class="pln"><span class="n"><a href="#t42">42</a></span><span class="t"><span class="str">        pmax : float</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t43" class="pln"><span class="n"><a href="#t43">43</a></span><span class="t"><span class="str">            The maximum probability any walker is allowed to have.</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t44" class="pln"><span class="n"><a href="#t44">44</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p id="t45" class="pln"><span class="n"><a href="#t45">45</a></span><span class="t"><span class="str">        """</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t46" class="pln"><span class="n"><a href="#t46">46</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p id="t47" class="mis show_mis"><span class="n"><a href="#t47">47</a></span><span class="t">        <span class="nam">super</span><span class="op">(</span><span class="op">)</span><span class="op">.</span><span class="nam">__init__</span><span class="op">(</span><span class="nam">min_num_walkers</span><span class="op">=</span><span class="nam">min_num_walkers</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t48" class="pln"><span class="n"><a href="#t48">48</a></span><span class="t">                         <span class="nam">max_num_walkers</span><span class="op">=</span><span class="nam">max_num_walkers</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t49" class="pln"><span class="n"><a href="#t49">49</a></span><span class="t">                         <span class="op">**</span><span class="nam">kwargs</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t50" class="pln"><span class="n"><a href="#t50">50</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p id="t51" class="mis show_mis"><span class="n"><a href="#t51">51</a></span><span class="t">        <span class="nam">self</span><span class="op">.</span><span class="nam">_pmin</span><span class="op">=</span><span class="nam">pmin</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t52" class="mis show_mis"><span class="n"><a href="#t52">52</a></span><span class="t">        <span class="nam">self</span><span class="op">.</span><span class="nam">_pmax</span><span class="op">=</span><span class="nam">pmax</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t53" class="pln"><span class="n"><a href="#t53">53</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p id="t54" class="run"><span class="n"><a href="#t54">54</a></span><span class="t">    <span class="op">@</span><span class="nam">property</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t55" class="pln"><span class="n"><a href="#t55">55</a></span><span class="t">    <span class="key">def</span> <span class="nam">pmin</span><span class="op">(</span><span class="nam">self</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t56" class="mis show_mis"><span class="n"><a href="#t56">56</a></span><span class="t">        <span class="key">return</span> <span class="nam">self</span><span class="op">.</span><span class="nam">_pmin</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t57" class="pln"><span class="n"><a href="#t57">57</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p id="t58" class="run"><span class="n"><a href="#t58">58</a></span><span class="t">    <span class="op">@</span><span class="nam">property</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t59" class="pln"><span class="n"><a href="#t59">59</a></span><span class="t">    <span class="key">def</span> <span class="nam">pmax</span><span class="op">(</span><span class="nam">self</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t60" class="mis show_mis"><span class="n"><a href="#t60">60</a></span><span class="t">        <span class="key">return</span> <span class="nam">self</span><span class="op">.</span><span class="nam">_pmax</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t61" class="pln"><span class="n"><a href="#t61">61</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p id="t62" class="pln"><span class="n"><a href="#t62">62</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p id="t63" class="run"><span class="n"><a href="#t63">63</a></span><span class="t">    <span class="key">def</span> <span class="nam">_init_walker_actions</span><span class="op">(</span><span class="nam">self</span><span class="op">,</span> <span class="nam">n_walkers</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t64" class="pln"><span class="n"><a href="#t64">64</a></span><span class="t">        <span class="str">"""Returns a list of default resampling records for a single</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t65" class="pln"><span class="n"><a href="#t65">65</a></span><span class="t"><span class="str">        resampling step.</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t66" class="pln"><span class="n"><a href="#t66">66</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p id="t67" class="pln"><span class="n"><a href="#t67">67</a></span><span class="t"><span class="str">        Parameters</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t68" class="pln"><span class="n"><a href="#t68">68</a></span><span class="t"><span class="str">        ----------</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t69" class="pln"><span class="n"><a href="#t69">69</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p id="t70" class="pln"><span class="n"><a href="#t70">70</a></span><span class="t"><span class="str">        n_walkers : int</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t71" class="pln"><span class="n"><a href="#t71">71</a></span><span class="t"><span class="str">            The number of walkers to generate records for</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t72" class="pln"><span class="n"><a href="#t72">72</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p id="t73" class="pln"><span class="n"><a href="#t73">73</a></span><span class="t"><span class="str">        Returns</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t74" class="pln"><span class="n"><a href="#t74">74</a></span><span class="t"><span class="str">        -------</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t75" class="pln"><span class="n"><a href="#t75">75</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p id="t76" class="pln"><span class="n"><a href="#t76">76</a></span><span class="t"><span class="str">        decision_records : list of dict of str: value</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t77" class="pln"><span class="n"><a href="#t77">77</a></span><span class="t"><span class="str">            A list of default decision records for one step of</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t78" class="pln"><span class="n"><a href="#t78">78</a></span><span class="t"><span class="str">            resampling.</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t79" class="pln"><span class="n"><a href="#t79">79</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p id="t80" class="pln"><span class="n"><a href="#t80">80</a></span><span class="t"><span class="str">        """</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t81" class="pln"><span class="n"><a href="#t81">81</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p id="t82" class="pln"><span class="n"><a href="#t82">82</a></span><span class="t">        <span class="com"># determine resampling actions</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t83" class="mis show_mis"><span class="n"><a href="#t83">83</a></span><span class="t">        <span class="nam">walker_actions</span> <span class="op">=</span> <span class="op">[</span><span class="nam">self</span><span class="op">.</span><span class="nam">decision</span><span class="op">.</span><span class="nam">record</span><span class="op">(</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t84" class="pln"><span class="n"><a href="#t84">84</a></span><span class="t">                                <span class="nam">enum_value</span><span class="op">=</span><span class="nam">self</span><span class="op">.</span><span class="nam">decision</span><span class="op">.</span><span class="nam">default_decision</span><span class="op">(</span><span class="op">)</span><span class="op">.</span><span class="nam">value</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t85" class="pln"><span class="n"><a href="#t85">85</a></span><span class="t">                                <span class="nam">target_idxs</span><span class="op">=</span><span class="op">(</span><span class="nam">i</span><span class="op">,</span><span class="op">)</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t86" class="pln"><span class="n"><a href="#t86">86</a></span><span class="t">                    <span class="key">for</span> <span class="nam">i</span> <span class="key">in</span> <span class="nam">range</span><span class="op">(</span><span class="nam">n_walkers</span><span class="op">)</span><span class="op">]</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t87" class="pln"><span class="n"><a href="#t87">87</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p id="t88" class="mis show_mis"><span class="n"><a href="#t88">88</a></span><span class="t">        <span class="key">return</span> <span class="nam">walker_actions</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t89" class="pln"><span class="n"><a href="#t89">89</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p id="t90" class="run"><span class="n"><a href="#t90">90</a></span><span class="t">    <span class="key">def</span> <span class="nam">_check_resampled_walkers</span><span class="op">(</span><span class="nam">self</span><span class="op">,</span> <span class="nam">resampled_walkers</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t91" class="pln"><span class="n"><a href="#t91">91</a></span><span class="t">        <span class="str">"""Check constraints on resampled walkers.</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t92" class="pln"><span class="n"><a href="#t92">92</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p id="t93" class="pln"><span class="n"><a href="#t93">93</a></span><span class="t"><span class="str">        Raises errors when constraints are violated.</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t94" class="pln"><span class="n"><a href="#t94">94</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p id="t95" class="pln"><span class="n"><a href="#t95">95</a></span><span class="t"><span class="str">        Parameters</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t96" class="pln"><span class="n"><a href="#t96">96</a></span><span class="t"><span class="str">        ----------</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t97" class="pln"><span class="n"><a href="#t97">97</a></span><span class="t"><span class="str">        resampled_walkers : list of Walker objects</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t98" class="pln"><span class="n"><a href="#t98">98</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p id="t99" class="pln"><span class="n"><a href="#t99">99</a></span><span class="t"><span class="str">        """</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t100" class="pln"><span class="n"><a href="#t100">100</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p id="t101" class="mis show_mis"><span class="n"><a href="#t101">101</a></span><span class="t">        <span class="nam">walker_weights</span> <span class="op">=</span> <span class="nam">np</span><span class="op">.</span><span class="nam">array</span><span class="op">(</span><span class="op">[</span><span class="nam">walker</span><span class="op">.</span><span class="nam">weight</span> <span class="key">for</span> <span class="nam">walker</span> <span class="key">in</span> <span class="nam">resampled_walkers</span><span class="op">]</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t102" class="pln"><span class="n"><a href="#t102">102</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p id="t103" class="pln"><span class="n"><a href="#t103">103</a></span><span class="t">        <span class="com"># check that all of the weights are less than or equal to the pmax</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t104" class="mis show_mis"><span class="n"><a href="#t104">104</a></span><span class="t">        <span class="nam">overweight_walker_idxs</span> <span class="op">=</span> <span class="nam">np</span><span class="op">.</span><span class="nam">where</span><span class="op">(</span><span class="nam">walker_weights</span> <span class="op">></span> <span class="nam">self</span><span class="op">.</span><span class="nam">pmax</span><span class="op">)</span><span class="op">[</span><span class="num">0</span><span class="op">]</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t105" class="mis show_mis"><span class="n"><a href="#t105">105</a></span><span class="t">        <span class="key">if</span> <span class="nam">len</span><span class="op">(</span><span class="nam">overweight_walker_idxs</span><span class="op">)</span> <span class="op">></span> <span class="num">0</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t106" class="pln"><span class="n"><a href="#t106">106</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p id="t107" class="mis show_mis"><span class="n"><a href="#t107">107</a></span><span class="t">            <span class="key">raise</span> <span class="nam">ResamplerError</span><span class="op">(</span><span class="str">"All walker weights must be less than the pmax, "</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t108" class="pln"><span class="n"><a href="#t108">108</a></span><span class="t">                                 <span class="str">"walkers {} are all overweight"</span><span class="op">.</span><span class="nam">format</span><span class="op">(</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t109" class="pln"><span class="n"><a href="#t109">109</a></span><span class="t">                                     <span class="str">','</span><span class="op">.</span><span class="nam">join</span><span class="op">(</span><span class="op">[</span><span class="nam">str</span><span class="op">(</span><span class="nam">i</span><span class="op">)</span> <span class="key">for</span> <span class="nam">i</span> <span class="key">in</span> <span class="nam">overweight_walker_idxs</span><span class="op">]</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t110" class="pln"><span class="n"><a href="#t110">110</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p id="t111" class="pln"><span class="n"><a href="#t111">111</a></span><span class="t">        <span class="com"># check that all walkers are greater than or equal to the pmin</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t112" class="mis show_mis"><span class="n"><a href="#t112">112</a></span><span class="t">        <span class="nam">underweight_walker_idxs</span> <span class="op">=</span> <span class="nam">np</span><span class="op">.</span><span class="nam">where</span><span class="op">(</span><span class="nam">walker_weights</span> <span class="op">&lt;</span> <span class="nam">self</span><span class="op">.</span><span class="nam">pmin</span><span class="op">)</span><span class="op">[</span><span class="num">0</span><span class="op">]</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t113" class="mis show_mis"><span class="n"><a href="#t113">113</a></span><span class="t">        <span class="key">if</span> <span class="nam">len</span><span class="op">(</span><span class="nam">underweight_walker_idxs</span><span class="op">)</span> <span class="op">></span> <span class="num">0</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t114" class="pln"><span class="n"><a href="#t114">114</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p id="t115" class="mis show_mis"><span class="n"><a href="#t115">115</a></span><span class="t">            <span class="key">raise</span> <span class="nam">ResamplerError</span><span class="op">(</span><span class="str">"All walker weights must be greater than the pmin, "</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t116" class="pln"><span class="n"><a href="#t116">116</a></span><span class="t">                                 <span class="str">"walkers {} are all underweight"</span><span class="op">.</span><span class="nam">format</span><span class="op">(</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t117" class="pln"><span class="n"><a href="#t117">117</a></span><span class="t">                                     <span class="str">','</span><span class="op">.</span><span class="nam">join</span><span class="op">(</span><span class="op">[</span><span class="nam">str</span><span class="op">(</span><span class="nam">i</span><span class="op">)</span> <span class="key">for</span> <span class="nam">i</span> <span class="key">in</span> <span class="nam">underweight_walker_idxs</span><span class="op">]</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t118" class="pln"><span class="n"><a href="#t118">118</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p id="t119" class="pln"><span class="n"><a href="#t119">119</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p id="t120" class="pln"><span class="n"><a href="#t120">120</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p id="t121" class="run"><span class="n"><a href="#t121">121</a></span><span class="t">    <span class="key">def</span> <span class="nam">assign_clones</span><span class="op">(</span><span class="nam">self</span><span class="op">,</span> <span class="nam">merge_groups</span><span class="op">,</span> <span class="nam">walker_clone_nums</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t122" class="pln"><span class="n"><a href="#t122">122</a></span><span class="t">        <span class="str">"""Convert two convenient data structures to a list of almost</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t123" class="pln"><span class="n"><a href="#t123">123</a></span><span class="t"><span class="str">        normalized resampling records.</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t124" class="pln"><span class="n"><a href="#t124">124</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p id="t125" class="pln"><span class="n"><a href="#t125">125</a></span><span class="t"><span class="str">        The two data structures are merge_groups and walker_clone_nums</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t126" class="pln"><span class="n"><a href="#t126">126</a></span><span class="t"><span class="str">        and are convenient to make.</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t127" class="pln"><span class="n"><a href="#t127">127</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p id="t128" class="pln"><span class="n"><a href="#t128">128</a></span><span class="t"><span class="str">        Each is a list with number of elements equal to the number of</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t129" class="pln"><span class="n"><a href="#t129">129</a></span><span class="t"><span class="str">        walkers that resampling will act on.</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t130" class="pln"><span class="n"><a href="#t130">130</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p id="t131" class="pln"><span class="n"><a href="#t131">131</a></span><span class="t"><span class="str">        Each element of the merge_groups is a list-like of integers</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t132" class="pln"><span class="n"><a href="#t132">132</a></span><span class="t"><span class="str">        indicating the indices of the walkers that will be merged into</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t133" class="pln"><span class="n"><a href="#t133">133</a></span><span class="t"><span class="str">        this one (i.e. squashed). A non-empty collection indicates a</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t134" class="pln"><span class="n"><a href="#t134">134</a></span><span class="t"><span class="str">        KEEP_MERGE decision.</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t135" class="pln"><span class="n"><a href="#t135">135</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p id="t136" class="pln"><span class="n"><a href="#t136">136</a></span><span class="t"><span class="str">        Each element of the walker_clone_nums is simply an integer</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t137" class="pln"><span class="n"><a href="#t137">137</a></span><span class="t"><span class="str">        specifying how many clones to make of this walker.</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t138" class="pln"><span class="n"><a href="#t138">138</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p id="t139" class="pln"><span class="n"><a href="#t139">139</a></span><span class="t"><span class="str">        These data structures simply declare requirements on what the</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t140" class="pln"><span class="n"><a href="#t140">140</a></span><span class="t"><span class="str">        actual decision records must achieve. The actual placement of</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t141" class="pln"><span class="n"><a href="#t141">141</a></span><span class="t"><span class="str">        walkers in slots (indices) is unspecified and immaterial.</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t142" class="pln"><span class="n"><a href="#t142">142</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p id="t143" class="pln"><span class="n"><a href="#t143">143</a></span><span class="t"><span class="str">        Parameters</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t144" class="pln"><span class="n"><a href="#t144">144</a></span><span class="t"><span class="str">        ----------</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t145" class="pln"><span class="n"><a href="#t145">145</a></span><span class="t"><span class="str">        merge_groups : list of list of int</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t146" class="pln"><span class="n"><a href="#t146">146</a></span><span class="t"><span class="str">            The specification of which walkers will be squashed and merged.</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t147" class="pln"><span class="n"><a href="#t147">147</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p id="t148" class="pln"><span class="n"><a href="#t148">148</a></span><span class="t"><span class="str">        walker_clone_nums : list of int</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t149" class="pln"><span class="n"><a href="#t149">149</a></span><span class="t"><span class="str">            The number of clones to make for each walker.</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t150" class="pln"><span class="n"><a href="#t150">150</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p id="t151" class="pln"><span class="n"><a href="#t151">151</a></span><span class="t"><span class="str">        Returns</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t152" class="pln"><span class="n"><a href="#t152">152</a></span><span class="t"><span class="str">        -------</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t153" class="pln"><span class="n"><a href="#t153">153</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p id="t154" class="pln"><span class="n"><a href="#t154">154</a></span><span class="t"><span class="str">        walker_actions : list of dict of str: values</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t155" class="pln"><span class="n"><a href="#t155">155</a></span><span class="t"><span class="str">            List of resampling record like dictionaries. These are not</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t156" class="pln"><span class="n"><a href="#t156">156</a></span><span class="t"><span class="str">            completely normalized for consumption by reporters, since</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t157" class="pln"><span class="n"><a href="#t157">157</a></span><span class="t"><span class="str">            they don't have the right list-like wrappers.</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t158" class="pln"><span class="n"><a href="#t158">158</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p id="t159" class="pln"><span class="n"><a href="#t159">159</a></span><span class="t"><span class="str">        """</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t160" class="pln"><span class="n"><a href="#t160">160</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p id="t161" class="mis show_mis"><span class="n"><a href="#t161">161</a></span><span class="t">        <span class="nam">n_walkers</span> <span class="op">=</span> <span class="nam">len</span><span class="op">(</span><span class="nam">walker_clone_nums</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t162" class="pln"><span class="n"><a href="#t162">162</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p id="t163" class="mis show_mis"><span class="n"><a href="#t163">163</a></span><span class="t">        <span class="nam">walker_actions</span> <span class="op">=</span> <span class="nam">self</span><span class="op">.</span><span class="nam">_init_walker_actions</span><span class="op">(</span><span class="nam">n_walkers</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t164" class="pln"><span class="n"><a href="#t164">164</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p id="t165" class="pln"><span class="n"><a href="#t165">165</a></span><span class="t">        <span class="com"># keep track of which slots will be free due to squashing</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t166" class="mis show_mis"><span class="n"><a href="#t166">166</a></span><span class="t">        <span class="nam">free_slots</span> <span class="op">=</span> <span class="op">[</span><span class="op">]</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t167" class="pln"><span class="n"><a href="#t167">167</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p id="t168" class="pln"><span class="n"><a href="#t168">168</a></span><span class="t">        <span class="com"># go through the merge groups and write the records for them,</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t169" class="pln"><span class="n"><a href="#t169">169</a></span><span class="t">        <span class="com"># the index of a merge group determines the KEEP_MERGE walker</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t170" class="pln"><span class="n"><a href="#t170">170</a></span><span class="t">        <span class="com"># and the indices in the merge group are the walkers that will</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t171" class="pln"><span class="n"><a href="#t171">171</a></span><span class="t">        <span class="com"># be squashed</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t172" class="mis show_mis"><span class="n"><a href="#t172">172</a></span><span class="t">        <span class="key">for</span> <span class="nam">walker_idx</span><span class="op">,</span> <span class="nam">merge_group</span> <span class="key">in</span> <span class="nam">enumerate</span><span class="op">(</span><span class="nam">merge_groups</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t173" class="pln"><span class="n"><a href="#t173">173</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p id="t174" class="mis show_mis"><span class="n"><a href="#t174">174</a></span><span class="t">            <span class="key">if</span> <span class="nam">len</span><span class="op">(</span><span class="nam">merge_group</span><span class="op">)</span> <span class="op">></span> <span class="num">0</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t175" class="pln"><span class="n"><a href="#t175">175</a></span><span class="t">                <span class="com"># add the squashed walker idxs to the list of open</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t176" class="pln"><span class="n"><a href="#t176">176</a></span><span class="t">                <span class="com"># slots</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t177" class="mis show_mis"><span class="n"><a href="#t177">177</a></span><span class="t">                <span class="nam">free_slots</span><span class="op">.</span><span class="nam">extend</span><span class="op">(</span><span class="nam">merge_group</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t178" class="pln"><span class="n"><a href="#t178">178</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p id="t179" class="pln"><span class="n"><a href="#t179">179</a></span><span class="t">                <span class="com"># for each squashed walker write a record and save it</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t180" class="pln"><span class="n"><a href="#t180">180</a></span><span class="t">                <span class="com"># in the walker actions</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t181" class="mis show_mis"><span class="n"><a href="#t181">181</a></span><span class="t">                <span class="key">for</span> <span class="nam">squash_idx</span> <span class="key">in</span> <span class="nam">merge_group</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t182" class="mis show_mis"><span class="n"><a href="#t182">182</a></span><span class="t">                    <span class="nam">walker_actions</span><span class="op">[</span><span class="nam">squash_idx</span><span class="op">]</span> <span class="op">=</span> <span class="nam">self</span><span class="op">.</span><span class="nam">decision</span><span class="op">.</span><span class="nam">record</span><span class="op">(</span><span class="nam">self</span><span class="op">.</span><span class="nam">decision</span><span class="op">.</span><span class="nam">ENUM</span><span class="op">.</span><span class="nam">SQUASH</span><span class="op">.</span><span class="nam">value</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t183" class="pln"><span class="n"><a href="#t183">183</a></span><span class="t">                                                                      <span class="nam">target_idxs</span><span class="op">=</span><span class="op">(</span><span class="nam">walker_idx</span><span class="op">,</span><span class="op">)</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t184" class="pln"><span class="n"><a href="#t184">184</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p id="t185" class="pln"><span class="n"><a href="#t185">185</a></span><span class="t">                <span class="com"># make the record for the keep merge walker</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t186" class="mis show_mis"><span class="n"><a href="#t186">186</a></span><span class="t">                <span class="nam">walker_actions</span><span class="op">[</span><span class="nam">walker_idx</span><span class="op">]</span> <span class="op">=</span> <span class="nam">self</span><span class="op">.</span><span class="nam">decision</span><span class="op">.</span><span class="nam">record</span><span class="op">(</span><span class="nam">self</span><span class="op">.</span><span class="nam">decision</span><span class="op">.</span><span class="nam">ENUM</span><span class="op">.</span><span class="nam">KEEP_MERGE</span><span class="op">.</span><span class="nam">value</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t187" class="pln"><span class="n"><a href="#t187">187</a></span><span class="t">                                                         <span class="nam">target_idxs</span><span class="op">=</span><span class="op">(</span><span class="nam">walker_idx</span><span class="op">,</span><span class="op">)</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t188" class="pln"><span class="n"><a href="#t188">188</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p id="t189" class="pln"><span class="n"><a href="#t189">189</a></span><span class="t">        <span class="com"># for each walker, if it is to be cloned assign open slots for it</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t190" class="mis show_mis"><span class="n"><a href="#t190">190</a></span><span class="t">        <span class="key">for</span> <span class="nam">walker_idx</span><span class="op">,</span> <span class="nam">num_clones</span> <span class="key">in</span> <span class="nam">enumerate</span><span class="op">(</span><span class="nam">walker_clone_nums</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t191" class="pln"><span class="n"><a href="#t191">191</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p id="t192" class="mis show_mis"><span class="n"><a href="#t192">192</a></span><span class="t">            <span class="key">if</span> <span class="nam">num_clones</span> <span class="op">></span> <span class="num">0</span> <span class="key">and</span> <span class="nam">len</span><span class="op">(</span><span class="nam">merge_groups</span><span class="op">[</span><span class="nam">walker_idx</span><span class="op">]</span><span class="op">)</span> <span class="op">></span> <span class="num">0</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t193" class="mis show_mis"><span class="n"><a href="#t193">193</a></span><span class="t">                <span class="key">raise</span> <span class="nam">ResamplerError</span><span class="op">(</span><span class="str">"Error! cloning and merging occuring with the same walker"</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t194" class="pln"><span class="n"><a href="#t194">194</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p id="t195" class="pln"><span class="n"><a href="#t195">195</a></span><span class="t">            <span class="com"># if this walker is to be cloned do so and consume the free</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t196" class="pln"><span class="n"><a href="#t196">196</a></span><span class="t">            <span class="com"># slot</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t197" class="mis show_mis"><span class="n"><a href="#t197">197</a></span><span class="t">            <span class="key">if</span> <span class="nam">num_clones</span> <span class="op">></span> <span class="num">0</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t198" class="pln"><span class="n"><a href="#t198">198</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p id="t199" class="pln"><span class="n"><a href="#t199">199</a></span><span class="t">                <span class="com"># we first check to see if there are any free "slots"</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t200" class="pln"><span class="n"><a href="#t200">200</a></span><span class="t">                <span class="com"># for cloned walkers to go. If there are not we can</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t201" class="pln"><span class="n"><a href="#t201">201</a></span><span class="t">                <span class="com"># make room. The number of extra slots needed should</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t202" class="pln"><span class="n"><a href="#t202">202</a></span><span class="t">                <span class="com"># be default 0</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t203" class="pln"><span class="n"><a href="#t203">203</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p id="t204" class="pln"><span class="n"><a href="#t204">204</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p id="t205" class="pln"><span class="n"><a href="#t205">205</a></span><span class="t">                <span class="com"># we choose the targets for this cloning, we start</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t206" class="pln"><span class="n"><a href="#t206">206</a></span><span class="t">                <span class="com"># with the walker initiating the cloning</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t207" class="mis show_mis"><span class="n"><a href="#t207">207</a></span><span class="t">                <span class="nam">clone_targets</span> <span class="op">=</span> <span class="op">[</span><span class="nam">walker_idx</span><span class="op">]</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t208" class="pln"><span class="n"><a href="#t208">208</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p id="t209" class="pln"><span class="n"><a href="#t209">209</a></span><span class="t">                <span class="com"># if there are any free slots, then we use those first</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t210" class="mis show_mis"><span class="n"><a href="#t210">210</a></span><span class="t">                <span class="key">if</span> <span class="nam">len</span><span class="op">(</span><span class="nam">free_slots</span><span class="op">)</span> <span class="op">></span> <span class="num">0</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t211" class="mis show_mis"><span class="n"><a href="#t211">211</a></span><span class="t">                    <span class="nam">clone_targets</span><span class="op">.</span><span class="nam">extend</span><span class="op">(</span><span class="op">[</span><span class="nam">free_slots</span><span class="op">.</span><span class="nam">pop</span><span class="op">(</span><span class="op">)</span> <span class="key">for</span> <span class="nam">clone</span> <span class="key">in</span> <span class="nam">range</span><span class="op">(</span><span class="nam">num_clones</span><span class="op">)</span><span class="op">]</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t212" class="pln"><span class="n"><a href="#t212">212</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p id="t213" class="pln"><span class="n"><a href="#t213">213</a></span><span class="t">                <span class="com"># if there are more slots needed then we will have to</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t214" class="pln"><span class="n"><a href="#t214">214</a></span><span class="t">                <span class="com"># create them</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t215" class="mis show_mis"><span class="n"><a href="#t215">215</a></span><span class="t">                <span class="nam">num_slots_needed</span> <span class="op">=</span> <span class="nam">num_clones</span> <span class="op">-</span> <span class="nam">len</span><span class="op">(</span><span class="nam">clone_targets</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t216" class="mis show_mis"><span class="n"><a href="#t216">216</a></span><span class="t">                <span class="key">if</span> <span class="nam">num_slots_needed</span> <span class="op">></span> <span class="num">0</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t217" class="pln"><span class="n"><a href="#t217">217</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p id="t218" class="pln"><span class="n"><a href="#t218">218</a></span><span class="t">                    <span class="com"># initialize the lists of open slots</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t219" class="mis show_mis"><span class="n"><a href="#t219">219</a></span><span class="t">                    <span class="nam">new_slots</span> <span class="op">=</span> <span class="op">[</span><span class="op">]</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t220" class="pln"><span class="n"><a href="#t220">220</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p id="t221" class="pln"><span class="n"><a href="#t221">221</a></span><span class="t">                    <span class="com"># and make a list of the new slots</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t222" class="mis show_mis"><span class="n"><a href="#t222">222</a></span><span class="t">                    <span class="nam">new_slots</span> <span class="op">=</span> <span class="op">[</span><span class="nam">n_walkers</span> <span class="op">+</span> <span class="nam">i</span> <span class="key">for</span> <span class="nam">i</span> <span class="key">in</span> <span class="nam">range</span><span class="op">(</span><span class="nam">num_slots_needed</span><span class="op">)</span><span class="op">]</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t223" class="pln"><span class="n"><a href="#t223">223</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p id="t224" class="pln"><span class="n"><a href="#t224">224</a></span><span class="t">                    <span class="com"># then increase the number of walkers to match</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t225" class="mis show_mis"><span class="n"><a href="#t225">225</a></span><span class="t">                    <span class="nam">n_walkers</span> <span class="op">+=</span> <span class="nam">num_slots_needed</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t226" class="pln"><span class="n"><a href="#t226">226</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p id="t227" class="pln"><span class="n"><a href="#t227">227</a></span><span class="t">                    <span class="com"># then add these to the clone targets</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t228" class="mis show_mis"><span class="n"><a href="#t228">228</a></span><span class="t">                    <span class="nam">clone_targets</span><span class="op">.</span><span class="nam">extend</span><span class="op">(</span><span class="nam">new_slots</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t229" class="pln"><span class="n"><a href="#t229">229</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p id="t230" class="pln"><span class="n"><a href="#t230">230</a></span><span class="t">                <span class="com"># make a record for this clone</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t231" class="mis show_mis"><span class="n"><a href="#t231">231</a></span><span class="t">                <span class="nam">walker_actions</span><span class="op">[</span><span class="nam">walker_idx</span><span class="op">]</span> <span class="op">=</span> <span class="nam">self</span><span class="op">.</span><span class="nam">decision</span><span class="op">.</span><span class="nam">record</span><span class="op">(</span><span class="nam">self</span><span class="op">.</span><span class="nam">decision</span><span class="op">.</span><span class="nam">ENUM</span><span class="op">.</span><span class="nam">CLONE</span><span class="op">.</span><span class="nam">value</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t232" class="pln"><span class="n"><a href="#t232">232</a></span><span class="t">                                                         <span class="nam">target_idxs</span><span class="op">=</span><span class="nam">tuple</span><span class="op">(</span><span class="nam">clone_targets</span><span class="op">)</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t233" class="pln"><span class="n"><a href="#t233">233</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p id="t234" class="mis show_mis"><span class="n"><a href="#t234">234</a></span><span class="t">        <span class="key">return</span> <span class="nam">walker_actions</span>&nbsp;</span><span class="r"></span></p>
+</div>
+<div id="footer">
+    <div class="content">
+        <p>
+            <a class="nav" href="index.html">&#xab; index</a> &nbsp; &nbsp; <a class="nav" href="https://coverage.readthedocs.io">coverage.py v5.1</a>,
+            created at 2020-05-05 17:32
+        </p>
+    </div>
+</div>
+</body>
+</html>

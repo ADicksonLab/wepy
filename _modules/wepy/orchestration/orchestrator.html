@@ -4,7 +4,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <title>wepy.orchestration.orchestrator &#8212; wepy 1.0.0rc1.dev0+69.g7e50dcf documentation</title>
+    <title>wepy.orchestration.orchestrator &#8212; wepy 1.0.0rc3 documentation</title>
     <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/custom.css" />
@@ -1047,12 +1047,19 @@
                                                                               <span class="n">mode</span><span class="o">=</span><span class="n">checkpoint_mode</span><span class="p">)</span>
             <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;finished initializing checkpoint database&quot;</span><span class="p">)</span>
 
+
         <span class="c1"># get the snapshot and the configuration to use for the sim_manager</span>
         <span class="n">start_snapshot</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_snapshot</span><span class="p">(</span><span class="n">start_hash</span><span class="p">)</span>
 
         <span class="c1"># generate the simulation manager given the snapshot and the</span>
         <span class="c1"># configuration</span>
         <span class="n">sim_manager</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gen_sim_manager</span><span class="p">(</span><span class="n">start_snapshot</span><span class="p">,</span> <span class="n">configuration</span><span class="p">)</span>
+
+        <span class="c1"># handle and process the optional arguments for running simulation</span>
+        <span class="k">if</span> <span class="s1">&#39;runner&#39;</span> <span class="ow">in</span> <span class="n">configuration</span><span class="o">.</span><span class="n">apparatus_opts</span><span class="p">:</span>
+            <span class="n">runner_opts</span> <span class="o">=</span> <span class="n">configuration</span><span class="o">.</span><span class="n">apparatus_opts</span><span class="p">[</span><span class="s1">&#39;runner&#39;</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">runner_opts</span> <span class="o">=</span> <span class="kc">None</span>
 
         <span class="c1"># run the init subroutine for the simulation manager</span>
         <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Running sim_manager.init&quot;</span><span class="p">)</span>
@@ -1071,7 +1078,7 @@
                 <span class="n">walkers</span><span class="p">,</span>
                 <span class="n">n_steps</span><span class="p">,</span>
                 <span class="n">cycle_idx</span><span class="p">,</span>
-                <span class="n">runner_opts</span><span class="o">=</span><span class="n">configuration</span><span class="o">.</span><span class="n">apparatus_opts</span><span class="p">[</span><span class="s1">&#39;runner&#39;</span><span class="p">],</span>
+                <span class="n">runner_opts</span><span class="o">=</span><span class="n">runner_opts</span><span class="p">,</span>
             <span class="p">)</span>
 
             <span class="c1"># check to see if a checkpoint is necessary</span>

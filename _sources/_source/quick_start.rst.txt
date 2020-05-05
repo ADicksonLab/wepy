@@ -1,20 +1,12 @@
 Quick Start
 ===========
 
-These examples make use of ready-made MD systems in the openmmtools
-library, so install that from conda or following the instructions on
-their website, e.g.:
+Install ``wepy``:
 
 .. code:: bash
 
-   conda install -c conda-forge openmmtools
-
-This will make starting up with ``wepy`` faster since building systems
-from scratch can be pretty complex and non-portable.
-
-We will have advice later in the documentation on how to build systems
-and create inputs for ``wepy``, but in general if you can make an OpenMM
-system go you can use ``wepy``, so check out their documentation.
+   pip install wepy[md]
+   conda install -c omnia openmm
 
 Test Drive
 ~~~~~~~~~~
@@ -113,7 +105,7 @@ this is equivalent to running 10 simulations in parallel.
    import simtk.openmm as omm
    import simtk.unit as unit
 
-   from openmmtools.testsystems import LennardJonesPair
+   from openmm_systems.test_systems import LennardJonesPair
 
    from wepy.resampling.resamplers.resampler import NoResampler
    from wepy.runners.openmm import OpenMMRunner, gen_walker_state

@@ -4,7 +4,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <title>Changelog &#8212; wepy 1.0.0rc1.dev0+69.g7e50dcf documentation</title>
+    <title>Changelog &#8212; wepy 1.0.0rc3 documentation</title>
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
@@ -56,6 +56,28 @@
 <p>Adapted from <a class="reference external" href="https://keepachangelog.com">keepachangelog.com</a> for
 org-mode.</p>
 <p>See the git commit log history for full details.</p>
+<div class="section" id="wip">
+<h2>1.0.0 - WIP<a class="headerlink" href="#wip" title="Permalink to this headline">¶</a></h2>
+<p>Changes in rc3:</p>
+<ul class="simple">
+<li><p>removed integration with <code class="docutils literal notranslate"><span class="pre">openmmtools.testsystems</span></code> in favor of
+<code class="docutils literal notranslate"><span class="pre">openmm_systems</span></code> fork</p></li>
+</ul>
+<p>Changes in rc2:</p>
+<ul class="simple">
+<li><p>adds support for setting the OpenMM Platform at <code class="docutils literal notranslate"><span class="pre">run_segment</span></code> or in
+<code class="docutils literal notranslate"><span class="pre">pre_cycle</span></code></p></li>
+<li><p>add support for parametrizing apparatus components (runner,
+resampler, or BC) in the orchestration <code class="docutils literal notranslate"><span class="pre">Configuration</span></code> object.</p></li>
+<li><p>Fixes <code class="docutils literal notranslate"><span class="pre">wepy_tools.sim_makers</span></code> for no longer default arguments for
+resamplers.</p></li>
+<li><p>minor bugfixes found during testing.</p></li>
+</ul>
+<p>Changes in rc1:</p>
+<ul class="simple">
+<li><p>fixes bug in WorkerMapper</p></li>
+</ul>
+</div>
 <div class="section" id="rc1-2020-04-09">
 <h2>1.0.0rc1 - 2020-04-09<a class="headerlink" href="#rc1-2020-04-09" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="breakages">

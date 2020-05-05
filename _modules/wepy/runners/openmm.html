@@ -4,7 +4,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <title>wepy.runners.openmm &#8212; wepy 1.0.0rc1.dev0+69.g7e50dcf documentation</title>
+    <title>wepy.runners.openmm &#8212; wepy 1.0.0rc3 documentation</title>
     <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/custom.css" />
@@ -234,6 +234,9 @@
         <span class="c1"># update with the user based enforce_box</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">getState_kwargs</span><span class="p">[</span><span class="s1">&#39;enforcePeriodicBox&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">enforce_box</span>
 
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cycle_platform</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cycle_platform_kwargs</span> <span class="o">=</span> <span class="kc">None</span>
+
 <div class="viewcode-block" id="OpenMMRunner.pre_cycle"><a class="viewcode-back" href="../../../_api/wepy.runners.openmm.html#wepy.runners.openmm.OpenMMRunner.pre_cycle">[docs]</a>    <span class="k">def</span> <span class="nf">pre_cycle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                   <span class="n">platform</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                   <span class="n">platform_kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -257,8 +260,8 @@
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">post_cycle</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
         <span class="c1"># remove the platform and kwargs for this cycle</span>
-        <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cycle_platform</span>
-        <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cycle_platform_kwargs</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cycle_platform</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cycle_platform_kwargs</span> <span class="o">=</span> <span class="kc">None</span></div>
 
 
 <div class="viewcode-block" id="OpenMMRunner._resolve_platform"><a class="viewcode-back" href="../../../_api/wepy.runners.openmm.html#wepy.runners.openmm.OpenMMRunner._resolve_platform">[docs]</a>    <span class="k">def</span> <span class="nf">_resolve_platform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
@@ -279,7 +282,7 @@
 
         <span class="c1"># if the pre_cycle configured platform is set use this over</span>
         <span class="c1"># the default</span>
-        <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_cycle_platform&#39;</span><span class="p">):</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cycle_platform</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">platform_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cycle_platform</span>
             <span class="n">platform_kwargs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cycle_platform_kwargs</span>
 
@@ -375,7 +378,6 @@
 
         <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;pre_cycle set &#39;platform&#39; in runner: &quot;</span>
                      <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_cycle_platform</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-
 
         <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;&#39;platform&#39; passed to &#39;run_segment&#39; : &quot;</span>
                      <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">platform</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>

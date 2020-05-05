@@ -4,7 +4,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <title>Introduction &amp; Features &#8212; wepy 1.0.0rc1.dev0+69.g7e50dcf documentation</title>
+    <title>Introduction &amp; Features &#8212; wepy 1.0.0rc3 documentation</title>
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
@@ -91,6 +91,54 @@ on to the <a class="reference internal" href="tutorials/index.html"><span class=
 <p>For a complete description of the modules and their components check out
 the <a class="reference internal" href="api.html"><span class="doc">API documentation</span></a>.</p>
 </div>
+<div class="section" id="compatibility">
+<h2>Compatibility<a class="headerlink" href="#compatibility" title="Permalink to this headline">¶</a></h2>
+<p>Tested succesfully with:</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 38%" />
+<col style="width: 38%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Python</p></th>
+<th class="head"><p>OpenMM</p></th>
+<th class="head"><p>Pass</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>3.6</p></td>
+<td><p>7.4.1</p></td>
+<td><p>✓</p></td>
+</tr>
+<tr class="row-odd"><td><p>3.6</p></td>
+<td><p>7.3.1</p></td>
+<td><p>✓</p></td>
+</tr>
+<tr class="row-even"><td><p>3.7</p></td>
+<td><p>7.4.1</p></td>
+<td><p>✓</p></td>
+</tr>
+<tr class="row-odd"><td><p>3.7</p></td>
+<td><p>7.3.1</p></td>
+<td><p>✓</p></td>
+</tr>
+<tr class="row-even"><td><p>3.8</p></td>
+<td><p>7.4.1</p></td>
+<td><p>✗</p></td>
+</tr>
+<tr class="row-odd"><td><p>3.8</p></td>
+<td><p>7.3.1</p></td>
+<td><p>✗</p></td>
+</tr>
+</tbody>
+</table>
+<p>Using the <code class="docutils literal notranslate"><span class="pre">omnia</span></code> channel <code class="docutils literal notranslate"><span class="pre">openmm</span></code>, e.g.:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>conda install -c omnia <span class="nv">openmm</span><span class="o">=</span><span class="m">7</span>.4.1
+</pre></div>
+</div>
+<p>See the <code class="docutils literal notranslate"><span class="pre">noxfile.py</span></code> for full test matrix.</p>
+</div>
 <div class="section" id="contributed-wepy-libraries-and-other-useful-resources">
 <h2>Contributed wepy libraries and other useful resources<a class="headerlink" href="#contributed-wepy-libraries-and-other-useful-resources" title="Permalink to this headline">¶</a></h2>
 <p>Here is a list of packages that are not in the main <code class="docutils literal notranslate"><span class="pre">wepy</span></code> repository
@@ -103,31 +151,36 @@ systems</p></li>
 <li><p>related analysis or utility libraries</p></li>
 </ul>
 <p>They are:</p>
-<ul class="simple">
-<li><p><a class="reference external" href="https://github.com/ADicksonLab/geomm">geomm</a> : purely functional
-library for common numerical routines in computational biology and
-chemistry, with no dependency on specific file or topology formats.</p></li>
-<li><p><a class="reference external" href="https://github.com/ADicksonLab/wepy-developer-resources">wepy-developer-resources</a>
-: Unofficial and miscellaneous materials related to wepy, including
-talks, workshops, contributed tutorials etc. May be out of date.</p></li>
-<li><p><a class="reference external" href="https://github.com/ADicksonLab/wepy/blob/master/sphinx/source/introduction.org">mastic</a>
-: Library for doing general purpose “profiling” of intermolecular
+<dl class="simple">
+<dt><a class="reference external" href="https://github.com/ADicksonLab/geomm">geomm</a></dt><dd><p>purely functional library for common numerical routines in
+computational biology and chemistry, with no dependency on specific
+file or topology formats.</p>
+</dd>
+<dt><a class="reference external" href="https://github.com/ADicksonLab/wepy-developer-resources">wepy-developer-resources</a></dt><dd><p>Unofficial and miscellaneous materials related to wepy, including
+talks, workshops, contributed tutorials etc. May be out of date.</p>
+</dd>
+<dt><a class="reference external" href="https://github.com/ADicksonLab/wepy/blob/master/sphinx/source/introduction.org">mastic</a></dt><dd><p>Library for doing general purpose “profiling” of intermolecular
 interactions. Useful for computing observables an experimental
-chemist understands. Also useful for building distance metrics.</p></li>
-<li><p><a class="reference external" href="https://github.com/mdtraj/mdtraj">mdtraj</a> : Excellent library
-with optimized code for numerical routines of interest in
-computational biology and chemistry. Differs from geomm in that it
-relies on their own topology format. The WepyHDF5 JSON topology
-format is borrowed from this library. Used in wepy as a utility
-writer of commonly used formats like PDBs, DCDs, etc.</p></li>
-<li><p><a class="reference external" href="https://github.com/choderalab/openmmtools">openmmtools</a> :
-Contributed components for OpenMM. Contains some ready-made test
+chemist understands. Also useful for building distance metrics.</p>
+</dd>
+<dt><a class="reference external" href="https://github.com/mdtraj/mdtraj">mdtraj</a></dt><dd><p>Excellent library with optimized code for numerical routines of
+interest in computational biology and chemistry. Differs from geomm
+in that it relies on their own topology format. The WepyHDF5 JSON
+topology format is borrowed from this library. Used in wepy as a
+utility writer of commonly used formats like PDBs, DCDs, etc.</p>
+</dd>
+<dt><a class="reference external" href="https://github.com/choderalab/openmmtools">openmmtools</a></dt><dd><p>Contributed components for OpenMM. Contains some ready-made test
 systems that are very convenient for testing and prototyping
-components in wepy.</p></li>
-<li><p><a class="reference external" href="https://github.com/ADicksonLab/CSNAnalysis">CSNAnalysis</a> : small
-library for aiding in the analysis of conformation state networks
-(CSNs) which can be generated from <code class="docutils literal notranslate"><span class="pre">wepy</span></code> data.</p></li>
-</ul>
+components in wepy.</p>
+</dd>
+<dt><a class="reference external" href="https://github.com/ADicksonLab/openmm_systems">openmm-systems</a></dt><dd><p>A friendly fork of <code class="docutils literal notranslate"><span class="pre">openmmtools</span></code> that just provides the test
+systems for ease of installation. We depend on this for our examples
+and testing.</p>
+</dd>
+<dt><a class="reference external" href="https://github.com/ADicksonLab/CSNAnalysis">CSNAnalysis</a></dt><dd><p>small library for aiding in the analysis of conformation state
+networks (CSNs) which can be generated from <code class="docutils literal notranslate"><span class="pre">wepy</span></code> data.</p>
+</dd>
+</dl>
 </div>
 <div class="section" id="alternatives">
 <h2>Alternatives<a class="headerlink" href="#alternatives" title="Permalink to this headline">¶</a></h2>

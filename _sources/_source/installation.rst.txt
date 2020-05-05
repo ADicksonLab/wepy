@@ -5,9 +5,7 @@ To install from pip:
 
 .. code:: bash
 
-   pip install wepy[all]
-
-Which will install most dependencies.
+   pip install wepy
 
 To install the optional, but likely desired feature, OpenMM you should
 probably just use the omnia channel on conda, otherwise you will need to
@@ -30,9 +28,10 @@ There are some optional features you can install as well using the
 but lacks a lot of functionality that makes ``wepy`` useful for
 molecular dynamics. Currently, these are:
 
-mdtraj
-   allows export of structures to the mdtraj format which has many
-   writers for serialization, e.g. pdb, dcd, etc.
+md
+   extra packages for molecular dynamics
+distributed
+   extra packages to allow for distributed analysis
 all
    installs all extras
 
@@ -41,7 +40,7 @@ listing.
 
 .. code:: bash
 
-   pip install wepy[mdtraj]
+   pip install wepy[md]
 
 You can always install from git as well for the latest:
 

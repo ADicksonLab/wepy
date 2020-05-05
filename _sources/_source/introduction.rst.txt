@@ -43,6 +43,30 @@ on to the :any:`tutorials <tutorials/index>` or execute the
 For a complete description of the modules and their components check out
 the :any:`API documentation <api>`.
 
+Compatibility
+-------------
+
+Tested succesfully with:
+
+====== ====== ====
+Python OpenMM Pass
+====== ====== ====
+3.6    7.4.1  ✓
+3.6    7.3.1  ✓
+3.7    7.4.1  ✓
+3.7    7.3.1  ✓
+3.8    7.4.1  ✗
+3.8    7.3.1  ✗
+====== ====== ====
+
+Using the ``omnia`` channel ``openmm``, e.g.:
+
+.. code:: bash
+
+   conda install -c omnia openmm=7.4.1
+
+See the ``noxfile.py`` for full test matrix.
+
 Contributed wepy libraries and other useful resources
 -----------------------------------------------------
 
@@ -58,34 +82,40 @@ These include things like :
 
 They are:
 
--  `geomm <https://github.com/ADicksonLab/geomm>`__ : purely functional
-   library for common numerical routines in computational biology and
-   chemistry, with no dependency on specific file or topology formats.
+`geomm <https://github.com/ADicksonLab/geomm>`__
+   purely functional library for common numerical routines in
+   computational biology and chemistry, with no dependency on specific
+   file or topology formats.
 
--  `wepy-developer-resources <https://github.com/ADicksonLab/wepy-developer-resources>`__
-   : Unofficial and miscellaneous materials related to wepy, including
+`wepy-developer-resources <https://github.com/ADicksonLab/wepy-developer-resources>`__
+   Unofficial and miscellaneous materials related to wepy, including
    talks, workshops, contributed tutorials etc. May be out of date.
 
--  `mastic <https://github.com/ADicksonLab/wepy/blob/master/sphinx/source/introduction.org>`__
-   : Library for doing general purpose "profiling" of intermolecular
+`mastic <https://github.com/ADicksonLab/wepy/blob/master/sphinx/source/introduction.org>`__
+   Library for doing general purpose "profiling" of intermolecular
    interactions. Useful for computing observables an experimental
    chemist understands. Also useful for building distance metrics.
 
--  `mdtraj <https://github.com/mdtraj/mdtraj>`__ : Excellent library
-   with optimized code for numerical routines of interest in
-   computational biology and chemistry. Differs from geomm in that it
-   relies on their own topology format. The WepyHDF5 JSON topology
-   format is borrowed from this library. Used in wepy as a utility
-   writer of commonly used formats like PDBs, DCDs, etc.
+`mdtraj <https://github.com/mdtraj/mdtraj>`__
+   Excellent library with optimized code for numerical routines of
+   interest in computational biology and chemistry. Differs from geomm
+   in that it relies on their own topology format. The WepyHDF5 JSON
+   topology format is borrowed from this library. Used in wepy as a
+   utility writer of commonly used formats like PDBs, DCDs, etc.
 
--  `openmmtools <https://github.com/choderalab/openmmtools>`__ :
+`openmmtools <https://github.com/choderalab/openmmtools>`__
    Contributed components for OpenMM. Contains some ready-made test
    systems that are very convenient for testing and prototyping
    components in wepy.
 
--  `CSNAnalysis <https://github.com/ADicksonLab/CSNAnalysis>`__ : small
-   library for aiding in the analysis of conformation state networks
-   (CSNs) which can be generated from ``wepy`` data.
+`openmm-systems <https://github.com/ADicksonLab/openmm_systems>`__
+   A friendly fork of ``openmmtools`` that just provides the test
+   systems for ease of installation. We depend on this for our examples
+   and testing.
+
+`CSNAnalysis <https://github.com/ADicksonLab/CSNAnalysis>`__
+   small library for aiding in the analysis of conformation state
+   networks (CSNs) which can be generated from ``wepy`` data.
 
 Alternatives
 ------------

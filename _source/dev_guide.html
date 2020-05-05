@@ -4,7 +4,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <title>Development Guide &#8212; wepy 1.0.0rc1.dev0+69.g7e50dcf documentation</title>
+    <title>Development Guide &#8212; wepy 1.0.0rc3 documentation</title>
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
@@ -475,7 +475,15 @@ a script:</p>
 <p>There is a folder just for tests that target the docs
 <code class="docutils literal notranslate"><span class="pre">tests/test_docs</span></code>. You should be able to run them after tangling:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>inv docs.tangle
-inv docs.test
+inv docs.test-example
+inv docs.test-tutorial
+inv docs.test-pages
+</pre></div>
+</div>
+<p>See these targets for more fine-grained tests or to run them using
+<code class="docutils literal notranslate"><span class="pre">nox</span></code> for the python version matrix or just to have a more minimal
+and reproducible test environment.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>inv -l <span class="p">|</span> grep docs.test
 </pre></div>
 </div>
 </li>
@@ -530,7 +538,7 @@ some necessary cleaning up, and copies the built website to the
 necesary folder (which is the toplevel), commits the changes and
 pushes to github, and then returns to your working branch.</p>
 <p>The invoke target is:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>inv website-deploy
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>inv docs.website-deploy
 </pre></div>
 </div>
 </li>
@@ -538,6 +546,52 @@ pushes to github, and then returns to your working branch.</p>
 </div>
 <div class="section" id="testing">
 <h3>Testing<a class="headerlink" href="#testing" title="Permalink to this headline">¶</a></h3>
+<p>This is about testing the actual source tree (see <em>Testing
+Documentation</em> for testing the docs).</p>
+<ol class="arabic">
+<li><p>Testing in the Dev Cycle</p>
+<p>You can either test in the <code class="docutils literal notranslate"><span class="pre">dev</span></code> (or <code class="docutils literal notranslate"><span class="pre">test</span></code>) environment while
+working:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>inv py.tests-all
+</pre></div>
+</div>
+<p>There are specific commands for each section of tests, primarily:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>inv py.tests-integration
+inv py.tests-unit
+</pre></div>
+</div>
+<p>If you use the <code class="docutils literal notranslate"><span class="pre">-t</span></code> option you can specify a tag. The tag will be
+used as an identifying string for output to reports etc. Currently it
+will generate test results into the <code class="docutils literal notranslate"><span class="pre">reports</span></code></p>
+</li>
+<li><p>Automated Test Matrix</p>
+<p>We use <code class="docutils literal notranslate"><span class="pre">nox</span></code> as the runner for parametrizing and running tests in
+isolated environments for the test matrix. See the <code class="docutils literal notranslate"><span class="pre">noxfile.py</span></code> on
+how this is configured.</p>
+<p>You can run the “session” directly since there are other session
+definitions for docs etc.:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>nox -s <span class="nb">test</span>
+</pre></div>
+</div>
+<p>There is also a target for this:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>inv py.tests-nox
+</pre></div>
+</div>
+</li>
+<li><p>Auxiliary “tests”</p>
+<p>We also have two other “testing” targets for the benchmarks and the
+“interactive” tests.</p>
+<p>Benchmarks have a special toolchain for recording and publishing them
+as metrics.</p>
+<p>The ‘interactive’ tests are just tests which have something like a
+<code class="docutils literal notranslate"><span class="pre">breakpoint()</span></code> in them. This is kind of an experimental thing, and
+probably more useful for you to write and call them individually for
+different purposes. The idea is that you can write “tests” that
+generate something like realistic live environment (kind of like
+integration tests) that you can drop into a debugger with and poke
+around in.</p>
+</li>
+</ol>
 </div>
 <div class="section" id="code-quality-metrics">
 <h3>Code Quality Metrics<a class="headerlink" href="#code-quality-metrics" title="Permalink to this headline">¶</a></h3>
@@ -549,55 +603,26 @@ pushes to github, and then returns to your working branch.</p>
 </div>
 <div class="section" id="releases">
 <h3>Releases<a class="headerlink" href="#releases" title="Permalink to this headline">¶</a></h3>
+<p>The typical pre-requisites for a release are that:</p>
+<ul class="simple">
+<li><p>the documentation has been updated and tested</p></li>
+<li><p>the tests have been run and results are recorded</p></li>
+<li><p>the quality metrics have been run and are recorded</p></li>
+<li><p>the changelog has been written</p></li>
+</ul>
+<p>Making a release then follows these steps:</p>
 <ol class="arabic">
+<li><p>test the build</p></li>
+<li><p>make a pre-release build and publish</p></li>
+<li><p>make the release build and publish</p></li>
+<li><p>build and publish documentation, website, etc.</p></li>
+<li><p>Writing and/or Generating the Changelog and Announcement</p>
+<p>Simply go into the <code class="docutils literal notranslate"><span class="pre">info/changelog.org</span></code> file and write it.</p>
+<p>There are conventions here per-project. Follow them.</p>
+</li>
 <li><p>Choosing a version number</p>
-<ol class="arabic">
-<li><p>Primordial Epoch</p>
-<p>In the pre-covenant releases (think “1.0” release) we just release
-based on the date. So just make the date string and add any
-release candidate, dev, or postrelease additions.</p>
-</li>
-<li><p>Covenental Epoch</p>
-<p>After the primordial epoch we have a more semantic meaning behind
-version numbers.</p>
-<p>Following PEP 440 epochs these should all be prefixed by ‘1!’ for
-the second epoch.</p>
-<p>Otherwise versions should be “canonical” strings following the
-guidelines in PEP 440.</p>
-<p>That means we support roughly:</p>
-<ul class="simple">
-<li><p>semver-ish major, minor, and patch parts</p></li>
-<li><p>release candidates</p></li>
-<li><p>dev</p></li>
-<li><p>post release “patches”</p></li>
-</ul>
-<p>However, we don’t prescribe explicit semantics to any of the parts
-as this is highly variable depending on the needs of a project and
-the forums by which it is published (e.g. PyPI, Github, etc.).</p>
-</li>
-</ol>
-</li>
-<li><p>Writing and/or Generating the Changelog and Announcement</p></li>
-<li><p>Changing the version number</p>
-<p>You can check the current version number with this command:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>inv py.version-which
-</pre></div>
-</div>
-<p>Increase the version number we currently do it by hand (although an
-automatic way would be nice and <code class="docutils literal notranslate"><span class="pre">bumpversion</span></code> wasn’t working for
-us). So go in and manually edit them. For reference see PEP 440 for
-valid ones.</p>
-<p>The target locations for changing versions are in the following
-files:</p>
-<ul class="simple">
-<li><p>[ ] <code class="docutils literal notranslate"><span class="pre">setup.py</span></code></p></li>
-<li><p>[ ] <code class="docutils literal notranslate"><span class="pre">src/{{</span> <span class="pre">cookiecutter.project_slug</span> <span class="pre">}}/__init__.py</span></code></p></li>
-<li><p>[ ] <code class="docutils literal notranslate"><span class="pre">tasks/config.py</span></code></p></li>
-<li><p>[ ] <code class="docutils literal notranslate"><span class="pre">sphinx/conf.py</span></code></p></li>
-<li><p>[ ] <code class="docutils literal notranslate"><span class="pre">conda/conda-forge/meta.yaml</span></code> (optional)</p></li>
-</ul>
-</li>
-<li><p>Making the release official</p>
+<p>There are some semantics around changing the version number beyond
+the ‘semver’ sense of the ‘v.X.Y.Z’ meanings.</p>
 <p>To make a release do some changes and make sure they are fully tested
 and functional and commit them in version control. At this point you
 will also want to do any rebasing or cleaning up the actual commits
@@ -607,15 +632,55 @@ tag triggered CI pipeline go ahead and change the version numbers and
 commit. Then tag the ‘dev’ release.</p>
 <p>If you intend to make a non-dev release you will first want to test
 it out a little bit with a release-candidate prerelease.</p>
-<p>So do all the following bookeeping steps in a single but separate git
-commit from the actual changes to the code:</p>
+</li>
+<li><p>Changing the version number</p>
+<p>You can check the current version number with this command:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>inv py.version-which
+</pre></div>
+</div>
+<p>The places where an actual version are needed are:</p>
 <ul class="simple">
-<li><p>[ ] write the changelog</p></li>
-<li><p>[ ] write the announcement (optional)</p></li>
-<li><p>[ ] change the version numbers</p></li>
-<li><p>[ ] build to test it out <code class="docutils literal notranslate"><span class="pre">inv</span> <span class="pre">build</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">setup.py</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">sphinx/conf.py</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">src/package/__init__.py</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">tasks/config.py</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">conda/conda-forge/meta.yaml</span></code> (optional)</p></li>
+<li><p>the git tag</p></li>
 </ul>
-<p>To test a build go ahead and run:</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">setup.py</span></code> and <code class="docutils literal notranslate"><span class="pre">src/package/__init__.py</span></code> version is handled
+by <code class="docutils literal notranslate"><span class="pre">versioneer</span></code> using the git tag for the release. This allows for
+fine-grained versions using git hashes on “dirty” releases.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">sphinx/conf.py</span></code> just gets the current version from
+<code class="docutils literal notranslate"><span class="pre">__init__.py</span></code> so it is also downstream of versioneer.</p>
+<p>So currently only the <code class="docutils literal notranslate"><span class="pre">tasks/config.py</span></code> and conda versions need to
+be updated manually.</p>
+<p>In this project we never like to initiate configuration tasks at the
+REPL/shell so we never actually run <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">tag</span></code> under normal
+circumstances.</p>
+<p>Instead we configure the desired version “bump” in one place
+<code class="docutils literal notranslate"><span class="pre">tasks/config.py</span></code> and then generate the rest downstream through
+<code class="docutils literal notranslate"><span class="pre">invoke</span></code> endpoints.</p>
+<p>So simply edit the <code class="docutils literal notranslate"><span class="pre">tasks/config.py</span></code> <code class="docutils literal notranslate"><span class="pre">VERSION</span></code> variable and then
+run:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>inv git.release
+</pre></div>
+</div>
+<p>Which will write the git tag in the correct format. <code class="docutils literal notranslate"><span class="pre">versioneer</span></code>
+takes over from there.</p>
+<p>Here then is the checklist of manually edited versions (currently the
+conda packaging stuff is not supported):</p>
+<ul class="simple">
+<li><p>[ ] <code class="docutils literal notranslate"><span class="pre">tasks/config.py</span></code></p></li>
+<li><p>[ ] <code class="docutils literal notranslate"><span class="pre">inv</span> <span class="pre">git.release</span></code></p></li>
+</ul>
+<p>Changing the version may happen a few times through the release
+process in order to debug wrinkles in the process so its useful to
+have this workflow in mind.</p>
+</li>
+<li><p>Release Process</p>
+<ol class="arabic">
+<li><p>Testing the build</p>
+<p>To test a build with whatever work you have go ahead and run:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>inv py.build
 </pre></div>
 </div>
@@ -635,35 +700,58 @@ commit from the actual changes to the code:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip install dist/BUILD.tar.gz
 </pre></div>
 </div>
-<p>They should all succeed.</p>
-<p>When you change the version number put a ‘rc0’ at the end of the new
-intended (semantic) number.</p>
-<p>Once you have built it and nothing is wrong go ahead and publish it
-to the test indexes (if available):</p>
+<p>They should all succeed. You should also test the installation
+somehow so that we know that we got the dependencies correct.</p>
+</li>
+<li><p>Making the Pre-Release</p>
+<p>All releases should be preceded by a release candidate just to
+make sure the process is working as intended.</p>
+<p>So after this testing of your potentially “dirty” tree (which is
+anything that is not equal to a ‘vX.Y.Z.etc’ git tag) change the
+versions to have ‘rc0’ at the end of the new intended (semantic)
+number, e.g. <code class="docutils literal notranslate"><span class="pre">v1.0.0.rc0</span></code>.</p>
+<p>Then go ahead and commit the changes with a message like this:</p>
+<div class="highlight-fundamental notranslate"><div class="highlight"><pre><span></span>1.0.0rc0 release preparation
+</pre></div>
+</div>
+<p>Then do the git release (just tags it doesn’t ‘publish’ it) and
+rebuild before doing the next steps:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>inv git.release
+inv py.build
+</pre></div>
+</div>
+<p>Once you have built it and nothing is wrong go ahead and publish
+it to the test indexes (if available):</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>inv py.publish-test
 </pre></div>
 </div>
 <p>You can test that it works from the index using the same
 <code class="docutils literal notranslate"><span class="pre">test_install</span></code> environment above.</p>
 <p>And install the package from the test repo with no dependencies:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip install --index-url https://test.pypi.org/simple/ --no-deps <span class="o">{{</span>cookiecutter.project_name<span class="o">}}</span>-<span class="o">{{</span>cookiecutter.owner_nickname<span class="o">}}</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip install --index-url https://test.pypi.org/simple/ --no-deps package
 </pre></div>
 </div>
-<p>Then go ahead and commit the changes after that works. The message
-should follow a fixed form like</p>
-<div class="highlight-fundamental notranslate"><div class="highlight"><pre><span></span>1.0.0rc0 release preparation
-</pre></div>
-</div>
-<p>Then you can tag the release in the <code class="docutils literal notranslate"><span class="pre">git</span></code> commit history:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>inv git.release
-</pre></div>
-</div>
+<p>Then you can publish this pre-release build.</p>
 <p>Publishing the results will vary but you can start with publishing
-the package to PyPI and the VCS hosts with the real publish target:</p>
+the package to PyPI and the VCS hosts with the real publish
+target:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>inv git.publish
 inv py.publish
 </pre></div>
 </div>
+</li>
+<li><p>The final public release</p>
+<p>Edit the version number to something clean that won’t be hidden on
+PyPI etc.</p>
+<p>Then:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>inv git.release
+inv py.build
+inv py.publish
+inv git.publish
+</pre></div>
+</div>
+</li>
+</ol>
 </li>
 </ol>
 </div>
