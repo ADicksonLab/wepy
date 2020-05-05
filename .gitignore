@@ -23,8 +23,8 @@ _asv_envs
 
 ## docs
 
-# ignore the published pages for asv
-reports/benchmarks/asv/_html
+# ignore html build dirs in the reports
+reports/**/_html
 
 # sphinx stuff
 sphinx/_build

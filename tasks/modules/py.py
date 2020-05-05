@@ -136,10 +136,23 @@ def docs_clean(cx):
 def docs_regressions(cx):
 
     with cx.cd("benchmarks"):
-        cx.run("asv publish")
+        cx.run("asv publish", warn=True)
+
+@task
+def docs_coverage(cx):
+    cx.run("coverage html -d reports/coverage/_html/index.html",
+           warn=True)
+
+@task
+def docs_complexity(cx):
+
+    cx.run(f"lizard -o {REPORTS_DIR}/code_quality/_html/index.html src/{project_slug()}",
+           warn=True)
 
 @task(pre=[
     docs_regressions,
+    docs_coverage,
+    docs_complexity,
 ])
 def docs_reports(cx):
     """Build all of the reports from source."""
@@ -257,14 +270,34 @@ def docs_build(cx):
 
     # add things like adding in metrics etc. here
     # copy the benchmark regressions over if available
+
+    # asv regressions
     regression_pages = Path("reports/benchmarks/asv/_html")
 
     if regression_pages.exists() and regression_pages.is_dir():
-        print("Copying Regression pages over")
         sh.copytree(
             regression_pages,
             "sphinx/_build/html/regressions"
         )
+
+    quality_pages = Path("reports/code_quality/_html")
+
+    if quality_pages.exists() and quality_pages.is_dir():
+        sh.copytree(
+            quality_pages,
+            "sphinx/_build/html/quality"
+        )
+
+    # TODO, STUB
+    # coverage
+    coverage_pages = Path("reports/coverage/_html")
+
+    if coverage_pages.exists() and coverage_pages.is_dir():
+        sh.copytree(
+            coverage_pages,
+            "sphinx/_build/html/coverage"
+        )
+
 
 
 
@@ -375,7 +408,6 @@ def tests_nox(cx):
 @task
 def coverage_report(cx):
     cx.run("coverage report")
-    cx.run("coverage html")
     cx.run("coverage xml")
     cx.run("coverage json")
 
@@ -401,8 +433,6 @@ def complexity(cx):
     cx.run(f"mkdir -p {REPORTS_DIR}/code_quality")
 
     cx.run(f"lizard -o {REPORTS_DIR}/code_quality/lizard.csv src/{project_slug()}",
-           warn=True)
-    cx.run(f"lizard -o {REPORTS_DIR}/code_quality/lizard.html src/{project_slug()}",
            warn=True)
 
     # SNIPPET: annoyingly opens the browser

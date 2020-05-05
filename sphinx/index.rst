@@ -56,6 +56,10 @@ Metrics, Reports, & Dashboards
 ------------------------------
 
 `Performance Regressions <regressions/index.html>`_
+
+`Code Quality <quality/index.html>`_
+
+`Test Coverage <coverage/index.html>`_
       
 
 
