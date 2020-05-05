@@ -10,6 +10,8 @@ from ..config import (
     PYPIRC,
     PYENV_CONDA_NAME,
     ENV_METHOD,
+    TESTS_DIR,
+    BENCHMARKS_DIR,
 )
 
 import sys
@@ -46,7 +48,7 @@ import shutil as sh
 ## CONSTANTS
 
 
-BENCHMARK_STORAGE_URI="\"file://{REPORTS_DIR}/benchmarks\""
+BENCHMARK_STORAGE_URI = f"\"file://{REPORTS_DIR}/benchmarks\""
 
 
 def project_slug():
@@ -127,7 +129,23 @@ def docs_clean(cx):
     cx.run("rm -rf sphinx/_api")
     cx.run("rm -rf sphinx/_static")
 
-@task(pre=[docs_clean,])
+    # reports
+    cx.run("rm -rf reports/benchmarks/asv/_html")
+
+@task
+def docs_regressions(cx):
+
+    with cx.cd("benchmarks"):
+        cx.run("asv publish")
+
+@task(pre=[
+    docs_regressions,
+])
+def docs_reports(cx):
+    """Build all of the reports from source."""
+    pass
+
+@task(pre=[docs_clean, docs_reports])
 def docs_build(cx):
     """Buld the documentation"""
 
@@ -232,6 +250,23 @@ def docs_build(cx):
 
         # then do the sphinx build process
         cx.run("sphinx-build -b html -E -a -j 6 -c . . ./_build/html/")
+
+
+
+    ## Post Sphinx
+
+    # add things like adding in metrics etc. here
+    # copy the benchmark regressions over if available
+    regression_pages = Path("reports/benchmarks/asv/_html")
+
+    if regression_pages.exists() and regression_pages.is_dir():
+        print("Copying Regression pages over")
+        sh.copytree(
+            regression_pages,
+            "sphinx/_build/html/regressions"
+        )
+
+
 
 
 @task(pre=[docs_build])
@@ -389,17 +424,38 @@ def quality_serve(cx):
     pass
 
 
-### Profiling and Performance
+### Profiling
 
 @task
 def profile(cx):
     NotImplemented
 
+### Performance Benchmarks
+
+## regressions
+
+@task
+def regressions_all(cx):
+    """Run regression benchmarks for all of the hashes/tags in the
+    benchmarks/benchmark_selection.list file"""
+
+    with cx.cd("benchmarks"):
+        cx.run("asv run HASHFILE:benchmark_selection.list")
+
+@task
+def regression_current(cx):
+
+    with cx.cd("benchmarks"):
+        cx.run("asv run")
+
+# @task
+# def asv_update
+
 @task
 def benchmark_adhoc(cx):
     """An ad hoc benchmark that will not be saved."""
 
-    cx.run("pytest tests/test_benchmarks")
+    cx.run("pytest benchmarks/pytest_benchmark/test_benchmarks")
 
 @task
 def benchmark_save(cx):

@@ -9,7 +9,6 @@
 
 # repo specific
 
-envs/__*
 
 # jupyter stuff
 .ipynb_checkpoints
@@ -17,6 +16,15 @@ envs/__*
 # environments
 _venv
 _conda_envs
+# the temporary mangled envs
+envs/__*
+
+_asv_envs
+
+## docs
+
+# ignore the published pages for asv
+reports/benchmarks/asv/_html
 
 # sphinx stuff
 sphinx/_build

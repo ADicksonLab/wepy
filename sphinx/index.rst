@@ -8,8 +8,8 @@
 A Weighted Ensemble  (WE) simulation framework
 ==============================================
 
-..
-   .. image:: /_static/wepy.svg
+.. optional logo here
+   .. image:: /_static/logo.svg
       :width: 450 pt
       :align: center
       :target: https://adicksonlab.github.io/wepy/
@@ -50,6 +50,13 @@ Project & Developer Information
    _source/news
    _source/changelog
    _source/dev_guide
+
+
+Metrics, Reports, & Dashboards
+------------------------------
+
+`Performance Regressions <regressions/index.html>`_
+      
 
 
 Indices and tables

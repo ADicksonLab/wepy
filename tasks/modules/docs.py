@@ -485,11 +485,11 @@ def test_pages(cx, tag=None):
     """Test the doc pages in the current virtual environment."""
 
     if tag is None:
-        cx.run("pytest tests/test_docs",
+        cx.run("pytest tests/test_docs/test_pages",
                warn=True)
 
     else:
-        cx.run(f"pytest --html=reports/pytest/{tag}/docs/report.html tests/test_docs",
+        cx.run(f"pytest --html=reports/pytest/{tag}/docs/report.html tests/test_docs/test_pages",
                warn=True)
 
 

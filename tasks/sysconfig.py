@@ -43,9 +43,14 @@ INITIAL_VERSION = '0.0.0a0.dev0'
 GIT_LFS_TARGETS = []
 VERSION = '0.0.0a0.dev0'
 
+
 ### Python Code base
 
 REPORTS_DIR = "reports"
+
+## docs
+
+LOGO_DIR = "info/logo"
 
 ORG_DOCS_SOURCES = [
     'changelog',
@@ -59,15 +64,11 @@ ORG_DOCS_SOURCES = [
     'users_guide',
     'reference',
 ]
-"""Which info pages are org mode"""
 
 RST_DOCS_SOURCES = [
     'glossary',
     'api',
 ]
-"""Which info pages are in raw rst"""
-
-LOGO_DIR = "info/logo"
 
 PYPIRC="$HOME/.pypirc"
 TESTING_PYPIRC="$HOME/.pypirc"
@@ -75,3 +76,14 @@ TESTING_PYPIRC="$HOME/.pypirc"
 # this is the name of the pyenv "version" to use for creating and
 # activating conda
 PYENV_CONDA_NAME = 'miniconda3-latest'
+
+## tests
+TESTS_DIR = "tests"
+
+## benchmarks
+BENCHMARKS_DIR = "benchmarks"
+
+# the range of commits to use for running all of the asv regression
+# benchmarks. See documentation in `asv run --help` for details.
+# Defaults to using the HASHFILE.
+ASV_RANGE = "HASHFILE:benchmark_selection.list"
