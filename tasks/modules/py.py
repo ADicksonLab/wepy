@@ -146,6 +146,8 @@ def docs_coverage(cx):
 @task
 def docs_complexity(cx):
 
+    os.makedirs(f"{REPORTS_DIR}/code_quality/_html",
+                exist_ok=True)
     cx.run(f"lizard -o {REPORTS_DIR}/code_quality/_html/index.html src/{project_slug()}",
            warn=True)
 
@@ -288,7 +290,6 @@ def docs_build(cx):
             "sphinx/_build/html/quality"
         )
 
-    # TODO, STUB
     # coverage
     coverage_pages = Path("reports/coverage/_html")
 
@@ -310,11 +311,13 @@ def docs_serve(cx):
 ### TODO: WIP Website
 
 @task(pre=[clean_docs, clean_website, docs_build])
-def website_deploy_local(cx):
-    """WIP Deploy the docs locally for development."""
+def website_serve(cx):
+    """Serve the main web page locally for development."""
 
     # TODO: implement using Nikola
-    pass
+
+    # STUB: just use the docs for this right now
+    docs_serve(cx)
 
 
 # STUB: @task(pre=[clean_docs, docs_build])
@@ -407,9 +410,12 @@ def tests_nox(cx):
 
 @task
 def coverage_report(cx):
-    cx.run("coverage report")
-    cx.run("coverage xml")
-    cx.run("coverage json")
+    # cx.run("coverage report")
+    cx.run("coverage xml -o reports/coverage/coverage.xml",
+           warn=True)
+    cx.run("coverage json -o reports/coverage/coverage.json",
+           warn=True
+    )
 
 @task
 def coverage_serve(cx):
