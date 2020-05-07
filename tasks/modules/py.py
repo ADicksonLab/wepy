@@ -308,7 +308,7 @@ def docs_serve(cx):
     """Local server for documenation"""
     cx.run("python -m http.server -d sphinx/_build/html 8022")
 
-### TODO: WIP Website
+### Website
 
 @task(pre=[clean_docs, clean_website, docs_build])
 def website_serve(cx):
@@ -329,6 +329,68 @@ def website_deploy(cx):
     # `gh-pages` for you
     cx.run("ghp-import --no-jekyll --push --force sphinx/_build/html")
 
+
+### Jigs
+
+# jigs are for that kind of in between work of not in module, not
+# documentation etc. Could be prototypes, troubleshooting, or anything
+# that needs non-trivial setup but isn't part of a "framework". Uses
+# the same schema as examples to give some order to it.
+
+@task
+def new_jig(cx, name=None, template="org"):
+    """Create a new jig.
+
+    Can choose between the following templates:
+    - 'org' :: org mode notebook
+
+    """
+
+    assert name is not None, "Must provide a name"
+
+    template_path = Path(f"templates/jigs/{template}")
+
+    # check if the template exists
+    if not template_path.is_dir():
+
+        raise ValueError(
+            f"Unkown template {template}. Check the 'templates/jigs' folder")
+
+    target_path = Path(f"jigs/{name}")
+
+    if target_path.exists():
+        raise FileExistsError(f"Jig with name {name} already exists. Not overwriting.")
+
+    # copy the template
+    cx.run(f"cp -r {template_path} {target_path}")
+
+    print(f"New example created at: {target_path}")
+
+@task
+def pin_jig(cx, name=None):
+    """Pin the deps for an example or all of them if 'name' is None."""
+
+    path = Path('jigs') / name / 'env'
+
+    assert path.exists() and path.is_dir(), \
+        f"Env for Jig {name} doesn't exist"
+
+    cx.run(f"inv env.deps-pin-path -p {path}")
+
+@task
+def env_jig(cx, name=None):
+    """Make a the example env in its local dir."""
+
+    if name is None:
+        raise ValueError("Must specify which jig to use")
+
+    spec_path = Path('jigs') / name / 'env'
+    env_path = Path('jigs') / name / '_env'
+
+    assert spec_path.exists() and spec_path.is_dir(), \
+        f"Jig {name} doesn't exist"
+
+    cx.run(f"inv env.make-env -s {spec_path} -p {env_path}")
 
 
 ### Tests
@@ -407,6 +469,14 @@ def tests_nox(cx):
 
 
 ### Code & Test Quality
+
+@task
+def docstrings_report(cx):
+
+    cx.run("mkdir -p reports/docstring_coverage")
+    cx.run("interrogate -o reports/docstring_coverage/src.interrogate.txt -vv src")
+
+    # TODO add it for tests and docs etc.
 
 @task
 def coverage_report(cx):

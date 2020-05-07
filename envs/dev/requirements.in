@@ -36,7 +36,8 @@ coverage
 # code quality metrics
 lizard
 flake8
-
+interrogate
+asv
 
 # need this for using multiprocessing logging in the tests
 multiprocessing_logging

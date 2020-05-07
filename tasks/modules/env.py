@@ -387,7 +387,7 @@ def venv_env(cx,
         # update pip
         cx.run("pip install --upgrade pip")
 
-        if osp.exists(env_spec_path / SELF_REQUIREMENTS):
+        if osp.exists(env_spec_path / PIP_COMPILED_REQUIREMENTS):
             cx.run(f"pip install -r {env_spec_path}/{PIP_COMPILED_REQUIREMENTS}")
 
         else:
