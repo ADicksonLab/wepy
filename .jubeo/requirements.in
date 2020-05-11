@@ -6,3 +6,7 @@ ghp-import
 coverage
 pytest
 pytest-runner
+
+# container env stuff
+lxdock
+fabric

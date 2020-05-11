@@ -23,6 +23,7 @@ modules = [
     'git',
     'py',
     'docs',
+    'lxd',
 ]
 
 [taskset]

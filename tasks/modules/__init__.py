@@ -8,6 +8,7 @@ from . import env
 from . import git
 from . import py
 from . import docs
+from . import lxd
 
 MODULES = [
     core,
@@ -16,4 +17,5 @@ MODULES = [
     git,
     py,
     docs,
+    lxd,
 ]
