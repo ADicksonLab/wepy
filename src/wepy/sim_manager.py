@@ -49,6 +49,8 @@ import time
 from copy import deepcopy
 import logging
 
+from eliot import start_action, log_call
+
 from wepy.work_mapper.mapper import Mapper
 
 class Manager(object):
@@ -164,6 +166,13 @@ class Manager(object):
         else:
             self.work_mapper = work_mapper
 
+    @log_call(
+        include_args=[
+            'segment_length',
+            'cycle_idx',
+        ],
+        include_result=False,
+    )
     def run_segment(self, walkers, segment_length, cycle_idx):
         """Run a time segment for all walkers using the available workers.
 
@@ -214,6 +223,11 @@ class Manager(object):
 
         return new_walkers
 
+    @log_call(include_args=[
+        'n_segment_steps',
+        'cycle_idx',
+        'runner_opts'],
+              include_result=False)
     def run_cycle(self,
                   walkers,
                   n_segment_steps,
@@ -307,8 +321,6 @@ class Manager(object):
     ):
         """See run_cycle."""
 
-        logging.info("Begin cycle {}".format(cycle_idx))
-
         if runner_opts is None:
             runner_opts = {}
 
@@ -321,11 +333,15 @@ class Manager(object):
         )
 
         # run the segment
-        start = time.time()
-        logging.info("Entering run segment")
+        # TODO remove manual timing
+        # start = time.time()
+
         new_walkers = self.run_segment(walkers, n_segment_steps, cycle_idx)
-        end = time.time()
-        runner_time = end - start
+
+        # end = time.time()
+        # runner_time = end - start
+        # STUB
+        runner_time = 0.
 
         logging.info("Starting post cycle")
         # run post-cycle hook
@@ -400,15 +416,16 @@ class Manager(object):
                     sampling_time += seg_time
 
             # calculate the overhead for logging
-            overhead_time = runner_time - sampling_time
+            # overhead_time = runner_time - sampling_time
 
-            logging.info(
-                "Runner time = {}; Sampling = ({}); Overhead = ({})".format(
-                    runner_time, sampling_time, overhead_time))
+            # logging.info(
+            #     "Runner time = {}; Sampling = ({}); Overhead = ({})".format(
+            #         runner_time, sampling_time, overhead_time))
 
         else:
-            logging.info("No worker segment times given")
-            logging.info("Runner time = {}".format(runner_time))
+            pass
+            # logging.info("No worker segment times given")
+            # logging.info("Runner time = {}".format(runner_time))
 
 
         report = {'cycle_idx' : cycle_idx,
@@ -454,6 +471,7 @@ class Manager(object):
         logging.info("Done: returning walkers")
         return walkers, filters
 
+    @log_call
     def init(self, num_workers=None, continue_run=None):
         """Initialize wepy configuration components for use at runtime.
 
@@ -608,6 +626,7 @@ class Manager(object):
 
         return walkers, deepcopy(filters)
 
+    @log_call(include_result=False)
     def run_simulation(self, n_cycles, segment_lengths, num_workers=None):
         """Run a simulation for an explicit number of cycles.
 
@@ -646,9 +665,12 @@ class Manager(object):
             segment_lengths = [segment_lengths for _ in range(n_cycles)]
 
         walkers = self.init_walkers
+
         # the main cycle loop
-        for cycle_idx in range(n_cycles):
-            walkers, filters = self.run_cycle(walkers, segment_lengths[cycle_idx], cycle_idx)
+        with start_action(action_type="Simulation Loop") as simloop_cx:
+            for cycle_idx in range(n_cycles):
+
+                walkers, filters = self.run_cycle(walkers, segment_lengths[cycle_idx], cycle_idx)
 
         self.cleanup()
 

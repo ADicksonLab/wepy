@@ -29,6 +29,8 @@ from warnings import warn
 import logging
 import time
 
+from eliot import log_call, start_action
+
 import numpy as np
 
 try:
@@ -193,6 +195,11 @@ class OpenMMRunner(Runner):
         self._cycle_platform = None
         self._cycle_platform_kwargs = None
 
+    @log_call(include_args=[
+        'platform',
+        'platform_kwargs',
+    ],
+              include_result=False)
     def pre_cycle(self,
                   platform=None,
                   platform_kwargs=None,
@@ -211,6 +218,8 @@ class OpenMMRunner(Runner):
         self._cycle_platform = platform
         self._cycle_platform_kwargs = platform_kwargs
 
+    @log_call(include_args=[],
+              include_result=False)
     def post_cycle(self, **kwargs):
 
         super().post_cycle(**kwargs)
@@ -255,6 +264,15 @@ class OpenMMRunner(Runner):
         return platform_name, \
                platform_kwargs,
 
+    @log_call(
+        include_args=[
+            'segment_length',
+            'getState_kwargs',
+            'platform',
+            'platform_kwargs',
+        ],
+        include_result=False,
+    )
     def run_segment(self,
                     walker,
                     segment_length,
@@ -414,7 +432,8 @@ class OpenMMRunner(Runner):
         steps_start = time.time()
 
         # Run the simulation segment for the number of time steps
-        simulation.step(segment_length)
+        with start_action(action_type="OpenMM Simulation.steps") as ommsim_cx:
+            simulation.step(segment_length)
 
         steps_end = time.time()
         steps_time = steps_end - steps_start
@@ -442,6 +461,8 @@ class OpenMMRunner(Runner):
 
         return new_walker
 
+    @log_call(include_args=['getState_kwargs'],
+              include_result=False)
     def generate_state(self, simulation, segment_length, starting_walker, getState_kwargs):
         """Method for generating a wepy compliant state from an OpenMM
         simulation object and data about the last segment of dynamics run.

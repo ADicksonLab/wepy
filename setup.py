@@ -34,6 +34,7 @@ base_requirements = [
     'jinja2',
     'pint',
     'multiprocessing_logging',
+    'eliot',
 ]
 
 # extras requirements list

@@ -8,9 +8,11 @@ import multiprocessing as mp
 import queue as pyq
 import traceback
 import time
-import logging
 from warnings import warn
 import signal
+
+import logging
+from eliot import start_action, log_call
 
 PY_MAP = map
 
@@ -39,6 +41,8 @@ class ABCMapper(object):
     def attributes(self, key):
         return self._attributes[key]
 
+    @log_call(include_args=[],
+              include_result=False)
     def init(self, segment_func=None, **kwargs):
         """Runtime initialization and setting of function to map over walkers.
 
@@ -65,6 +69,8 @@ class ABCMapper(object):
         """The function that will be called for new data in the `map` method."""
         return self._func
 
+    @log_call(include_args=[],
+              include_result=False)
     def cleanup(self, **kwargs):
         """Runtime post-simulation tasks.
 
@@ -80,6 +86,8 @@ class ABCMapper(object):
         # nothing to do
         pass
 
+    @log_call(include_args=[],
+              include_result=False)
     def map(self, *args, **kwargs):
         raise NotImplementedError
 
@@ -103,7 +111,8 @@ class Mapper(ABCMapper):
 
         self._worker_segment_times = {0 : []}
 
-
+    @log_call(include_args=[],
+              include_result=False)
     def map(self, *args, **kwargs):
         """Map the 'segment_func' to args.
 

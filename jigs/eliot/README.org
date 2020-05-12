@@ -1,0 +1,24 @@
+* Getting logs and metrics with Eliot
+
+** Piping around
+
+#+begin_src bash
+python source/stdout_log.py | tee _output/log.eliot.json | eliot-tree
+#+end_src
+
+** File based
+
+Run a script and then you can read the log from the output:
+
+#+begin_src bash
+python source/file_log.py
+eliot-tree _output/file_log.eliot.json
+#+end_src
+
+
+
+** Analyzing Metrics
+
+Eliot tree provides some query language support:
+
+

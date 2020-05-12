@@ -117,7 +117,7 @@ def push_project(cx):
     rsync(cx,
           os.getcwd(),
           target_dir,
-          rsync_opts="-ahi --stats",
+          rsync_opts="-ahi --stats --filter=':- .gitignore'",
     )
 
 
@@ -130,5 +130,5 @@ def pull_project(cx):
     rsync(cx,
           os.getcwd(),
           target_dir,
-          rsync_opts="-ahi --stats --update",
+          rsync_opts="-ahi --stats --filter=':- .gitignore' --update",
     )

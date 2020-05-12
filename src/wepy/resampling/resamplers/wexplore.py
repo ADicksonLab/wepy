@@ -3,7 +3,9 @@ import random as rand
 import itertools as it
 from collections import namedtuple, defaultdict
 from copy import copy, deepcopy
+
 import logging
+from eliot import start_action, log_call
 
 import numpy as np
 import networkx as nx
@@ -2578,7 +2580,8 @@ class WExploreResampler(CloneMergeResampler):
         self.region_tree.max_num_walkers = False
         self.region_tree.min_num_walkers = False
 
-
+    @log_call(include_args=[],
+              include_result=False)
     def resample(self, walkers):
 
         # do some initialiation routines and debugging preparations if

@@ -7,4 +7,4 @@ Host wepy.dev
   RequestTTY yes
   ForwardX11 yes
   StrictHostKeyChecking no  
-  RemoteCommand exec /bin/bash
+  # RemoteCommand cd ${PWD}

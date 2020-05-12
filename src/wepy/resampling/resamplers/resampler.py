@@ -1,7 +1,9 @@
 import itertools as it
 from collections import defaultdict
 from warnings import warn
+
 import logging
+from eliot import start_action, log_call
 
 import numpy as np
 
@@ -553,6 +555,8 @@ class Resampler():
         self._unset_resampling_num_walkers()
 
 
+    @log_call(include_args=[],
+              include_result=False)
     def resample(self, walkers, debug_mode=False):
         """Perform resampling on the set of walkers.
 
@@ -598,6 +602,8 @@ class NoResampler(Resampler):
 
     RESAMPLING_RECORD_FIELDS = DECISION.RECORD_FIELDS + Resampler.CYCLE_RECORD_FIELDS
 
+    @log_call(include_args=[],
+              include_result=False)
     def resample(self, walkers, **kwargs):
 
         self._resample_init(walkers=walkers)
