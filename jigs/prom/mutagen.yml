@@ -1,0 +1,17 @@
+sync:
+  defaults:
+    flushOnCreate: true
+    ignore:
+      vcs: true
+    permissions:
+      defaultFileMode: 0444
+        
+  superior:
+    alpha: "."
+    beta: "dickson.superior:~/tree/lab/devel/wumpus.prometheus/jigs/prom"
+    mode: "two-way-resolved"
+    ignore:
+      paths:
+        - "_*"
+        - "!/_tangle_source"
+        - "*~"

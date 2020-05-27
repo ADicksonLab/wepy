@@ -22,6 +22,7 @@ envs/__*
 jigs/*/_output
 jigs/*/_tangle_source
 jigs/*/_env
+jigs/*/_bin
 
 _asv_envs
 
