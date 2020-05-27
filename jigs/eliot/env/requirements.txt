@@ -4,4 +4,6 @@
 eliot
 eliot-tree
 
+prometheus_client
+
 -e .[all]

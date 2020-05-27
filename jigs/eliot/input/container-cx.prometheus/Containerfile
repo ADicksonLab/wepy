@@ -1,0 +1,4 @@
+FROM docker.io/prom/prometheus
+
+# set our config file into the prometheus auto config location
+ADD prometheus.yaml /etc/prometheus/prometheus.yml

@@ -22,3 +22,35 @@ eliot-tree _output/file_log.eliot.json
 Eliot tree provides some query language support:
 
 
+
+
+* Prometheus
+
+Download and install prometheus and grafana:
+
+#+begin_src bash
+inv prometheus-install
+inv grafana-install
+#+end_src
+
+You can configure for which jobs you want prometheus to scrape from in
+the ~input/prometheus.yaml~ file.
+
+Then start the server with:
+
+#+begin_src bash
+inv prometheus-start
+#+end_src
+
+The URL and port will be printed.
+
+Then you can connect a grafana server to it after you start the
+grafana server:
+
+#+begin_src bash
+inv grafana-start
+#+end_src
+
+The port and URL will be printed.
+
+
