@@ -627,7 +627,11 @@ class Manager(object):
         return walkers, deepcopy(filters)
 
     @log_call(include_result=False)
-    def run_simulation(self, n_cycles, segment_lengths, num_workers=None):
+    def run_simulation(self, n_cycles,
+                       segment_lengths,
+                       num_workers=None,
+                       sim_monitor=None,
+    ):
         """Run a simulation for an explicit number of cycles.
 
         Parameters
@@ -671,6 +675,9 @@ class Manager(object):
             for cycle_idx in range(n_cycles):
 
                 walkers, filters = self.run_cycle(walkers, segment_lengths[cycle_idx], cycle_idx)
+
+                # run the simulation monitor to get metrics on everything
+                sim_monitor.cycle_monitor(self, walkers)
 
         self.cleanup()
 

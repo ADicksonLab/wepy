@@ -7,11 +7,14 @@ sync:
       defaultFileMode: 0444
         
   superior:
-    alpha: "."
-    beta: "dickson.superior:~/tree/lab/devel/wumpus.prometheus/jigs/prom"
+    alpha: "../../"
+    beta: "dickson.superior:~/tree/lab/devel/wepy.deepwork.eliot"
     mode: "two-way-resolved"
     ignore:
       paths:
         - "_*"
+        - "!__*__.py"
+        - "!_version.py"
+        - "!_bin"
         - "!/_tangle_source"
         - "*~"

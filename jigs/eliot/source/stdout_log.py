@@ -18,7 +18,9 @@ logger.addHandler(EliotHandler)
 
 # install_mp_handler()
 
-to_file(sys.stdout)
+log_file = open("_output/log.eliot.json", 'w')
+
+# to_file(sys.stdout)
 
 ### Setup Junk
 with start_action(action_type="Setup") as setup_cx:

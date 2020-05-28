@@ -26,6 +26,6 @@ echo "Started the nvidia_gpu_prometheus_exporter as PID: $nvidia_exporter_pid"
 
 # then run the job
 echo "Running main process"
-python source/job.py || teardown
+python source/we_pympler.py 10000 10000 10 || teardown
 
-
+teardown
