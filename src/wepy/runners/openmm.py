@@ -195,6 +195,10 @@ class OpenMMRunner(Runner):
         self._cycle_platform = None
         self._cycle_platform_kwargs = None
 
+        # for special monitoring purposes to get split times to debug
+        # performance
+        self._last_cycle_segments_split_times = None
+
     @log_call(include_args=[
         'platform',
         'platform_kwargs',
@@ -217,6 +221,10 @@ class OpenMMRunner(Runner):
         # set the platform and kwargs for this cycle
         self._cycle_platform = platform
         self._cycle_platform_kwargs = platform_kwargs
+
+        # each segment split times will get appended to this
+        self._last_cycle_segments_split_times = []
+
 
     @log_call(include_args=[],
               include_result=False)
@@ -424,6 +432,7 @@ class OpenMMRunner(Runner):
 
         gen_sim_end = time.time()
         gen_sim_time = gen_sim_end - gen_sim_start
+
         logging.info("Time to generate the system: {}".format(gen_sim_time))
 
 
@@ -437,6 +446,8 @@ class OpenMMRunner(Runner):
 
         steps_end = time.time()
         steps_time = steps_end - steps_start
+
+
         logging.info("Time to run {} sim steps: {}".format(segment_length, steps_time))
 
 
@@ -458,6 +469,16 @@ class OpenMMRunner(Runner):
         run_segment_end = time.time()
         run_segment_time = run_segment_end - run_segment_start
         logging.info("Total internal run_segment time: {}".format(run_segment_time))
+
+
+        segment_split_times = {
+            'gen_sim_time' :  gen_sim_time,
+            'steps_time' : steps_time,
+            'get_state_time' : get_state_time,
+            'run_segment_time' : run_segment_time,
+        }
+
+        self._last_cycle_segments_split_times.append(segment_split_times)
 
         return new_walker
 

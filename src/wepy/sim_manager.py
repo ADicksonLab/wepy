@@ -86,12 +86,20 @@ class Manager(object):
     """
 
 
-    REPORT_ITEM_KEYS = ('cycle_idx', 'n_segment_steps',
-                        'new_walkers', 'resampled_walkers',
-                        'warp_data', 'bc_data', 'progress_data',
-                        'resampling_data', 'resampler_data',
-                        'worker_segment_times', 'cycle_runner_time',
-                        'cycle_bc_time', 'cycle_resampling_time',)
+    REPORT_ITEM_KEYS = ('cycle_idx',
+                        'n_segment_steps',
+                        'new_walkers',
+                        'resampled_walkers',
+                        'warp_data',
+                        'bc_data',
+                        'progress_data',
+                        'resampling_data',
+                        'resampler_data',
+                        'worker_segment_times',
+                        'cycle_runner_time',
+                        'cycle_bc_time',
+                        'cycle_resampling_time',
+    )
     """Keys of values that will be passed to reporters.
 
     This indicates the values that the reporters will have access to.
@@ -165,6 +173,11 @@ class Manager(object):
             self.work_mapper = Mapper()
         else:
             self.work_mapper = work_mapper
+
+        # used to have a record of the last report for the simulation
+        # monitor without breaking the API. Ugly but I don't want to
+        # break it and no one cares about this anyhow
+        self._last_report = None
 
     @log_call(
         include_args=[
@@ -324,7 +337,10 @@ class Manager(object):
         if runner_opts is None:
             runner_opts = {}
 
-        # run the pre-cycle hook
+        # run the runner pre-cycle hook
+
+        start = time.time()
+
         self.runner.pre_cycle(
             walkers=walkers,
             n_segment_steps=n_segment_steps,
@@ -332,20 +348,33 @@ class Manager(object):
             **runner_opts
         )
 
+        end = time.time()
+        runner_precycle_time = end - start
+
+
         # run the segment
-        # TODO remove manual timing
-        # start = time.time()
+        start = time.time()
 
         new_walkers = self.run_segment(walkers, n_segment_steps, cycle_idx)
 
-        # end = time.time()
-        # runner_time = end - start
-        # STUB
-        runner_time = 0.
+        end = time.time()
+        sim_manager_segment_time = end - start
+
+        if hasattr(self.runner, '_last_cycle_segments_split_times'):
+
+            runner_splits = self.runner._last_cycle_segments_split_times
+
+        else:
+            runner_splits = None
 
         logging.info("Starting post cycle")
         # run post-cycle hook
+        start = time.time()
+
         self.runner.post_cycle()
+
+        end = time.time()
+        runner_postcycle_time = end - start
 
         logging.info("End cycle {}".format(cycle_idx))
 
@@ -416,14 +445,14 @@ class Manager(object):
                     sampling_time += seg_time
 
             # calculate the overhead for logging
-            # overhead_time = runner_time - sampling_time
+            sim_manager_segment_overhead_time = sim_manager_segment_time - sampling_time
 
             # logging.info(
             #     "Runner time = {}; Sampling = ({}); Overhead = ({})".format(
             #         runner_time, sampling_time, overhead_time))
 
         else:
-            pass
+            runner_overhead_time = 0.
             # logging.info("No worker segment times given")
             # logging.info("Runner time = {}".format(runner_time))
 
@@ -436,11 +465,22 @@ class Manager(object):
                   'resampling_data' : resampling_data,
                   'resampler_data' : resampler_data,
                   'n_segment_steps' : n_segment_steps,
+                  'resampled_walkers' : resampled_walkers,
+
+                  # timings
+                  'runner_precycle_time' : runner_precycle_time,
+                  'runner_postcycle_time' : runner_postcycle_time,
+                  'sim_manager_segment_overhead_time' : sim_manager_segment_overhead_time,
+                  'runner_splits_time' : runner_splits,
                   'worker_segment_times' : seg_times,
-                  'cycle_runner_time' : runner_time,
+                  'cycle_sim_manager_segment_time' : sim_manager_segment_time,
+                  'cycle_runner_time' : sim_manager_segment_time,
                   'cycle_bc_time' : bc_time,
                   'cycle_resampling_time' : resampling_time,
-                  'resampled_walkers' : resampled_walkers}
+
+        }
+
+        self._last_report = report
 
         # check that all of the keys that are specified for this sim
         # manager are present
@@ -626,7 +666,13 @@ class Manager(object):
 
         return walkers, deepcopy(filters)
 
-    @log_call(include_result=False)
+    @log_call(
+        include_args=[
+            'n_cycles',
+            'segment_lengths',
+            'num_workers',
+        ],
+        include_result=False)
     def run_simulation(self, n_cycles,
                        segment_lengths,
                        num_workers=None,
