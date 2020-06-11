@@ -1,0 +1,9 @@
+run:
+  echo: true
+  pty: true
+  hide: false
+ssh_config_path: lxd.ssh_config
+
+connect_kwargs:
+  allow_agent: true
+  password: password

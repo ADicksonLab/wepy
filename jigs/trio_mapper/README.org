@@ -1,0 +1,28 @@
+* Working on New Work Mapper with Trio
+
+Set up testing environment in an LXD container since we are working
+with threads and things locally.
+
+** Make execution env
+
+Make env:
+
+#+begin_src bash
+pyenv shell miniconda3-latest
+inv env
+#+end_src
+
+
+** TODO Prometheus Cluster
+
+# TODO:
+
+Use the prometheus cluster definition jig:
+
+Start the cluster:
+
+#+begin_src bash
+docker-compose -f input/compose/compose.yaml up
+#+end_src
+
+
