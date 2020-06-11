@@ -351,7 +351,6 @@ class Manager(object):
         end = time.time()
         runner_precycle_time = end - start
 
-
         # run the segment
         start = time.time()
 
@@ -362,7 +361,7 @@ class Manager(object):
 
         if hasattr(self.runner, '_last_cycle_segments_split_times'):
 
-            runner_splits = self.runner._last_cycle_segments_split_times
+            runner_splits = deepcopy(self.runner._last_cycle_segments_split_times)
 
         else:
             runner_splits = None
@@ -436,7 +435,7 @@ class Manager(object):
 
         if hasattr(self.work_mapper, 'worker_segment_times'):
 
-            seg_times = self.work_mapper.worker_segment_times
+            seg_times = deepcopy(self.work_mapper.worker_segment_times)
 
             # count up the total sampling time from the segments
             sampling_time = 0
@@ -452,7 +451,7 @@ class Manager(object):
             #         runner_time, sampling_time, overhead_time))
 
         else:
-            runner_overhead_time = 0.
+            sim_manager_segment_overhead_time = 0.
             # logging.info("No worker segment times given")
             # logging.info("Runner time = {}".format(runner_time))
 

@@ -323,7 +323,7 @@ class ABCWorkerMapper(ABCMapper):
 
     def cleanup(self, **kwargs):
 
-        # TODO: is this all we need to do? I have a hunch there is
+        # ALERT: is this all we need to do? I have a hunch there is
         # more caveats, but these context objects are not really
         # documented
 
@@ -461,7 +461,8 @@ class WorkerMapper(ABCWorkerMapper):
 
         """
 
-        super().init(num_workers=num_workers, segment_func=segment_func,
+        super().init(num_workers=num_workers,
+                     segment_func=segment_func,
                      **kwargs)
 
         manager = self._mp_ctx.Manager()
@@ -501,6 +502,7 @@ class WorkerMapper(ABCWorkerMapper):
                                       self._result_queue,
                                       self._exception_queue,
                                       child_conn,
+                                      mapper_attributes=self._attributes,
                                       **self._worker_attributes)
             self._workers.append(worker)
 
@@ -760,8 +762,11 @@ class Worker(mp.Process):
     logs. The field will be filled with the worker index."""
 
     def __init__(self, worker_idx,
-                 task_queue, result_queue,
-                 exception_queue, interrupt_connection,
+                 task_queue,
+                 result_queue,
+                 exception_queue,
+                 interrupt_connection,
+                 mapper_attributes=None,
                  **kwargs):
         """Constructor for the Worker class.
 
@@ -778,6 +783,12 @@ class Worker(mp.Process):
 
         interrupt_connection : multiprocessing.Connection
             One end of a pipe to listen for messages specific to this worker.
+
+        mapper_attributes : None or dict
+            A dictionary of the attributes of the mapper for reference in workers.
+
+        kwargs :
+            The worker specific attributes
 
         """
 
@@ -796,6 +807,8 @@ class Worker(mp.Process):
         signal.signal(signal.SIGTERM, self._sigterm_shutdown)
 
         self._worker_idx = worker_idx
+
+        self._mapper_attributes = mapper_attributes
 
         # set all the kwargs into an attributes dictionary
         self._attributes = kwargs
@@ -816,6 +829,11 @@ class Worker(mp.Process):
     def attributes(self):
         """Dictionary of attributes of the worker."""
         return self._attributes
+
+    @property
+    def mapper_attributes(self):
+        """Dictionary of attributes of the worker."""
+        return self._mapper_attributes
 
     def run(self):
 
@@ -1015,8 +1033,36 @@ class Worker(mp.Process):
                 # index so we can sort them later
                 self._result_queue.put((task_idx, self.worker_idx, task_time, answer))
 
+    def run_task(self, task):
+        """Actually executes the task.
+
+        This default runner simply executes the task thunk.
+
+        This can be customized by subclasses in order to allow for
+        injection of worker specific data.
+
+        Parameters
+        ----------
+        task : Task object
+            The partially evaluated task; function plus arguments
+
+        Returns
+        -------
+        task_result
+            Results of running the task.
+
+        """
+
+        return task()
+
+
     def _run_task(self, task):
         """Runs the given task and returns the results.
+
+        This manages handling exceptions and tracebacks from the
+        actual `run_task` function which is intended to be specialized
+        by different workers to inject worker specific arguments to
+        tasks. Such as node and device identification.
 
         Parameters
         ----------
@@ -1032,7 +1078,7 @@ class Worker(mp.Process):
 
         logging.info("Running task")
         try:
-            return task()
+            return self.run_task(task)
 
         except Exception as task_exception:
 

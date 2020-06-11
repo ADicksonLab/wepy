@@ -349,7 +349,7 @@ class OpenMMSimMaker():
             else:
                 worker_type = Worker
 
-            work_mapper_params['worker_task_type'] = worker_type
+            work_mapper_params['walker_task_type'] = worker_type
 
         return work_mapper_params
 
@@ -510,7 +510,8 @@ class OpenMMSimMaker():
 
     def make_configuration(self,
                            apparatus,
-                           work_mapper='TaskMapper',
+                           work_mapper_class=None,
+                           work_mapper_spec='TaskMapper',
                            work_mapper_params=None,
                            platform='Reference',
                            # defaults to using all of the defaults
@@ -522,8 +523,19 @@ class OpenMMSimMaker():
         # MAPPER
 
         # choose which mapper to use
-        work_mapper_class = [mapper for mapper in self.MAPPERS
-                           if mapper.__name__ == work_mapper][0]
+
+        # use the class if given
+        if work_mapper_class is not None:
+            pass
+
+        # use the spec string given
+        elif work_mapper_spec is not None:
+
+            work_mapper_class = [mapper for mapper in self.MAPPERS
+                                 if mapper.__name__ == work_mapper_spec][0]
+
+        else:
+            raise ValueError("neither work_mapper_class or work_mapper_spec were not given")
 
         mapper_name = work_mapper_class.__name__
 

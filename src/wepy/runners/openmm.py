@@ -1288,17 +1288,21 @@ class OpenMMGPUWorker(Worker):
 
     def run_task(self, task):
 
-        # documented in superclass
+        # get the platform
+        platform = self.mapper_attributes['platform']
 
+        # get the device index from the attributes
         device_id = self.mapper_attributes['device_ids'][self._worker_idx]
 
         # make the platform kwargs dictionary
         platform_options = {'DeviceIndex' : str(device_id)}
 
-        # run the task and pass in the DeviceIndex for OpenMM to
-        # assign work to the correct GPU
-        return task(platform_kwargs=platform_options)
+        logging.info(f"platform={platform}, platform_options={platform_options}")
 
+        return task(
+            platform=platform,
+            platform_kwargs=platform_options,
+        )
 
 
 class OpenMMCPUWalkerTaskProcess(WalkerTaskProcess):
@@ -1322,10 +1326,18 @@ class OpenMMGPUWalkerTaskProcess(WalkerTaskProcess):
 
     def run_task(self, task):
 
+        # get the platform
+        platform = self.mapper_attributes['platform']
+
         # get the device index from the attributes
         device_id = self.mapper_attributes['device_ids'][self._worker_idx]
 
         # make the platform kwargs dictionary
         platform_options = {'DeviceIndex' : str(device_id)}
 
-        return task(platform_kwargs=platform_options)
+        logging.info(f"platform={platform}, platform_options={platform_options}")
+
+        return task(
+            platform=platform,
+            platform_kwargs=platform_options,
+        )
