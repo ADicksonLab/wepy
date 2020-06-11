@@ -1,0 +1,20 @@
+
+--index-url https://pypi.python.org/simple/
+
+ipython
+pdbpp
+invoke
+
+# TODO: set after release
+# wepy[all]==1.0.0rc1.dev0
+
+multiprocessing_logging
+numpy
+scipy
+mdtraj
+
+prometheus_client
+eliot
+eliot-tree
+filprofiler
+pympler

@@ -1,0 +1,73 @@
+* Running monitoring tests on HPCC
+
+** Set up Mutagen sync
+
+#+begin_src bash
+mutagen project start
+#+end_src
+
+** Prometheus Cluster
+
+Make sure the permissions are set right if mutagen doesn't do this:
+
+#+begin_src bash
+chmod ugo+rx input/compose/volumes/* input/compose/volumes/grafana/provisioning input/compose/volumes/grafana/provisioning/*
+chmod ugo+r input/compose/volumes/prometheus/* input/compose/volumes/grafana/grafana.ini input/compose/volumes/grafana/provisioning/dashboards/* input/compose/volumes/grafana/provisioning/datasources/*
+#+end_src
+
+Start the cluster:
+
+#+begin_src bash
+docker-compose -f input/compose/compose.yaml up
+#+end_src
+
+
+** Make execution env
+
+Make env:
+
+#+begin_src bash
+pyenv shell miniconda3-latest
+inv env
+#+end_src
+
+
+You'll need to run the script:
+
+#+begin_src bash
+sbatch source/job.sh
+#+end_src
+
+** Set Up tunnels from node to prometheus cluster
+
+On HPCC:
+
+Then figure out which node it is running on (which should be printed
+out when starting it in the logs) and set up the tunnels for it:
+
+#+begin_src bash
+cat _output/sub_logs/lysozyme_test.${JOBID}.out | grep "Running on host: "
+#+end_src
+
+Or in the ~sq~:
+
+#+begin_src bash
+sq
+#+end_src
+
+Then on prometheus cluster node:
+
+Then edit the ~tunnels_superior.conf~ file for that node for that job.
+
+And start the tunnels for it:
+
+#+begin_src bash
+sshtun --config tunnels_superior.conf start ${TUN_SET_NAME}
+#+end_src
+
+I like to watch this particular process tree as its a little confusing.:
+
+#+begin_src bash
+pstree -s -p ${SSH_TUN_PID}
+#+end_src
+

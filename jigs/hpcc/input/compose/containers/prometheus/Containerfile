@@ -1,0 +1,3 @@
+FROM docker.io/prom/prometheus:latest
+
+ADD prometheus.yml /etc/prometheus/prometheus.yml

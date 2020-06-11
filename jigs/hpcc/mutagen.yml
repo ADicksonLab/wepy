@@ -1,0 +1,26 @@
+sync:
+  defaults:
+    flushOnCreate: true
+    permissions:
+      defaultFileMode: 0644
+      defaultDirectoryMode: 0755
+    ignore:
+      vcs: true      
+      paths:
+        - "_*"
+        - "!__*__.py"
+        - "!_version.py"
+        - "!_bin"
+        - "!/_tangle_source"
+        - "*~"
+      
+  superior:
+    alpha: "../../"
+    beta: "dickson.superior:~/tree/lab/devel/wepy.deepwork.eliot"
+    mode: "two-way-resolved"
+
+  hpcc:
+    alpha: "../../"
+    beta: "lotzsamu@rsync.hpcc.msu.edu:/mnt/gs18/scratch/users/lotzsamu/tree/lab/devel/wepy.deepwork.eliot"
+    mode: "two-way-resolved"
+        

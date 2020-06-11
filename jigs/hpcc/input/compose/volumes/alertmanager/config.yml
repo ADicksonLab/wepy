@@ -1,0 +1,19 @@
+global:
+  # The smarthost and SMTP sender used for mail notifications.
+  smtp_smarthost: 'localhost:25'
+  smtp_from: 'alertmanager@example.org'
+
+route:
+  
+  receiver: me
+
+  routes:
+
+  - match:
+      severity: critical
+    receiver: me
+  
+receivers:
+- name: 'me'
+  email_configs:
+    - to: salotz@salotz.info

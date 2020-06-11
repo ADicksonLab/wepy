@@ -1,0 +1,177 @@
+global:
+  scrape_interval:     1s 
+  evaluation_interval: 1s 
+
+rule_files:
+  - 'alert.rules'
+
+alerting:
+  alertmanagers:
+  - scheme: http
+    static_configs:
+    - targets:
+      - "alertmanager:9093"
+
+scrape_configs:
+
+  # - job_name: 'self'
+  #   static_configs:
+  #   - targets: ['localhost:9090']
+
+  ## Local Test Job
+  - job_name: 'test_node_exporter'
+    static_configs:
+    - targets: ['localhost:9100']
+
+  - job_name: 'test_nvidia_gpu_exporter'
+    static_configs:
+    - targets: ['localhost:9445']
+
+  - job_name: 'test_python_client'
+
+    static_configs:
+    - targets: ['localhost:9001']
+
+
+  ## Jobs
+
+  # job 0
+  - job_name: 'job0_node_exporter'
+    static_configs:
+    - targets: ['localhost:50000']
+
+  - job_name: 'job0_nvidia_gpu_exporter'
+    static_configs:
+    - targets: ['localhost:50001']
+
+  - job_name: 'job0_python_client'
+
+    static_configs:
+    - targets: ['localhost:50002']
+
+  # job1
+  - job_name: 'job1_node_exporter'
+    static_configs:
+    - targets: ['localhost:50010']
+
+  - job_name: 'job1_nvidia_gpu_exporter'
+    static_configs:
+    - targets: ['localhost:50011']
+
+  - job_name: 'job1_python_client'
+
+    static_configs:
+    - targets: ['localhost:50012']
+
+  # # job2
+  # - job_name: 'job2_node_exporter'
+  #   static_configs:
+  #   - targets: ['localhost:9100']
+
+  # - job_name: 'job2_nvidia_gpu_exporter'
+  #   static_configs:
+  #   - targets: ['localhost:9445']
+
+  # - job_name: 'job2_python_client'
+
+  #   static_configs:
+  #   - targets: ['localhost:9001']
+
+  # # job3
+  # - job_name: 'job3_node_exporter'
+  #   static_configs:
+  #   - targets: ['localhost:9100']
+
+  # - job_name: 'job3_nvidia_gpu_exporter'
+  #   static_configs:
+  #   - targets: ['localhost:9445']
+
+  # - job_name: 'job3_python_client'
+
+  #   static_configs:
+  #   - targets: ['localhost:9001']
+
+  # # job4
+  # - job_name: 'job4_node_exporter'
+  #   static_configs:
+  #   - targets: ['localhost:9100']
+
+  # - job_name: 'job4_nvidia_gpu_exporter'
+  #   static_configs:
+  #   - targets: ['localhost:9445']
+
+  # - job_name: 'job4_python_client'
+
+  #   static_configs:
+  #   - targets: ['localhost:9001']
+
+  # # job5
+  # - job_name: 'job5_node_exporter'
+  #   static_configs:
+  #   - targets: ['localhost:9100']
+
+  # - job_name: 'job5_nvidia_gpu_exporter'
+  #   static_configs:
+  #   - targets: ['localhost:9445']
+
+  # - job_name: 'job5_python_client'
+
+  #   static_configs:
+  #   - targets: ['localhost:9001']
+
+  # # job6
+  # - job_name: 'job6_node_exporter'
+  #   static_configs:
+  #   - targets: ['localhost:9100']
+
+  # - job_name: 'job6_nvidia_gpu_exporter'
+  #   static_configs:
+  #   - targets: ['localhost:9445']
+
+  # - job_name: 'job6_python_client'
+
+  #   static_configs:
+  #   - targets: ['localhost:9001']
+
+  # # job7
+  # - job_name: 'job7_node_exporter'
+  #   static_configs:
+  #   - targets: ['localhost:9100']
+
+  # - job_name: 'job7_nvidia_gpu_exporter'
+  #   static_configs:
+  #   - targets: ['localhost:9445']
+
+  # - job_name: 'job7_python_client'
+
+  #   static_configs:
+  #   - targets: ['localhost:9001']
+
+  # # job8
+  # - job_name: 'job8_node_exporter'
+  #   static_configs:
+  #   - targets: ['localhost:9100']
+
+  # - job_name: 'job8_nvidia_gpu_exporter'
+  #   static_configs:
+  #   - targets: ['localhost:9445']
+
+  # - job_name: 'job8_python_client'
+
+  #   static_configs:
+  #   - targets: ['localhost:9001']
+
+  # # job9
+  # - job_name: 'job9_node_exporter'
+  #   static_configs:
+  #   - targets: ['localhost:9100']
+
+  # - job_name: 'job9_nvidia_gpu_exporter'
+  #   static_configs:
+  #   - targets: ['localhost:9445']
+
+  # - job_name: 'job9_python_client'
+
+  #   static_configs:
+  #   - targets: ['localhost:9001']
+
