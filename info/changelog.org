@@ -7,6 +7,11 @@ See the git commit log history for full details.
 
 ** 1.0.0 - WIP
 
+Changes in rc4:
+
+- fixes bugs introduced to work mappers from rc2
+
+
 Changes in rc3:
 
 - removed integration with ~openmmtools.testsystems~ in favor of
