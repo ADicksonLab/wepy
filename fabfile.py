@@ -107,10 +107,11 @@ def push_profile(cx):
 
 
 @task
-def push_project(cx):
+def push_project(cx, target_dir=None):
 
     # get the directory to push to
-    target_dir = Path(os.getcwd()).parent
+    if target_dir is None:
+        target_dir = Path(os.getcwd()).parent
 
     cx.run(f"mkdir -p {target_dir}")
 

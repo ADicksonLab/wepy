@@ -1,0 +1,8 @@
+# -*- mode: ssh-config -*-
+
+Host hpcc.rsync
+     IdentityFile ~/.ssh/id_rsa
+     User lotzsamu
+     HostName rsync.hpcc.msu.edu
+     
+Include lxd.ssh_config

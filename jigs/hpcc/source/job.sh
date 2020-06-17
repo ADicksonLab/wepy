@@ -68,7 +68,7 @@ python -m simtk.testInstallation
 
 # then run the job
 echo "Running main process"
-python source/lysozyme_we.py 1000 10000 48 8 'CUDA' 'WExploreResampler' 'TaskMapper' 'debug_workermapper' || teardown
+python source/lysozyme_we.py 1000 10000 48 8 'CUDA' 'WExploreResampler' 'TaskMapper' 'debug_monitor' || teardown
 
 teardown
 

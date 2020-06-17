@@ -51,6 +51,7 @@ def settle_run_options(n_workers=None,
                        job_dir=None,
                        job_name=None,
                        narration=None,
+                       monitor_http_port=None,
                        configuration=None,
                        start_hash=None):
     """
@@ -98,6 +99,15 @@ def settle_run_options(n_workers=None,
          with open(configuration, 'rb') as rf:
              config = Orchestrator.deserialize(rf.read())
 
+
+    ## Monitoring
+
+    # nothing to do, just use the port or tag if its given
+    monitor_pkwargs = {
+        'tag' : tag,
+        'port' : monitor_http_port,
+    }
+
     # we need to reparametrize the configuration here since the
     # orchestrator API will ignore reparametrization values if a
     # concrete Configuration is given.
@@ -108,7 +118,9 @@ def settle_run_options(n_workers=None,
         config = config.reparametrize(work_dir=job_dir,
                                       config_name=job_name,
                                       narration=narration,
-                                      work_mapper_partial_kwargs=work_mapper_pkwargs)
+                                      work_mapper_partial_kwargs=work_mapper_pkwargs,
+                                      monitor_partial_kwargs=monitor_pkwargs,
+        )
 
     return job_dir, job_name, narration, config
 
@@ -118,12 +130,15 @@ def settle_run_options(n_workers=None,
 @click.option('--job-dir', default=CURDIR, type=click.Path(writable=True))
 @click.option('--job-name', default=START_HASH)
 @click.option('--narration', default="")
+@click.option('--monitor-http-port', default=9001)
+@click.option('--tag', default="None")
 @click.argument('n_cycle_steps', type=click.INT)
 @click.argument('run_time', type=click.FLOAT)
 @click.argument('configuration', type=click.Path(exists=True))
 @click.argument('snapshot', type=click.File('rb'))
 @click.command()
 def run_snapshot(log, n_workers, checkpoint_freq, job_dir, job_name, narration,
+                 monitor_http_port, tag,
                  n_cycle_steps, run_time, configuration, snapshot):
     """
 
@@ -141,6 +156,8 @@ def run_snapshot(log, n_workers, checkpoint_freq, job_dir, job_name, narration,
     job_name :
         
     narration :
+        
+    monitor_http_port :
         
     n_cycle_steps :
         
@@ -170,12 +187,20 @@ def run_snapshot(log, n_workers, checkpoint_freq, job_dir, job_name, narration,
     start_hash = orch.add_serial_snapshot(serial_snapshot)
 
     # settle what the defaults etc. are for the different options as they are interdependent
-    job_dir, job_name, narration, config = settle_run_options(n_workers=n_workers,
-                                                                         job_dir=job_dir,
-                                                                         job_name=job_name,
-                                                                         narration=narration,
-                                                                         configuration=configuration,
-                                                                         start_hash=start_hash)
+    job_dir, job_name, narration, config = settle_run_options(
+        # work mapper
+        n_workers=n_workers,
+        # reporters
+        job_dir=job_dir,
+        job_name=job_name,
+        narration=narration,
+        # monitoring
+        tag=tag,
+        monitor_http_port=monitor_http_port,
+        # other
+        configuration=configuration,
+        start_hash=start_hash,
+    )
 
     # add the parametrized configuration to the orchestrator
     # config_hash = orch.add_serial_configuration(config)

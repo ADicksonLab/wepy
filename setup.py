@@ -44,11 +44,17 @@ md_requirements = [
 ]
 distributed_requirements = ['dask[bag]']
 
+prometheus_requirements = [
+    'prometheus_client',
+    'pympler',
+]
+
 # # combination of all the extras requirements
 all_requirements = list(it.chain.from_iterable([
     base_requirements,
     md_requirements,
     distributed_requirements,
+    prometheus_requirements,
 ]))
 
 setup(
@@ -99,6 +105,7 @@ setup(
     extras_require={
         'md' : md_requirements,
         'distributed' : distributed_requirements,
+        'prometheus' : prometheus_requirements,
         'all' : all_requirements,
     }
 )

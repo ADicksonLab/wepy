@@ -2,4 +2,4 @@ run:
   echo: true
   pty: true
   hide: false
-ssh_config_path: lxd.ssh_config
+ssh_config_path: master.ssh_config

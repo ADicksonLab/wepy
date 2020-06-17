@@ -924,7 +924,9 @@ class Orchestrator():
                               resampler=start_snapshot.apparatus.filters[2],
                               # configuration options
                               work_mapper=configuration.work_mapper,
-                              reporters=configuration.reporters)
+                              reporters=configuration.reporters,
+                              sim_monitor=configuration.monitor,
+        )
 
         return sim_manager
 

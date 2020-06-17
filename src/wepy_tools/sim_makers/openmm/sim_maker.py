@@ -518,6 +518,8 @@ class OpenMMSimMaker():
                            reporters=Ellipsis,
                            reporter_kwargs=None,
                            work_dir=None,
+                           monitor_class=None,
+                           monitor_params=None,
     ):
 
         # MAPPER
@@ -555,12 +557,17 @@ class OpenMMSimMaker():
                         self.resolve_reporter_params(apparatus, reporters, reporter_kwargs)
 
 
+        ## Monitor
+
+
         config = Configuration(
             work_mapper_class=work_mapper_class,
             work_mapper_partial_kwargs=work_mapper_params,
             reporter_classes=reporter_classes,
             reporter_partial_kwargs=reporter_params,
-            work_dir=work_dir
+            work_dir=work_dir,
+            monitor_class=monitor_class,
+            monitor_partial_kwargs=monitor_params,
         )
 
         return config

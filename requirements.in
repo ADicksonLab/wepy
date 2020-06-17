@@ -20,8 +20,16 @@ pint
 eliot
 multiprocessing_logging
 
+# mdtraj
 mdtraj
+
+# distributed
 dask[bag]
+
+# prometheus
+prometheus_client
+pympler
 
 git+https://github.com/ADicksonLab/geomm
 git+https://github.com/ADicksonLab/openmm_systems
+

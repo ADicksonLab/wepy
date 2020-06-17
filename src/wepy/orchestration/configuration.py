@@ -21,13 +21,18 @@ class Configuration():
 
     def __init__(self,
                  # reporters
-                 config_name=None, work_dir=None,
-                 mode=None, narration=None,
+                 config_name=None,
+                 work_dir=None,
+                 mode=None,
+                 narration=None,
                  reporter_classes=None,
                  reporter_partial_kwargs=None,
                  # work mappers
                  work_mapper_class=None,
                  work_mapper_partial_kwargs=None,
+                 # monitors
+                 monitor_class=None,
+                 monitor_partial_kwargs=None,
                  # apparatus configuration options
                  apparatus_opts=None,
     ):
@@ -112,6 +117,33 @@ class Configuration():
         # then generate a work mapper
         self._work_mapper = self._work_mapper_class(**self._work_mapper_partial_kwargs)
 
+
+        ### Monitor options
+
+        # get the names of the reporters in the order they are
+        reporter_order = tuple([str(reporter_class.__name__)
+                                for reporter_class in self._reporter_classes])
+
+        # init the kwargs for the monitor
+        if monitor_partial_kwargs is None:
+            self._monitor_partial_kwargs = {}
+        else:
+            self._monitor_partial_kwargs = monitor_partial_kwargs
+
+        # choose the monitor class (None is okay)
+        self._monitor_class = monitor_class
+
+        # generate the object
+        if self._monitor_class is not None:
+
+            self._monitor = self._monitor_class(
+                reporter_order=reporter_order,
+                **self._monitor_partial_kwargs,
+            )
+
+        else:
+            self._monitor = None
+
         ### Apparatus options
 
         # the runtime configuration of the apparatus can be configured
@@ -167,6 +199,22 @@ class Configuration():
     def work_mapper(self):
         """ """
         return self._work_mapper
+
+    @property
+    def monitor_class(self):
+        """ """
+        return self._monitor_class
+
+    @property
+    def monitor_partial_kwargs(self):
+        """ """
+        return self._monitor_partial_kwargs
+
+    @property
+    def monitor(self):
+        """ """
+        return self._monitor
+
 
     @property
     def apparatus_opts(self):
@@ -243,6 +291,7 @@ class Configuration():
 
         return reporters
 
+    # TODO: remove, not used
     def _gen_work_mapper(self):
         """ """
 
@@ -260,7 +309,6 @@ class Configuration():
         """ """
         return deepcopy(self._work_mapper)
 
-
     def reparametrize(self, **kwargs):
         """
 
@@ -277,9 +325,15 @@ class Configuration():
         # dictionary of the possible reparametrizations from the
         # current configuration
         params = {
+
             # related to the work mapper
             'work_mapper_class' : self.work_mapper_class,
             'work_mapper_partial_kwargs' : self.work_mapper_partial_kwargs,
+
+            # monitor
+            'monitor_class' : self.monitor_class,
+            'monitor_partial_kwargs' : self.monitor_partial_kwargs,
+
             # those related to the reporters
             'mode' : self.mode,
             'config_name' : self.config_name,
@@ -287,6 +341,7 @@ class Configuration():
             'narration' : self.narration,
             'reporter_classes' : self.reporter_classes,
             'reporter_partial_kwargs' : self.reporter_partial_kwargs,
+
             # apparatus
             'apparatus_opts' : self.apparatus_opts,
         }
@@ -295,7 +350,11 @@ class Configuration():
 
             # for the partial kwargs we need to update them not
             # completely overwrite
-            if key in ['work_mapper_partial_kwargs', 'reporter_partial_kwargs']:
+            if key in [
+                    'work_mapper_partial_kwargs',
+                    'reporter_partial_kwargs',
+                    'monitor_partial_kwargs',
+            ]:
                 if value is not None:
                     params[key].update(value)
 

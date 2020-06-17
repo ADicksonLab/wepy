@@ -8,6 +8,10 @@ sync:
       vcs: true      
       paths:
         - "_*"
+        - ".nox"
+        - ".git"
+        - ".benchmarks"
+        - ".eggs"
         - "!__*__.py"
         - "!_version.py"
         - "!_bin"
@@ -16,11 +20,11 @@ sync:
       
   superior:
     alpha: "../../"
-    beta: "dickson.superior:~/tree/lab/devel/wepy.deepwork.eliot"
+    beta: "dickson.superior:~/tree/lab/devel/wepy"
     mode: "two-way-resolved"
 
   hpcc:
     alpha: "../../"
-    beta: "lotzsamu@rsync.hpcc.msu.edu:/mnt/gs18/scratch/users/lotzsamu/tree/lab/devel/wepy.deepwork.eliot"
+    beta: "lotzsamu@rsync.hpcc.msu.edu:/mnt/gs18/scratch/users/lotzsamu/tree/lab/devel/wepy"
     mode: "two-way-resolved"
         

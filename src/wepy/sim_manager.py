@@ -110,7 +110,9 @@ class Manager(object):
                  work_mapper = None,
                  resampler = None,
                  boundary_conditions = None,
-                 reporters = None):
+                 reporters = None,
+                 sim_monitor = None,
+    ):
         """Constructor for Manager.
 
         Arguments
@@ -134,6 +136,10 @@ class Manager(object):
 
         reporters : list of objects implenting the Reporter interface, optional
             Reporters to be used. You should provide these if you want to keep data.
+
+        sim_monitor : SimMonitor object
+            An object implementing SimMonitor interface for providing
+            monitoring metrics of a simulation.
 
         Warnings
         --------
@@ -173,6 +179,9 @@ class Manager(object):
             self.work_mapper = Mapper()
         else:
             self.work_mapper = work_mapper
+
+        ## Monitor
+        self.monitor = sim_monitor
 
         # used to have a record of the last report for the simulation
         # monitor without breaking the API. Ugly but I don't want to
@@ -511,7 +520,10 @@ class Manager(object):
         return walkers, filters
 
     @log_call
-    def init(self, num_workers=None, continue_run=None):
+    def init(self,
+             num_workers=None,
+             continue_run=None,
+    ):
         """Initialize wepy configuration components for use at runtime.
 
         This `init` method is different than the constructor
@@ -555,11 +567,22 @@ class Manager(object):
 
         logging.info("Starting simulation")
 
+        # initialize the monitoring object
+
+        # TODO: do we need to supply the port here? I don't want to
+        # add it to the interface... Should be pre-parametrized
+        breakpoint()
+        if self.monitor is not None:
+            self.monitor.init()
+
         # initialize the work_mapper with the function it will be
         # mapping and the number of workers, this may include things like starting processes
         # etc.
-        self.work_mapper.init(segment_func=self.runner.run_segment,
-                              num_workers=num_workers)
+        self.work_mapper.init(
+            segment_func=self.runner.run_segment,
+            num_workers=num_workers,
+        )
+
 
         # init the reporter
         for reporter in self.reporters:
@@ -593,6 +616,9 @@ class Manager(object):
         - reporters
 
         """
+
+        if self.monitor is not None:
+            self.monitor.cleanup()
 
         # cleanup the mapper
         self.work_mapper.cleanup()
@@ -659,6 +685,10 @@ class Manager(object):
 
             logging.info("ending cycle {} at time {}".format(cycle_idx, time.time() - start_time))
 
+            # run the simulation monitor to get metrics on everything
+            if self.monitor is not None:
+                self.monitor.cycle_monitor(self, walkers)
+
             cycle_idx += 1
 
         self.cleanup()
@@ -675,7 +705,6 @@ class Manager(object):
     def run_simulation(self, n_cycles,
                        segment_lengths,
                        num_workers=None,
-                       sim_monitor=None,
     ):
         """Run a simulation for an explicit number of cycles.
 
@@ -690,6 +719,7 @@ class Manager(object):
         num_workers : int
             The number of workers to use for the work mapper.
              (Default value = None)
+
 
         Returns
         -------
@@ -722,13 +752,19 @@ class Manager(object):
                 walkers, filters = self.run_cycle(walkers, segment_lengths[cycle_idx], cycle_idx)
 
                 # run the simulation monitor to get metrics on everything
-                sim_monitor.cycle_monitor(self, walkers)
+                if self.monitor is not None:
+                    self.monitor.cycle_monitor(self, walkers)
 
         self.cleanup()
 
         return walkers, deepcopy(filters)
 
-    def continue_run_simulation(self, run_idx, n_cycles, segment_lengths, num_workers=None):
+    def continue_run_simulation(self,
+                                run_idx,
+                                n_cycles,
+                                segment_lengths,
+                                num_workers=None,
+    ):
         """Continue a simulation. All this does is provide a run idx to the
         reporters, which is the run that is intended to be
         continued. This simulation manager knows no details and is
@@ -773,6 +809,11 @@ class Manager(object):
         # the main cycle loop
         for cycle_idx in range(n_cycles):
             walkers, filters = self.run_cycle(walkers, segment_lengths[cycle_idx], cycle_idx)
+
+            # run the simulation monitor to get metrics on everything
+            if self.monitor is not None:
+                self.monitor.cycle_monitor(self, walkers)
+
 
         self.cleanup()
 
@@ -821,6 +862,10 @@ class Manager(object):
             walkers, filters = self.run_cycle(walkers, segments_length, cycle_idx)
 
             logging.info("ending cycle {} at time {}".format(cycle_idx, time.time() - start_time))
+
+            # run the simulation monitor to get metrics on everything
+            if self.monitor is not None:
+                self.monitor.cycle_monitor(self, walkers)
 
             cycle_idx += 1
 
