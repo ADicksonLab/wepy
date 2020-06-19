@@ -1,3 +1,5 @@
+import logging
+
 from pympler.asizeof import asizeof
 import prometheus_client as prom
 
@@ -5,23 +7,6 @@ class SimMonitor:
     """A simulation monitor using a prometheus http server"""
 
     DEFAULT_PORT = 9001
-
-    def init(self,
-             port=None,
-    ):
-
-        if port is not None:
-            prom.start_http_server(port)
-
-        elif self.port is not None:
-            prom.start_http_server(self.port)
-
-        else:
-            prom.start_http_server(self.DEFAULT_PORT)
-
-    def cleanup(self):
-        pass
-
 
     def __init__(self,
                  tag="",
@@ -33,6 +18,11 @@ class SimMonitor:
         self.tag = tag
 
         self.reporter_order = reporter_order
+
+
+    def _init_metrics(self):
+
+        logging.info(f"SimMonitor ({self}): Initializing monitoring metrics")
 
         ## progress tracking
         self.cycle_counter = prom.Counter('wepy_cycle_idx', "",
@@ -132,8 +122,82 @@ class SimMonitor:
                                              "",
                                              ['tag', 'worker_idx', 'seg_idx'])
 
+    def _cleanup_metrics(self):
+
+        logging.info(f"SimMonitor ({self}): cleaning up metrics")
+
+        ## progress tracking
+        del self.cycle_counter
+
+        # TODO unbinding events
+
+        # TODO largest progresses
+
+        ## object sizes
+        del self.walker_size_g
+        del self.ensemble_size_g
+
+        del self.runner_size_g
+        del self.resampler_size_g
+        del self.bc_size_g
+        del self.mapper_size_g
+
+        del self.sim_manager_size_g
+
+        del self.reporter_size_g
+
+        ## timings
+
+        # components
+
+        del self.bc_time_g
+        del self.resampling_time_g
+        # runner splits
+        del self.runner_precycle_time_g
+        del self.runner_postcycle_time_g
+        del self.sim_manager_segment_time_g
+        del self.sim_manager_segment_overhead_time_g
+        # runner segment splits
+        del self.runner_segment_gen_sim_time_g
+
+        del self.runner_segment_steps_time_g
+
+        del self.runner_segment_get_state_time_g
+        del self.runner_segment_run_segment_time_g
+        # work mapper segment times
+        del self.mapper_seg_times_g
+
+    def init(self,
+             port=None,
+    ):
+
+        if port is not None:
+            port = port
+
+        elif self.port is not None:
+            port = self.port
+
+        else:
+            port = self.DEFAULT_PORT
+
+        logging.info(f"SimMonitor ({self}): starting prometheus client http server at port {port}")
+        prom.start_http_server(port)
+
+        # initialize all the metrics. These need to be done at init
+        # time since they can't be pickled
+        self._init_metrics()
+
+    def cleanup(self):
+
+        # remove all the metrics
+        logging.info(f"SimMonitor ({self}): cleaning up")
+        self._cleanup_metrics()
+
+
 
     def cycle_monitor(self, sim_manager, walkers):
+
+        logging.info(f"SimMonitor ({self}): running the cycle monitoring")
 
         last_report = sim_manager._last_report
 
@@ -234,3 +298,6 @@ class SimMonitor:
                     worker_idx=worker_idx,
                     seg_idx=seg_idx,
                 ).set(segment)
+
+
+        logging.info(f"SimMonitor ({self}): done with cycle monitoring")

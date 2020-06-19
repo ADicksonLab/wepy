@@ -503,6 +503,11 @@ class Manager(object):
         # prepare resampled walkers for running new state changes
         walkers = resampled_walkers
 
+        # run the simulation monitor to get metrics on everything
+        if self.monitor is not None:
+            logging.info("Running monitoring")
+            self.monitor.cycle_monitor(self, walkers)
+
 
         # we also return a list of the "filters" which are the
         # classes that are run on the initial walkers to produce
@@ -571,7 +576,6 @@ class Manager(object):
 
         # TODO: do we need to supply the port here? I don't want to
         # add it to the interface... Should be pre-parametrized
-        breakpoint()
         if self.monitor is not None:
             self.monitor.init()
 
@@ -685,12 +689,10 @@ class Manager(object):
 
             logging.info("ending cycle {} at time {}".format(cycle_idx, time.time() - start_time))
 
-            # run the simulation monitor to get metrics on everything
-            if self.monitor is not None:
-                self.monitor.cycle_monitor(self, walkers)
 
             cycle_idx += 1
 
+        logging.info("Cleaning up simulation")
         self.cleanup()
 
         return walkers, deepcopy(filters)

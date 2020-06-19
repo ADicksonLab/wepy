@@ -1,6 +1,7 @@
 import os.path as osp
 import logging
 import subprocess
+from copy import deepcopy
 
 import click
 
@@ -52,8 +53,10 @@ def settle_run_options(n_workers=None,
                        job_name=None,
                        narration=None,
                        monitor_http_port=None,
+                       tag=None,
                        configuration=None,
-                       start_hash=None):
+                       start_hash=None,
+):
     """
 
     Parameters
@@ -99,7 +102,6 @@ def settle_run_options(n_workers=None,
          with open(configuration, 'rb') as rf:
              config = Orchestrator.deserialize(rf.read())
 
-
     ## Monitoring
 
     # nothing to do, just use the port or tag if its given
@@ -112,8 +114,18 @@ def settle_run_options(n_workers=None,
     # orchestrator API will ignore reparametrization values if a
     # concrete Configuration is given.
     if config is not None:
-        # collect the kwargs for the work mapper to be reparametrized
-        work_mapper_pkwargs = {'num_workers' : n_workers}
+
+        # if there is a change in the number of workers we need to
+        # recalculate all of the partial kwargs
+
+        work_mapper_pkwargs = deepcopy(config.work_mapper_partial_kwargs)
+
+        # if the number of workers has changed update all the relevant
+        # fields, otherwise leave it alone
+        if work_mapper_pkwargs['num_workers'] != n_workers:
+
+            work_mapper_pkwargs['num_workers'] = n_workers
+            work_mapper_pkwargs['device_ids'] = [str(i) for i in range(n_workers)]
 
         config = config.reparametrize(work_dir=job_dir,
                                       config_name=job_name,

@@ -179,14 +179,16 @@ class TaskMapper(ABCWorkerMapper):
                 self._irq_parent_conns.append(parent_conn)
 
                 # start a process for this walker
-                walker_process = self.walker_task_type(walker_idx, self._attributes,
+                walker_process = self.walker_task_type(walker_idx,
+                                                       self._attributes,
                                                        self._func,
                                                        task_args,
                                                        task_kwargs,
                                                        worker_queue,
                                                        results,
                                                        worker_segment_times,
-                                                       child_conn)
+                                                       child_conn,
+                )
 
                 walker_process.start()
 
@@ -336,9 +338,16 @@ class WalkerTaskProcess(mp.Process):
 
     NAME_TEMPLATE = "Walker-{}"
 
-    def __init__(self, walker_idx, mapper_attributes,
-                 func, task_args, task_kwargs,
-                 worker_queue, results_list, worker_segment_times, interrupt_connection,
+    def __init__(self,
+                 walker_idx,
+                 mapper_attributes,
+                 func,
+                 task_args,
+                 task_kwargs,
+                 worker_queue,
+                 results_list,
+                 worker_segment_times,
+                 interrupt_connection,
                  **kwargs
                  ):
 
@@ -430,6 +439,8 @@ class WalkerTaskProcess(mp.Process):
         return result
 
     def run_task(self, task):
+
+        logging.info("Running an unspecialized task")
 
         return task()
 
