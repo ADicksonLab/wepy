@@ -7,6 +7,10 @@ See the git commit log history for full details.
 
 ** 1.0.0 - WIP
 
+Changes in rc5:
+
+- adds simulation monitoring via prometheus (or whatever) as a feature
+
 Changes in rc4:
 
 - fixes bugs introduced to work mappers from rc2
