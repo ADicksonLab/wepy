@@ -197,7 +197,7 @@ class OpenMMRunner(Runner):
 
         # for special monitoring purposes to get split times to debug
         # performance
-        self._last_cycle_segments_split_times = None
+        self._last_cycle_segments_split_times = []
 
     @log_call(include_args=[
         'platform',
