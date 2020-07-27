@@ -29,12 +29,20 @@ def bootstrap(cx, name='dev'):
 
 @task
 def push(cx, name='dev'):
-    """Push the files for this project"""
+    """Push the files for this project
+
+    Ignores according to the gitignore file
+
+    """
 
     cx.run(f"fab -H {PROJECT_SLUG}.{name} push-project")
 
 @task
 def pull(cx, name='dev'):
-    """Pull the files for this project"""
+    """Pull the files for this project
+
+    Ignores according to the gitignore file
+
+    """
 
     cx.run(f"fab -H {PROJECT_SLUG}.{name} pull-project")

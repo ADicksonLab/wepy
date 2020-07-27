@@ -338,11 +338,20 @@ def website_deploy(cx):
 # the same schema as examples to give some order to it.
 
 @task
-def new_jig(cx, name=None, template="org"):
+def new_jig(cx, name=None, template="org", env='venv_blank'):
     """Create a new jig.
 
     Can choose between the following templates:
+
     - 'org' :: org mode notebook
+
+    Choose from the following env templates:
+
+    - None
+    - venv_blank
+    - venv_dev
+    - conda_blank
+    - conda_dev
 
     """
 
@@ -356,6 +365,16 @@ def new_jig(cx, name=None, template="org"):
         raise ValueError(
             f"Unkown template {template}. Check the 'templates/jigs' folder")
 
+    # check if the env exists
+    if env is not None:
+        env_tmpl_path = Path(f"templates/envs/{env}")
+
+        if not env_tmpl_path.is_dir():
+
+            raise ValueError(
+                f"Unkown env template {env}. Check the 'templates/envs' folder")
+
+
     target_path = Path(f"jigs/{name}")
 
     if target_path.exists():
@@ -363,6 +382,9 @@ def new_jig(cx, name=None, template="org"):
 
     # copy the template
     cx.run(f"cp -r {template_path} {target_path}")
+
+    # copy the env
+    cx.run(f"cp -r {env_tmpl_path} {target_path / 'env'}")
 
     print(f"New example created at: {target_path}")
 

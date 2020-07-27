@@ -24,6 +24,7 @@ modules = [
     'py',
     'docs',
     'lxd',
+    'containers',
 ]
 
 [taskset]

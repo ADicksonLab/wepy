@@ -335,11 +335,21 @@ def tangle(cx):
 
 
 @task
-def new_example(cx, name=None, template="org"):
+def new_example(cx, name=None, template="org", env='venv_blank'):
     """Create a new example in the info/examples directory.
 
     Can choose between the following templates:
+
     - 'org' :: org mode notebook
+
+    Choose from the following env templates:
+
+    - None
+    - venv_blank
+    - venv_dev
+    - conda_blank
+    - conda_dev
+
 
     """
 
@@ -353,6 +363,15 @@ def new_example(cx, name=None, template="org"):
         raise ValueError(
             f"Unkown template {template}. Check the 'templates/examples' folder")
 
+    # check if the env exists
+    if env is not None:
+        env_tmpl_path = Path(f"templates/envs/{env}")
+
+        if not env_tmpl_path.is_dir():
+
+            raise ValueError(
+                f"Unkown env template {env}. Check the 'templates/envs' folder")
+
     target_path = Path(f"info/examples/{name}")
 
     if target_path.exists():
@@ -361,15 +380,27 @@ def new_example(cx, name=None, template="org"):
     # copy the template
     cx.run(f"cp -r {template_path} {target_path}")
 
+    # copy the env
+    cx.run(f"cp -r {env_tmpl_path} {target_path / 'env'}")
+
     print(f"New example created at: {target_path}")
 
 @task
-def new_tutorial(cx, name=None, template="org"):
+def new_tutorial(cx, name=None, template="org", env='venv_blank'):
     """Create a new tutorial in the info/tutorials directory.
 
     Can choose between the following templates:
     - 'org' :: org mode notebook
     - 'jupyter' :: Jupyter notebook
+
+
+    Choose from the following env templates:
+
+    - None
+    - venv_blank
+    - venv_dev
+    - conda_blank
+    - conda_dev
 
     """
 
@@ -383,6 +414,16 @@ def new_tutorial(cx, name=None, template="org"):
         raise ValueError(
             f"Unkown template {template}. Check the 'templates/tutorials' folder")
 
+    # check if the env exists
+    if env is not None:
+        env_tmpl_path = Path(f"templates/envs/{env}")
+
+        if not env_tmpl_path.is_dir():
+
+            raise ValueError(
+                f"Unkown env template {env}. Check the 'templates/envs' folder")
+
+
     target_path = Path(f"info/tutorials/{name}")
 
     if target_path.exists():
@@ -390,6 +431,9 @@ def new_tutorial(cx, name=None, template="org"):
 
     # copy the template
     cx.run(f"cp -r {template_path} {target_path}")
+
+    # copy the env
+    cx.run(f"cp -r {env_tmpl_path} {target_path / 'env'}")
 
     print(f"New tutorial created at: {target_path}")
 
@@ -429,7 +473,7 @@ def test_examples_nox(cx,
     """
 
     if name is None:
-        examples =  visit_examples()
+        examples =  [example.stem for example in visit_examples()]
     else:
         examples = [name]
 

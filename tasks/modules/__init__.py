@@ -9,6 +9,7 @@ from . import git
 from . import py
 from . import docs
 from . import lxd
+from . import containers
 
 MODULES = [
     core,
@@ -18,4 +19,5 @@ MODULES = [
     py,
     docs,
     lxd,
+    containers,
 ]
