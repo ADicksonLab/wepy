@@ -2,8 +2,6 @@ graft src
 graft info
 graft envs
 
-prune sphinx
-
 prune info/examples/*/_env
 prune info/examples/*/_output
 prune info/examples/*/_tangle_source
