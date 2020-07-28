@@ -36,21 +36,24 @@ def test_we(datadir_factory, printer):
 
     with chdir(datadir):
 
+        print("CPU-NoResampler")
         run(['python',
             'source/we.py',
-             '10', '2', '10', '1', 'CPU', 'NoResampler'
+             '2', '2', '10', '1', 'CPU', 'NoResampler'
             ],
         )
 
+        print("CPU-REVOResampler")
         run(['python',
             'source/we.py',
-             '10', '2', '10', '1', 'CPU', 'REVOResampler'
+             '2', '2', '10', '1', 'CPU', 'REVOResampler'
             ],
         )
 
+        print("CPU_WExploreResampler")
         run(['python',
             'source/we.py',
-             '10', '2', '10', '1', 'CPU', 'WExploreResampler'
+             '2', '2', '10', '1', 'CPU', 'WExploreResampler'
             ],
         )
 
