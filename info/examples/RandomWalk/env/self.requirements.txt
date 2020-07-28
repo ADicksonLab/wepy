@@ -1,1 +1,1 @@
-.[mdtraj]
+wepy[md]==1.0.0rc5

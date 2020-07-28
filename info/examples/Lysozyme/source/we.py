@@ -48,7 +48,7 @@ if __name__ == "__main__":
         platform=platform,
     )
     config = sim_maker.make_configuration(apparatus,
-                                          work_mapper='TaskMapper',
+                                          work_mapper_spec='TaskMapper',
                                           platform=platform,
                                           work_dir=str(output_dir / 'we'))
 
