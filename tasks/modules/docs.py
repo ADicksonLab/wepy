@@ -478,7 +478,8 @@ def test_examples_nox(cx,
         examples = [name]
 
     for example in examples:
-        cx.run(f"nox -s test_example -- {example}")
+        cx.run(f"nox -s test_example -- {example}",
+               warn=True)
 
 @task
 def test_tutorial(cx,
