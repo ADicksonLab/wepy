@@ -122,7 +122,7 @@ def cli(verbose, work_mapper, n_workers, tau, n_cycles, n_walkers, system):
     n_steps = round(tau / apparatus.filters[0].integrator.getStepSize())
 
     config = sim_maker.make_configuration(apparatus,
-                                          work_mapper='WorkerMapper',
+                                          work_mapper_spec='WorkerMapper',
                                           platform=platform)
 
     sim_manager = sim_maker.make_sim_manager(n_walkers, apparatus, config)

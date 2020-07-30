@@ -100,7 +100,17 @@ class TaskMapper(ABCWorkerMapper):
 
     def force_shutdown(self):
 
-        # TODO send sigterms to processes
+        # send sigterm signals to processes to kill them
+        for walker_idx, walker_process in enumerate(self._walker_processes):
+
+            logging.critical("Sending SIGTERM message on {} to worker {}".format(
+                self._irq_parent_conns[walker_idx].fileno(), walker_idx))
+
+            # send a kill message to the worker
+            self._irq_parent_conns[walker_idx].send(signal.SIGTERM)
+
+        logging.critical("All kill messages sent to workers")
+
 
         # wait for the walkers to finish and handle errors in them
         # appropriately
@@ -194,15 +204,12 @@ class TaskMapper(ABCWorkerMapper):
 
                 self._walker_processes.append(walker_process)
 
-
             new_walkers = [None for _ in range(num_walkers)]
             results_found = [False for _ in range(num_walkers)]
             while not all(results_found):
 
                 # go through the results list and handle the values that may be there
                 for walker_idx, result in enumerate(results):
-
-
 
                     if results_found[walker_idx]:
                         continue
@@ -212,6 +219,7 @@ class TaskMapper(ABCWorkerMapper):
                     # first check to see if any of the task processes were
                     # terminated from the system
                     if self._irq_parent_conns[walker_idx].poll():
+
                         irq = self._irq_parent_conns[walker_idx].recv()
 
                         if issubclass(type(irq), TaskProcessKilledError):
@@ -283,6 +291,7 @@ class TaskMapper(ABCWorkerMapper):
                         raise result
 
                     elif issubclass(type(result), TaskProcessException):
+
                         # we make just an error message to say that errors
                         # in the worker may be due to the network or
                         # something and could recover
@@ -379,10 +388,10 @@ class WalkerTaskProcess(mp.Process):
 
         # also register the SIGTERM signal handler for graceful
         # shutdown with reporting to mapper
-        signal.signal(signal.SIGTERM, self._sigterm_shutdown)
+        signal.signal(signal.SIGTERM, self._external_sigterm_shutdown)
 
 
-    def _sigterm_shutdown(self, signum, frame):
+    def _external_sigterm_shutdown(self, signum, frame):
 
         logging.debug("Received external SIGTERM kill command.")
 
@@ -395,6 +404,22 @@ class WalkerTaskProcess(mp.Process):
         logging.debug("Acknowledgment sent")
 
         logging.debug("Shutting down process")
+
+
+    def _shutdown(self):
+        """The normal shutdown which can be ordered by the work mapper."""
+
+        logging.debug("Received SIGTERM kill command from mapper")
+
+        logging.debug("Acknowledging kill request will be honored")
+
+        # report back that we are shutting down with a True
+        self._irq_channel.send(True)
+
+        logging.debug("Acknowledgment sent")
+
+        logging.debug("Shutting down process")
+
 
 
     @property
@@ -526,13 +551,17 @@ class WalkerTaskProcess(mp.Process):
         # tries to use it
         worker_received = False
         while not worker_received:
+
             # pop off a worker to use it, this will block until it
             # receives a worker
             try:
                 worker_idx = self._worker_queue.get_nowait()
             except pyq.Empty:
                 pass
+
+            # always do on a successful get
             else:
+
                 if type(worker_idx) == int:
                     worker_received = True
                     logging.info("{}: acquired worker {}".format(self.name,
@@ -544,7 +573,43 @@ class WalkerTaskProcess(mp.Process):
                         "{}: SIGTERM signal received from mapper. Shutting down.".format(
                         self.name))
 
+                    self._shutdown()
+
                     return None
+
+
+            # check to see if there is any signals on the interrupt channel
+            if self._irq_channel.poll():
+
+                # get the message
+                message = self._irq_channel.recv()
+
+                logging.debug("{}: Received message from mapper on filehandle {}: {}".format(
+                    self.name, self._irq_channel.fileno(), message))
+
+                # handle the message
+
+
+                # check for signals to die
+                if message is signal.SIGTERM:
+
+                    logging.critical(
+                        f"{self.name}: SIGTERM signal received from mapper. Shutting down."
+                    )
+
+                    self._shutdown()
+
+                    return None
+
+                else:
+                    logging.error("{}: Message not recognized, continuing operations and"
+                                  " sending error to mapper".format(self.name))
+                    self._irq_channel.send(
+                        ValueError(
+                            "Message: {} not recognized continuing operations".format(
+                                message)))
+
+        # after the wait loop we can now perform our work
 
         self._worker_idx = worker_idx
 
@@ -570,8 +635,8 @@ class WalkerTaskProcess(mp.Process):
         logging.info("{}: Setting value to results list. Time {}".format(self.name,
                                                                      time.time()))
 
-        # DEBUG: testing new serialization thing here
         logging.debug("Serializing the result walker")
+
         serial_result = pickle.dumps(result)
         logging.debug("Putting tagged serialized walker tuple on managed results list")
         self._results_list[self.walker_idx] = ('Walker', serial_result)
