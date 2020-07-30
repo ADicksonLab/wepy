@@ -448,7 +448,7 @@ def test_example(cx,
     if name is None:
         examples = visit_examples()
     else:
-        examples = [name]
+        examples = [Path("info/examples") / name]
 
     for example in examples:
 
@@ -492,7 +492,7 @@ def test_tutorial(cx,
     if name is None:
         tutorials = visit_tutorials()
     else:
-        tutorials = [name]
+        tutorials = [Path("info/tutorials") / name]
 
     for tutorial in tutorials:
 
@@ -517,7 +517,7 @@ def test_tutorials_nox(cx,
     """
 
     if name is None:
-        tutorials = visit_tutorials()
+        tutorials =  [tutorial.stem for tutorial in visit_tutorials()]
     else:
         tutorials = [name]
 

@@ -43,7 +43,7 @@ def test_doc_pages(session):
     """
 
     ## install the conda dependencies
-    conda_env = Path(f"envs/test/env.pinned.yaml")
+    conda_env = Path(f"envs/test/env.yaml")
 
     print("Session location: ", session.virtualenv.location)
     if conda_env.is_file():
@@ -58,6 +58,9 @@ def test_doc_pages(session):
             str(conda_env),
             # options
             silent=True)
+
+    else:
+        print(f"Not install conda env doesn't exist: {conda_env}")
 
     session.install("-r", ".jubeo/requirements.txt")
     session.install("-r", "envs/test/requirements.in")
@@ -81,11 +84,12 @@ def test_example(session):
 
     example = session.posargs[0]
 
+    print(f"Running tests for example: {example}")
     ## install the conda deps,
 
     # NOTE: this must come first, before pip installing things
 
-    conda_env = Path(f"info/examples/{example}/env/env.pinned.yaml")
+    conda_env = Path(f"info/examples/{example}/env/env.yaml")
 
     print("Session location: ", session.virtualenv.location)
     if conda_env.is_file():
@@ -106,21 +110,41 @@ def test_example(session):
     session.install("-r", ".jubeo/requirements.txt")
 
     # install the test dependencies
-    test_requirements = Path(f"envs/test/requirements.txt")
+    test_requirements = Path(f"envs/test/requirements.in")
 
-    assert test_requirements.is_file()
+    if test_requirements.is_file():
 
-    session.install("-r", str(test_requirements))
+        session.install("-r", str(test_requirements))
+    else:
+        print(f"Not installing reqs: {test_requirements}")
+
+
+    test_conda_reqs = Path(f"envs/test/env.yaml")
+    if test_conda_reqs.is_file():
+        session.run("conda",
+                    "env",
+                    "update",
+                    f"--prefix={session.virtualenv.location}",
+                    f"--file={test_conda_reqs}",
+        )
+    else:
+        print(f"Not installing: {test_conda_reqs}")
+
 
     # install the example requirements
     requirements = Path(f"info/examples/{example}/env/requirements.txt")
     if requirements.is_file():
         session.install("-r", str(requirements))
+    else:
+        print(f"not installing example requirements: {requirements}")
+
 
     # install the package under test
     self_requirements = Path(f"info/examples/{example}/env/self.requirements.txt")
     if self_requirements.is_file():
         session.install("-r", str(self_requirements))
+    else:
+        print(f"not installing example requirements: {self_requirements}")
 
     session.run(
         "pytest",
@@ -140,11 +164,13 @@ def test_tutorial(session):
 
     tutorial = session.posargs[0]
 
+    print(f"Running tests for tutorial: {tutorial}")
+
     ## install the conda deps,
 
     # NOTE: this must come first, before pip installing things
 
-    conda_env = Path(f"info/tutorials/{tutorial}/env/env.pinned.yaml")
+    conda_env = Path(f"info/tutorials/{tutorial}/env/env.yaml")
 
     print("Session location: ", session.virtualenv.location)
     if conda_env.is_file():
@@ -165,16 +191,42 @@ def test_tutorial(session):
     session.install("-r", ".jubeo/requirements.txt")
 
     # install the test dependencies
-    test_requirements = Path(f"envs/test/requirements.txt")
+    test_requirements = Path(f"envs/test/requirements.in")
 
-    assert test_requirements.is_file()
+    if test_requirements.is_file():
+        session.install("-r", str(test_requirements))
+    else:
+        print(f"Not installing reqs: {test_requirements}")
 
-    session.install("-r", str(test_requirements))
+    ## install test env conda requirements
+    test_conda_reqs = Path(f"envs/test/env.yaml")
+    if test_conda_reqs.is_file():
+        session.run("conda",
+                    "env",
+                    "update",
+                    f"--prefix={session.virtualenv.location}",
+                    f"--file={test_conda_reqs}",
+        )
+    else:
+        print(f"Not installing: {test_conda_reqs}")
 
+
+    # install the tutorial requirements
     requirements = Path(f"info/tutorials/{tutorial}/env/requirements.txt")
 
     if requirements.is_file():
         session.install("-r", str(requirements))
+    else:
+        print(f"not installing tutorial requirements: {requirements}")
+
+
+    # install the package under test
+    self_requirements = Path(f"info/tutorials/{tutorial}/env/self.requirements.txt")
+    if self_requirements.is_file():
+        session.install("-r", str(self_requirements))
+    else:
+        print(f"not installing tutorial requirements: {self_requirements}")
+
 
 
     session.run(
