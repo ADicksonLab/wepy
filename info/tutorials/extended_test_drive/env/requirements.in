@@ -1,0 +1,6 @@
+--index-url https://pypi.python.org/simple/
+
+# convenience so the user isn't surprised
+ipython
+
+# used in the tutorial

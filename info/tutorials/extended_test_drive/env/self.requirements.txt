@@ -1,0 +1,3 @@
+# TODO: remove before final release
+dist/wepy-1.0.0rc5+9.ga5db913.dirty.tar.gz[md]
+# wepy[md]

@@ -1,0 +1,853 @@
+* A First Look at wepy Data
+
+In the Quick Start we showed how you could easily get a simulation
+running with wepy.
+
+In this tutorial we will add onto this quick example to give some more
+explanation and show some simple examples of analysis.
+
+We assume users are using a POSIX-like shell such as ~bash~.
+
+
+As from before the test drive script is installed as a module and can
+be run as a python script:
+
+#+begin_src bash :tangle _tangle_source/run-help.bash
+  python -m wepy_test_drive --help
+#+end_src
+
+NOTE: That the test drive is a specific "application" that is built
+using ~wepy~ so that users can run quick simulations just specifying
+some high-level configurations. Please be aware that in order to make
+them simple parameters have been chosen that are not necessarily good
+or recommended for any situation.
+
+In order to use ~wepy~ effectively you will have to use and program
+the Python API. The intent here is to quickly introduce users to all
+the pieces, parts, and objects you will need to interact with.
+
+** Running a Simulation and Producing Results
+
+The test drive is configured so that all of the file outputs are
+dropped into the current folder. When writing code for your own
+simulations this can be configured.
+
+All outputs in this tutorial will be in the ~_output~ directory so
+before running the simulations you should change to that directory:
+
+#+begin_src bash :tangle _tangle_source/run0.bash
+mkdir -p _output/run0
+(cd _output/run0 && python -m wepy_test_drive LennardJonesPair/OpenMM-Reference 20 10 4 3)
+ls _output/run0
+#+end_src
+
+You should see something like:
+
+#+begin_src fundamental :tangle _tangle_source/expected_run0_ls.txt
+root.dash.org
+root.init_top.pdb
+root.walkers.dcd
+root.wepy.h5
+#+end_src
+
+You may also see some Warnings that can safely be ignored until you
+want to run important simulations. But in most cases are harmless and
+can be turned off if you wish.
+
+The ~root.dash.org~ and ~root.walkers.dcd~ files are only really
+useful for long running simulations in which you want to monitor the
+results of as they are progressing.
+
+You can look at ~root.dash.org~ as a text file and see some metrics
+and tables regarding the simulation.
+
+You can use the ~root.init_top.pdb~ file and open them in VMD or
+similar molecular visualization software to see what the initial
+conditions of the system looks like.
+
+The ~root.walkers.dcd~ can be loaded on top of the ~root.init_top.pdb~
+file to show you a snapshot of what the last ensemble of walkers
+looked like.
+
+Finally, and most importantly is the ~root.wepy.h5~ file which
+contains *all* of the simulation data and most of the other data in
+the other formats can be regenerated from it. This ~WepyHDF5~ file
+excludes data on the performance, timestamps, and states of the
+simulation components like resamplers.
+
+This is important because all ~WepyHDF5~ files are compatible even if
+different resamplers were used to generate simulations.
+
+For instance we can run again using the REVO ~--resampler~ by using the
+resampler flag:
+
+#+begin_src bash :tangle _tangle_source/revo_run.bash
+mkdir -p _output/revo_run
+(cd _output/revo_run && python -m wepy_test_drive --resampler REVO LennardJonesPair/OpenMM-Reference 20 10 4 3)
+#+end_src
+
+You can even disable using a resampler entirely by using the dummy
+"No" resampler. This is actually quite useful for comparing
+improvements in sampling using resampling:
+
+#+begin_src bash :tangle _tangle_source/no_run.bash
+mkdir -p _output/no_run
+(cd _output/no_run && python -m wepy_test_drive --resampler No LennardJonesPair/OpenMM-Reference 20 10 4 3)
+#+end_src
+
+** Analyzing Results
+
+Now that we have created some data we want to analyze it.
+
+We will just cover the absolute basics of opening and exploring files
+here since this is a large topic and will be covered in detail in
+other tutorials.
+
+*** Opening the HDF5 database
+
+To access the data that is stored in the HDF5 file you can use any
+number of tools available for the job.  This includes python libraries
+like ~h5py~, but can also be other tools like ~h5ls~ or ~hdfql~ which
+are agnostic to the particular schemas the data has.
+
+However, ~wepy~ provides an API to ~WepyHDF5~ files (I like to use the
+file extension ~*.wepy.h5~) that makes accessing WE specific data much
+easier.
+
+To get started simply import the class that does this:
+
+#+begin_src python :tangle _tangle_source/analysis0.py
+  from wepy.hdf5 import WepyHDF5
+#+end_src
+
+When constructing this class you can use it to make new HDF5 files
+from scratch, however this should be done for you in the reporter that
+generates HDF5 files.
+
+So for us we only use it to read HDF5 files. Run this code to
+construct the class and link it to the HDF5 file we created from our
+first run with WExplore:
+
+#+begin_src python :tangle _tangle_source/analysis0.py
+  wepy_h5 = WepyHDF5('_output/run0/root.wepy.h5', mode='r')
+#+end_src
+
+Here we are opening in read-only mode so that we can't accidentally
+change or overwrite any data in the file. Never open with ~'w'~ as the
+mode or your existing file will be destroyed!
+
+Now that we have this connection to the file we need to actually open
+the file for access.
+
+#+begin_src python :tangle _tangle_source/analysis0.py
+  wepy_h5.open()
+  # do stuff...
+  wepy_h5.close()
+#+end_src
+
+This is okay for interactive exploration of a dataset, but in real
+scripts you will probably want to use the context manager which
+will automatically close it and protect the data.
+
+Its worth mentioning though that HDF5 data is relatively difficult to
+accidentally screw up in simple non-parallel analysis situations. That
+being said its always good to have good hygiene when dealing with your
+precious data.
+
+For example you would use a context manager like thus:
+
+#+begin_src python :tangle _tangle_source/analysis0.py
+  with wepy_h5:
+      pass
+#+end_src
+
+Simply opening an HDF5 file doesn't read very much data into memory so
+its a very cheap operation. It basically just fetches some header meta
+data and sets flags and locks so that other processes don't
+accidentally interrupt you.
+
+One of the major advantages of using HDF5 is that you only will ever
+bring the data you really need into memory (to some close
+approximation).  That means you can have huge individual trajectories
+(say 30GB each) that wouldn't ever reasonably fit into RAM, but you
+can access slices or chunks of them as you need.
+
+This is something to be aware of when outputting to other formats like
+DCD where the whole file usually needs to be read into memory. This
+isn't a problem for WepyHDF5 trajectories but you will need to
+consider this when exporting for visualization etc.
+
+Lets reopen our file and start poking around. I suggest doing this
+interactively such as in an IPython session or Jupyter Notebook:
+
+#+begin_src python :tangle _tangle_source/analysis0.py
+  wepy_h5.open()
+#+end_src
+
+You can get whether the file is open or not:
+
+#+begin_src python :tangle _tangle_source/analysis0.py
+  if not wepy_h5.closed:
+
+      print(f"File {wepy_h5.filename} is open")
+
+  else:
+      print(f"File {wepy_h5.filename} is closed")
+#+end_src
+--------
+#+begin_src fundamental :tangle _tangle_source/test_analysis_0.txt
+File _output/run0/root.wepy.h5 is open
+#+end_src
+
+You can also get access to the underlying ~h5py~ object:
+
+#+begin_src python :tangle _tangle_source/analysis0.py
+print(wepy_h5.h5)
+#+end_src
+--------
+#+begin_src fundamental :tangle _tangle_source/test_analysis_0.txt
+<HDF5 file "root.wepy.h5" (mode r)>
+#+end_src
+
+*** Accessing Run & Trajectory Data
+
+The main category of data are the "runs" that are stored in the
+HDF5. Each "run" dataset corresponds to a single self-contained
+simulation.
+
+A ~WepyHDF5~ can have multiple runs but it is common to only have one
+run per file. We can later aggregate multiple runs into a single
+logical dataset later very inexpensively by linking them on the file
+system but for now we will just focus on them one run at a time.
+
+To list the IDs (just indices really) we can look at the ~run_idxs~
+attribute:
+
+#+begin_quote
+Throughout ~wepy~ 'idx' is used as shorthand for 'index' or 'idxs' for
+'indices'.
+#+end_quote
+
+#+begin_src python :tangle _tangle_source/analysis0.py
+  print(wepy_h5.run_idxs)
+#+end_src
+--------
+#+begin_src fundamental :tangle _tangle_source/test_analysis_0.txt
+[0]
+#+end_src
+
+Which indicates that there is a single run with index ~0~.
+
+Now that we know which runs we are interested in we can query more
+data about it.
+
+First off we might see how many cycles long the run is:
+
+#+begin_src python :tangle _tangle_source/analysis0.py
+  print(wepy_h5.num_run_cycles(0))
+#+end_src
+--------
+#+begin_src fundamental :tangle _tangle_source/test_analysis_0.txt
+10
+#+end_src
+
+
+We can get the number of walkers in the simulation:
+
+#+begin_src python :tangle _tangle_source/analysis0.py
+  print(wepy_h5.num_init_walkers(0))
+#+end_src
+--------
+#+begin_src fundamental :tangle _tangle_source/test_analysis_0.txt
+20
+#+end_src
+
+
+We can also get the indices simulation trajectories.
+
+Each run will have a number of trajectory datasets that roughly
+correspond to the number of walkers in a simulation, you can see the
+existing indices of these trajectories like this:
+
+#+begin_src python :tangle _tangle_source/analysis0.py
+  print(wepy_h5.run_traj_idxs(0))
+#+end_src
+--------
+#+begin_src fundamental :tangle _tangle_source/test_analysis_0.txt
+[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+#+end_src
+
+Because our simulations had a constant number of walkers (20 in this
+case) you can see trajectories 0 through 19.
+
+Lets pick one of the trajectories (0) from the run (0) and see what
+data it has available.
+
+First we can see how many frames it has:
+
+#+begin_src python :tangle _tangle_source/analysis0.py
+  print(wepy_h5.num_traj_frames(0, 0))
+#+end_src
+--------
+#+begin_src fundamental :tangle _tangle_source/test_analysis_0.txt
+10
+#+end_src
+
+This is the same as the number of cycles in the run. Now lets see what
+data was stored for each frame:
+
+#+begin_src python :tangle _tangle_source/analysis0.py
+  print(wepy_h5.traj(0, 0).keys())
+#+end_src
+--------
+#+begin_src fundamental :tangle _tangle_source/test_analysis_0.txt
+['box_vectors', 'box_volume', 'forces', 'kinetic_energy', 'positions', 'potential_energy', 'time', 'velocities', 'weights']
+#+end_src
+
+This is all data that is in an OpenMM simulation which is provided
+through the OpenMM Runner that was used in the simulation.  This can
+be used for any kind of analysis and will be used to export data into
+other formats that can be used for visualization.
+
+Note that We still haven't loaded any more data than the metadata for
+a few groups and datasets. We can actually load data into memory with
+a number of different methods depending on our use case. For now we
+can get it just for this one trajectory:
+
+#+begin_src python :tangle _tangle_source/analysis0.py
+  box_vectors = wepy_h5.get_traj_field(0, 0, 'box_vectors')
+  print(type(box_vectors))
+  print(box_vectors.shape)
+#+end_src
+--------
+#+begin_src fundamental :tangle _tangle_source/test_analysis_0.txt
+<class 'numpy.ndarray'>
+(10, 3, 3)
+#+end_src
+
+Here we have asked for the box vectors of trajectory 0 in run 0. This
+is returned as a ~numpy~ array of rank 3. The shape of the array
+indicates that we have 10 frames and then a "feature" that is a 3 by 3
+array, that is 3 spatial dimensions for the 3 vectors defining the
+bounding box of the simulation.
+
+Every trajectory field follows this same structure, where the first
+dimension of the array is indexed by the frames and then the rest are
+specific to the feature. You can kind of think of every trajectory as
+being a table where the number of rows is the number of frames
+(typically also the number of cycles for constant walker simulations)
+and each column is a specific feature of that trajectory, which ~wepy~
+refers to as the ~fields~.
+
+While a ~(10, 3, 3)~ array here is no problem to fit into memory as
+frame data gets larger and the number of frames increases it can be
+difficult. We can always simply retrieve a subset of the frames we
+want. Here this is a list of exactly the frame indices we want:
+
+#+begin_src python :tangle _tangle_source/analysis0.py
+  chosen_frames = [0,2,7,8]
+
+  positions = wepy_h5.get_traj_field(0, 0, 'positions',
+                                       frames=chosen_frames)
+  print(positions.shape)
+#+end_src
+--------
+#+begin_src fundamental :tangle _tangle_source/test_analysis_0.txt
+(4, 2, 3)
+#+end_src
+
+Here we can see from the shape of the array that we only have 4 frames
+now. We can also see now that our "feature" array is different for
+representing the positions of the particles:
+
+#+begin_src python :tangle _tangle_source/analysis0.py
+  positions[0]
+#+end_src
+--------
+#+begin_src fundamental
+array([[ 0.09647451 -0.45307833  0.19268026]
+       [ 0.2685555  -0.11978315  0.0991859 ]])
+#+end_src
+
+The only required field present is the ~weights~, and is necessary for
+proper weighted ensemble (WE) simulations.
+
+#+begin_src python :tangle _tangle_source/analysis0.py
+  weights = wepy_h5.get_traj_field(0,0, 'weights')
+  print(weights.shape)
+#+end_src
+--------
+#+begin_src fundamental
+(10, 1)
+#+end_src
+
+This has the same structure as above even though weights are always a
+scalar value.
+
+Common molecular trajectory formats usually hardcode which data can be
+stored in them, typically only the positions and box vectors. Because
+HDF5 is designed to hold arbitrary array data any data can be
+associated to a trajectory for any kind of modified simulation. This
+is how many different runners can all use the same format.
+
+Of course particular kinds of analysis will require the presence of
+specific fields but this is up to the user. However, because ~wepy~
+was built to work with OpenMM and molecular dynamics from the
+beginning there are some convenience functions for exporting directly
+to ~mdtraj.Trajectory~ objects. These require the presence of the
+~positions~ and ~box_vectors~ fields:
+
+#+begin_src python :tangle _tangle_source/analysis0.py
+  traj = wepy_h5.to_mdtraj(0, 0)
+  print(traj.n_atoms)
+  print(traj.n_frames)
+  traj.save_dcd('_output/run0/traj0.dcd')
+#+end_src
+--------
+#+begin_src fundamental :tangle _tangle_source/test_analysis_0.txt
+2
+10
+#+end_src
+
+You can even use the ~_output/run0/root.init_top.pdb~ file
+and the ~_output/run0/traj0.dcd~ files to view them in something like
+VMD.
+
+
+*** Topologies
+
+That's neat but how did it know the molecular topology in order to be
+able to generate the trajectory?  This is because ~wepy~ records the
+molecular topology in the HDF5 file and retrieves it automatically for
+you. You can get it yourself and see it:
+
+#+begin_src python :tangle _tangle_source/analysis0.py
+  top_json = wepy_h5.get_topology()
+  print(top_json)
+#+end_src
+--------
+#+begin_src fundamental :tangle _tangle_source/test_analysis_0.txt
+'{"chains": [{"index": 0, "residues": [{"index": 0, "name": "Ar", "atoms": [{"index": 0, "name": "Ar", "element": "Ar"}], "resSeq": 1, "segmentID": ""}, {"index": 1, "name": "Ar", "atoms": [{"index": 1, "name": "Ar", "element": "Ar"}], "resSeq": 2, "segmentID": ""}]}], "bonds": []}'
+#+end_src
+
+This is the topology encoded as a JSON string. Its a somewhat internal
+representation used by ~wepy~ as there really wasn't any other
+suitable formats for this purpose available. Luckily it is trivial to
+convert this format to the ~mdtraj~ one (indeed this format is used
+internally in ~mdtraj~ which is where it comes from). Again we have a
+convenience method for this:
+
+#+begin_src python :tangle _tangle_source/analysis0.py
+  mdj_top = wepy_h5.get_mdtraj_topology()
+#+end_src
+
+But there is also a module full of utilities that can help with
+working with these topology files. For example we can view them as
+~pandas~ dataframe tables based on the atoms, residues, or chains. For
+this example, only the atoms are interesting.
+
+#+begin_src python :tangle _tangle_source/analysis0.py
+  from wepy.util.json_top import json_top_atom_df
+
+  print(json_top_atom_df(top_json))
+#+end_src
+--------
+#+begin_src fundamental :tangle _tangle_source/test_analysis_0.txt
+   index name element  chain_key  residue_key
+0      0   Ar      Ar          0            0
+1      1   Ar      Ar          0            1
+#+end_src
+
+Where you can see the two "Argon" atoms used as the Lennard-Jones
+particles in the simulation.
+
+Here you can also get subsets of the atoms in the topology that
+preserves ordering (something the same ~mdtraj~ function doesn't do):
+
+#+begin_src python :tangle _tangle_source/analysis0.py
+  from wepy.util.json_top import json_top_subset
+
+  subset_top = json_top_subset(top_json, [1])
+
+  print(json_top_atom_df(subset_top))
+#+end_src
+--------
+#+begin_src fundamental :tangle _tangle_source/test_analysis_0.txt
+   index name element  chain_key  residue_key
+0      0   Ar      Ar          0            0
+#+end_src
+
+Using the ~mdtraj~ utilities we can also directly convert the json to
+mdtraj and vice-versa:
+
+#+begin_src python :tangle _tangle_source/analysis0.py
+  from wepy.util.mdtraj import json_to_mdtraj_topology, mdtraj_to_json_topology
+
+  mdj_top = json_to_mdtraj_topology(top_json)
+  top_json = mdtraj_to_json_topology(mdj_top)
+#+end_src
+
+Its worth mentioning for those unfamiliar with ~json~ is that it can
+be directly read into python "lists-and-dicts":
+
+#+begin_src python :tangle _tangle_source/analysis0.py
+  import json
+
+  top = json.loads(top_json)
+
+  print(top['chains'][0]['residues'][0]['atoms'][0])
+
+#+end_src
+--------
+#+begin_src fundamental :tangle _tangle_source/test_analysis_0.txt
+{'index': 0, 'name': 'Ar', 'element': 'Ar'}
+#+end_src
+
+Lets move on from topologies for now. There are more advanced features
+in ~wepy~ that allow for storing subsets of position data based on
+different topologies but this is an advanced topic used for when
+storage requirements would be too great to store entire simulations.
+
+One last thing to keep in mind however is that there is only a single
+topology in each *file* (excluding subsets of course). That is every
+run in a file should be the same system being simulated. While there
+isn't any reason why a user couldn't add other topology files (say as
+a field) most of the convenience functions in the ~WepyHDF5~ interface
+assume a single master topology.
+
+
+*** More Ways to get Trajectory Data
+
+The simplicity of the runs of trajectories may make it seem that the
+structure of WE is not that different from normal
+simulations. This is not the case however, and unfortunately we must
+admit here that the "trajectories" here a lie.
+
+That is each "trajectory" dataset above doesn't necessarily correspond
+to a real continuous simulation trajectory in the simulation. Rather
+the "trajectories" in the HDF5 file are just a coherent way to store
+the data.
+
+While it is /possible/ for a trajectory to correspond to a *continuous
+trajectory* this is not /guaranteed/. This is because during the
+simulation some walkers are cloned and others may be killed. However,
+for this simulation the total number of walkers is kept the same. That
+is why we can have specifically 20 trajectories corresponding to the
+20 walkers in the run. If you were to visualize a single trajectory
+that is killed then you might see a conspicuous change from the last
+location.
+
+Its better to think of the "trajectories" in the HDF5 as *slots* that
+walker data can be placed. At each cycle the resampler is free to put
+whatever walker in whatever slot. Thus we might think of each
+collection of walkers at a given cycle as an unordered set, that
+happen to be assigned to slots when saved to the HDF5 file.
+The data is arranged in this "columnar" format because it is more
+efficient due to the properties of HDF5.
+
+If we can't rely on these fraudulent trajectories to give us proper
+trajectories how can we do this?
+Unfortunately this requires a better definition of the question to
+answer this and also requires help from a couple other analysis
+routines and classes in ~wepy~. So we will defer this question for
+now.
+However, we will cover the building blocks that are used in
+conjunction with those higher-level tools.
+
+First, we will introduce the idea of a *trace* which is a way to
+specify a set of frames across runs, trajectories, and cycles.
+
+For example using the same dataset we might be interested in the
+all of the walker states for a particular cycle, e.g. the last one:
+
+#+begin_src python :tangle _tangle_source/analysis0.py
+  last_cycle_trace = [(0, traj_idx, 9) for traj_idx in wepy_h5.run_traj_idxs(0)]
+  print(last_cycle_trace)
+#+end_src
+--------
+#+begin_src fundamental :tangle _tangle_source/test_analysis_0.txt
+[(0, 0, 9), (0, 1, 9), (0, 2, 9), (0, 3, 9), (0, 4, 9), (0, 5, 9), (0, 6, 9), (0, 7, 9), (0, 8, 9), (0, 9, 9), (0, 10, 9), (0, 11, 9), (0, 12, 9), (0, 13, 9), (0, 14, 9), (0, 15, 9), (0, 16, 9), (0, 17, 9), (0, 18, 9), (0, 19, 9)]
+#+end_src
+
+This data structure is generally called a *trace*, because it
+specifies a path through the data. The order of the index-tuples in
+the trace indicates this path, however often this order is of no
+interest to us. Such is the case with the ~last_cycle_trace~ above, it
+could just as easily be a ~set~. Typically unless otherwise specified
+the order of the trace will always be preserved.
+
+Somewhat confusingly there are different kinds of traces depending
+which collection you are indexing. Here each tuple value corresponds
+to ~(run_idx, traj_idx, cycle_idx)~ and thus can be used to make
+traces that index over multiple runs. This is common because we often
+run multiple long simulations that need to be stitched together into
+one logical simulation.
+
+I suggest referring to the glossary for the names and explanations of
+each of them. Each specific trace function expects a particular format
+and you should always review the docstring to make sure you have made
+the right one. Because Python has no typechecking it can be easy to
+make this mistake and not realize it.
+
+We can then use this trace to get field data:
+
+#+begin_src python :tangle _tangle_source/analysis0.py
+  trace_fields = wepy_h5.get_trace_fields(
+      last_cycle_trace,
+      ['weights', 'positions', 'box_vectors'],
+  )
+
+  print(list(trace_fields.keys()))
+
+  print(trace_fields['weights'].shape)
+#+end_src
+--------
+#+begin_src fundamental :tangle _tangle_source/test_analysis_0.txt
+['weights', 'positions', 'box_vectors']
+(20, 1)
+#+end_src
+
+The trace fields then is just a dictionary with a ~numpy~ array for
+the data just like we had before. Except now the number of frames is
+the length of the trace rather than the "trajectory".
+
+Just to give an example of the different kinds of traces we can get
+the same data but relative to only this run:
+
+#+begin_src python :tangle _tangle_source/analysis0.py
+  in_run_trace = [(traj_idx, 9) for traj_idx in wepy_h5.run_traj_idxs(0)]
+  print(in_run_trace)
+
+  trace_fields = wepy_h5.get_run_trace_fields(
+      0,
+      in_run_trace,
+      ['weights', 'positions', 'box_vectors'],
+  )
+
+  print(trace_fields['weights'].shape)
+#+end_src
+--------
+#+begin_src fundamental :tangle _tangle_source/test_analysis_0.txt
+[(0, 9), (1, 9), (2, 9), (3, 9), (4, 9), (5, 9), (6, 9), (7, 9), (8, 9), (9, 9), (10, 9), (11, 9), (12, 9), (13, 9), (14, 9), (15, 9), (16, 9), (17, 9), (18, 9), (19, 9)]
+(20, 1)
+#+end_src
+
+There is even a convenience function for generating ~mdtraj~
+trajectories directly from traces:
+
+#+begin_src python :tangle _tangle_source/analysis0.py
+  traj = wepy_h5.trace_to_mdtraj(last_cycle_trace)
+
+  traj.save_dcd("_output/run0/last_cycle.dcd")
+#+end_src
+
+When dealing with continuous trajectories of walkers using traces is
+the easiest way to get data. However, we don't always care about the
+continuity of trajectories and for many purposes just want to chunk it
+up and compute properties which are not time dependent.
+
+*** Computing Observables
+
+When we don't need to worry about continuous trajectories it makes
+sense to just think of the runs and trajectory datasets.
+
+The simplest way to do this is to iterate through them:
+
+#+begin_src python :tangle _tangle_source/analysis0.py
+  traj_fields_it = wepy_h5.iter_trajs_fields(['weights', 'box_vectors'])
+
+  print(type(traj_fields_it))
+#+end_src
+--------
+#+begin_src fundamental :tangle _tangle_source/test_analysis_0.txt
+<class 'generator'>
+#+end_src
+
+This method returns a generator so that only one trajectory dataset
+will be read into memory at a time. Typically just using a for loop is
+all that is necessary:
+
+#+begin_src python :tangle _tangle_source/analysis0.py
+  traj0 = next(traj_fields_it)
+
+  print(traj0['weights'].shape)
+
+  for traj_idx, traj in enumerate(traj_fields_it):
+      print(f"Traj {traj_idx+1} weights arr: ", traj['weights'].shape)
+#+end_src
+--------
+#+begin_src fundamental :tangle _tangle_source/test_analysis_0.txt
+(10, 1)
+Traj 1 weights arr:  (10, 1)
+Traj 2 weights arr:  (10, 1)
+Traj 3 weights arr:  (10, 1)
+Traj 4 weights arr:  (10, 1)
+Traj 5 weights arr:  (10, 1)
+Traj 6 weights arr:  (10, 1)
+Traj 7 weights arr:  (10, 1)
+Traj 8 weights arr:  (10, 1)
+Traj 9 weights arr:  (10, 1)
+Traj 10 weights arr:  (10, 1)
+Traj 11 weights arr:  (10, 1)
+Traj 12 weights arr:  (10, 1)
+Traj 13 weights arr:  (10, 1)
+Traj 14 weights arr:  (10, 1)
+Traj 15 weights arr:  (10, 1)
+Traj 16 weights arr:  (10, 1)
+Traj 17 weights arr:  (10, 1)
+Traj 18 weights arr:  (10, 1)
+Traj 19 weights arr:  (10, 1)
+#+end_src
+
+
+Since most users will be doing the same thing which is mapping a
+function over the trajectories and computing some value for each frame
+there is a function for this called ~compute_observable~.
+
+The idea is that you simply give it a custom function that acts on a
+fields dictionary for a single trajectory and it will return the
+results for all of the trajectories while only acting on a single
+trajectory at a time.
+
+For example we might have a function that gets the distance between
+the two Lennard-Jones particles in the simulation:
+
+#+begin_src python :tangle _tangle_source/analysis0.py
+  import numpy as np
+
+  def traj_field_lj_dist(traj_data):
+
+      positions = traj_data['positions']
+
+      # slice out positions for each LJ particle
+      lj1 = positions[:,0,:]
+      lj2 = positions[:,1,:]
+
+      # compute distances with the scaling factor
+      distances = np.sqrt(
+          (lj1[:,0] - lj2[:,0])**2 +
+          (lj1[:,1] - lj2[:,1])**2 +
+          (lj1[:,2] - lj2[:,2])**2
+      )
+
+      return distances
+#+end_src
+
+We can see that it works on the first two frames of trajector 0:
+
+#+begin_src python :tangle _tangle_source/analysis0.py
+  ex_trace_fields = wepy_h5.get_trace_fields(
+      [(0, 0, 0), (0, 0, 1)],
+      ['positions'],
+  )
+
+  ex_dists = traj_field_lj_dist(ex_trace_fields)
+
+  print(ex_dists)
+#+end_src
+--------
+#+begin_src fundamental
+[0.38657308 0.39455245]
+#+end_src
+
+Now we can use this function for the whole run:
+
+#+begin_src python :tangle _tangle_source/analysis0.py
+  run0_dists = wepy_h5.compute_observable(
+      traj_field_lj_dist,
+      ['positions'],
+      (),
+  )
+
+  print(len(run0_dists))
+
+  print(run0_dists[0].shape)
+#+end_src
+--------
+#+begin_src fundamental :tangle _tangle_source/test_analysis_0.txt
+20
+(10,)
+#+end_src
+
+You can see that we get a list of arrays for each trajectory.
+
+While we won't cover it here you can optionally save this data back
+into the HDF5 file so that it aligns to the walker-frame that it was
+computed on. This is useful for some of the more advanced analyses.
+
+*** Cloning & Merging Data
+
+Before we wrap up the basics we should mention one of the other key
+pieces of data that is the foundation for the WE features. That is the
+resampling records.
+
+These can easily be retrieved for a single run by running the
+following method:
+
+#+begin_src python :tangle _tangle_source/analysis0.py
+  resampling_df = wepy_h5.resampling_records_dataframe([0])
+#+end_src
+
+The ~[0]~ we passed in is just the single ~run_idx~ for our run. This
+methods can be used to stitch together more than one run, but that
+isn't of interest at the moment.
+
+It should look something like this depending on what happened in your simulation:
+#+begin_src python :tangle _tangle_source/analysis0.py
+  print(resampling_df[:5])
+#+end_src
+--------
+#+begin_src fundamental
+   cycle_idx  decision_id target_idxs  step_idx  walker_idx region_assignment
+0          0            1        (0,)         0           0      (0, 0, 0, 0)
+1          0            1        (1,)         0           1      (0, 0, 0, 0)
+2          0            1        (2,)         0           2      (0, 0, 0, 0)
+3          0            1        (3,)         0           3      (0, 0, 0, 0)
+4          0            1        (4,)         0           4      (0, 0, 0, 0)
+#+end_src
+
+This table holds all of the information needed to reconstruct the
+lineages of the walkers as they were cloned and merged throughout the
+simulation.
+
+As an end user you shouldn't ever need to interact with this raw data
+as there are higher-level ways to interact with it. However, its
+useful to be able to know how to drill down into the raw data in case
+something is ever not working.
+
+Of the columns all are necessary except the ~region_assignment~
+one. That column is specific to the ~WExplore~ resampler and there
+would be different extra columns when using a different resampler like
+~REVO~. It just happens that this piece of data corresponds exactly to
+the cloning/merging decision taking place for this walker at this
+point in time.
+
+If you want to understand what all these columns mean see the specific
+documentation on them in the Reference section.
+
+*** In Closing
+
+We acknowledge that analyzing WE data is a bit more challenging to
+understand and access and that it is a little overwhelming at first.
+
+However, once you understand that there are actually very few commonly
+needed routines most of the complexity will melt away.
+
+For these we point you to the other purpose oriented tutorials in the
+documentation.
+
+Oh and don't forget to close your file!
+
+#+begin_src python :tangle _tangle_source/analysis0.py
+  wepy_h5.close()
+
+  if wepy_h5.closed:
+      print("Good job!")
+
+  else:
+      print("....")
+#+end_src
+--------
+#+begin_src fundamental :tangle _tangle_source/test_analysis_0.txt
+Good job!
+#+end_src
