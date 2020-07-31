@@ -5,6 +5,7 @@ from ..config import (
     REPORTS_DIR,
     ORG_DOCS_SOURCES,
     RST_DOCS_SOURCES,
+    BIB_DOCS_SOURCES,
     LOGO_DIR,
     TESTING_PYPIRC,
     PYPIRC,
@@ -179,6 +180,10 @@ def docs_build(cx):
     # copy the plain RST files over to the sources
     for source in RST_DOCS_SOURCES:
         cx.run(f"cp info/{source}.rst sphinx/_source/{source}.rst")
+
+    # copy the Bibtex files over
+    for source in BIB_DOCS_SOURCES:
+        cx.run(f"cp info/{source}.bib sphinx/_source/{source}.bib")
 
     # convert the org mode to rst in the source folder
     for source in ORG_DOCS_SOURCES:

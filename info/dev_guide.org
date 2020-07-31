@@ -413,6 +413,8 @@ Examples can also be literate but they are restricted to formats like
 org mode, whereas the tutorials may also be in formats like Jupyter,
 which integrate well with Sphinx docs.
 
+***** Initializing a Tutorial/Example
+
 To write examples and tutorials that play nice with testing and the
 basic rules of the examples (described in the [[./users_guide.org][users_guide]]) there are
 some templates available in the ~templates~ directory for ~templates/examples~,
@@ -429,6 +431,9 @@ You can either just copy these templates over or use the targets:
 
 After you have your directory set up there are some things to keep in
 mind while you are constructing your tutorial.
+
+
+***** Managing Dependencies and Envs
 
 First, write source either in the literate document (~README.org~) or
 in the source file. Not both, unless you intend to test both
@@ -458,6 +463,8 @@ or
 #+begin_src bash
 inv env
 #+end_src
+
+***** Writing Code Examples
 
 
 When writing examples and tutorials you should manually write the
@@ -495,6 +502,32 @@ and not:
 #+begin_src python
   with open("../data.csv", 'r') as rf:
       table = rf.read()
+#+end_src
+
+
+Similarly writing and creating files should be done into the ~_output~
+dir:
+
+#+begin_src python
+  with open("_output/test.txt", 'w') as wf:
+      wf.write("Hello!!")
+#+end_src
+
+
+***** Adding to the built documentation
+
+The tutorial README files will be automatically converted to
+ReStructuredText and built into the documentation, but in order to
+have links to them from the Tutorials page you will need to manually
+add them to the table of contents section in the
+~sphinx/tutorials_index.rst~ file, e.g.:
+
+#+begin_src rst
+.. toctree::
+   :maxdepth: 1
+
+   tut0/README
+   tut1/README
 #+end_src
 
 

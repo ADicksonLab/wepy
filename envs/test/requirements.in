@@ -19,3 +19,5 @@ pytest-mock
 pytest-cov
 pytest-benchmark
 pytest-profiling
+
+pytest-check

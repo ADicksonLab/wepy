@@ -2,16 +2,55 @@
 
 ** Weighted Ensemble (WE)
 
-# TODO
+The weighted ensemble algorithm (WE) is a general strategy for
+simulating rare or long-timescale events in stochastic systems
+@@rst::cite:`HuberKim1996WeightedEnsemble`@@.
+It works by simulating an ensemble of different simulations
+(individually called 'walkers'), where at specific times during the
+simulations all walkers are stopped and examined in order to identify
+any behaviors of interest that may have occured.
+Each pause in the simulation is called a 'cycle' and walkers which are
+"interesting" will have more simulation effort put into them while
+those of less exhibited interest will be dropped or simulated less.
+This typically is achieved by "cloning" high-value walkers into many
+copies, thus giving them more chances to exhibit otherwise rare
+behaviors.
+This is also usually concomitant with a removal (typically called
+merging/squashing) of walkers so that the computational resources are
+not diluted.
+This is similar to Importance Sampling methods, however, we are
+interested in not only the behaviors of the walker simulations but
+also the estimates of their probability.
+In order to achieve this, the process of cloning and merging must
+always must preserve the original weight distribution.
+Such a process is said to be a "resampling" process, and indeed the
+cloning and merging approach does this by construction.
+The outcome is that the "weights" of walkers is always accounted for,
+and in the limit of a fully converged simulation these weights
+correspond to the stationary probabilities.
 
-.. TODO For a background to weighted ensemble see: 
-
+While the computational effort needed to reach convergence may be
+excessive for systems with high-dimensional state spaces, WE has other
+advantages when compared to so-called biased methods.  
+That is that the corresponding "laws" of propagation
+(e.g. Hamiltonians, force-fields, etc.) are never modified which means
+that the individual trajectories are always "correct".
+This particular feature may not be of interest to many but for fields
+where the specific details of the "mechanism" of a process are of
+interest this is a major advantage.
+For instance a major use-case of WE (and ~wepy~ itself) is to observe
+"transition states" (kinetic bottleneck structures in biomolecular
+processes) at all-atom resolution.
+This is useful for scientists that are designing drugs that effect the
+structure in these particular states.
 
 ** Features
 
-- State of the art WE resamplers: WExplore and REVO
-- Super fast molecular dynamics via OpenMM
-- Purpose built HDF5 storage format for WE data: ~WepyHDF5~
+- State of the art WE resamplers: WExplore
+  @@rst::cite:`Dickson2014WExplore`@@ and REVO
+  @@rst::cite:`Donyapour2019REVO`@@
+- Super fast molecular dynamics via OpenMM @@rst::cite:`Eastman2013OpenMM4`@@
+- Purpose built HDF5 storage format for WE data with extensive API: ~WepyHDF5~
 - Analysis routines for:
   - free energy profiles
   - rate calculations
@@ -23,7 +62,7 @@
   with simulation checkpointing, recovery, and continuations.
 - Expert friendly: Fully-featured framework for building and
   customizing simulations for exactly what you need.
-- Leverage the entire python ecosystem, you're limited to an old
+- Leverage the entire python ecosystem, you're never limited to an old
   version of an embedded interpreter.
 - No complex /ad hoc/ configuration files, everything is python.
 
@@ -129,7 +168,7 @@ devs or submit a pull request with your desired changes.
 
 Weighted ensemble package in Python 2.7. More reliant and integrated
 with unix-like operating systems providing modularity through shell
-scripting and python modules.
+scripting and python modules @@rst::cite:`ZwierChong2015WESTPA`@@.
 
 As an older project it has support for more MD engines (and non-MD
 stochastic sampling engines, e.g. BioNetGen) and is currently better
@@ -148,8 +187,12 @@ like REVO, which have no concept of bins at all.
 
 Another Python 2 library with a focus on the Accelerated WE resampling
 algorithm and integration with a Work Queue library for distributed
-jobs.
+jobs @@rst::cite:`AbdulWahid2014AWEWQ`@@ .
 
+* Bibliography
 
-
+#+begin_export rst
+.. bibliography:: docs.bib
+   :cited:
+#+end_export
 

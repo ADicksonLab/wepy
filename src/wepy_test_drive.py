@@ -22,14 +22,27 @@ def parse_system_spec(spec):
 
 @click.option('-v', '--verbose', is_flag=True)
 @click.option('-W', '--work-mapper',
+              default='WorkerMapper',
               help="Work mapper for doing work.")
+@click.option('-R', '--resampler',
+              default='WExplore',
+              help="Resampling algorithm.")
 @click.argument('n_workers', type=int)
 @click.argument('tau', type=float)
 @click.argument('n_cycles', type=int)
 @click.argument('n_walkers', type=int)
 @click.argument('system')
 @click.command()
-def cli(verbose, work_mapper, n_workers, tau, n_cycles, n_walkers, system):
+def cli(
+        verbose,
+        work_mapper,
+        resampler,
+        n_workers,
+        tau,
+        n_cycles,
+        n_walkers,
+        system,
+):
     """Run a pre-parametrized wepy simulation.
 
     \b
@@ -90,11 +103,22 @@ def cli(verbose, work_mapper, n_workers, tau, n_cycles, n_walkers, system):
 
     Mapper : non-parallel single-process implementation
 
+
+    \b
+    Available Resamplers
+    --------------------
+
+    No : Doesn't do any resampling. Simply runs an ensemble of walkers.
+
+    WExplore : Hierarchical History Dependent Voronoi Binning
+
+    REVO : Stateless and Binless algorithm that rewards in-ensemble novelty.
+
     \b
     Examples
     --------
 
-    python wepy_test_drive.py LennardJonesPair/OpenMM-CPU 20 10 2 4
+    python -m wepy_test_drive LennardJonesPair/OpenMM-CPU 20 10 2 4
 
     \b
     Notes
@@ -110,19 +134,25 @@ def cli(verbose, work_mapper, n_workers, tau, n_cycles, n_walkers, system):
         install_mp_handler()
         logging.debug("Starting the test")
 
+
+    resampler_fullname = resampler + 'Resampler'
+
     sys_spec, runner, platform = parse_system_spec(system)
 
     # choose which sim_maker to use
     sim_maker = SYSTEM_SIM_MAKERS[sys_spec]()
 
-    apparatus = sim_maker.make_apparatus(platform=platform)
+    apparatus = sim_maker.make_apparatus(
+        platform = platform,
+        resampler = resampler_fullname,
+    )
 
     # compute the number of steps to take from tau
     tau = tau * unit.picosecond
     n_steps = round(tau / apparatus.filters[0].integrator.getStepSize())
 
     config = sim_maker.make_configuration(apparatus,
-                                          work_mapper_spec='WorkerMapper',
+                                          work_mapper_spec=work_mapper,
                                           platform=platform)
 
     sim_manager = sim_maker.make_sim_manager(n_walkers, apparatus, config)
