@@ -169,7 +169,6 @@ class BaseMacroStateNetwork():
                 counts_d = transition_counts(
                     self._assignments,
                     transitions,
-                    # TODO
                     weights=weights)
 
                 # create the edges and set the counts into them
@@ -185,6 +184,7 @@ class BaseMacroStateNetwork():
                                     {(node_id_to_idx_dict[edge[0]],
                                       node_id_to_idx_dict[edge[1]]) : counts
                                      for edge, counts in counts_d.items()})
+
                 self._probmat = normalize_counts(self._countsmat)
 
                 # then we add these attributes to the edges in the network

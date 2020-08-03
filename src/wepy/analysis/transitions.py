@@ -148,6 +148,18 @@ def normalize_counts(transition_counts_matrix):
 
     """
 
+    # if there are any columns that sum to zero we need to set the
+    # diagonal value to 1.
+    col_sums = transition_counts_matrix.sum(axis=0)
+
+    zero_cols = np.where(col_sums == 0.0)[0]
+
+    if len(zero_cols) > 0:
+        transition_counts_matrix = transition_counts_matrix.copy()
+
+        for zero_col_idx in zero_cols:
+            transition_counts_matrix[zero_col_idx, zero_col_idx] = 1.0
+
     return np.divide(transition_counts_matrix, transition_counts_matrix.sum(axis=0))
 
 def transition_counts_matrix(assignments, transitions):
