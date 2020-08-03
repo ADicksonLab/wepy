@@ -16,6 +16,10 @@ wepy_h5 = WepyHDF5(output_dir / 'results.wepy.h5', mode = 'r+')
 run_idx = 0
 assg_key = 'rand_assg_idx'
 n_classifications = 4
+random_seed = 1
+
+np.random.seed(random_seed)
+
 # make random assignments
 
 # observable function
@@ -34,7 +38,6 @@ with wepy_h5:
         save_to_hdf5=assg_key,
         return_results=False,
     )
-
 
 # make a contig tree
 contig_tree = ContigTree(
