@@ -1494,7 +1494,13 @@ class WepyHDF5(object):
             self._init_traj_field(run_idx, traj_idx,
                                   field_path, field_feature_shapes[i], field_feature_dtypes[i])
 
-    def _add_traj_field_data(self, run_idx, traj_idx, field_path, field_data, sparse_idxs=None):
+    def _add_traj_field_data(self,
+                             run_idx,
+                             traj_idx,
+                             field_path,
+                             field_data,
+                             sparse_idxs=None,
+    ):
         """Add a trajectory field to a trajectory.
 
         If the sparse indices are given the field will be created as a
@@ -2311,7 +2317,6 @@ class WepyHDF5(object):
         #     else:
         #         raise RuntimeError(
         #             "Dataset already exists and file is in concatenate mode ('c' or 'c-')")
-
 
         # check that the data has the correct number of trajectories
         if not force:
@@ -5026,7 +5031,11 @@ class WepyHDF5(object):
         """
         obs_path = '{}/{}'.format(OBSERVABLES, observable_name)
 
-        self._add_field(obs_path, data, sparse_idxs=sparse_idxs)
+        self._add_field(
+            obs_path,
+            data,
+            sparse_idxs=sparse_idxs,
+        )
 
     def compute_observable(self, func, fields, args,
                            map_func=map,
@@ -5120,11 +5129,21 @@ class WepyHDF5(object):
         # if we are saving this to the trajectories observables add it as a dataset
         if save_to_hdf5:
 
+
+            # reshape the results to be in the observable shape:
+            observable = [[] for run_idx in self.run_idxs]
+
+            for result_idx, traj_results in zip(result_idxs, results):
+
+                run_idx, traj_idx = result_idx
+
+                observable[run_idx].append(traj_results)
+
             self.add_observable(
                 field_name,
-                results,
+                observable,
                 sparse_idxs=None,
-            )
+           )
 
         if return_results:
             if idxs:

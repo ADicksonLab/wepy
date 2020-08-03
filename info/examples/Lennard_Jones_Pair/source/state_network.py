@@ -21,19 +21,27 @@ n_classifications = 4
 # observable function
 def rand_assg(fields_d, *args, **kwargs):
     assignments = np.random.randint(0, n_classifications,
-                                            size=fields_d['weights'].shape[0])
+                                            size=fields_d['weights'].shape)
     return assignments
 
 with wepy_h5:
 
     # compute this random assignment "observable"
-    wepy_h5.compute_observable(rand_assg, ['weights'], (),
-                               save_to_hdf5=assg_key, return_results=False)
+    wepy_h5.compute_observable(
+        rand_assg,
+        ['weights'],
+        (),
+        save_to_hdf5=assg_key,
+        return_results=False,
+    )
 
 
 # make a contig tree
-contig_tree = ContigTree(wepy_h5, decision_class=MultiCloneMergeDecision,
-                         boundary_condition_class=UnbindingBC)
+contig_tree = ContigTree(
+    wepy_h5,
+    decision_class=MultiCloneMergeDecision,
+    boundary_condition_class=UnbindingBC,
+)
 
 
 # make a state network using the key of the assignment and the
@@ -41,6 +49,7 @@ contig_tree = ContigTree(wepy_h5, decision_class=MultiCloneMergeDecision,
 # or groupings of microstates from the simulation data. We also
 # set some sort of lag time to compute transition probabilities
 # with
+
 random_macrostates = MacroStateNetwork(contig_tree,
                                        assg_field_key="observables/{}".format(assg_key),
                                        transition_lag_time=3)
