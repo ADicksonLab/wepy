@@ -5,6 +5,7 @@ structure of weighted ensemble simulation data.
 from collections import defaultdict
 from copy import deepcopy
 
+import numpy as np
 import networkx as nx
 
 from wepy.analysis.transitions import transition_counts, counts_d_to_matrix, \
@@ -29,7 +30,10 @@ class BaseMacroStateNetwork():
     ASSIGNMENTS = 'assignments'
     """Key for the microstates that are assigned to a macrostate."""
 
-    def __init__(self, contig_tree, assg_field_key=None, assignments=None,
+    def __init__(self,
+                 contig_tree,
+                 assg_field_key=None,
+                 assignments=None,
                  transition_lag_time=2):
         """Create a network of macrostates from the simulation microstates
         using a field in the trajectory data or precomputed assignments.
@@ -136,6 +140,18 @@ class BaseMacroStateNetwork():
             self._countsmat = None
             if transition_lag_time is not None:
 
+
+                # get the weights for the walkers so we can compute
+                # the weighted transition counts
+                weights = [[] for run_idx in contig_tree.wepy_h5.run_idxs]
+                for idx_tup, traj_fields_d in contig_tree.wepy_h5.iter_trajs_fields(
+                        ['weights'],
+                        idxs=True):
+
+                    run_idx, traj_idx = idx_tup
+
+                    weights[run_idx].append(np.ravel(traj_fields_d['weights']))
+
                 # set the lag time attribute
                 self._transition_lag_time = transition_lag_time
 
@@ -150,7 +166,10 @@ class BaseMacroStateNetwork():
                     transitions.append(transition)
 
                 # then get the counts for those edges
-                counts_d = transition_counts(self._assignments, transitions)
+                counts_d = transition_counts(
+                    self._assignments,
+                    transitions,
+                    weights=weights)
 
                 # create the edges and set the counts into them
                 for edge, trans_counts in counts_d.items():
@@ -165,6 +184,7 @@ class BaseMacroStateNetwork():
                                     {(node_id_to_idx_dict[edge[0]],
                                       node_id_to_idx_dict[edge[1]]) : counts
                                      for edge, counts in counts_d.items()})
+
                 self._probmat = normalize_counts(self._countsmat)
 
                 # then we add these attributes to the edges in the network
@@ -204,14 +224,46 @@ class BaseMacroStateNetwork():
         assignments = [[[] for traj_idx in range(wepy_h5.num_run_trajs(run_idx))]
                              for run_idx in wepy_h5.run_idxs]
 
+        test_field = wepy_h5.get_traj_field(
+            wepy_h5.run_idxs[0],
+            wepy_h5.run_traj_idxs(0)[0],
+            self.assg_field_key,
+        )
+
+        # WARN: assg_field shapes can come wrapped with an extra
+        # dimension. We handle both cases. Test the first traj and see
+        # how it is
+        unwrap = False
+
+        if len(test_field.shape) == 2 and test_field.shape[1] == 1:
+            # then we raise flag to unwrap them
+            unwrap = True
+
+        elif len(test_field.shape) == 1 and test_field.shape[0] == 1:
+            # then it is unwrapped and we don't need to do anything,
+            # just assert the flag to not unwrap
+            unwrap = False
+
+        else:
+
+            raise ValueError(f"Wrong shape for an assignment type observable: {test_field.shape}")
+
 
         # the raw assignments
         curr_run_idx = -1
         for idx_tup, fields_d in wepy_h5.iter_trajs_fields(
                                          [self.assg_field_key], idxs=True):
+
             run_idx = idx_tup[0]
             traj_idx = idx_tup[1]
+
+
             assg_field = fields_d[self.assg_field_key]
+
+            # if we need to we unwrap the assignements scalar values
+            # if they need it
+            if unwrap:
+                assg_field = np.ravel(assg_field)
 
             assignments[run_idx][traj_idx].extend(assg_field)
 

@@ -52,24 +52,36 @@ from collections import defaultdict
 
 import numpy as np
 
-def transition_counts(assignments, transitions):
+def transition_counts(
+        assignments,
+        transitions,
+        weights=None):
     """Make a dictionary of the count of microstate transitions between macrostates.
+
+    If weights are given counts are the weight instead of 1.
 
     Parameters
     ----------
+
     assignments: mixed array_like of dim (n_run, n_traj, n_cycle) type int
         Assignment of microstates to macrostate labels, where N_runs
         is the number of runs, N_traj is the number of trajectories,
         and N_cycle is the number of cycles.
+
     transitions: list of list of tuples of ints (run_idx, traj_idx, cycle_idx)
         List of run traces corresponding to transitions. Only the
         first and last trace elements are used.
+
+    weights: mixed array_like of dim (n_run, n_traj, n_cycle) type float or None
+        Same shape as the assignments, but gives the weight of the walker at this time.
+          (Optional)
 
     Returns
     -------
     transition_counts : dict of (int, int): int
         Dictionary mapping transitions between macrostate labels to
-        the count of microstate transitions between them.
+        the count of microstate transitions between them. If weights
+        are given this is the weighted counts.
 
     """
 
@@ -85,7 +97,15 @@ def transition_counts(assignments, transitions):
         start_assignment = assignments[start[0]][start[1]][start[2]]
         end_assignment = assignments[end[0]][end[1]][end[2]]
 
-        countsmat_d[(start_assignment, end_assignment)] += 1
+
+        if weights is not None:
+            # get the weight for this walker
+            weight = weights[start[0]][start[1]][start[2]]
+
+        else:
+            weight = 1.0
+
+        countsmat_d[(start_assignment, end_assignment)] += weight
 
     return countsmat_d
 
@@ -127,6 +147,18 @@ def normalize_counts(transition_counts_matrix):
         Assymetric transition probability matrix of dim (n_macrostates, n_macrostates).
 
     """
+
+    # if there are any columns that sum to zero we need to set the
+    # diagonal value to 1.
+    col_sums = transition_counts_matrix.sum(axis=0)
+
+    zero_cols = np.where(col_sums == 0.0)[0]
+
+    if len(zero_cols) > 0:
+        transition_counts_matrix = transition_counts_matrix.copy()
+
+        for zero_col_idx in zero_cols:
+            transition_counts_matrix[zero_col_idx, zero_col_idx] = 1.0
 
     return np.divide(transition_counts_matrix, transition_counts_matrix.sum(axis=0))
 
