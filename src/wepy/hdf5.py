@@ -3227,6 +3227,10 @@ class WepyHDF5(object):
 
         """
 
+        if cycle_idx >= self.num_run_cycles(run_idx):
+            raise ValueError(
+                f"Run {run_idx} has {self.num_run_cycles(run_idx)} cycles, {cycle_idx} requested")
+
         # TODO: currently we do not have a well-defined mechanism for
         # actually storing variable number of walkers in the
         # trajectory data so just return the number of trajectories

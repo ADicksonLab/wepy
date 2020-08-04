@@ -70,6 +70,10 @@ RST_DOCS_SOURCES = [
     'api',
 ]
 
+BIB_DOCS_SOURCES = [
+    'docs',
+]
+
 PYPIRC="$HOME/.pypirc"
 TESTING_PYPIRC="$HOME/.pypirc"
 

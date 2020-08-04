@@ -82,6 +82,12 @@ simulation are.
 kinds of files if you wish, but this is sufficient for getting
 started.
 
+You can see all the options that the test drive script has:
+
+#+begin_src bash
+  python -m wepy_test_drive --help
+#+end_src
+
 An extended tutorial that goes through some details of observing the
 results is in the @@rst::any:`tutorials <tutorials/index>`@@.
 

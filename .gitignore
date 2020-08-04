@@ -59,6 +59,10 @@ dist
 
 ## org info docs
 
+# emacs thing..
+info/auto
+
+# the other built things
 info/examples/*/_output
 info/examples/*/_tangle_source
 info/examples/*/_env

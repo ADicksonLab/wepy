@@ -69,7 +69,7 @@ PIP_COMPILED_REQUIREMENTS = 'requirements.txt'
 
 # conda specific
 CONDA_ABSTRACT_REQUIREMENTS = 'env.yaml'
-CONDA_COMPILED_REQUIREMENTS = 'env.pinned.yaml'
+CONDA_COMPILED_REQUIREMENTS = 'env.yaml'
 
 ### Util
 
@@ -333,9 +333,13 @@ def conda_env(cx,
             pass
 
 
-        # install the extra pip dependencies
+        # install the extra pip dependencies.
+
+        # this ignores anything already installed by the conda env
+        # which can cause problem if this tries to install it again.
         if osp.exists(env_spec_path / PIP_COMPILED_REQUIREMENTS):
             cx.run(f"{env_dir}/bin/pip install "
+                   "--ignore-installed "
                    f"-r {env_spec_path}/{PIP_COMPILED_REQUIREMENTS}")
 
         # install the package itself
