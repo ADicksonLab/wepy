@@ -546,15 +546,25 @@ def combine_orch_wepy_hdf5s(new_orch, new_hdf5_path, run_ids=None):
 @click.argument('hdf5', nargs=1, type=click.Path(exists=False))
 @click.argument('run_ids', nargs=-1)
 def reconcile_hdf5(orchestrator, hdf5, run_ids):
-    """
+    """For an orchestrator with multiple runs combine the HDF5 results
+    into a single one.
+
+    This requires that the paths inside of the reporters for the
+    configurations used for a run still have valid paths to the HDF5
+    files.
 
     \b
     Parameters
     ----------
-    orchestrator :
-        
-    hdf5 :
-        
+    orchestrator : Path
+        The orchestrator to retrieve HDF5s for
+
+    hdf5 : Path
+        Path to the resultant HDF5.
+
+    run_ids : str
+        String specifying a run as start and end hash
+        e.g. 'd0cb2e6fbcc8c2d66d67c845120c7f6b,b4b96580ae57f133d5f3b6ce25affa6d'
 
     \b
     Returns
@@ -581,17 +591,17 @@ def reconcile_hdf5(orchestrator, hdf5, run_ids):
 @click.argument('output', nargs=1, type=click.Path(exists=False))
 @click.argument('orchestrators', nargs=-1, type=click.Path(exists=True))
 def reconcile_orch(hdf5, output, orchestrators):
-    """
+    """ 
 
     \b
     Parameters
     ----------
-    hdf5 :
-        
-    output :
-        
-    orchestrators :
-        
+    hdf5 : Path
+        Path to the resultant HDF5.
+    output : Path
+        Path to the resultant orchestrator that is created.
+    orchestrators : Path
+        Paths to the orchestrators to reconcile.
 
     \b
     Returns
