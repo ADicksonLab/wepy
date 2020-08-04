@@ -88,9 +88,3 @@ def test_run0(datadir_factory, printer):
             assert (datadir / '_tangle_source/test_analysis_0.txt').read_text() == \
                 analysis0_out.strip()
 
-        # part 1
-
-        # analysis1_out = run(['python',
-        #     '_tangle_source/analysis1.py',
-        #     ],
-        # )

@@ -9,10 +9,11 @@ from wepy.analysis.transitions import run_transition_probability_matrix
 from wepy.analysis.network import MacroStateNetwork
 from wepy.analysis.contig_tree import ContigTree
 
-output_dir = Path('_output/we')
+output_dir = Path('_output')
+sim_dir = output_dir / 'we'
 
 # Load wepy hdf5 file into python script
-wepy_h5 = WepyHDF5(output_dir / 'results.wepy.h5', mode = 'r+')
+wepy_h5 = WepyHDF5(sim_dir / 'results.wepy.h5', mode = 'r+')
 run_idx = 0
 assg_key = 'rand_assg_idx'
 n_classifications = 4
@@ -62,7 +63,7 @@ node_id = random_macrostates.node_ids[0]
 # we can do things like make a trajectory in mdtraj and output as a
 # dcd for a state
 traj = random_macrostates.state_to_mdtraj(node_id)
-traj.save_dcd(str(output_dir / "rand_state_{}.dcd".format(node_id)))
+traj.save_dcd(str(output_dir / "state.dcd".format(node_id)))
 
 # we also can automatically compute the weights of the macrostates.
 random_macrostates.set_macrostate_weights()

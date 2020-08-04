@@ -1,1 +1,2 @@
-wepy[md]==1.0.0rc5
+dist/wepy-1.0.0rc5+18.gf2a7d22.dirty.tar.gz[md]
+

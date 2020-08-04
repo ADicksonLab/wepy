@@ -83,6 +83,10 @@ def test_we_analysis(datadir_factory, printer):
 
         printer(out)
 
+        assert (datadir / "_output/we/results.wepy.h5").is_file()
+        assert (datadir / "_output/we/wepy.dash.org").is_file()
+
+
         out = run([
             "python",
             "source/compute_distance_observable.py",
@@ -96,6 +100,10 @@ def test_we_analysis(datadir_factory, printer):
         ])
 
         printer(out)
+
+        assert (datadir / "_output/state.dcd").is_file()
+        assert (datadir / "_output/random_macrostates.csn.gexf").is_file()
+
 
 
         ### Tangled sources
