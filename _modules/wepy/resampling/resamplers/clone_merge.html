@@ -4,7 +4,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <title>wepy.resampling.resamplers.clone_merge &#8212; wepy 1.0.0rc3 documentation</title>
+    <title>wepy.resampling.resamplers.clone_merge &#8212; wepy 1.0.0rc6 documentation</title>
     <link rel="stylesheet" href="../../../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/custom.css" />
@@ -48,7 +48,7 @@
 <span class="kn">from</span> <span class="nn">wepy.resampling.decisions.clone_merge</span> <span class="kn">import</span> <span class="n">MultiCloneMergeDecision</span>
 
 
-<div class="viewcode-block" id="CloneMergeResampler"><a class="viewcode-back" href="../../../../_api/wepy.resampling.resamplers.clone_merge.html#wepy.resampling.resamplers.clone_merge.CloneMergeResampler">[docs]</a><span class="k">class</span> <span class="nc">CloneMergeResampler</span><span class="p">(</span><span class="n">Resampler</span><span class="p">):</span>
+<div class="viewcode-block" id="CloneMergeResampler"><a class="viewcode-back" href="../../../../api/wepy.resampling.resamplers.clone_merge.html#wepy.resampling.resamplers.clone_merge.CloneMergeResampler">[docs]</a><span class="k">class</span> <span class="nc">CloneMergeResampler</span><span class="p">(</span><span class="n">Resampler</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Abstract base class for resamplers using the clone-merge decision</span>
 <span class="sd">    class.</span>
 
@@ -104,7 +104,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pmax</span>
 
 
-<div class="viewcode-block" id="CloneMergeResampler._init_walker_actions"><a class="viewcode-back" href="../../../../_api/wepy.resampling.resamplers.clone_merge.html#wepy.resampling.resamplers.clone_merge.CloneMergeResampler._init_walker_actions">[docs]</a>    <span class="k">def</span> <span class="nf">_init_walker_actions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n_walkers</span><span class="p">):</span>
+<div class="viewcode-block" id="CloneMergeResampler._init_walker_actions"><a class="viewcode-back" href="../../../../api/wepy.resampling.resamplers.clone_merge.html#wepy.resampling.resamplers.clone_merge.CloneMergeResampler._init_walker_actions">[docs]</a>    <span class="k">def</span> <span class="nf">_init_walker_actions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n_walkers</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Returns a list of default resampling records for a single</span>
 <span class="sd">        resampling step.</span>
 
@@ -131,7 +131,7 @@
 
         <span class="k">return</span> <span class="n">walker_actions</span></div>
 
-<div class="viewcode-block" id="CloneMergeResampler._check_resampled_walkers"><a class="viewcode-back" href="../../../../_api/wepy.resampling.resamplers.clone_merge.html#wepy.resampling.resamplers.clone_merge.CloneMergeResampler._check_resampled_walkers">[docs]</a>    <span class="k">def</span> <span class="nf">_check_resampled_walkers</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">resampled_walkers</span><span class="p">):</span>
+<div class="viewcode-block" id="CloneMergeResampler._check_resampled_walkers"><a class="viewcode-back" href="../../../../api/wepy.resampling.resamplers.clone_merge.html#wepy.resampling.resamplers.clone_merge.CloneMergeResampler._check_resampled_walkers">[docs]</a>    <span class="k">def</span> <span class="nf">_check_resampled_walkers</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">resampled_walkers</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Check constraints on resampled walkers.</span>
 
 <span class="sd">        Raises errors when constraints are violated.</span>
@@ -162,7 +162,7 @@
 
 
 
-<div class="viewcode-block" id="CloneMergeResampler.assign_clones"><a class="viewcode-back" href="../../../../_api/wepy.resampling.resamplers.clone_merge.html#wepy.resampling.resamplers.clone_merge.CloneMergeResampler.assign_clones">[docs]</a>    <span class="k">def</span> <span class="nf">assign_clones</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">merge_groups</span><span class="p">,</span> <span class="n">walker_clone_nums</span><span class="p">):</span>
+<div class="viewcode-block" id="CloneMergeResampler.assign_clones"><a class="viewcode-back" href="../../../../api/wepy.resampling.resamplers.clone_merge.html#wepy.resampling.resamplers.clone_merge.CloneMergeResampler.assign_clones">[docs]</a>    <span class="k">def</span> <span class="nf">assign_clones</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">merge_groups</span><span class="p">,</span> <span class="n">walker_clone_nums</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Convert two convenient data structures to a list of almost</span>
 <span class="sd">        normalized resampling records.</span>
 
@@ -316,6 +316,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../../_source/installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../_source/quick_start.html">Quick Start</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../_source/introduction.html">Introduction &amp; Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_source/introduction.html#bibliography">Bibliography</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../../_source/tutorials/index.html">Tutorials</a></li>

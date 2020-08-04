@@ -32,6 +32,8 @@ md
    extra packages for molecular dynamics
 distributed
    extra packages to allow for distributed analysis
+prometheus
+   for monitoring simulations via `Prometheus <https://prometheus.io>`__
 all
    installs all extras
 

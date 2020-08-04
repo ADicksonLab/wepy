@@ -4,7 +4,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <title>wepy.reporter.dashboard &#8212; wepy 1.0.0rc3 documentation</title>
+    <title>wepy.reporter.dashboard &#8212; wepy 1.0.0rc6 documentation</title>
     <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/custom.css" />
@@ -62,7 +62,7 @@
 
 <span class="kn">from</span> <span class="nn">wepy.reporter.reporter</span> <span class="kn">import</span> <span class="n">ProgressiveFileReporter</span>
 
-<span class="k">class</span> <span class="nc">DashboardReporter</span><span class="p">(</span><span class="n">ProgressiveFileReporter</span><span class="p">):</span>
+<div class="viewcode-block" id="DashboardReporter"><a class="viewcode-back" href="../../../api/wepy.reporter.dashboard.html#wepy.reporter.dashboard.DashboardReporter">[docs]</a><span class="k">class</span> <span class="nc">DashboardReporter</span><span class="p">(</span><span class="n">ProgressiveFileReporter</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;A text based report of the status of a wepy simulation.</span>
 
 <span class="sd">    This serves as a container for different dashboard components to</span>
@@ -187,16 +187,16 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">worker_records</span> <span class="o">=</span> <span class="p">[]</span>
 
 
-    <span class="k">def</span> <span class="nf">init</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="DashboardReporter.init"><a class="viewcode-back" href="../../../api/wepy.reporter.dashboard.html#wepy.reporter.dashboard.DashboardReporter.init">[docs]</a>    <span class="k">def</span> <span class="nf">init</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">init</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">init_date_time</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">today</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">total_run_time</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">init_date_time</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">init_sys_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">init_sys_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span></div>
 
-    <span class="k">def</span> <span class="nf">calc_walker_summary</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="DashboardReporter.calc_walker_summary"><a class="viewcode-back" href="../../../api/wepy.reporter.dashboard.html#wepy.reporter.dashboard.DashboardReporter.calc_walker_summary">[docs]</a>    <span class="k">def</span> <span class="nf">calc_walker_summary</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 
         <span class="n">walker_weights</span> <span class="o">=</span> <span class="p">[</span><span class="n">walker</span><span class="o">.</span><span class="n">weight</span> <span class="k">for</span> <span class="n">walker</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;new_walkers&#39;</span><span class="p">]]</span>
 
@@ -206,9 +206,9 @@
             <span class="s1">&#39;max&#39;</span> <span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">walker_weights</span><span class="p">),</span>
         <span class="p">}</span>
 
-        <span class="k">return</span> <span class="n">summary</span>
+        <span class="k">return</span> <span class="n">summary</span></div>
 
-    <span class="k">def</span> <span class="nf">update_values</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="DashboardReporter.update_values"><a class="viewcode-back" href="../../../api/wepy.reporter.dashboard.html#wepy.reporter.dashboard.DashboardReporter.update_values">[docs]</a>    <span class="k">def</span> <span class="nf">update_values</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 
         <span class="c1">### simulation</span>
 
@@ -223,9 +223,9 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">runner_dash</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">runner_dash</span><span class="o">.</span><span class="n">update_values</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">bc_dash</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">bc_dash</span><span class="o">.</span><span class="n">update_values</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">bc_dash</span><span class="o">.</span><span class="n">update_values</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
-    <span class="k">def</span> <span class="nf">update_performance_values</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="DashboardReporter.update_performance_values"><a class="viewcode-back" href="../../../api/wepy.reporter.dashboard.html#wepy.reporter.dashboard.DashboardReporter.update_performance_values">[docs]</a>    <span class="k">def</span> <span class="nf">update_performance_values</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 
         <span class="c1">## worker specific performance</span>
 
@@ -280,17 +280,17 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">avg_resampling_time</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cycle_resampling_times</span><span class="p">)</span>
 
         <span class="c1"># average cycle time</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">avg_cycle_time</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cycle_compute_times</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">avg_cycle_time</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cycle_compute_times</span><span class="p">)</span></div>
 
 
 
-    <span class="k">def</span> <span class="nf">write_dashboard</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">report_str</span><span class="p">):</span>
+<div class="viewcode-block" id="DashboardReporter.write_dashboard"><a class="viewcode-back" href="../../../api/wepy.reporter.dashboard.html#wepy.reporter.dashboard.DashboardReporter.write_dashboard">[docs]</a>    <span class="k">def</span> <span class="nf">write_dashboard</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">report_str</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Write the dashboard to the file.&quot;&quot;&quot;</span>
 
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">file_path</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mode</span><span class="p">)</span> <span class="k">as</span> <span class="n">dashboard_file</span><span class="p">:</span>
-            <span class="n">dashboard_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">report_str</span><span class="p">)</span>
+            <span class="n">dashboard_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">report_str</span><span class="p">)</span></div>
 
-    <span class="k">def</span> <span class="nf">gen_sim_section</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="DashboardReporter.gen_sim_section"><a class="viewcode-back" href="../../../api/wepy.reporter.dashboard.html#wepy.reporter.dashboard.DashboardReporter.gen_sim_section">[docs]</a>    <span class="k">def</span> <span class="nf">gen_sim_section</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;&quot;&quot;&quot;</span>
 
         <span class="n">walker_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">walker_prob_summaries</span><span class="p">)</span>
@@ -312,9 +312,9 @@
             <span class="o">**</span><span class="n">sim_section_d</span>
         <span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">sim_section_str</span>
+        <span class="k">return</span> <span class="n">sim_section_str</span></div>
 
-    <span class="k">def</span> <span class="nf">gen_performance_section</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="DashboardReporter.gen_performance_section"><a class="viewcode-back" href="../../../api/wepy.reporter.dashboard.html#wepy.reporter.dashboard.DashboardReporter.gen_performance_section">[docs]</a>    <span class="k">def</span> <span class="nf">gen_performance_section</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 
         <span class="c1"># log of cycle times</span>
         <span class="n">cycle_table_colnames</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;cycle_time (s)&#39;</span><span class="p">,</span>
@@ -363,9 +363,9 @@
             <span class="o">**</span><span class="n">performance_section_d</span>
         <span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">performance_section_str</span>
+        <span class="k">return</span> <span class="n">performance_section_str</span></div>
 
-    <span class="k">def</span> <span class="nf">report</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="DashboardReporter.report"><a class="viewcode-back" href="../../../api/wepy.reporter.dashboard.html#wepy.reporter.dashboard.DashboardReporter.report">[docs]</a>    <span class="k">def</span> <span class="nf">report</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 
         <span class="c1"># update the values that update each call to report</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">update_values</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
@@ -404,11 +404,11 @@
         <span class="p">)</span>
 
         <span class="c1"># write the thing</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">write_dashboard</span><span class="p">(</span><span class="n">report_str</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">write_dashboard</span><span class="p">(</span><span class="n">report_str</span><span class="p">)</span></div></div>
 
 
 
-<span class="k">class</span> <span class="nc">ResamplerDashboardSection</span><span class="p">():</span>
+<div class="viewcode-block" id="ResamplerDashboardSection"><a class="viewcode-back" href="../../../api/wepy.reporter.dashboard.html#wepy.reporter.dashboard.ResamplerDashboardSection">[docs]</a><span class="k">class</span> <span class="nc">ResamplerDashboardSection</span><span class="p">():</span>
 
     <span class="n">RESAMPLER_SECTION_TEMPLATE</span> <span class="o">=</span> \
 <span class="sd">&quot;&quot;&quot;</span>
@@ -428,19 +428,19 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">resampler_name</span> <span class="o">=</span> <span class="s2">&quot;Unknown&quot;</span>
 
-    <span class="k">def</span> <span class="nf">update_values</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="k">pass</span>
+<div class="viewcode-block" id="ResamplerDashboardSection.update_values"><a class="viewcode-back" href="../../../api/wepy.reporter.dashboard.html#wepy.reporter.dashboard.ResamplerDashboardSection.update_values">[docs]</a>    <span class="k">def</span> <span class="nf">update_values</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">pass</span></div>
 
-    <span class="k">def</span> <span class="nf">gen_fields</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="ResamplerDashboardSection.gen_fields"><a class="viewcode-back" href="../../../api/wepy.reporter.dashboard.html#wepy.reporter.dashboard.ResamplerDashboardSection.gen_fields">[docs]</a>    <span class="k">def</span> <span class="nf">gen_fields</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 
         <span class="n">fields</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s1">&#39;name&#39;</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">resampler_name</span>
         <span class="p">}</span>
 
-        <span class="k">return</span> <span class="n">fields</span>
+        <span class="k">return</span> <span class="n">fields</span></div>
 
 
-    <span class="k">def</span> <span class="nf">gen_resampler_section</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="ResamplerDashboardSection.gen_resampler_section"><a class="viewcode-back" href="../../../api/wepy.reporter.dashboard.html#wepy.reporter.dashboard.ResamplerDashboardSection.gen_resampler_section">[docs]</a>    <span class="k">def</span> <span class="nf">gen_resampler_section</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 
         <span class="n">section_kwargs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gen_fields</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
@@ -448,9 +448,9 @@
             <span class="o">**</span><span class="n">section_kwargs</span>
         <span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">section_str</span>
+        <span class="k">return</span> <span class="n">section_str</span></div></div>
 
-<span class="k">class</span> <span class="nc">RunnerDashboardSection</span><span class="p">():</span>
+<div class="viewcode-block" id="RunnerDashboardSection"><a class="viewcode-back" href="../../../api/wepy.reporter.dashboard.html#wepy.reporter.dashboard.RunnerDashboardSection">[docs]</a><span class="k">class</span> <span class="nc">RunnerDashboardSection</span><span class="p">():</span>
 
     <span class="n">RUNNER_SECTION_TEMPLATE</span> <span class="o">=</span> \
 <span class="sd">&quot;&quot;&quot;</span>
@@ -470,19 +470,19 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">runner_name</span> <span class="o">=</span> <span class="s2">&quot;Unknown&quot;</span>
 
-    <span class="k">def</span> <span class="nf">update_values</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="k">pass</span>
+<div class="viewcode-block" id="RunnerDashboardSection.update_values"><a class="viewcode-back" href="../../../api/wepy.reporter.dashboard.html#wepy.reporter.dashboard.RunnerDashboardSection.update_values">[docs]</a>    <span class="k">def</span> <span class="nf">update_values</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">pass</span></div>
 
-    <span class="k">def</span> <span class="nf">gen_fields</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="RunnerDashboardSection.gen_fields"><a class="viewcode-back" href="../../../api/wepy.reporter.dashboard.html#wepy.reporter.dashboard.RunnerDashboardSection.gen_fields">[docs]</a>    <span class="k">def</span> <span class="nf">gen_fields</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 
         <span class="n">fields</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s1">&#39;name&#39;</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">runner_name</span>
         <span class="p">}</span>
 
-        <span class="k">return</span> <span class="n">fields</span>
+        <span class="k">return</span> <span class="n">fields</span></div>
 
 
-    <span class="k">def</span> <span class="nf">gen_runner_section</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="RunnerDashboardSection.gen_runner_section"><a class="viewcode-back" href="../../../api/wepy.reporter.dashboard.html#wepy.reporter.dashboard.RunnerDashboardSection.gen_runner_section">[docs]</a>    <span class="k">def</span> <span class="nf">gen_runner_section</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 
         <span class="n">section_kwargs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gen_fields</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
@@ -491,10 +491,10 @@
             <span class="o">**</span><span class="n">section_kwargs</span>
         <span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">section_str</span>
+        <span class="k">return</span> <span class="n">section_str</span></div></div>
 
 
-<span class="k">class</span> <span class="nc">BCDashboardSection</span><span class="p">():</span>
+<div class="viewcode-block" id="BCDashboardSection"><a class="viewcode-back" href="../../../api/wepy.reporter.dashboard.html#wepy.reporter.dashboard.BCDashboardSection">[docs]</a><span class="k">class</span> <span class="nc">BCDashboardSection</span><span class="p">():</span>
 
     <span class="n">BC_SECTION_TEMPLATE</span> <span class="o">=</span> \
 <span class="sd">&quot;&quot;&quot;</span>
@@ -551,7 +551,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">total_crossings</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">total_crossed_weight</span> <span class="o">=</span> <span class="mf">0.</span>
 
-    <span class="k">def</span> <span class="nf">update_values</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="BCDashboardSection.update_values"><a class="viewcode-back" href="../../../api/wepy.reporter.dashboard.html#wepy.reporter.dashboard.BCDashboardSection.update_values">[docs]</a>    <span class="k">def</span> <span class="nf">update_values</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 
         <span class="c1"># keep track of exactly how many walker segments are run, this</span>
         <span class="c1"># is useful for rate calculations via Hill&#39;s relation.</span>
@@ -583,10 +583,10 @@
                 <span class="n">discont</span> <span class="o">=</span> <span class="kc">True</span> <span class="k">if</span> <span class="n">target_idx</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">bc_discontinuities</span> <span class="k">else</span> <span class="kc">False</span>
 
             <span class="n">record</span> <span class="o">=</span> <span class="p">(</span><span class="n">cycle_idx</span><span class="p">,</span> <span class="n">walker_idx</span><span class="p">,</span> <span class="n">weight</span><span class="p">,</span> <span class="n">target_idx</span><span class="p">,</span> <span class="n">discont</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">warp_records</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">record</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">warp_records</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">record</span><span class="p">)</span></div>
 
 
-    <span class="k">def</span> <span class="nf">gen_fields</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="BCDashboardSection.gen_fields"><a class="viewcode-back" href="../../../api/wepy.reporter.dashboard.html#wepy.reporter.dashboard.BCDashboardSection.gen_fields">[docs]</a>    <span class="k">def</span> <span class="nf">gen_fields</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 
         <span class="c1"># make the table for the collected warping records</span>
         <span class="n">warp_table_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">warp_records</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">WARP_RECORD_COLNAMES</span><span class="p">)</span>
@@ -602,9 +602,9 @@
             <span class="s1">&#39;warping_log&#39;</span> <span class="p">:</span> <span class="n">warp_table_str</span><span class="p">,</span>
         <span class="p">}</span>
 
-        <span class="k">return</span> <span class="n">fields</span>
+        <span class="k">return</span> <span class="n">fields</span></div>
 
-    <span class="k">def</span> <span class="nf">gen_bc_section</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="BCDashboardSection.gen_bc_section"><a class="viewcode-back" href="../../../api/wepy.reporter.dashboard.html#wepy.reporter.dashboard.BCDashboardSection.gen_bc_section">[docs]</a>    <span class="k">def</span> <span class="nf">gen_bc_section</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 
         <span class="n">section_kwargs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gen_fields</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
@@ -612,7 +612,7 @@
             <span class="o">**</span><span class="n">section_kwargs</span>
         <span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">section_str</span>
+        <span class="k">return</span> <span class="n">section_str</span></div></div>
 
 
 </pre></div>
@@ -655,6 +655,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../_source/installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../_source/quick_start.html">Quick Start</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../_source/introduction.html">Introduction &amp; Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../_source/introduction.html#bibliography">Bibliography</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../_source/tutorials/index.html">Tutorials</a></li>

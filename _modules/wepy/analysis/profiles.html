@@ -4,7 +4,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <title>wepy.analysis.profiles &#8212; wepy 1.0.0rc3 documentation</title>
+    <title>wepy.analysis.profiles &#8212; wepy 1.0.0rc6 documentation</title>
     <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/custom.css" />
@@ -53,7 +53,7 @@
 
 <span class="kn">from</span> <span class="nn">geomm.free_energy</span> <span class="kn">import</span> <span class="n">free_energy</span>
 
-<div class="viewcode-block" id="_percentage_cumulative_partitions"><a class="viewcode-back" href="../../../_api/wepy.analysis.profiles.html#wepy.analysis.profiles._percentage_cumulative_partitions">[docs]</a><span class="k">def</span> <span class="nf">_percentage_cumulative_partitions</span><span class="p">(</span><span class="n">ensemble_values</span><span class="p">,</span>
+<div class="viewcode-block" id="_percentage_cumulative_partitions"><a class="viewcode-back" href="../../../api/wepy.analysis.profiles.html#wepy.analysis.profiles._percentage_cumulative_partitions">[docs]</a><span class="k">def</span> <span class="nf">_percentage_cumulative_partitions</span><span class="p">(</span><span class="n">ensemble_values</span><span class="p">,</span>
                                      <span class="n">percentages</span><span class="o">=</span><span class="p">[</span><span class="mf">0.25</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.75</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">]):</span>
 
     <span class="n">n_cycles</span> <span class="o">=</span> <span class="n">ensemble_values</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
@@ -71,7 +71,7 @@
     <span class="k">return</span> <span class="n">partitions</span></div>
 
 
-<div class="viewcode-block" id="_tranche_cumulative_partitions"><a class="viewcode-back" href="../../../_api/wepy.analysis.profiles.html#wepy.analysis.profiles._tranche_cumulative_partitions">[docs]</a><span class="k">def</span> <span class="nf">_tranche_cumulative_partitions</span><span class="p">(</span><span class="n">ensemble_values</span><span class="p">,</span>
+<div class="viewcode-block" id="_tranche_cumulative_partitions"><a class="viewcode-back" href="../../../api/wepy.analysis.profiles.html#wepy.analysis.profiles._tranche_cumulative_partitions">[docs]</a><span class="k">def</span> <span class="nf">_tranche_cumulative_partitions</span><span class="p">(</span><span class="n">ensemble_values</span><span class="p">,</span>
                                   <span class="n">time_tranche</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                                   <span class="n">num_partitions</span><span class="o">=</span><span class="mi">4</span><span class="p">):</span>
     <span class="n">n_cycles</span> <span class="o">=</span> <span class="n">ensemble_values</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
@@ -128,7 +128,7 @@
 <span class="c1"># REFACTOR: this has an overly complex decision process encapsulated</span>
 <span class="c1"># here, should be refactored. Was not properly done because of time</span>
 <span class="c1"># constraints</span>
-<div class="viewcode-block" id="cumulative_partitions"><a class="viewcode-back" href="../../../_api/wepy.analysis.profiles.html#wepy.analysis.profiles.cumulative_partitions">[docs]</a><span class="k">def</span> <span class="nf">cumulative_partitions</span><span class="p">(</span><span class="n">ensemble_values</span><span class="p">,</span>
+<div class="viewcode-block" id="cumulative_partitions"><a class="viewcode-back" href="../../../api/wepy.analysis.profiles.html#wepy.analysis.profiles.cumulative_partitions">[docs]</a><span class="k">def</span> <span class="nf">cumulative_partitions</span><span class="p">(</span><span class="n">ensemble_values</span><span class="p">,</span>
                           <span class="n">time_tranche</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                           <span class="n">num_partitions</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
                           <span class="n">percentages</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -180,7 +180,7 @@
         <span class="c1"># compute the free energies</span>
         <span class="k">yield</span> <span class="n">ensemble_values</span><span class="p">[</span><span class="n">start_idx</span><span class="p">:</span><span class="n">end_idx</span><span class="p">]</span></div>
 
-<div class="viewcode-block" id="free_energy_profile"><a class="viewcode-back" href="../../../_api/wepy.analysis.profiles.html#wepy.analysis.profiles.free_energy_profile">[docs]</a><span class="k">def</span> <span class="nf">free_energy_profile</span><span class="p">(</span><span class="n">weights</span><span class="p">,</span> <span class="n">observables</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span>
+<div class="viewcode-block" id="free_energy_profile"><a class="viewcode-back" href="../../../api/wepy.analysis.profiles.html#wepy.analysis.profiles.free_energy_profile">[docs]</a><span class="k">def</span> <span class="nf">free_energy_profile</span><span class="p">(</span><span class="n">weights</span><span class="p">,</span> <span class="n">observables</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span>
                   <span class="n">max_energy</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
                   <span class="n">zero_point_energy</span><span class="o">=</span><span class="mf">1e-12</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
@@ -218,7 +218,7 @@
 
     <span class="k">return</span> <span class="n">hist_fe</span><span class="p">,</span> <span class="n">bin_edges</span></div>
 
-<div class="viewcode-block" id="contigtrees_bin_edges"><a class="viewcode-back" href="../../../_api/wepy.analysis.profiles.html#wepy.analysis.profiles.contigtrees_bin_edges">[docs]</a><span class="k">def</span> <span class="nf">contigtrees_bin_edges</span><span class="p">(</span><span class="n">contigtrees</span><span class="p">,</span> <span class="n">bins</span><span class="p">,</span> <span class="n">field_key</span><span class="p">,</span>
+<div class="viewcode-block" id="contigtrees_bin_edges"><a class="viewcode-back" href="../../../api/wepy.analysis.profiles.html#wepy.analysis.profiles.contigtrees_bin_edges">[docs]</a><span class="k">def</span> <span class="nf">contigtrees_bin_edges</span><span class="p">(</span><span class="n">contigtrees</span><span class="p">,</span> <span class="n">bins</span><span class="p">,</span> <span class="n">field_key</span><span class="p">,</span>
                           <span class="n">truncate_cycles</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Get the bin edges that best describes the aggregate data for</span>
 <span class="sd">    multiple contigtrees.</span>
@@ -294,7 +294,7 @@
     <span class="k">return</span> <span class="n">bin_edges</span></div>
 
 
-<div class="viewcode-block" id="ContigTreeProfiler"><a class="viewcode-back" href="../../../_api/wepy.analysis.profiles.html#wepy.analysis.profiles.ContigTreeProfiler">[docs]</a><span class="k">class</span> <span class="nc">ContigTreeProfiler</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="ContigTreeProfiler"><a class="viewcode-back" href="../../../api/wepy.analysis.profiles.html#wepy.analysis.profiles.ContigTreeProfiler">[docs]</a><span class="k">class</span> <span class="nc">ContigTreeProfiler</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;A wrapper class around a ContigTree that provides extra methods for</span>
 <span class="sd">    generating free energy profiles for observables.&quot;&quot;&quot;</span>
 
@@ -328,7 +328,7 @@
         <span class="c1"># that best describe the entire pool of data in this contig</span>
         <span class="c1"># tree</span>
 
-<div class="viewcode-block" id="ContigTreeProfiler._get_ignore_trace"><a class="viewcode-back" href="../../../_api/wepy.analysis.profiles.html#wepy.analysis.profiles.ContigTreeProfiler._get_ignore_trace">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="ContigTreeProfiler._get_ignore_trace"><a class="viewcode-back" href="../../../api/wepy.analysis.profiles.html#wepy.analysis.profiles.ContigTreeProfiler._get_ignore_trace">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">_get_ignore_trace</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">contigtree</span><span class="p">,</span> <span class="n">truncate_cycles</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Get a trace of the ignore frames if we are truncating on a</span>
 <span class="sd">        particular cycle index. Is exclusive of the `truncate_cycles`</span>
@@ -364,7 +364,7 @@
         <span class="sd">&quot;&quot;&quot;The underlying contigtree this wraps.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_contigtree</span>
 
-<div class="viewcode-block" id="ContigTreeProfiler.fe_profile_trace"><a class="viewcode-back" href="../../../_api/wepy.analysis.profiles.html#wepy.analysis.profiles.ContigTreeProfiler.fe_profile_trace">[docs]</a>    <span class="k">def</span> <span class="nf">fe_profile_trace</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">trace</span><span class="p">,</span> <span class="n">field_key</span><span class="p">,</span>
+<div class="viewcode-block" id="ContigTreeProfiler.fe_profile_trace"><a class="viewcode-back" href="../../../api/wepy.analysis.profiles.html#wepy.analysis.profiles.ContigTreeProfiler.fe_profile_trace">[docs]</a>    <span class="k">def</span> <span class="nf">fe_profile_trace</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">trace</span><span class="p">,</span> <span class="n">field_key</span><span class="p">,</span>
                          <span class="n">bins</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                          <span class="n">ignore_truncate</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Calculate the free energy histogram over a trajectory field.</span>
@@ -444,7 +444,7 @@
         <span class="k">return</span> <span class="n">fe_profile</span></div>
 
 
-<div class="viewcode-block" id="ContigTreeProfiler.fe_profile_all"><a class="viewcode-back" href="../../../_api/wepy.analysis.profiles.html#wepy.analysis.profiles.ContigTreeProfiler.fe_profile_all">[docs]</a>    <span class="k">def</span> <span class="nf">fe_profile_all</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field_key</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<div class="viewcode-block" id="ContigTreeProfiler.fe_profile_all"><a class="viewcode-back" href="../../../api/wepy.analysis.profiles.html#wepy.analysis.profiles.ContigTreeProfiler.fe_profile_all">[docs]</a>    <span class="k">def</span> <span class="nf">fe_profile_all</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field_key</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                        <span class="n">ignore_truncate</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Calculate the free energy histogram over a trajectory field.</span>
 
@@ -484,7 +484,7 @@
         <span class="k">return</span> <span class="n">fe_profile</span></div>
 
 
-<div class="viewcode-block" id="ContigTreeProfiler.fe_profile"><a class="viewcode-back" href="../../../_api/wepy.analysis.profiles.html#wepy.analysis.profiles.ContigTreeProfiler.fe_profile">[docs]</a>    <span class="k">def</span> <span class="nf">fe_profile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">span</span><span class="p">,</span> <span class="n">field_key</span><span class="p">,</span>
+<div class="viewcode-block" id="ContigTreeProfiler.fe_profile"><a class="viewcode-back" href="../../../api/wepy.analysis.profiles.html#wepy.analysis.profiles.ContigTreeProfiler.fe_profile">[docs]</a>    <span class="k">def</span> <span class="nf">fe_profile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">span</span><span class="p">,</span> <span class="n">field_key</span><span class="p">,</span>
                    <span class="n">bins</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                    <span class="n">ignore_truncate</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Calculate the free energy histogram over a trajectory field.</span>
@@ -578,7 +578,7 @@
         <span class="k">return</span> <span class="n">fe_profile</span></div>
 
 
-<div class="viewcode-block" id="ContigTreeProfiler.fe_cumulative_profiles"><a class="viewcode-back" href="../../../_api/wepy.analysis.profiles.html#wepy.analysis.profiles.ContigTreeProfiler.fe_cumulative_profiles">[docs]</a>    <span class="k">def</span> <span class="nf">fe_cumulative_profiles</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">span</span><span class="p">,</span> <span class="n">field_key</span><span class="p">,</span>
+<div class="viewcode-block" id="ContigTreeProfiler.fe_cumulative_profiles"><a class="viewcode-back" href="../../../api/wepy.analysis.profiles.html#wepy.analysis.profiles.ContigTreeProfiler.fe_cumulative_profiles">[docs]</a>    <span class="k">def</span> <span class="nf">fe_cumulative_profiles</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">span</span><span class="p">,</span> <span class="n">field_key</span><span class="p">,</span>
                                <span class="n">bins</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                                <span class="n">time_tranche</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                                <span class="n">num_partitions</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
@@ -691,7 +691,7 @@
         <span class="k">return</span> <span class="n">fe_profiles</span><span class="p">,</span> <span class="n">profile_num_cycles</span></div>
 
 
-<div class="viewcode-block" id="ContigTreeProfiler.fe_all_cumulative_profiles"><a class="viewcode-back" href="../../../_api/wepy.analysis.profiles.html#wepy.analysis.profiles.ContigTreeProfiler.fe_all_cumulative_profiles">[docs]</a>    <span class="k">def</span> <span class="nf">fe_all_cumulative_profiles</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field_key</span><span class="p">,</span>
+<div class="viewcode-block" id="ContigTreeProfiler.fe_all_cumulative_profiles"><a class="viewcode-back" href="../../../api/wepy.analysis.profiles.html#wepy.analysis.profiles.ContigTreeProfiler.fe_all_cumulative_profiles">[docs]</a>    <span class="k">def</span> <span class="nf">fe_all_cumulative_profiles</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field_key</span><span class="p">,</span>
                                    <span class="n">bins</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                                    <span class="n">time_tranche</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                                    <span class="n">num_partitions</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
@@ -898,7 +898,7 @@
 
         <span class="k">return</span> <span class="n">part_profiles</span></div>
 
-<div class="viewcode-block" id="ContigTreeProfiler.bin_edges"><a class="viewcode-back" href="../../../_api/wepy.analysis.profiles.html#wepy.analysis.profiles.ContigTreeProfiler.bin_edges">[docs]</a>    <span class="k">def</span> <span class="nf">bin_edges</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bins</span><span class="p">,</span> <span class="n">field_key</span><span class="p">):</span>
+<div class="viewcode-block" id="ContigTreeProfiler.bin_edges"><a class="viewcode-back" href="../../../api/wepy.analysis.profiles.html#wepy.analysis.profiles.ContigTreeProfiler.bin_edges">[docs]</a>    <span class="k">def</span> <span class="nf">bin_edges</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bins</span><span class="p">,</span> <span class="n">field_key</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Compute the bin edges that best describes all of the contigtree</span>
 <span class="sd">        data for the number of bins.</span>
 
@@ -981,6 +981,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../_source/installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../_source/quick_start.html">Quick Start</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../_source/introduction.html">Introduction &amp; Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../_source/introduction.html#bibliography">Bibliography</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../_source/tutorials/index.html">Tutorials</a></li>

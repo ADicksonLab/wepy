@@ -4,7 +4,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <title>wepy.reporter.reporter &#8212; wepy 1.0.0rc3 documentation</title>
+    <title>wepy.reporter.reporter &#8212; wepy 1.0.0rc6 documentation</title>
     <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/custom.css" />
@@ -47,11 +47,11 @@
 <span class="kn">import</span> <span class="nn">pickle</span>
 <span class="kn">import</span> <span class="nn">logging</span>
 
-<div class="viewcode-block" id="ReporterError"><a class="viewcode-back" href="../../../_api/wepy.reporter.reporter.html#wepy.reporter.reporter.ReporterError">[docs]</a><span class="k">class</span> <span class="nc">ReporterError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+<div class="viewcode-block" id="ReporterError"><a class="viewcode-back" href="../../../api/wepy.reporter.reporter.html#wepy.reporter.dashboard.ReporterError">[docs]</a><span class="k">class</span> <span class="nc">ReporterError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
     <span class="k">pass</span></div>
 
-<div class="viewcode-block" id="Reporter"><a class="viewcode-back" href="../../../_api/wepy.reporter.reporter.html#wepy.reporter.reporter.Reporter">[docs]</a><span class="k">class</span> <span class="nc">Reporter</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="Reporter"><a class="viewcode-back" href="../../../api/wepy.reporter.reporter.html#wepy.reporter.dashboard.Reporter">[docs]</a><span class="k">class</span> <span class="nc">Reporter</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Abstract base class for wepy reporters.</span>
 
 <span class="sd">    All reporters must customize and override minimally the &#39;report&#39;</span>
@@ -79,7 +79,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">pass</span>
 
-<div class="viewcode-block" id="Reporter.init"><a class="viewcode-back" href="../../../_api/wepy.reporter.reporter.html#wepy.reporter.reporter.Reporter.init">[docs]</a>    <span class="k">def</span> <span class="nf">init</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="Reporter.init"><a class="viewcode-back" href="../../../api/wepy.reporter.reporter.html#wepy.reporter.dashboard.Reporter.init">[docs]</a>    <span class="k">def</span> <span class="nf">init</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Initialization routines for the reporter at simulation runtime.</span>
 
 <span class="sd">        Initialize I/O connections including file descriptors,</span>
@@ -122,7 +122,7 @@
         <span class="k">assert</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="nb">super</span><span class="p">(),</span> <span class="n">method_name</span><span class="p">),</span> \
             <span class="s2">&quot;Superclass with method </span><span class="si">{}</span><span class="s2"> is masked&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">method_name</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Reporter.report"><a class="viewcode-back" href="../../../_api/wepy.reporter.reporter.html#wepy.reporter.reporter.Reporter.report">[docs]</a>    <span class="k">def</span> <span class="nf">report</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="Reporter.report"><a class="viewcode-back" href="../../../api/wepy.reporter.reporter.html#wepy.reporter.dashboard.Reporter.report">[docs]</a>    <span class="k">def</span> <span class="nf">report</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Given data concerning the main simulation components state, perform</span>
 <span class="sd">        I/O operations to persist that data.</span>
 
@@ -186,7 +186,7 @@
         <span class="k">assert</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="nb">super</span><span class="p">(),</span> <span class="n">method_name</span><span class="p">),</span> \
             <span class="s2">&quot;Superclass with method </span><span class="si">{}</span><span class="s2"> is masked&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">method_name</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Reporter.cleanup"><a class="viewcode-back" href="../../../_api/wepy.reporter.reporter.html#wepy.reporter.reporter.Reporter.cleanup">[docs]</a>    <span class="k">def</span> <span class="nf">cleanup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="Reporter.cleanup"><a class="viewcode-back" href="../../../api/wepy.reporter.reporter.html#wepy.reporter.dashboard.Reporter.cleanup">[docs]</a>    <span class="k">def</span> <span class="nf">cleanup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Teardown routines for the reporter at the end of the simulation.</span>
 
 <span class="sd">        Use to cleanly and safely close I/O connections or other</span>
@@ -221,7 +221,7 @@
             <span class="s2">&quot;Superclass with method </span><span class="si">{}</span><span class="s2"> is masked&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">method_name</span><span class="p">)</span></div></div>
 
 
-<div class="viewcode-block" id="FileReporter"><a class="viewcode-back" href="../../../_api/wepy.reporter.reporter.html#wepy.reporter.reporter.FileReporter">[docs]</a><span class="k">class</span> <span class="nc">FileReporter</span><span class="p">(</span><span class="n">Reporter</span><span class="p">):</span>
+<div class="viewcode-block" id="FileReporter"><a class="viewcode-back" href="../../../api/wepy.reporter.reporter.html#wepy.reporter.dashboard.FileReporter">[docs]</a><span class="k">class</span> <span class="nc">FileReporter</span><span class="p">(</span><span class="n">Reporter</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Abstract reporter that handles specifying file paths for a</span>
 <span class="sd">    reporter.</span>
 
@@ -420,7 +420,7 @@
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="FileReporter._validate_mode"><a class="viewcode-back" href="../../../_api/wepy.reporter.reporter.html#wepy.reporter.reporter.FileReporter._validate_mode">[docs]</a>    <span class="k">def</span> <span class="nf">_validate_mode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mode</span><span class="p">):</span>
+<div class="viewcode-block" id="FileReporter._validate_mode"><a class="viewcode-back" href="../../../api/wepy.reporter.reporter.html#wepy.reporter.dashboard.FileReporter._validate_mode">[docs]</a>    <span class="k">def</span> <span class="nf">_validate_mode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mode</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Check if the mode spec is a valid one.</span>
 
 <span class="sd">        Parameters</span>
@@ -470,7 +470,7 @@
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">file_path</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">file_paths</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">set_path</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">file_path</span><span class="p">)</span>
 
-<div class="viewcode-block" id="FileReporter.set_path"><a class="viewcode-back" href="../../../_api/wepy.reporter.reporter.html#wepy.reporter.reporter.FileReporter.set_path">[docs]</a>    <span class="k">def</span> <span class="nf">set_path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_idx</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+<div class="viewcode-block" id="FileReporter.set_path"><a class="viewcode-back" href="../../../api/wepy.reporter.reporter.html#wepy.reporter.dashboard.FileReporter.set_path">[docs]</a>    <span class="k">def</span> <span class="nf">set_path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_idx</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Set the path for a single indexed file.</span>
 
 <span class="sd">        Parameters</span>
@@ -500,7 +500,7 @@
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">mode</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">modes</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">set_mode</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">mode</span><span class="p">)</span>
 
-<div class="viewcode-block" id="FileReporter.set_mode"><a class="viewcode-back" href="../../../_api/wepy.reporter.reporter.html#wepy.reporter.reporter.FileReporter.set_mode">[docs]</a>    <span class="k">def</span> <span class="nf">set_mode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_idx</span><span class="p">,</span> <span class="n">mode</span><span class="p">):</span>
+<div class="viewcode-block" id="FileReporter.set_mode"><a class="viewcode-back" href="../../../api/wepy.reporter.reporter.html#wepy.reporter.dashboard.FileReporter.set_mode">[docs]</a>    <span class="k">def</span> <span class="nf">set_mode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_idx</span><span class="p">,</span> <span class="n">mode</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Set the mode for a single indexed file.</span>
 
 <span class="sd">        Parameters</span>
@@ -518,7 +518,7 @@
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Incorrect mode </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">mode</span><span class="p">))</span></div>
 
 
-<div class="viewcode-block" id="FileReporter.reparametrize"><a class="viewcode-back" href="../../../_api/wepy.reporter.reporter.html#wepy.reporter.reporter.FileReporter.reparametrize">[docs]</a>    <span class="k">def</span> <span class="nf">reparametrize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_paths</span><span class="p">,</span> <span class="n">modes</span><span class="p">):</span>
+<div class="viewcode-block" id="FileReporter.reparametrize"><a class="viewcode-back" href="../../../api/wepy.reporter.reporter.html#wepy.reporter.dashboard.FileReporter.reparametrize">[docs]</a>    <span class="k">def</span> <span class="nf">reparametrize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_paths</span><span class="p">,</span> <span class="n">modes</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Set the file paths and modes for all files in the reporter.</span>
 
 <span class="sd">        Parameters</span>
@@ -533,14 +533,14 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">file_paths</span> <span class="o">=</span> <span class="n">file_paths</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">modes</span> <span class="o">=</span> <span class="n">modes</span></div></div>
 
-<div class="viewcode-block" id="ProgressiveFileReporter"><a class="viewcode-back" href="../../../_api/wepy.reporter.reporter.html#wepy.reporter.reporter.ProgressiveFileReporter">[docs]</a><span class="k">class</span> <span class="nc">ProgressiveFileReporter</span><span class="p">(</span><span class="n">FileReporter</span><span class="p">):</span>
+<div class="viewcode-block" id="ProgressiveFileReporter"><a class="viewcode-back" href="../../../api/wepy.reporter.reporter.html#wepy.reporter.dashboard.ProgressiveFileReporter">[docs]</a><span class="k">class</span> <span class="nc">ProgressiveFileReporter</span><span class="p">(</span><span class="n">FileReporter</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Super class for a reporter that will successively overwrite the</span>
 <span class="sd">    same file over and over again. The base FileReporter really only</span>
 <span class="sd">    supports creation of file one time.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="ProgressiveFileReporter.init"><a class="viewcode-back" href="../../../_api/wepy.reporter.reporter.html#wepy.reporter.reporter.ProgressiveFileReporter.init">[docs]</a>    <span class="k">def</span> <span class="nf">init</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="ProgressiveFileReporter.init"><a class="viewcode-back" href="../../../api/wepy.reporter.reporter.html#wepy.reporter.dashboard.ProgressiveFileReporter.init">[docs]</a>    <span class="k">def</span> <span class="nf">init</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Construct a ProgressiveFileReporter.</span>
 
 <span class="sd">        This is exactly the same as the FileReporter.</span>
@@ -630,6 +630,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../_source/installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../_source/quick_start.html">Quick Start</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../_source/introduction.html">Introduction &amp; Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../_source/introduction.html#bibliography">Bibliography</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../_source/tutorials/index.html">Tutorials</a></li>

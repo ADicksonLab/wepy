@@ -4,7 +4,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <title>Introduction &amp; Features &#8212; wepy 1.0.0rc3 documentation</title>
+    <title>Introduction &amp; Features &#8212; wepy 1.0.0rc6 documentation</title>
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
@@ -55,13 +55,49 @@
 <h1>Introduction &amp; Features<a class="headerlink" href="#introduction-features" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="weighted-ensemble-we">
 <h2>Weighted Ensemble (WE)<a class="headerlink" href="#weighted-ensemble-we" title="Permalink to this headline">¶</a></h2>
+<p>The weighted ensemble algorithm (WE) is a general strategy for
+simulating rare or long-timescale events in stochastic systems
+<a class="bibtex reference internal" href="#huberkim1996weightedensemble" id="id1">[HK96]</a>. It works by simulating an ensemble
+of different simulations (individually called ‘walkers’), where at
+specific times during the simulations all walkers are stopped and
+examined in order to identify any behaviors of interest that may have
+occured. Each pause in the simulation is called a ‘cycle’ and walkers
+which are “interesting” will have more simulation effort put into them
+while those of less exhibited interest will be dropped or simulated
+less. This typically is achieved by “cloning” high-value walkers into
+many copies, thus giving them more chances to exhibit otherwise rare
+behaviors. This is also usually concomitant with a removal (typically
+called merging/squashing) of walkers so that the computational resources
+are not diluted. This is similar to Importance Sampling methods,
+however, we are interested in not only the behaviors of the walker
+simulations but also the estimates of their probability. In order to
+achieve this, the process of cloning and merging must always must
+preserve the original weight distribution. Such a process is said to be
+a “resampling” process, and indeed the cloning and merging approach does
+this by construction. The outcome is that the “weights” of walkers is
+always accounted for, and in the limit of a fully converged simulation
+these weights correspond to the stationary probabilities.</p>
+<p>While the computational effort needed to reach convergence may be
+excessive for systems with high-dimensional state spaces, WE has other
+advantages when compared to so-called biased methods. That is that the
+corresponding “laws” of propagation (e.g. Hamiltonians, force-fields,
+etc.) are never modified which means that the individual trajectories
+are always “correct”. This particular feature may not be of interest to
+many but for fields where the specific details of the “mechanism” of a
+process are of interest this is a major advantage. For instance a major
+use-case of WE (and <code class="docutils literal notranslate"><span class="pre">wepy</span></code> itself) is to observe “transition states”
+(kinetic bottleneck structures in biomolecular processes) at all-atom
+resolution. This is useful for scientists that are designing drugs that
+effect the structure in these particular states.</p>
 </div>
 <div class="section" id="features">
 <h2>Features<a class="headerlink" href="#features" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li><p>State of the art WE resamplers: WExplore and REVO</p></li>
-<li><p>Super fast molecular dynamics via OpenMM</p></li>
-<li><p>Purpose built HDF5 storage format for WE data: <code class="docutils literal notranslate"><span class="pre">WepyHDF5</span></code></p></li>
+<li><p>State of the art WE resamplers: WExplore <a class="bibtex reference internal" href="#dickson2014wexplore" id="id2">[DB14]</a>
+and REVO <a class="bibtex reference internal" href="#donyapour2019revo" id="id3">[DRD19]</a></p></li>
+<li><p>Super fast molecular dynamics via OpenMM <a class="bibtex reference internal" href="#eastman2013openmm4" id="id4">[EFC+13]</a></p></li>
+<li><p>Purpose built HDF5 storage format for WE data with extensive API:
+<code class="docutils literal notranslate"><span class="pre">WepyHDF5</span></code></p></li>
 <li><p>Analysis routines for:</p>
 <ul>
 <li><p>free energy profiles</p></li>
@@ -76,7 +112,7 @@
 simulation checkpointing, recovery, and continuations.</p></li>
 <li><p>Expert friendly: Fully-featured framework for building and
 customizing simulations for exactly what you need.</p></li>
-<li><p>Leverage the entire python ecosystem, you’re limited to an old
+<li><p>Leverage the entire python ecosystem, you’re never limited to an old
 version of an embedded interpreter.</p></li>
 <li><p>No complex <em>ad hoc</em> configuration files, everything is python.</p></li>
 </ul>
@@ -192,7 +228,7 @@ submit a pull request with your desired changes.</p>
 <p><a class="reference external" href="https://github.com/westpa/westpa">WESTPA</a></p>
 <p>Weighted ensemble package in Python 2.7. More reliant and integrated
 with unix-like operating systems providing modularity through shell
-scripting and python modules.</p>
+scripting and python modules <a class="bibtex reference internal" href="#zwierchong2015westpa" id="id5">[ZAK+15]</a>.</p>
 <p>As an older project it has support for more MD engines (and non-MD
 stochastic sampling engines, e.g. BioNetGen) and is currently better
 suited for running simulations on large numbers of CPUs in a clustered
@@ -205,9 +241,33 @@ like REVO, which have no concept of bins at all.</p>
 <p><a class="reference external" href="http://ccl.cse.nd.edu/software/awe/">AWE: Accelerated Weighted
 Ensemble</a></p>
 <p>Another Python 2 library with a focus on the Accelerated WE resampling
-algorithm and integration with a Work Queue library for distributed
-jobs.</p>
+algorithm and integration with a Work Queue library for distributed jobs
+<a class="bibtex reference internal" href="#abdulwahid2014awewq" id="id6">[AWFR+14]</a> .</p>
 </div>
+</div>
+<div class="section" id="bibliography">
+<h1>Bibliography<a class="headerlink" href="#bibliography" title="Permalink to this headline">¶</a></h1>
+<p id="bibtex-bibliography-_source/introduction-0"><dl class="citation">
+<dt class="bibtex label" id="abdulwahid2014awewq"><span class="brackets"><a class="fn-backref" href="#id6">AWFR+14</a></span></dt>
+<dd><p>Badi’ Abdul-Wahid, Haoyun Feng, Dinesh Rajan, Ronan Costaouec, Eric Darve, Douglas Thain, and Jesús A. Izaguirre. Awe-wq: fast-forwarding molecular dynamics using the accelerated weighted ensemble. <em>Journal of Chemical Information and Modeling</em>, 54(10):3033–3043, 2014. PMID: 25207854. URL: <a class="reference external" href="http://dx.doi.org/10.1021/ci500321g">http://dx.doi.org/10.1021/ci500321g</a>.</p>
+</dd>
+<dt class="bibtex label" id="dickson2014wexplore"><span class="brackets"><a class="fn-backref" href="#id2">DB14</a></span></dt>
+<dd><p>A Dickson and C L Brooks. Wexplore: hierarchical exploration of high-dimensional spaces using the weighted ensemble algorithm. <em>Journal of Physical Chemistry B</em>, 118(13):3532–3542, apr 2014. URL: <a class="reference external" href="http://www.ncbi.nlm.nih.gov/pmc/articles/PMC4404516/">http://www.ncbi.nlm.nih.gov/pmc/articles/PMC4404516/</a>.</p>
+</dd>
+<dt class="bibtex label" id="donyapour2019revo"><span class="brackets"><a class="fn-backref" href="#id3">DRD19</a></span></dt>
+<dd><p>Nazanin Donyapour, Nicole M Roussey, and Alex Dickson. Revo: resampling of ensembles by variation optimization. <em>The Journal of Chemical Physics</em>, 150(24):244112, 2019.</p>
+</dd>
+<dt class="bibtex label" id="eastman2013openmm4"><span class="brackets"><a class="fn-backref" href="#id4">EFC+13</a></span></dt>
+<dd><p>P Eastman, M S Friedrichs, J D Chodera, R J Radmer, C M Bruns, J P Ku, K A Beauchamp, T J Lane, L P Wang, D Shukla, T Tye, M Houston, T Stich, C Klein, M R Shirts, and V S Pande. Openmm 4: a reusable, extensible, hardware independent library for high performance molecular simulation. <em>Journal of Chemical Theory and Computation</em>, 9(1):461–469, jan 2013. URL: <a class="reference external" href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3539733/">https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3539733/</a>.</p>
+</dd>
+<dt class="bibtex label" id="huberkim1996weightedensemble"><span class="brackets"><a class="fn-backref" href="#id1">HK96</a></span></dt>
+<dd><p>G A Huber and S Kim. Weighted-ensemble brownian dynamics simulations for protein association reactions. <em>Biophysical Journal</em>, 70(1):97–110, jan 1996. URL: <a class="reference external" href="http://www.ncbi.nlm.nih.gov/pmc/articles/PMC1224912/">http://www.ncbi.nlm.nih.gov/pmc/articles/PMC1224912/</a>.</p>
+</dd>
+<dt class="bibtex label" id="zwierchong2015westpa"><span class="brackets"><a class="fn-backref" href="#id5">ZAK+15</a></span></dt>
+<dd><p>Matthew C. Zwier, Joshua L. Adelman, Joseph W. Kaus, Adam J. Pratt, Kim F. Wong, Nicholas B. Rego, Ernesto Suárez, Steven Lettieri, David W. Wang, Michael Grabe, Daniel M. Zuckerman, and Lillian T. Chong. Westpa: an interoperable, highly scalable software package for weighted ensemble simulation and analysis. <em>Journal of Chemical Theory and Computation</em>, 11(2):800–809, 2015. URL: <a class="reference external" href="/brokenurl# http://dx.doi.org/10.1021/ct5010615">/brokenurl# http://dx.doi.org/10.1021/ct5010615</a>.</p>
+</dd>
+</dl>
+</p>
 </div>
 
 
@@ -257,6 +317,7 @@ jobs.</p>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="quick_start.html">Quick Start</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Introduction &amp; Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="#bibliography">Bibliography</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="tutorials/index.html">Tutorials</a></li>

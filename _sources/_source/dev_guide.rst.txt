@@ -435,88 +435,119 @@ Documentation and Website
    org mode, whereas the tutorials may also be in formats like Jupyter,
    which integrate well with Sphinx docs.
 
-   To write examples and tutorials that play nice with testing and the
-   basic rules of the examples (described in the
-   `users\ guide <./users_guide.org>`__) there are some templates
-   available in the ``templates`` directory for ``templates/examples``,
-   ``templates/tutorials``, and environment specs ``templates/envs``.
+   #. Initializing a Tutorial/Example
 
-   You can either just copy these templates over or use the targets:
+      To write examples and tutorials that play nice with testing and
+      the basic rules of the examples (described in the
+      `users\ guide <./users_guide.org>`__) there are some templates
+      available in the ``templates`` directory for
+      ``templates/examples``, ``templates/tutorials``, and environment
+      specs ``templates/envs``.
 
-   .. code:: bash
+      You can either just copy these templates over or use the targets:
 
-      inv docs.new-example --name='myexample' --template='org'
-      cp -r -u templates/envs/conda_blank info/examples/myexample/env
-      inv docs.new-tutorial  --name='mytutorial --template=jupyter'
-      cp -r -u templates/envs/conda_blank info/examples/mytutorial/env
+      .. code:: bash
 
-   After you have your directory set up there are some things to keep in
-   mind while you are constructing your tutorial.
+         inv docs.new-example --name='myexample' --template='org'
+         cp -r -u templates/envs/conda_blank info/examples/myexample/env
+         inv docs.new-tutorial  --name='mytutorial --template=jupyter'
+         cp -r -u templates/envs/conda_blank info/examples/mytutorial/env
 
-   First, write source either in the literate document (``README.org``)
-   or in the source file. Not both, unless you intend to test both
-   separately. For tutorials you should prefer to write them directly in
-   the literate doc, but particularly long and uninteresting pieces of
-   code can be put into the source.
+      After you have your directory set up there are some things to keep
+      in mind while you are constructing your tutorial.
 
-   As you write the code pay attention to your dependencies and virtual
-   environment. If you add new dependencies, add them to the
-   ``requirements.in`` or ``env.yaml`` file and compile:
+   #. Managing Dependencies and Envs
 
-   .. code:: bash
+      First, write source either in the literate document
+      (``README.org``) or in the source file. Not both, unless you
+      intend to test both separately. For tutorials you should prefer to
+      write them directly in the literate doc, but particularly long and
+      uninteresting pieces of code can be put into the source.
 
-      cd $PROJECT_DIR
-      inv docs.pin-example -n 'myexample'
+      As you write the code pay attention to your dependencies and
+      virtual environment. If you add new dependencies, add them to the
+      ``requirements.in`` or ``env.yaml`` file and compile:
 
-   You can then make the env 2 ways (the latter is intended to be run by
-   users who don't want to be overwhelmed by all the dev options):
+      .. code:: bash
 
-   .. code:: bash
+         cd $PROJECT_DIR
+         inv docs.pin-example -n 'myexample'
 
-      cd $PROJECT_DIR
-      inv docs.env-example -n 'myexample'
+      You can then make the env 2 ways (the latter is intended to be run
+      by users who don't want to be overwhelmed by all the dev options):
 
-   or
+      .. code:: bash
 
-   .. code:: bash
+         cd $PROJECT_DIR
+         inv docs.env-example -n 'myexample'
 
-      inv env
+      or
 
-   When writing examples and tutorials you should manually write the
-   tangle targets to be the ``_tangle_source`` folder:
+      .. code:: bash
 
-   .. code:: org
+         inv env
 
-      Here is some code I am explaining that you will run:
+   #. Writing Code Examples
 
-      #+begin_src python :tangle _tangle_source/tutorial.py
-        print("Hello!")
-      #+end_src
+      When writing examples and tutorials you should manually write the
+      tangle targets to be the ``_tangle_source`` folder:
 
-   As stated in the user's guide if you don't follow this rule (or any
-   others) then **it is wrong** and an issue should be filed.
+      .. code:: org
 
-   When using input files, please copy them to the ``input`` dir and
-   reference them relative to the example dir. So that when you execute
-   a script:
+         Here is some code I am explaining that you will run:
 
-   .. code:: bash
+         #+begin_src python :tangle _tangle_source/tutorial.py
+           print("Hello!")
+         #+end_src
 
-      python source/script.py
+      As stated in the user's guide if you don't follow this rule (or
+      any others) then **it is wrong** and an issue should be filed.
 
-   The code for reading a file would look like:
+      When using input files, please copy them to the ``input`` dir and
+      reference them relative to the example dir. So that when you
+      execute a script:
 
-   .. code:: python
+      .. code:: bash
 
-      with open("input/data.csv", 'r') as rf:
-          table = rf.read()
+         python source/script.py
 
-   and not:
+      The code for reading a file would look like:
 
-   .. code:: python
+      .. code:: python
 
-      with open("../data.csv", 'r') as rf:
-          table = rf.read()
+         with open("input/data.csv", 'r') as rf:
+             table = rf.read()
+
+      and not:
+
+      .. code:: python
+
+         with open("../data.csv", 'r') as rf:
+             table = rf.read()
+
+      Similarly writing and creating files should be done into the
+      ``_output`` dir:
+
+      .. code:: python
+
+         with open("_output/test.txt", 'w') as wf:
+             wf.write("Hello!!")
+
+   #. Adding to the built documentation
+
+      The tutorial README files will be automatically converted to
+      ReStructuredText and built into the documentation, but in order to
+      have links to them from the Tutorials page you will need to
+      manually add them to the table of contents section in the
+      ``sphinx/tutorials_index.rst`` file, e.g.:
+
+      .. code:: rst
+
+         .. toctree::
+            :maxdepth: 1
+
+            tut0/README
+            tut1/README
 
 #. Testing Documentation
 

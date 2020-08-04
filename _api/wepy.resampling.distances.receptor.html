@@ -4,7 +4,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <title>wepy.resampling.distances.receptor module &#8212; wepy 1.0.0rc3 documentation</title>
+    <title>wepy.resampling.distances.receptor module &#8212; wepy 1.0.0rc6 documentation</title>
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
@@ -68,7 +68,7 @@ a ligand towards a reference state.</p>
 <dl class="py class">
 <dt id="wepy.resampling.distances.receptor.ReceptorDistance">
 <em class="property">class </em><code class="sig-prename descclassname">wepy.resampling.distances.receptor.</code><code class="sig-name descname">ReceptorDistance</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ligand_idxs</span></em>, <em class="sig-param"><span class="n">binding_site_idxs</span></em>, <em class="sig-param"><span class="n">ref_state</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/resampling/distances/receptor.html#ReceptorDistance"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.resampling.distances.receptor.ReceptorDistance" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="wepy.resampling.distances.distance.html#wepy.resampling.distances.distance.Distance" title="wepy.resampling.distances.distance.Distance"><code class="xref py py-class docutils literal notranslate"><span class="pre">wepy.resampling.distances.distance.Distance</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="../api/wepy.resampling.distances.distance.html#wepy.resampling.distances.distance.Distance" title="wepy.resampling.distances.distance.Distance"><code class="xref py py-class docutils literal notranslate"><span class="pre">wepy.resampling.distances.distance.Distance</span></code></a></p>
 <p>Common abstract class for receptor-ligand molecular systems.</p>
 <p>Any input walker state should have the attributes ‘positions’ and
 ‘box_vectors’ and will first preprocess these states, by
@@ -179,7 +179,7 @@ preprocessing.</p>
 <dl class="py class">
 <dt id="wepy.resampling.distances.receptor.UnbindingDistance">
 <em class="property">class </em><code class="sig-prename descclassname">wepy.resampling.distances.receptor.</code><code class="sig-name descname">UnbindingDistance</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ligand_idxs</span></em>, <em class="sig-param"><span class="n">binding_site_idxs</span></em>, <em class="sig-param"><span class="n">ref_state</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/resampling/distances/receptor.html#UnbindingDistance"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.resampling.distances.receptor.UnbindingDistance" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#wepy.resampling.distances.receptor.ReceptorDistance" title="wepy.resampling.distances.receptor.ReceptorDistance"><code class="xref py py-class docutils literal notranslate"><span class="pre">wepy.resampling.distances.receptor.ReceptorDistance</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="../api/wepy.resampling.distances.receptor.html#wepy.resampling.distances.receptor.ReceptorDistance" title="wepy.resampling.distances.receptor.ReceptorDistance"><code class="xref py py-class docutils literal notranslate"><span class="pre">wepy.resampling.distances.receptor.ReceptorDistance</span></code></a></p>
 <p>Distance metric for measuring differences between walker states in
 regards to the RMSDs between ligands.</p>
 <p>Images are produced using the ReceptorDistance.image method. The
@@ -288,7 +288,7 @@ preprocessing.</p>
 <dl class="py class">
 <dt id="wepy.resampling.distances.receptor.RebindingDistance">
 <em class="property">class </em><code class="sig-prename descclassname">wepy.resampling.distances.receptor.</code><code class="sig-name descname">RebindingDistance</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ligand_idxs</span></em>, <em class="sig-param"><span class="n">binding_site_idxs</span></em>, <em class="sig-param"><span class="n">ref_state</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/resampling/distances/receptor.html#RebindingDistance"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.resampling.distances.receptor.RebindingDistance" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#wepy.resampling.distances.receptor.ReceptorDistance" title="wepy.resampling.distances.receptor.ReceptorDistance"><code class="xref py py-class docutils literal notranslate"><span class="pre">wepy.resampling.distances.receptor.ReceptorDistance</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="../api/wepy.resampling.distances.receptor.html#wepy.resampling.distances.receptor.ReceptorDistance" title="wepy.resampling.distances.receptor.ReceptorDistance"><code class="xref py py-class docutils literal notranslate"><span class="pre">wepy.resampling.distances.receptor.ReceptorDistance</span></code></a></p>
 <p>Distance metric for measuring differences between walker states in
 regards to the RMSDs between ligands.</p>
 <p>Images are produced using the ReceptorDistance.image method. The
@@ -441,6 +441,7 @@ preprocessing.</p>
 <li class="toctree-l1"><a class="reference internal" href="../_source/installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../_source/quick_start.html">Quick Start</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../_source/introduction.html">Introduction &amp; Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_source/introduction.html#bibliography">Bibliography</a></li>
 </ul>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../_source/tutorials/index.html">Tutorials</a></li>

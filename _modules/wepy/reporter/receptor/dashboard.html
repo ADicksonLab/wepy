@@ -4,7 +4,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <title>wepy.reporter.receptor.dashboard &#8212; wepy 1.0.0rc3 documentation</title>
+    <title>wepy.reporter.receptor.dashboard &#8212; wepy 1.0.0rc6 documentation</title>
     <link rel="stylesheet" href="../../../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/custom.css" />
@@ -51,7 +51,7 @@
 <span class="n">units</span> <span class="o">=</span> <span class="n">UnitRegistry</span><span class="p">()</span>
 
 
-<div class="viewcode-block" id="ReceptorBCDashboardSection"><a class="viewcode-back" href="../../../../_api/wepy.reporter.receptor.dashboard.html#wepy.reporter.receptor.dashboard.ReceptorBCDashboardSection">[docs]</a><span class="k">class</span> <span class="nc">ReceptorBCDashboardSection</span><span class="p">(</span><span class="n">BCDashboardSection</span><span class="p">):</span>
+<div class="viewcode-block" id="ReceptorBCDashboardSection"><a class="viewcode-back" href="../../../../api/wepy.reporter.receptor.dashboard.html#wepy.reporter.receptor.dashboard.ReceptorBCDashboardSection">[docs]</a><span class="k">class</span> <span class="nc">ReceptorBCDashboardSection</span><span class="p">(</span><span class="n">BCDashboardSection</span><span class="p">):</span>
 
 
     <span class="n">BC_SECTION_TEMPLATE</span> <span class="o">=</span> \
@@ -84,7 +84,7 @@
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="ReceptorBCDashboardSection.gen_fields"><a class="viewcode-back" href="../../../../_api/wepy.reporter.receptor.dashboard.html#wepy.reporter.receptor.dashboard.ReceptorBCDashboardSection.gen_fields">[docs]</a>    <span class="k">def</span> <span class="nf">gen_fields</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="ReceptorBCDashboardSection.gen_fields"><a class="viewcode-back" href="../../../../api/wepy.reporter.receptor.dashboard.html#wepy.reporter.receptor.dashboard.ReceptorBCDashboardSection.gen_fields">[docs]</a>    <span class="k">def</span> <span class="nf">gen_fields</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 
         <span class="n">fields</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">gen_fields</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
@@ -118,7 +118,7 @@
 
 
 
-<div class="viewcode-block" id="UnbindingBCDashboardSection"><a class="viewcode-back" href="../../../../_api/wepy.reporter.receptor.dashboard.html#wepy.reporter.receptor.dashboard.UnbindingBCDashboardSection">[docs]</a><span class="k">class</span> <span class="nc">UnbindingBCDashboardSection</span><span class="p">(</span><span class="n">ReceptorBCDashboardSection</span><span class="p">):</span>
+<div class="viewcode-block" id="UnbindingBCDashboardSection"><a class="viewcode-back" href="../../../../api/wepy.reporter.receptor.dashboard.html#wepy.reporter.receptor.dashboard.UnbindingBCDashboardSection">[docs]</a><span class="k">class</span> <span class="nc">UnbindingBCDashboardSection</span><span class="p">(</span><span class="n">ReceptorBCDashboardSection</span><span class="p">):</span>
 
     <span class="n">RECEPTOR_PARAMETERS</span> <span class="o">=</span> \
 <span class="sd">&quot;&quot;&quot;</span>
@@ -144,7 +144,7 @@
                 <span class="s2">&quot;If no bc is given must give parameters: cutoff_distance&quot;</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">cutoff_distance</span> <span class="o">=</span> <span class="n">cutoff_distance</span>
 
-<div class="viewcode-block" id="UnbindingBCDashboardSection.gen_fields"><a class="viewcode-back" href="../../../../_api/wepy.reporter.receptor.dashboard.html#wepy.reporter.receptor.dashboard.UnbindingBCDashboardSection.gen_fields">[docs]</a>    <span class="k">def</span> <span class="nf">gen_fields</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="UnbindingBCDashboardSection.gen_fields"><a class="viewcode-back" href="../../../../api/wepy.reporter.receptor.dashboard.html#wepy.reporter.receptor.dashboard.UnbindingBCDashboardSection.gen_fields">[docs]</a>    <span class="k">def</span> <span class="nf">gen_fields</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 
         <span class="n">fields</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">gen_fields</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
@@ -158,7 +158,7 @@
 
         <span class="k">return</span> <span class="n">fields</span></div></div>
 
-<div class="viewcode-block" id="RebindingBCDashboardSection"><a class="viewcode-back" href="../../../../_api/wepy.reporter.receptor.dashboard.html#wepy.reporter.receptor.dashboard.RebindingBCDashboardSection">[docs]</a><span class="k">class</span> <span class="nc">RebindingBCDashboardSection</span><span class="p">(</span><span class="n">ReceptorBCDashboardSection</span><span class="p">):</span>
+<div class="viewcode-block" id="RebindingBCDashboardSection"><a class="viewcode-back" href="../../../../api/wepy.reporter.receptor.dashboard.html#wepy.reporter.receptor.dashboard.RebindingBCDashboardSection">[docs]</a><span class="k">class</span> <span class="nc">RebindingBCDashboardSection</span><span class="p">(</span><span class="n">ReceptorBCDashboardSection</span><span class="p">):</span>
 
     <span class="n">RECEPTOR_PARAMETERS</span> <span class="o">=</span> \
 <span class="sd">&quot;&quot;&quot;</span>
@@ -183,7 +183,7 @@
                 <span class="s2">&quot;If no bc is given must give parameters: cutoff_rmsd&quot;</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">cutoff_rmsd</span> <span class="o">=</span> <span class="n">cutoff_rmsd</span>
 
-<div class="viewcode-block" id="RebindingBCDashboardSection.gen_fields"><a class="viewcode-back" href="../../../../_api/wepy.reporter.receptor.dashboard.html#wepy.reporter.receptor.dashboard.RebindingBCDashboardSection.gen_fields">[docs]</a>    <span class="k">def</span> <span class="nf">gen_fields</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="RebindingBCDashboardSection.gen_fields"><a class="viewcode-back" href="../../../../api/wepy.reporter.receptor.dashboard.html#wepy.reporter.receptor.dashboard.RebindingBCDashboardSection.gen_fields">[docs]</a>    <span class="k">def</span> <span class="nf">gen_fields</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 
         <span class="n">fields</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">gen_fields</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
@@ -239,6 +239,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../../_source/installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../_source/quick_start.html">Quick Start</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../_source/introduction.html">Introduction &amp; Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_source/introduction.html#bibliography">Bibliography</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../../_source/tutorials/index.html">Tutorials</a></li>

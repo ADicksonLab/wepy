@@ -1,0 +1,1514 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>wepy.runners.openmm module &#8212; wepy 1.0.0rc6 documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+              <div class="related top">
+                &nbsp;
+  <nav id="rellinks">
+    <ul>
+    </ul>
+  </nav>
+              </div>
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="module-wepy.runners.openmm">
+<span id="wepy-runners-openmm-module"></span><h1>wepy.runners.openmm module<a class="headerlink" href="#module-wepy.runners.openmm" title="Permalink to this headline">¶</a></h1>
+<p>OpenMM molecular dynamics runner with accessory classes.</p>
+<p>OpenMM is a library with support for running molecular dynamics
+simulations with specific support for fast GPU calculations. The
+component based architecture of OpenMM makes it a perfect fit with
+wepy.</p>
+<p>In addition to the principle OpenMMRunner class there are a few
+classes here that make using OpenMM runner more efficient.</p>
+<p>First is a WalkerState class (OpenMMState) that wraps the openmm state
+object directly, itself is a wrapper around the C++
+datastructures. This gives better performance by not performing copies
+to a WalkerState dictionary.</p>
+<p>Second, is the OpenMMWalker which is identical to the Walker class
+except that it enforces the state is an actual instantiation of
+OpenMMState. Use of this is optional.</p>
+<p>Finally, is the OpenMMGPUWorker class. This is to be used as the
+worker type for the WorkerMapper work mapper. This is necessary to
+allow passing of the device index to OpenMM for which GPU device to
+use.</p>
+<dl class="py data">
+<dt id="wepy.runners.openmm.KEYS">
+<code class="sig-prename descclassname">wepy.runners.openmm.</code><code class="sig-name descname">KEYS</code><em class="property"> = ('positions', 'velocities', 'forces', 'kinetic_energy', 'potential_energy', 'time', 'box_vectors', 'box_volume', 'parameters', 'parameter_derivatives')</em><a class="headerlink" href="#wepy.runners.openmm.KEYS" title="Permalink to this definition">¶</a></dt>
+<dd><p>Names of the fields of the OpenMMState.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt id="wepy.runners.openmm.GET_STATE_KWARG_DEFAULTS">
+<code class="sig-prename descclassname">wepy.runners.openmm.</code><code class="sig-name descname">GET_STATE_KWARG_DEFAULTS</code><em class="property"> = (('getPositions', True), ('getVelocities', True), ('getForces', True), ('getEnergy', True), ('getParameters', True), ('getParameterDerivatives', True), ('enforcePeriodicBox', True))</em><a class="headerlink" href="#wepy.runners.openmm.GET_STATE_KWARG_DEFAULTS" title="Permalink to this definition">¶</a></dt>
+<dd><p>Mapping of key word arguments to the simulation.context.getState
+method for retrieving data for a simulation state. By default we set
+each as True to retrieve all information. The presence or absence of
+them is handled by the OpenMMState.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt id="wepy.runners.openmm.UNIT_NAMES">
+<code class="sig-prename descclassname">wepy.runners.openmm.</code><code class="sig-name descname">UNIT_NAMES</code><em class="property"> = (('positions_unit', 'nanometer'), ('time_unit', 'picosecond'), ('box_vectors_unit', 'nanometer'), ('velocities_unit', 'nanometer/picosecond'), ('forces_unit', 'kilojoule/(nanometer*mole)'), ('box_volume_unit', 'nanometer'), ('kinetic_energy_unit', 'kilojoule/mole'), ('potential_energy_unit', 'kilojoule/mole'))</em><a class="headerlink" href="#wepy.runners.openmm.UNIT_NAMES" title="Permalink to this definition">¶</a></dt>
+<dd><p>Mapping of unit identifier strings to the serialized string spec of the unit.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt id="wepy.runners.openmm.OpenMMRunner">
+<em class="property">class </em><code class="sig-prename descclassname">wepy.runners.openmm.</code><code class="sig-name descname">OpenMMRunner</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">system</span></em>, <em class="sig-param"><span class="n">topology</span></em>, <em class="sig-param"><span class="n">integrator</span></em>, <em class="sig-param"><span class="n">platform</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">platform_kwargs</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">enforce_box</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/runners/openmm.html#OpenMMRunner"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.runners.openmm.OpenMMRunner" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="wepy.runners.runner.html#wepy.runners.runner.Runner" title="wepy.runners.runner.Runner"><code class="xref py py-class docutils literal notranslate"><span class="pre">wepy.runners.runner.Runner</span></code></a></p>
+<p>Runner for OpenMM simulations.</p>
+<p>Constructor for OpenMMRunner.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>system</strong> (<em>simtk.openmm.System object</em>) – The system (forcefields) for the simulation.</p></li>
+<li><p><strong>topology</strong> (<em>simtk.openmm.app.Topology object</em>) – The topology for you system.</p></li>
+<li><p><strong>integrator</strong> (<em>subclass simtk.openmm.Integrator object</em>) – Integrator for propagating dynamics.</p></li>
+<li><p><strong>platform</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – The specification for the default computational platform
+to use. Platform can also be set when run_segment is
+called. If None uses OpenMM default platform, see OpenMM
+documentation for all value but typical ones are:
+Reference, CUDA, OpenCL. If value is None the automatic
+platform determining mechanism in OpenMM will be used.</p></li>
+<li><p><strong>platform_kwargs</strong> (<em>dict of str : bool</em><em>, </em><em>optional</em>) – key-values to set for a platform with
+platform.setPropertyDefaultValue as the default for this
+runner.</p></li>
+<li><p><strong>enforce_box</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a>) – <dl class="simple">
+<dt>Calls ‘context.getState’ with ‘enforcePeriodicBox’ if True.</dt><dd><p>(Default value = False)</p>
+</dd>
+</dl>
+</p></li>
+</ul>
+</dd>
+</dl>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Regarding the ‘enforce_box’ option.</p>
+<p>When retrieving states from an OpenMM simulation Context, you
+have the option to enforce periodic boundary conditions in the
+resulting atomic positions in a topology aware way that
+doesn’t break bonds through boundaries. This is convenient for
+post-processing as this can be a complex task and is not
+readily exposed in the OpenMM API as a standalone function.</p>
+<p>However, in some types of simulations the periodic box vectors
+are ignored (such as implicit solvent ones) despite there
+being no option to not have periodic boundaries in the context
+itself. Likely if you are running one of these kinds of
+simulations you will not pay attention to the box vectors at
+all and the random defaults that exist will be very wrong but
+this incorrectness will not show in a non-wepy simulation with
+openmm unless you are handling the context states
+yourself. Then when you run in wepy the default of True to
+enforce the boxes will be applied and confusingly wrong
+answers will result that are difficult to find root cause of.</p>
+</div>
+<dl class="py method">
+<dt id="wepy.runners.openmm.OpenMMRunner.pre_cycle">
+<code class="sig-name descname">pre_cycle</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">platform</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">platform_kwargs</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/runners/openmm.html#OpenMMRunner.pre_cycle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.runners.openmm.OpenMMRunner.pre_cycle" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="wepy.runners.openmm.OpenMMRunner.post_cycle">
+<code class="sig-name descname">post_cycle</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/runners/openmm.html#OpenMMRunner.post_cycle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.runners.openmm.OpenMMRunner.post_cycle" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="wepy.runners.openmm.OpenMMRunner._resolve_platform">
+<code class="sig-name descname">_resolve_platform</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">platform</span></em>, <em class="sig-param"><span class="n">platform_kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/runners/openmm.html#OpenMMRunner._resolve_platform"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.runners.openmm.OpenMMRunner._resolve_platform" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="wepy.runners.openmm.OpenMMRunner.run_segment">
+<code class="sig-name descname">run_segment</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">walker</span></em>, <em class="sig-param"><span class="n">segment_length</span></em>, <em class="sig-param"><span class="n">getState_kwargs</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">platform</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">platform_kwargs</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/runners/openmm.html#OpenMMRunner.run_segment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.runners.openmm.OpenMMRunner.run_segment" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run dynamics for the walker.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>walker</strong> (<em>object implementing the Walker interface</em>) – The walker for which dynamics will be propagated.</p></li>
+<li><p><strong>segment_length</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a>) – The numerical value that specifies how much dynamics are to be run.</p></li>
+<li><p><strong>getState_kwargs</strong> (<em>dict of str : bool</em><em>, </em><em>optional</em>) – Specify the key-word arguments to pass to
+simulation.context.getState when getting simulation
+states. If None defaults object values.</p></li>
+<li><p><strong>platform</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.8)"><em>None</em></a><em> or </em><em>Ellipsis</em>) – The specification for the computational platform to
+use. If None will use the default for the runner and
+ignore platform_kwargs. If Ellipsis forces the use of the
+OpenMM default or environmentally defined platform. See
+OpenMM documentation for all value but typical ones are:
+Reference, CUDA, OpenCL. If value is None the automatic
+platform determining mechanism in OpenMM will be used.</p></li>
+<li><p><strong>platform_kwargs</strong> (<em>dict of str : bool</em><em>, </em><em>optional</em>) – key-values to set for a platform with
+platform.setPropertyDefaultValue for this segment only.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>new_walker</strong> – Walker after dynamics was run, only the state should be modified.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>object implementing the Walker interface</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.runners.openmm.OpenMMRunner.generate_state">
+<code class="sig-name descname">generate_state</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">simulation</span></em>, <em class="sig-param"><span class="n">segment_length</span></em>, <em class="sig-param"><span class="n">starting_walker</span></em>, <em class="sig-param"><span class="n">getState_kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/runners/openmm.html#OpenMMRunner.generate_state"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.runners.openmm.OpenMMRunner.generate_state" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method for generating a wepy compliant state from an OpenMM
+simulation object and data about the last segment of dynamics run.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>simulation</strong> (<em>simtk.openmm.app.Simulation object</em>) – A complete simulation object from which the state will be extracted.</p></li>
+<li><p><strong>segment_length</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – The number of integration steps run in a segment of simulation.</p></li>
+<li><p><strong>starting_walker</strong> (<em>wepy.walker.Walker subclass object</em>) – The walker that was the beginning of this segment of simyulation.</p></li>
+<li><p><strong>getState_kwargs</strong> (<em>dict of str : bool</em>) – Specify the key-word arguments to pass to
+simulation.context.getState when getting simulation
+states.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>new_state</strong> (<em>wepy.runners.openmm.OpenMMState object</em>) – A new state from the simulation state.</p></li>
+<li><p><em>This method is meant to be called from within the</em></p></li>
+<li><p><cite>run_segment</cite> method during a simulation. It can be customized</p></li>
+<li><p><em>in subclasses to allow for the addition of custom attributes</em></p></li>
+<li><p><em>for a state, in addition to the base ones implemented in the</em></p></li>
+<li><p><em>interface to the openmm simulation state in OpenMMState.</em></p></li>
+<li><p><em>The extra arguments to this function are data that would allow</em></p></li>
+<li><p><em>for the calculation of integral values over the duration of</em></p></li>
+<li><p><em>the segment, such as time elapsed and differences from the</em></p></li>
+<li><p><em>starting state.</em></p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="wepy.runners.openmm.OpenMMState">
+<em class="property">class </em><code class="sig-prename descclassname">wepy.runners.openmm.</code><code class="sig-name descname">OpenMMState</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">sim_state</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/runners/openmm.html#OpenMMState"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.runners.openmm.OpenMMState" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="wepy.walker.html#wepy.walker.WalkerState" title="wepy.walker.WalkerState"><code class="xref py py-class docutils literal notranslate"><span class="pre">wepy.walker.WalkerState</span></code></a></p>
+<p>Walker state that wraps an simtk.openmm.State object.</p>
+<p>The keys for which values in the state are available are given by
+the KEYS module constant (accessible through the class constant of
+the same name as well).</p>
+<p>Additional fields can be added to these states through passing
+extra kwargs to the constructor. These will be automatically given
+a suffix of “_OTHER” to avoid name clashes.</p>
+<p>Constructor for OpenMMState.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>state</strong> (<em>simtk.openmm.State object</em>) – The simulation state retrieved from the simulation constant.</p></li>
+<li><p><strong>kwargs</strong> (<em>optional</em>) – Additional attributes to set for the state. Will add the</p></li>
+<li><p><strong>suffix to the keys</strong> (<em>&quot;_OTHER&quot;</em>) – </p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt id="wepy.runners.openmm.OpenMMState.KEYS">
+<code class="sig-name descname">KEYS</code><em class="property"> = ('positions', 'velocities', 'forces', 'kinetic_energy', 'potential_energy', 'time', 'box_vectors', 'box_volume', 'parameters', 'parameter_derivatives')</em><a class="headerlink" href="#wepy.runners.openmm.OpenMMState.KEYS" title="Permalink to this definition">¶</a></dt>
+<dd><p>The provided attribute keys for the state.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="wepy.runners.openmm.OpenMMState.OTHER_KEY_TEMPLATE">
+<code class="sig-name descname">OTHER_KEY_TEMPLATE</code><em class="property"> = '{}_OTHER'</em><a class="headerlink" href="#wepy.runners.openmm.OpenMMState.OTHER_KEY_TEMPLATE" title="Permalink to this definition">¶</a></dt>
+<dd><p>String formatting template for attributes not set in KEYS.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.runners.openmm.OpenMMState.sim_state">
+<em class="property">property </em><code class="sig-name descname">sim_state</code><a class="headerlink" href="#wepy.runners.openmm.OpenMMState.sim_state" title="Permalink to this definition">¶</a></dt>
+<dd><p>The underlying simtk.openmm.State object this is wrapping.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.runners.openmm.OpenMMState.positions">
+<em class="property">property </em><code class="sig-name descname">positions</code><a class="headerlink" href="#wepy.runners.openmm.OpenMMState.positions" title="Permalink to this definition">¶</a></dt>
+<dd><p>The positions of the state as a numpy array simtk.units.Quantity object.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.runners.openmm.OpenMMState.positions_unit">
+<em class="property">property </em><code class="sig-name descname">positions_unit</code><a class="headerlink" href="#wepy.runners.openmm.OpenMMState.positions_unit" title="Permalink to this definition">¶</a></dt>
+<dd><p>The units (as a simtk.units.Unit object) the positions are in.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.runners.openmm.OpenMMState.positions_values">
+<code class="sig-name descname">positions_values</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/runners/openmm.html#OpenMMState.positions_values"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.runners.openmm.OpenMMState.positions_values" title="Permalink to this definition">¶</a></dt>
+<dd><p>The positions of the state as a numpy array in the positions_unit
+simtk.units.Unit. This is what is returned by the __getitem__
+accessor.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.runners.openmm.OpenMMState.velocities">
+<em class="property">property </em><code class="sig-name descname">velocities</code><a class="headerlink" href="#wepy.runners.openmm.OpenMMState.velocities" title="Permalink to this definition">¶</a></dt>
+<dd><p>The velocities of the state as a numpy array simtk.units.Quantity object.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.runners.openmm.OpenMMState.velocities_unit">
+<em class="property">property </em><code class="sig-name descname">velocities_unit</code><a class="headerlink" href="#wepy.runners.openmm.OpenMMState.velocities_unit" title="Permalink to this definition">¶</a></dt>
+<dd><p>The units (as a simtk.units.Unit object) the velocities are in.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.runners.openmm.OpenMMState.velocities_values">
+<code class="sig-name descname">velocities_values</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/runners/openmm.html#OpenMMState.velocities_values"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.runners.openmm.OpenMMState.velocities_values" title="Permalink to this definition">¶</a></dt>
+<dd><p>The velocities of the state as a numpy array in the velocities_unit
+simtk.units.Unit. This is what is returned by the __getitem__
+accessor.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.runners.openmm.OpenMMState.forces">
+<em class="property">property </em><code class="sig-name descname">forces</code><a class="headerlink" href="#wepy.runners.openmm.OpenMMState.forces" title="Permalink to this definition">¶</a></dt>
+<dd><p>The forces of the state as a numpy array simtk.units.Quantity object.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.runners.openmm.OpenMMState.forces_unit">
+<em class="property">property </em><code class="sig-name descname">forces_unit</code><a class="headerlink" href="#wepy.runners.openmm.OpenMMState.forces_unit" title="Permalink to this definition">¶</a></dt>
+<dd><p>The units (as a simtk.units.Unit object) the forces are in.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.runners.openmm.OpenMMState.forces_values">
+<code class="sig-name descname">forces_values</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/runners/openmm.html#OpenMMState.forces_values"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.runners.openmm.OpenMMState.forces_values" title="Permalink to this definition">¶</a></dt>
+<dd><p>The forces of the state as a numpy array in the forces_unit
+simtk.units.Unit. This is what is returned by the __getitem__
+accessor.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.runners.openmm.OpenMMState.box_vectors">
+<em class="property">property </em><code class="sig-name descname">box_vectors</code><a class="headerlink" href="#wepy.runners.openmm.OpenMMState.box_vectors" title="Permalink to this definition">¶</a></dt>
+<dd><p>The box vectors of the state as a numpy array simtk.units.Quantity object.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.runners.openmm.OpenMMState.box_vectors_unit">
+<em class="property">property </em><code class="sig-name descname">box_vectors_unit</code><a class="headerlink" href="#wepy.runners.openmm.OpenMMState.box_vectors_unit" title="Permalink to this definition">¶</a></dt>
+<dd><p>The units (as a simtk.units.Unit object) the box vectors are in.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.runners.openmm.OpenMMState.box_vectors_values">
+<code class="sig-name descname">box_vectors_values</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/runners/openmm.html#OpenMMState.box_vectors_values"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.runners.openmm.OpenMMState.box_vectors_values" title="Permalink to this definition">¶</a></dt>
+<dd><p>The box vectors of the state as a numpy array in the
+box_vectors_unit simtk.units.Unit. This is what is returned by
+the __getitem__ accessor.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.runners.openmm.OpenMMState.kinetic_energy">
+<em class="property">property </em><code class="sig-name descname">kinetic_energy</code><a class="headerlink" href="#wepy.runners.openmm.OpenMMState.kinetic_energy" title="Permalink to this definition">¶</a></dt>
+<dd><p>The kinetic energy of the state as a numpy array simtk.units.Quantity object.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.runners.openmm.OpenMMState.kinetic_energy_unit">
+<em class="property">property </em><code class="sig-name descname">kinetic_energy_unit</code><a class="headerlink" href="#wepy.runners.openmm.OpenMMState.kinetic_energy_unit" title="Permalink to this definition">¶</a></dt>
+<dd><p>The units (as a simtk.units.Unit object) the kinetic energy is in.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.runners.openmm.OpenMMState.kinetic_energy_value">
+<code class="sig-name descname">kinetic_energy_value</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/runners/openmm.html#OpenMMState.kinetic_energy_value"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.runners.openmm.OpenMMState.kinetic_energy_value" title="Permalink to this definition">¶</a></dt>
+<dd><p>The kinetic energy of the state as a numpy array in the kinetic_energy_unit
+simtk.units.Unit. This is what is returned by the __getitem__
+accessor.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.runners.openmm.OpenMMState.potential_energy">
+<em class="property">property </em><code class="sig-name descname">potential_energy</code><a class="headerlink" href="#wepy.runners.openmm.OpenMMState.potential_energy" title="Permalink to this definition">¶</a></dt>
+<dd><p>The potential energy of the state as a numpy array simtk.units.Quantity object.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.runners.openmm.OpenMMState.potential_energy_unit">
+<em class="property">property </em><code class="sig-name descname">potential_energy_unit</code><a class="headerlink" href="#wepy.runners.openmm.OpenMMState.potential_energy_unit" title="Permalink to this definition">¶</a></dt>
+<dd><p>The units (as a simtk.units.Unit object) the potential energy is in.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.runners.openmm.OpenMMState.potential_energy_value">
+<code class="sig-name descname">potential_energy_value</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/runners/openmm.html#OpenMMState.potential_energy_value"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.runners.openmm.OpenMMState.potential_energy_value" title="Permalink to this definition">¶</a></dt>
+<dd><p>The potential energy of the state as a numpy array in the potential_energy_unit
+simtk.units.Unit. This is what is returned by the __getitem__
+accessor.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.runners.openmm.OpenMMState.time">
+<em class="property">property </em><code class="sig-name descname">time</code><a class="headerlink" href="#wepy.runners.openmm.OpenMMState.time" title="Permalink to this definition">¶</a></dt>
+<dd><p>The time of the state as a numpy array simtk.units.Quantity object.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.runners.openmm.OpenMMState.time_unit">
+<em class="property">property </em><code class="sig-name descname">time_unit</code><a class="headerlink" href="#wepy.runners.openmm.OpenMMState.time_unit" title="Permalink to this definition">¶</a></dt>
+<dd><p>The units (as a simtk.units.Unit object) the time is in.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.runners.openmm.OpenMMState.time_value">
+<code class="sig-name descname">time_value</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/runners/openmm.html#OpenMMState.time_value"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.runners.openmm.OpenMMState.time_value" title="Permalink to this definition">¶</a></dt>
+<dd><p>The time of the state as a numpy array in the time_unit
+simtk.units.Unit. This is what is returned by the __getitem__
+accessor.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.runners.openmm.OpenMMState.box_volume">
+<em class="property">property </em><code class="sig-name descname">box_volume</code><a class="headerlink" href="#wepy.runners.openmm.OpenMMState.box_volume" title="Permalink to this definition">¶</a></dt>
+<dd><p>The box volume of the state as a numpy array simtk.units.Quantity object.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.runners.openmm.OpenMMState.box_volume_unit">
+<em class="property">property </em><code class="sig-name descname">box_volume_unit</code><a class="headerlink" href="#wepy.runners.openmm.OpenMMState.box_volume_unit" title="Permalink to this definition">¶</a></dt>
+<dd><p>The units (as a simtk.units.Unit object) the box volume is in.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.runners.openmm.OpenMMState.box_volume_value">
+<code class="sig-name descname">box_volume_value</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/runners/openmm.html#OpenMMState.box_volume_value"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.runners.openmm.OpenMMState.box_volume_value" title="Permalink to this definition">¶</a></dt>
+<dd><p>The box volume of the state as a numpy array in the box_volume_unit
+simtk.units.Unit. This is what is returned by the __getitem__
+accessor.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.runners.openmm.OpenMMState.parameters">
+<em class="property">property </em><code class="sig-name descname">parameters</code><a class="headerlink" href="#wepy.runners.openmm.OpenMMState.parameters" title="Permalink to this definition">¶</a></dt>
+<dd><p>The parameters of the state as a dictionary mapping the names of
+the parameters to their values which are numpy array
+simtk.units.Quantity objects.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.runners.openmm.OpenMMState.parameters_unit">
+<em class="property">property </em><code class="sig-name descname">parameters_unit</code><a class="headerlink" href="#wepy.runners.openmm.OpenMMState.parameters_unit" title="Permalink to this definition">¶</a></dt>
+<dd><p>The units for each parameter as a dictionary mapping parameter
+names to their corresponding unit as a simtk.units.Unit
+object.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.runners.openmm.OpenMMState.parameters_values">
+<code class="sig-name descname">parameters_values</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/runners/openmm.html#OpenMMState.parameters_values"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.runners.openmm.OpenMMState.parameters_values" title="Permalink to this definition">¶</a></dt>
+<dd><p>The parameters of the state as a dictionary mapping the name of the
+parameter to a numpy array in the unit for the parameter of the
+same name in the parameters_unit corresponding
+simtk.units.Unit object. This is what is returned by the
+__getitem__ accessor using the compound key syntax with the
+prefix ‘parameters’, e.g. state[‘parameter/paramA’] for the
+parameter ‘paramA’.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.runners.openmm.OpenMMState.parameter_derivatives">
+<em class="property">property </em><code class="sig-name descname">parameter_derivatives</code><a class="headerlink" href="#wepy.runners.openmm.OpenMMState.parameter_derivatives" title="Permalink to this definition">¶</a></dt>
+<dd><p>The parameter derivatives of the state as a dictionary mapping the
+names of the parameters to their values which are numpy array
+simtk.units.Quantity objects.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.runners.openmm.OpenMMState.parameter_derivatives_unit">
+<em class="property">property </em><code class="sig-name descname">parameter_derivatives_unit</code><a class="headerlink" href="#wepy.runners.openmm.OpenMMState.parameter_derivatives_unit" title="Permalink to this definition">¶</a></dt>
+<dd><p>The units for each parameter derivative as a dictionary mapping
+parameter names to their corresponding unit as a
+simtk.units.Unit object.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.runners.openmm.OpenMMState.parameter_derivatives_values">
+<code class="sig-name descname">parameter_derivatives_values</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/runners/openmm.html#OpenMMState.parameter_derivatives_values"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.runners.openmm.OpenMMState.parameter_derivatives_values" title="Permalink to this definition">¶</a></dt>
+<dd><p>The parameter derivatives of the state as a dictionary mapping the
+name of the parameter to a numpy array in the unit for the
+parameter of the same name in the parameters_unit
+corresponding simtk.units.Unit object. This is what is
+returned by the __getitem__ accessor using the compound key
+syntax with the prefix ‘parameter_derivatives’,
+e.g. state[‘parameter_derivatives/paramA’] for the parameter
+‘paramA’.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.runners.openmm.OpenMMState._dict_attr_to_compound_key_dict">
+<code class="sig-name descname">_dict_attr_to_compound_key_dict</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">root_key</span></em>, <em class="sig-param"><span class="n">attr_dict</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/runners/openmm.html#OpenMMState._dict_attr_to_compound_key_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.runners.openmm.OpenMMState._dict_attr_to_compound_key_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Transform a dictionary of values within the compound key ‘root_key’
+to a dictionary mapping compound keys to values.</p>
+<p>For example give the root_key ‘parameters’ and the parameters
+dictionary {‘paramA’ : 1.234} returns {‘parameters/paramA’ : 1.234}.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>root_key</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – The compound key prefix</p></li>
+<li><p><strong>attr_dict</strong> (<em>dict of str : value</em>) – The dictionary with simple keys within the root key namespace.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>compound_key_dict</strong> – The dictionary with the compound keys.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict of str : value</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.runners.openmm.OpenMMState._get_nested_attr_from_compound_key">
+<code class="sig-name descname">_get_nested_attr_from_compound_key</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">compound_key</span></em>, <em class="sig-param"><span class="n">compound_feat_dict</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/runners/openmm.html#OpenMMState._get_nested_attr_from_compound_key"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.runners.openmm.OpenMMState._get_nested_attr_from_compound_key" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get arbitrarily deeply nested compound keys from the full
+dictionary tree.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>compound_key</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – Compound key separated by ‘/’ characters</p></li>
+<li><p><strong>compound_feat_dict</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)"><em>dict</em></a>) – Dictionary of arbitrary depth</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Value requested by the key.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>value</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.runners.openmm.OpenMMState.parameters_features">
+<code class="sig-name descname">parameters_features</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/runners/openmm.html#OpenMMState.parameters_features"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.runners.openmm.OpenMMState.parameters_features" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a dictionary of the parameters with their appropriate
+compound keys. This can be used for placing them in the same namespace
+as the rest of the attributes.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.runners.openmm.OpenMMState.parameter_derivatives_features">
+<code class="sig-name descname">parameter_derivatives_features</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/runners/openmm.html#OpenMMState.parameter_derivatives_features"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.runners.openmm.OpenMMState.parameter_derivatives_features" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a dictionary of the parameter derivatives with their appropriate
+compound keys. This can be used for placing them in the same namespace
+as the rest of the attributes.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.runners.openmm.OpenMMState.omm_state_dict">
+<code class="sig-name descname">omm_state_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/runners/openmm.html#OpenMMState.omm_state_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.runners.openmm.OpenMMState.omm_state_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a dictionary with all of the default keys from the wrapped
+simtk.openmm.State object</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.runners.openmm.OpenMMState.dict">
+<code class="sig-name descname">dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/runners/openmm.html#OpenMMState.dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.runners.openmm.OpenMMState.dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return all key-value pairs as a dictionary.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.runners.openmm.OpenMMState.to_mdtraj">
+<code class="sig-name descname">to_mdtraj</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">topology</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/runners/openmm.html#OpenMMState.to_mdtraj"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.runners.openmm.OpenMMState.to_mdtraj" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns an mdtraj.Trajectory object from this walker’s state.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>topology</strong> (<em>mdtraj.Topology object</em>) – Topology for the state.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>state_traj</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>mdtraj.Trajectory object</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt id="wepy.runners.openmm.gen_sim_state">
+<code class="sig-prename descclassname">wepy.runners.openmm.</code><code class="sig-name descname">gen_sim_state</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">positions</span></em>, <em class="sig-param"><span class="n">system</span></em>, <em class="sig-param"><span class="n">integrator</span></em>, <em class="sig-param"><span class="n">getState_kwargs</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/runners/openmm.html#gen_sim_state"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.runners.openmm.gen_sim_state" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convenience function for generating an omm.State object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>positions</strong> (<em>arraylike of float</em>) – The positions for the system you want to set</p></li>
+<li><p><strong>system</strong> (<em>openmm.app.System object</em>) – </p></li>
+<li><p><strong>integrator</strong> (<em>openmm.Integrator object</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>sim_state</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>openmm.State object</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="wepy.runners.openmm.gen_walker_state">
+<code class="sig-prename descclassname">wepy.runners.openmm.</code><code class="sig-name descname">gen_walker_state</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">positions</span></em>, <em class="sig-param"><span class="n">system</span></em>, <em class="sig-param"><span class="n">integrator</span></em>, <em class="sig-param"><span class="n">getState_kwargs</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/runners/openmm.html#gen_walker_state"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.runners.openmm.gen_walker_state" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convenience function for generating a wepy walker State object for
+an openmm simulation state.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>positions</strong> (<em>arraylike of float</em>) – The positions for the system you want to set</p></li>
+<li><p><strong>system</strong> (<em>openmm.app.System object</em>) – </p></li>
+<li><p><strong>integrator</strong> (<em>openmm.Integrator object</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>walker_state</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>wepy.runners.openmm.OpenMMState object</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt id="wepy.runners.openmm.OpenMMWalker">
+<em class="property">class </em><code class="sig-prename descclassname">wepy.runners.openmm.</code><code class="sig-name descname">OpenMMWalker</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">state</span></em>, <em class="sig-param"><span class="n">weight</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/runners/openmm.html#OpenMMWalker"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.runners.openmm.OpenMMWalker" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="wepy.walker.html#wepy.walker.Walker" title="wepy.walker.Walker"><code class="xref py py-class docutils literal notranslate"><span class="pre">wepy.walker.Walker</span></code></a></p>
+<p>Walker for OpenMMRunner simulations.</p>
+<p>This simply enforces the use of an OpenMMState object for the
+walker state attribute.</p>
+<p>Constructor for Walker.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>state</strong> (<em>object implementing the WalkerState interface</em>) – </p></li>
+<li><p><strong>weight</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a>) – </p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="wepy.runners.openmm.OpenMMWalker.clone">
+<code class="sig-name descname">clone</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">number</span><span class="o">=</span><span class="default_value">1</span></em><span class="sig-paren">)</span><a class="headerlink" href="#wepy.runners.openmm.OpenMMWalker.clone" title="Permalink to this definition">¶</a></dt>
+<dd><p>Clone this walker by making a copy with the same state and split
+the probability uniformly between clones.</p>
+<p>The number is the increase in the number of walkers.</p>
+<p>e.g. number=1 will return 2 walkers with the same state as
+this object but with probability split 50/50 between them</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>number</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – <dl class="simple">
+<dt>Number of extra clones to make</dt><dd><p>(Default value = 1)</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>cloned_walkers</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list of objects implementing the Walker interface</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.runners.openmm.OpenMMWalker.merge">
+<code class="sig-name descname">merge</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">other_walkers</span></em><span class="sig-paren">)</span><a class="headerlink" href="#wepy.runners.openmm.OpenMMWalker.merge" title="Permalink to this definition">¶</a></dt>
+<dd><p>Merge a set of other walkers into this one using the merge function.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>other_walkers</strong> (<em>list of objects implementing the Walker interface</em>) – The walkers that will be merged together</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>merged_walker</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>object implementing the Walker interface</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.runners.openmm.OpenMMWalker.squash">
+<code class="sig-name descname">squash</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">merge_target</span></em><span class="sig-paren">)</span><a class="headerlink" href="#wepy.runners.openmm.OpenMMWalker.squash" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add the weight of this walker to another.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>merge_target</strong> (<em>object implementing the Walker interface</em>) – The walker to add this one’s weight to.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>merged_walker</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>object implementing the Walker interface</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="wepy.runners.openmm.OpenMMCPUWorker">
+<em class="property">class </em><code class="sig-prename descclassname">wepy.runners.openmm.</code><code class="sig-name descname">OpenMMCPUWorker</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/runners/openmm.html#OpenMMCPUWorker"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.runners.openmm.OpenMMCPUWorker" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="wepy.work_mapper.mapper.html#wepy.work_mapper.mapper.Worker" title="wepy.work_mapper.mapper.Worker"><code class="xref py py-class docutils literal notranslate"><span class="pre">wepy.work_mapper.mapper.Worker</span></code></a></p>
+<p>Worker for OpenMM GPU simulations (CUDA or OpenCL platforms).</p>
+<p>This is intended to be used with the wepy.work_mapper.WorkerMapper
+work mapper class.</p>
+<p>This class must be used in order to ensure OpenMM runs jobs on the
+appropriate GPU device.</p>
+<p>Constructor for the Worker class.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>worker_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – The index of the worker. Should be unique.</p></li>
+<li><p><strong>task_queue</strong> (<a class="reference external" href="https://docs.python.org/3/library/multiprocessing.html#multiprocessing.JoinableQueue" title="(in Python v3.8)"><em>multiprocessing.JoinableQueue</em></a>) – The shared task queue the worker will watch for new tasks to complete.</p></li>
+<li><p><strong>result_queue</strong> (<a class="reference external" href="https://docs.python.org/3/library/multiprocessing.html#multiprocessing.Queue" title="(in Python v3.8)"><em>multiprocessing.Queue</em></a>) – The shared queue that completed task results will be placed on.</p></li>
+<li><p><strong>interrupt_connection</strong> (<em>multiprocessing.Connection</em>) – One end of a pipe to listen for messages specific to this worker.</p></li>
+<li><p><strong>mapper_attributes</strong> (<a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.8)"><em>None</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)"><em>dict</em></a>) – A dictionary of the attributes of the mapper for reference in workers.</p></li>
+<li><p><strong>kwargs</strong> – The worker specific attributes</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt id="wepy.runners.openmm.OpenMMCPUWorker.NAME_TEMPLATE">
+<code class="sig-name descname">NAME_TEMPLATE</code><em class="property"> = 'OpenMMCPUWorker-{}'</em><a class="headerlink" href="#wepy.runners.openmm.OpenMMCPUWorker.NAME_TEMPLATE" title="Permalink to this definition">¶</a></dt>
+<dd><p>The name template the worker processes are named to substituting in
+the process number.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="wepy.runners.openmm.OpenMMCPUWorker.DEFAULT_NUM_THREADS">
+<code class="sig-name descname">DEFAULT_NUM_THREADS</code><em class="property"> = 1</em><a class="headerlink" href="#wepy.runners.openmm.OpenMMCPUWorker.DEFAULT_NUM_THREADS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="wepy.runners.openmm.OpenMMCPUWorker.run_task">
+<code class="sig-name descname">run_task</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">task</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/runners/openmm.html#OpenMMCPUWorker.run_task"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.runners.openmm.OpenMMCPUWorker.run_task" title="Permalink to this definition">¶</a></dt>
+<dd><p>Actually executes the task.</p>
+<p>This default runner simply executes the task thunk.</p>
+<p>This can be customized by subclasses in order to allow for
+injection of worker specific data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>task</strong> (<em>Task object</em>) – The partially evaluated task; function plus arguments</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Results of running the task.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>task_result</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.runners.openmm.OpenMMCPUWorker._Popen">
+<em class="property">static </em><code class="sig-name descname">_Popen</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">process_obj</span></em><span class="sig-paren">)</span><a class="headerlink" href="#wepy.runners.openmm.OpenMMCPUWorker._Popen" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="wepy.runners.openmm.OpenMMCPUWorker._bootstrap">
+<code class="sig-name descname">_bootstrap</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.runners.openmm.OpenMMCPUWorker._bootstrap" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="wepy.runners.openmm.OpenMMCPUWorker._check_closed">
+<code class="sig-name descname">_check_closed</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.runners.openmm.OpenMMCPUWorker._check_closed" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="wepy.runners.openmm.OpenMMCPUWorker._run_task">
+<code class="sig-name descname">_run_task</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">task</span></em><span class="sig-paren">)</span><a class="headerlink" href="#wepy.runners.openmm.OpenMMCPUWorker._run_task" title="Permalink to this definition">¶</a></dt>
+<dd><p>Runs the given task and returns the results.</p>
+<p>This manages handling exceptions and tracebacks from the
+actual <cite>run_task</cite> function which is intended to be specialized
+by different workers to inject worker specific arguments to
+tasks. Such as node and device identification.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>task</strong> (<em>Task object</em>) – The partially evaluated task; function plus arguments</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Results of running the task.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>task_result</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.runners.openmm.OpenMMCPUWorker._run_worker">
+<code class="sig-name descname">_run_worker</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.runners.openmm.OpenMMCPUWorker._run_worker" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="wepy.runners.openmm.OpenMMCPUWorker._shutdown">
+<code class="sig-name descname">_shutdown</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.runners.openmm.OpenMMCPUWorker._shutdown" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="wepy.runners.openmm.OpenMMCPUWorker._sigterm_shutdown">
+<code class="sig-name descname">_sigterm_shutdown</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">signum</span></em>, <em class="sig-param"><span class="n">frame</span></em><span class="sig-paren">)</span><a class="headerlink" href="#wepy.runners.openmm.OpenMMCPUWorker._sigterm_shutdown" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="wepy.runners.openmm.OpenMMCPUWorker._start_method">
+<code class="sig-name descname">_start_method</code><em class="property"> = None</em><a class="headerlink" href="#wepy.runners.openmm.OpenMMCPUWorker._start_method" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="wepy.runners.openmm.OpenMMCPUWorker.attributes">
+<em class="property">property </em><code class="sig-name descname">attributes</code><a class="headerlink" href="#wepy.runners.openmm.OpenMMCPUWorker.attributes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Dictionary of attributes of the worker.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.runners.openmm.OpenMMCPUWorker.authkey">
+<em class="property">property </em><code class="sig-name descname">authkey</code><a class="headerlink" href="#wepy.runners.openmm.OpenMMCPUWorker.authkey" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="wepy.runners.openmm.OpenMMCPUWorker.close">
+<code class="sig-name descname">close</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.runners.openmm.OpenMMCPUWorker.close" title="Permalink to this definition">¶</a></dt>
+<dd><p>Close the Process object.</p>
+<p>This method releases resources held by the Process object.  It is
+an error to call this method if the child process is still running.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.runners.openmm.OpenMMCPUWorker.daemon">
+<em class="property">property </em><code class="sig-name descname">daemon</code><a class="headerlink" href="#wepy.runners.openmm.OpenMMCPUWorker.daemon" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return whether process is a daemon</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.runners.openmm.OpenMMCPUWorker.exitcode">
+<em class="property">property </em><code class="sig-name descname">exitcode</code><a class="headerlink" href="#wepy.runners.openmm.OpenMMCPUWorker.exitcode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return exit code of process or <cite>None</cite> if it has yet to stop</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.runners.openmm.OpenMMCPUWorker.ident">
+<em class="property">property </em><code class="sig-name descname">ident</code><a class="headerlink" href="#wepy.runners.openmm.OpenMMCPUWorker.ident" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return identifier (PID) of process or <cite>None</cite> if it has yet to start</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.runners.openmm.OpenMMCPUWorker.is_alive">
+<code class="sig-name descname">is_alive</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.runners.openmm.OpenMMCPUWorker.is_alive" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return whether process is alive</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.runners.openmm.OpenMMCPUWorker.join">
+<code class="sig-name descname">join</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">timeout</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#wepy.runners.openmm.OpenMMCPUWorker.join" title="Permalink to this definition">¶</a></dt>
+<dd><p>Wait until child process terminates</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.runners.openmm.OpenMMCPUWorker.kill">
+<code class="sig-name descname">kill</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.runners.openmm.OpenMMCPUWorker.kill" title="Permalink to this definition">¶</a></dt>
+<dd><p>Terminate process; sends SIGKILL signal or uses TerminateProcess()</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.runners.openmm.OpenMMCPUWorker.mapper_attributes">
+<em class="property">property </em><code class="sig-name descname">mapper_attributes</code><a class="headerlink" href="#wepy.runners.openmm.OpenMMCPUWorker.mapper_attributes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Dictionary of attributes of the worker.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.runners.openmm.OpenMMCPUWorker.name">
+<em class="property">property </em><code class="sig-name descname">name</code><a class="headerlink" href="#wepy.runners.openmm.OpenMMCPUWorker.name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="wepy.runners.openmm.OpenMMCPUWorker.pid">
+<em class="property">property </em><code class="sig-name descname">pid</code><a class="headerlink" href="#wepy.runners.openmm.OpenMMCPUWorker.pid" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return identifier (PID) of process or <cite>None</cite> if it has yet to start</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.runners.openmm.OpenMMCPUWorker.run">
+<code class="sig-name descname">run</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.runners.openmm.OpenMMCPUWorker.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method to be run in sub-process; can be overridden in sub-class</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.runners.openmm.OpenMMCPUWorker.sentinel">
+<em class="property">property </em><code class="sig-name descname">sentinel</code><a class="headerlink" href="#wepy.runners.openmm.OpenMMCPUWorker.sentinel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a file descriptor (Unix) or handle (Windows) suitable for
+waiting for process termination.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.runners.openmm.OpenMMCPUWorker.start">
+<code class="sig-name descname">start</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.runners.openmm.OpenMMCPUWorker.start" title="Permalink to this definition">¶</a></dt>
+<dd><p>Start child process</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.runners.openmm.OpenMMCPUWorker.terminate">
+<code class="sig-name descname">terminate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.runners.openmm.OpenMMCPUWorker.terminate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Terminate process; sends SIGTERM signal or uses TerminateProcess()</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.runners.openmm.OpenMMCPUWorker.worker_idx">
+<em class="property">property </em><code class="sig-name descname">worker_idx</code><a class="headerlink" href="#wepy.runners.openmm.OpenMMCPUWorker.worker_idx" title="Permalink to this definition">¶</a></dt>
+<dd><p>Dictionary of attributes of the worker.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="wepy.runners.openmm.OpenMMGPUWorker">
+<em class="property">class </em><code class="sig-prename descclassname">wepy.runners.openmm.</code><code class="sig-name descname">OpenMMGPUWorker</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">worker_idx</span></em>, <em class="sig-param"><span class="n">task_queue</span></em>, <em class="sig-param"><span class="n">result_queue</span></em>, <em class="sig-param"><span class="n">exception_queue</span></em>, <em class="sig-param"><span class="n">interrupt_connection</span></em>, <em class="sig-param"><span class="n">mapper_attributes</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/runners/openmm.html#OpenMMGPUWorker"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.runners.openmm.OpenMMGPUWorker" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="wepy.work_mapper.mapper.html#wepy.work_mapper.mapper.Worker" title="wepy.work_mapper.mapper.Worker"><code class="xref py py-class docutils literal notranslate"><span class="pre">wepy.work_mapper.mapper.Worker</span></code></a></p>
+<p>Worker for OpenMM GPU simulations (CUDA or OpenCL platforms).</p>
+<p>This is intended to be used with the wepy.work_mapper.WorkerMapper
+work mapper class.</p>
+<p>This class must be used in order to ensure OpenMM runs jobs on the
+appropriate GPU device.</p>
+<p>Constructor for the Worker class.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>worker_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – The index of the worker. Should be unique.</p></li>
+<li><p><strong>task_queue</strong> (<a class="reference external" href="https://docs.python.org/3/library/multiprocessing.html#multiprocessing.JoinableQueue" title="(in Python v3.8)"><em>multiprocessing.JoinableQueue</em></a>) – The shared task queue the worker will watch for new tasks to complete.</p></li>
+<li><p><strong>result_queue</strong> (<a class="reference external" href="https://docs.python.org/3/library/multiprocessing.html#multiprocessing.Queue" title="(in Python v3.8)"><em>multiprocessing.Queue</em></a>) – The shared queue that completed task results will be placed on.</p></li>
+<li><p><strong>interrupt_connection</strong> (<em>multiprocessing.Connection</em>) – One end of a pipe to listen for messages specific to this worker.</p></li>
+<li><p><strong>mapper_attributes</strong> (<a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.8)"><em>None</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)"><em>dict</em></a>) – A dictionary of the attributes of the mapper for reference in workers.</p></li>
+<li><p><strong>kwargs</strong> – The worker specific attributes</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt id="wepy.runners.openmm.OpenMMGPUWorker.NAME_TEMPLATE">
+<code class="sig-name descname">NAME_TEMPLATE</code><em class="property"> = 'OpenMMGPUWorker-{}'</em><a class="headerlink" href="#wepy.runners.openmm.OpenMMGPUWorker.NAME_TEMPLATE" title="Permalink to this definition">¶</a></dt>
+<dd><p>The name template the worker processes are named to substituting in
+the process number.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.runners.openmm.OpenMMGPUWorker._Popen">
+<em class="property">static </em><code class="sig-name descname">_Popen</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">process_obj</span></em><span class="sig-paren">)</span><a class="headerlink" href="#wepy.runners.openmm.OpenMMGPUWorker._Popen" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="wepy.runners.openmm.OpenMMGPUWorker._bootstrap">
+<code class="sig-name descname">_bootstrap</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.runners.openmm.OpenMMGPUWorker._bootstrap" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="wepy.runners.openmm.OpenMMGPUWorker._check_closed">
+<code class="sig-name descname">_check_closed</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.runners.openmm.OpenMMGPUWorker._check_closed" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="wepy.runners.openmm.OpenMMGPUWorker._run_task">
+<code class="sig-name descname">_run_task</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">task</span></em><span class="sig-paren">)</span><a class="headerlink" href="#wepy.runners.openmm.OpenMMGPUWorker._run_task" title="Permalink to this definition">¶</a></dt>
+<dd><p>Runs the given task and returns the results.</p>
+<p>This manages handling exceptions and tracebacks from the
+actual <cite>run_task</cite> function which is intended to be specialized
+by different workers to inject worker specific arguments to
+tasks. Such as node and device identification.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>task</strong> (<em>Task object</em>) – The partially evaluated task; function plus arguments</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Results of running the task.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>task_result</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.runners.openmm.OpenMMGPUWorker._run_worker">
+<code class="sig-name descname">_run_worker</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.runners.openmm.OpenMMGPUWorker._run_worker" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="wepy.runners.openmm.OpenMMGPUWorker._shutdown">
+<code class="sig-name descname">_shutdown</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.runners.openmm.OpenMMGPUWorker._shutdown" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="wepy.runners.openmm.OpenMMGPUWorker._sigterm_shutdown">
+<code class="sig-name descname">_sigterm_shutdown</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">signum</span></em>, <em class="sig-param"><span class="n">frame</span></em><span class="sig-paren">)</span><a class="headerlink" href="#wepy.runners.openmm.OpenMMGPUWorker._sigterm_shutdown" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="wepy.runners.openmm.OpenMMGPUWorker._start_method">
+<code class="sig-name descname">_start_method</code><em class="property"> = None</em><a class="headerlink" href="#wepy.runners.openmm.OpenMMGPUWorker._start_method" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="wepy.runners.openmm.OpenMMGPUWorker.attributes">
+<em class="property">property </em><code class="sig-name descname">attributes</code><a class="headerlink" href="#wepy.runners.openmm.OpenMMGPUWorker.attributes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Dictionary of attributes of the worker.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.runners.openmm.OpenMMGPUWorker.authkey">
+<em class="property">property </em><code class="sig-name descname">authkey</code><a class="headerlink" href="#wepy.runners.openmm.OpenMMGPUWorker.authkey" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="wepy.runners.openmm.OpenMMGPUWorker.close">
+<code class="sig-name descname">close</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.runners.openmm.OpenMMGPUWorker.close" title="Permalink to this definition">¶</a></dt>
+<dd><p>Close the Process object.</p>
+<p>This method releases resources held by the Process object.  It is
+an error to call this method if the child process is still running.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.runners.openmm.OpenMMGPUWorker.daemon">
+<em class="property">property </em><code class="sig-name descname">daemon</code><a class="headerlink" href="#wepy.runners.openmm.OpenMMGPUWorker.daemon" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return whether process is a daemon</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.runners.openmm.OpenMMGPUWorker.exitcode">
+<em class="property">property </em><code class="sig-name descname">exitcode</code><a class="headerlink" href="#wepy.runners.openmm.OpenMMGPUWorker.exitcode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return exit code of process or <cite>None</cite> if it has yet to stop</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.runners.openmm.OpenMMGPUWorker.ident">
+<em class="property">property </em><code class="sig-name descname">ident</code><a class="headerlink" href="#wepy.runners.openmm.OpenMMGPUWorker.ident" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return identifier (PID) of process or <cite>None</cite> if it has yet to start</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.runners.openmm.OpenMMGPUWorker.is_alive">
+<code class="sig-name descname">is_alive</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.runners.openmm.OpenMMGPUWorker.is_alive" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return whether process is alive</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.runners.openmm.OpenMMGPUWorker.join">
+<code class="sig-name descname">join</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">timeout</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#wepy.runners.openmm.OpenMMGPUWorker.join" title="Permalink to this definition">¶</a></dt>
+<dd><p>Wait until child process terminates</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.runners.openmm.OpenMMGPUWorker.kill">
+<code class="sig-name descname">kill</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.runners.openmm.OpenMMGPUWorker.kill" title="Permalink to this definition">¶</a></dt>
+<dd><p>Terminate process; sends SIGKILL signal or uses TerminateProcess()</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.runners.openmm.OpenMMGPUWorker.mapper_attributes">
+<em class="property">property </em><code class="sig-name descname">mapper_attributes</code><a class="headerlink" href="#wepy.runners.openmm.OpenMMGPUWorker.mapper_attributes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Dictionary of attributes of the worker.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.runners.openmm.OpenMMGPUWorker.name">
+<em class="property">property </em><code class="sig-name descname">name</code><a class="headerlink" href="#wepy.runners.openmm.OpenMMGPUWorker.name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="wepy.runners.openmm.OpenMMGPUWorker.pid">
+<em class="property">property </em><code class="sig-name descname">pid</code><a class="headerlink" href="#wepy.runners.openmm.OpenMMGPUWorker.pid" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return identifier (PID) of process or <cite>None</cite> if it has yet to start</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.runners.openmm.OpenMMGPUWorker.run">
+<code class="sig-name descname">run</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.runners.openmm.OpenMMGPUWorker.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method to be run in sub-process; can be overridden in sub-class</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.runners.openmm.OpenMMGPUWorker.run_task">
+<code class="sig-name descname">run_task</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">task</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/runners/openmm.html#OpenMMGPUWorker.run_task"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.runners.openmm.OpenMMGPUWorker.run_task" title="Permalink to this definition">¶</a></dt>
+<dd><p>Actually executes the task.</p>
+<p>This default runner simply executes the task thunk.</p>
+<p>This can be customized by subclasses in order to allow for
+injection of worker specific data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>task</strong> (<em>Task object</em>) – The partially evaluated task; function plus arguments</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Results of running the task.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>task_result</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.runners.openmm.OpenMMGPUWorker.sentinel">
+<em class="property">property </em><code class="sig-name descname">sentinel</code><a class="headerlink" href="#wepy.runners.openmm.OpenMMGPUWorker.sentinel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a file descriptor (Unix) or handle (Windows) suitable for
+waiting for process termination.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.runners.openmm.OpenMMGPUWorker.start">
+<code class="sig-name descname">start</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.runners.openmm.OpenMMGPUWorker.start" title="Permalink to this definition">¶</a></dt>
+<dd><p>Start child process</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.runners.openmm.OpenMMGPUWorker.terminate">
+<code class="sig-name descname">terminate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.runners.openmm.OpenMMGPUWorker.terminate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Terminate process; sends SIGTERM signal or uses TerminateProcess()</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.runners.openmm.OpenMMGPUWorker.worker_idx">
+<em class="property">property </em><code class="sig-name descname">worker_idx</code><a class="headerlink" href="#wepy.runners.openmm.OpenMMGPUWorker.worker_idx" title="Permalink to this definition">¶</a></dt>
+<dd><p>Dictionary of attributes of the worker.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="wepy.runners.openmm.OpenMMCPUWalkerTaskProcess">
+<em class="property">class </em><code class="sig-prename descclassname">wepy.runners.openmm.</code><code class="sig-name descname">OpenMMCPUWalkerTaskProcess</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">walker_idx</span></em>, <em class="sig-param"><span class="n">mapper_attributes</span></em>, <em class="sig-param"><span class="n">func</span></em>, <em class="sig-param"><span class="n">task_args</span></em>, <em class="sig-param"><span class="n">task_kwargs</span></em>, <em class="sig-param"><span class="n">worker_queue</span></em>, <em class="sig-param"><span class="n">results_list</span></em>, <em class="sig-param"><span class="n">worker_segment_times</span></em>, <em class="sig-param"><span class="n">interrupt_connection</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/runners/openmm.html#OpenMMCPUWalkerTaskProcess"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.runners.openmm.OpenMMCPUWalkerTaskProcess" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="wepy.work_mapper.task_mapper.html#wepy.work_mapper.task_mapper.WalkerTaskProcess" title="wepy.work_mapper.task_mapper.WalkerTaskProcess"><code class="xref py py-class docutils literal notranslate"><span class="pre">wepy.work_mapper.task_mapper.WalkerTaskProcess</span></code></a></p>
+<dl class="py method">
+<dt id="wepy.runners.openmm.OpenMMCPUWalkerTaskProcess._Popen">
+<em class="property">static </em><code class="sig-name descname">_Popen</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">process_obj</span></em><span class="sig-paren">)</span><a class="headerlink" href="#wepy.runners.openmm.OpenMMCPUWalkerTaskProcess._Popen" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="wepy.runners.openmm.OpenMMCPUWalkerTaskProcess._bootstrap">
+<code class="sig-name descname">_bootstrap</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.runners.openmm.OpenMMCPUWalkerTaskProcess._bootstrap" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="wepy.runners.openmm.OpenMMCPUWalkerTaskProcess._check_closed">
+<code class="sig-name descname">_check_closed</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.runners.openmm.OpenMMCPUWalkerTaskProcess._check_closed" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="wepy.runners.openmm.OpenMMCPUWalkerTaskProcess._external_sigterm_shutdown">
+<code class="sig-name descname">_external_sigterm_shutdown</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">signum</span></em>, <em class="sig-param"><span class="n">frame</span></em><span class="sig-paren">)</span><a class="headerlink" href="#wepy.runners.openmm.OpenMMCPUWalkerTaskProcess._external_sigterm_shutdown" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="wepy.runners.openmm.OpenMMCPUWalkerTaskProcess._run_task">
+<code class="sig-name descname">_run_task</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">task</span></em><span class="sig-paren">)</span><a class="headerlink" href="#wepy.runners.openmm.OpenMMCPUWalkerTaskProcess._run_task" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="wepy.runners.openmm.OpenMMCPUWalkerTaskProcess._run_walker">
+<code class="sig-name descname">_run_walker</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.runners.openmm.OpenMMCPUWalkerTaskProcess._run_walker" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="wepy.runners.openmm.OpenMMCPUWalkerTaskProcess._shutdown">
+<code class="sig-name descname">_shutdown</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.runners.openmm.OpenMMCPUWalkerTaskProcess._shutdown" title="Permalink to this definition">¶</a></dt>
+<dd><p>The normal shutdown which can be ordered by the work mapper.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="wepy.runners.openmm.OpenMMCPUWalkerTaskProcess._start_method">
+<code class="sig-name descname">_start_method</code><em class="property"> = None</em><a class="headerlink" href="#wepy.runners.openmm.OpenMMCPUWalkerTaskProcess._start_method" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="wepy.runners.openmm.OpenMMCPUWalkerTaskProcess.attributes">
+<em class="property">property </em><code class="sig-name descname">attributes</code><a class="headerlink" href="#wepy.runners.openmm.OpenMMCPUWalkerTaskProcess.attributes" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="wepy.runners.openmm.OpenMMCPUWalkerTaskProcess.authkey">
+<em class="property">property </em><code class="sig-name descname">authkey</code><a class="headerlink" href="#wepy.runners.openmm.OpenMMCPUWalkerTaskProcess.authkey" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="wepy.runners.openmm.OpenMMCPUWalkerTaskProcess.close">
+<code class="sig-name descname">close</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.runners.openmm.OpenMMCPUWalkerTaskProcess.close" title="Permalink to this definition">¶</a></dt>
+<dd><p>Close the Process object.</p>
+<p>This method releases resources held by the Process object.  It is
+an error to call this method if the child process is still running.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.runners.openmm.OpenMMCPUWalkerTaskProcess.daemon">
+<em class="property">property </em><code class="sig-name descname">daemon</code><a class="headerlink" href="#wepy.runners.openmm.OpenMMCPUWalkerTaskProcess.daemon" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return whether process is a daemon</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.runners.openmm.OpenMMCPUWalkerTaskProcess.exitcode">
+<em class="property">property </em><code class="sig-name descname">exitcode</code><a class="headerlink" href="#wepy.runners.openmm.OpenMMCPUWalkerTaskProcess.exitcode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return exit code of process or <cite>None</cite> if it has yet to stop</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.runners.openmm.OpenMMCPUWalkerTaskProcess.ident">
+<em class="property">property </em><code class="sig-name descname">ident</code><a class="headerlink" href="#wepy.runners.openmm.OpenMMCPUWalkerTaskProcess.ident" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return identifier (PID) of process or <cite>None</cite> if it has yet to start</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.runners.openmm.OpenMMCPUWalkerTaskProcess.is_alive">
+<code class="sig-name descname">is_alive</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.runners.openmm.OpenMMCPUWalkerTaskProcess.is_alive" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return whether process is alive</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.runners.openmm.OpenMMCPUWalkerTaskProcess.join">
+<code class="sig-name descname">join</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">timeout</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#wepy.runners.openmm.OpenMMCPUWalkerTaskProcess.join" title="Permalink to this definition">¶</a></dt>
+<dd><p>Wait until child process terminates</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.runners.openmm.OpenMMCPUWalkerTaskProcess.kill">
+<code class="sig-name descname">kill</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.runners.openmm.OpenMMCPUWalkerTaskProcess.kill" title="Permalink to this definition">¶</a></dt>
+<dd><p>Terminate process; sends SIGKILL signal or uses TerminateProcess()</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.runners.openmm.OpenMMCPUWalkerTaskProcess.name">
+<em class="property">property </em><code class="sig-name descname">name</code><a class="headerlink" href="#wepy.runners.openmm.OpenMMCPUWalkerTaskProcess.name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="wepy.runners.openmm.OpenMMCPUWalkerTaskProcess.pid">
+<em class="property">property </em><code class="sig-name descname">pid</code><a class="headerlink" href="#wepy.runners.openmm.OpenMMCPUWalkerTaskProcess.pid" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return identifier (PID) of process or <cite>None</cite> if it has yet to start</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.runners.openmm.OpenMMCPUWalkerTaskProcess.run">
+<code class="sig-name descname">run</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.runners.openmm.OpenMMCPUWalkerTaskProcess.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method to be run in sub-process; can be overridden in sub-class</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.runners.openmm.OpenMMCPUWalkerTaskProcess.sentinel">
+<em class="property">property </em><code class="sig-name descname">sentinel</code><a class="headerlink" href="#wepy.runners.openmm.OpenMMCPUWalkerTaskProcess.sentinel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a file descriptor (Unix) or handle (Windows) suitable for
+waiting for process termination.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.runners.openmm.OpenMMCPUWalkerTaskProcess.start">
+<code class="sig-name descname">start</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.runners.openmm.OpenMMCPUWalkerTaskProcess.start" title="Permalink to this definition">¶</a></dt>
+<dd><p>Start child process</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.runners.openmm.OpenMMCPUWalkerTaskProcess.terminate">
+<code class="sig-name descname">terminate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.runners.openmm.OpenMMCPUWalkerTaskProcess.terminate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Terminate process; sends SIGTERM signal or uses TerminateProcess()</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="wepy.runners.openmm.OpenMMCPUWalkerTaskProcess.NAME_TEMPLATE">
+<code class="sig-name descname">NAME_TEMPLATE</code><em class="property"> = 'OpenMM_CPU_Walker_Task-{}'</em><a class="headerlink" href="#wepy.runners.openmm.OpenMMCPUWalkerTaskProcess.NAME_TEMPLATE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="wepy.runners.openmm.OpenMMCPUWalkerTaskProcess.run_task">
+<code class="sig-name descname">run_task</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">task</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/runners/openmm.html#OpenMMCPUWalkerTaskProcess.run_task"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.runners.openmm.OpenMMCPUWalkerTaskProcess.run_task" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="wepy.runners.openmm.OpenMMGPUWalkerTaskProcess">
+<em class="property">class </em><code class="sig-prename descclassname">wepy.runners.openmm.</code><code class="sig-name descname">OpenMMGPUWalkerTaskProcess</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">walker_idx</span></em>, <em class="sig-param"><span class="n">mapper_attributes</span></em>, <em class="sig-param"><span class="n">func</span></em>, <em class="sig-param"><span class="n">task_args</span></em>, <em class="sig-param"><span class="n">task_kwargs</span></em>, <em class="sig-param"><span class="n">worker_queue</span></em>, <em class="sig-param"><span class="n">results_list</span></em>, <em class="sig-param"><span class="n">worker_segment_times</span></em>, <em class="sig-param"><span class="n">interrupt_connection</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/runners/openmm.html#OpenMMGPUWalkerTaskProcess"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.runners.openmm.OpenMMGPUWalkerTaskProcess" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="wepy.work_mapper.task_mapper.html#wepy.work_mapper.task_mapper.WalkerTaskProcess" title="wepy.work_mapper.task_mapper.WalkerTaskProcess"><code class="xref py py-class docutils literal notranslate"><span class="pre">wepy.work_mapper.task_mapper.WalkerTaskProcess</span></code></a></p>
+<dl class="py method">
+<dt id="wepy.runners.openmm.OpenMMGPUWalkerTaskProcess._Popen">
+<em class="property">static </em><code class="sig-name descname">_Popen</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">process_obj</span></em><span class="sig-paren">)</span><a class="headerlink" href="#wepy.runners.openmm.OpenMMGPUWalkerTaskProcess._Popen" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="wepy.runners.openmm.OpenMMGPUWalkerTaskProcess._bootstrap">
+<code class="sig-name descname">_bootstrap</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.runners.openmm.OpenMMGPUWalkerTaskProcess._bootstrap" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="wepy.runners.openmm.OpenMMGPUWalkerTaskProcess._check_closed">
+<code class="sig-name descname">_check_closed</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.runners.openmm.OpenMMGPUWalkerTaskProcess._check_closed" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="wepy.runners.openmm.OpenMMGPUWalkerTaskProcess._external_sigterm_shutdown">
+<code class="sig-name descname">_external_sigterm_shutdown</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">signum</span></em>, <em class="sig-param"><span class="n">frame</span></em><span class="sig-paren">)</span><a class="headerlink" href="#wepy.runners.openmm.OpenMMGPUWalkerTaskProcess._external_sigterm_shutdown" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="wepy.runners.openmm.OpenMMGPUWalkerTaskProcess._run_task">
+<code class="sig-name descname">_run_task</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">task</span></em><span class="sig-paren">)</span><a class="headerlink" href="#wepy.runners.openmm.OpenMMGPUWalkerTaskProcess._run_task" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="wepy.runners.openmm.OpenMMGPUWalkerTaskProcess._run_walker">
+<code class="sig-name descname">_run_walker</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.runners.openmm.OpenMMGPUWalkerTaskProcess._run_walker" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="wepy.runners.openmm.OpenMMGPUWalkerTaskProcess._shutdown">
+<code class="sig-name descname">_shutdown</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.runners.openmm.OpenMMGPUWalkerTaskProcess._shutdown" title="Permalink to this definition">¶</a></dt>
+<dd><p>The normal shutdown which can be ordered by the work mapper.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="wepy.runners.openmm.OpenMMGPUWalkerTaskProcess._start_method">
+<code class="sig-name descname">_start_method</code><em class="property"> = None</em><a class="headerlink" href="#wepy.runners.openmm.OpenMMGPUWalkerTaskProcess._start_method" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="wepy.runners.openmm.OpenMMGPUWalkerTaskProcess.attributes">
+<em class="property">property </em><code class="sig-name descname">attributes</code><a class="headerlink" href="#wepy.runners.openmm.OpenMMGPUWalkerTaskProcess.attributes" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="wepy.runners.openmm.OpenMMGPUWalkerTaskProcess.authkey">
+<em class="property">property </em><code class="sig-name descname">authkey</code><a class="headerlink" href="#wepy.runners.openmm.OpenMMGPUWalkerTaskProcess.authkey" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="wepy.runners.openmm.OpenMMGPUWalkerTaskProcess.close">
+<code class="sig-name descname">close</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.runners.openmm.OpenMMGPUWalkerTaskProcess.close" title="Permalink to this definition">¶</a></dt>
+<dd><p>Close the Process object.</p>
+<p>This method releases resources held by the Process object.  It is
+an error to call this method if the child process is still running.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.runners.openmm.OpenMMGPUWalkerTaskProcess.daemon">
+<em class="property">property </em><code class="sig-name descname">daemon</code><a class="headerlink" href="#wepy.runners.openmm.OpenMMGPUWalkerTaskProcess.daemon" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return whether process is a daemon</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.runners.openmm.OpenMMGPUWalkerTaskProcess.exitcode">
+<em class="property">property </em><code class="sig-name descname">exitcode</code><a class="headerlink" href="#wepy.runners.openmm.OpenMMGPUWalkerTaskProcess.exitcode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return exit code of process or <cite>None</cite> if it has yet to stop</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.runners.openmm.OpenMMGPUWalkerTaskProcess.ident">
+<em class="property">property </em><code class="sig-name descname">ident</code><a class="headerlink" href="#wepy.runners.openmm.OpenMMGPUWalkerTaskProcess.ident" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return identifier (PID) of process or <cite>None</cite> if it has yet to start</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.runners.openmm.OpenMMGPUWalkerTaskProcess.is_alive">
+<code class="sig-name descname">is_alive</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.runners.openmm.OpenMMGPUWalkerTaskProcess.is_alive" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return whether process is alive</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.runners.openmm.OpenMMGPUWalkerTaskProcess.join">
+<code class="sig-name descname">join</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">timeout</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#wepy.runners.openmm.OpenMMGPUWalkerTaskProcess.join" title="Permalink to this definition">¶</a></dt>
+<dd><p>Wait until child process terminates</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.runners.openmm.OpenMMGPUWalkerTaskProcess.kill">
+<code class="sig-name descname">kill</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.runners.openmm.OpenMMGPUWalkerTaskProcess.kill" title="Permalink to this definition">¶</a></dt>
+<dd><p>Terminate process; sends SIGKILL signal or uses TerminateProcess()</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.runners.openmm.OpenMMGPUWalkerTaskProcess.name">
+<em class="property">property </em><code class="sig-name descname">name</code><a class="headerlink" href="#wepy.runners.openmm.OpenMMGPUWalkerTaskProcess.name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="wepy.runners.openmm.OpenMMGPUWalkerTaskProcess.pid">
+<em class="property">property </em><code class="sig-name descname">pid</code><a class="headerlink" href="#wepy.runners.openmm.OpenMMGPUWalkerTaskProcess.pid" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return identifier (PID) of process or <cite>None</cite> if it has yet to start</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.runners.openmm.OpenMMGPUWalkerTaskProcess.run">
+<code class="sig-name descname">run</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.runners.openmm.OpenMMGPUWalkerTaskProcess.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method to be run in sub-process; can be overridden in sub-class</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.runners.openmm.OpenMMGPUWalkerTaskProcess.sentinel">
+<em class="property">property </em><code class="sig-name descname">sentinel</code><a class="headerlink" href="#wepy.runners.openmm.OpenMMGPUWalkerTaskProcess.sentinel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a file descriptor (Unix) or handle (Windows) suitable for
+waiting for process termination.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.runners.openmm.OpenMMGPUWalkerTaskProcess.start">
+<code class="sig-name descname">start</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.runners.openmm.OpenMMGPUWalkerTaskProcess.start" title="Permalink to this definition">¶</a></dt>
+<dd><p>Start child process</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.runners.openmm.OpenMMGPUWalkerTaskProcess.terminate">
+<code class="sig-name descname">terminate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.runners.openmm.OpenMMGPUWalkerTaskProcess.terminate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Terminate process; sends SIGTERM signal or uses TerminateProcess()</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="wepy.runners.openmm.OpenMMGPUWalkerTaskProcess.NAME_TEMPLATE">
+<code class="sig-name descname">NAME_TEMPLATE</code><em class="property"> = 'OpenMM_GPU_Walker_Task-{}'</em><a class="headerlink" href="#wepy.runners.openmm.OpenMMGPUWalkerTaskProcess.NAME_TEMPLATE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="wepy.runners.openmm.OpenMMGPUWalkerTaskProcess.run_task">
+<code class="sig-name descname">run_task</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">task</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/runners/openmm.html#OpenMMGPUWalkerTaskProcess.run_task"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.runners.openmm.OpenMMGPUWalkerTaskProcess.run_task" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+              <div class="related bottom">
+                &nbsp;
+  <nav id="rellinks">
+    <ul>
+    </ul>
+  </nav>
+              </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<p class="logo">
+  <a href="../index.html">
+    <img class="logo" src="../_static/wepy.svg" alt="Logo"/>
+    
+    <h1 class="logo logo-name">wepy</h1>
+    
+  </a>
+</p>
+
+
+
+<p class="blurb">A Weighted Ensemble  (WE) simulation framework</p>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../_source/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_source/quick_start.html">Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_source/introduction.html">Introduction &amp; Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_source/introduction.html#bibliography">Bibliography</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../_source/tutorials/index.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_source/users_guide.html">User’s Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_source/troubleshooting.html">Common Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_source/troubleshooting.html#faq">FAQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_source/reference.html">Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_source/glossary.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_source/api.html">API Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_api/modules.html">Full API</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../_source/general_info.html">General Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_source/news.html">News and Updates</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_source/changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_source/dev_guide.html">Development Guide</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, Samuel D. Lotz.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.0.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../_sources/api/wepy.runners.openmm.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+    <a href="https://github.com/ADicksonLab/wepy" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
+    
+
+    
+  </body>
+</html>

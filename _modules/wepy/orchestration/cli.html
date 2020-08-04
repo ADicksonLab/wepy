@@ -4,7 +4,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <title>wepy.orchestration.cli &#8212; wepy 1.0.0rc3 documentation</title>
+    <title>wepy.orchestration.cli &#8212; wepy 1.0.0rc6 documentation</title>
     <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/custom.css" />
@@ -45,6 +45,7 @@
 <span></span><span class="kn">import</span> <span class="nn">os.path</span> <span class="k">as</span> <span class="nn">osp</span>
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">subprocess</span>
+<span class="kn">from</span> <span class="nn">copy</span> <span class="kn">import</span> <span class="n">deepcopy</span>
 
 <span class="kn">import</span> <span class="nn">click</span>
 
@@ -60,7 +61,7 @@
             <span class="n">Orchestrator</span><span class="o">.</span><span class="n">ORCH_FILENAME_TEMPLATE</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="n">Orchestrator</span><span class="o">.</span><span class="n">DEFAULT_CONFIG_NAME</span><span class="p">,</span>
                                                        <span class="n">narration</span><span class="o">=</span><span class="n">Orchestrator</span><span class="o">.</span><span class="n">DEFAULT_NARRATION</span><span class="p">)</span>
 
-<div class="viewcode-block" id="set_loglevel"><a class="viewcode-back" href="../../../_api/wepy.orchestration.cli.html#wepy.orchestration.cli.set_loglevel">[docs]</a><span class="k">def</span> <span class="nf">set_loglevel</span><span class="p">(</span><span class="n">loglevel</span><span class="p">):</span>
+<div class="viewcode-block" id="set_loglevel"><a class="viewcode-back" href="../../../api/wepy.orchestration.cli.html#wepy.orchestration.cli.set_loglevel">[docs]</a><span class="k">def</span> <span class="nf">set_loglevel</span><span class="p">(</span><span class="n">loglevel</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">    \b</span>
@@ -91,12 +92,15 @@
 <span class="n">START_HASH</span> <span class="o">=</span> <span class="s1">&#39;&lt;start_hash&gt;&#39;</span>
 <span class="n">CURDIR</span> <span class="o">=</span> <span class="s1">&#39;&lt;curdir&gt;&#39;</span>
 
-<div class="viewcode-block" id="settle_run_options"><a class="viewcode-back" href="../../../_api/wepy.orchestration.cli.html#wepy.orchestration.cli.settle_run_options">[docs]</a><span class="k">def</span> <span class="nf">settle_run_options</span><span class="p">(</span><span class="n">n_workers</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<div class="viewcode-block" id="settle_run_options"><a class="viewcode-back" href="../../../api/wepy.orchestration.cli.html#wepy.orchestration.cli.settle_run_options">[docs]</a><span class="k">def</span> <span class="nf">settle_run_options</span><span class="p">(</span><span class="n">n_workers</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                        <span class="n">job_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                        <span class="n">job_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                        <span class="n">narration</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                       <span class="n">monitor_http_port</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                       <span class="n">tag</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                        <span class="n">configuration</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                       <span class="n">start_hash</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+                       <span class="n">start_hash</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">    Parameters</span>
@@ -142,17 +146,37 @@
          <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">configuration</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">rf</span><span class="p">:</span>
              <span class="n">config</span> <span class="o">=</span> <span class="n">Orchestrator</span><span class="o">.</span><span class="n">deserialize</span><span class="p">(</span><span class="n">rf</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
 
+    <span class="c1">## Monitoring</span>
+
+    <span class="c1"># nothing to do, just use the port or tag if its given</span>
+    <span class="n">monitor_pkwargs</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;tag&#39;</span> <span class="p">:</span> <span class="n">tag</span><span class="p">,</span>
+        <span class="s1">&#39;port&#39;</span> <span class="p">:</span> <span class="n">monitor_http_port</span><span class="p">,</span>
+    <span class="p">}</span>
+
     <span class="c1"># we need to reparametrize the configuration here since the</span>
     <span class="c1"># orchestrator API will ignore reparametrization values if a</span>
     <span class="c1"># concrete Configuration is given.</span>
     <span class="k">if</span> <span class="n">config</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="c1"># collect the kwargs for the work mapper to be reparametrized</span>
-        <span class="n">work_mapper_pkwargs</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;num_workers&#39;</span> <span class="p">:</span> <span class="n">n_workers</span><span class="p">}</span>
+
+        <span class="c1"># if there is a change in the number of workers we need to</span>
+        <span class="c1"># recalculate all of the partial kwargs</span>
+
+        <span class="n">work_mapper_pkwargs</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">work_mapper_partial_kwargs</span><span class="p">)</span>
+
+        <span class="c1"># if the number of workers has changed update all the relevant</span>
+        <span class="c1"># fields, otherwise leave it alone</span>
+        <span class="k">if</span> <span class="n">work_mapper_pkwargs</span><span class="p">[</span><span class="s1">&#39;num_workers&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="n">n_workers</span><span class="p">:</span>
+
+            <span class="n">work_mapper_pkwargs</span><span class="p">[</span><span class="s1">&#39;num_workers&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">n_workers</span>
+            <span class="n">work_mapper_pkwargs</span><span class="p">[</span><span class="s1">&#39;device_ids&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_workers</span><span class="p">)]</span>
 
         <span class="n">config</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">reparametrize</span><span class="p">(</span><span class="n">work_dir</span><span class="o">=</span><span class="n">job_dir</span><span class="p">,</span>
                                       <span class="n">config_name</span><span class="o">=</span><span class="n">job_name</span><span class="p">,</span>
                                       <span class="n">narration</span><span class="o">=</span><span class="n">narration</span><span class="p">,</span>
-                                      <span class="n">work_mapper_partial_kwargs</span><span class="o">=</span><span class="n">work_mapper_pkwargs</span><span class="p">)</span>
+                                      <span class="n">work_mapper_partial_kwargs</span><span class="o">=</span><span class="n">work_mapper_pkwargs</span><span class="p">,</span>
+                                      <span class="n">monitor_partial_kwargs</span><span class="o">=</span><span class="n">monitor_pkwargs</span><span class="p">,</span>
+        <span class="p">)</span>
 
     <span class="k">return</span> <span class="n">job_dir</span><span class="p">,</span> <span class="n">job_name</span><span class="p">,</span> <span class="n">narration</span><span class="p">,</span> <span class="n">config</span></div>
 
@@ -162,12 +186,15 @@
 <span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span><span class="s1">&#39;--job-dir&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">CURDIR</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="n">click</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">writable</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
 <span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span><span class="s1">&#39;--job-name&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">START_HASH</span><span class="p">)</span>
 <span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span><span class="s1">&#39;--narration&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span><span class="s1">&#39;--monitor-http-port&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">9001</span><span class="p">)</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span><span class="s1">&#39;--tag&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;None&quot;</span><span class="p">)</span>
 <span class="nd">@click</span><span class="o">.</span><span class="n">argument</span><span class="p">(</span><span class="s1">&#39;n_cycle_steps&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="n">click</span><span class="o">.</span><span class="n">INT</span><span class="p">)</span>
 <span class="nd">@click</span><span class="o">.</span><span class="n">argument</span><span class="p">(</span><span class="s1">&#39;run_time&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="n">click</span><span class="o">.</span><span class="n">FLOAT</span><span class="p">)</span>
 <span class="nd">@click</span><span class="o">.</span><span class="n">argument</span><span class="p">(</span><span class="s1">&#39;configuration&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="n">click</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">exists</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
 <span class="nd">@click</span><span class="o">.</span><span class="n">argument</span><span class="p">(</span><span class="s1">&#39;snapshot&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="n">click</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="s1">&#39;rb&#39;</span><span class="p">))</span>
 <span class="nd">@click</span><span class="o">.</span><span class="n">command</span><span class="p">()</span>
 <span class="k">def</span> <span class="nf">run_snapshot</span><span class="p">(</span><span class="n">log</span><span class="p">,</span> <span class="n">n_workers</span><span class="p">,</span> <span class="n">checkpoint_freq</span><span class="p">,</span> <span class="n">job_dir</span><span class="p">,</span> <span class="n">job_name</span><span class="p">,</span> <span class="n">narration</span><span class="p">,</span>
+                 <span class="n">monitor_http_port</span><span class="p">,</span> <span class="n">tag</span><span class="p">,</span>
                  <span class="n">n_cycle_steps</span><span class="p">,</span> <span class="n">run_time</span><span class="p">,</span> <span class="n">configuration</span><span class="p">,</span> <span class="n">snapshot</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 
@@ -185,6 +212,8 @@
 <span class="sd">    job_name :</span>
 <span class="sd">        </span>
 <span class="sd">    narration :</span>
+<span class="sd">        </span>
+<span class="sd">    monitor_http_port :</span>
 <span class="sd">        </span>
 <span class="sd">    n_cycle_steps :</span>
 <span class="sd">        </span>
@@ -214,12 +243,20 @@
     <span class="n">start_hash</span> <span class="o">=</span> <span class="n">orch</span><span class="o">.</span><span class="n">add_serial_snapshot</span><span class="p">(</span><span class="n">serial_snapshot</span><span class="p">)</span>
 
     <span class="c1"># settle what the defaults etc. are for the different options as they are interdependent</span>
-    <span class="n">job_dir</span><span class="p">,</span> <span class="n">job_name</span><span class="p">,</span> <span class="n">narration</span><span class="p">,</span> <span class="n">config</span> <span class="o">=</span> <span class="n">settle_run_options</span><span class="p">(</span><span class="n">n_workers</span><span class="o">=</span><span class="n">n_workers</span><span class="p">,</span>
-                                                                         <span class="n">job_dir</span><span class="o">=</span><span class="n">job_dir</span><span class="p">,</span>
-                                                                         <span class="n">job_name</span><span class="o">=</span><span class="n">job_name</span><span class="p">,</span>
-                                                                         <span class="n">narration</span><span class="o">=</span><span class="n">narration</span><span class="p">,</span>
-                                                                         <span class="n">configuration</span><span class="o">=</span><span class="n">configuration</span><span class="p">,</span>
-                                                                         <span class="n">start_hash</span><span class="o">=</span><span class="n">start_hash</span><span class="p">)</span>
+    <span class="n">job_dir</span><span class="p">,</span> <span class="n">job_name</span><span class="p">,</span> <span class="n">narration</span><span class="p">,</span> <span class="n">config</span> <span class="o">=</span> <span class="n">settle_run_options</span><span class="p">(</span>
+        <span class="c1"># work mapper</span>
+        <span class="n">n_workers</span><span class="o">=</span><span class="n">n_workers</span><span class="p">,</span>
+        <span class="c1"># reporters</span>
+        <span class="n">job_dir</span><span class="o">=</span><span class="n">job_dir</span><span class="p">,</span>
+        <span class="n">job_name</span><span class="o">=</span><span class="n">job_name</span><span class="p">,</span>
+        <span class="n">narration</span><span class="o">=</span><span class="n">narration</span><span class="p">,</span>
+        <span class="c1"># monitoring</span>
+        <span class="n">tag</span><span class="o">=</span><span class="n">tag</span><span class="p">,</span>
+        <span class="n">monitor_http_port</span><span class="o">=</span><span class="n">monitor_http_port</span><span class="p">,</span>
+        <span class="c1"># other</span>
+        <span class="n">configuration</span><span class="o">=</span><span class="n">configuration</span><span class="p">,</span>
+        <span class="n">start_hash</span><span class="o">=</span><span class="n">start_hash</span><span class="p">,</span>
+    <span class="p">)</span>
 
     <span class="c1"># add the parametrized configuration to the orchestrator</span>
     <span class="c1"># config_hash = orch.add_serial_configuration(config)</span>
@@ -345,7 +382,7 @@
     <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Closing the orchestrating orch&quot;</span><span class="p">)</span>
     <span class="n">orch</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 
-<div class="viewcode-block" id="combine_orch_wepy_hdf5s"><a class="viewcode-back" href="../../../_api/wepy.orchestration.cli.html#wepy.orchestration.cli.combine_orch_wepy_hdf5s">[docs]</a><span class="k">def</span> <span class="nf">combine_orch_wepy_hdf5s</span><span class="p">(</span><span class="n">new_orch</span><span class="p">,</span> <span class="n">new_hdf5_path</span><span class="p">,</span> <span class="n">run_ids</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="combine_orch_wepy_hdf5s"><a class="viewcode-back" href="../../../api/wepy.orchestration.cli.html#wepy.orchestration.cli.combine_orch_wepy_hdf5s">[docs]</a><span class="k">def</span> <span class="nf">combine_orch_wepy_hdf5s</span><span class="p">(</span><span class="n">new_orch</span><span class="p">,</span> <span class="n">new_hdf5_path</span><span class="p">,</span> <span class="n">run_ids</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">    \b</span>
@@ -553,15 +590,25 @@
 <span class="nd">@click</span><span class="o">.</span><span class="n">argument</span><span class="p">(</span><span class="s1">&#39;hdf5&#39;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="n">click</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">exists</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
 <span class="nd">@click</span><span class="o">.</span><span class="n">argument</span><span class="p">(</span><span class="s1">&#39;run_ids&#39;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">reconcile_hdf5</span><span class="p">(</span><span class="n">orchestrator</span><span class="p">,</span> <span class="n">hdf5</span><span class="p">,</span> <span class="n">run_ids</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;For an orchestrator with multiple runs combine the HDF5 results</span>
+<span class="sd">    into a single one.</span>
+
+<span class="sd">    This requires that the paths inside of the reporters for the</span>
+<span class="sd">    configurations used for a run still have valid paths to the HDF5</span>
+<span class="sd">    files.</span>
 
 <span class="sd">    \b</span>
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    orchestrator :</span>
-<span class="sd">        </span>
-<span class="sd">    hdf5 :</span>
-<span class="sd">        </span>
+<span class="sd">    orchestrator : Path</span>
+<span class="sd">        The orchestrator to retrieve HDF5s for</span>
+
+<span class="sd">    hdf5 : Path</span>
+<span class="sd">        Path to the resultant HDF5.</span>
+
+<span class="sd">    run_ids : str</span>
+<span class="sd">        String specifying a run as start and end hash</span>
+<span class="sd">        e.g. &#39;d0cb2e6fbcc8c2d66d67c845120c7f6b,b4b96580ae57f133d5f3b6ce25affa6d&#39;</span>
 
 <span class="sd">    \b</span>
 <span class="sd">    Returns</span>
@@ -588,17 +635,17 @@
 <span class="nd">@click</span><span class="o">.</span><span class="n">argument</span><span class="p">(</span><span class="s1">&#39;output&#39;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="n">click</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">exists</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
 <span class="nd">@click</span><span class="o">.</span><span class="n">argument</span><span class="p">(</span><span class="s1">&#39;orchestrators&#39;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="n">click</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">exists</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
 <span class="k">def</span> <span class="nf">reconcile_orch</span><span class="p">(</span><span class="n">hdf5</span><span class="p">,</span> <span class="n">output</span><span class="p">,</span> <span class="n">orchestrators</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot; </span>
 
 <span class="sd">    \b</span>
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    hdf5 :</span>
-<span class="sd">        </span>
-<span class="sd">    output :</span>
-<span class="sd">        </span>
-<span class="sd">    orchestrators :</span>
-<span class="sd">        </span>
+<span class="sd">    hdf5 : Path</span>
+<span class="sd">        Path to the resultant HDF5.</span>
+<span class="sd">    output : Path</span>
+<span class="sd">        Path to the resultant orchestrator that is created.</span>
+<span class="sd">    orchestrators : Path</span>
+<span class="sd">        Paths to the orchestrators to reconcile.</span>
 
 <span class="sd">    \b</span>
 <span class="sd">    Returns</span>
@@ -620,7 +667,7 @@
 
 
 
-<div class="viewcode-block" id="hash_listing_formatter"><a class="viewcode-back" href="../../../_api/wepy.orchestration.cli.html#wepy.orchestration.cli.hash_listing_formatter">[docs]</a><span class="k">def</span> <span class="nf">hash_listing_formatter</span><span class="p">(</span><span class="n">hashes</span><span class="p">):</span>
+<div class="viewcode-block" id="hash_listing_formatter"><a class="viewcode-back" href="../../../api/wepy.orchestration.cli.html#wepy.orchestration.cli.hash_listing_formatter">[docs]</a><span class="k">def</span> <span class="nf">hash_listing_formatter</span><span class="p">(</span><span class="n">hashes</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">    \b</span>
@@ -1026,6 +1073,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../_source/installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../_source/quick_start.html">Quick Start</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../_source/introduction.html">Introduction &amp; Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../_source/introduction.html#bibliography">Bibliography</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../_source/tutorials/index.html">Tutorials</a></li>

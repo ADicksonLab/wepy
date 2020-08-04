@@ -4,7 +4,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <title>wepy.sim_manager module &#8212; wepy 1.0.0rc3 documentation</title>
+    <title>wepy.sim_manager module &#8212; wepy 1.0.0rc6 documentation</title>
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
@@ -86,7 +86,7 @@ simulations depending on if the number of cycles is known up front or
 to be determined adaptively (e.g. according to some time limit).</p>
 <dl class="py class">
 <dt id="wepy.sim_manager.Manager">
-<em class="property">class </em><code class="sig-prename descclassname">wepy.sim_manager.</code><code class="sig-name descname">Manager</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">init_walkers</span></em>, <em class="sig-param"><span class="n">runner</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">work_mapper</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">resampler</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">boundary_conditions</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">reporters</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/sim_manager.html#Manager"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.sim_manager.Manager" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">wepy.sim_manager.</code><code class="sig-name descname">Manager</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">init_walkers</span></em>, <em class="sig-param"><span class="n">runner</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">work_mapper</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">resampler</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">boundary_conditions</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">reporters</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">sim_monitor</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/sim_manager.html#Manager"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.sim_manager.Manager" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>The class that coordinates wepy simulations.</p>
 <p>The Manager class is the lynchpin of wepy simulations and is where
@@ -123,6 +123,8 @@ segments in a cycle.</p></li>
 <li><p><strong>resampler</strong> (<em>object implementing the Resampler interface</em>) – The resampler to be used in the simulation</p></li>
 <li><p><strong>boundary_conditions</strong> (<em>object implementing BoundaryCondition interface</em><em>, </em><em>optional</em>) – The boundary conditions to apply to walkers</p></li>
 <li><p><strong>reporters</strong> (<em>list of objects implenting the Reporter interface</em><em>, </em><em>optional</em>) – Reporters to be used. You should provide these if you want to keep data.</p></li>
+<li><p><strong>sim_monitor</strong> (<em>SimMonitor object</em>) – An object implementing SimMonitor interface for providing
+monitoring metrics of a simulation.</p></li>
 </ul>
 </dd>
 </dl>
@@ -136,9 +138,9 @@ walkers at the end of a cycle or simulation.</p>
 <div class="admonition seealso">
 <p class="admonition-title">See also</p>
 <dl class="simple">
-<dt><a class="reference internal" href="wepy.reporter.hdf5.html#module-wepy.reporter.hdf5" title="wepy.reporter.hdf5"><code class="xref py py-class docutils literal notranslate"><span class="pre">wepy.reporter.hdf5</span></code></a></dt><dd><p>The standard reporter for molecular simulations in wepy.</p>
+<dt><a class="reference internal" href="../api/wepy.reporter.hdf5.html#module-wepy.reporter.hdf5" title="wepy.reporter.hdf5"><code class="xref py py-class docutils literal notranslate"><span class="pre">wepy.reporter.hdf5</span></code></a></dt><dd><p>The standard reporter for molecular simulations in wepy.</p>
 </dd>
-<dt><a class="reference internal" href="wepy.orchestration.orchestrator.html#wepy.orchestration.orchestrator.Orchestrator" title="wepy.orchestration.orchestrator.Orchestrator"><code class="xref py py-class docutils literal notranslate"><span class="pre">wepy.orchestration.orchestrator.Orchestrator</span></code></a></dt><dd><p>for running simulations with checkpointing, restarting, reporter localization, and configuration hotswapping with command line interface.</p>
+<dt><a class="reference internal" href="../api/wepy.orchestration.orchestrator.html#wepy.orchestration.orchestrator.Orchestrator" title="wepy.orchestration.orchestrator.Orchestrator"><code class="xref py py-class docutils literal notranslate"><span class="pre">wepy.orchestration.orchestrator.Orchestrator</span></code></a></dt><dd><p>for running simulations with checkpointing, restarting, reporter localization, and configuration hotswapping with command line interface.</p>
 </dd>
 </dl>
 </div>
@@ -229,10 +231,10 @@ objects at the end of the cycle.</p></li>
 <div class="admonition seealso">
 <p class="admonition-title">See also</p>
 <dl class="simple">
-<dt><a class="reference internal" href="#wepy.sim_manager.Manager.run_simulation" title="wepy.sim_manager.Manager.run_simulation"><code class="xref py py-meth docutils literal notranslate"><span class="pre">run_simulation()</span></code></a></dt><dd><p>To run a simulation by the number of cycles</p>
+<dt><a class="reference internal" href="../api/wepy.sim_manager.html#wepy.sim_manager.Manager.run_simulation" title="wepy.sim_manager.Manager.run_simulation"><code class="xref py py-meth docutils literal notranslate"><span class="pre">run_simulation()</span></code></a></dt><dd><p>To run a simulation by the number of cycles</p>
 </dd>
 </dl>
-<p><a class="reference internal" href="#wepy.sim_manager.Manager.run_simulation_by_time" title="wepy.sim_manager.Manager.run_simulation_by_time"><code class="xref py py-meth docutils literal notranslate"><span class="pre">run_simulation_by_time()</span></code></a></p>
+<p><a class="reference internal" href="../api/wepy.sim_manager.html#wepy.sim_manager.Manager.run_simulation_by_time" title="wepy.sim_manager.Manager.run_simulation_by_time"><code class="xref py py-meth docutils literal notranslate"><span class="pre">run_simulation_by_time()</span></code></a></p>
 </div>
 </dd></dl>
 
@@ -346,7 +348,7 @@ conditions objects at the end of the cycle.</p></li>
 <div class="admonition seealso">
 <p class="admonition-title">See also</p>
 <dl class="simple">
-<dt><a class="reference internal" href="wepy.orchestration.orchestrator.html#wepy.orchestration.orchestrator.Orchestrator" title="wepy.orchestration.orchestrator.Orchestrator"><code class="xref py py-meth docutils literal notranslate"><span class="pre">wepy.orchestration.orchestrator.Orchestrator()</span></code></a></dt><dd><p>for running simulations with checkpointing, restarting, reporter localization, and configuration hotswapping with command line interface.</p>
+<dt><a class="reference internal" href="../api/wepy.orchestration.orchestrator.html#wepy.orchestration.orchestrator.Orchestrator" title="wepy.orchestration.orchestrator.Orchestrator"><code class="xref py py-meth docutils literal notranslate"><span class="pre">wepy.orchestration.orchestrator.Orchestrator()</span></code></a></dt><dd><p>for running simulations with checkpointing, restarting, reporter localization, and configuration hotswapping with command line interface.</p>
 </dd>
 </dl>
 </div>
@@ -380,7 +382,7 @@ resampler objects at the end of the simulation.</p></li>
 <div class="admonition seealso">
 <p class="admonition-title">See also</p>
 <dl class="simple">
-<dt><a class="reference internal" href="wepy.orchestration.orchestrator.html#wepy.orchestration.orchestrator.Orchestrator" title="wepy.orchestration.orchestrator.Orchestrator"><code class="xref py py-meth docutils literal notranslate"><span class="pre">wepy.orchestration.orchestrator.Orchestrator()</span></code></a></dt><dd><p>for running simulations with checkpointing, restarting, reporter localization, and configuration hotswapping with command line interface.</p>
+<dt><a class="reference internal" href="../api/wepy.orchestration.orchestrator.html#wepy.orchestration.orchestrator.Orchestrator" title="wepy.orchestration.orchestrator.Orchestrator"><code class="xref py py-meth docutils literal notranslate"><span class="pre">wepy.orchestration.orchestrator.Orchestrator()</span></code></a></dt><dd><p>for running simulations with checkpointing, restarting, reporter localization, and configuration hotswapping with command line interface.</p>
 </dd>
 </dl>
 </div>
@@ -418,7 +420,7 @@ conditions objects at the end of the cycle.</p></li>
 <div class="admonition seealso">
 <p class="admonition-title">See also</p>
 <dl class="simple">
-<dt><a class="reference internal" href="wepy.orchestration.orchestrator.html#wepy.orchestration.orchestrator.Orchestrator" title="wepy.orchestration.orchestrator.Orchestrator"><code class="xref py py-meth docutils literal notranslate"><span class="pre">wepy.orchestration.orchestrator.Orchestrator()</span></code></a></dt><dd><p>for running simulations with checkpointing, restarting, reporter localization, and configuration hotswapping with command line interface.</p>
+<dt><a class="reference internal" href="../api/wepy.orchestration.orchestrator.html#wepy.orchestration.orchestrator.Orchestrator" title="wepy.orchestration.orchestrator.Orchestrator"><code class="xref py py-meth docutils literal notranslate"><span class="pre">wepy.orchestration.orchestrator.Orchestrator()</span></code></a></dt><dd><p>for running simulations with checkpointing, restarting, reporter localization, and configuration hotswapping with command line interface.</p>
 </dd>
 </dl>
 </div>
@@ -445,7 +447,7 @@ conditions objects at the end of the cycle.</p>
 <div class="admonition seealso">
 <p class="admonition-title">See also</p>
 <dl class="simple">
-<dt><a class="reference internal" href="wepy.orchestration.orchestrator.html#wepy.orchestration.orchestrator.Orchestrator" title="wepy.orchestration.orchestrator.Orchestrator"><code class="xref py py-meth docutils literal notranslate"><span class="pre">wepy.orchestration.orchestrator.Orchestrator()</span></code></a></dt><dd><p>for running simulations with checkpointing, restarting, reporter localization, and configuration hotswapping with command line interface.</p>
+<dt><a class="reference internal" href="../api/wepy.orchestration.orchestrator.html#wepy.orchestration.orchestrator.Orchestrator" title="wepy.orchestration.orchestrator.Orchestrator"><code class="xref py py-meth docutils literal notranslate"><span class="pre">wepy.orchestration.orchestrator.Orchestrator()</span></code></a></dt><dd><p>for running simulations with checkpointing, restarting, reporter localization, and configuration hotswapping with command line interface.</p>
 </dd>
 </dl>
 </div>
@@ -502,6 +504,7 @@ conditions objects at the end of the cycle.</p>
 <li class="toctree-l1"><a class="reference internal" href="../_source/installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../_source/quick_start.html">Quick Start</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../_source/introduction.html">Introduction &amp; Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_source/introduction.html#bibliography">Bibliography</a></li>
 </ul>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../_source/tutorials/index.html">Tutorials</a></li>

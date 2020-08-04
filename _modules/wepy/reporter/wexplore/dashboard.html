@@ -4,7 +4,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <title>wepy.reporter.wexplore.dashboard &#8212; wepy 1.0.0rc3 documentation</title>
+    <title>wepy.reporter.wexplore.dashboard &#8212; wepy 1.0.0rc6 documentation</title>
     <link rel="stylesheet" href="../../../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/custom.css" />
@@ -54,7 +54,7 @@
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 <span class="kn">from</span> <span class="nn">tabulate</span> <span class="kn">import</span> <span class="n">tabulate</span>
 
-<div class="viewcode-block" id="WExploreDashboardSection"><a class="viewcode-back" href="../../../../_api/wepy.reporter.wexplore.dashboard.html#wepy.reporter.wexplore.dashboard.WExploreDashboardSection">[docs]</a><span class="k">class</span> <span class="nc">WExploreDashboardSection</span><span class="p">(</span><span class="n">ResamplerDashboardSection</span><span class="p">):</span>
+<div class="viewcode-block" id="WExploreDashboardSection"><a class="viewcode-back" href="../../../../api/wepy.reporter.wexplore.dashboard.html#wepy.reporter.wexplore.dashboard.WExploreDashboardSection">[docs]</a><span class="k">class</span> <span class="nc">WExploreDashboardSection</span><span class="p">(</span><span class="n">ResamplerDashboardSection</span><span class="p">):</span>
     <span class="n">RESAMPLER_SECTION_TEMPLATE</span> <span class="o">=</span> \
 <span class="sd">&quot;&quot;&quot;</span>
 
@@ -135,7 +135,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">branch_records</span> <span class="o">=</span> <span class="p">[]</span>
 
 
-<div class="viewcode-block" id="WExploreDashboardSection._leaf_regions_to_all_regions"><a class="viewcode-back" href="../../../../_api/wepy.reporter.wexplore.dashboard.html#wepy.reporter.wexplore.dashboard.WExploreDashboardSection._leaf_regions_to_all_regions">[docs]</a>    <span class="k">def</span> <span class="nf">_leaf_regions_to_all_regions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">region_ids</span><span class="p">):</span>
+<div class="viewcode-block" id="WExploreDashboardSection._leaf_regions_to_all_regions"><a class="viewcode-back" href="../../../../api/wepy.reporter.wexplore.dashboard.html#wepy.reporter.wexplore.dashboard.WExploreDashboardSection._leaf_regions_to_all_regions">[docs]</a>    <span class="k">def</span> <span class="nf">_leaf_regions_to_all_regions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">region_ids</span><span class="p">):</span>
 
         <span class="c1"># make a set of all the regions starting with the root region</span>
         <span class="n">regions</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">root_region</span><span class="p">])</span>
@@ -149,7 +149,7 @@
         <span class="k">return</span> <span class="n">regions</span></div>
 
 
-<div class="viewcode-block" id="WExploreDashboardSection.update_values"><a class="viewcode-back" href="../../../../_api/wepy.reporter.wexplore.dashboard.html#wepy.reporter.wexplore.dashboard.WExploreDashboardSection.update_values">[docs]</a>    <span class="k">def</span> <span class="nf">update_values</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="WExploreDashboardSection.update_values"><a class="viewcode-back" href="../../../../api/wepy.reporter.wexplore.dashboard.html#wepy.reporter.wexplore.dashboard.WExploreDashboardSection.update_values">[docs]</a>    <span class="k">def</span> <span class="nf">update_values</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 
         <span class="c1"># the region assignments for walkers</span>
         <span class="n">assignments</span> <span class="o">=</span> <span class="p">[]</span>
@@ -232,7 +232,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">regions_per_level</span><span class="p">[</span><span class="n">level</span><span class="p">]</span> <span class="o">+=</span> <span class="n">n_children</span></div>
 
 
-<div class="viewcode-block" id="WExploreDashboardSection.gen_fields"><a class="viewcode-back" href="../../../../_api/wepy.reporter.wexplore.dashboard.html#wepy.reporter.wexplore.dashboard.WExploreDashboardSection.gen_fields">[docs]</a>    <span class="k">def</span> <span class="nf">gen_fields</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="WExploreDashboardSection.gen_fields"><a class="viewcode-back" href="../../../../api/wepy.reporter.wexplore.dashboard.html#wepy.reporter.wexplore.dashboard.WExploreDashboardSection.gen_fields">[docs]</a>    <span class="k">def</span> <span class="nf">gen_fields</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 
         <span class="n">fields</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">gen_fields</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
@@ -334,6 +334,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../../_source/installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../_source/quick_start.html">Quick Start</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../_source/introduction.html">Introduction &amp; Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_source/introduction.html#bibliography">Bibliography</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../../_source/tutorials/index.html">Tutorials</a></li>

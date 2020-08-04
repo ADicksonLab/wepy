@@ -4,7 +4,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <title>wepy.work_mapper.task_mapper &#8212; wepy 1.0.0rc3 documentation</title>
+    <title>wepy.work_mapper.task_mapper &#8212; wepy 1.0.0rc6 documentation</title>
     <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/custom.css" />
@@ -56,13 +56,13 @@
 
 <span class="kn">from</span> <span class="nn">wepy.walker</span> <span class="kn">import</span> <span class="n">Walker</span>
 
-<span class="k">class</span> <span class="nc">TaskProcessException</span><span class="p">(</span><span class="n">WrapperException</span><span class="p">):</span>
-    <span class="k">pass</span>
+<div class="viewcode-block" id="TaskProcessException"><a class="viewcode-back" href="../../../api/wepy.work_mapper.task_mapper.html#wepy.runners.openmm.TaskProcessException">[docs]</a><span class="k">class</span> <span class="nc">TaskProcessException</span><span class="p">(</span><span class="n">WrapperException</span><span class="p">):</span>
+    <span class="k">pass</span></div>
 
-<span class="k">class</span> <span class="nc">TaskProcessKilledError</span><span class="p">(</span><span class="ne">ChildProcessError</span><span class="p">):</span>
-    <span class="k">pass</span>
+<div class="viewcode-block" id="TaskProcessKilledError"><a class="viewcode-back" href="../../../api/wepy.work_mapper.task_mapper.html#wepy.runners.openmm.TaskProcessKilledError">[docs]</a><span class="k">class</span> <span class="nc">TaskProcessKilledError</span><span class="p">(</span><span class="ne">ChildProcessError</span><span class="p">):</span>
+    <span class="k">pass</span></div>
 
-<span class="k">class</span> <span class="nc">TaskMapper</span><span class="p">(</span><span class="n">ABCWorkerMapper</span><span class="p">):</span>
+<div class="viewcode-block" id="TaskMapper"><a class="viewcode-back" href="../../../api/wepy.work_mapper.task_mapper.html#wepy.runners.openmm.TaskMapper">[docs]</a><span class="k">class</span> <span class="nc">TaskMapper</span><span class="p">(</span><span class="n">ABCWorkerMapper</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Process-per-task mapper.</span>
 
 <span class="sd">    This method of work mapper starts new processes for each runner</span>
@@ -113,21 +113,21 @@
         <span class="c1"># this is meant to be a transient variable, will be initialized and deinitialized</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_walker_processes</span> <span class="o">=</span> <span class="kc">None</span>
 
-    <span class="k">def</span> <span class="nf">init</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="TaskMapper.init"><a class="viewcode-back" href="../../../api/wepy.work_mapper.task_mapper.html#wepy.runners.openmm.TaskMapper.init">[docs]</a>    <span class="k">def</span> <span class="nf">init</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">init</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
         <span class="c1"># now that we have started the processes register the handler</span>
         <span class="c1"># for SIGTERM signals that will clean up our children cleanly</span>
-        <span class="n">signal</span><span class="o">.</span><span class="n">signal</span><span class="p">(</span><span class="n">signal</span><span class="o">.</span><span class="n">SIGTERM</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sigterm_shutdown</span><span class="p">)</span>
+        <span class="n">signal</span><span class="o">.</span><span class="n">signal</span><span class="p">(</span><span class="n">signal</span><span class="o">.</span><span class="n">SIGTERM</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sigterm_shutdown</span><span class="p">)</span></div>
 
-    <span class="k">def</span> <span class="nf">_sigterm_shutdown</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">signum</span><span class="p">,</span> <span class="n">frame</span><span class="p">):</span>
+<div class="viewcode-block" id="TaskMapper._sigterm_shutdown"><a class="viewcode-back" href="../../../api/wepy.work_mapper.task_mapper.html#wepy.runners.openmm.TaskMapper._sigterm_shutdown">[docs]</a>    <span class="k">def</span> <span class="nf">_sigterm_shutdown</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">signum</span><span class="p">,</span> <span class="n">frame</span><span class="p">):</span>
 
         <span class="n">logging</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span><span class="s2">&quot;Received external SIGTERM, forcing shutdown.&quot;</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">force_shutdown</span><span class="p">()</span>
 
-        <span class="n">logging</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span><span class="s2">&quot;Shutdown complete.&quot;</span><span class="p">)</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span><span class="s2">&quot;Shutdown complete.&quot;</span><span class="p">)</span></div>
 
 
 
@@ -142,9 +142,19 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_walker_task_type</span>
 
 
-    <span class="k">def</span> <span class="nf">force_shutdown</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="TaskMapper.force_shutdown"><a class="viewcode-back" href="../../../api/wepy.work_mapper.task_mapper.html#wepy.runners.openmm.TaskMapper.force_shutdown">[docs]</a>    <span class="k">def</span> <span class="nf">force_shutdown</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 
-        <span class="c1"># TODO send sigterms to processes</span>
+        <span class="c1"># send sigterm signals to processes to kill them</span>
+        <span class="k">for</span> <span class="n">walker_idx</span><span class="p">,</span> <span class="n">walker_process</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_walker_processes</span><span class="p">):</span>
+
+            <span class="n">logging</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span><span class="s2">&quot;Sending SIGTERM message on </span><span class="si">{}</span><span class="s2"> to worker </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_irq_parent_conns</span><span class="p">[</span><span class="n">walker_idx</span><span class="p">]</span><span class="o">.</span><span class="n">fileno</span><span class="p">(),</span> <span class="n">walker_idx</span><span class="p">))</span>
+
+            <span class="c1"># send a kill message to the worker</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_irq_parent_conns</span><span class="p">[</span><span class="n">walker_idx</span><span class="p">]</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">signal</span><span class="o">.</span><span class="n">SIGTERM</span><span class="p">)</span>
+
+        <span class="n">logging</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span><span class="s2">&quot;All kill messages sent to workers&quot;</span><span class="p">)</span>
+
 
         <span class="c1"># wait for the walkers to finish and handle errors in them</span>
         <span class="c1"># appropriately</span>
@@ -164,11 +174,11 @@
                 <span class="c1"># otherwise the walker is done</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">alive_walkers</span><span class="p">[</span><span class="n">walker_idx</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
-                    <span class="n">walker_exitcodes</span><span class="p">[</span><span class="n">walker_idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">walker</span><span class="o">.</span><span class="n">exitcode</span>
+                    <span class="n">walker_exitcodes</span><span class="p">[</span><span class="n">walker_idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">walker</span><span class="o">.</span><span class="n">exitcode</span></div>
 
 
 
-    <span class="k">def</span> <span class="nf">map</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="TaskMapper.map"><a class="viewcode-back" href="../../../api/wepy.work_mapper.task_mapper.html#wepy.runners.openmm.TaskMapper.map">[docs]</a>    <span class="k">def</span> <span class="nf">map</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 
         <span class="c1"># run computations in a Manager context</span>
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mp_ctx</span><span class="o">.</span><span class="n">Manager</span><span class="p">()</span> <span class="k">as</span> <span class="n">manager</span><span class="p">:</span>
@@ -223,19 +233,20 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">_irq_parent_conns</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">parent_conn</span><span class="p">)</span>
 
                 <span class="c1"># start a process for this walker</span>
-                <span class="n">walker_process</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">walker_task_type</span><span class="p">(</span><span class="n">walker_idx</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_attributes</span><span class="p">,</span>
+                <span class="n">walker_process</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">walker_task_type</span><span class="p">(</span><span class="n">walker_idx</span><span class="p">,</span>
+                                                       <span class="bp">self</span><span class="o">.</span><span class="n">_attributes</span><span class="p">,</span>
                                                        <span class="bp">self</span><span class="o">.</span><span class="n">_func</span><span class="p">,</span>
                                                        <span class="n">task_args</span><span class="p">,</span>
                                                        <span class="n">task_kwargs</span><span class="p">,</span>
                                                        <span class="n">worker_queue</span><span class="p">,</span>
                                                        <span class="n">results</span><span class="p">,</span>
                                                        <span class="n">worker_segment_times</span><span class="p">,</span>
-                                                       <span class="n">child_conn</span><span class="p">)</span>
+                                                       <span class="n">child_conn</span><span class="p">,</span>
+                <span class="p">)</span>
 
                 <span class="n">walker_process</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
 
                 <span class="bp">self</span><span class="o">.</span><span class="n">_walker_processes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">walker_process</span><span class="p">)</span>
-
 
             <span class="n">new_walkers</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_walkers</span><span class="p">)]</span>
             <span class="n">results_found</span> <span class="o">=</span> <span class="p">[</span><span class="kc">False</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_walkers</span><span class="p">)]</span>
@@ -243,8 +254,6 @@
 
                 <span class="c1"># go through the results list and handle the values that may be there</span>
                 <span class="k">for</span> <span class="n">walker_idx</span><span class="p">,</span> <span class="n">result</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">results</span><span class="p">):</span>
-
-
 
                     <span class="k">if</span> <span class="n">results_found</span><span class="p">[</span><span class="n">walker_idx</span><span class="p">]:</span>
                         <span class="k">continue</span>
@@ -254,6 +263,7 @@
                     <span class="c1"># first check to see if any of the task processes were</span>
                     <span class="c1"># terminated from the system</span>
                     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_irq_parent_conns</span><span class="p">[</span><span class="n">walker_idx</span><span class="p">]</span><span class="o">.</span><span class="n">poll</span><span class="p">():</span>
+
                         <span class="n">irq</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_irq_parent_conns</span><span class="p">[</span><span class="n">walker_idx</span><span class="p">]</span><span class="o">.</span><span class="n">recv</span><span class="p">()</span>
 
                         <span class="k">if</span> <span class="nb">issubclass</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">irq</span><span class="p">),</span> <span class="n">TaskProcessKilledError</span><span class="p">):</span>
@@ -325,6 +335,7 @@
                         <span class="k">raise</span> <span class="n">result</span>
 
                     <span class="k">elif</span> <span class="nb">issubclass</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">result</span><span class="p">),</span> <span class="n">TaskProcessException</span><span class="p">):</span>
+
                         <span class="c1"># we make just an error message to say that errors</span>
                         <span class="c1"># in the worker may be due to the network or</span>
                         <span class="c1"># something and could recover</span>
@@ -373,16 +384,23 @@
         <span class="c1"># deinitialize the current walker processes</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_walker_processes</span> <span class="o">=</span> <span class="kc">None</span>
 
-        <span class="k">return</span> <span class="n">new_walkers</span>
+        <span class="k">return</span> <span class="n">new_walkers</span></div></div>
 
 
-<span class="k">class</span> <span class="nc">WalkerTaskProcess</span><span class="p">(</span><span class="n">mp</span><span class="o">.</span><span class="n">Process</span><span class="p">):</span>
+<div class="viewcode-block" id="WalkerTaskProcess"><a class="viewcode-back" href="../../../api/wepy.work_mapper.task_mapper.html#wepy.runners.openmm.WalkerTaskProcess">[docs]</a><span class="k">class</span> <span class="nc">WalkerTaskProcess</span><span class="p">(</span><span class="n">mp</span><span class="o">.</span><span class="n">Process</span><span class="p">):</span>
 
     <span class="n">NAME_TEMPLATE</span> <span class="o">=</span> <span class="s2">&quot;Walker-</span><span class="si">{}</span><span class="s2">&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">walker_idx</span><span class="p">,</span> <span class="n">mapper_attributes</span><span class="p">,</span>
-                 <span class="n">func</span><span class="p">,</span> <span class="n">task_args</span><span class="p">,</span> <span class="n">task_kwargs</span><span class="p">,</span>
-                 <span class="n">worker_queue</span><span class="p">,</span> <span class="n">results_list</span><span class="p">,</span> <span class="n">worker_segment_times</span><span class="p">,</span> <span class="n">interrupt_connection</span><span class="p">,</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                 <span class="n">walker_idx</span><span class="p">,</span>
+                 <span class="n">mapper_attributes</span><span class="p">,</span>
+                 <span class="n">func</span><span class="p">,</span>
+                 <span class="n">task_args</span><span class="p">,</span>
+                 <span class="n">task_kwargs</span><span class="p">,</span>
+                 <span class="n">worker_queue</span><span class="p">,</span>
+                 <span class="n">results_list</span><span class="p">,</span>
+                 <span class="n">worker_segment_times</span><span class="p">,</span>
+                 <span class="n">interrupt_connection</span><span class="p">,</span>
                  <span class="o">**</span><span class="n">kwargs</span>
                  <span class="p">):</span>
 
@@ -414,10 +432,10 @@
 
         <span class="c1"># also register the SIGTERM signal handler for graceful</span>
         <span class="c1"># shutdown with reporting to mapper</span>
-        <span class="n">signal</span><span class="o">.</span><span class="n">signal</span><span class="p">(</span><span class="n">signal</span><span class="o">.</span><span class="n">SIGTERM</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sigterm_shutdown</span><span class="p">)</span>
+        <span class="n">signal</span><span class="o">.</span><span class="n">signal</span><span class="p">(</span><span class="n">signal</span><span class="o">.</span><span class="n">SIGTERM</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_external_sigterm_shutdown</span><span class="p">)</span>
 
 
-    <span class="k">def</span> <span class="nf">_sigterm_shutdown</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">signum</span><span class="p">,</span> <span class="n">frame</span><span class="p">):</span>
+<div class="viewcode-block" id="WalkerTaskProcess._external_sigterm_shutdown"><a class="viewcode-back" href="../../../api/wepy.work_mapper.task_mapper.html#wepy.runners.openmm.WalkerTaskProcess._external_sigterm_shutdown">[docs]</a>    <span class="k">def</span> <span class="nf">_external_sigterm_shutdown</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">signum</span><span class="p">,</span> <span class="n">frame</span><span class="p">):</span>
 
         <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Received external SIGTERM kill command.&quot;</span><span class="p">)</span>
 
@@ -429,7 +447,23 @@
 
         <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Acknowledgment sent&quot;</span><span class="p">)</span>
 
-        <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Shutting down process&quot;</span><span class="p">)</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Shutting down process&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="WalkerTaskProcess._shutdown"><a class="viewcode-back" href="../../../api/wepy.work_mapper.task_mapper.html#wepy.runners.openmm.WalkerTaskProcess._shutdown">[docs]</a>    <span class="k">def</span> <span class="nf">_shutdown</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The normal shutdown which can be ordered by the work mapper.&quot;&quot;&quot;</span>
+
+        <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Received SIGTERM kill command from mapper&quot;</span><span class="p">)</span>
+
+        <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Acknowledging kill request will be honored&quot;</span><span class="p">)</span>
+
+        <span class="c1"># report back that we are shutting down with a True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_irq_channel</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Acknowledgment sent&quot;</span><span class="p">)</span>
+
+        <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Shutting down process&quot;</span><span class="p">)</span></div>
+
 
 
     <span class="nd">@property</span>
@@ -440,7 +474,7 @@
     <span class="k">def</span> <span class="nf">attributes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_attributes</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
 
-    <span class="k">def</span> <span class="nf">_run_task</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task</span><span class="p">):</span>
+<div class="viewcode-block" id="WalkerTaskProcess._run_task"><a class="viewcode-back" href="../../../api/wepy.work_mapper.task_mapper.html#wepy.runners.openmm.WalkerTaskProcess._run_task">[docs]</a>    <span class="k">def</span> <span class="nf">_run_task</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task</span><span class="p">):</span>
 
         <span class="c1"># run the task thunk</span>
         <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">: Running task&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
@@ -471,13 +505,15 @@
                             <span class="n">wrapped_exception</span><span class="o">=</span><span class="n">task_exception</span><span class="p">,</span>
                             <span class="n">tb</span><span class="o">=</span><span class="n">tb</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">result</span>
+        <span class="k">return</span> <span class="n">result</span></div>
 
-    <span class="k">def</span> <span class="nf">run_task</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task</span><span class="p">):</span>
+<div class="viewcode-block" id="WalkerTaskProcess.run_task"><a class="viewcode-back" href="../../../api/wepy.work_mapper.task_mapper.html#wepy.runners.openmm.WalkerTaskProcess.run_task">[docs]</a>    <span class="k">def</span> <span class="nf">run_task</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task</span><span class="p">):</span>
 
-        <span class="k">return</span> <span class="n">task</span><span class="p">()</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Running an unspecialized task&quot;</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">task</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="WalkerTaskProcess.run"><a class="viewcode-back" href="../../../api/wepy.work_mapper.task_mapper.html#wepy.runners.openmm.WalkerTaskProcess.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 
         <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">: starting to run&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
 
@@ -548,9 +584,9 @@
             <span class="k">except</span> <span class="ne">BrokenPipeError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
                 <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
                     <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">: Pipe is broken indicating the root process has already exited:</span><span class="se">\n</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">exc</span><span class="p">))</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">exc</span><span class="p">))</span></div>
 
-    <span class="k">def</span> <span class="nf">_run_walker</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="WalkerTaskProcess._run_walker"><a class="viewcode-back" href="../../../api/wepy.work_mapper.task_mapper.html#wepy.runners.openmm.WalkerTaskProcess._run_walker">[docs]</a>    <span class="k">def</span> <span class="nf">_run_walker</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 
         <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Walker process started as name: </span><span class="si">{}</span><span class="s2">; PID: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
                                                                           <span class="bp">self</span><span class="o">.</span><span class="n">pid</span><span class="p">))</span>
@@ -559,13 +595,17 @@
         <span class="c1"># tries to use it</span>
         <span class="n">worker_received</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="k">while</span> <span class="ow">not</span> <span class="n">worker_received</span><span class="p">:</span>
+
             <span class="c1"># pop off a worker to use it, this will block until it</span>
             <span class="c1"># receives a worker</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">worker_idx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_worker_queue</span><span class="o">.</span><span class="n">get_nowait</span><span class="p">()</span>
             <span class="k">except</span> <span class="n">pyq</span><span class="o">.</span><span class="n">Empty</span><span class="p">:</span>
                 <span class="k">pass</span>
+
+            <span class="c1"># always do on a successful get</span>
             <span class="k">else</span><span class="p">:</span>
+
                 <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">worker_idx</span><span class="p">)</span> <span class="o">==</span> <span class="nb">int</span><span class="p">:</span>
                     <span class="n">worker_received</span> <span class="o">=</span> <span class="kc">True</span>
                     <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">: acquired worker </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
@@ -577,7 +617,43 @@
                         <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">: SIGTERM signal received from mapper. Shutting down.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
 
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_shutdown</span><span class="p">()</span>
+
                     <span class="k">return</span> <span class="kc">None</span>
+
+
+            <span class="c1"># check to see if there is any signals on the interrupt channel</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_irq_channel</span><span class="o">.</span><span class="n">poll</span><span class="p">():</span>
+
+                <span class="c1"># get the message</span>
+                <span class="n">message</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_irq_channel</span><span class="o">.</span><span class="n">recv</span><span class="p">()</span>
+
+                <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">: Received message from mapper on filehandle </span><span class="si">{}</span><span class="s2">: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_irq_channel</span><span class="o">.</span><span class="n">fileno</span><span class="p">(),</span> <span class="n">message</span><span class="p">))</span>
+
+                <span class="c1"># handle the message</span>
+
+
+                <span class="c1"># check for signals to die</span>
+                <span class="k">if</span> <span class="n">message</span> <span class="ow">is</span> <span class="n">signal</span><span class="o">.</span><span class="n">SIGTERM</span><span class="p">:</span>
+
+                    <span class="n">logging</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">: SIGTERM signal received from mapper. Shutting down.&quot;</span>
+                    <span class="p">)</span>
+
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_shutdown</span><span class="p">()</span>
+
+                    <span class="k">return</span> <span class="kc">None</span>
+
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">: Message not recognized, continuing operations and&quot;</span>
+                                  <span class="s2">&quot; sending error to mapper&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_irq_channel</span><span class="o">.</span><span class="n">send</span><span class="p">(</span>
+                        <span class="ne">ValueError</span><span class="p">(</span>
+                            <span class="s2">&quot;Message: </span><span class="si">{}</span><span class="s2"> not recognized continuing operations&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                                <span class="n">message</span><span class="p">)))</span>
+
+        <span class="c1"># after the wait loop we can now perform our work</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_worker_idx</span> <span class="o">=</span> <span class="n">worker_idx</span>
 
@@ -603,8 +679,8 @@
         <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">: Setting value to results list. Time </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
                                                                      <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()))</span>
 
-        <span class="c1"># DEBUG: testing new serialization thing here</span>
         <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Serializing the result walker&quot;</span><span class="p">)</span>
+
         <span class="n">serial_result</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
         <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Putting tagged serialized walker tuple on managed results list&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_results_list</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">walker_idx</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;Walker&#39;</span><span class="p">,</span> <span class="n">serial_result</span><span class="p">)</span>
@@ -627,7 +703,7 @@
         <span class="c1"># proxy objects has no effect</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_worker_segment_times</span><span class="p">[</span><span class="n">worker_idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">seg_times</span>
 
-        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">: Exiting normally having completed the task&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">: Exiting normally having completed the task&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">))</span></div></div>
 </pre></div>
 
           </div>
@@ -668,6 +744,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../_source/installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../_source/quick_start.html">Quick Start</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../_source/introduction.html">Introduction &amp; Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../_source/introduction.html#bibliography">Bibliography</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../_source/tutorials/index.html">Tutorials</a></li>

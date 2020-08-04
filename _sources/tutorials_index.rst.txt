@@ -13,5 +13,8 @@ code in tutorials and examples.
 .. toctree::
    :maxdepth: 1
 
+   extended_test_drive/README
    data_analysis/README
-   seh_prep/README
+   Orchestrator/README
+
+..  seh_system_prep/README              

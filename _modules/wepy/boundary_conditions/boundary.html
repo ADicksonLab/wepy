@@ -4,7 +4,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <title>wepy.boundary_conditions.boundary &#8212; wepy 1.0.0rc3 documentation</title>
+    <title>wepy.boundary_conditions.boundary &#8212; wepy 1.0.0rc6 documentation</title>
     <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/custom.css" />
@@ -58,7 +58,7 @@
 
 <span class="kn">from</span> <span class="nn">wepy.walker</span> <span class="kn">import</span> <span class="n">Walker</span>
 
-<div class="viewcode-block" id="BoundaryConditions"><a class="viewcode-back" href="../../../_api/wepy.boundary_conditions.boundary.html#wepy.boundary_conditions.boundary.BoundaryConditions">[docs]</a><span class="k">class</span> <span class="nc">BoundaryConditions</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="BoundaryConditions"><a class="viewcode-back" href="../../../api/wepy.boundary_conditions.boundary.html#wepy.boundary_conditions.boundary.BoundaryConditions">[docs]</a><span class="k">class</span> <span class="nc">BoundaryConditions</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Abstract base class for conveniently making compliant boundary condition classes.</span>
 
 <span class="sd">    Includes empty record group definitions and useful getters for those.</span>
@@ -300,19 +300,19 @@
 
         <span class="k">pass</span>
 
-<div class="viewcode-block" id="BoundaryConditions.bc_field_names"><a class="viewcode-back" href="../../../_api/wepy.boundary_conditions.boundary.html#wepy.boundary_conditions.boundary.BoundaryConditions.bc_field_names">[docs]</a>    <span class="k">def</span> <span class="nf">bc_field_names</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="BoundaryConditions.bc_field_names"><a class="viewcode-back" href="../../../api/wepy.boundary_conditions.boundary.html#wepy.boundary_conditions.boundary.BoundaryConditions.bc_field_names">[docs]</a>    <span class="k">def</span> <span class="nf">bc_field_names</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Access the class level FIELDS constant for this record group.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">BC_FIELDS</span></div>
 
-<div class="viewcode-block" id="BoundaryConditions.bc_field_shapes"><a class="viewcode-back" href="../../../_api/wepy.boundary_conditions.boundary.html#wepy.boundary_conditions.boundary.BoundaryConditions.bc_field_shapes">[docs]</a>    <span class="k">def</span> <span class="nf">bc_field_shapes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="BoundaryConditions.bc_field_shapes"><a class="viewcode-back" href="../../../api/wepy.boundary_conditions.boundary.html#wepy.boundary_conditions.boundary.BoundaryConditions.bc_field_shapes">[docs]</a>    <span class="k">def</span> <span class="nf">bc_field_shapes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Access the class level SHAPES constant for this record group.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">BC_SHAPES</span></div>
 
-<div class="viewcode-block" id="BoundaryConditions.bc_field_dtypes"><a class="viewcode-back" href="../../../_api/wepy.boundary_conditions.boundary.html#wepy.boundary_conditions.boundary.BoundaryConditions.bc_field_dtypes">[docs]</a>    <span class="k">def</span> <span class="nf">bc_field_dtypes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="BoundaryConditions.bc_field_dtypes"><a class="viewcode-back" href="../../../api/wepy.boundary_conditions.boundary.html#wepy.boundary_conditions.boundary.BoundaryConditions.bc_field_dtypes">[docs]</a>    <span class="k">def</span> <span class="nf">bc_field_dtypes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Access the class level DTYPES constant for this record group.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">BC_DTYPES</span></div>
 
-<div class="viewcode-block" id="BoundaryConditions.bc_fields"><a class="viewcode-back" href="../../../_api/wepy.boundary_conditions.boundary.html#wepy.boundary_conditions.boundary.BoundaryConditions.bc_fields">[docs]</a>    <span class="k">def</span> <span class="nf">bc_fields</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="BoundaryConditions.bc_fields"><a class="viewcode-back" href="../../../api/wepy.boundary_conditions.boundary.html#wepy.boundary_conditions.boundary.BoundaryConditions.bc_fields">[docs]</a>    <span class="k">def</span> <span class="nf">bc_fields</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Returns a list of zipped field specs.</span>
 
 <span class="sd">        Returns</span>
@@ -326,23 +326,23 @@
                    <span class="bp">self</span><span class="o">.</span><span class="n">bc_field_shapes</span><span class="p">(),</span>
                    <span class="bp">self</span><span class="o">.</span><span class="n">bc_field_dtypes</span><span class="p">()))</span></div>
 
-<div class="viewcode-block" id="BoundaryConditions.bc_record_field_names"><a class="viewcode-back" href="../../../_api/wepy.boundary_conditions.boundary.html#wepy.boundary_conditions.boundary.BoundaryConditions.bc_record_field_names">[docs]</a>    <span class="k">def</span> <span class="nf">bc_record_field_names</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="BoundaryConditions.bc_record_field_names"><a class="viewcode-back" href="../../../api/wepy.boundary_conditions.boundary.html#wepy.boundary_conditions.boundary.BoundaryConditions.bc_record_field_names">[docs]</a>    <span class="k">def</span> <span class="nf">bc_record_field_names</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Access the class level RECORD_FIELDS constant for this record group.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">BC_RECORD_FIELDS</span></div>
 
-<div class="viewcode-block" id="BoundaryConditions.warping_field_names"><a class="viewcode-back" href="../../../_api/wepy.boundary_conditions.boundary.html#wepy.boundary_conditions.boundary.BoundaryConditions.warping_field_names">[docs]</a>    <span class="k">def</span> <span class="nf">warping_field_names</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="BoundaryConditions.warping_field_names"><a class="viewcode-back" href="../../../api/wepy.boundary_conditions.boundary.html#wepy.boundary_conditions.boundary.BoundaryConditions.warping_field_names">[docs]</a>    <span class="k">def</span> <span class="nf">warping_field_names</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Access the class level FIELDS constant for this record group.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">WARPING_FIELDS</span></div>
 
-<div class="viewcode-block" id="BoundaryConditions.warping_field_shapes"><a class="viewcode-back" href="../../../_api/wepy.boundary_conditions.boundary.html#wepy.boundary_conditions.boundary.BoundaryConditions.warping_field_shapes">[docs]</a>    <span class="k">def</span> <span class="nf">warping_field_shapes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="BoundaryConditions.warping_field_shapes"><a class="viewcode-back" href="../../../api/wepy.boundary_conditions.boundary.html#wepy.boundary_conditions.boundary.BoundaryConditions.warping_field_shapes">[docs]</a>    <span class="k">def</span> <span class="nf">warping_field_shapes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Access the class level SHAPES constant for this record group.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">WARPING_SHAPES</span></div>
 
-<div class="viewcode-block" id="BoundaryConditions.warping_field_dtypes"><a class="viewcode-back" href="../../../_api/wepy.boundary_conditions.boundary.html#wepy.boundary_conditions.boundary.BoundaryConditions.warping_field_dtypes">[docs]</a>    <span class="k">def</span> <span class="nf">warping_field_dtypes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="BoundaryConditions.warping_field_dtypes"><a class="viewcode-back" href="../../../api/wepy.boundary_conditions.boundary.html#wepy.boundary_conditions.boundary.BoundaryConditions.warping_field_dtypes">[docs]</a>    <span class="k">def</span> <span class="nf">warping_field_dtypes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Access the class level DTYPES constant for this record group.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">WARPING_DTYPES</span></div>
 
-<div class="viewcode-block" id="BoundaryConditions.warping_fields"><a class="viewcode-back" href="../../../_api/wepy.boundary_conditions.boundary.html#wepy.boundary_conditions.boundary.BoundaryConditions.warping_fields">[docs]</a>    <span class="k">def</span> <span class="nf">warping_fields</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="BoundaryConditions.warping_fields"><a class="viewcode-back" href="../../../api/wepy.boundary_conditions.boundary.html#wepy.boundary_conditions.boundary.BoundaryConditions.warping_fields">[docs]</a>    <span class="k">def</span> <span class="nf">warping_fields</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Returns a list of zipped field specs.</span>
 
 <span class="sd">        Returns</span>
@@ -356,23 +356,23 @@
                    <span class="bp">self</span><span class="o">.</span><span class="n">warping_field_shapes</span><span class="p">(),</span>
                    <span class="bp">self</span><span class="o">.</span><span class="n">warping_field_dtypes</span><span class="p">()))</span></div>
 
-<div class="viewcode-block" id="BoundaryConditions.warping_record_field_names"><a class="viewcode-back" href="../../../_api/wepy.boundary_conditions.boundary.html#wepy.boundary_conditions.boundary.BoundaryConditions.warping_record_field_names">[docs]</a>    <span class="k">def</span> <span class="nf">warping_record_field_names</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="BoundaryConditions.warping_record_field_names"><a class="viewcode-back" href="../../../api/wepy.boundary_conditions.boundary.html#wepy.boundary_conditions.boundary.BoundaryConditions.warping_record_field_names">[docs]</a>    <span class="k">def</span> <span class="nf">warping_record_field_names</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Access the class level RECORD_FIELDS constant for this record group.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">WARPING_RECORD_FIELDS</span></div>
 
-<div class="viewcode-block" id="BoundaryConditions.progress_field_names"><a class="viewcode-back" href="../../../_api/wepy.boundary_conditions.boundary.html#wepy.boundary_conditions.boundary.BoundaryConditions.progress_field_names">[docs]</a>    <span class="k">def</span> <span class="nf">progress_field_names</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="BoundaryConditions.progress_field_names"><a class="viewcode-back" href="../../../api/wepy.boundary_conditions.boundary.html#wepy.boundary_conditions.boundary.BoundaryConditions.progress_field_names">[docs]</a>    <span class="k">def</span> <span class="nf">progress_field_names</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Access the class level FIELDS constant for this record group.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">PROGRESS_FIELDS</span></div>
 
-<div class="viewcode-block" id="BoundaryConditions.progress_field_shapes"><a class="viewcode-back" href="../../../_api/wepy.boundary_conditions.boundary.html#wepy.boundary_conditions.boundary.BoundaryConditions.progress_field_shapes">[docs]</a>    <span class="k">def</span> <span class="nf">progress_field_shapes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="BoundaryConditions.progress_field_shapes"><a class="viewcode-back" href="../../../api/wepy.boundary_conditions.boundary.html#wepy.boundary_conditions.boundary.BoundaryConditions.progress_field_shapes">[docs]</a>    <span class="k">def</span> <span class="nf">progress_field_shapes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Access the class level SHAPES constant for this record group.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">PROGRESS_SHAPES</span></div>
 
-<div class="viewcode-block" id="BoundaryConditions.progress_field_dtypes"><a class="viewcode-back" href="../../../_api/wepy.boundary_conditions.boundary.html#wepy.boundary_conditions.boundary.BoundaryConditions.progress_field_dtypes">[docs]</a>    <span class="k">def</span> <span class="nf">progress_field_dtypes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="BoundaryConditions.progress_field_dtypes"><a class="viewcode-back" href="../../../api/wepy.boundary_conditions.boundary.html#wepy.boundary_conditions.boundary.BoundaryConditions.progress_field_dtypes">[docs]</a>    <span class="k">def</span> <span class="nf">progress_field_dtypes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Access the class level DTYPES constant for this record group.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">PROGRESS_DTYPES</span></div>
 
-<div class="viewcode-block" id="BoundaryConditions.progress_fields"><a class="viewcode-back" href="../../../_api/wepy.boundary_conditions.boundary.html#wepy.boundary_conditions.boundary.BoundaryConditions.progress_fields">[docs]</a>    <span class="k">def</span> <span class="nf">progress_fields</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="BoundaryConditions.progress_fields"><a class="viewcode-back" href="../../../api/wepy.boundary_conditions.boundary.html#wepy.boundary_conditions.boundary.BoundaryConditions.progress_fields">[docs]</a>    <span class="k">def</span> <span class="nf">progress_fields</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Returns a list of zipped field specs.</span>
 
 <span class="sd">        Returns</span>
@@ -386,11 +386,11 @@
                    <span class="bp">self</span><span class="o">.</span><span class="n">progress_field_shapes</span><span class="p">(),</span>
                    <span class="bp">self</span><span class="o">.</span><span class="n">progress_field_dtypes</span><span class="p">()))</span></div>
 
-<div class="viewcode-block" id="BoundaryConditions.progress_record_field_names"><a class="viewcode-back" href="../../../_api/wepy.boundary_conditions.boundary.html#wepy.boundary_conditions.boundary.BoundaryConditions.progress_record_field_names">[docs]</a>    <span class="k">def</span> <span class="nf">progress_record_field_names</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="BoundaryConditions.progress_record_field_names"><a class="viewcode-back" href="../../../api/wepy.boundary_conditions.boundary.html#wepy.boundary_conditions.boundary.BoundaryConditions.progress_record_field_names">[docs]</a>    <span class="k">def</span> <span class="nf">progress_record_field_names</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Access the class level RECORD_FIELDS constant for this record group.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">PROGRESS_RECORD_FIELDS</span></div>
 
-<div class="viewcode-block" id="BoundaryConditions.warp_walkers"><a class="viewcode-back" href="../../../_api/wepy.boundary_conditions.boundary.html#wepy.boundary_conditions.boundary.BoundaryConditions.warp_walkers">[docs]</a>    <span class="k">def</span> <span class="nf">warp_walkers</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">walkers</span><span class="p">,</span> <span class="n">cycle</span><span class="p">):</span>
+<div class="viewcode-block" id="BoundaryConditions.warp_walkers"><a class="viewcode-back" href="../../../api/wepy.boundary_conditions.boundary.html#wepy.boundary_conditions.boundary.BoundaryConditions.warp_walkers">[docs]</a>    <span class="k">def</span> <span class="nf">warp_walkers</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">walkers</span><span class="p">,</span> <span class="n">cycle</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Apply boundary condition logic to walkers.</span>
 
 <span class="sd">        If walkers satisfy the boundary conditions then they will be</span>
@@ -437,7 +437,7 @@
 
         <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
 
-<div class="viewcode-block" id="BoundaryConditions.warping_discontinuity"><a class="viewcode-back" href="../../../_api/wepy.boundary_conditions.boundary.html#wepy.boundary_conditions.boundary.BoundaryConditions.warping_discontinuity">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="BoundaryConditions.warping_discontinuity"><a class="viewcode-back" href="../../../api/wepy.boundary_conditions.boundary.html#wepy.boundary_conditions.boundary.BoundaryConditions.warping_discontinuity">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">warping_discontinuity</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">warping_record</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Given a warping record returns either True for a discontiuity</span>
 <span class="sd">        occured or False if a discontinuity did not occur.</span>
@@ -458,7 +458,7 @@
 
 
 
-<div class="viewcode-block" id="NoBC"><a class="viewcode-back" href="../../../_api/wepy.boundary_conditions.boundary.html#wepy.boundary_conditions.boundary.NoBC">[docs]</a><span class="k">class</span> <span class="nc">NoBC</span><span class="p">(</span><span class="n">BoundaryConditions</span><span class="p">):</span>
+<div class="viewcode-block" id="NoBC"><a class="viewcode-back" href="../../../api/wepy.boundary_conditions.boundary.html#wepy.boundary_conditions.boundary.NoBC">[docs]</a><span class="k">class</span> <span class="nc">NoBC</span><span class="p">(</span><span class="n">BoundaryConditions</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Boundary conditions class that does nothing.</span>
 
 <span class="sd">    You may use this class as a stub in order to have an boundary</span>
@@ -466,7 +466,7 @@
 <span class="sd">    conditions are optional in the sim_manager anyhow.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="NoBC.warp_walkers"><a class="viewcode-back" href="../../../_api/wepy.boundary_conditions.boundary.html#wepy.boundary_conditions.boundary.NoBC.warp_walkers">[docs]</a>    <span class="k">def</span> <span class="nf">warp_walkers</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">walkers</span><span class="p">,</span> <span class="n">cycle</span><span class="p">):</span>
+<div class="viewcode-block" id="NoBC.warp_walkers"><a class="viewcode-back" href="../../../api/wepy.boundary_conditions.boundary.html#wepy.boundary_conditions.boundary.NoBC.warp_walkers">[docs]</a>    <span class="k">def</span> <span class="nf">warp_walkers</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">walkers</span><span class="p">,</span> <span class="n">cycle</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Apply boundary condition logic to walkers, of which there is none.</span>
 
 <span class="sd">        Simply returns all walkers provided with empty records data</span>
@@ -505,7 +505,7 @@
 
         <span class="k">return</span> <span class="n">walkers</span><span class="p">,</span> <span class="n">warp_data</span><span class="p">,</span> <span class="n">bc_data</span><span class="p">,</span> <span class="n">progress_data</span></div>
 
-<div class="viewcode-block" id="NoBC.warping_discontinuity"><a class="viewcode-back" href="../../../_api/wepy.boundary_conditions.boundary.html#wepy.boundary_conditions.boundary.NoBC.warping_discontinuity">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="NoBC.warping_discontinuity"><a class="viewcode-back" href="../../../api/wepy.boundary_conditions.boundary.html#wepy.boundary_conditions.boundary.NoBC.warping_discontinuity">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">warping_discontinuity</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">warping_record</span><span class="p">):</span>
         <span class="c1"># documented in superclass</span>
 
@@ -513,7 +513,7 @@
         <span class="k">return</span> <span class="kc">False</span></div></div>
 
 
-<div class="viewcode-block" id="RandomBC"><a class="viewcode-back" href="../../../_api/wepy.boundary_conditions.boundary.html#wepy.boundary_conditions.boundary.RandomBC">[docs]</a><span class="k">class</span> <span class="nc">RandomBC</span><span class="p">(</span><span class="n">BoundaryConditions</span><span class="p">):</span>
+<div class="viewcode-block" id="RandomBC"><a class="viewcode-back" href="../../../api/wepy.boundary_conditions.boundary.html#wepy.boundary_conditions.boundary.RandomBC">[docs]</a><span class="k">class</span> <span class="nc">RandomBC</span><span class="p">(</span><span class="n">BoundaryConditions</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Boundary conditions that randomly warps both continuously and</span>
 <span class="sd">    discontinuously.</span>
 
@@ -540,7 +540,7 @@
 
     <span class="n">DISCONTINUITY_TARGET_IDXS</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,)</span>
 
-<div class="viewcode-block" id="RandomBC.warp_walkers"><a class="viewcode-back" href="../../../_api/wepy.boundary_conditions.boundary.html#wepy.boundary_conditions.boundary.RandomBC.warp_walkers">[docs]</a>    <span class="k">def</span> <span class="nf">warp_walkers</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">walkers</span><span class="p">,</span> <span class="n">cycle</span><span class="p">):</span>
+<div class="viewcode-block" id="RandomBC.warp_walkers"><a class="viewcode-back" href="../../../api/wepy.boundary_conditions.boundary.html#wepy.boundary_conditions.boundary.RandomBC.warp_walkers">[docs]</a>    <span class="k">def</span> <span class="nf">warp_walkers</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">walkers</span><span class="p">,</span> <span class="n">cycle</span><span class="p">):</span>
 
         <span class="c1">## warping walkers</span>
 
@@ -635,6 +635,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../_source/installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../_source/quick_start.html">Quick Start</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../_source/introduction.html">Introduction &amp; Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../_source/introduction.html#bibliography">Bibliography</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../_source/tutorials/index.html">Tutorials</a></li>

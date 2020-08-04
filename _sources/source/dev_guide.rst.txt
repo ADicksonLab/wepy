@@ -1,0 +1,594 @@
+Development
+===========
+
+Getting Set Up
+--------------
+
+Obtaining the source code
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+We do development on github:
+
+.. code:: bash
+
+   git clone https://github.com/ADicksonLab/wepy --recurse-submodules
+   cd wepy
+
+Tooling
+~~~~~~~
+
+To make things easier for developers we provide a set automation scripts
+implemented in ``invoke`` (similar to a makefile if you are familiar
+with that).
+
+So you will want to install invoke somehow to use this tooling. The
+easiest most contained way to do this we have found is to use ``pipx``:
+
+.. code:: bash
+
+   pipx install invoke
+
+Virtual Environments
+~~~~~~~~~~~~~~~~~~~~
+
+This is for managing environments which are just for the purpose of
+developing wepy, and not necessarily just for running it (as a user).
+See *Managing Dependencies* for details on managing dependencies of the
+installable project.
+
+To develop on ``wepy`` we require OpenMM. By far the easiest way to get
+this is to use conda. Since we already dependent on anaconda for this we
+currently also use anaconda virtual environments rather than the
+standard library ones. It also makes a few things we depend on like
+``pandoc`` easier to install for building docs.
+
+We also require a few shell environmental variables which are exported
+in the ``env.bash`` file. Go ahead and source this before doing anything
+else:
+
+.. code:: bash
+
+   source env.bash
+
+To create an env called ``wepy.dev`` just run the ``env`` target from
+``invoke``:
+
+.. code:: bash
+
+   inv env
+
+Then activate it:
+
+.. code:: bash
+
+   conda activate wepy.dev
+
+If you ever have problems with an environment just rerun this to get a
+clean one. A practice we encourage to do frequently so that developers
+don't diverge in their envs with local modifications. So while you can
+make your env, try to use this one unless you have problems.
+
+We maintain a number of preconfigured environments in the ``envs``
+directory which are used for different purposes. Calling ``inv env -n
+dev`` is the same as ``inv dev`` since it is the default, but any other
+environment can be created by passing the matching name. For instance
+there is an environment that mimics the user's installation environment
+so that we can test experiences upon install, to make sure we haven't
+accidentally depended on something in the dev env. For instance:
+
+.. code:: bash
+
+   inv env -n trial
+   conda activate wepy.trial
+
+If you want to make another environment it is straightforward to copy
+the examples in the ``envs`` dir.
+
+Tasks
+-----
+
+Licenses and Copyright
+~~~~~~~~~~~~~~~~~~~~~~
+
+The license can be found in the LICENSE file and shouldn't need to be
+updated usually.
+
+However, according to copyright laws (hand waves…) the original date in
+the license establishes the earliest copyright claim to the work. The
+date shouldn't need updated in principle. The only thing you could do is
+add dates to this. Adding dates may be useful if significant changes to
+the software are made.
+
+So rule of thumbs are:
+
+-  never remove the original date in the license copyright
+-  you can add dates if you want when you make big changes, but it is
+   probably not necessary
+
+Managing Dependencies
+~~~~~~~~~~~~~~~~~~~~~
+
+Reminder that there are two separate goals of managing dependencies and
+where they are managed:
+
+Python Libraries
+   These dependencies are managed in ``setup.py`` and in PyPI or other
+   indices.
+Python Applications/Deployments
+   These are dependencies managed in
+   ``requirements.in~/~requirements.txt`` and used for developer
+   environments and deployment environments.
+
+So for the library aspect we use abstract requirements. These should
+essentially be the same as ``requirements.in``.
+
+For the deployment side of things we use ``requirements.txt``. Don't
+manually edit this. We use ``pip-tools`` to "compile" dependencies for
+this.
+
+To initially pin an environment or when you add requirements run this
+target:
+
+.. code:: bash
+
+   inv deps-pin
+
+To update it (should be accompanied by a reason why):
+
+.. code:: bash
+
+   inv deps-pin-update
+
+Documentation and Website
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+#. Editing and Building Docs
+
+   To compile and build the docs just run:
+
+   .. code:: bash
+
+      inv docs-build
+
+   Which will output them to a temporary build directory
+   ``_build/html``.
+
+   You can clean this build with:
+
+   .. code:: bash
+
+      inv clean-docs
+
+   To view how the docs would look as a website you can point your
+   browser at the ``_build/html`` folder or run a python http web server
+   with this target:
+
+   .. code:: bash
+
+      inv docs-serve
+
+#. 
+
+#. Deploying the website
+
+   We are using github pages. To avoid having to keep the entire built
+   website in the main tree we use the alternate ``gh-pages`` branch. To
+   make this process easy to deploy we have a script
+   ``sphinx/deploy.sh`` that checks the ``gh-pages`` branch out, does
+   some necessary cleaning up, and copies the built website to the
+   necesary folder (which is the toplevel), commits the changes and
+   pushes to github, and then returns to your working branch.
+
+   The invoke target is:
+
+   .. code:: bash
+
+      inv website-deploy
+
+Testing
+~~~~~~~
+
+#. Getting the wepy-tests submodule
+
+   The tests for wepy are included as a submodule because some of the
+   associated data is large and we want to make the install base for the
+   program smaller than that. Development of this is tracked in
+   https://gitlab.com/salotz/wepy-tests.
+
+   If you cloned without the recurse-submodules flag you can always pull
+   them in later like this:
+
+   .. code:: bash
+
+      git submodule update --init --recursive
+
+   WARNING: before you start editing the ``wepy-tests`` submodule you
+   need to check out master.
+
+   .. code:: bash
+
+      git checkout master
+
+   How many times I have edited it before I checked out master…
+
+   If you do edit and commit try to get the hash of the commit and then
+   merge with master. If you don't then you need to figure out which
+   commit that was.
+
+Code Quality Metrics
+~~~~~~~~~~~~~~~~~~~~
+
+Just run the end target:
+
+.. code:: bash
+
+   inv quality
+
+This will write files to ``metrics``.
+
+Releases
+~~~~~~~~
+
+#. Choosing a version number
+
+   semver
+      major, minor, patch
+
+   -  release candidates
+   -  dev
+   -  post release
+
+#. Changing the version number
+
+   You can check the current version number with this command:
+
+   .. code:: bash
+
+      inv version-which
+
+   Increase the version number we currently do it by hand (although an
+   automatic way would be nice and ``bumpversion`` wasn't working for
+   us). So go in and manually edit them. For reference see PEP 440 for
+   valid ones.
+
+   The targets are in the ``.bumpversion.cfg`` for reference, but at a
+   high level:
+
+   -  [ ] ``setup.py``
+   -  [ ] ``src/wepy/__init__.py``
+   -  [ ] ``sphinx/config.py``
+   -  [ ] ``conda/conda-forge/meta.yaml``
+
+Architecture
+============
+
+Record Groups
+-------------
+
+The protocol by which non-trajectory data is given by the resampler and
+boundary conditions (BC) is unified that makes it simpler to save in
+formats like HDF5.
+
+The resampler and BC both have multiple record groups:
+
+-  resampler
+
+   -  resampling
+   -  resampler
+
+-  BC
+
+   -  warping
+   -  progress
+   -  boundary conditions
+
+A record group can be thought of as a single table in a relational
+database. Each record group corresponds to a class of events that occur
+and each record in a record group corresponds to one event.
+
+Record groups can be **continual** or **sporadic**.
+
+A continual record is recorded once per cycle. A continual record
+reports on the event of a cycle.
+
+A sporadic record can be reported 0 or many times per cycle and responds
+to the event determined by the record group.
+
+-  continual
+
+   -  progress
+
+-  sporadic
+
+   -  resampler
+   -  resampling
+   -  warping
+   -  boundary conditions
+
+As you can see currently most records are sporadic. This distinction is
+really only used internally within the ``WepyHDF5`` class to distinguish
+how it stores them, but this distinction is useful in data analysis as
+well.
+
+Resampling Records
+
+The ``'resampling'`` records are probably the most important records for
+``wepy`` because they are what records the cloning and merging of
+walkers.
+
+Without the ``'resampling'`` your ``wepy`` simulation would have been
+wasted since you no longer will know the history of any given frame. You
+will just have a bag full of unconnected pictures.
+
+Records for ``'resampling'`` happen for each "assignment" event of a
+walker during resampling, this minimally should contain two fields:
+``'decision_id'`` and ``'target_idxs'``.
+
+The ``'decision_id'`` is an integer corresponding to an enumeration of
+the possible decisions that can be made as to the fate of the walker
+during resampling. While technically these decisions are also modular it
+is likely that 99.9% of all users will use the ``CloneMergeDecision``.
+
+Detailed knowledge of this formalism is not usually needed in the
+practice of writing resamplers that behave well, which is another topic,
+and the next few paragraphs can be safely skipped.
+
+The enumerated decisions in this are:
+
+============== =
+``NOTHING``    1
+``CLONE``      2
+``SQUASH``     3
+``KEEP_MERGE`` 4
+============== =
+
+The ``NOTHING`` decision means don't clone or merge this walker.
+
+``CLONE`` means clone this walker.
+
+``SQUASH`` and ``KEEP_MERGE`` are related in that both involve merging.
+
+A single merge includes a set of walkers that will be merged together,
+there must be at least 2 such walkers in this "merge group".
+
+From the merge group only a single *state* will be preserved in the
+single resulting walker, while the weight of the final walker will be
+the sum of all those walkers.
+
+The state of the final walker will be drawn from the set of walkers in
+the merge group based on the behavior of the resampler (usually a choice
+weighted by their weights), but will always be identical to one of the
+walkers. The walker with the chosen state is the ``KEEP_MERGE`` walker.
+The rest are the ``SQUASH`` walkers.
+
+The second field, ``'target_idxs'``, actually determines which walkers
+will be merged with what other walkers, and is a tuple of integers
+indicating the location, or slot.
+
+A 'slot' is simply an available position in the lineup of walkers that
+will be simulated in a single cycle of WE. The number of slots is the
+number of walkers that will be simulated in the next cycle.
+
+As an aside: In general the number of walkers used in a WE simulation is
+not specified (other than there needs to be more than 1). You can have a
+constant number of walkers, or a dynamic one with the number fluctuating
+during the simulation.
+
+If you have too small a number of walkers then you will have a
+relatively sparse coverage of the sample space.
+
+If you have too many the cycle throughput will be very slow.
+
+Additionally, simulations run with GPUs will want to have a number of
+walkers each cycle that is a multiple of the number of GPUs or a number
+of the GPUs will be lying idle when the task queue of running walker
+runner segments is depleted.
+
+So typically there is some constraint on the the number of slots
+available in the next WE cycle. The constraint is decided on and
+enforced by the resampler. So if there is a mismatch in the resampling
+records and the walkers produced the ``wepy`` simulation manager will
+not complain.
+
+WARNING: Currently the ``WepyHDF5`` storage backend and reporter do not
+support dynamic numbers of simulations. While technically the none of
+the other code has any problem with this.
+
+The ``'target_idxs'`` value for ``NOTHING`` and ``KEEP_MERGE`` is a
+1-tuple of the integer index of slot where the resultant walker will be
+placed.
+
+The ``'target_idxs'`` for ``CLONE`` is an n-tuple of integer indices of
+slots where n is the number of children of the clone and n must be at
+least 2 (or it would've been a ``NOTHING``).
+
+The ``'target_idxs'`` of ``SQUASH`` is also a 1-tuple like ``NOTHING``
+except since a ``SQUASH`` has no child it indicates the ``KEEP_MERGE``
+walker that it's weight is added to. Note that this slot index is the
+slot index that the ``KEEP_MERGE`` record itself specifies and not the
+slot the ``KEEP_MERGE`` walker previously occupied (as that index is of
+no consequence to the current collection of walkers).
+
+Thus a ``KEEP_MERGE`` walker defines a single merge group, and the
+members of that merge group are given by which ``SQUASH`` targets.
+
+Critically, the ``'step_idx'`` and ``'walker_idx'`` (slot index of
+walker in last cycle) fields should also be supplied so that the lineage
+histories can be generated.
+
+In addition to the Decision class record fields any other amount of data
+can be attached to these records to report on a resampling event.
+
+For example in the WExplore resampler the region the walker was assigned
+to is also given.
+
+Warping Records
+
+The next most important record is the warping records.
+
+These are of course only relevant if you are using boundary conditions,
+but among the three BC these are the principal object.
+
+Warping records determine the action that was taken on a walker after it
+met the criteria for a boundary condition event.
+
+Minimally it should specify the ``'walker_idx'`` that was acted on, and
+if any warping event can be discontinuous the 'weight' of it so this can
+be accounted for in analysis.
+
+The rest of the specification for boundary conditions does not have a
+protocol similar to the one for cloning and merging records and is left
+up to the developer of the class to decide.
+
+For simple boundary conditions where there is only one result an
+additional field is not even necesary.
+
+The colored trajectories examples provides a possible example. In this
+case you could have a field called ``'color'`` which is the new "color"
+of the walker which indicates the last boundary it crossed and could be
+a string or an integer enumeration.
+
+Boundary Condition Records
+
+This and all the other record groups are really optional.
+
+A single boundary condition record reports on the event of a change in
+the state of the boundary condition object.
+
+For example if the cutoff value for a ligand unbinding boundary
+condition changes during a simulation.
+
+Resampler Records
+
+These records report on events changing of the state of the resampler.
+
+For example in WExplore a single record is generated every time a new
+region/image is defined giving details on the values that triggered this
+event as well as the image that was created.
+
+This interpretation is semantically useful but in practice this reporter
+could also report on collective attributes of the walkers, such as
+all-to-all distances or histograms of the current batch of walkers.
+
+Its up to the writer of the resampler to decide.
+
+Progress Records
+
+Progress records are provided mainly as a convenience to get on-line
+data analysis of walkers during a simulation.
+
+For instance in ligand unbinding the progress may be the distance to the
+cutoff, or RMSD to the original state.
+
+While the active observer may note that these calculations may also have
+been implemented in a reporter as well.
+
+There are a few tradeoffs for that approach though.
+
+One, the value may have already been calculated in the process of
+evaluating walkers for warping and double calculation is potentially
+unacceptably wasteful (although one might imagine complex systems where
+reporters perform their actions asynchronously to the flow of the
+simulation manager moving onto new cycles).
+
+Second, the flow of data will be forked. For example when using the
+``WepyHDF5Reporter`` all the data it will report on is assumed to be
+contained in records returned by the runner, resampler, and boundary
+conditions and can't know of another reporter. Nor is it easy nor wise
+to have two reporters acting on the same database.
+
+Perhaps such analysis could be implemented as analysis submodules in the
+``WepyHDF5Reporter`` to keep a single stream of data, if you think that
+way go ahead and make a pull request.
+
+Specifying Record Group Fields
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Each record group should have three class constants defined for it.
+
+This is strictly not necessary from the perspective of either the
+simulation manager or the primary consumer of these records, the
+``WepyHDF5Reporter``, but is a very good practice as it will help catch
+bugs and will clarify the results your BC or resampler will produce for
+those inspecting them.
+
+The three definitions are:
+
+-  field names
+-  shapes
+-  dtypes
+
+Each should be defined as a class constant prefixed by the name of the
+record group followed by the definition type, for example the resampling
+record group of WExplore looks like this:
+
+.. code:: python
+
+   DECISION = MultiCloneMergeDecision
+   RESAMPLING_FIELDS = DECISION.FIELDS + ('step_idx', 'walker_idx', 'region_assignment',)
+   RESAMPLING_SHAPES = DECISION.SHAPES + ((1,), (1,), Ellipsis,)
+   RESAMPLING_DTYPES = DECISION.DTYPES + (np.int, np.int, np.int,)
+
+For the "fields" this is the name of the field and should be a string.
+In the example we are using fields defined from the
+``MultiCloneMergeDecision`` class.
+
+The shapes are the expected shapes of a single element of the field.
+Three types of values are accepted here:
+
+A. A tuple of ints that specify the shape of the field element array.
+
+B. Ellipsis, indicating that the field is variable length and limited to
+being a rank one array (e.g. ``(3,)`` or ``(1,)``).
+
+C. None, indicating that the first instance of this field will not be
+known until runtime. Any field that is returned by a record producing
+method will automatically interpreted as None if not specified here.
+
+Note that the shapes must be tuple and not simple integers for rank-1
+arrays.
+
+It is suggested that if possible use option A. Option B will use a
+special datatype in HDF5 for variable length datasets that can only be 1
+dimensional, in addition to being much less efficient to store.
+
+Option C is not advisable but is there because I know people will be
+lazy and not want to define all these things. By defining things ahead
+of time you will reduce errors by catching differences in what you
+expect a field to look like and what you actually receive at runtime.
+
+If you are actually saving the wrong thing and don't specify the shape
+and dtype then you may run weeks of simulations and never realize you
+never saved the right thing there.
+
+The dtypes have similar options but there is no Ellipsis option.
+
+Each non-None dtype should be a numpy dtype object. This is necessary
+for serializing the datatype to the HDF5 (using the
+``numpy.dtype.descr`` attribute).
+
+Record Fields
+~~~~~~~~~~~~~
+
+One additional class constant can be defined to make analysis in the
+future easier.
+
+When accessing records from a ``WepyHDF5`` object you can automatically
+generate ``pandas.DataFrames`` from the records, which will select from
+a subset of the fields for a record group. This is because large arrays
+don't fit well into tables!
+
+So you can define a subset of fields to be used as a nice "table" report
+that could be serialized to CSV. For instance in WExplore's resampler
+record group we leave out the multidimensional ``'image'`` field:
+
+.. code:: python
+
+   RESAMPLER_FIELDS = ('branching_level', 'distance', 'new_leaf_id', 'image')
+   RESAMPLER_SHAPES = ((1,), (1,), Ellipsis, Ellipsis)
+   RESAMPLER_DTYPES = (np.int, np.float, np.int, None)
+
+   # fields that can be used for a table like representation
+   RESAMPLER_RECORD_FIELDS = ('branching_level', 'distance', 'new_leaf_id')
+
+Again, its not necessary, but its there to use.

@@ -1,0 +1,299 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>wepy.util.json_top module &#8212; wepy 1.0.0rc6 documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+              <div class="related top">
+                &nbsp;
+  <nav id="rellinks">
+    <ul>
+    </ul>
+  </nav>
+              </div>
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="module-wepy.util.json_top">
+<span id="wepy-util-json-top-module"></span><h1>wepy.util.json_top module<a class="headerlink" href="#module-wepy.util.json_top" title="Permalink to this headline">¶</a></h1>
+<dl class="py function">
+<dt id="wepy.util.json_top.json_top_chain_fields">
+<code class="sig-prename descclassname">wepy.util.json_top.</code><code class="sig-name descname">json_top_chain_fields</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">json_topology</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/util/json_top.html#json_top_chain_fields"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.util.json_top.json_top_chain_fields" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a fields dictionary for all of the chains in a topology.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>json_topology</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – JSON format topology</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>chain_cols</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict of str: list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="wepy.util.json_top.json_top_chain_df">
+<code class="sig-prename descclassname">wepy.util.json_top.</code><code class="sig-name descname">json_top_chain_df</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">json_topology</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/util/json_top.html#json_top_chain_df"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.util.json_top.json_top_chain_df" title="Permalink to this definition">¶</a></dt>
+<dd><p>Make a pandas dataframe for the chains in the JSON topology.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>json_topology</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – JSON format topology</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>chain_df</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>pandas.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="wepy.util.json_top.json_top_residue_fields">
+<code class="sig-prename descclassname">wepy.util.json_top.</code><code class="sig-name descname">json_top_residue_fields</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">json_topology</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/util/json_top.html#json_top_residue_fields"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.util.json_top.json_top_residue_fields" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a fields dictionary for all of the residues in a topology.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>json_topology</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – JSON format topology</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>residue_cols</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict of str: list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="wepy.util.json_top.json_top_residue_df">
+<code class="sig-prename descclassname">wepy.util.json_top.</code><code class="sig-name descname">json_top_residue_df</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">json_topology</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/util/json_top.html#json_top_residue_df"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.util.json_top.json_top_residue_df" title="Permalink to this definition">¶</a></dt>
+<dd><p>Make a pandas dataframe for the residues in the JSON topology.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>json_topology</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – JSON format topology</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>residue_df</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>pandas.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="wepy.util.json_top.json_top_atom_fields">
+<code class="sig-prename descclassname">wepy.util.json_top.</code><code class="sig-name descname">json_top_atom_fields</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">json_topology</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/util/json_top.html#json_top_atom_fields"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.util.json_top.json_top_atom_fields" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a fields dictionary for all of the atoms in a topology.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>json_topology</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – JSON format topology</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>atom_cols</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict of str: list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="wepy.util.json_top.json_top_atom_df">
+<code class="sig-prename descclassname">wepy.util.json_top.</code><code class="sig-name descname">json_top_atom_df</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">json_topology</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/util/json_top.html#json_top_atom_df"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.util.json_top.json_top_atom_df" title="Permalink to this definition">¶</a></dt>
+<dd><p>Make a pandas dataframe for the atoms in the JSON topology.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>json_topology</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – JSON format topology</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>atoms_df</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>pandas.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="wepy.util.json_top.json_top_atom_count">
+<code class="sig-prename descclassname">wepy.util.json_top.</code><code class="sig-name descname">json_top_atom_count</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">json_str</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/util/json_top.html#json_top_atom_count"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.util.json_top.json_top_atom_count" title="Permalink to this definition">¶</a></dt>
+<dd><p>Count the number of atoms in the JSON topology used by wepy HDF5.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>json_str</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – A string of valid JSON in the format of JSON used in WepyHDF5
+and mdtraj HDF5 format.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>n_atoms</strong> – Number of atoms in the topology.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="wepy.util.json_top.json_top_subset">
+<code class="sig-prename descclassname">wepy.util.json_top.</code><code class="sig-name descname">json_top_subset</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">json_str</span></em>, <em class="sig-param"><span class="n">atom_idxs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/util/json_top.html#json_top_subset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.util.json_top.json_top_subset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a JSON topology and atom indices from that topology returns
+another JSON topology which is a subset of the first, preserving
+the topology between remaining atoms. The atoms will be ordered in
+the order in which the indices are given.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>json_str</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – A string of valid JSON in the format of JSON used in WepyHDF5
+and mdtraj HDF5 format.</p></li>
+<li><p><strong>atom_idxs</strong> (<em>list of int</em>) – The atoms for which you want to make a subset of.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>subset_json_str</strong> – JSON string of the subset of atoms. Ordering preserved.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+
+
+          </div>
+              <div class="related bottom">
+                &nbsp;
+  <nav id="rellinks">
+    <ul>
+    </ul>
+  </nav>
+              </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<p class="logo">
+  <a href="../index.html">
+    <img class="logo" src="../_static/wepy.svg" alt="Logo"/>
+    
+    <h1 class="logo logo-name">wepy</h1>
+    
+  </a>
+</p>
+
+
+
+<p class="blurb">A Weighted Ensemble  (WE) simulation framework</p>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../_source/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_source/quick_start.html">Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_source/introduction.html">Introduction &amp; Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_source/introduction.html#bibliography">Bibliography</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../_source/tutorials/index.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_source/users_guide.html">User’s Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_source/troubleshooting.html">Common Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_source/troubleshooting.html#faq">FAQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_source/reference.html">Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_source/glossary.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_source/api.html">API Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_api/modules.html">Full API</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../_source/general_info.html">General Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_source/news.html">News and Updates</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_source/changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_source/dev_guide.html">Development Guide</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, Samuel D. Lotz.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.0.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../_sources/api/wepy.util.json_top.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+    <a href="https://github.com/ADicksonLab/wepy" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
+    
+
+    
+  </body>
+</html>

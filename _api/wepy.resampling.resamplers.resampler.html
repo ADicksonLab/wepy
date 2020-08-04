@@ -4,7 +4,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <title>wepy.resampling.resamplers.resampler module &#8212; wepy 1.0.0rc3 documentation</title>
+    <title>wepy.resampling.resamplers.resampler module &#8212; wepy 1.0.0rc6 documentation</title>
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
@@ -137,7 +137,7 @@ walkers were given as input as the maximum.</p></li>
 <dl class="py attribute">
 <dt id="wepy.resampling.resamplers.resampler.Resampler.DECISION">
 <code class="sig-name descname">DECISION</code><a class="headerlink" href="#wepy.resampling.resamplers.resampler.Resampler.DECISION" title="Permalink to this definition">¶</a></dt>
-<dd><p>alias of <a class="reference internal" href="wepy.resampling.decisions.decision.html#wepy.resampling.decisions.decision.Decision" title="wepy.resampling.decisions.decision.Decision"><code class="xref py py-class docutils literal notranslate"><span class="pre">wepy.resampling.decisions.decision.Decision</span></code></a></p>
+<dd><p>alias of <a class="reference internal" href="../api/wepy.resampling.decisions.decision.html#wepy.resampling.decisions.decision.Decision" title="wepy.resampling.decisions.decision.Decision"><code class="xref py py-class docutils literal notranslate"><span class="pre">wepy.resampling.decisions.decision.Decision</span></code></a></p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -513,7 +513,7 @@ was updated.</p></li>
 <dl class="py class">
 <dt id="wepy.resampling.resamplers.resampler.NoResampler">
 <em class="property">class </em><code class="sig-prename descclassname">wepy.resampling.resamplers.resampler.</code><code class="sig-name descname">NoResampler</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">min_num_walkers</span><span class="o">=</span><span class="default_value">Ellipsis</span></em>, <em class="sig-param"><span class="n">max_num_walkers</span><span class="o">=</span><span class="default_value">Ellipsis</span></em>, <em class="sig-param"><span class="n">debug_mode</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/resampling/resamplers/resampler.html#NoResampler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.resampling.resamplers.resampler.NoResampler" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#wepy.resampling.resamplers.resampler.Resampler" title="wepy.resampling.resamplers.resampler.Resampler"><code class="xref py py-class docutils literal notranslate"><span class="pre">wepy.resampling.resamplers.resampler.Resampler</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="../api/wepy.resampling.resamplers.resampler.html#wepy.resampling.resamplers.resampler.Resampler" title="wepy.resampling.resamplers.resampler.Resampler"><code class="xref py py-class docutils literal notranslate"><span class="pre">wepy.resampling.resamplers.resampler.Resampler</span></code></a></p>
 <p>The resampler which does nothing.</p>
 <p>Constructor for Resampler class</p>
 <dl class="field-list simple">
@@ -746,7 +746,7 @@ type (field_name, shape_spec, dtype_spec)</p>
 <dl class="py attribute">
 <dt id="wepy.resampling.resamplers.resampler.NoResampler.DECISION">
 <code class="sig-name descname">DECISION</code><a class="headerlink" href="#wepy.resampling.resamplers.resampler.NoResampler.DECISION" title="Permalink to this definition">¶</a></dt>
-<dd><p>alias of <a class="reference internal" href="wepy.resampling.decisions.decision.html#wepy.resampling.decisions.decision.NoDecision" title="wepy.resampling.decisions.decision.NoDecision"><code class="xref py py-class docutils literal notranslate"><span class="pre">wepy.resampling.decisions.decision.NoDecision</span></code></a></p>
+<dd><p>alias of <a class="reference internal" href="../api/wepy.resampling.decisions.decision.html#wepy.resampling.decisions.decision.NoDecision" title="wepy.resampling.decisions.decision.NoDecision"><code class="xref py py-class docutils literal notranslate"><span class="pre">wepy.resampling.decisions.decision.NoDecision</span></code></a></p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -772,27 +772,7 @@ type (field_name, shape_spec, dtype_spec)</p>
 <dl class="py method">
 <dt id="wepy.resampling.resamplers.resampler.NoResampler.resample">
 <code class="sig-name descname">resample</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">walkers</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/resampling/resamplers/resampler.html#NoResampler.resample"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.resampling.resamplers.resampler.NoResampler.resample" title="Permalink to this definition">¶</a></dt>
-<dd><p>Perform resampling on the set of walkers.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>walkers</strong> (<em>list of Walker objects</em>) – The walkers that are to be resampled.</p></li>
-<li><p><strong>debug_mode</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a>) – Expert mode debugging setting, only forif you know exactly
-what you are doing.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><ul class="simple">
-<li><p><strong>resampled_walkers</strong> (<em>list of Walker objects</em>) – The set of resampled walkers</p></li>
-<li><p><strong>resampling_data</strong> (<em>list of dict of str: value</em>) – A list of destructured resampling records from this round
-of resampling.</p></li>
-<li><p><strong>resampler_data</strong> (<em>list of dict of str: value</em>) – A list of records recording how the state of the resampler
-was updated.</p></li>
-</ul>
-</p>
-</dd>
-</dl>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="py method">
 <dt id="wepy.resampling.resamplers.resampler.NoResampler._init_walker_actions">
@@ -864,6 +844,7 @@ resampling.</p>
 <li class="toctree-l1"><a class="reference internal" href="../_source/installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../_source/quick_start.html">Quick Start</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../_source/introduction.html">Introduction &amp; Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_source/introduction.html#bibliography">Bibliography</a></li>
 </ul>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../_source/tutorials/index.html">Tutorials</a></li>

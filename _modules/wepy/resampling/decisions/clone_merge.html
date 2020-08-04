@@ -4,7 +4,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <title>wepy.resampling.decisions.clone_merge &#8212; wepy 1.0.0rc3 documentation</title>
+    <title>wepy.resampling.decisions.clone_merge &#8212; wepy 1.0.0rc6 documentation</title>
     <link rel="stylesheet" href="../../../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/custom.css" />
@@ -54,7 +54,7 @@
 
 <span class="c1"># the possible types of decisions that can be made enumerated for</span>
 <span class="c1"># storage, these each correspond to specific instruction type</span>
-<div class="viewcode-block" id="CloneMergeDecisionEnum"><a class="viewcode-back" href="../../../../_api/wepy.resampling.decisions.clone_merge.html#wepy.resampling.decisions.clone_merge.CloneMergeDecisionEnum">[docs]</a><span class="k">class</span> <span class="nc">CloneMergeDecisionEnum</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+<div class="viewcode-block" id="CloneMergeDecisionEnum"><a class="viewcode-back" href="../../../../api/wepy.resampling.decisions.clone_merge.html#wepy.resampling.decisions.clone_merge.CloneMergeDecisionEnum">[docs]</a><span class="k">class</span> <span class="nc">CloneMergeDecisionEnum</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Enum definition for cloning and merging decision values.&quot;</span>
 
 <span class="sd">    - NOTHING : 1</span>
@@ -80,7 +80,7 @@
 
 
 
-<div class="viewcode-block" id="MultiCloneMergeDecision"><a class="viewcode-back" href="../../../../_api/wepy.resampling.decisions.clone_merge.html#wepy.resampling.decisions.clone_merge.MultiCloneMergeDecision">[docs]</a><span class="k">class</span> <span class="nc">MultiCloneMergeDecision</span><span class="p">(</span><span class="n">Decision</span><span class="p">):</span>
+<div class="viewcode-block" id="MultiCloneMergeDecision"><a class="viewcode-back" href="../../../../api/wepy.resampling.decisions.clone_merge.html#wepy.resampling.decisions.clone_merge.MultiCloneMergeDecision">[docs]</a><span class="k">class</span> <span class="nc">MultiCloneMergeDecision</span><span class="p">(</span><span class="n">Decision</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Decision encoding cloning and merging decisions for weighted ensemble.</span>
 
 <span class="sd">    The decision records have in addition to the &#39;decision_id&#39; a field</span>
@@ -120,14 +120,14 @@
 
 
     <span class="c1"># TODO deprecate in favor of Decision implementation</span>
-<div class="viewcode-block" id="MultiCloneMergeDecision.record"><a class="viewcode-back" href="../../../../_api/wepy.resampling.decisions.clone_merge.html#wepy.resampling.decisions.clone_merge.MultiCloneMergeDecision.record">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="MultiCloneMergeDecision.record"><a class="viewcode-back" href="../../../../api/wepy.resampling.decisions.clone_merge.html#wepy.resampling.decisions.clone_merge.MultiCloneMergeDecision.record">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">record</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">enum_value</span><span class="p">,</span> <span class="n">target_idxs</span><span class="p">):</span>
         <span class="n">record</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">record</span><span class="p">(</span><span class="n">enum_value</span><span class="p">)</span>
         <span class="n">record</span><span class="p">[</span><span class="s1">&#39;target_idxs&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">target_idxs</span>
 
         <span class="k">return</span> <span class="n">record</span></div>
 
-<div class="viewcode-block" id="MultiCloneMergeDecision.action"><a class="viewcode-back" href="../../../../_api/wepy.resampling.decisions.clone_merge.html#wepy.resampling.decisions.clone_merge.MultiCloneMergeDecision.action">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="MultiCloneMergeDecision.action"><a class="viewcode-back" href="../../../../api/wepy.resampling.decisions.clone_merge.html#wepy.resampling.decisions.clone_merge.MultiCloneMergeDecision.action">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">action</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">walkers</span><span class="p">,</span> <span class="n">decisions</span><span class="p">):</span>
 
         <span class="c1"># list for the modified walkers</span>
@@ -264,6 +264,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../../_source/installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../_source/quick_start.html">Quick Start</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../_source/introduction.html">Introduction &amp; Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_source/introduction.html#bibliography">Bibliography</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../../_source/tutorials/index.html">Tutorials</a></li>

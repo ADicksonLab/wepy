@@ -4,7 +4,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <title>wepy.orchestration.configuration module &#8212; wepy 1.0.0rc3 documentation</title>
+    <title>wepy.orchestration.configuration module &#8212; wepy 1.0.0rc6 documentation</title>
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
@@ -55,7 +55,7 @@
 <span id="wepy-orchestration-configuration-module"></span><h1>wepy.orchestration.configuration module<a class="headerlink" href="#module-wepy.orchestration.configuration" title="Permalink to this headline">¶</a></h1>
 <dl class="py class">
 <dt id="wepy.orchestration.configuration.Configuration">
-<em class="property">class </em><code class="sig-prename descclassname">wepy.orchestration.configuration.</code><code class="sig-name descname">Configuration</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">config_name</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">work_dir</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">mode</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">narration</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">reporter_classes</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">reporter_partial_kwargs</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">work_mapper_class</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">work_mapper_partial_kwargs</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">apparatus_opts</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/orchestration/configuration.html#Configuration"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.orchestration.configuration.Configuration" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">wepy.orchestration.configuration.</code><code class="sig-name descname">Configuration</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">config_name</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">work_dir</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">mode</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">narration</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">reporter_classes</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">reporter_partial_kwargs</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">work_mapper_class</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">work_mapper_partial_kwargs</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">monitor_class</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">monitor_partial_kwargs</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">apparatus_opts</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/orchestration/configuration.html#Configuration"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.orchestration.configuration.Configuration" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <dl class="py attribute">
 <dt id="wepy.orchestration.configuration.Configuration.DEFAULT_WORKDIR">
@@ -125,6 +125,21 @@
 <dl class="py method">
 <dt id="wepy.orchestration.configuration.Configuration.work_mapper_partial_kwargs">
 <em class="property">property </em><code class="sig-name descname">work_mapper_partial_kwargs</code><a class="headerlink" href="#wepy.orchestration.configuration.Configuration.work_mapper_partial_kwargs" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="wepy.orchestration.configuration.Configuration.monitor_class">
+<em class="property">property </em><code class="sig-name descname">monitor_class</code><a class="headerlink" href="#wepy.orchestration.configuration.Configuration.monitor_class" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="wepy.orchestration.configuration.Configuration.monitor_partial_kwargs">
+<em class="property">property </em><code class="sig-name descname">monitor_partial_kwargs</code><a class="headerlink" href="#wepy.orchestration.configuration.Configuration.monitor_partial_kwargs" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="wepy.orchestration.configuration.Configuration.monitor">
+<em class="property">property </em><code class="sig-name descname">monitor</code><a class="headerlink" href="#wepy.orchestration.configuration.Configuration.monitor" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -213,6 +228,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../_source/installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../_source/quick_start.html">Quick Start</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../_source/introduction.html">Introduction &amp; Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_source/introduction.html#bibliography">Bibliography</a></li>
 </ul>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../_source/tutorials/index.html">Tutorials</a></li>

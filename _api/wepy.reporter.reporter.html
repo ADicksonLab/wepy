@@ -4,7 +4,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <title>wepy.reporter.reporter module &#8212; wepy 1.0.0rc3 documentation</title>
+    <title>wepy.reporter.reporter module &#8212; wepy 1.0.0rc6 documentation</title>
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
@@ -81,7 +81,7 @@ method. Optionally the ‘init’ and ‘cleanup’ can be overriden.</p>
 <div class="admonition seealso">
 <p class="admonition-title">See also</p>
 <dl class="simple">
-<dt><a class="reference internal" href="wepy.sim_manager.html#module-wepy.sim_manager" title="wepy.sim_manager"><code class="xref py py-class docutils literal notranslate"><span class="pre">wepy.sim_manager</span></code></a></dt><dd><p>details of calls to reporter methods.</p>
+<dt><a class="reference internal" href="../api/wepy.sim_manager.html#module-wepy.sim_manager" title="wepy.sim_manager"><code class="xref py py-class docutils literal notranslate"><span class="pre">wepy.sim_manager</span></code></a></dt><dd><p>details of calls to reporter methods.</p>
 </dd>
 </dl>
 </div>
@@ -183,7 +183,7 @@ passed to them during a simulation by the sim_manager.</p>
 <dl class="py class">
 <dt id="wepy.reporter.reporter.FileReporter">
 <em class="property">class </em><code class="sig-prename descclassname">wepy.reporter.reporter.</code><code class="sig-name descname">FileReporter</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">file_paths</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">modes</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">file_path</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">mode</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/reporter/reporter.html#FileReporter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.reporter.reporter.FileReporter" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#wepy.reporter.reporter.Reporter" title="wepy.reporter.reporter.Reporter"><code class="xref py py-class docutils literal notranslate"><span class="pre">wepy.reporter.reporter.Reporter</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="../api/wepy.reporter.reporter.html#wepy.reporter.reporter.Reporter" title="wepy.reporter.reporter.Reporter"><code class="xref py py-class docutils literal notranslate"><span class="pre">wepy.reporter.reporter.Reporter</span></code></a></p>
 <p>Abstract reporter that handles specifying file paths for a
 reporter.</p>
 <p>This abstract class doesn’t perform any operations that involve
@@ -445,7 +445,7 @@ from applying resampling and boundary conditions.</p></li>
 <dl class="py class">
 <dt id="wepy.reporter.reporter.ProgressiveFileReporter">
 <em class="property">class </em><code class="sig-prename descclassname">wepy.reporter.reporter.</code><code class="sig-name descname">ProgressiveFileReporter</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">file_paths</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">modes</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">file_path</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">mode</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/reporter/reporter.html#ProgressiveFileReporter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.reporter.reporter.ProgressiveFileReporter" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#wepy.reporter.reporter.FileReporter" title="wepy.reporter.reporter.FileReporter"><code class="xref py py-class docutils literal notranslate"><span class="pre">wepy.reporter.reporter.FileReporter</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="../api/wepy.reporter.reporter.html#wepy.reporter.reporter.FileReporter" title="wepy.reporter.reporter.FileReporter"><code class="xref py py-class docutils literal notranslate"><span class="pre">wepy.reporter.reporter.FileReporter</span></code></a></p>
 <p>Super class for a reporter that will successively overwrite the
 same file over and over again. The base FileReporter really only
 supports creation of file one time.</p>
@@ -654,7 +654,7 @@ from applying resampling and boundary conditions.</p></li>
 </dl>
 <div class="admonition seealso">
 <p class="admonition-title">See also</p>
-<p><a class="reference internal" href="#wepy.reporter.reporter.FileReporter" title="wepy.reporter.reporter.FileReporter"><code class="xref py py-meth docutils literal notranslate"><span class="pre">wepy.reporter.reporter.FileReporter()</span></code></a></p>
+<p><a class="reference internal" href="../api/wepy.reporter.reporter.html#wepy.reporter.reporter.FileReporter" title="wepy.reporter.reporter.FileReporter"><code class="xref py py-meth docutils literal notranslate"><span class="pre">wepy.reporter.reporter.FileReporter()</span></code></a></p>
 </div>
 </dd></dl>
 
@@ -709,6 +709,7 @@ from applying resampling and boundary conditions.</p></li>
 <li class="toctree-l1"><a class="reference internal" href="../_source/installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../_source/quick_start.html">Quick Start</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../_source/introduction.html">Introduction &amp; Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_source/introduction.html#bibliography">Bibliography</a></li>
 </ul>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../_source/tutorials/index.html">Tutorials</a></li>

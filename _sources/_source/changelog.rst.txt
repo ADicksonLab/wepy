@@ -6,8 +6,28 @@ org-mode.
 
 See the git commit log history for full details.
 
-1.0.0 - WIP
------------
+.. _section-1:
+
+1.0.0
+-----
+
+Changes in rc6:
+
+-  adds feature to make weighted transition counts from simulation data.
+   This was also made the way that the MacroStateNetwork calculates the
+   counts and transition probabilities matrices.
+-  Fixed initialization errors in the TaskMapper which would cause a
+   zombie job.
+-  Fixed implementation of the CPU Task process for OpenMM.
+-  Fixed sim maker details in wepy\ :sub:`tools`
+
+Changes in rc5:
+
+-  adds simulation monitoring via prometheus (or whatever) as a feature
+
+Changes in rc4:
+
+-  fixes bugs introduced to work mappers from rc2
 
 Changes in rc3:
 

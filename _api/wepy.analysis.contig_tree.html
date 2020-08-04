@@ -4,7 +4,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <title>wepy.analysis.contig_tree module &#8212; wepy 1.0.0rc3 documentation</title>
+    <title>wepy.analysis.contig_tree module &#8212; wepy 1.0.0rc6 documentation</title>
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
@@ -286,7 +286,7 @@ frame indices given by the contig_trace.</p>
 <div class="admonition seealso">
 <p class="admonition-title">See also</p>
 <dl class="simple">
-<dt><a class="reference internal" href="#wepy.analysis.contig_tree.Contig.contig_trace_to_run_trace" title="wepy.analysis.contig_tree.Contig.contig_trace_to_run_trace"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Contig.contig_trace_to_run_trace()</span></code></a></dt><dd><p>calls this static method</p>
+<dt><a class="reference internal" href="../api/wepy.analysis.contig_tree.html#wepy.analysis.contig_tree.Contig.contig_trace_to_run_trace" title="wepy.analysis.contig_tree.Contig.contig_trace_to_run_trace"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Contig.contig_trace_to_run_trace()</span></code></a></dt><dd><p>calls this static method</p>
 </dd>
 </dl>
 </div>
@@ -723,7 +723,7 @@ the runs in the order of the contigs defined by the continuations.</p>
 <dl class="py class">
 <dt id="wepy.analysis.contig_tree.ContigTree">
 <em class="property">class </em><code class="sig-prename descclassname">wepy.analysis.contig_tree.</code><code class="sig-name descname">ContigTree</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">wepy_h5</span></em>, <em class="sig-param"><span class="n">base_contigtree</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">continuations</span><span class="o">=</span><span class="default_value">Ellipsis</span></em>, <em class="sig-param"><span class="n">runs</span><span class="o">=</span><span class="default_value">Ellipsis</span></em>, <em class="sig-param"><span class="n">boundary_condition_class</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">decision_class</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/contig_tree.html#ContigTree"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.contig_tree.ContigTree" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#wepy.analysis.contig_tree.BaseContigTree" title="wepy.analysis.contig_tree.BaseContigTree"><code class="xref py py-class docutils literal notranslate"><span class="pre">wepy.analysis.contig_tree.BaseContigTree</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="../api/wepy.analysis.contig_tree.html#wepy.analysis.contig_tree.BaseContigTree" title="wepy.analysis.contig_tree.BaseContigTree"><code class="xref py py-class docutils literal notranslate"><span class="pre">wepy.analysis.contig_tree.BaseContigTree</span></code></a></p>
 <p>Wraps a WepyHDF5 object and gives access to logical trajectories.</p>
 <p>The contig tree is technically a forest (a collection of trees)
 and can have multiple roots.</p>
@@ -1415,7 +1415,7 @@ frame indices given by the contig_trace.</p>
 <div class="admonition seealso">
 <p class="admonition-title">See also</p>
 <dl class="simple">
-<dt><a class="reference internal" href="#wepy.analysis.contig_tree.Contig.contig_trace_to_run_trace" title="wepy.analysis.contig_tree.Contig.contig_trace_to_run_trace"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Contig.contig_trace_to_run_trace()</span></code></a></dt><dd><p>calls this static method</p>
+<dt><a class="reference internal" href="../api/wepy.analysis.contig_tree.html#wepy.analysis.contig_tree.Contig.contig_trace_to_run_trace" title="wepy.analysis.contig_tree.Contig.contig_trace_to_run_trace"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Contig.contig_trace_to_run_trace()</span></code></a></dt><dd><p>calls this static method</p>
 </dd>
 </dl>
 </div>
@@ -1426,7 +1426,7 @@ frame indices given by the contig_trace.</p>
 <dl class="py class">
 <dt id="wepy.analysis.contig_tree.Contig">
 <em class="property">class </em><code class="sig-prename descclassname">wepy.analysis.contig_tree.</code><code class="sig-name descname">Contig</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">wepy_h5</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/contig_tree.html#Contig"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.contig_tree.Contig" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#wepy.analysis.contig_tree.ContigTree" title="wepy.analysis.contig_tree.ContigTree"><code class="xref py py-class docutils literal notranslate"><span class="pre">wepy.analysis.contig_tree.ContigTree</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="../api/wepy.analysis.contig_tree.html#wepy.analysis.contig_tree.ContigTree" title="wepy.analysis.contig_tree.ContigTree"><code class="xref py py-class docutils literal notranslate"><span class="pre">wepy.analysis.contig_tree.ContigTree</span></code></a></p>
 <p>Wraps a WepyHDF5 object and gives access to logical trajectories
 from a single contig.</p>
 <p>This class is very similar to the ContigTree class and inherits
@@ -2361,7 +2361,7 @@ frame indices given by the contig_trace.</p>
 <div class="admonition seealso">
 <p class="admonition-title">See also</p>
 <dl class="simple">
-<dt><a class="reference internal" href="#wepy.analysis.contig_tree.Contig.contig_trace_to_run_trace" title="wepy.analysis.contig_tree.Contig.contig_trace_to_run_trace"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Contig.contig_trace_to_run_trace()</span></code></a></dt><dd><p>calls this static method</p>
+<dt><a class="reference internal" href="../api/wepy.analysis.contig_tree.html#wepy.analysis.contig_tree.Contig.contig_trace_to_run_trace" title="wepy.analysis.contig_tree.Contig.contig_trace_to_run_trace"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Contig.contig_trace_to_run_trace()</span></code></a></dt><dd><p>calls this static method</p>
 </dd>
 </dl>
 </div>
@@ -2487,6 +2487,7 @@ lineages for.</p>
 <li class="toctree-l1"><a class="reference internal" href="../_source/installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../_source/quick_start.html">Quick Start</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../_source/introduction.html">Introduction &amp; Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_source/introduction.html#bibliography">Bibliography</a></li>
 </ul>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../_source/tutorials/index.html">Tutorials</a></li>

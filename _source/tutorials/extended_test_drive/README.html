@@ -1,0 +1,880 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>A First Look at wepy Data &#8212; wepy 1.0.0rc6 documentation</title>
+    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css" />
+    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="Introduction to Weighted Ensemble Data Analysis in wepy" href="../data_analysis/README.html" />
+    <link rel="prev" title="Tutorials" href="../index.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+              <div class="related top">
+                &nbsp;
+  <nav id="rellinks">
+    <ul>
+        <li>
+          &larr;
+          <a href="../index.html" title="Previous document">Tutorials</a>
+        </li>
+        <li>
+          <a href="../data_analysis/README.html" title="Next document">Introduction to Weighted Ensemble Data Analysis in wepy</a>
+          &rarr;
+        </li>
+    </ul>
+  </nav>
+              </div>
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="a-first-look-at-wepy-data">
+<h1>A First Look at wepy Data<a class="headerlink" href="#a-first-look-at-wepy-data" title="Permalink to this headline">¶</a></h1>
+<p>In the Quick Start we showed how you could easily get a simulation
+running with wepy.</p>
+<p>In this tutorial we will add onto this quick example to give some more
+explanation and show some simple examples of analysis.</p>
+<p>We assume users are using a POSIX-like shell such as <code class="docutils literal notranslate"><span class="pre">bash</span></code>.</p>
+<p>As from before the test drive script is installed as a module and can be
+run as a python script:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python -m wepy_test_drive --help
+</pre></div>
+</div>
+<p>NOTE: That the test drive is a specific “application” that is built
+using <code class="docutils literal notranslate"><span class="pre">wepy</span></code> so that users can run quick simulations just specifying
+some high-level configurations. Please be aware that in order to make
+them simple parameters have been chosen that are not necessarily good or
+recommended for any situation.</p>
+<p>In order to use <code class="docutils literal notranslate"><span class="pre">wepy</span></code> effectively you will have to use and program
+the Python API. The intent here is to quickly introduce users to all the
+pieces, parts, and objects you will need to interact with.</p>
+<div class="section" id="running-a-simulation-and-producing-results">
+<h2>Running a Simulation and Producing Results<a class="headerlink" href="#running-a-simulation-and-producing-results" title="Permalink to this headline">¶</a></h2>
+<p>The test drive is configured so that all of the file outputs are dropped
+into the current folder. When writing code for your own simulations this
+can be configured.</p>
+<p>All outputs in this tutorial will be in the <code class="docutils literal notranslate"><span class="pre">_output</span></code> directory so
+before running the simulations you should change to that directory:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>mkdir -p _output/run0
+<span class="o">(</span><span class="nb">cd</span> _output/run0 <span class="o">&amp;&amp;</span> python -m wepy_test_drive LennardJonesPair/OpenMM-Reference <span class="m">20</span> <span class="m">10</span> <span class="m">4</span> <span class="m">3</span><span class="o">)</span>
+ls _output/run0
+</pre></div>
+</div>
+<p>You should see something like:</p>
+<div class="highlight-fundamental notranslate"><div class="highlight"><pre><span></span>root.dash.org
+root.init_top.pdb
+root.walkers.dcd
+root.wepy.h5
+</pre></div>
+</div>
+<p>You may also see some Warnings that can safely be ignored until you want
+to run important simulations. But in most cases are harmless and can be
+turned off if you wish.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">root.dash.org</span></code> and <code class="docutils literal notranslate"><span class="pre">root.walkers.dcd</span></code> files are only really
+useful for long running simulations in which you want to monitor the
+results of as they are progressing.</p>
+<p>You can look at <code class="docutils literal notranslate"><span class="pre">root.dash.org</span></code> as a text file and see some metrics
+and tables regarding the simulation.</p>
+<p>You can use the <code class="docutils literal notranslate"><span class="pre">root.init_top.pdb</span></code> file and open them in VMD or
+similar molecular visualization software to see what the initial
+conditions of the system looks like.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">root.walkers.dcd</span></code> can be loaded on top of the
+<code class="docutils literal notranslate"><span class="pre">root.init_top.pdb</span></code> file to show you a snapshot of what the last
+ensemble of walkers looked like.</p>
+<p>Finally, and most importantly is the <code class="docutils literal notranslate"><span class="pre">root.wepy.h5</span></code> file which
+contains <strong>all</strong> of the simulation data and most of the other data in
+the other formats can be regenerated from it. This <code class="docutils literal notranslate"><span class="pre">WepyHDF5</span></code> file
+excludes data on the performance, timestamps, and states of the
+simulation components like resamplers.</p>
+<p>This is important because all <code class="docutils literal notranslate"><span class="pre">WepyHDF5</span></code> files are compatible even if
+different resamplers were used to generate simulations.</p>
+<p>For instance we can run again using the REVO <code class="docutils literal notranslate"><span class="pre">--resampler</span></code> by using
+the resampler flag:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>mkdir -p _output/revo_run
+<span class="o">(</span><span class="nb">cd</span> _output/revo_run <span class="o">&amp;&amp;</span> python -m wepy_test_drive --resampler REVO LennardJonesPair/OpenMM-Reference <span class="m">20</span> <span class="m">10</span> <span class="m">4</span> <span class="m">3</span><span class="o">)</span>
+</pre></div>
+</div>
+<p>You can even disable using a resampler entirely by using the dummy “No”
+resampler. This is actually quite useful for comparing improvements in
+sampling using resampling:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>mkdir -p _output/no_run
+<span class="o">(</span><span class="nb">cd</span> _output/no_run <span class="o">&amp;&amp;</span> python -m wepy_test_drive --resampler No LennardJonesPair/OpenMM-Reference <span class="m">20</span> <span class="m">10</span> <span class="m">4</span> <span class="m">3</span><span class="o">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="analyzing-results">
+<h2>Analyzing Results<a class="headerlink" href="#analyzing-results" title="Permalink to this headline">¶</a></h2>
+<p>Now that we have created some data we want to analyze it.</p>
+<p>We will just cover the absolute basics of opening and exploring files
+here since this is a large topic and will be covered in detail in other
+tutorials.</p>
+<div class="section" id="opening-the-hdf5-database">
+<h3>Opening the HDF5 database<a class="headerlink" href="#opening-the-hdf5-database" title="Permalink to this headline">¶</a></h3>
+<p>To access the data that is stored in the HDF5 file you can use any
+number of tools available for the job. This includes python libraries
+like <code class="docutils literal notranslate"><span class="pre">h5py</span></code>, but can also be other tools like <code class="docutils literal notranslate"><span class="pre">h5ls</span></code> or <code class="docutils literal notranslate"><span class="pre">hdfql</span></code>
+which are agnostic to the particular schemas the data has.</p>
+<p>However, <code class="docutils literal notranslate"><span class="pre">wepy</span></code> provides an API to <code class="docutils literal notranslate"><span class="pre">WepyHDF5</span></code> files (I like to use
+the file extension <code class="docutils literal notranslate"><span class="pre">*.wepy.h5</span></code>) that makes accessing WE specific data
+much easier.</p>
+<p>To get started simply import the class that does this:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">wepy.hdf5</span> <span class="kn">import</span> <span class="n">WepyHDF5</span>
+</pre></div>
+</div>
+<p>When constructing this class you can use it to make new HDF5 files from
+scratch, however this should be done for you in the reporter that
+generates HDF5 files.</p>
+<p>So for us we only use it to read HDF5 files. Run this code to construct
+the class and link it to the HDF5 file we created from our first run
+with WExplore:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">wepy_h5</span> <span class="o">=</span> <span class="n">WepyHDF5</span><span class="p">(</span><span class="s1">&#39;_output/run0/root.wepy.h5&#39;</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Here we are opening in read-only mode so that we can’t accidentally
+change or overwrite any data in the file. Never open with <code class="docutils literal notranslate"><span class="pre">'w'</span></code> as the
+mode or your existing file will be destroyed!</p>
+<p>Now that we have this connection to the file we need to actually open
+the file for access.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">wepy_h5</span><span class="o">.</span><span class="n">open</span><span class="p">()</span>
+<span class="c1"># do stuff...</span>
+<span class="n">wepy_h5</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>This is okay for interactive exploration of a dataset, but in real
+scripts you will probably want to use the context manager which will
+automatically close it and protect the data.</p>
+<p>Its worth mentioning though that HDF5 data is relatively difficult to
+accidentally screw up in simple non-parallel analysis situations. That
+being said its always good to have good hygiene when dealing with your
+precious data.</p>
+<p>For example you would use a context manager like thus:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">with</span> <span class="n">wepy_h5</span><span class="p">:</span>
+    <span class="k">pass</span>
+</pre></div>
+</div>
+<p>Simply opening an HDF5 file doesn’t read very much data into memory so
+its a very cheap operation. It basically just fetches some header meta
+data and sets flags and locks so that other processes don’t accidentally
+interrupt you.</p>
+<p>One of the major advantages of using HDF5 is that you only will ever
+bring the data you really need into memory (to some close
+approximation). That means you can have huge individual trajectories
+(say 30GB each) that wouldn’t ever reasonably fit into RAM, but you can
+access slices or chunks of them as you need.</p>
+<p>This is something to be aware of when outputting to other formats like
+DCD where the whole file usually needs to be read into memory. This
+isn’t a problem for WepyHDF5 trajectories but you will need to consider
+this when exporting for visualization etc.</p>
+<p>Lets reopen our file and start poking around. I suggest doing this
+interactively such as in an IPython session or Jupyter Notebook:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">wepy_h5</span><span class="o">.</span><span class="n">open</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>You can get whether the file is open or not:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="ow">not</span> <span class="n">wepy_h5</span><span class="o">.</span><span class="n">closed</span><span class="p">:</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;File </span><span class="si">{</span><span class="n">wepy_h5</span><span class="o">.</span><span class="n">filename</span><span class="si">}</span><span class="s2"> is open&quot;</span><span class="p">)</span>
+
+<span class="k">else</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;File </span><span class="si">{</span><span class="n">wepy_h5</span><span class="o">.</span><span class="n">filename</span><span class="si">}</span><span class="s2"> is closed&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<hr class="docutils" />
+<div class="highlight-fundamental notranslate"><div class="highlight"><pre><span></span>File _output/run0/root.wepy.h5 is open
+</pre></div>
+</div>
+<p>You can also get access to the underlying <code class="docutils literal notranslate"><span class="pre">h5py</span></code> object:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">wepy_h5</span><span class="o">.</span><span class="n">h5</span><span class="p">)</span>
+</pre></div>
+</div>
+<hr class="docutils" />
+<div class="highlight-fundamental notranslate"><div class="highlight"><pre><span></span>&lt;HDF5 file &quot;root.wepy.h5&quot; (mode r)&gt;
+</pre></div>
+</div>
+</div>
+<div class="section" id="accessing-run-trajectory-data">
+<h3>Accessing Run &amp; Trajectory Data<a class="headerlink" href="#accessing-run-trajectory-data" title="Permalink to this headline">¶</a></h3>
+<p>The main category of data are the “runs” that are stored in the HDF5.
+Each “run” dataset corresponds to a single self-contained simulation.</p>
+<p>A <code class="docutils literal notranslate"><span class="pre">WepyHDF5</span></code> can have multiple runs but it is common to only have one
+run per file. We can later aggregate multiple runs into a single logical
+dataset later very inexpensively by linking them on the file system but
+for now we will just focus on them one run at a time.</p>
+<p>To list the IDs (just indices really) we can look at the <code class="docutils literal notranslate"><span class="pre">run_idxs</span></code>
+attribute:</p>
+<blockquote>
+<div><p>Throughout <code class="docutils literal notranslate"><span class="pre">wepy</span></code> ‘idx’ is used as shorthand for ‘index’ or ‘idxs’
+for ‘indices’.</p>
+</div></blockquote>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">wepy_h5</span><span class="o">.</span><span class="n">run_idxs</span><span class="p">)</span>
+</pre></div>
+</div>
+<hr class="docutils" />
+<div class="highlight-fundamental notranslate"><div class="highlight"><pre><span></span>[0]
+</pre></div>
+</div>
+<p>Which indicates that there is a single run with index <code class="docutils literal notranslate"><span class="pre">0</span></code>.</p>
+<p>Now that we know which runs we are interested in we can query more data
+about it.</p>
+<p>First off we might see how many cycles long the run is:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">wepy_h5</span><span class="o">.</span><span class="n">num_run_cycles</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+</pre></div>
+</div>
+<hr class="docutils" />
+<div class="highlight-fundamental notranslate"><div class="highlight"><pre><span></span>10
+</pre></div>
+</div>
+<p>We can get the number of walkers in the simulation:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">wepy_h5</span><span class="o">.</span><span class="n">num_init_walkers</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+</pre></div>
+</div>
+<hr class="docutils" />
+<div class="highlight-fundamental notranslate"><div class="highlight"><pre><span></span>20
+</pre></div>
+</div>
+<p>We can also get the indices simulation trajectories.</p>
+<p>Each run will have a number of trajectory datasets that roughly
+correspond to the number of walkers in a simulation, you can see the
+existing indices of these trajectories like this:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">wepy_h5</span><span class="o">.</span><span class="n">run_traj_idxs</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+</pre></div>
+</div>
+<hr class="docutils" />
+<div class="highlight-fundamental notranslate"><div class="highlight"><pre><span></span>[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+</pre></div>
+</div>
+<p>Because our simulations had a constant number of walkers (20 in this
+case) you can see trajectories 0 through 19.</p>
+<p>Lets pick one of the trajectories (0) from the run (0) and see what data
+it has available.</p>
+<p>First we can see how many frames it has:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">wepy_h5</span><span class="o">.</span><span class="n">num_traj_frames</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+</pre></div>
+</div>
+<hr class="docutils" />
+<div class="highlight-fundamental notranslate"><div class="highlight"><pre><span></span>10
+</pre></div>
+</div>
+<p>This is the same as the number of cycles in the run. Now lets see what
+data was stored for each frame:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">wepy_h5</span><span class="o">.</span><span class="n">traj</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+</pre></div>
+</div>
+<hr class="docutils" />
+<div class="highlight-fundamental notranslate"><div class="highlight"><pre><span></span>[&#39;box_vectors&#39;, &#39;box_volume&#39;, &#39;forces&#39;, &#39;kinetic_energy&#39;, &#39;positions&#39;, &#39;potential_energy&#39;, &#39;time&#39;, &#39;velocities&#39;, &#39;weights&#39;]
+</pre></div>
+</div>
+<p>This is all data that is in an OpenMM simulation which is provided
+through the OpenMM Runner that was used in the simulation. This can be
+used for any kind of analysis and will be used to export data into other
+formats that can be used for visualization.</p>
+<p>Note that We still haven’t loaded any more data than the metadata for a
+few groups and datasets. We can actually load data into memory with a
+number of different methods depending on our use case. For now we can
+get it just for this one trajectory:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">box_vectors</span> <span class="o">=</span> <span class="n">wepy_h5</span><span class="o">.</span><span class="n">get_traj_field</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;box_vectors&#39;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">box_vectors</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">box_vectors</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+</pre></div>
+</div>
+<hr class="docutils" />
+<div class="highlight-fundamental notranslate"><div class="highlight"><pre><span></span>&lt;class &#39;numpy.ndarray&#39;&gt;
+(10, 3, 3)
+</pre></div>
+</div>
+<p>Here we have asked for the box vectors of trajectory 0 in run 0. This is
+returned as a <code class="docutils literal notranslate"><span class="pre">numpy</span></code> array of rank 3. The shape of the array
+indicates that we have 10 frames and then a “feature” that is a 3 by 3
+array, that is 3 spatial dimensions for the 3 vectors defining the
+bounding box of the simulation.</p>
+<p>Every trajectory field follows this same structure, where the first
+dimension of the array is indexed by the frames and then the rest are
+specific to the feature. You can kind of think of every trajectory as
+being a table where the number of rows is the number of frames
+(typically also the number of cycles for constant walker simulations)
+and each column is a specific feature of that trajectory, which <code class="docutils literal notranslate"><span class="pre">wepy</span></code>
+refers to as the <code class="docutils literal notranslate"><span class="pre">fields</span></code>.</p>
+<p>While a <code class="docutils literal notranslate"><span class="pre">(10,</span> <span class="pre">3,</span> <span class="pre">3)</span></code> array here is no problem to fit into memory as
+frame data gets larger and the number of frames increases it can be
+difficult. We can always simply retrieve a subset of the frames we want.
+Here this is a list of exactly the frame indices we want:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">chosen_frames</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">7</span><span class="p">,</span><span class="mi">8</span><span class="p">]</span>
+
+<span class="n">positions</span> <span class="o">=</span> <span class="n">wepy_h5</span><span class="o">.</span><span class="n">get_traj_field</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;positions&#39;</span><span class="p">,</span>
+                                     <span class="n">frames</span><span class="o">=</span><span class="n">chosen_frames</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">positions</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+</pre></div>
+</div>
+<hr class="docutils" />
+<div class="highlight-fundamental notranslate"><div class="highlight"><pre><span></span>(4, 2, 3)
+</pre></div>
+</div>
+<p>Here we can see from the shape of the array that we only have 4 frames
+now. We can also see now that our “feature” array is different for
+representing the positions of the particles:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">positions</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+</pre></div>
+</div>
+<hr class="docutils" />
+<div class="highlight-fundamental notranslate"><div class="highlight"><pre><span></span>array([[ 0.09647451 -0.45307833  0.19268026]
+       [ 0.2685555  -0.11978315  0.0991859 ]])
+</pre></div>
+</div>
+<p>The only required field present is the <code class="docutils literal notranslate"><span class="pre">weights</span></code>, and is necessary for
+proper weighted ensemble (WE) simulations.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">weights</span> <span class="o">=</span> <span class="n">wepy_h5</span><span class="o">.</span><span class="n">get_traj_field</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;weights&#39;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">weights</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+</pre></div>
+</div>
+<hr class="docutils" />
+<div class="highlight-fundamental notranslate"><div class="highlight"><pre><span></span>(10, 1)
+</pre></div>
+</div>
+<p>This has the same structure as above even though weights are always a
+scalar value.</p>
+<p>Common molecular trajectory formats usually hardcode which data can be
+stored in them, typically only the positions and box vectors. Because
+HDF5 is designed to hold arbitrary array data any data can be associated
+to a trajectory for any kind of modified simulation. This is how many
+different runners can all use the same format.</p>
+<p>Of course particular kinds of analysis will require the presence of
+specific fields but this is up to the user. However, because <code class="docutils literal notranslate"><span class="pre">wepy</span></code>
+was built to work with OpenMM and molecular dynamics from the beginning
+there are some convenience functions for exporting directly to
+<code class="docutils literal notranslate"><span class="pre">mdtraj.Trajectory</span></code> objects. These require the presence of the
+<code class="docutils literal notranslate"><span class="pre">positions</span></code> and <code class="docutils literal notranslate"><span class="pre">box_vectors</span></code> fields:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">traj</span> <span class="o">=</span> <span class="n">wepy_h5</span><span class="o">.</span><span class="n">to_mdtraj</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">traj</span><span class="o">.</span><span class="n">n_atoms</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">traj</span><span class="o">.</span><span class="n">n_frames</span><span class="p">)</span>
+<span class="n">traj</span><span class="o">.</span><span class="n">save_dcd</span><span class="p">(</span><span class="s1">&#39;_output/run0/traj0.dcd&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<hr class="docutils" />
+<div class="highlight-fundamental notranslate"><div class="highlight"><pre><span></span>2
+10
+</pre></div>
+</div>
+<p>You can even use the <code class="docutils literal notranslate"><span class="pre">_output/run0/root.init_top.pdb</span></code> file and the
+<code class="docutils literal notranslate"><span class="pre">_output/run0/traj0.dcd</span></code> files to view them in something like VMD.</p>
+</div>
+<div class="section" id="topologies">
+<h3>Topologies<a class="headerlink" href="#topologies" title="Permalink to this headline">¶</a></h3>
+<p>That’s neat but how did it know the molecular topology in order to be
+able to generate the trajectory? This is because <code class="docutils literal notranslate"><span class="pre">wepy</span></code> records the
+molecular topology in the HDF5 file and retrieves it automatically for
+you. You can get it yourself and see it:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">top_json</span> <span class="o">=</span> <span class="n">wepy_h5</span><span class="o">.</span><span class="n">get_topology</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">top_json</span><span class="p">)</span>
+</pre></div>
+</div>
+<hr class="docutils" />
+<div class="highlight-fundamental notranslate"><div class="highlight"><pre><span></span>&#39;{&quot;chains&quot;: [{&quot;index&quot;: 0, &quot;residues&quot;: [{&quot;index&quot;: 0, &quot;name&quot;: &quot;Ar&quot;, &quot;atoms&quot;: [{&quot;index&quot;: 0, &quot;name&quot;: &quot;Ar&quot;, &quot;element&quot;: &quot;Ar&quot;}], &quot;resSeq&quot;: 1, &quot;segmentID&quot;: &quot;&quot;}, {&quot;index&quot;: 1, &quot;name&quot;: &quot;Ar&quot;, &quot;atoms&quot;: [{&quot;index&quot;: 1, &quot;name&quot;: &quot;Ar&quot;, &quot;element&quot;: &quot;Ar&quot;}], &quot;resSeq&quot;: 2, &quot;segmentID&quot;: &quot;&quot;}]}], &quot;bonds&quot;: []}&#39;
+</pre></div>
+</div>
+<p>This is the topology encoded as a JSON string. Its a somewhat internal
+representation used by <code class="docutils literal notranslate"><span class="pre">wepy</span></code> as there really wasn’t any other
+suitable formats for this purpose available. Luckily it is trivial to
+convert this format to the <code class="docutils literal notranslate"><span class="pre">mdtraj</span></code> one (indeed this format is used
+internally in <code class="docutils literal notranslate"><span class="pre">mdtraj</span></code> which is where it comes from). Again we have a
+convenience method for this:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">mdj_top</span> <span class="o">=</span> <span class="n">wepy_h5</span><span class="o">.</span><span class="n">get_mdtraj_topology</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>But there is also a module full of utilities that can help with working
+with these topology files. For example we can view them as <code class="docutils literal notranslate"><span class="pre">pandas</span></code>
+dataframe tables based on the atoms, residues, or chains. For this
+example, only the atoms are interesting.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">wepy.util.json_top</span> <span class="kn">import</span> <span class="n">json_top_atom_df</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">json_top_atom_df</span><span class="p">(</span><span class="n">top_json</span><span class="p">))</span>
+</pre></div>
+</div>
+<hr class="docutils" />
+<div class="highlight-fundamental notranslate"><div class="highlight"><pre><span></span>   index name element  chain_key  residue_key
+0      0   Ar      Ar          0            0
+1      1   Ar      Ar          0            1
+</pre></div>
+</div>
+<p>Where you can see the two “Argon” atoms used as the Lennard-Jones
+particles in the simulation.</p>
+<p>Here you can also get subsets of the atoms in the topology that
+preserves ordering (something the same <code class="docutils literal notranslate"><span class="pre">mdtraj</span></code> function doesn’t do):</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">wepy.util.json_top</span> <span class="kn">import</span> <span class="n">json_top_subset</span>
+
+<span class="n">subset_top</span> <span class="o">=</span> <span class="n">json_top_subset</span><span class="p">(</span><span class="n">top_json</span><span class="p">,</span> <span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">json_top_atom_df</span><span class="p">(</span><span class="n">subset_top</span><span class="p">))</span>
+</pre></div>
+</div>
+<hr class="docutils" />
+<div class="highlight-fundamental notranslate"><div class="highlight"><pre><span></span>   index name element  chain_key  residue_key
+0      0   Ar      Ar          0            0
+</pre></div>
+</div>
+<p>Using the <code class="docutils literal notranslate"><span class="pre">mdtraj</span></code> utilities we can also directly convert the json to
+mdtraj and vice-versa:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">wepy.util.mdtraj</span> <span class="kn">import</span> <span class="n">json_to_mdtraj_topology</span><span class="p">,</span> <span class="n">mdtraj_to_json_topology</span>
+
+<span class="n">mdj_top</span> <span class="o">=</span> <span class="n">json_to_mdtraj_topology</span><span class="p">(</span><span class="n">top_json</span><span class="p">)</span>
+<span class="n">top_json</span> <span class="o">=</span> <span class="n">mdtraj_to_json_topology</span><span class="p">(</span><span class="n">mdj_top</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Its worth mentioning for those unfamiliar with <code class="docutils literal notranslate"><span class="pre">json</span></code> is that it can
+be directly read into python “lists-and-dicts”:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">json</span>
+
+<span class="n">top</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">top_json</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">top</span><span class="p">[</span><span class="s1">&#39;chains&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;residues&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;atoms&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+</pre></div>
+</div>
+<hr class="docutils" />
+<div class="highlight-fundamental notranslate"><div class="highlight"><pre><span></span>{&#39;index&#39;: 0, &#39;name&#39;: &#39;Ar&#39;, &#39;element&#39;: &#39;Ar&#39;}
+</pre></div>
+</div>
+<p>Lets move on from topologies for now. There are more advanced features
+in <code class="docutils literal notranslate"><span class="pre">wepy</span></code> that allow for storing subsets of position data based on
+different topologies but this is an advanced topic used for when storage
+requirements would be too great to store entire simulations.</p>
+<p>One last thing to keep in mind however is that there is only a single
+topology in each <strong>file</strong> (excluding subsets of course). That is every
+run in a file should be the same system being simulated. While there
+isn’t any reason why a user couldn’t add other topology files (say as a
+field) most of the convenience functions in the <code class="docutils literal notranslate"><span class="pre">WepyHDF5</span></code> interface
+assume a single master topology.</p>
+</div>
+<div class="section" id="more-ways-to-get-trajectory-data">
+<h3>More Ways to get Trajectory Data<a class="headerlink" href="#more-ways-to-get-trajectory-data" title="Permalink to this headline">¶</a></h3>
+<p>The simplicity of the runs of trajectories may make it seem that the
+structure of WE is not that different from normal simulations. This is
+not the case however, and unfortunately we must admit here that the
+“trajectories” here a lie.</p>
+<p>That is each “trajectory” dataset above doesn’t necessarily correspond
+to a real continuous simulation trajectory in the simulation. Rather the
+“trajectories” in the HDF5 file are just a coherent way to store the
+data.</p>
+<p>While it is <em>possible</em> for a trajectory to correspond to a <strong>continuous
+trajectory</strong> this is not <em>guaranteed</em>. This is because during the
+simulation some walkers are cloned and others may be killed. However,
+for this simulation the total number of walkers is kept the same. That
+is why we can have specifically 20 trajectories corresponding to the 20
+walkers in the run. If you were to visualize a single trajectory that is
+killed then you might see a conspicuous change from the last location.</p>
+<p>Its better to think of the “trajectories” in the HDF5 as <strong>slots</strong> that
+walker data can be placed. At each cycle the resampler is free to put
+whatever walker in whatever slot. Thus we might think of each collection
+of walkers at a given cycle as an unordered set, that happen to be
+assigned to slots when saved to the HDF5 file. The data is arranged in
+this “columnar” format because it is more efficient due to the
+properties of HDF5.</p>
+<p>If we can’t rely on these fraudulent trajectories to give us proper
+trajectories how can we do this? Unfortunately this requires a better
+definition of the question to answer this and also requires help from a
+couple other analysis routines and classes in <code class="docutils literal notranslate"><span class="pre">wepy</span></code>. So we will defer
+this question for now. However, we will cover the building blocks that
+are used in conjunction with those higher-level tools.</p>
+<p>First, we will introduce the idea of a <strong>trace</strong> which is a way to
+specify a set of frames across runs, trajectories, and cycles.</p>
+<p>For example using the same dataset we might be interested in the all of
+the walker states for a particular cycle, e.g. the last one:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">last_cycle_trace</span> <span class="o">=</span> <span class="p">[(</span><span class="mi">0</span><span class="p">,</span> <span class="n">traj_idx</span><span class="p">,</span> <span class="mi">9</span><span class="p">)</span> <span class="k">for</span> <span class="n">traj_idx</span> <span class="ow">in</span> <span class="n">wepy_h5</span><span class="o">.</span><span class="n">run_traj_idxs</span><span class="p">(</span><span class="mi">0</span><span class="p">)]</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">last_cycle_trace</span><span class="p">)</span>
+</pre></div>
+</div>
+<hr class="docutils" />
+<div class="highlight-fundamental notranslate"><div class="highlight"><pre><span></span>[(0, 0, 9), (0, 1, 9), (0, 2, 9), (0, 3, 9), (0, 4, 9), (0, 5, 9), (0, 6, 9), (0, 7, 9), (0, 8, 9), (0, 9, 9), (0, 10, 9), (0, 11, 9), (0, 12, 9), (0, 13, 9), (0, 14, 9), (0, 15, 9), (0, 16, 9), (0, 17, 9), (0, 18, 9), (0, 19, 9)]
+</pre></div>
+</div>
+<p>This data structure is generally called a <strong>trace</strong>, because it
+specifies a path through the data. The order of the index-tuples in the
+trace indicates this path, however often this order is of no interest to
+us. Such is the case with the <code class="docutils literal notranslate"><span class="pre">last_cycle_trace</span></code> above, it could just
+as easily be a <code class="docutils literal notranslate"><span class="pre">set</span></code>. Typically unless otherwise specified the order
+of the trace will always be preserved.</p>
+<p>Somewhat confusingly there are different kinds of traces depending which
+collection you are indexing. Here each tuple value corresponds to
+<code class="docutils literal notranslate"><span class="pre">(run_idx,</span> <span class="pre">traj_idx,</span> <span class="pre">cycle_idx)</span></code> and thus can be used to make traces
+that index over multiple runs. This is common because we often run
+multiple long simulations that need to be stitched together into one
+logical simulation.</p>
+<p>I suggest referring to the glossary for the names and explanations of
+each of them. Each specific trace function expects a particular format
+and you should always review the docstring to make sure you have made
+the right one. Because Python has no typechecking it can be easy to make
+this mistake and not realize it.</p>
+<p>We can then use this trace to get field data:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">trace_fields</span> <span class="o">=</span> <span class="n">wepy_h5</span><span class="o">.</span><span class="n">get_trace_fields</span><span class="p">(</span>
+    <span class="n">last_cycle_trace</span><span class="p">,</span>
+    <span class="p">[</span><span class="s1">&#39;weights&#39;</span><span class="p">,</span> <span class="s1">&#39;positions&#39;</span><span class="p">,</span> <span class="s1">&#39;box_vectors&#39;</span><span class="p">],</span>
+<span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">trace_fields</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">trace_fields</span><span class="p">[</span><span class="s1">&#39;weights&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+</pre></div>
+</div>
+<hr class="docutils" />
+<div class="highlight-fundamental notranslate"><div class="highlight"><pre><span></span>[&#39;weights&#39;, &#39;positions&#39;, &#39;box_vectors&#39;]
+(20, 1)
+</pre></div>
+</div>
+<p>The trace fields then is just a dictionary with a <code class="docutils literal notranslate"><span class="pre">numpy</span></code> array for
+the data just like we had before. Except now the number of frames is the
+length of the trace rather than the “trajectory”.</p>
+<p>Just to give an example of the different kinds of traces we can get the
+same data but relative to only this run:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">in_run_trace</span> <span class="o">=</span> <span class="p">[(</span><span class="n">traj_idx</span><span class="p">,</span> <span class="mi">9</span><span class="p">)</span> <span class="k">for</span> <span class="n">traj_idx</span> <span class="ow">in</span> <span class="n">wepy_h5</span><span class="o">.</span><span class="n">run_traj_idxs</span><span class="p">(</span><span class="mi">0</span><span class="p">)]</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">in_run_trace</span><span class="p">)</span>
+
+<span class="n">trace_fields</span> <span class="o">=</span> <span class="n">wepy_h5</span><span class="o">.</span><span class="n">get_run_trace_fields</span><span class="p">(</span>
+    <span class="mi">0</span><span class="p">,</span>
+    <span class="n">in_run_trace</span><span class="p">,</span>
+    <span class="p">[</span><span class="s1">&#39;weights&#39;</span><span class="p">,</span> <span class="s1">&#39;positions&#39;</span><span class="p">,</span> <span class="s1">&#39;box_vectors&#39;</span><span class="p">],</span>
+<span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">trace_fields</span><span class="p">[</span><span class="s1">&#39;weights&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+</pre></div>
+</div>
+<hr class="docutils" />
+<div class="highlight-fundamental notranslate"><div class="highlight"><pre><span></span>[(0, 9), (1, 9), (2, 9), (3, 9), (4, 9), (5, 9), (6, 9), (7, 9), (8, 9), (9, 9), (10, 9), (11, 9), (12, 9), (13, 9), (14, 9), (15, 9), (16, 9), (17, 9), (18, 9), (19, 9)]
+(20, 1)
+</pre></div>
+</div>
+<p>There is even a convenience function for generating <code class="docutils literal notranslate"><span class="pre">mdtraj</span></code>
+trajectories directly from traces:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">traj</span> <span class="o">=</span> <span class="n">wepy_h5</span><span class="o">.</span><span class="n">trace_to_mdtraj</span><span class="p">(</span><span class="n">last_cycle_trace</span><span class="p">)</span>
+
+<span class="n">traj</span><span class="o">.</span><span class="n">save_dcd</span><span class="p">(</span><span class="s2">&quot;_output/run0/last_cycle.dcd&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>When dealing with continuous trajectories of walkers using traces is the
+easiest way to get data. However, we don’t always care about the
+continuity of trajectories and for many purposes just want to chunk it
+up and compute properties which are not time dependent.</p>
+</div>
+<div class="section" id="computing-observables">
+<h3>Computing Observables<a class="headerlink" href="#computing-observables" title="Permalink to this headline">¶</a></h3>
+<p>When we don’t need to worry about continuous trajectories it makes sense
+to just think of the runs and trajectory datasets.</p>
+<p>The simplest way to do this is to iterate through them:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">traj_fields_it</span> <span class="o">=</span> <span class="n">wepy_h5</span><span class="o">.</span><span class="n">iter_trajs_fields</span><span class="p">([</span><span class="s1">&#39;weights&#39;</span><span class="p">,</span> <span class="s1">&#39;box_vectors&#39;</span><span class="p">])</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">traj_fields_it</span><span class="p">))</span>
+</pre></div>
+</div>
+<hr class="docutils" />
+<div class="highlight-fundamental notranslate"><div class="highlight"><pre><span></span>&lt;class &#39;generator&#39;&gt;
+</pre></div>
+</div>
+<p>This method returns a generator so that only one trajectory dataset will
+be read into memory at a time. Typically just using a for loop is all
+that is necessary:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">traj0</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">traj_fields_it</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">traj0</span><span class="p">[</span><span class="s1">&#39;weights&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">traj_idx</span><span class="p">,</span> <span class="n">traj</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">traj_fields_it</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Traj </span><span class="si">{</span><span class="n">traj_idx</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s2"> weights arr: &quot;</span><span class="p">,</span> <span class="n">traj</span><span class="p">[</span><span class="s1">&#39;weights&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+</pre></div>
+</div>
+<hr class="docutils" />
+<div class="highlight-fundamental notranslate"><div class="highlight"><pre><span></span>(10, 1)
+Traj 1 weights arr:  (10, 1)
+Traj 2 weights arr:  (10, 1)
+Traj 3 weights arr:  (10, 1)
+Traj 4 weights arr:  (10, 1)
+Traj 5 weights arr:  (10, 1)
+Traj 6 weights arr:  (10, 1)
+Traj 7 weights arr:  (10, 1)
+Traj 8 weights arr:  (10, 1)
+Traj 9 weights arr:  (10, 1)
+Traj 10 weights arr:  (10, 1)
+Traj 11 weights arr:  (10, 1)
+Traj 12 weights arr:  (10, 1)
+Traj 13 weights arr:  (10, 1)
+Traj 14 weights arr:  (10, 1)
+Traj 15 weights arr:  (10, 1)
+Traj 16 weights arr:  (10, 1)
+Traj 17 weights arr:  (10, 1)
+Traj 18 weights arr:  (10, 1)
+Traj 19 weights arr:  (10, 1)
+</pre></div>
+</div>
+<p>Since most users will be doing the same thing which is mapping a
+function over the trajectories and computing some value for each frame
+there is a function for this called <code class="docutils literal notranslate"><span class="pre">compute_observable</span></code>.</p>
+<p>The idea is that you simply give it a custom function that acts on a
+fields dictionary for a single trajectory and it will return the results
+for all of the trajectories while only acting on a single trajectory at
+a time.</p>
+<p>For example we might have a function that gets the distance between the
+two Lennard-Jones particles in the simulation:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="k">def</span> <span class="nf">traj_field_lj_dist</span><span class="p">(</span><span class="n">traj_data</span><span class="p">):</span>
+
+    <span class="n">positions</span> <span class="o">=</span> <span class="n">traj_data</span><span class="p">[</span><span class="s1">&#39;positions&#39;</span><span class="p">]</span>
+
+    <span class="c1"># slice out positions for each LJ particle</span>
+    <span class="n">lj1</span> <span class="o">=</span> <span class="n">positions</span><span class="p">[:,</span><span class="mi">0</span><span class="p">,:]</span>
+    <span class="n">lj2</span> <span class="o">=</span> <span class="n">positions</span><span class="p">[:,</span><span class="mi">1</span><span class="p">,:]</span>
+
+    <span class="c1"># compute distances with the scaling factor</span>
+    <span class="n">distances</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span>
+        <span class="p">(</span><span class="n">lj1</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">lj2</span><span class="p">[:,</span><span class="mi">0</span><span class="p">])</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span>
+        <span class="p">(</span><span class="n">lj1</span><span class="p">[:,</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">lj2</span><span class="p">[:,</span><span class="mi">1</span><span class="p">])</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span>
+        <span class="p">(</span><span class="n">lj1</span><span class="p">[:,</span><span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="n">lj2</span><span class="p">[:,</span><span class="mi">2</span><span class="p">])</span><span class="o">**</span><span class="mi">2</span>
+    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">distances</span>
+</pre></div>
+</div>
+<p>We can see that it works on the first two frames of trajector 0:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ex_trace_fields</span> <span class="o">=</span> <span class="n">wepy_h5</span><span class="o">.</span><span class="n">get_trace_fields</span><span class="p">(</span>
+    <span class="p">[(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)],</span>
+    <span class="p">[</span><span class="s1">&#39;positions&#39;</span><span class="p">],</span>
+<span class="p">)</span>
+
+<span class="n">ex_dists</span> <span class="o">=</span> <span class="n">traj_field_lj_dist</span><span class="p">(</span><span class="n">ex_trace_fields</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">ex_dists</span><span class="p">)</span>
+</pre></div>
+</div>
+<hr class="docutils" />
+<div class="highlight-fundamental notranslate"><div class="highlight"><pre><span></span>[0.38657308 0.39455245]
+</pre></div>
+</div>
+<p>Now we can use this function for the whole run:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">run0_dists</span> <span class="o">=</span> <span class="n">wepy_h5</span><span class="o">.</span><span class="n">compute_observable</span><span class="p">(</span>
+    <span class="n">traj_field_lj_dist</span><span class="p">,</span>
+    <span class="p">[</span><span class="s1">&#39;positions&#39;</span><span class="p">],</span>
+    <span class="p">(),</span>
+<span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">run0_dists</span><span class="p">))</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">run0_dists</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+</pre></div>
+</div>
+<hr class="docutils" />
+<div class="highlight-fundamental notranslate"><div class="highlight"><pre><span></span>20
+(10,)
+</pre></div>
+</div>
+<p>You can see that we get a list of arrays for each trajectory.</p>
+<p>While we won’t cover it here you can optionally save this data back into
+the HDF5 file so that it aligns to the walker-frame that it was computed
+on. This is useful for some of the more advanced analyses.</p>
+</div>
+<div class="section" id="cloning-merging-data">
+<h3>Cloning &amp; Merging Data<a class="headerlink" href="#cloning-merging-data" title="Permalink to this headline">¶</a></h3>
+<p>Before we wrap up the basics we should mention one of the other key
+pieces of data that is the foundation for the WE features. That is the
+resampling records.</p>
+<p>These can easily be retrieved for a single run by running the following
+method:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">resampling_df</span> <span class="o">=</span> <span class="n">wepy_h5</span><span class="o">.</span><span class="n">resampling_records_dataframe</span><span class="p">([</span><span class="mi">0</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">[0]</span></code> we passed in is just the single <code class="docutils literal notranslate"><span class="pre">run_idx</span></code> for our run.
+This methods can be used to stitch together more than one run, but that
+isn’t of interest at the moment.</p>
+<p>It should look something like this depending on what happened in your
+simulation:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">resampling_df</span><span class="p">[:</span><span class="mi">5</span><span class="p">])</span>
+</pre></div>
+</div>
+<hr class="docutils" />
+<div class="highlight-fundamental notranslate"><div class="highlight"><pre><span></span>   cycle_idx  decision_id target_idxs  step_idx  walker_idx region_assignment
+0          0            1        (0,)         0           0      (0, 0, 0, 0)
+1          0            1        (1,)         0           1      (0, 0, 0, 0)
+2          0            1        (2,)         0           2      (0, 0, 0, 0)
+3          0            1        (3,)         0           3      (0, 0, 0, 0)
+4          0            1        (4,)         0           4      (0, 0, 0, 0)
+</pre></div>
+</div>
+<p>This table holds all of the information needed to reconstruct the
+lineages of the walkers as they were cloned and merged throughout the
+simulation.</p>
+<p>As an end user you shouldn’t ever need to interact with this raw data as
+there are higher-level ways to interact with it. However, its useful to
+be able to know how to drill down into the raw data in case something is
+ever not working.</p>
+<p>Of the columns all are necessary except the <code class="docutils literal notranslate"><span class="pre">region_assignment</span></code> one.
+That column is specific to the <code class="docutils literal notranslate"><span class="pre">WExplore</span></code> resampler and there would be
+different extra columns when using a different resampler like <code class="docutils literal notranslate"><span class="pre">REVO</span></code>.
+It just happens that this piece of data corresponds exactly to the
+cloning/merging decision taking place for this walker at this point in
+time.</p>
+<p>If you want to understand what all these columns mean see the specific
+documentation on them in the Reference section.</p>
+</div>
+<div class="section" id="in-closing">
+<h3>In Closing<a class="headerlink" href="#in-closing" title="Permalink to this headline">¶</a></h3>
+<p>We acknowledge that analyzing WE data is a bit more challenging to
+understand and access and that it is a little overwhelming at first.</p>
+<p>However, once you understand that there are actually very few commonly
+needed routines most of the complexity will melt away.</p>
+<p>For these we point you to the other purpose oriented tutorials in the
+documentation.</p>
+<p>Oh and don’t forget to close your file!</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">wepy_h5</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+<span class="k">if</span> <span class="n">wepy_h5</span><span class="o">.</span><span class="n">closed</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Good job!&quot;</span><span class="p">)</span>
+
+<span class="k">else</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;....&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<hr class="docutils" />
+<div class="highlight-fundamental notranslate"><div class="highlight"><pre><span></span>Good job!
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+
+
+          </div>
+              <div class="related bottom">
+                &nbsp;
+  <nav id="rellinks">
+    <ul>
+        <li>
+          &larr;
+          <a href="../index.html" title="Previous document">Tutorials</a>
+        </li>
+        <li>
+          <a href="../data_analysis/README.html" title="Next document">Introduction to Weighted Ensemble Data Analysis in wepy</a>
+          &rarr;
+        </li>
+    </ul>
+  </nav>
+              </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<p class="logo">
+  <a href="../../../index.html">
+    <img class="logo" src="../../../_static/wepy.svg" alt="Logo"/>
+    
+    <h1 class="logo logo-name">wepy</h1>
+    
+  </a>
+</p>
+
+
+
+<p class="blurb">A Weighted Ensemble  (WE) simulation framework</p>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../quick_start.html">Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../introduction.html">Introduction &amp; Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../introduction.html#bibliography">Bibliography</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide.html">User’s Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../troubleshooting.html">Common Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../troubleshooting.html#faq">FAQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../reference.html">Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../glossary.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html">API Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../_api/modules.html">Full API</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../general_info.html">General Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../news.html">News and Updates</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../dev_guide.html">Development Guide</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Tutorials</a><ul>
+      <li>Previous: <a href="../index.html" title="previous chapter">Tutorials</a></li>
+      <li>Next: <a href="../data_analysis/README.html" title="next chapter">Introduction to Weighted Ensemble Data Analysis in wepy</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, Samuel D. Lotz.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.0.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../../../_sources/_source/tutorials/extended_test_drive/README.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+    <a href="https://github.com/ADicksonLab/wepy" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
+    
+
+    
+  </body>
+</html>

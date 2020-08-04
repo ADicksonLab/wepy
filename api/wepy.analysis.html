@@ -1,0 +1,237 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>wepy.analysis package &#8212; wepy 1.0.0rc6 documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+              <div class="related top">
+                &nbsp;
+  <nav id="rellinks">
+    <ul>
+    </ul>
+  </nav>
+              </div>
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="module-wepy.analysis">
+<span id="wepy-analysis-package"></span><h1>wepy.analysis package<a class="headerlink" href="#module-wepy.analysis" title="Permalink to this headline">¶</a></h1>
+<p>Analysis tools for wepy datasets.</p>
+<p>Analysis of weighted ensemble (WE) datasets are complicated by their
+nonlinear branching structure, and thus in its raw form cannot be
+analyzed by the tools available for linear trajectories. See the
+documentation (TODO: link) for a more in depth explanation of the
+general structure of weighted ensemble data.</p>
+<p>These analysis modules do not aim to redo any particular analysis
+calculation but rather to aid in accessing, summarizing, and
+manipulating branched simulation data.</p>
+<p>The starting point for this is the <cite>ContigTree</cite> class in the
+<cite>contig_tree</cite> module. This is a general purpose container that
+combines the data specifying the branching structure with the
+underlying linear data structures. It is necessary for branched data
+but can also be used for collections of linear data as well.</p>
+<p>The main anlaysis routines we attempt to facilitate are:</p>
+<ol class="arabic simple">
+<li><p>Generating probability histograms over calculated
+observables. (TODO)</p></li>
+<li><p>Generating contiguous trajectories of walkers that have reached
+target boundary conditions (TODO).</p></li>
+<li><p>Visualizing the cloning and merging history of simulations
+(i.e. resampling trees) using the <cite>parents</cite> module and
+<cite>network_layouts</cite>.</p></li>
+<li><p>Generating ‘state networks’ from frame labels and computing
+transition matrices with variable lag times using the <cite>network</cite> and
+<cite>transitions</cite> modules.</p></li>
+</ol>
+<p>To calculate observables on the dataset you need to work directly with
+the data storage API in the <cite>wepy.hdf5.WepyHDF5</cite> module using the
+<cite>compute_observable</cite> method.</p>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><code class="xref py py-mod docutils literal notranslate"><span class="pre">None</span></code></p>
+</div>
+<p class="rubric">Notes</p>
+<p class="rubric">References</p>
+<p class="rubric">Examples</p>
+<div class="section" id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="wepy.analysis.network_layouts.html">wepy.analysis.network_layouts package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="wepy.analysis.network_layouts.html#submodules">Submodules</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="wepy.analysis.network_layouts.layout.html">wepy.analysis.network_layouts.layout module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="wepy.analysis.network_layouts.layout_graph.html">wepy.analysis.network_layouts.layout_graph module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="wepy.analysis.network_layouts.layout_graph.html#routines">Routines</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="wepy.analysis.network_layouts.tree.html">wepy.analysis.network_layouts.tree module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="wepy.analysis.network_layouts.tree.html#routines">Routines</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="wepy.analysis.contig_tree.html">wepy.analysis.contig_tree module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="wepy.analysis.contig_tree.html#routines">Routines</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="wepy.analysis.distributed.html">wepy.analysis.distributed module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="wepy.analysis.network.html">wepy.analysis.network module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="wepy.analysis.parents.html">wepy.analysis.parents module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="wepy.analysis.parents.html#routines">Routines</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="wepy.analysis.profiles.html">wepy.analysis.profiles module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="wepy.analysis.rates.html">wepy.analysis.rates module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="wepy.analysis.transitions.html">wepy.analysis.transitions module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="wepy.analysis.transitions.html#routines">Routines</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+</div>
+
+
+          </div>
+              <div class="related bottom">
+                &nbsp;
+  <nav id="rellinks">
+    <ul>
+    </ul>
+  </nav>
+              </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<p class="logo">
+  <a href="../index.html">
+    <img class="logo" src="../_static/wepy.svg" alt="Logo"/>
+    
+    <h1 class="logo logo-name">wepy</h1>
+    
+  </a>
+</p>
+
+
+
+<p class="blurb">A Weighted Ensemble  (WE) simulation framework</p>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../_source/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_source/quick_start.html">Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_source/introduction.html">Introduction &amp; Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_source/introduction.html#bibliography">Bibliography</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../_source/tutorials/index.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_source/users_guide.html">User’s Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_source/troubleshooting.html">Common Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_source/troubleshooting.html#faq">FAQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_source/reference.html">Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_source/glossary.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_source/api.html">API Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_api/modules.html">Full API</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../_source/general_info.html">General Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_source/news.html">News and Updates</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_source/changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_source/dev_guide.html">Development Guide</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, Samuel D. Lotz.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.0.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../_sources/api/wepy.analysis.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+    <a href="https://github.com/ADicksonLab/wepy" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
+    
+
+    
+  </body>
+</html>

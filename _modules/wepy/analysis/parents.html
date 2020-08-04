@@ -4,7 +4,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <title>wepy.analysis.parents &#8212; wepy 1.0.0rc3 documentation</title>
+    <title>wepy.analysis.parents &#8212; wepy 1.0.0rc6 documentation</title>
     <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/custom.css" />
@@ -114,7 +114,7 @@
 
 <span class="sd">&quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="resampling_panel"><a class="viewcode-back" href="../../../_api/wepy.analysis.parents.html#wepy.analysis.parents.resampling_panel">[docs]</a><span class="k">def</span> <span class="nf">resampling_panel</span><span class="p">(</span><span class="n">resampling_records</span><span class="p">,</span> <span class="n">is_sorted</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="resampling_panel"><a class="viewcode-back" href="../../../api/wepy.analysis.parents.html#wepy.analysis.parents.resampling_panel">[docs]</a><span class="k">def</span> <span class="nf">resampling_panel</span><span class="p">(</span><span class="n">resampling_records</span><span class="p">,</span> <span class="n">is_sorted</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Converts an unordered collection of resampling records into a</span>
 <span class="sd">    structured array (lists) corresponding to cycles and resampling</span>
 <span class="sd">    steps within cycles.</span>
@@ -254,7 +254,7 @@
     <span class="k">return</span> <span class="n">res_panel</span></div>
 
 
-<div class="viewcode-block" id="parent_panel"><a class="viewcode-back" href="../../../_api/wepy.analysis.parents.html#wepy.analysis.parents.parent_panel">[docs]</a><span class="k">def</span> <span class="nf">parent_panel</span><span class="p">(</span><span class="n">decision_class</span><span class="p">,</span> <span class="n">resampling_panel</span><span class="p">):</span>
+<div class="viewcode-block" id="parent_panel"><a class="viewcode-back" href="../../../api/wepy.analysis.parents.html#wepy.analysis.parents.parent_panel">[docs]</a><span class="k">def</span> <span class="nf">parent_panel</span><span class="p">(</span><span class="n">decision_class</span><span class="p">,</span> <span class="n">resampling_panel</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Using the parental interpretation of resampling records given by</span>
 <span class="sd">    the decision_class, convert resampling records in a resampling</span>
 <span class="sd">    panel to parent indices.</span>
@@ -295,7 +295,7 @@
 
     <span class="k">return</span> <span class="n">parent_panel_in</span></div>
 
-<div class="viewcode-block" id="net_parent_table"><a class="viewcode-back" href="../../../_api/wepy.analysis.parents.html#wepy.analysis.parents.net_parent_table">[docs]</a><span class="k">def</span> <span class="nf">net_parent_table</span><span class="p">(</span><span class="n">parent_panel</span><span class="p">):</span>
+<div class="viewcode-block" id="net_parent_table"><a class="viewcode-back" href="../../../api/wepy.analysis.parents.html#wepy.analysis.parents.net_parent_table">[docs]</a><span class="k">def</span> <span class="nf">net_parent_table</span><span class="p">(</span><span class="n">parent_panel</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Reduces a full parent panel to get parent indices on a cycle basis.</span>
 
 <span class="sd">    The full parent panel has parent indices for every step in each</span>
@@ -344,7 +344,7 @@
 
     <span class="k">return</span> <span class="n">net_parent_table_in</span></div>
 
-<div class="viewcode-block" id="parent_table_discontinuities"><a class="viewcode-back" href="../../../_api/wepy.analysis.parents.html#wepy.analysis.parents.parent_table_discontinuities">[docs]</a><span class="k">def</span> <span class="nf">parent_table_discontinuities</span><span class="p">(</span><span class="n">boundary_condition_class</span><span class="p">,</span> <span class="n">parent_table</span><span class="p">,</span> <span class="n">warping_records</span><span class="p">):</span>
+<div class="viewcode-block" id="parent_table_discontinuities"><a class="viewcode-back" href="../../../api/wepy.analysis.parents.html#wepy.analysis.parents.parent_table_discontinuities">[docs]</a><span class="k">def</span> <span class="nf">parent_table_discontinuities</span><span class="p">(</span><span class="n">boundary_condition_class</span><span class="p">,</span> <span class="n">parent_table</span><span class="p">,</span> <span class="n">warping_records</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Given a parent table and warping records returns a new parent table</span>
 <span class="sd">    with the discontinuous warping events for parents set to a special</span>
 <span class="sd">    value (-1).</span>
@@ -396,7 +396,7 @@
     <span class="k">return</span> <span class="n">new_parent_table</span></div>
 
 
-<div class="viewcode-block" id="parent_cycle_discontinuities"><a class="viewcode-back" href="../../../_api/wepy.analysis.parents.html#wepy.analysis.parents.parent_cycle_discontinuities">[docs]</a><span class="k">def</span> <span class="nf">parent_cycle_discontinuities</span><span class="p">(</span><span class="n">parent_idxs</span><span class="p">,</span> <span class="n">discontinuities</span><span class="p">):</span>
+<div class="viewcode-block" id="parent_cycle_discontinuities"><a class="viewcode-back" href="../../../api/wepy.analysis.parents.html#wepy.analysis.parents.parent_cycle_discontinuities">[docs]</a><span class="k">def</span> <span class="nf">parent_cycle_discontinuities</span><span class="p">(</span><span class="n">parent_idxs</span><span class="p">,</span> <span class="n">discontinuities</span><span class="p">):</span>
 
     <span class="n">parent_row</span> <span class="o">=</span> <span class="n">copy</span><span class="p">(</span><span class="n">parent_idxs</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">walker_idx</span><span class="p">,</span> <span class="n">disc</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">discontinuities</span><span class="p">):</span>
@@ -414,7 +414,7 @@
 
     <span class="k">return</span> <span class="n">parent_row</span></div>
 
-<div class="viewcode-block" id="ancestors"><a class="viewcode-back" href="../../../_api/wepy.analysis.parents.html#wepy.analysis.parents.ancestors">[docs]</a><span class="k">def</span> <span class="nf">ancestors</span><span class="p">(</span><span class="n">parent_table</span><span class="p">,</span> <span class="n">cycle_idx</span><span class="p">,</span> <span class="n">walker_idx</span><span class="p">,</span> <span class="n">ancestor_cycle</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+<div class="viewcode-block" id="ancestors"><a class="viewcode-back" href="../../../api/wepy.analysis.parents.html#wepy.analysis.parents.ancestors">[docs]</a><span class="k">def</span> <span class="nf">ancestors</span><span class="p">(</span><span class="n">parent_table</span><span class="p">,</span> <span class="n">cycle_idx</span><span class="p">,</span> <span class="n">walker_idx</span><span class="p">,</span> <span class="n">ancestor_cycle</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Returns the lineage of ancestors as walker indices leading up to</span>
 <span class="sd">    the given walker.</span>
 
@@ -456,7 +456,7 @@
 
     <span class="k">return</span> <span class="n">lineage</span></div>
 
-<div class="viewcode-block" id="sliding_window"><a class="viewcode-back" href="../../../_api/wepy.analysis.parents.html#wepy.analysis.parents.sliding_window">[docs]</a><span class="k">def</span> <span class="nf">sliding_window</span><span class="p">(</span><span class="n">parent_table</span><span class="p">,</span> <span class="n">window_length</span><span class="p">):</span>
+<div class="viewcode-block" id="sliding_window"><a class="viewcode-back" href="../../../api/wepy.analysis.parents.html#wepy.analysis.parents.sliding_window">[docs]</a><span class="k">def</span> <span class="nf">sliding_window</span><span class="p">(</span><span class="n">parent_table</span><span class="p">,</span> <span class="n">window_length</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Return contig walker traces of sliding windows of given length over</span>
 <span class="sd">    the parent forest imposed over the contig given by the parent table.</span>
 
@@ -503,7 +503,7 @@
     <span class="k">return</span> <span class="n">windows</span></div>
 
 
-<div class="viewcode-block" id="ParentForest"><a class="viewcode-back" href="../../../_api/wepy.analysis.parents.html#wepy.analysis.parents.ParentForest">[docs]</a><span class="k">class</span> <span class="nc">ParentForest</span><span class="p">():</span>
+<div class="viewcode-block" id="ParentForest"><a class="viewcode-back" href="../../../api/wepy.analysis.parents.html#wepy.analysis.parents.ParentForest">[docs]</a><span class="k">class</span> <span class="nc">ParentForest</span><span class="p">():</span>
     <span class="sd">&quot;&quot;&quot;A tree abstraction to a contig representing the family trees of walkers.</span>
 
 <span class="sd">    Uses a directed graph (networkx.DiGraph) to represent parent-child</span>
@@ -602,7 +602,7 @@
                 <span class="k">if</span> <span class="n">edge</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="o">*</span><span class="n">edge</span><span class="p">,</span> <span class="o">**</span><span class="n">edges_attrs</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
 
-<div class="viewcode-block" id="ParentForest._make_child_parent_edges"><a class="viewcode-back" href="../../../_api/wepy.analysis.parents.html#wepy.analysis.parents.ParentForest._make_child_parent_edges">[docs]</a>    <span class="k">def</span> <span class="nf">_make_child_parent_edges</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">step_idx</span><span class="p">,</span> <span class="n">parent_idxs</span><span class="p">):</span>
+<div class="viewcode-block" id="ParentForest._make_child_parent_edges"><a class="viewcode-back" href="../../../api/wepy.analysis.parents.html#wepy.analysis.parents.ParentForest._make_child_parent_edges">[docs]</a>    <span class="k">def</span> <span class="nf">_make_child_parent_edges</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">step_idx</span><span class="p">,</span> <span class="n">parent_idxs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Generate edge_ids and edge attributes for an array of parent indices.</span>
 
 <span class="sd">        Parameters</span>
@@ -688,7 +688,7 @@
 
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parent_table</span><span class="p">)</span>
 
-<div class="viewcode-block" id="ParentForest.step"><a class="viewcode-back" href="../../../_api/wepy.analysis.parents.html#wepy.analysis.parents.ParentForest.step">[docs]</a>    <span class="k">def</span> <span class="nf">step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">step_idx</span><span class="p">):</span>
+<div class="viewcode-block" id="ParentForest.step"><a class="viewcode-back" href="../../../api/wepy.analysis.parents.html#wepy.analysis.parents.ParentForest.step">[docs]</a>    <span class="k">def</span> <span class="nf">step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">step_idx</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Get the nodes at the step (level of the tree).</span>
 
 <span class="sd">        Parameters</span>
@@ -708,7 +708,7 @@
         <span class="n">step_nodes</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">step_nodes</span></div>
 
-<div class="viewcode-block" id="ParentForest.steps"><a class="viewcode-back" href="../../../_api/wepy.analysis.parents.html#wepy.analysis.parents.ParentForest.steps">[docs]</a>    <span class="k">def</span> <span class="nf">steps</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="ParentForest.steps"><a class="viewcode-back" href="../../../api/wepy.analysis.parents.html#wepy.analysis.parents.ParentForest.steps">[docs]</a>    <span class="k">def</span> <span class="nf">steps</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Returns the nodes ordered by the step and walker indices.</span>
 
 <span class="sd">        Returns</span>
@@ -721,7 +721,7 @@
 
         <span class="k">return</span> <span class="n">node_steps</span></div>
 
-<div class="viewcode-block" id="ParentForest.walker"><a class="viewcode-back" href="../../../_api/wepy.analysis.parents.html#wepy.analysis.parents.ParentForest.walker">[docs]</a>    <span class="k">def</span> <span class="nf">walker</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">walker_idx</span><span class="p">):</span>
+<div class="viewcode-block" id="ParentForest.walker"><a class="viewcode-back" href="../../../api/wepy.analysis.parents.html#wepy.analysis.parents.ParentForest.walker">[docs]</a>    <span class="k">def</span> <span class="nf">walker</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">walker_idx</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Get the nodes for this walker for the whole tree.</span>
 
 <span class="sd">        Parameters</span>
@@ -751,7 +751,7 @@
 
     <span class="c1">#     return node_walkers</span>
 
-<div class="viewcode-block" id="ParentForest.set_node_attributes"><a class="viewcode-back" href="../../../_api/wepy.analysis.parents.html#wepy.analysis.parents.ParentForest.set_node_attributes">[docs]</a>    <span class="k">def</span> <span class="nf">set_node_attributes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attribute_key</span><span class="p">,</span> <span class="n">node_attribute_dict</span><span class="p">):</span>
+<div class="viewcode-block" id="ParentForest.set_node_attributes"><a class="viewcode-back" href="../../../api/wepy.analysis.parents.html#wepy.analysis.parents.ParentForest.set_node_attributes">[docs]</a>    <span class="k">def</span> <span class="nf">set_node_attributes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attribute_key</span><span class="p">,</span> <span class="n">node_attribute_dict</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Set attributes for all nodes for a single key.</span>
 
 <span class="sd">        Parameters</span>
@@ -767,7 +767,7 @@
         <span class="k">for</span> <span class="n">node_id</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">node_attribute_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">node_id</span><span class="p">][</span><span class="n">attribute_key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span></div>
 
-<div class="viewcode-block" id="ParentForest.set_attrs_by_array"><a class="viewcode-back" href="../../../_api/wepy.analysis.parents.html#wepy.analysis.parents.ParentForest.set_attrs_by_array">[docs]</a>    <span class="k">def</span> <span class="nf">set_attrs_by_array</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attribute_key</span><span class="p">,</span> <span class="n">values</span><span class="p">):</span>
+<div class="viewcode-block" id="ParentForest.set_attrs_by_array"><a class="viewcode-back" href="../../../api/wepy.analysis.parents.html#wepy.analysis.parents.ParentForest.set_attrs_by_array">[docs]</a>    <span class="k">def</span> <span class="nf">set_attrs_by_array</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attribute_key</span><span class="p">,</span> <span class="n">values</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Set node attributes on a stepwise basis using structural indices.</span>
 
 <span class="sd">        Expects a array/list that is n_steps long and has the</span>
@@ -826,6 +826,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../_source/installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../_source/quick_start.html">Quick Start</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../_source/introduction.html">Introduction &amp; Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../_source/introduction.html#bibliography">Bibliography</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../_source/tutorials/index.html">Tutorials</a></li>

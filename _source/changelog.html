@@ -4,7 +4,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <title>Changelog &#8212; wepy 1.0.0rc3 documentation</title>
+    <title>Changelog &#8212; wepy 1.0.0rc6 documentation</title>
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
@@ -56,8 +56,26 @@
 <p>Adapted from <a class="reference external" href="https://keepachangelog.com">keepachangelog.com</a> for
 org-mode.</p>
 <p>See the git commit log history for full details.</p>
-<div class="section" id="wip">
-<h2>1.0.0 - WIP<a class="headerlink" href="#wip" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="section-1">
+<span id="id1"></span><h2>1.0.0<a class="headerlink" href="#section-1" title="Permalink to this headline">¶</a></h2>
+<p>Changes in rc6:</p>
+<ul class="simple">
+<li><p>adds feature to make weighted transition counts from simulation data.
+This was also made the way that the MacroStateNetwork calculates the
+counts and transition probabilities matrices.</p></li>
+<li><p>Fixed initialization errors in the TaskMapper which would cause a
+zombie job.</p></li>
+<li><p>Fixed implementation of the CPU Task process for OpenMM.</p></li>
+<li><p>Fixed sim maker details in wepy<sub>tools</sub></p></li>
+</ul>
+<p>Changes in rc5:</p>
+<ul class="simple">
+<li><p>adds simulation monitoring via prometheus (or whatever) as a feature</p></li>
+</ul>
+<p>Changes in rc4:</p>
+<ul class="simple">
+<li><p>fixes bugs introduced to work mappers from rc2</p></li>
+</ul>
 <p>Changes in rc3:</p>
 <ul class="simple">
 <li><p>removed integration with <code class="docutils literal notranslate"><span class="pre">openmmtools.testsystems</span></code> in favor of
@@ -157,6 +175,7 @@ resamplers.</p></li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="quick_start.html">Quick Start</a></li>
 <li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction &amp; Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="introduction.html#bibliography">Bibliography</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="tutorials/index.html">Tutorials</a></li>

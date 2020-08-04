@@ -4,7 +4,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <title>wepy.boundary_conditions.receptor module &#8212; wepy 1.0.0rc3 documentation</title>
+    <title>wepy.boundary_conditions.receptor module &#8212; wepy 1.0.0rc6 documentation</title>
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
@@ -58,7 +58,7 @@ including unbinding and rebinding.</p>
 <dl class="py class">
 <dt id="wepy.boundary_conditions.receptor.ReceptorBC">
 <em class="property">class </em><code class="sig-prename descclassname">wepy.boundary_conditions.receptor.</code><code class="sig-name descname">ReceptorBC</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">initial_states</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">initial_weights</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">ligand_idxs</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">receptor_idxs</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/boundary_conditions/receptor.html#ReceptorBC"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.boundary_conditions.receptor.ReceptorBC" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="wepy.boundary_conditions.boundary.html#wepy.boundary_conditions.boundary.BoundaryConditions" title="wepy.boundary_conditions.boundary.BoundaryConditions"><code class="xref py py-class docutils literal notranslate"><span class="pre">wepy.boundary_conditions.boundary.BoundaryConditions</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="../api/wepy.boundary_conditions.boundary.html#wepy.boundary_conditions.boundary.BoundaryConditions" title="wepy.boundary_conditions.boundary.BoundaryConditions"><code class="xref py py-class docutils literal notranslate"><span class="pre">wepy.boundary_conditions.boundary.BoundaryConditions</span></code></a></p>
 <p>Abstract base class for ligand-receptor based boundary conditions.</p>
 <p>Provides shared utilities for warping walkers to any number of
 optionally weighted initial structures through a shared
@@ -427,7 +427,7 @@ type (field_name, shape_spec, dtype_spec)</p>
 <dl class="py class">
 <dt id="wepy.boundary_conditions.receptor.RebindingBC">
 <em class="property">class </em><code class="sig-prename descclassname">wepy.boundary_conditions.receptor.</code><code class="sig-name descname">RebindingBC</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">native_state</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">cutoff_rmsd</span><span class="o">=</span><span class="default_value">0.2</span></em>, <em class="sig-param"><span class="n">initial_states</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">initial_weights</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">ligand_idxs</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">binding_site_idxs</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/boundary_conditions/receptor.html#RebindingBC"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.boundary_conditions.receptor.RebindingBC" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#wepy.boundary_conditions.receptor.ReceptorBC" title="wepy.boundary_conditions.receptor.ReceptorBC"><code class="xref py py-class docutils literal notranslate"><span class="pre">wepy.boundary_conditions.receptor.ReceptorBC</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="../api/wepy.boundary_conditions.receptor.html#wepy.boundary_conditions.receptor.ReceptorBC" title="wepy.boundary_conditions.receptor.ReceptorBC"><code class="xref py py-class docutils literal notranslate"><span class="pre">wepy.boundary_conditions.receptor.ReceptorBC</span></code></a></p>
 <p>Boundary condition for doing re-binding simulations of ligands to a
 receptor.</p>
 <p>Implements the ReceptorBC superclass.</p>
@@ -820,7 +820,7 @@ type (field_name, shape_spec, dtype_spec)</p>
 <dl class="py class">
 <dt id="wepy.boundary_conditions.receptor.UnbindingBC">
 <em class="property">class </em><code class="sig-prename descclassname">wepy.boundary_conditions.receptor.</code><code class="sig-name descname">UnbindingBC</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">initial_state</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">cutoff_distance</span><span class="o">=</span><span class="default_value">1.0</span></em>, <em class="sig-param"><span class="n">topology</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">ligand_idxs</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">receptor_idxs</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">periodic</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/boundary_conditions/receptor.html#UnbindingBC"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.boundary_conditions.receptor.UnbindingBC" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#wepy.boundary_conditions.receptor.ReceptorBC" title="wepy.boundary_conditions.receptor.ReceptorBC"><code class="xref py py-class docutils literal notranslate"><span class="pre">wepy.boundary_conditions.receptor.ReceptorBC</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="../api/wepy.boundary_conditions.receptor.html#wepy.boundary_conditions.receptor.ReceptorBC" title="wepy.boundary_conditions.receptor.ReceptorBC"><code class="xref py py-class docutils literal notranslate"><span class="pre">wepy.boundary_conditions.receptor.ReceptorBC</span></code></a></p>
 <p>Boundary condition for ligand unbinding.</p>
 <p>Walkers will be warped (discontinuously) if all atoms in the
 ligand are at least a certain distance away from the atoms in the
@@ -1265,6 +1265,7 @@ cutoff parameter.</p>
 <li class="toctree-l1"><a class="reference internal" href="../_source/installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../_source/quick_start.html">Quick Start</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../_source/introduction.html">Introduction &amp; Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_source/introduction.html#bibliography">Bibliography</a></li>
 </ul>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../_source/tutorials/index.html">Tutorials</a></li>

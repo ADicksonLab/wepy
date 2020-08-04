@@ -4,7 +4,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <title>Development Guide &#8212; wepy 1.0.0rc3 documentation</title>
+    <title>Development Guide &#8212; wepy 1.0.0rc6 documentation</title>
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
@@ -407,11 +407,14 @@ even provide media like graphs and pictures.</p>
 <p>Examples can also be literate but they are restricted to formats like
 org mode, whereas the tutorials may also be in formats like Jupyter,
 which integrate well with Sphinx docs.</p>
-<p>To write examples and tutorials that play nice with testing and the
-basic rules of the examples (described in the
+<ol class="arabic">
+<li><p>Initializing a Tutorial/Example</p>
+<p>To write examples and tutorials that play nice with testing and
+the basic rules of the examples (described in the
 <a class="reference external" href="./users_guide.org">usersguide</a>) there are some templates
-available in the <code class="docutils literal notranslate"><span class="pre">templates</span></code> directory for <code class="docutils literal notranslate"><span class="pre">templates/examples</span></code>,
-<code class="docutils literal notranslate"><span class="pre">templates/tutorials</span></code>, and environment specs <code class="docutils literal notranslate"><span class="pre">templates/envs</span></code>.</p>
+available in the <code class="docutils literal notranslate"><span class="pre">templates</span></code> directory for
+<code class="docutils literal notranslate"><span class="pre">templates/examples</span></code>, <code class="docutils literal notranslate"><span class="pre">templates/tutorials</span></code>, and environment
+specs <code class="docutils literal notranslate"><span class="pre">templates/envs</span></code>.</p>
 <p>You can either just copy these templates over or use the targets:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>inv docs.new-example --name<span class="o">=</span><span class="s1">&#39;myexample&#39;</span> --template<span class="o">=</span><span class="s1">&#39;org&#39;</span>
 cp -r -u templates/envs/conda_blank info/examples/myexample/env
@@ -419,22 +422,24 @@ inv docs.new-tutorial  --name<span class="o">=</span><span class="s1">&#39;mytut
 cp -r -u templates/envs/conda_blank info/examples/mytutorial/env
 </pre></div>
 </div>
-<p>After you have your directory set up there are some things to keep in
-mind while you are constructing your tutorial.</p>
-<p>First, write source either in the literate document (<code class="docutils literal notranslate"><span class="pre">README.org</span></code>)
-or in the source file. Not both, unless you intend to test both
-separately. For tutorials you should prefer to write them directly in
-the literate doc, but particularly long and uninteresting pieces of
-code can be put into the source.</p>
-<p>As you write the code pay attention to your dependencies and virtual
-environment. If you add new dependencies, add them to the
+<p>After you have your directory set up there are some things to keep
+in mind while you are constructing your tutorial.</p>
+</li>
+<li><p>Managing Dependencies and Envs</p>
+<p>First, write source either in the literate document
+(<code class="docutils literal notranslate"><span class="pre">README.org</span></code>) or in the source file. Not both, unless you
+intend to test both separately. For tutorials you should prefer to
+write them directly in the literate doc, but particularly long and
+uninteresting pieces of code can be put into the source.</p>
+<p>As you write the code pay attention to your dependencies and
+virtual environment. If you add new dependencies, add them to the
 <code class="docutils literal notranslate"><span class="pre">requirements.in</span></code> or <code class="docutils literal notranslate"><span class="pre">env.yaml</span></code> file and compile:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span> <span class="nv">$PROJECT_DIR</span>
 inv docs.pin-example -n <span class="s1">&#39;myexample&#39;</span>
 </pre></div>
 </div>
-<p>You can then make the env 2 ways (the latter is intended to be run by
-users who don’t want to be overwhelmed by all the dev options):</p>
+<p>You can then make the env 2 ways (the latter is intended to be run
+by users who don’t want to be overwhelmed by all the dev options):</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span> <span class="nv">$PROJECT_DIR</span>
 inv docs.env-example -n <span class="s1">&#39;myexample&#39;</span>
 </pre></div>
@@ -443,6 +448,8 @@ inv docs.env-example -n <span class="s1">&#39;myexample&#39;</span>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>inv env
 </pre></div>
 </div>
+</li>
+<li><p>Writing Code Examples</p>
 <p>When writing examples and tutorials you should manually write the
 tangle targets to be the <code class="docutils literal notranslate"><span class="pre">_tangle_source</span></code> folder:</p>
 <div class="highlight-org notranslate"><div class="highlight"><pre><span></span>Here is some code I am explaining that you will run:
@@ -452,11 +459,11 @@ tangle targets to be the <code class="docutils literal notranslate"><span class=
 #+end_src
 </pre></div>
 </div>
-<p>As stated in the user’s guide if you don’t follow this rule (or any
-others) then <strong>it is wrong</strong> and an issue should be filed.</p>
+<p>As stated in the user’s guide if you don’t follow this rule (or
+any others) then <strong>it is wrong</strong> and an issue should be filed.</p>
 <p>When using input files, please copy them to the <code class="docutils literal notranslate"><span class="pre">input</span></code> dir and
-reference them relative to the example dir. So that when you execute
-a script:</p>
+reference them relative to the example dir. So that when you
+execute a script:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python source/script.py
 </pre></div>
 </div>
@@ -470,6 +477,28 @@ a script:</p>
     <span class="n">table</span> <span class="o">=</span> <span class="n">rf</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
 </pre></div>
 </div>
+<p>Similarly writing and creating files should be done into the
+<code class="docutils literal notranslate"><span class="pre">_output</span></code> dir:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;_output/test.txt&quot;</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">wf</span><span class="p">:</span>
+    <span class="n">wf</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;Hello!!&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</li>
+<li><p>Adding to the built documentation</p>
+<p>The tutorial README files will be automatically converted to
+ReStructuredText and built into the documentation, but in order to
+have links to them from the Tutorials page you will need to
+manually add them to the table of contents section in the
+<code class="docutils literal notranslate"><span class="pre">sphinx/tutorials_index.rst</span></code> file, e.g.:</p>
+<div class="highlight-rst notranslate"><div class="highlight"><pre><span></span><span class="p">..</span> <span class="ow">toctree</span><span class="p">::</span>
+   <span class="nc">:maxdepth:</span> 1
+
+   tut0/README
+   tut1/README
+</pre></div>
+</div>
+</li>
+</ol>
 </li>
 <li><p>Testing Documentation</p>
 <p>There is a folder just for tests that target the docs
@@ -857,6 +886,7 @@ in the github settings for the page.</p>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="quick_start.html">Quick Start</a></li>
 <li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction &amp; Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="introduction.html#bibliography">Bibliography</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="tutorials/index.html">Tutorials</a></li>

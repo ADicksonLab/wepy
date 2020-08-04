@@ -4,7 +4,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <title>wepy.analysis.network &#8212; wepy 1.0.0rc3 documentation</title>
+    <title>wepy.analysis.network &#8212; wepy 1.0.0rc6 documentation</title>
     <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/custom.css" />
@@ -49,6 +49,7 @@
 <span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">defaultdict</span>
 <span class="kn">from</span> <span class="nn">copy</span> <span class="kn">import</span> <span class="n">deepcopy</span>
 
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">networkx</span> <span class="k">as</span> <span class="nn">nx</span>
 
 <span class="kn">from</span> <span class="nn">wepy.analysis.transitions</span> <span class="kn">import</span> <span class="n">transition_counts</span><span class="p">,</span> <span class="n">counts_d_to_matrix</span><span class="p">,</span> \
@@ -59,11 +60,11 @@
 <span class="k">except</span> <span class="ne">ModuleNotFoundError</span><span class="p">:</span>
     <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Pandas is not installe, that functionality won&#39;t work&quot;</span><span class="p">)</span>
 
-<div class="viewcode-block" id="MacroStateNetworkError"><a class="viewcode-back" href="../../../_api/wepy.analysis.network.html#wepy.analysis.network.MacroStateNetworkError">[docs]</a><span class="k">class</span> <span class="nc">MacroStateNetworkError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+<div class="viewcode-block" id="MacroStateNetworkError"><a class="viewcode-back" href="../../../api/wepy.analysis.network.html#wepy.analysis.network.MacroStateNetworkError">[docs]</a><span class="k">class</span> <span class="nc">MacroStateNetworkError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Errors specific to MacroStateNetwork requirements.&quot;&quot;&quot;</span>
     <span class="k">pass</span></div>
 
-<div class="viewcode-block" id="BaseMacroStateNetwork"><a class="viewcode-back" href="../../../_api/wepy.analysis.network.html#wepy.analysis.network.BaseMacroStateNetwork">[docs]</a><span class="k">class</span> <span class="nc">BaseMacroStateNetwork</span><span class="p">():</span>
+<div class="viewcode-block" id="BaseMacroStateNetwork"><a class="viewcode-back" href="../../../api/wepy.analysis.network.html#wepy.analysis.network.BaseMacroStateNetwork">[docs]</a><span class="k">class</span> <span class="nc">BaseMacroStateNetwork</span><span class="p">():</span>
     <span class="sd">&quot;&quot;&quot;A base class for the MacroStateNetwork which doesn&#39;t contain a</span>
 <span class="sd">    WepyHDF5 object. Useful for serialization of the object and can</span>
 <span class="sd">    then be reattached later to a WepyHDF5.</span>
@@ -73,7 +74,10 @@
     <span class="n">ASSIGNMENTS</span> <span class="o">=</span> <span class="s1">&#39;assignments&#39;</span>
     <span class="sd">&quot;&quot;&quot;Key for the microstates that are assigned to a macrostate.&quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">contig_tree</span><span class="p">,</span> <span class="n">assg_field_key</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">assignments</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                 <span class="n">contig_tree</span><span class="p">,</span>
+                 <span class="n">assg_field_key</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">assignments</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">transition_lag_time</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Create a network of macrostates from the simulation microstates</span>
 <span class="sd">        using a field in the trajectory data or precomputed assignments.</span>
@@ -180,6 +184,18 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_countsmat</span> <span class="o">=</span> <span class="kc">None</span>
             <span class="k">if</span> <span class="n">transition_lag_time</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
 
+
+                <span class="c1"># get the weights for the walkers so we can compute</span>
+                <span class="c1"># the weighted transition counts</span>
+                <span class="n">weights</span> <span class="o">=</span> <span class="p">[[]</span> <span class="k">for</span> <span class="n">run_idx</span> <span class="ow">in</span> <span class="n">contig_tree</span><span class="o">.</span><span class="n">wepy_h5</span><span class="o">.</span><span class="n">run_idxs</span><span class="p">]</span>
+                <span class="k">for</span> <span class="n">idx_tup</span><span class="p">,</span> <span class="n">traj_fields_d</span> <span class="ow">in</span> <span class="n">contig_tree</span><span class="o">.</span><span class="n">wepy_h5</span><span class="o">.</span><span class="n">iter_trajs_fields</span><span class="p">(</span>
+                        <span class="p">[</span><span class="s1">&#39;weights&#39;</span><span class="p">],</span>
+                        <span class="n">idxs</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+
+                    <span class="n">run_idx</span><span class="p">,</span> <span class="n">traj_idx</span> <span class="o">=</span> <span class="n">idx_tup</span>
+
+                    <span class="n">weights</span><span class="p">[</span><span class="n">run_idx</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ravel</span><span class="p">(</span><span class="n">traj_fields_d</span><span class="p">[</span><span class="s1">&#39;weights&#39;</span><span class="p">]))</span>
+
                 <span class="c1"># set the lag time attribute</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_transition_lag_time</span> <span class="o">=</span> <span class="n">transition_lag_time</span>
 
@@ -194,7 +210,10 @@
                     <span class="n">transitions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">transition</span><span class="p">)</span>
 
                 <span class="c1"># then get the counts for those edges</span>
-                <span class="n">counts_d</span> <span class="o">=</span> <span class="n">transition_counts</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_assignments</span><span class="p">,</span> <span class="n">transitions</span><span class="p">)</span>
+                <span class="n">counts_d</span> <span class="o">=</span> <span class="n">transition_counts</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_assignments</span><span class="p">,</span>
+                    <span class="n">transitions</span><span class="p">,</span>
+                    <span class="n">weights</span><span class="o">=</span><span class="n">weights</span><span class="p">)</span>
 
                 <span class="c1"># create the edges and set the counts into them</span>
                 <span class="k">for</span> <span class="n">edge</span><span class="p">,</span> <span class="n">trans_counts</span> <span class="ow">in</span> <span class="n">counts_d</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
@@ -209,6 +228,7 @@
                                     <span class="p">{(</span><span class="n">node_id_to_idx_dict</span><span class="p">[</span><span class="n">edge</span><span class="p">[</span><span class="mi">0</span><span class="p">]],</span>
                                       <span class="n">node_id_to_idx_dict</span><span class="p">[</span><span class="n">edge</span><span class="p">[</span><span class="mi">1</span><span class="p">]])</span> <span class="p">:</span> <span class="n">counts</span>
                                      <span class="k">for</span> <span class="n">edge</span><span class="p">,</span> <span class="n">counts</span> <span class="ow">in</span> <span class="n">counts_d</span><span class="o">.</span><span class="n">items</span><span class="p">()})</span>
+
                 <span class="bp">self</span><span class="o">.</span><span class="n">_probmat</span> <span class="o">=</span> <span class="n">normalize_counts</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_countsmat</span><span class="p">)</span>
 
                 <span class="c1"># then we add these attributes to the edges in the network</span>
@@ -234,7 +254,7 @@
         <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">_node_assignments</span>
         <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">_assignments</span>
 
-<div class="viewcode-block" id="BaseMacroStateNetwork._key_init"><a class="viewcode-back" href="../../../_api/wepy.analysis.network.html#wepy.analysis.network.BaseMacroStateNetwork._key_init">[docs]</a>    <span class="k">def</span> <span class="nf">_key_init</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">contig_tree</span><span class="p">):</span>
+<div class="viewcode-block" id="BaseMacroStateNetwork._key_init"><a class="viewcode-back" href="../../../api/wepy.analysis.network.html#wepy.analysis.network.BaseMacroStateNetwork._key_init">[docs]</a>    <span class="k">def</span> <span class="nf">_key_init</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">contig_tree</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Initialize the assignments structures given the field key to use.</span>
 
 <span class="sd">        Parameters</span>
@@ -248,14 +268,46 @@
         <span class="n">assignments</span> <span class="o">=</span> <span class="p">[[[]</span> <span class="k">for</span> <span class="n">traj_idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">wepy_h5</span><span class="o">.</span><span class="n">num_run_trajs</span><span class="p">(</span><span class="n">run_idx</span><span class="p">))]</span>
                              <span class="k">for</span> <span class="n">run_idx</span> <span class="ow">in</span> <span class="n">wepy_h5</span><span class="o">.</span><span class="n">run_idxs</span><span class="p">]</span>
 
+        <span class="n">test_field</span> <span class="o">=</span> <span class="n">wepy_h5</span><span class="o">.</span><span class="n">get_traj_field</span><span class="p">(</span>
+            <span class="n">wepy_h5</span><span class="o">.</span><span class="n">run_idxs</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+            <span class="n">wepy_h5</span><span class="o">.</span><span class="n">run_traj_idxs</span><span class="p">(</span><span class="mi">0</span><span class="p">)[</span><span class="mi">0</span><span class="p">],</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assg_field_key</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="c1"># WARN: assg_field shapes can come wrapped with an extra</span>
+        <span class="c1"># dimension. We handle both cases. Test the first traj and see</span>
+        <span class="c1"># how it is</span>
+        <span class="n">unwrap</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">test_field</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span> <span class="ow">and</span> <span class="n">test_field</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="c1"># then we raise flag to unwrap them</span>
+            <span class="n">unwrap</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">test_field</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">test_field</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="c1"># then it is unwrapped and we don&#39;t need to do anything,</span>
+            <span class="c1"># just assert the flag to not unwrap</span>
+            <span class="n">unwrap</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="k">else</span><span class="p">:</span>
+
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Wrong shape for an assignment type observable: </span><span class="si">{</span><span class="n">test_field</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
 
         <span class="c1"># the raw assignments</span>
         <span class="n">curr_run_idx</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
         <span class="k">for</span> <span class="n">idx_tup</span><span class="p">,</span> <span class="n">fields_d</span> <span class="ow">in</span> <span class="n">wepy_h5</span><span class="o">.</span><span class="n">iter_trajs_fields</span><span class="p">(</span>
                                          <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">assg_field_key</span><span class="p">],</span> <span class="n">idxs</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+
             <span class="n">run_idx</span> <span class="o">=</span> <span class="n">idx_tup</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
             <span class="n">traj_idx</span> <span class="o">=</span> <span class="n">idx_tup</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+
             <span class="n">assg_field</span> <span class="o">=</span> <span class="n">fields_d</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">assg_field_key</span><span class="p">]</span>
+
+            <span class="c1"># if we need to we unwrap the assignements scalar values</span>
+            <span class="c1"># if they need it</span>
+            <span class="k">if</span> <span class="n">unwrap</span><span class="p">:</span>
+                <span class="n">assg_field</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ravel</span><span class="p">(</span><span class="n">assg_field</span><span class="p">)</span>
 
             <span class="n">assignments</span><span class="p">[</span><span class="n">run_idx</span><span class="p">][</span><span class="n">traj_idx</span><span class="p">]</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">assg_field</span><span class="p">)</span>
 
@@ -263,7 +315,7 @@
         <span class="c1"># way</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_assignments_init</span><span class="p">(</span><span class="n">assignments</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="BaseMacroStateNetwork._assignments_init"><a class="viewcode-back" href="../../../_api/wepy.analysis.network.html#wepy.analysis.network.BaseMacroStateNetwork._assignments_init">[docs]</a>    <span class="k">def</span> <span class="nf">_assignments_init</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">assignments</span><span class="p">):</span>
+<div class="viewcode-block" id="BaseMacroStateNetwork._assignments_init"><a class="viewcode-back" href="../../../api/wepy.analysis.network.html#wepy.analysis.network.BaseMacroStateNetwork._assignments_init">[docs]</a>    <span class="k">def</span> <span class="nf">_assignments_init</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">assignments</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Given the assignments structure sets up the other necessary</span>
 <span class="sd">        structures.</span>
 
@@ -293,7 +345,7 @@
                 <span class="k">for</span> <span class="n">frame_idx</span><span class="p">,</span> <span class="n">assignment</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">traj</span><span class="p">):</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">_node_assignments</span><span class="p">[</span><span class="n">assignment</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="p">(</span><span class="n">run_idx</span><span class="p">,</span> <span class="n">traj_idx</span><span class="p">,</span> <span class="n">frame_idx</span><span class="p">)</span> <span class="p">)</span></div>
 
-<div class="viewcode-block" id="BaseMacroStateNetwork.node_id_to_idx"><a class="viewcode-back" href="../../../_api/wepy.analysis.network.html#wepy.analysis.network.BaseMacroStateNetwork.node_id_to_idx">[docs]</a>    <span class="k">def</span> <span class="nf">node_id_to_idx</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">assg_key</span><span class="p">):</span>
+<div class="viewcode-block" id="BaseMacroStateNetwork.node_id_to_idx"><a class="viewcode-back" href="../../../api/wepy.analysis.network.html#wepy.analysis.network.BaseMacroStateNetwork.node_id_to_idx">[docs]</a>    <span class="k">def</span> <span class="nf">node_id_to_idx</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">assg_key</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Convert a node_id (which is the assignment value) to a canonical index.</span>
 
 <span class="sd">        Parameters</span>
@@ -307,7 +359,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">node_id_to_idx_dict</span><span class="p">()[</span><span class="n">assg_key</span><span class="p">]</span></div>
 
-<div class="viewcode-block" id="BaseMacroStateNetwork.node_idx_to_id"><a class="viewcode-back" href="../../../_api/wepy.analysis.network.html#wepy.analysis.network.BaseMacroStateNetwork.node_idx_to_id">[docs]</a>    <span class="k">def</span> <span class="nf">node_idx_to_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node_idx</span><span class="p">):</span>
+<div class="viewcode-block" id="BaseMacroStateNetwork.node_idx_to_id"><a class="viewcode-back" href="../../../api/wepy.analysis.network.html#wepy.analysis.network.BaseMacroStateNetwork.node_idx_to_id">[docs]</a>    <span class="k">def</span> <span class="nf">node_idx_to_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node_idx</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Convert a node index to its node id.</span>
 
 <span class="sd">        Parameters</span>
@@ -322,11 +374,11 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">node_idx_to_id_dict</span><span class="p">()[</span><span class="n">node_idx</span><span class="p">]</span></div>
 
-<div class="viewcode-block" id="BaseMacroStateNetwork.node_id_to_idx_dict"><a class="viewcode-back" href="../../../_api/wepy.analysis.network.html#wepy.analysis.network.BaseMacroStateNetwork.node_id_to_idx_dict">[docs]</a>    <span class="k">def</span> <span class="nf">node_id_to_idx_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="BaseMacroStateNetwork.node_id_to_idx_dict"><a class="viewcode-back" href="../../../api/wepy.analysis.network.html#wepy.analysis.network.BaseMacroStateNetwork.node_id_to_idx_dict">[docs]</a>    <span class="k">def</span> <span class="nf">node_id_to_idx_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Generate a full mapping of node_ids to node_idxs.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_node_idxs</span></div>
 
-<div class="viewcode-block" id="BaseMacroStateNetwork.node_idx_to_id_dict"><a class="viewcode-back" href="../../../_api/wepy.analysis.network.html#wepy.analysis.network.BaseMacroStateNetwork.node_idx_to_id_dict">[docs]</a>    <span class="k">def</span> <span class="nf">node_idx_to_id_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="BaseMacroStateNetwork.node_idx_to_id_dict"><a class="viewcode-back" href="../../../api/wepy.analysis.network.html#wepy.analysis.network.BaseMacroStateNetwork.node_idx_to_id_dict">[docs]</a>    <span class="k">def</span> <span class="nf">node_idx_to_id_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Generate a full mapping of node_idxs to node_ids.&quot;&quot;&quot;</span>
 
 
@@ -407,7 +459,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_probmat</span>
 
-<div class="viewcode-block" id="BaseMacroStateNetwork.get_node_attributes"><a class="viewcode-back" href="../../../_api/wepy.analysis.network.html#wepy.analysis.network.BaseMacroStateNetwork.get_node_attributes">[docs]</a>    <span class="k">def</span> <span class="nf">get_node_attributes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node_id</span><span class="p">):</span>
+<div class="viewcode-block" id="BaseMacroStateNetwork.get_node_attributes"><a class="viewcode-back" href="../../../api/wepy.analysis.network.html#wepy.analysis.network.BaseMacroStateNetwork.get_node_attributes">[docs]</a>    <span class="k">def</span> <span class="nf">get_node_attributes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node_id</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Returns the node attributes of the macrostate.</span>
 
 <span class="sd">        Parameters</span>
@@ -421,7 +473,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">node_id</span><span class="p">]</span></div>
 
-<div class="viewcode-block" id="BaseMacroStateNetwork.get_node_attribute"><a class="viewcode-back" href="../../../_api/wepy.analysis.network.html#wepy.analysis.network.BaseMacroStateNetwork.get_node_attribute">[docs]</a>    <span class="k">def</span> <span class="nf">get_node_attribute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node_id</span><span class="p">,</span> <span class="n">attribute_key</span><span class="p">):</span>
+<div class="viewcode-block" id="BaseMacroStateNetwork.get_node_attribute"><a class="viewcode-back" href="../../../api/wepy.analysis.network.html#wepy.analysis.network.BaseMacroStateNetwork.get_node_attribute">[docs]</a>    <span class="k">def</span> <span class="nf">get_node_attribute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node_id</span><span class="p">,</span> <span class="n">attribute_key</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return the value for a specific node and attribute.</span>
 
 <span class="sd">        Parameters</span>
@@ -437,7 +489,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_node_attributes</span><span class="p">(</span><span class="n">node_id</span><span class="p">)[</span><span class="n">attribute_key</span><span class="p">]</span></div>
 
-<div class="viewcode-block" id="BaseMacroStateNetwork.get_nodes_attribute"><a class="viewcode-back" href="../../../_api/wepy.analysis.network.html#wepy.analysis.network.BaseMacroStateNetwork.get_nodes_attribute">[docs]</a>    <span class="k">def</span> <span class="nf">get_nodes_attribute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attribute_key</span><span class="p">):</span>
+<div class="viewcode-block" id="BaseMacroStateNetwork.get_nodes_attribute"><a class="viewcode-back" href="../../../api/wepy.analysis.network.html#wepy.analysis.network.BaseMacroStateNetwork.get_nodes_attribute">[docs]</a>    <span class="k">def</span> <span class="nf">get_nodes_attribute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attribute_key</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Get a dictionary mapping nodes to a specific attribute. &quot;&quot;&quot;</span>
 
         <span class="n">nodes_attr</span> <span class="o">=</span> <span class="p">{}</span>
@@ -446,7 +498,7 @@
 
         <span class="k">return</span> <span class="n">nodes_attr</span></div>
 
-<div class="viewcode-block" id="BaseMacroStateNetwork.node_assignments"><a class="viewcode-back" href="../../../_api/wepy.analysis.network.html#wepy.analysis.network.BaseMacroStateNetwork.node_assignments">[docs]</a>    <span class="k">def</span> <span class="nf">node_assignments</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node_id</span><span class="p">):</span>
+<div class="viewcode-block" id="BaseMacroStateNetwork.node_assignments"><a class="viewcode-back" href="../../../api/wepy.analysis.network.html#wepy.analysis.network.BaseMacroStateNetwork.node_assignments">[docs]</a>    <span class="k">def</span> <span class="nf">node_assignments</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node_id</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return the microstates assigned to this macrostate as a run trace.</span>
 
 <span class="sd">        Parameters</span>
@@ -462,7 +514,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_node_attribute</span><span class="p">(</span><span class="n">node_id</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ASSIGNMENTS</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="BaseMacroStateNetwork.set_nodes_attribute"><a class="viewcode-back" href="../../../_api/wepy.analysis.network.html#wepy.analysis.network.BaseMacroStateNetwork.set_nodes_attribute">[docs]</a>    <span class="k">def</span> <span class="nf">set_nodes_attribute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">values_dict</span><span class="p">):</span>
+<div class="viewcode-block" id="BaseMacroStateNetwork.set_nodes_attribute"><a class="viewcode-back" href="../../../api/wepy.analysis.network.html#wepy.analysis.network.BaseMacroStateNetwork.set_nodes_attribute">[docs]</a>    <span class="k">def</span> <span class="nf">set_nodes_attribute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">values_dict</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Set node attributes for the key and values for each node.</span>
 
 <span class="sd">        Parameters</span>
@@ -479,7 +531,7 @@
     <span class="k">def</span> <span class="nf">node_groups</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_node_groups</span>
 
-<div class="viewcode-block" id="BaseMacroStateNetwork.set_node_group"><a class="viewcode-back" href="../../../_api/wepy.analysis.network.html#wepy.analysis.network.BaseMacroStateNetwork.set_node_group">[docs]</a>    <span class="k">def</span> <span class="nf">set_node_group</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">group_name</span><span class="p">,</span> <span class="n">node_ids</span><span class="p">):</span>
+<div class="viewcode-block" id="BaseMacroStateNetwork.set_node_group"><a class="viewcode-back" href="../../../api/wepy.analysis.network.html#wepy.analysis.network.BaseMacroStateNetwork.set_node_group">[docs]</a>    <span class="k">def</span> <span class="nf">set_node_group</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">group_name</span><span class="p">,</span> <span class="n">node_ids</span><span class="p">):</span>
 
         <span class="c1"># push these values to the nodes themselves, overwriting if</span>
         <span class="c1"># necessary</span>
@@ -489,7 +541,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_node_groups</span><span class="p">[</span><span class="n">group_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">node_ids</span></div>
 
 
-<div class="viewcode-block" id="BaseMacroStateNetwork._set_group_nodes_attribute"><a class="viewcode-back" href="../../../_api/wepy.analysis.network.html#wepy.analysis.network.BaseMacroStateNetwork._set_group_nodes_attribute">[docs]</a>    <span class="k">def</span> <span class="nf">_set_group_nodes_attribute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">group_name</span><span class="p">,</span> <span class="n">group_node_ids</span><span class="p">):</span>
+<div class="viewcode-block" id="BaseMacroStateNetwork._set_group_nodes_attribute"><a class="viewcode-back" href="../../../api/wepy.analysis.network.html#wepy.analysis.network.BaseMacroStateNetwork._set_group_nodes_attribute">[docs]</a>    <span class="k">def</span> <span class="nf">_set_group_nodes_attribute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">group_name</span><span class="p">,</span> <span class="n">group_node_ids</span><span class="p">):</span>
 
         <span class="c1"># the key for the attribute of the group goes in a little</span>
         <span class="c1"># namespace prefixed with _group</span>
@@ -508,7 +560,7 @@
         <span class="sd">&quot;&quot;&quot;The list of available observables.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_observables</span>
 
-<div class="viewcode-block" id="BaseMacroStateNetwork.node_observables"><a class="viewcode-back" href="../../../_api/wepy.analysis.network.html#wepy.analysis.network.BaseMacroStateNetwork.node_observables">[docs]</a>    <span class="k">def</span> <span class="nf">node_observables</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node_id</span><span class="p">):</span>
+<div class="viewcode-block" id="BaseMacroStateNetwork.node_observables"><a class="viewcode-back" href="../../../api/wepy.analysis.network.html#wepy.analysis.network.BaseMacroStateNetwork.node_observables">[docs]</a>    <span class="k">def</span> <span class="nf">node_observables</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node_id</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Dictionary of observables for each node_id.&quot;&quot;&quot;</span>
 
         <span class="n">node_obs</span> <span class="o">=</span> <span class="p">{}</span>
@@ -518,7 +570,7 @@
 
         <span class="k">return</span> <span class="n">node_obs</span></div>
 
-<div class="viewcode-block" id="BaseMacroStateNetwork.set_nodes_observable"><a class="viewcode-back" href="../../../_api/wepy.analysis.network.html#wepy.analysis.network.BaseMacroStateNetwork.set_nodes_observable">[docs]</a>    <span class="k">def</span> <span class="nf">set_nodes_observable</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">observable_name</span><span class="p">,</span> <span class="n">node_values</span><span class="p">):</span>
+<div class="viewcode-block" id="BaseMacroStateNetwork.set_nodes_observable"><a class="viewcode-back" href="../../../api/wepy.analysis.network.html#wepy.analysis.network.BaseMacroStateNetwork.set_nodes_observable">[docs]</a>    <span class="k">def</span> <span class="nf">set_nodes_observable</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">observable_name</span><span class="p">,</span> <span class="n">node_values</span><span class="p">):</span>
 
         <span class="c1"># the key for the attribute of the observable goes in a little</span>
         <span class="c1"># namespace prefixed with _observable</span>
@@ -533,7 +585,7 @@
     <span class="k">def</span> <span class="nf">layouts</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_layouts</span>
 
-<div class="viewcode-block" id="BaseMacroStateNetwork.node_layouts"><a class="viewcode-back" href="../../../_api/wepy.analysis.network.html#wepy.analysis.network.BaseMacroStateNetwork.node_layouts">[docs]</a>    <span class="k">def</span> <span class="nf">node_layouts</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node_id</span><span class="p">):</span>
+<div class="viewcode-block" id="BaseMacroStateNetwork.node_layouts"><a class="viewcode-back" href="../../../api/wepy.analysis.network.html#wepy.analysis.network.BaseMacroStateNetwork.node_layouts">[docs]</a>    <span class="k">def</span> <span class="nf">node_layouts</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node_id</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Dictionary of layouts for each node_id.&quot;&quot;&quot;</span>
 
         <span class="n">node_layouts</span> <span class="o">=</span> <span class="p">{}</span>
@@ -543,7 +595,7 @@
 
         <span class="k">return</span> <span class="n">node_layouts</span></div>
 
-<div class="viewcode-block" id="BaseMacroStateNetwork.set_nodes_layout"><a class="viewcode-back" href="../../../_api/wepy.analysis.network.html#wepy.analysis.network.BaseMacroStateNetwork.set_nodes_layout">[docs]</a>    <span class="k">def</span> <span class="nf">set_nodes_layout</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layout_name</span><span class="p">,</span> <span class="n">node_values</span><span class="p">):</span>
+<div class="viewcode-block" id="BaseMacroStateNetwork.set_nodes_layout"><a class="viewcode-back" href="../../../api/wepy.analysis.network.html#wepy.analysis.network.BaseMacroStateNetwork.set_nodes_layout">[docs]</a>    <span class="k">def</span> <span class="nf">set_nodes_layout</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layout_name</span><span class="p">,</span> <span class="n">node_values</span><span class="p">):</span>
 
         <span class="c1"># the key for the attribute of the observable goes in a little</span>
         <span class="c1"># namespace prefixed with _observable</span>
@@ -556,7 +608,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_layouts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">layout_name</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="BaseMacroStateNetwork.write_gexf"><a class="viewcode-back" href="../../../_api/wepy.analysis.network.html#wepy.analysis.network.BaseMacroStateNetwork.write_gexf">[docs]</a>    <span class="k">def</span> <span class="nf">write_gexf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filepath</span><span class="p">,</span> <span class="n">exclude_fields</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">layout</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="BaseMacroStateNetwork.write_gexf"><a class="viewcode-back" href="../../../api/wepy.analysis.network.html#wepy.analysis.network.BaseMacroStateNetwork.write_gexf">[docs]</a>    <span class="k">def</span> <span class="nf">write_gexf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filepath</span><span class="p">,</span> <span class="n">exclude_fields</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">layout</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Writes a graph file in the gexf format of the network.</span>
 
 <span class="sd">        Parameters</span>
@@ -607,7 +659,7 @@
         <span class="n">nx</span><span class="o">.</span><span class="n">write_gexf</span><span class="p">(</span><span class="n">gexf_graph</span><span class="p">,</span> <span class="n">filepath</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="BaseMacroStateNetwork.nodes_to_records"><a class="viewcode-back" href="../../../_api/wepy.analysis.network.html#wepy.analysis.network.BaseMacroStateNetwork.nodes_to_records">[docs]</a>    <span class="k">def</span> <span class="nf">nodes_to_records</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="BaseMacroStateNetwork.nodes_to_records"><a class="viewcode-back" href="../../../api/wepy.analysis.network.html#wepy.analysis.network.BaseMacroStateNetwork.nodes_to_records">[docs]</a>    <span class="k">def</span> <span class="nf">nodes_to_records</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 
         <span class="n">keys</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;num_samples&#39;</span><span class="p">,</span> <span class="s1">&#39;Weight&#39;</span><span class="p">]</span>
 
@@ -627,7 +679,7 @@
 
         <span class="k">return</span> <span class="n">recs</span></div>
 
-<div class="viewcode-block" id="BaseMacroStateNetwork.nodes_to_dataframe"><a class="viewcode-back" href="../../../_api/wepy.analysis.network.html#wepy.analysis.network.BaseMacroStateNetwork.nodes_to_dataframe">[docs]</a>    <span class="k">def</span> <span class="nf">nodes_to_dataframe</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="BaseMacroStateNetwork.nodes_to_dataframe"><a class="viewcode-back" href="../../../api/wepy.analysis.network.html#wepy.analysis.network.BaseMacroStateNetwork.nodes_to_dataframe">[docs]</a>    <span class="k">def</span> <span class="nf">nodes_to_dataframe</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Make a dataframe of the nodes and their attributes.</span>
 
 <span class="sd">        Not all attributes will be added as they are not relevant to a</span>
@@ -651,7 +703,7 @@
         <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nodes_to_records</span><span class="p">())</span></div>
 
 
-<div class="viewcode-block" id="BaseMacroStateNetwork.edges_to_records"><a class="viewcode-back" href="../../../_api/wepy.analysis.network.html#wepy.analysis.network.BaseMacroStateNetwork.edges_to_records">[docs]</a>    <span class="k">def</span> <span class="nf">edges_to_records</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="BaseMacroStateNetwork.edges_to_records"><a class="viewcode-back" href="../../../api/wepy.analysis.network.html#wepy.analysis.network.BaseMacroStateNetwork.edges_to_records">[docs]</a>    <span class="k">def</span> <span class="nf">edges_to_records</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Make a dataframe of the nodes and their attributes.</span>
 
 <span class="sd">        Not all attributes will be added as they are not relevant to a</span>
@@ -683,7 +735,7 @@
 
 
 
-<div class="viewcode-block" id="BaseMacroStateNetwork.edges_to_dataframe"><a class="viewcode-back" href="../../../_api/wepy.analysis.network.html#wepy.analysis.network.BaseMacroStateNetwork.edges_to_dataframe">[docs]</a>    <span class="k">def</span> <span class="nf">edges_to_dataframe</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="BaseMacroStateNetwork.edges_to_dataframe"><a class="viewcode-back" href="../../../api/wepy.analysis.network.html#wepy.analysis.network.BaseMacroStateNetwork.edges_to_dataframe">[docs]</a>    <span class="k">def</span> <span class="nf">edges_to_dataframe</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Make a dataframe of the nodes and their attributes.</span>
 
 <span class="sd">        Not all attributes will be added as they are not relevant to a</span>
@@ -698,7 +750,7 @@
 
         <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">edges_to_records</span><span class="p">())</span></div>
 
-<div class="viewcode-block" id="BaseMacroStateNetwork.node_map"><a class="viewcode-back" href="../../../_api/wepy.analysis.network.html#wepy.analysis.network.BaseMacroStateNetwork.node_map">[docs]</a>    <span class="k">def</span> <span class="nf">node_map</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">map_func</span><span class="o">=</span><span class="nb">map</span><span class="p">):</span>
+<div class="viewcode-block" id="BaseMacroStateNetwork.node_map"><a class="viewcode-back" href="../../../api/wepy.analysis.network.html#wepy.analysis.network.BaseMacroStateNetwork.node_map">[docs]</a>    <span class="k">def</span> <span class="nf">node_map</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">map_func</span><span class="o">=</span><span class="nb">map</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Map a function over the nodes.</span>
 
 <span class="sd">        The function should take as its first argument a node_id and</span>
@@ -735,7 +787,7 @@
         <span class="k">return</span> <span class="p">{</span><span class="n">node_id</span> <span class="p">:</span> <span class="n">value</span> <span class="k">for</span> <span class="n">node_id</span><span class="p">,</span> <span class="n">value</span>
                 <span class="ow">in</span> <span class="n">map_func</span><span class="p">(</span><span class="n">func_wrapper</span><span class="p">,</span> <span class="n">node_attr_it</span><span class="p">)}</span></div></div>
 
-<div class="viewcode-block" id="MacroStateNetwork"><a class="viewcode-back" href="../../../_api/wepy.analysis.network.html#wepy.analysis.network.MacroStateNetwork">[docs]</a><span class="k">class</span> <span class="nc">MacroStateNetwork</span><span class="p">():</span>
+<div class="viewcode-block" id="MacroStateNetwork"><a class="viewcode-back" href="../../../api/wepy.analysis.network.html#wepy.analysis.network.MacroStateNetwork">[docs]</a><span class="k">class</span> <span class="nc">MacroStateNetwork</span><span class="p">():</span>
     <span class="sd">&quot;&quot;&quot;Provides an abstraction over weighted ensemble data in the form of</span>
 <span class="sd">    a kinetically connected network.</span>
 
@@ -780,7 +832,7 @@
 
 
 
-<div class="viewcode-block" id="MacroStateNetwork._set_base_network_to_self"><a class="viewcode-back" href="../../../_api/wepy.analysis.network.html#wepy.analysis.network.MacroStateNetwork._set_base_network_to_self">[docs]</a>    <span class="k">def</span> <span class="nf">_set_base_network_to_self</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">base_network</span><span class="p">):</span>
+<div class="viewcode-block" id="MacroStateNetwork._set_base_network_to_self"><a class="viewcode-back" href="../../../api/wepy.analysis.network.html#wepy.analysis.network.MacroStateNetwork._set_base_network_to_self">[docs]</a>    <span class="k">def</span> <span class="nf">_set_base_network_to_self</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">base_network</span><span class="p">):</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_base_network</span> <span class="o">=</span> <span class="n">base_network</span>
 
@@ -822,14 +874,14 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">write_gexf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_base_network</span><span class="o">.</span><span class="n">write_gexf</span></div>
 
-<div class="viewcode-block" id="MacroStateNetwork.open"><a class="viewcode-back" href="../../../_api/wepy.analysis.network.html#wepy.analysis.network.MacroStateNetwork.open">[docs]</a>    <span class="k">def</span> <span class="nf">open</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="MacroStateNetwork.open"><a class="viewcode-back" href="../../../api/wepy.analysis.network.html#wepy.analysis.network.MacroStateNetwork.open">[docs]</a>    <span class="k">def</span> <span class="nf">open</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">closed</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">wepy_h5</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="n">mode</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">closed</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span><span class="s2">&quot;This file is already open&quot;</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="MacroStateNetwork.close"><a class="viewcode-back" href="../../../_api/wepy.analysis.network.html#wepy.analysis.network.MacroStateNetwork.close">[docs]</a>    <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="MacroStateNetwork.close"><a class="viewcode-back" href="../../../api/wepy.analysis.network.html#wepy.analysis.network.MacroStateNetwork.close">[docs]</a>    <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">wepy_h5</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">closed</span> <span class="o">=</span> <span class="kc">True</span></div>
 
@@ -922,7 +974,7 @@
         <span class="sd">&quot;&quot;&quot;The WepyHDF5 source object for which the contig tree is being constructed. &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_wepy_h5</span>
 
-<div class="viewcode-block" id="MacroStateNetwork.state_to_mdtraj"><a class="viewcode-back" href="../../../_api/wepy.analysis.network.html#wepy.analysis.network.MacroStateNetwork.state_to_mdtraj">[docs]</a>    <span class="k">def</span> <span class="nf">state_to_mdtraj</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node_id</span><span class="p">,</span> <span class="n">alt_rep</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="MacroStateNetwork.state_to_mdtraj"><a class="viewcode-back" href="../../../api/wepy.analysis.network.html#wepy.analysis.network.MacroStateNetwork.state_to_mdtraj">[docs]</a>    <span class="k">def</span> <span class="nf">state_to_mdtraj</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node_id</span><span class="p">,</span> <span class="n">alt_rep</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Generate an mdtraj.Trajectory object from a macrostate.</span>
 
 <span class="sd">        By default uses the &quot;main_rep&quot; in the WepyHDF5</span>
@@ -945,11 +997,11 @@
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">wepy_h5</span><span class="o">.</span><span class="n">trace_to_mdtraj</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">base_network</span><span class="o">.</span><span class="n">node_assignments</span><span class="p">(</span><span class="n">node_id</span><span class="p">),</span>
                                                 <span class="n">alt_rep</span><span class="o">=</span><span class="n">alt_rep</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="MacroStateNetwork.state_to_traj_fields"><a class="viewcode-back" href="../../../_api/wepy.analysis.network.html#wepy.analysis.network.MacroStateNetwork.state_to_traj_fields">[docs]</a>    <span class="k">def</span> <span class="nf">state_to_traj_fields</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node_id</span><span class="p">,</span> <span class="n">alt_rep</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="MacroStateNetwork.state_to_traj_fields"><a class="viewcode-back" href="../../../api/wepy.analysis.network.html#wepy.analysis.network.MacroStateNetwork.state_to_traj_fields">[docs]</a>    <span class="k">def</span> <span class="nf">state_to_traj_fields</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node_id</span><span class="p">,</span> <span class="n">alt_rep</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">states_to_traj_fields</span><span class="p">([</span><span class="n">node_id</span><span class="p">],</span> <span class="n">alt_rep</span><span class="o">=</span><span class="n">alt_rep</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="MacroStateNetwork.states_to_traj_fields"><a class="viewcode-back" href="../../../_api/wepy.analysis.network.html#wepy.analysis.network.MacroStateNetwork.states_to_traj_fields">[docs]</a>    <span class="k">def</span> <span class="nf">states_to_traj_fields</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node_ids</span><span class="p">,</span> <span class="n">alt_rep</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="MacroStateNetwork.states_to_traj_fields"><a class="viewcode-back" href="../../../api/wepy.analysis.network.html#wepy.analysis.network.MacroStateNetwork.states_to_traj_fields">[docs]</a>    <span class="k">def</span> <span class="nf">states_to_traj_fields</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node_ids</span><span class="p">,</span> <span class="n">alt_rep</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 
 
         <span class="n">node_assignments</span> <span class="o">=</span> <span class="p">[]</span>
@@ -966,7 +1018,7 @@
                                                  <span class="n">fields</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="MacroStateNetwork.get_node_fields"><a class="viewcode-back" href="../../../_api/wepy.analysis.network.html#wepy.analysis.network.MacroStateNetwork.get_node_fields">[docs]</a>    <span class="k">def</span> <span class="nf">get_node_fields</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node_id</span><span class="p">,</span> <span class="n">fields</span><span class="p">):</span>
+<div class="viewcode-block" id="MacroStateNetwork.get_node_fields"><a class="viewcode-back" href="../../../api/wepy.analysis.network.html#wepy.analysis.network.MacroStateNetwork.get_node_fields">[docs]</a>    <span class="k">def</span> <span class="nf">get_node_fields</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node_id</span><span class="p">,</span> <span class="n">fields</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return the trajectory fields for all the microstates in the</span>
 <span class="sd">        specified macrostate.</span>
 
@@ -993,7 +1045,7 @@
 
         <span class="k">return</span> <span class="n">fields_d</span></div>
 
-<div class="viewcode-block" id="MacroStateNetwork.iter_nodes_fields"><a class="viewcode-back" href="../../../_api/wepy.analysis.network.html#wepy.analysis.network.MacroStateNetwork.iter_nodes_fields">[docs]</a>    <span class="k">def</span> <span class="nf">iter_nodes_fields</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fields</span><span class="p">):</span>
+<div class="viewcode-block" id="MacroStateNetwork.iter_nodes_fields"><a class="viewcode-back" href="../../../api/wepy.analysis.network.html#wepy.analysis.network.MacroStateNetwork.iter_nodes_fields">[docs]</a>    <span class="k">def</span> <span class="nf">iter_nodes_fields</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fields</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Iterate over all nodes and return the field values for all the</span>
 <span class="sd">        microstates for each.</span>
 
@@ -1016,7 +1068,7 @@
 
         <span class="k">return</span> <span class="n">nodes_d</span></div>
 
-<div class="viewcode-block" id="MacroStateNetwork.microstate_weights"><a class="viewcode-back" href="../../../_api/wepy.analysis.network.html#wepy.analysis.network.MacroStateNetwork.microstate_weights">[docs]</a>    <span class="k">def</span> <span class="nf">microstate_weights</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="MacroStateNetwork.microstate_weights"><a class="viewcode-back" href="../../../api/wepy.analysis.network.html#wepy.analysis.network.MacroStateNetwork.microstate_weights">[docs]</a>    <span class="k">def</span> <span class="nf">microstate_weights</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Returns the weights of each microstate on the basis of macrostates.</span>
 
 <span class="sd">        Returns</span>
@@ -1038,7 +1090,7 @@
 
         <span class="k">return</span> <span class="n">node_weights</span></div>
 
-<div class="viewcode-block" id="MacroStateNetwork.macrostate_weights"><a class="viewcode-back" href="../../../_api/wepy.analysis.network.html#wepy.analysis.network.MacroStateNetwork.macrostate_weights">[docs]</a>    <span class="k">def</span> <span class="nf">macrostate_weights</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="MacroStateNetwork.macrostate_weights"><a class="viewcode-back" href="../../../api/wepy.analysis.network.html#wepy.analysis.network.MacroStateNetwork.macrostate_weights">[docs]</a>    <span class="k">def</span> <span class="nf">macrostate_weights</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Compute the total weight of each macrostate.</span>
 
 <span class="sd">        Returns</span>
@@ -1054,12 +1106,12 @@
 
         <span class="k">return</span> <span class="n">macrostate_weights</span></div>
 
-<div class="viewcode-block" id="MacroStateNetwork.set_macrostate_weights"><a class="viewcode-back" href="../../../_api/wepy.analysis.network.html#wepy.analysis.network.MacroStateNetwork.set_macrostate_weights">[docs]</a>    <span class="k">def</span> <span class="nf">set_macrostate_weights</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="MacroStateNetwork.set_macrostate_weights"><a class="viewcode-back" href="../../../api/wepy.analysis.network.html#wepy.analysis.network.MacroStateNetwork.set_macrostate_weights">[docs]</a>    <span class="k">def</span> <span class="nf">set_macrostate_weights</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Compute the macrostate weights and set them as node attributes</span>
 <span class="sd">        &#39;Weight&#39;.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">base_network</span><span class="o">.</span><span class="n">set_nodes_attribute</span><span class="p">(</span><span class="s1">&#39;Weight&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">macrostate_weights</span><span class="p">())</span></div>
 
-<div class="viewcode-block" id="MacroStateNetwork.node_fields_map"><a class="viewcode-back" href="../../../_api/wepy.analysis.network.html#wepy.analysis.network.MacroStateNetwork.node_fields_map">[docs]</a>    <span class="k">def</span> <span class="nf">node_fields_map</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">fields</span><span class="p">,</span> <span class="n">map_func</span><span class="o">=</span><span class="nb">map</span><span class="p">):</span>
+<div class="viewcode-block" id="MacroStateNetwork.node_fields_map"><a class="viewcode-back" href="../../../api/wepy.analysis.network.html#wepy.analysis.network.MacroStateNetwork.node_fields_map">[docs]</a>    <span class="k">def</span> <span class="nf">node_fields_map</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">fields</span><span class="p">,</span> <span class="n">map_func</span><span class="o">=</span><span class="nb">map</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">        Parameters</span>
@@ -1137,6 +1189,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../_source/installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../_source/quick_start.html">Quick Start</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../_source/introduction.html">Introduction &amp; Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../_source/introduction.html#bibliography">Bibliography</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../_source/tutorials/index.html">Tutorials</a></li>

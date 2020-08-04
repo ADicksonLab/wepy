@@ -4,7 +4,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <title>wepy.resampling.distances.receptor &#8212; wepy 1.0.0rc3 documentation</title>
+    <title>wepy.resampling.distances.receptor &#8212; wepy 1.0.0rc6 documentation</title>
     <link rel="stylesheet" href="../../../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/custom.css" />
@@ -74,7 +74,7 @@
 
 <span class="kn">from</span> <span class="nn">wepy.resampling.distances.distance</span> <span class="kn">import</span> <span class="n">Distance</span>
 
-<div class="viewcode-block" id="ReceptorDistance"><a class="viewcode-back" href="../../../../_api/wepy.resampling.distances.receptor.html#wepy.resampling.distances.receptor.ReceptorDistance">[docs]</a><span class="k">class</span> <span class="nc">ReceptorDistance</span><span class="p">(</span><span class="n">Distance</span><span class="p">):</span>
+<div class="viewcode-block" id="ReceptorDistance"><a class="viewcode-back" href="../../../../api/wepy.resampling.distances.receptor.html#wepy.resampling.distances.receptor.ReceptorDistance">[docs]</a><span class="k">class</span> <span class="nc">ReceptorDistance</span><span class="p">(</span><span class="n">Distance</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Common abstract class for receptor-ligand molecular systems.</span>
 
 <span class="sd">    Any input walker state should have the attributes &#39;positions&#39; and</span>
@@ -133,7 +133,7 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">ref_image</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_unaligned_image</span><span class="p">(</span><span class="n">ref_state</span><span class="p">)</span>
 
-<div class="viewcode-block" id="ReceptorDistance._unaligned_image"><a class="viewcode-back" href="../../../../_api/wepy.resampling.distances.receptor.html#wepy.resampling.distances.receptor.ReceptorDistance._unaligned_image">[docs]</a>    <span class="k">def</span> <span class="nf">_unaligned_image</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
+<div class="viewcode-block" id="ReceptorDistance._unaligned_image"><a class="viewcode-back" href="../../../../api/wepy.resampling.distances.receptor.html#wepy.resampling.distances.receptor.ReceptorDistance._unaligned_image">[docs]</a>    <span class="k">def</span> <span class="nf">_unaligned_image</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;The preprocessing method of states.</span>
 
 <span class="sd">        First it groups the binding site and ligand into the same</span>
@@ -170,7 +170,7 @@
 
         <span class="k">return</span> <span class="n">state_image</span></div>
 
-<div class="viewcode-block" id="ReceptorDistance.image"><a class="viewcode-back" href="../../../../_api/wepy.resampling.distances.receptor.html#wepy.resampling.distances.receptor.ReceptorDistance.image">[docs]</a>    <span class="k">def</span> <span class="nf">image</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
+<div class="viewcode-block" id="ReceptorDistance.image"><a class="viewcode-back" href="../../../../api/wepy.resampling.distances.receptor.html#wepy.resampling.distances.receptor.ReceptorDistance.image">[docs]</a>    <span class="k">def</span> <span class="nf">image</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Transform a state to a receptor image.</span>
 
 <span class="sd">        A receptor image is one in which the binding site and ligand</span>
@@ -202,7 +202,7 @@
         <span class="k">return</span> <span class="n">sup_image</span></div></div>
 
 
-<div class="viewcode-block" id="UnbindingDistance"><a class="viewcode-back" href="../../../../_api/wepy.resampling.distances.receptor.html#wepy.resampling.distances.receptor.UnbindingDistance">[docs]</a><span class="k">class</span> <span class="nc">UnbindingDistance</span><span class="p">(</span><span class="n">ReceptorDistance</span><span class="p">):</span>
+<div class="viewcode-block" id="UnbindingDistance"><a class="viewcode-back" href="../../../../api/wepy.resampling.distances.receptor.html#wepy.resampling.distances.receptor.UnbindingDistance">[docs]</a><span class="k">class</span> <span class="nc">UnbindingDistance</span><span class="p">(</span><span class="n">ReceptorDistance</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Distance metric for measuring differences between walker states in</span>
 <span class="sd">    regards to the RMSDs between ligands.</span>
 
@@ -215,7 +215,7 @@
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="UnbindingDistance.image_distance"><a class="viewcode-back" href="../../../../_api/wepy.resampling.distances.receptor.html#wepy.resampling.distances.receptor.UnbindingDistance.image_distance">[docs]</a>    <span class="k">def</span> <span class="nf">image_distance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image_a</span><span class="p">,</span> <span class="n">image_b</span><span class="p">):</span>
+<div class="viewcode-block" id="UnbindingDistance.image_distance"><a class="viewcode-back" href="../../../../api/wepy.resampling.distances.receptor.html#wepy.resampling.distances.receptor.UnbindingDistance.image_distance">[docs]</a>    <span class="k">def</span> <span class="nf">image_distance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image_a</span><span class="p">,</span> <span class="n">image_b</span><span class="p">):</span>
 
         <span class="c1"># we calculate the rmsd of only the ligands between the</span>
         <span class="c1"># images</span>
@@ -223,7 +223,7 @@
 
         <span class="k">return</span> <span class="n">lig_rmsd</span></div></div>
 
-<div class="viewcode-block" id="RebindingDistance"><a class="viewcode-back" href="../../../../_api/wepy.resampling.distances.receptor.html#wepy.resampling.distances.receptor.RebindingDistance">[docs]</a><span class="k">class</span> <span class="nc">RebindingDistance</span><span class="p">(</span><span class="n">ReceptorDistance</span><span class="p">):</span>
+<div class="viewcode-block" id="RebindingDistance"><a class="viewcode-back" href="../../../../api/wepy.resampling.distances.receptor.html#wepy.resampling.distances.receptor.RebindingDistance">[docs]</a><span class="k">class</span> <span class="nc">RebindingDistance</span><span class="p">(</span><span class="n">ReceptorDistance</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Distance metric for measuring differences between walker states in</span>
 <span class="sd">    regards to the RMSDs between ligands.</span>
 
@@ -233,7 +233,7 @@
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="RebindingDistance.image_distance"><a class="viewcode-back" href="../../../../_api/wepy.resampling.distances.receptor.html#wepy.resampling.distances.receptor.RebindingDistance.image_distance">[docs]</a>    <span class="k">def</span> <span class="nf">image_distance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image_a</span><span class="p">,</span> <span class="n">image_b</span><span class="p">):</span>
+<div class="viewcode-block" id="RebindingDistance.image_distance"><a class="viewcode-back" href="../../../../api/wepy.resampling.distances.receptor.html#wepy.resampling.distances.receptor.RebindingDistance.image_distance">[docs]</a>    <span class="k">def</span> <span class="nf">image_distance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image_a</span><span class="p">,</span> <span class="n">image_b</span><span class="p">):</span>
 
         <span class="c1"># we calculate the rmsd of only the ligands between each image</span>
         <span class="c1"># and the reference</span>
@@ -285,6 +285,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../../_source/installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../_source/quick_start.html">Quick Start</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../_source/introduction.html">Introduction &amp; Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_source/introduction.html#bibliography">Bibliography</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../../_source/tutorials/index.html">Tutorials</a></li>

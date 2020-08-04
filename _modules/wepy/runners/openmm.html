@@ -4,7 +4,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <title>wepy.runners.openmm &#8212; wepy 1.0.0rc3 documentation</title>
+    <title>wepy.runners.openmm &#8212; wepy 1.0.0rc6 documentation</title>
     <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/custom.css" />
@@ -72,6 +72,8 @@
 <span class="kn">from</span> <span class="nn">warnings</span> <span class="kn">import</span> <span class="n">warn</span>
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">time</span>
+
+<span class="kn">from</span> <span class="nn">eliot</span> <span class="kn">import</span> <span class="n">log_call</span><span class="p">,</span> <span class="n">start_action</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
@@ -154,7 +156,7 @@
 <span class="c1"># RAND_SEED_RANGE_MAX = 1000000</span>
 
 <span class="c1"># the runner for the simulation which runs the actual dynamics</span>
-<div class="viewcode-block" id="OpenMMRunner"><a class="viewcode-back" href="../../../_api/wepy.runners.openmm.html#wepy.runners.openmm.OpenMMRunner">[docs]</a><span class="k">class</span> <span class="nc">OpenMMRunner</span><span class="p">(</span><span class="n">Runner</span><span class="p">):</span>
+<div class="viewcode-block" id="OpenMMRunner"><a class="viewcode-back" href="../../../api/wepy.runners.openmm.html#wepy.runners.openmm.OpenMMRunner">[docs]</a><span class="k">class</span> <span class="nc">OpenMMRunner</span><span class="p">(</span><span class="n">Runner</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Runner for OpenMM simulations.&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">system</span><span class="p">,</span> <span class="n">topology</span><span class="p">,</span> <span class="n">integrator</span><span class="p">,</span>
@@ -237,7 +239,16 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_cycle_platform</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_cycle_platform_kwargs</span> <span class="o">=</span> <span class="kc">None</span>
 
-<div class="viewcode-block" id="OpenMMRunner.pre_cycle"><a class="viewcode-back" href="../../../_api/wepy.runners.openmm.html#wepy.runners.openmm.OpenMMRunner.pre_cycle">[docs]</a>    <span class="k">def</span> <span class="nf">pre_cycle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+        <span class="c1"># for special monitoring purposes to get split times to debug</span>
+        <span class="c1"># performance</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_last_cycle_segments_split_times</span> <span class="o">=</span> <span class="p">[]</span>
+
+<div class="viewcode-block" id="OpenMMRunner.pre_cycle"><a class="viewcode-back" href="../../../api/wepy.runners.openmm.html#wepy.runners.openmm.OpenMMRunner.pre_cycle">[docs]</a>    <span class="nd">@log_call</span><span class="p">(</span><span class="n">include_args</span><span class="o">=</span><span class="p">[</span>
+        <span class="s1">&#39;platform&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;platform_kwargs&#39;</span><span class="p">,</span>
+    <span class="p">],</span>
+              <span class="n">include_result</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">pre_cycle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                   <span class="n">platform</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                   <span class="n">platform_kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                   <span class="o">**</span><span class="n">kwargs</span>
@@ -253,9 +264,15 @@
         <span class="p">)</span>
         <span class="c1"># set the platform and kwargs for this cycle</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_cycle_platform</span> <span class="o">=</span> <span class="n">platform</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_cycle_platform_kwargs</span> <span class="o">=</span> <span class="n">platform_kwargs</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cycle_platform_kwargs</span> <span class="o">=</span> <span class="n">platform_kwargs</span>
 
-<div class="viewcode-block" id="OpenMMRunner.post_cycle"><a class="viewcode-back" href="../../../_api/wepy.runners.openmm.html#wepy.runners.openmm.OpenMMRunner.post_cycle">[docs]</a>    <span class="k">def</span> <span class="nf">post_cycle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="c1"># each segment split times will get appended to this</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_last_cycle_segments_split_times</span> <span class="o">=</span> <span class="p">[]</span></div>
+
+
+<div class="viewcode-block" id="OpenMMRunner.post_cycle"><a class="viewcode-back" href="../../../api/wepy.runners.openmm.html#wepy.runners.openmm.OpenMMRunner.post_cycle">[docs]</a>    <span class="nd">@log_call</span><span class="p">(</span><span class="n">include_args</span><span class="o">=</span><span class="p">[],</span>
+              <span class="n">include_result</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">post_cycle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">post_cycle</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
@@ -264,7 +281,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_cycle_platform_kwargs</span> <span class="o">=</span> <span class="kc">None</span></div>
 
 
-<div class="viewcode-block" id="OpenMMRunner._resolve_platform"><a class="viewcode-back" href="../../../_api/wepy.runners.openmm.html#wepy.runners.openmm.OpenMMRunner._resolve_platform">[docs]</a>    <span class="k">def</span> <span class="nf">_resolve_platform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+<div class="viewcode-block" id="OpenMMRunner._resolve_platform"><a class="viewcode-back" href="../../../api/wepy.runners.openmm.html#wepy.runners.openmm.OpenMMRunner._resolve_platform">[docs]</a>    <span class="k">def</span> <span class="nf">_resolve_platform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                           <span class="n">platform</span><span class="p">,</span>
                           <span class="n">platform_kwargs</span><span class="p">,</span>
         <span class="p">):</span>
@@ -299,7 +316,16 @@
         <span class="k">return</span> <span class="n">platform_name</span><span class="p">,</span> \
                <span class="n">platform_kwargs</span><span class="p">,</span></div>
 
-<div class="viewcode-block" id="OpenMMRunner.run_segment"><a class="viewcode-back" href="../../../_api/wepy.runners.openmm.html#wepy.runners.openmm.OpenMMRunner.run_segment">[docs]</a>    <span class="k">def</span> <span class="nf">run_segment</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+<div class="viewcode-block" id="OpenMMRunner.run_segment"><a class="viewcode-back" href="../../../api/wepy.runners.openmm.html#wepy.runners.openmm.OpenMMRunner.run_segment">[docs]</a>    <span class="nd">@log_call</span><span class="p">(</span>
+        <span class="n">include_args</span><span class="o">=</span><span class="p">[</span>
+            <span class="s1">&#39;segment_length&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;getState_kwargs&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;platform&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;platform_kwargs&#39;</span><span class="p">,</span>
+        <span class="p">],</span>
+        <span class="n">include_result</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">def</span> <span class="nf">run_segment</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                     <span class="n">walker</span><span class="p">,</span>
                     <span class="n">segment_length</span><span class="p">,</span>
                     <span class="n">getState_kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -450,6 +476,7 @@
 
         <span class="n">gen_sim_end</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
         <span class="n">gen_sim_time</span> <span class="o">=</span> <span class="n">gen_sim_end</span> <span class="o">-</span> <span class="n">gen_sim_start</span>
+
         <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Time to generate the system: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">gen_sim_time</span><span class="p">))</span>
 
 
@@ -458,10 +485,13 @@
         <span class="n">steps_start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
 
         <span class="c1"># Run the simulation segment for the number of time steps</span>
-        <span class="n">simulation</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">segment_length</span><span class="p">)</span>
+        <span class="k">with</span> <span class="n">start_action</span><span class="p">(</span><span class="n">action_type</span><span class="o">=</span><span class="s2">&quot;OpenMM Simulation.steps&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">ommsim_cx</span><span class="p">:</span>
+            <span class="n">simulation</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">segment_length</span><span class="p">)</span>
 
         <span class="n">steps_end</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
         <span class="n">steps_time</span> <span class="o">=</span> <span class="n">steps_end</span> <span class="o">-</span> <span class="n">steps_start</span>
+
+
         <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Time to run </span><span class="si">{}</span><span class="s2"> sim steps: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">segment_length</span><span class="p">,</span> <span class="n">steps_time</span><span class="p">))</span>
 
 
@@ -484,9 +514,21 @@
         <span class="n">run_segment_time</span> <span class="o">=</span> <span class="n">run_segment_end</span> <span class="o">-</span> <span class="n">run_segment_start</span>
         <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Total internal run_segment time: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">run_segment_time</span><span class="p">))</span>
 
+
+        <span class="n">segment_split_times</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;gen_sim_time&#39;</span> <span class="p">:</span>  <span class="n">gen_sim_time</span><span class="p">,</span>
+            <span class="s1">&#39;steps_time&#39;</span> <span class="p">:</span> <span class="n">steps_time</span><span class="p">,</span>
+            <span class="s1">&#39;get_state_time&#39;</span> <span class="p">:</span> <span class="n">get_state_time</span><span class="p">,</span>
+            <span class="s1">&#39;run_segment_time&#39;</span> <span class="p">:</span> <span class="n">run_segment_time</span><span class="p">,</span>
+        <span class="p">}</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_last_cycle_segments_split_times</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">segment_split_times</span><span class="p">)</span>
+
         <span class="k">return</span> <span class="n">new_walker</span></div>
 
-<div class="viewcode-block" id="OpenMMRunner.generate_state"><a class="viewcode-back" href="../../../_api/wepy.runners.openmm.html#wepy.runners.openmm.OpenMMRunner.generate_state">[docs]</a>    <span class="k">def</span> <span class="nf">generate_state</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">simulation</span><span class="p">,</span> <span class="n">segment_length</span><span class="p">,</span> <span class="n">starting_walker</span><span class="p">,</span> <span class="n">getState_kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="OpenMMRunner.generate_state"><a class="viewcode-back" href="../../../api/wepy.runners.openmm.html#wepy.runners.openmm.OpenMMRunner.generate_state">[docs]</a>    <span class="nd">@log_call</span><span class="p">(</span><span class="n">include_args</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;getState_kwargs&#39;</span><span class="p">],</span>
+              <span class="n">include_result</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">generate_state</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">simulation</span><span class="p">,</span> <span class="n">segment_length</span><span class="p">,</span> <span class="n">starting_walker</span><span class="p">,</span> <span class="n">getState_kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Method for generating a wepy compliant state from an OpenMM</span>
 <span class="sd">        simulation object and data about the last segment of dynamics run.</span>
 
@@ -535,7 +577,7 @@
         <span class="k">return</span> <span class="n">new_state</span></div></div>
 
 
-<div class="viewcode-block" id="OpenMMState"><a class="viewcode-back" href="../../../_api/wepy.runners.openmm.html#wepy.runners.openmm.OpenMMState">[docs]</a><span class="k">class</span> <span class="nc">OpenMMState</span><span class="p">(</span><span class="n">WalkerState</span><span class="p">):</span>
+<div class="viewcode-block" id="OpenMMState"><a class="viewcode-back" href="../../../api/wepy.runners.openmm.html#wepy.runners.openmm.OpenMMState">[docs]</a><span class="k">class</span> <span class="nc">OpenMMState</span><span class="p">(</span><span class="n">WalkerState</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Walker state that wraps an simtk.openmm.State object.</span>
 
 <span class="sd">    The keys for which values in the state are available are given by</span>
@@ -669,7 +711,7 @@
         <span class="sd">&quot;&quot;&quot;The units (as a simtk.units.Unit object) the positions are in.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">positions</span><span class="o">.</span><span class="n">unit</span>
 
-<div class="viewcode-block" id="OpenMMState.positions_values"><a class="viewcode-back" href="../../../_api/wepy.runners.openmm.html#wepy.runners.openmm.OpenMMState.positions_values">[docs]</a>    <span class="k">def</span> <span class="nf">positions_values</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="OpenMMState.positions_values"><a class="viewcode-back" href="../../../api/wepy.runners.openmm.html#wepy.runners.openmm.OpenMMState.positions_values">[docs]</a>    <span class="k">def</span> <span class="nf">positions_values</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;The positions of the state as a numpy array in the positions_unit</span>
 <span class="sd">        simtk.units.Unit. This is what is returned by the __getitem__</span>
 <span class="sd">        accessor.</span>
@@ -693,7 +735,7 @@
         <span class="sd">&quot;&quot;&quot;The units (as a simtk.units.Unit object) the velocities are in.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">velocities</span><span class="o">.</span><span class="n">unit</span>
 
-<div class="viewcode-block" id="OpenMMState.velocities_values"><a class="viewcode-back" href="../../../_api/wepy.runners.openmm.html#wepy.runners.openmm.OpenMMState.velocities_values">[docs]</a>    <span class="k">def</span> <span class="nf">velocities_values</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="OpenMMState.velocities_values"><a class="viewcode-back" href="../../../api/wepy.runners.openmm.html#wepy.runners.openmm.OpenMMState.velocities_values">[docs]</a>    <span class="k">def</span> <span class="nf">velocities_values</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;The velocities of the state as a numpy array in the velocities_unit</span>
 <span class="sd">        simtk.units.Unit. This is what is returned by the __getitem__</span>
 <span class="sd">        accessor.</span>
@@ -722,7 +764,7 @@
         <span class="sd">&quot;&quot;&quot;The units (as a simtk.units.Unit object) the forces are in.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">forces</span><span class="o">.</span><span class="n">unit</span>
 
-<div class="viewcode-block" id="OpenMMState.forces_values"><a class="viewcode-back" href="../../../_api/wepy.runners.openmm.html#wepy.runners.openmm.OpenMMState.forces_values">[docs]</a>    <span class="k">def</span> <span class="nf">forces_values</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="OpenMMState.forces_values"><a class="viewcode-back" href="../../../api/wepy.runners.openmm.html#wepy.runners.openmm.OpenMMState.forces_values">[docs]</a>    <span class="k">def</span> <span class="nf">forces_values</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;The forces of the state as a numpy array in the forces_unit</span>
 <span class="sd">        simtk.units.Unit. This is what is returned by the __getitem__</span>
 <span class="sd">        accessor.</span>
@@ -751,7 +793,7 @@
         <span class="sd">&quot;&quot;&quot;The units (as a simtk.units.Unit object) the box vectors are in.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">box_vectors</span><span class="o">.</span><span class="n">unit</span>
 
-<div class="viewcode-block" id="OpenMMState.box_vectors_values"><a class="viewcode-back" href="../../../_api/wepy.runners.openmm.html#wepy.runners.openmm.OpenMMState.box_vectors_values">[docs]</a>    <span class="k">def</span> <span class="nf">box_vectors_values</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="OpenMMState.box_vectors_values"><a class="viewcode-back" href="../../../api/wepy.runners.openmm.html#wepy.runners.openmm.OpenMMState.box_vectors_values">[docs]</a>    <span class="k">def</span> <span class="nf">box_vectors_values</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;The box vectors of the state as a numpy array in the</span>
 <span class="sd">        box_vectors_unit simtk.units.Unit. This is what is returned by</span>
 <span class="sd">        the __getitem__ accessor.</span>
@@ -783,7 +825,7 @@
         <span class="sd">&quot;&quot;&quot;The units (as a simtk.units.Unit object) the kinetic energy is in.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">kinetic_energy</span><span class="o">.</span><span class="n">unit</span>
 
-<div class="viewcode-block" id="OpenMMState.kinetic_energy_value"><a class="viewcode-back" href="../../../_api/wepy.runners.openmm.html#wepy.runners.openmm.OpenMMState.kinetic_energy_value">[docs]</a>    <span class="k">def</span> <span class="nf">kinetic_energy_value</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="OpenMMState.kinetic_energy_value"><a class="viewcode-back" href="../../../api/wepy.runners.openmm.html#wepy.runners.openmm.OpenMMState.kinetic_energy_value">[docs]</a>    <span class="k">def</span> <span class="nf">kinetic_energy_value</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;The kinetic energy of the state as a numpy array in the kinetic_energy_unit</span>
 <span class="sd">        simtk.units.Unit. This is what is returned by the __getitem__</span>
 <span class="sd">        accessor.</span>
@@ -812,7 +854,7 @@
         <span class="sd">&quot;&quot;&quot;The units (as a simtk.units.Unit object) the potential energy is in.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">potential_energy</span><span class="o">.</span><span class="n">unit</span>
 
-<div class="viewcode-block" id="OpenMMState.potential_energy_value"><a class="viewcode-back" href="../../../_api/wepy.runners.openmm.html#wepy.runners.openmm.OpenMMState.potential_energy_value">[docs]</a>    <span class="k">def</span> <span class="nf">potential_energy_value</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="OpenMMState.potential_energy_value"><a class="viewcode-back" href="../../../api/wepy.runners.openmm.html#wepy.runners.openmm.OpenMMState.potential_energy_value">[docs]</a>    <span class="k">def</span> <span class="nf">potential_energy_value</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;The potential energy of the state as a numpy array in the potential_energy_unit</span>
 <span class="sd">        simtk.units.Unit. This is what is returned by the __getitem__</span>
 <span class="sd">        accessor.</span>
@@ -841,7 +883,7 @@
         <span class="sd">&quot;&quot;&quot;The units (as a simtk.units.Unit object) the time is in.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">time</span><span class="o">.</span><span class="n">unit</span>
 
-<div class="viewcode-block" id="OpenMMState.time_value"><a class="viewcode-back" href="../../../_api/wepy.runners.openmm.html#wepy.runners.openmm.OpenMMState.time_value">[docs]</a>    <span class="k">def</span> <span class="nf">time_value</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="OpenMMState.time_value"><a class="viewcode-back" href="../../../api/wepy.runners.openmm.html#wepy.runners.openmm.OpenMMState.time_value">[docs]</a>    <span class="k">def</span> <span class="nf">time_value</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;The time of the state as a numpy array in the time_unit</span>
 <span class="sd">        simtk.units.Unit. This is what is returned by the __getitem__</span>
 <span class="sd">        accessor.</span>
@@ -870,7 +912,7 @@
         <span class="sd">&quot;&quot;&quot;The units (as a simtk.units.Unit object) the box volume is in.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">box_volume</span><span class="o">.</span><span class="n">unit</span>
 
-<div class="viewcode-block" id="OpenMMState.box_volume_value"><a class="viewcode-back" href="../../../_api/wepy.runners.openmm.html#wepy.runners.openmm.OpenMMState.box_volume_value">[docs]</a>    <span class="k">def</span> <span class="nf">box_volume_value</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="OpenMMState.box_volume_value"><a class="viewcode-back" href="../../../api/wepy.runners.openmm.html#wepy.runners.openmm.OpenMMState.box_volume_value">[docs]</a>    <span class="k">def</span> <span class="nf">box_volume_value</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;The box volume of the state as a numpy array in the box_volume_unit</span>
 <span class="sd">        simtk.units.Unit. This is what is returned by the __getitem__</span>
 <span class="sd">        accessor.</span>
@@ -912,7 +954,7 @@
         <span class="n">param_units</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span> <span class="p">:</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
         <span class="k">return</span> <span class="n">param_units</span>
 
-<div class="viewcode-block" id="OpenMMState.parameters_values"><a class="viewcode-back" href="../../../_api/wepy.runners.openmm.html#wepy.runners.openmm.OpenMMState.parameters_values">[docs]</a>    <span class="k">def</span> <span class="nf">parameters_values</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="OpenMMState.parameters_values"><a class="viewcode-back" href="../../../api/wepy.runners.openmm.html#wepy.runners.openmm.OpenMMState.parameters_values">[docs]</a>    <span class="k">def</span> <span class="nf">parameters_values</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;The parameters of the state as a dictionary mapping the name of the</span>
 <span class="sd">        parameter to a numpy array in the unit for the parameter of the</span>
 <span class="sd">        same name in the parameters_unit corresponding</span>
@@ -962,7 +1004,7 @@
         <span class="n">param_units</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span> <span class="p">:</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameter_derivatives</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
         <span class="k">return</span> <span class="n">param_units</span>
 
-<div class="viewcode-block" id="OpenMMState.parameter_derivatives_values"><a class="viewcode-back" href="../../../_api/wepy.runners.openmm.html#wepy.runners.openmm.OpenMMState.parameter_derivatives_values">[docs]</a>    <span class="k">def</span> <span class="nf">parameter_derivatives_values</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="OpenMMState.parameter_derivatives_values"><a class="viewcode-back" href="../../../api/wepy.runners.openmm.html#wepy.runners.openmm.OpenMMState.parameter_derivatives_values">[docs]</a>    <span class="k">def</span> <span class="nf">parameter_derivatives_values</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;The parameter derivatives of the state as a dictionary mapping the</span>
 <span class="sd">        name of the parameter to a numpy array in the unit for the</span>
 <span class="sd">        parameter of the same name in the parameters_unit</span>
@@ -988,7 +1030,7 @@
 
     <span class="c1"># for the dict attributes we need to transform the keys for making</span>
     <span class="c1"># a proper state where all __getitem__ things are arrays</span>
-<div class="viewcode-block" id="OpenMMState._dict_attr_to_compound_key_dict"><a class="viewcode-back" href="../../../_api/wepy.runners.openmm.html#wepy.runners.openmm.OpenMMState._dict_attr_to_compound_key_dict">[docs]</a>    <span class="k">def</span> <span class="nf">_dict_attr_to_compound_key_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">root_key</span><span class="p">,</span> <span class="n">attr_dict</span><span class="p">):</span>
+<div class="viewcode-block" id="OpenMMState._dict_attr_to_compound_key_dict"><a class="viewcode-back" href="../../../api/wepy.runners.openmm.html#wepy.runners.openmm.OpenMMState._dict_attr_to_compound_key_dict">[docs]</a>    <span class="k">def</span> <span class="nf">_dict_attr_to_compound_key_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">root_key</span><span class="p">,</span> <span class="n">attr_dict</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Transform a dictionary of values within the compound key &#39;root_key&#39;</span>
 <span class="sd">        to a dictionary mapping compound keys to values.</span>
 
@@ -1024,7 +1066,7 @@
 
         <span class="k">return</span> <span class="n">cmpd_key_d</span></div>
 
-<div class="viewcode-block" id="OpenMMState._get_nested_attr_from_compound_key"><a class="viewcode-back" href="../../../_api/wepy.runners.openmm.html#wepy.runners.openmm.OpenMMState._get_nested_attr_from_compound_key">[docs]</a>    <span class="k">def</span> <span class="nf">_get_nested_attr_from_compound_key</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">compound_key</span><span class="p">,</span> <span class="n">compound_feat_dict</span><span class="p">):</span>
+<div class="viewcode-block" id="OpenMMState._get_nested_attr_from_compound_key"><a class="viewcode-back" href="../../../api/wepy.runners.openmm.html#wepy.runners.openmm.OpenMMState._get_nested_attr_from_compound_key">[docs]</a>    <span class="k">def</span> <span class="nf">_get_nested_attr_from_compound_key</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">compound_key</span><span class="p">,</span> <span class="n">compound_feat_dict</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Get arbitrarily deeply nested compound keys from the full</span>
 <span class="sd">        dictionary tree.</span>
 
@@ -1067,7 +1109,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">value</span></div>
 
-<div class="viewcode-block" id="OpenMMState.parameters_features"><a class="viewcode-back" href="../../../_api/wepy.runners.openmm.html#wepy.runners.openmm.OpenMMState.parameters_features">[docs]</a>    <span class="k">def</span> <span class="nf">parameters_features</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="OpenMMState.parameters_features"><a class="viewcode-back" href="../../../api/wepy.runners.openmm.html#wepy.runners.openmm.OpenMMState.parameters_features">[docs]</a>    <span class="k">def</span> <span class="nf">parameters_features</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Returns a dictionary of the parameters with their appropriate</span>
 <span class="sd">        compound keys. This can be used for placing them in the same namespace</span>
 <span class="sd">        as the rest of the attributes.&quot;&quot;&quot;</span>
@@ -1078,7 +1120,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dict_attr_to_compound_key_dict</span><span class="p">(</span><span class="s1">&#39;parameters&#39;</span><span class="p">,</span> <span class="n">parameters</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="OpenMMState.parameter_derivatives_features"><a class="viewcode-back" href="../../../_api/wepy.runners.openmm.html#wepy.runners.openmm.OpenMMState.parameter_derivatives_features">[docs]</a>    <span class="k">def</span> <span class="nf">parameter_derivatives_features</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="OpenMMState.parameter_derivatives_features"><a class="viewcode-back" href="../../../api/wepy.runners.openmm.html#wepy.runners.openmm.OpenMMState.parameter_derivatives_features">[docs]</a>    <span class="k">def</span> <span class="nf">parameter_derivatives_features</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Returns a dictionary of the parameter derivatives with their appropriate</span>
 <span class="sd">        compound keys. This can be used for placing them in the same namespace</span>
 <span class="sd">        as the rest of the attributes.&quot;&quot;&quot;</span>
@@ -1090,7 +1132,7 @@
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dict_attr_to_compound_key_dict</span><span class="p">(</span><span class="s1">&#39;parameter_derivatives&#39;</span><span class="p">,</span>
                                                         <span class="n">parameter_derivatives</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="OpenMMState.omm_state_dict"><a class="viewcode-back" href="../../../_api/wepy.runners.openmm.html#wepy.runners.openmm.OpenMMState.omm_state_dict">[docs]</a>    <span class="k">def</span> <span class="nf">omm_state_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="OpenMMState.omm_state_dict"><a class="viewcode-back" href="../../../api/wepy.runners.openmm.html#wepy.runners.openmm.OpenMMState.omm_state_dict">[docs]</a>    <span class="k">def</span> <span class="nf">omm_state_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return a dictionary with all of the default keys from the wrapped</span>
 <span class="sd">        simtk.openmm.State object&quot;&quot;&quot;</span>
 
@@ -1113,7 +1155,7 @@
 
         <span class="k">return</span> <span class="n">feature_d</span></div>
 
-<div class="viewcode-block" id="OpenMMState.dict"><a class="viewcode-back" href="../../../_api/wepy.runners.openmm.html#wepy.runners.openmm.OpenMMState.dict">[docs]</a>    <span class="k">def</span> <span class="nf">dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="OpenMMState.dict"><a class="viewcode-back" href="../../../api/wepy.runners.openmm.html#wepy.runners.openmm.OpenMMState.dict">[docs]</a>    <span class="k">def</span> <span class="nf">dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># documented in superclass</span>
 
         <span class="n">d</span> <span class="o">=</span> <span class="p">{}</span>
@@ -1123,7 +1165,7 @@
             <span class="n">d</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
         <span class="k">return</span> <span class="n">d</span></div>
 
-<div class="viewcode-block" id="OpenMMState.to_mdtraj"><a class="viewcode-back" href="../../../_api/wepy.runners.openmm.html#wepy.runners.openmm.OpenMMState.to_mdtraj">[docs]</a>    <span class="k">def</span> <span class="nf">to_mdtraj</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">topology</span><span class="p">):</span>
+<div class="viewcode-block" id="OpenMMState.to_mdtraj"><a class="viewcode-back" href="../../../api/wepy.runners.openmm.html#wepy.runners.openmm.OpenMMState.to_mdtraj">[docs]</a>    <span class="k">def</span> <span class="nf">to_mdtraj</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">topology</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Returns an mdtraj.Trajectory object from this walker&#39;s state.</span>
 
 <span class="sd">        Parameters</span>
@@ -1145,7 +1187,7 @@
                               <span class="n">unitcell_angles</span><span class="o">=</span><span class="p">[</span><span class="n">unitcell_angles</span><span class="p">],</span>
                               <span class="n">topology</span><span class="o">=</span><span class="n">topology</span><span class="p">)</span></div></div>
 
-<div class="viewcode-block" id="gen_sim_state"><a class="viewcode-back" href="../../../_api/wepy.runners.openmm.html#wepy.runners.openmm.gen_sim_state">[docs]</a><span class="k">def</span> <span class="nf">gen_sim_state</span><span class="p">(</span><span class="n">positions</span><span class="p">,</span> <span class="n">system</span><span class="p">,</span> <span class="n">integrator</span><span class="p">,</span>
+<div class="viewcode-block" id="gen_sim_state"><a class="viewcode-back" href="../../../api/wepy.runners.openmm.html#wepy.runners.openmm.gen_sim_state">[docs]</a><span class="k">def</span> <span class="nf">gen_sim_state</span><span class="p">(</span><span class="n">positions</span><span class="p">,</span> <span class="n">system</span><span class="p">,</span> <span class="n">integrator</span><span class="p">,</span>
                   <span class="n">getState_kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Convenience function for generating an omm.State object.</span>
 
@@ -1189,7 +1231,7 @@
 
     <span class="k">return</span> <span class="n">sim_state</span></div>
 
-<div class="viewcode-block" id="gen_walker_state"><a class="viewcode-back" href="../../../_api/wepy.runners.openmm.html#wepy.runners.openmm.gen_walker_state">[docs]</a><span class="k">def</span> <span class="nf">gen_walker_state</span><span class="p">(</span><span class="n">positions</span><span class="p">,</span> <span class="n">system</span><span class="p">,</span> <span class="n">integrator</span><span class="p">,</span>
+<div class="viewcode-block" id="gen_walker_state"><a class="viewcode-back" href="../../../api/wepy.runners.openmm.html#wepy.runners.openmm.gen_walker_state">[docs]</a><span class="k">def</span> <span class="nf">gen_walker_state</span><span class="p">(</span><span class="n">positions</span><span class="p">,</span> <span class="n">system</span><span class="p">,</span> <span class="n">integrator</span><span class="p">,</span>
                      <span class="n">getState_kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Convenience function for generating a wepy walker State object for</span>
 <span class="sd">    an openmm simulation state.</span>
@@ -1217,7 +1259,7 @@
     <span class="k">return</span> <span class="n">state</span></div>
 
 
-<div class="viewcode-block" id="OpenMMWalker"><a class="viewcode-back" href="../../../_api/wepy.runners.openmm.html#wepy.runners.openmm.OpenMMWalker">[docs]</a><span class="k">class</span> <span class="nc">OpenMMWalker</span><span class="p">(</span><span class="n">Walker</span><span class="p">):</span>
+<div class="viewcode-block" id="OpenMMWalker"><a class="viewcode-back" href="../../../api/wepy.runners.openmm.html#wepy.runners.openmm.OpenMMWalker">[docs]</a><span class="k">class</span> <span class="nc">OpenMMWalker</span><span class="p">(</span><span class="n">Walker</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Walker for OpenMMRunner simulations.</span>
 
 <span class="sd">    This simply enforces the use of an OpenMMState object for the</span>
@@ -1234,7 +1276,7 @@
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">weight</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="OpenMMCPUWorker"><a class="viewcode-back" href="../../../_api/wepy.runners.openmm.html#wepy.runners.openmm.OpenMMCPUWorker">[docs]</a><span class="k">class</span> <span class="nc">OpenMMCPUWorker</span><span class="p">(</span><span class="n">Worker</span><span class="p">):</span>
+<div class="viewcode-block" id="OpenMMCPUWorker"><a class="viewcode-back" href="../../../api/wepy.runners.openmm.html#wepy.runners.openmm.OpenMMCPUWorker">[docs]</a><span class="k">class</span> <span class="nc">OpenMMCPUWorker</span><span class="p">(</span><span class="n">Worker</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Worker for OpenMM GPU simulations (CUDA or OpenCL platforms).</span>
 
 <span class="sd">    This is intended to be used with the wepy.work_mapper.WorkerMapper</span>
@@ -1262,7 +1304,7 @@
                          <span class="n">num_threads</span><span class="o">=</span><span class="n">num_threads</span><span class="p">,</span>
                          <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
-<div class="viewcode-block" id="OpenMMCPUWorker.run_task"><a class="viewcode-back" href="../../../_api/wepy.runners.openmm.html#wepy.runners.openmm.OpenMMCPUWorker.run_task">[docs]</a>    <span class="k">def</span> <span class="nf">run_task</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task</span><span class="p">):</span>
+<div class="viewcode-block" id="OpenMMCPUWorker.run_task"><a class="viewcode-back" href="../../../api/wepy.runners.openmm.html#wepy.runners.openmm.OpenMMCPUWorker.run_task">[docs]</a>    <span class="k">def</span> <span class="nf">run_task</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task</span><span class="p">):</span>
         <span class="c1"># documented in superclass</span>
 
         <span class="c1"># make the platform kwargs dictionary</span>
@@ -1273,7 +1315,7 @@
         <span class="k">return</span> <span class="n">task</span><span class="p">(</span><span class="n">platform_kwargs</span><span class="o">=</span><span class="n">platform_options</span><span class="p">)</span></div></div>
 
 
-<div class="viewcode-block" id="OpenMMGPUWorker"><a class="viewcode-back" href="../../../_api/wepy.runners.openmm.html#wepy.runners.openmm.OpenMMGPUWorker">[docs]</a><span class="k">class</span> <span class="nc">OpenMMGPUWorker</span><span class="p">(</span><span class="n">Worker</span><span class="p">):</span>
+<div class="viewcode-block" id="OpenMMGPUWorker"><a class="viewcode-back" href="../../../api/wepy.runners.openmm.html#wepy.runners.openmm.OpenMMGPUWorker">[docs]</a><span class="k">class</span> <span class="nc">OpenMMGPUWorker</span><span class="p">(</span><span class="n">Worker</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Worker for OpenMM GPU simulations (CUDA or OpenCL platforms).</span>
 
 <span class="sd">    This is intended to be used with the wepy.work_mapper.WorkerMapper</span>
@@ -1288,41 +1330,10 @@
     <span class="sd">&quot;&quot;&quot;The name template the worker processes are named to substituting in</span>
 <span class="sd">    the process number.&quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="OpenMMGPUWorker.run_task"><a class="viewcode-back" href="../../../_api/wepy.runners.openmm.html#wepy.runners.openmm.OpenMMGPUWorker.run_task">[docs]</a>    <span class="k">def</span> <span class="nf">run_task</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task</span><span class="p">):</span>
+<div class="viewcode-block" id="OpenMMGPUWorker.run_task"><a class="viewcode-back" href="../../../api/wepy.runners.openmm.html#wepy.runners.openmm.OpenMMGPUWorker.run_task">[docs]</a>    <span class="k">def</span> <span class="nf">run_task</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task</span><span class="p">):</span>
 
-        <span class="c1"># documented in superclass</span>
-
-        <span class="n">device_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mapper_attributes</span><span class="p">[</span><span class="s1">&#39;device_ids&#39;</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">_worker_idx</span><span class="p">]</span>
-
-        <span class="c1"># make the platform kwargs dictionary</span>
-        <span class="n">platform_options</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;DeviceIndex&#39;</span> <span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">device_id</span><span class="p">)}</span>
-
-        <span class="c1"># run the task and pass in the DeviceIndex for OpenMM to</span>
-        <span class="c1"># assign work to the correct GPU</span>
-        <span class="k">return</span> <span class="n">task</span><span class="p">(</span><span class="n">platform_kwargs</span><span class="o">=</span><span class="n">platform_options</span><span class="p">)</span></div></div>
-
-
-
-<div class="viewcode-block" id="OpenMMCPUWalkerTaskProcess"><a class="viewcode-back" href="../../../_api/wepy.runners.openmm.html#wepy.runners.openmm.OpenMMCPUWalkerTaskProcess">[docs]</a><span class="k">class</span> <span class="nc">OpenMMCPUWalkerTaskProcess</span><span class="p">(</span><span class="n">WalkerTaskProcess</span><span class="p">):</span>
-
-    <span class="n">NAME_TEMPLATE</span> <span class="o">=</span> <span class="s2">&quot;OpenMM_CPU_Walker_Task-</span><span class="si">{}</span><span class="s2">&quot;</span>
-
-
-<div class="viewcode-block" id="OpenMMCPUWalkerTaskProcess.run_task"><a class="viewcode-back" href="../../../_api/wepy.runners.openmm.html#wepy.runners.openmm.OpenMMCPUWalkerTaskProcess.run_task">[docs]</a>    <span class="k">def</span> <span class="nf">run_task</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task</span><span class="p">):</span>
-
-        <span class="n">num_threads</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">attributes</span><span class="p">[</span><span class="s1">&#39;num_threads&#39;</span><span class="p">]</span>
-
-        <span class="c1"># make the platform kwargs dictionary</span>
-        <span class="n">platform_options</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;Threads&#39;</span> <span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">num_threads</span><span class="p">)}</span>
-
-        <span class="k">return</span> <span class="n">task</span><span class="p">(</span><span class="n">platform_kwargs</span><span class="o">=</span><span class="n">platform_options</span><span class="p">)</span></div></div>
-
-<div class="viewcode-block" id="OpenMMGPUWalkerTaskProcess"><a class="viewcode-back" href="../../../_api/wepy.runners.openmm.html#wepy.runners.openmm.OpenMMGPUWalkerTaskProcess">[docs]</a><span class="k">class</span> <span class="nc">OpenMMGPUWalkerTaskProcess</span><span class="p">(</span><span class="n">WalkerTaskProcess</span><span class="p">):</span>
-
-    <span class="n">NAME_TEMPLATE</span> <span class="o">=</span> <span class="s2">&quot;OpenMM_GPU_Walker_Task-</span><span class="si">{}</span><span class="s2">&quot;</span>
-
-
-<div class="viewcode-block" id="OpenMMGPUWalkerTaskProcess.run_task"><a class="viewcode-back" href="../../../_api/wepy.runners.openmm.html#wepy.runners.openmm.OpenMMGPUWalkerTaskProcess.run_task">[docs]</a>    <span class="k">def</span> <span class="nf">run_task</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task</span><span class="p">):</span>
+        <span class="c1"># get the platform</span>
+        <span class="n">platform</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mapper_attributes</span><span class="p">[</span><span class="s1">&#39;platform&#39;</span><span class="p">]</span>
 
         <span class="c1"># get the device index from the attributes</span>
         <span class="n">device_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mapper_attributes</span><span class="p">[</span><span class="s1">&#39;device_ids&#39;</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">_worker_idx</span><span class="p">]</span>
@@ -1330,7 +1341,61 @@
         <span class="c1"># make the platform kwargs dictionary</span>
         <span class="n">platform_options</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;DeviceIndex&#39;</span> <span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">device_id</span><span class="p">)}</span>
 
-        <span class="k">return</span> <span class="n">task</span><span class="p">(</span><span class="n">platform_kwargs</span><span class="o">=</span><span class="n">platform_options</span><span class="p">)</span></div></div>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;platform=</span><span class="si">{</span><span class="n">platform</span><span class="si">}</span><span class="s2">, platform_options=</span><span class="si">{</span><span class="n">platform_options</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">task</span><span class="p">(</span>
+            <span class="n">platform</span><span class="o">=</span><span class="n">platform</span><span class="p">,</span>
+            <span class="n">platform_kwargs</span><span class="o">=</span><span class="n">platform_options</span><span class="p">,</span>
+        <span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="OpenMMCPUWalkerTaskProcess"><a class="viewcode-back" href="../../../api/wepy.runners.openmm.html#wepy.runners.openmm.OpenMMCPUWalkerTaskProcess">[docs]</a><span class="k">class</span> <span class="nc">OpenMMCPUWalkerTaskProcess</span><span class="p">(</span><span class="n">WalkerTaskProcess</span><span class="p">):</span>
+
+    <span class="n">NAME_TEMPLATE</span> <span class="o">=</span> <span class="s2">&quot;OpenMM_CPU_Walker_Task-</span><span class="si">{}</span><span class="s2">&quot;</span>
+
+
+<div class="viewcode-block" id="OpenMMCPUWalkerTaskProcess.run_task"><a class="viewcode-back" href="../../../api/wepy.runners.openmm.html#wepy.runners.openmm.OpenMMCPUWalkerTaskProcess.run_task">[docs]</a>    <span class="k">def</span> <span class="nf">run_task</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="s1">&#39;num_threads&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">mapper_attributes</span><span class="p">:</span>
+            <span class="n">num_threads</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mapper_attributes</span><span class="p">[</span><span class="s1">&#39;num_threads&#39;</span><span class="p">]</span>
+
+            <span class="c1"># make the platform kwargs dictionary</span>
+            <span class="n">platform_options</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;Threads&#39;</span> <span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">num_threads</span><span class="p">)}</span>
+
+            <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Threads=</span><span class="si">{</span><span class="n">num_threads</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">platform_options</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="k">return</span> <span class="n">task</span><span class="p">(</span>
+            <span class="n">platform_kwargs</span><span class="o">=</span><span class="n">platform_options</span><span class="p">,</span>
+        <span class="p">)</span></div></div>
+
+<div class="viewcode-block" id="OpenMMGPUWalkerTaskProcess"><a class="viewcode-back" href="../../../api/wepy.runners.openmm.html#wepy.runners.openmm.OpenMMGPUWalkerTaskProcess">[docs]</a><span class="k">class</span> <span class="nc">OpenMMGPUWalkerTaskProcess</span><span class="p">(</span><span class="n">WalkerTaskProcess</span><span class="p">):</span>
+
+    <span class="n">NAME_TEMPLATE</span> <span class="o">=</span> <span class="s2">&quot;OpenMM_GPU_Walker_Task-</span><span class="si">{}</span><span class="s2">&quot;</span>
+
+
+<div class="viewcode-block" id="OpenMMGPUWalkerTaskProcess.run_task"><a class="viewcode-back" href="../../../api/wepy.runners.openmm.html#wepy.runners.openmm.OpenMMGPUWalkerTaskProcess.run_task">[docs]</a>    <span class="k">def</span> <span class="nf">run_task</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task</span><span class="p">):</span>
+
+
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Starting to run a task as worker </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_worker_idx</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="c1"># get the platform</span>
+        <span class="n">platform</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mapper_attributes</span><span class="p">[</span><span class="s1">&#39;platform&#39;</span><span class="p">]</span>
+
+        <span class="c1"># get the device index from the attributes</span>
+        <span class="n">device_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mapper_attributes</span><span class="p">[</span><span class="s1">&#39;device_ids&#39;</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">_worker_idx</span><span class="p">]</span>
+
+        <span class="c1"># make the platform kwargs dictionary</span>
+        <span class="n">platform_options</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;DeviceIndex&#39;</span> <span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">device_id</span><span class="p">)}</span>
+
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;platform=</span><span class="si">{</span><span class="n">platform</span><span class="si">}</span><span class="s2">, platform_options=</span><span class="si">{</span><span class="n">platform_options</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">task</span><span class="p">(</span>
+            <span class="n">platform</span><span class="o">=</span><span class="n">platform</span><span class="p">,</span>
+            <span class="n">platform_kwargs</span><span class="o">=</span><span class="n">platform_options</span><span class="p">,</span>
+        <span class="p">)</span></div></div>
 </pre></div>
 
           </div>
@@ -1371,6 +1436,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../_source/installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../_source/quick_start.html">Quick Start</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../_source/introduction.html">Introduction &amp; Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../_source/introduction.html#bibliography">Bibliography</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../_source/tutorials/index.html">Tutorials</a></li>

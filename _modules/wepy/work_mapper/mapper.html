@@ -4,7 +4,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <title>wepy.work_mapper.mapper &#8212; wepy 1.0.0rc3 documentation</title>
+    <title>wepy.work_mapper.mapper &#8212; wepy 1.0.0rc6 documentation</title>
     <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/custom.css" />
@@ -52,13 +52,15 @@
 <span class="kn">import</span> <span class="nn">queue</span> <span class="k">as</span> <span class="nn">pyq</span>
 <span class="kn">import</span> <span class="nn">traceback</span>
 <span class="kn">import</span> <span class="nn">time</span>
-<span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">from</span> <span class="nn">warnings</span> <span class="kn">import</span> <span class="n">warn</span>
 <span class="kn">import</span> <span class="nn">signal</span>
 
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">from</span> <span class="nn">eliot</span> <span class="kn">import</span> <span class="n">start_action</span><span class="p">,</span> <span class="n">log_call</span>
+
 <span class="n">PY_MAP</span> <span class="o">=</span> <span class="nb">map</span>
 
-<span class="k">class</span> <span class="nc">ABCMapper</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="ABCMapper"><a class="viewcode-back" href="../../../api/wepy.work_mapper.mapper.html#wepy.runners.openmm.ABCMapper">[docs]</a><span class="k">class</span> <span class="nc">ABCMapper</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Abstract base class for a Mapper.&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">segment_func</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
@@ -83,6 +85,8 @@
     <span class="k">def</span> <span class="nf">attributes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_attributes</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
 
+<div class="viewcode-block" id="ABCMapper.init"><a class="viewcode-back" href="../../../api/wepy.work_mapper.mapper.html#wepy.runners.openmm.ABCMapper.init">[docs]</a>    <span class="nd">@log_call</span><span class="p">(</span><span class="n">include_args</span><span class="o">=</span><span class="p">[],</span>
+              <span class="n">include_result</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
     <span class="k">def</span> <span class="nf">init</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">segment_func</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Runtime initialization and setting of function to map over walkers.</span>
 
@@ -101,7 +105,7 @@
             <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;segment_func must be given since no default specified&quot;</span><span class="p">)</span>
 
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">segment_func</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">segment_func</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_func</span> <span class="o">=</span> <span class="n">segment_func</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_func</span> <span class="o">=</span> <span class="n">segment_func</span></div>
 
 
     <span class="nd">@property</span>
@@ -109,6 +113,8 @@
         <span class="sd">&quot;&quot;&quot;The function that will be called for new data in the `map` method.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_func</span>
 
+<div class="viewcode-block" id="ABCMapper.cleanup"><a class="viewcode-back" href="../../../api/wepy.work_mapper.mapper.html#wepy.runners.openmm.ABCMapper.cleanup">[docs]</a>    <span class="nd">@log_call</span><span class="p">(</span><span class="n">include_args</span><span class="o">=</span><span class="p">[],</span>
+              <span class="n">include_result</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
     <span class="k">def</span> <span class="nf">cleanup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Runtime post-simulation tasks.</span>
 
@@ -122,14 +128,16 @@
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="c1"># nothing to do</span>
-        <span class="k">pass</span>
+        <span class="k">pass</span></div>
 
+<div class="viewcode-block" id="ABCMapper.map"><a class="viewcode-back" href="../../../api/wepy.work_mapper.mapper.html#wepy.runners.openmm.ABCMapper.map">[docs]</a>    <span class="nd">@log_call</span><span class="p">(</span><span class="n">include_args</span><span class="o">=</span><span class="p">[],</span>
+              <span class="n">include_result</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
     <span class="k">def</span> <span class="nf">map</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div></div>
 
 
 
-<span class="k">class</span> <span class="nc">Mapper</span><span class="p">(</span><span class="n">ABCMapper</span><span class="p">):</span>
+<div class="viewcode-block" id="Mapper"><a class="viewcode-back" href="../../../api/wepy.work_mapper.mapper.html#wepy.runners.openmm.Mapper">[docs]</a><span class="k">class</span> <span class="nc">Mapper</span><span class="p">(</span><span class="n">ABCMapper</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Basic non-parallel reference implementation of a mapper.&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">segment_func</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
@@ -147,7 +155,8 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_worker_segment_times</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span> <span class="p">:</span> <span class="p">[]}</span>
 
-
+<div class="viewcode-block" id="Mapper.map"><a class="viewcode-back" href="../../../api/wepy.work_mapper.mapper.html#wepy.runners.openmm.Mapper.map">[docs]</a>    <span class="nd">@log_call</span><span class="p">(</span><span class="n">include_args</span><span class="o">=</span><span class="p">[],</span>
+              <span class="n">include_result</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
     <span class="k">def</span> <span class="nf">map</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Map the &#39;segment_func&#39; to args.</span>
 
@@ -221,7 +230,7 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_worker_segment_times</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">segment_times</span>
 
-        <span class="k">return</span> <span class="n">results</span>
+        <span class="k">return</span> <span class="n">results</span></div>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">worker_segment_times</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -234,10 +243,10 @@
 <span class="sd">            seconds for each segment run.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_worker_segment_times</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_worker_segment_times</span></div>
 
 
-<span class="k">class</span> <span class="nc">Task</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="Task"><a class="viewcode-back" href="../../../api/wepy.work_mapper.mapper.html#wepy.runners.openmm.Task">[docs]</a><span class="k">class</span> <span class="nc">Task</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Class that composes a function and arguments.&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
@@ -261,9 +270,9 @@
 
         <span class="c1"># run the function passing in the args for running it and any</span>
         <span class="c1"># worker information in the worker kwargs.</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">func</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span><span class="p">,</span> <span class="o">**</span><span class="n">worker_kwargs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">func</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span><span class="p">,</span> <span class="o">**</span><span class="n">worker_kwargs</span><span class="p">)</span></div>
 
-<span class="k">class</span> <span class="nc">WrapperException</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+<div class="viewcode-block" id="WrapperException"><a class="viewcode-back" href="../../../api/wepy.work_mapper.mapper.html#wepy.runners.openmm.WrapperException">[docs]</a><span class="k">class</span> <span class="nc">WrapperException</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Exception used for wrapping another exception.</span>
 
 <span class="sd">    Since tracebacks can&#39;t be pickled we format it and save that</span>
@@ -279,13 +288,13 @@
 
         <span class="c1"># save the exception with the traceback</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">wrapped_exception</span> <span class="o">=</span> <span class="n">wrapped_exception</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">formatted_tb</span> <span class="o">=</span> <span class="n">traceback</span><span class="o">.</span><span class="n">format_tb</span><span class="p">(</span><span class="n">tb</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">formatted_tb</span> <span class="o">=</span> <span class="n">traceback</span><span class="o">.</span><span class="n">format_tb</span><span class="p">(</span><span class="n">tb</span><span class="p">)</span></div>
 
 
-<span class="k">class</span> <span class="nc">TaskException</span><span class="p">(</span><span class="n">WrapperException</span><span class="p">):</span>
-    <span class="k">pass</span>
+<div class="viewcode-block" id="TaskException"><a class="viewcode-back" href="../../../api/wepy.work_mapper.mapper.html#wepy.runners.openmm.TaskException">[docs]</a><span class="k">class</span> <span class="nc">TaskException</span><span class="p">(</span><span class="n">WrapperException</span><span class="p">):</span>
+    <span class="k">pass</span></div>
 
-<span class="k">class</span> <span class="nc">ABCWorkerMapper</span><span class="p">(</span><span class="n">ABCMapper</span><span class="p">):</span>
+<div class="viewcode-block" id="ABCWorkerMapper"><a class="viewcode-back" href="../../../api/wepy.work_mapper.mapper.html#wepy.runners.openmm.ABCWorkerMapper">[docs]</a><span class="k">class</span> <span class="nc">ABCWorkerMapper</span><span class="p">(</span><span class="n">ABCMapper</span><span class="p">):</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                  <span class="n">num_workers</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -323,7 +332,7 @@
         <span class="k">if</span> <span class="n">num_workers</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_worker_segment_times</span> <span class="o">=</span> <span class="p">{</span><span class="n">i</span> <span class="p">:</span> <span class="p">[]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_workers</span><span class="p">)}</span>
 
-    <span class="k">def</span> <span class="nf">init</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num_workers</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">segment_func</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<div class="viewcode-block" id="ABCWorkerMapper.init"><a class="viewcode-back" href="../../../api/wepy.work_mapper.mapper.html#wepy.runners.openmm.ABCWorkerMapper.init">[docs]</a>    <span class="k">def</span> <span class="nf">init</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num_workers</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">segment_func</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
              <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Runtime initialization and setting of function to map over walkers.</span>
 
@@ -353,17 +362,17 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_num_workers</span> <span class="o">=</span> <span class="n">num_workers</span>
 
         <span class="c1"># update the worker segment times</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_worker_segment_times</span> <span class="o">=</span> <span class="p">{</span><span class="n">i</span> <span class="p">:</span> <span class="p">[]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_workers</span><span class="p">)}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_worker_segment_times</span> <span class="o">=</span> <span class="p">{</span><span class="n">i</span> <span class="p">:</span> <span class="p">[]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_workers</span><span class="p">)}</span></div>
 
 
-    <span class="k">def</span> <span class="nf">cleanup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="ABCWorkerMapper.cleanup"><a class="viewcode-back" href="../../../api/wepy.work_mapper.mapper.html#wepy.runners.openmm.ABCWorkerMapper.cleanup">[docs]</a>    <span class="k">def</span> <span class="nf">cleanup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 
-        <span class="c1"># TODO: is this all we need to do? I have a hunch there is</span>
+        <span class="c1"># ALERT: is this all we need to do? I have a hunch there is</span>
         <span class="c1"># more caveats, but these context objects are not really</span>
         <span class="c1"># documented</span>
 
         <span class="c1"># make sure the context for this work mapper is destroyed</span>
-        <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mp_ctx</span>
+        <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mp_ctx</span></div>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">num_workers</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -383,7 +392,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_worker_segment_times</span>
 
-    <span class="k">def</span> <span class="nf">_make_task</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="ABCWorkerMapper._make_task"><a class="viewcode-back" href="../../../api/wepy.work_mapper.mapper.html#wepy.runners.openmm.ABCWorkerMapper._make_task">[docs]</a>    <span class="k">def</span> <span class="nf">_make_task</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Generate a task from &#39;segment_func&#39; attribute.</span>
 
 <span class="sd">        Similar to partial evaluation (or currying).</span>
@@ -397,18 +406,18 @@
 <span class="sd">        task : Task object</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">Task</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_func</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">Task</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_func</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div></div>
 
 
 <span class="c1"># ----------------------------------</span>
 <span class="c1"># everything below this logically belongs in worker.py and should be imported from there</span>
 
 
-<span class="k">class</span> <span class="nc">WorkerException</span><span class="p">(</span><span class="n">WrapperException</span><span class="p">):</span>
-    <span class="k">pass</span>
+<div class="viewcode-block" id="WorkerException"><a class="viewcode-back" href="../../../api/wepy.work_mapper.mapper.html#wepy.runners.openmm.WorkerException">[docs]</a><span class="k">class</span> <span class="nc">WorkerException</span><span class="p">(</span><span class="n">WrapperException</span><span class="p">):</span>
+    <span class="k">pass</span></div>
 
-<span class="k">class</span> <span class="nc">WorkerKilledError</span><span class="p">(</span><span class="ne">ChildProcessError</span><span class="p">):</span>
-    <span class="k">pass</span>
+<div class="viewcode-block" id="WorkerKilledError"><a class="viewcode-back" href="../../../api/wepy.work_mapper.mapper.html#wepy.runners.openmm.WorkerKilledError">[docs]</a><span class="k">class</span> <span class="nc">WorkerKilledError</span><span class="p">(</span><span class="ne">ChildProcessError</span><span class="p">):</span>
+    <span class="k">pass</span></div>
 
 
 <span class="c1"># TODO: move this class to the wepy.work_mapper.worker class where it</span>
@@ -416,7 +425,7 @@
 <span class="c1"># here. Furthermore I would like to rename it since we now have</span>
 <span class="c1"># different worker mapper implementations with different concurrency</span>
 <span class="c1"># models</span>
-<span class="k">class</span> <span class="nc">WorkerMapper</span><span class="p">(</span><span class="n">ABCWorkerMapper</span><span class="p">):</span>
+<div class="viewcode-block" id="WorkerMapper"><a class="viewcode-back" href="../../../api/wepy.work_mapper.mapper.html#wepy.runners.openmm.WorkerMapper">[docs]</a><span class="k">class</span> <span class="nc">WorkerMapper</span><span class="p">(</span><span class="n">ABCWorkerMapper</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Work mapper implementation using multiple worker processes and task</span>
 <span class="sd">    queue.</span>
 
@@ -483,7 +492,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_worker_type</span>
 
 
-    <span class="k">def</span> <span class="nf">init</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num_workers</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">segment_func</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<div class="viewcode-block" id="WorkerMapper.init"><a class="viewcode-back" href="../../../api/wepy.work_mapper.mapper.html#wepy.runners.openmm.WorkerMapper.init">[docs]</a>    <span class="k">def</span> <span class="nf">init</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num_workers</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">segment_func</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
              <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Runtime initialization and setting of function to map over walkers.</span>
 
@@ -496,7 +505,8 @@
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">init</span><span class="p">(</span><span class="n">num_workers</span><span class="o">=</span><span class="n">num_workers</span><span class="p">,</span> <span class="n">segment_func</span><span class="o">=</span><span class="n">segment_func</span><span class="p">,</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">init</span><span class="p">(</span><span class="n">num_workers</span><span class="o">=</span><span class="n">num_workers</span><span class="p">,</span>
+                     <span class="n">segment_func</span><span class="o">=</span><span class="n">segment_func</span><span class="p">,</span>
                      <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
         <span class="n">manager</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mp_ctx</span><span class="o">.</span><span class="n">Manager</span><span class="p">()</span>
@@ -536,6 +546,7 @@
                                       <span class="bp">self</span><span class="o">.</span><span class="n">_result_queue</span><span class="p">,</span>
                                       <span class="bp">self</span><span class="o">.</span><span class="n">_exception_queue</span><span class="p">,</span>
                                       <span class="n">child_conn</span><span class="p">,</span>
+                                      <span class="n">mapper_attributes</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_attributes</span><span class="p">,</span>
                                       <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_worker_attributes</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_workers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">worker</span><span class="p">)</span>
 
@@ -548,15 +559,15 @@
 
         <span class="c1"># now that we have started the processes register the handler</span>
         <span class="c1"># for SIGTERM signals that will clean up our children cleanly</span>
-        <span class="n">signal</span><span class="o">.</span><span class="n">signal</span><span class="p">(</span><span class="n">signal</span><span class="o">.</span><span class="n">SIGTERM</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sigterm_shutdown</span><span class="p">)</span>
+        <span class="n">signal</span><span class="o">.</span><span class="n">signal</span><span class="p">(</span><span class="n">signal</span><span class="o">.</span><span class="n">SIGTERM</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sigterm_shutdown</span><span class="p">)</span></div>
 
-    <span class="k">def</span> <span class="nf">_sigterm_shutdown</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">signum</span><span class="p">,</span> <span class="n">frame</span><span class="p">):</span>
+<div class="viewcode-block" id="WorkerMapper._sigterm_shutdown"><a class="viewcode-back" href="../../../api/wepy.work_mapper.mapper.html#wepy.runners.openmm.WorkerMapper._sigterm_shutdown">[docs]</a>    <span class="k">def</span> <span class="nf">_sigterm_shutdown</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">signum</span><span class="p">,</span> <span class="n">frame</span><span class="p">):</span>
 
         <span class="n">logging</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span><span class="s2">&quot;Received external SIGTERM, forcing shutdown.&quot;</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">force_shutdown</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">force_shutdown</span><span class="p">()</span></div>
 
-    <span class="k">def</span> <span class="nf">force_shutdown</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="WorkerMapper.force_shutdown"><a class="viewcode-back" href="../../../api/wepy.work_mapper.mapper.html#wepy.runners.openmm.WorkerMapper.force_shutdown">[docs]</a>    <span class="k">def</span> <span class="nf">force_shutdown</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 
         <span class="n">logging</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span><span class="s2">&quot;Forcing shutdown&quot;</span><span class="p">)</span>
 
@@ -634,12 +645,12 @@
         <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">alive_workers</span><span class="p">):</span>
             <span class="n">logging</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span><span class="s2">&quot;Terminating main process with running workers </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
                 <span class="s1">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">worker_idx</span><span class="p">)</span> <span class="k">for</span> <span class="n">worker_idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_workers</span><span class="p">))</span>
-                          <span class="k">if</span> <span class="n">alive_workers</span><span class="p">[</span><span class="n">worker_idx</span><span class="p">]])))</span>
+                          <span class="k">if</span> <span class="n">alive_workers</span><span class="p">[</span><span class="n">worker_idx</span><span class="p">]])))</span></div>
 
 
 
 
-    <span class="k">def</span> <span class="nf">cleanup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="WorkerMapper.cleanup"><a class="viewcode-back" href="../../../api/wepy.work_mapper.mapper.html#wepy.runners.openmm.WorkerMapper.cleanup">[docs]</a>    <span class="k">def</span> <span class="nf">cleanup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Runtime post-simulation tasks.</span>
 
 <span class="sd">        This is run either at the end of a successful simulation or</span>
@@ -661,10 +672,10 @@
         <span class="c1"># delete the queues and workers</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_task_queue</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_result_queue</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_workers</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_workers</span> <span class="o">=</span> <span class="kc">None</span></div>
 
 
-    <span class="k">def</span> <span class="nf">map</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="WorkerMapper.map"><a class="viewcode-back" href="../../../api/wepy.work_mapper.mapper.html#wepy.runners.openmm.WorkerMapper.map">[docs]</a>    <span class="k">def</span> <span class="nf">map</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="c1"># docstring in superclass</span>
 
         <span class="n">map_process</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mp_ctx</span><span class="o">.</span><span class="n">current_process</span><span class="p">()</span>
@@ -776,11 +787,11 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_worker_segment_times</span><span class="p">[</span><span class="n">worker_idx</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">task_time</span><span class="p">)</span>
 
         <span class="c1"># then just return the values of the function</span>
-        <span class="k">return</span> <span class="p">[</span><span class="n">result</span> <span class="k">for</span> <span class="n">task_idx</span><span class="p">,</span> <span class="n">worker_idx</span><span class="p">,</span> <span class="n">task_time</span><span class="p">,</span> <span class="n">result</span> <span class="ow">in</span> <span class="n">results</span><span class="p">]</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">result</span> <span class="k">for</span> <span class="n">task_idx</span><span class="p">,</span> <span class="n">worker_idx</span><span class="p">,</span> <span class="n">task_time</span><span class="p">,</span> <span class="n">result</span> <span class="ow">in</span> <span class="n">results</span><span class="p">]</span></div></div>
 
 
 <span class="c1"># same for the worker in terms of refactoring</span>
-<span class="k">class</span> <span class="nc">Worker</span><span class="p">(</span><span class="n">mp</span><span class="o">.</span><span class="n">Process</span><span class="p">):</span>
+<div class="viewcode-block" id="Worker"><a class="viewcode-back" href="../../../api/wepy.work_mapper.mapper.html#wepy.runners.openmm.Worker">[docs]</a><span class="k">class</span> <span class="nc">Worker</span><span class="p">(</span><span class="n">mp</span><span class="o">.</span><span class="n">Process</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Worker process.</span>
 
 <span class="sd">    This is a subclass of process with an overriden `__init__`</span>
@@ -795,8 +806,11 @@
 <span class="sd">    logs. The field will be filled with the worker index.&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">worker_idx</span><span class="p">,</span>
-                 <span class="n">task_queue</span><span class="p">,</span> <span class="n">result_queue</span><span class="p">,</span>
-                 <span class="n">exception_queue</span><span class="p">,</span> <span class="n">interrupt_connection</span><span class="p">,</span>
+                 <span class="n">task_queue</span><span class="p">,</span>
+                 <span class="n">result_queue</span><span class="p">,</span>
+                 <span class="n">exception_queue</span><span class="p">,</span>
+                 <span class="n">interrupt_connection</span><span class="p">,</span>
+                 <span class="n">mapper_attributes</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Constructor for the Worker class.</span>
 
@@ -813,6 +827,12 @@
 
 <span class="sd">        interrupt_connection : multiprocessing.Connection</span>
 <span class="sd">            One end of a pipe to listen for messages specific to this worker.</span>
+
+<span class="sd">        mapper_attributes : None or dict</span>
+<span class="sd">            A dictionary of the attributes of the mapper for reference in workers.</span>
+
+<span class="sd">        kwargs :</span>
+<span class="sd">            The worker specific attributes</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -831,6 +851,8 @@
         <span class="n">signal</span><span class="o">.</span><span class="n">signal</span><span class="p">(</span><span class="n">signal</span><span class="o">.</span><span class="n">SIGTERM</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sigterm_shutdown</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_worker_idx</span> <span class="o">=</span> <span class="n">worker_idx</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_mapper_attributes</span> <span class="o">=</span> <span class="n">mapper_attributes</span>
 
         <span class="c1"># set all the kwargs into an attributes dictionary</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_attributes</span> <span class="o">=</span> <span class="n">kwargs</span>
@@ -852,7 +874,12 @@
         <span class="sd">&quot;&quot;&quot;Dictionary of attributes of the worker.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_attributes</span>
 
-    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">mapper_attributes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Dictionary of attributes of the worker.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mapper_attributes</span>
+
+<div class="viewcode-block" id="Worker.run"><a class="viewcode-back" href="../../../api/wepy.work_mapper.mapper.html#wepy.runners.openmm.Worker.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 
         <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">: starting to run&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
 
@@ -923,13 +950,13 @@
             <span class="k">except</span> <span class="ne">BrokenPipeError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
                 <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
                     <span class="s2">&quot;Pipe is broken indicating the root process has already exited:</span><span class="se">\n</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-                        <span class="n">exc</span><span class="p">))</span>
+                        <span class="n">exc</span><span class="p">))</span></div>
 
             <span class="c1"># TODO: not sure if this is good or not</span>
             <span class="c1"># then reraise the exception so it can be caught</span>
             <span class="c1"># raise run_exception</span>
 
-    <span class="k">def</span> <span class="nf">_sigterm_shutdown</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">signum</span><span class="p">,</span> <span class="n">frame</span><span class="p">):</span>
+<div class="viewcode-block" id="Worker._sigterm_shutdown"><a class="viewcode-back" href="../../../api/wepy.work_mapper.mapper.html#wepy.runners.openmm.Worker._sigterm_shutdown">[docs]</a>    <span class="k">def</span> <span class="nf">_sigterm_shutdown</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">signum</span><span class="p">,</span> <span class="n">frame</span><span class="p">):</span>
 
         <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Received external SIGTERM kill command.&quot;</span><span class="p">)</span>
 
@@ -941,9 +968,9 @@
 
         <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Acknowledgment sent&quot;</span><span class="p">)</span>
 
-        <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Shutting down process&quot;</span><span class="p">)</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Shutting down process&quot;</span><span class="p">)</span></div>
 
-    <span class="k">def</span> <span class="nf">_shutdown</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Worker._shutdown"><a class="viewcode-back" href="../../../api/wepy.work_mapper.mapper.html#wepy.runners.openmm.Worker._shutdown">[docs]</a>    <span class="k">def</span> <span class="nf">_shutdown</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 
         <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Received SIGTERM kill command from mapper&quot;</span><span class="p">)</span>
 
@@ -954,10 +981,10 @@
 
         <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Acknowledgment sent&quot;</span><span class="p">)</span>
 
-        <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Shutting down process&quot;</span><span class="p">)</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Shutting down process&quot;</span><span class="p">)</span></div>
 
 
-    <span class="k">def</span> <span class="nf">_run_worker</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Worker._run_worker"><a class="viewcode-back" href="../../../api/wepy.work_mapper.mapper.html#wepy.runners.openmm.Worker._run_worker">[docs]</a>    <span class="k">def</span> <span class="nf">_run_worker</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 
         <span class="c1"># run the logic associated with communication and liveness of</span>
         <span class="c1"># the worker process itself, this is not necessarily a fatal</span>
@@ -983,7 +1010,7 @@
 
                 <span class="c1"># handle the message</span>
 
-                <span class="c1"># a None is a signal to kill the process</span>
+                <span class="c1"># a SIGTERM is a signal to kill the process</span>
                 <span class="c1"># unconditionally</span>
                 <span class="k">if</span> <span class="n">message</span> <span class="ow">is</span> <span class="n">signal</span><span class="o">.</span><span class="n">SIGTERM</span><span class="p">:</span>
 
@@ -1048,10 +1075,38 @@
 
                 <span class="c1"># put the results into the results queue with it&#39;s task</span>
                 <span class="c1"># index so we can sort them later</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_result_queue</span><span class="o">.</span><span class="n">put</span><span class="p">((</span><span class="n">task_idx</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">worker_idx</span><span class="p">,</span> <span class="n">task_time</span><span class="p">,</span> <span class="n">answer</span><span class="p">))</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_result_queue</span><span class="o">.</span><span class="n">put</span><span class="p">((</span><span class="n">task_idx</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">worker_idx</span><span class="p">,</span> <span class="n">task_time</span><span class="p">,</span> <span class="n">answer</span><span class="p">))</span></div>
 
-    <span class="k">def</span> <span class="nf">_run_task</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task</span><span class="p">):</span>
+<div class="viewcode-block" id="Worker.run_task"><a class="viewcode-back" href="../../../api/wepy.work_mapper.mapper.html#wepy.runners.openmm.Worker.run_task">[docs]</a>    <span class="k">def</span> <span class="nf">run_task</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Actually executes the task.</span>
+
+<span class="sd">        This default runner simply executes the task thunk.</span>
+
+<span class="sd">        This can be customized by subclasses in order to allow for</span>
+<span class="sd">        injection of worker specific data.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        task : Task object</span>
+<span class="sd">            The partially evaluated task; function plus arguments</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        task_result</span>
+<span class="sd">            Results of running the task.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="n">task</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="Worker._run_task"><a class="viewcode-back" href="../../../api/wepy.work_mapper.mapper.html#wepy.runners.openmm.Worker._run_task">[docs]</a>    <span class="k">def</span> <span class="nf">_run_task</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Runs the given task and returns the results.</span>
+
+<span class="sd">        This manages handling exceptions and tracebacks from the</span>
+<span class="sd">        actual `run_task` function which is intended to be specialized</span>
+<span class="sd">        by different workers to inject worker specific arguments to</span>
+<span class="sd">        tasks. Such as node and device identification.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -1067,7 +1122,7 @@
 
         <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Running task&quot;</span><span class="p">)</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">task</span><span class="p">()</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">run_task</span><span class="p">(</span><span class="n">task</span><span class="p">)</span>
 
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">task_exception</span><span class="p">:</span>
 
@@ -1092,7 +1147,7 @@
 
             <span class="k">raise</span> <span class="n">TaskException</span><span class="p">(</span><span class="s2">&quot;Error occured during task execution, recovery not possible.&quot;</span><span class="p">,</span>
                             <span class="n">wrapped_exception</span><span class="o">=</span><span class="n">task_exception</span><span class="p">,</span>
-                            <span class="n">tb</span><span class="o">=</span><span class="n">tb</span><span class="p">)</span>
+                            <span class="n">tb</span><span class="o">=</span><span class="n">tb</span><span class="p">)</span></div></div>
 </pre></div>
 
           </div>
@@ -1133,6 +1188,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../_source/installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../_source/quick_start.html">Quick Start</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../_source/introduction.html">Introduction &amp; Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../_source/introduction.html#bibliography">Bibliography</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../_source/tutorials/index.html">Tutorials</a></li>

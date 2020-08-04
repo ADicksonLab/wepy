@@ -4,7 +4,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <title>wepy.reporter.restree &#8212; wepy 1.0.0rc3 documentation</title>
+    <title>wepy.reporter.restree &#8212; wepy 1.0.0rc6 documentation</title>
     <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/custom.css" />
@@ -63,7 +63,7 @@
                                   <span class="n">ParentForest</span>
 
 
-<div class="viewcode-block" id="ResTreeReporter"><a class="viewcode-back" href="../../../_api/wepy.reporter.restree.html#wepy.reporter.restree.ResTreeReporter">[docs]</a><span class="k">class</span> <span class="nc">ResTreeReporter</span><span class="p">(</span><span class="n">ProgressiveFileReporter</span><span class="p">):</span>
+<div class="viewcode-block" id="ResTreeReporter"><a class="viewcode-back" href="../../../api/wepy.reporter.restree.html#wepy.reporter.restree.ResTreeReporter">[docs]</a><span class="k">class</span> <span class="nc">ResTreeReporter</span><span class="p">(</span><span class="n">ProgressiveFileReporter</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Reporter that generates resampling parent trees in the GEXF</span>
 <span class="sd">    format.&quot;&quot;&quot;</span>
 
@@ -197,7 +197,7 @@
         <span class="sd">&quot;&quot;&quot;The net parent table datastructure.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent_table</span>
 
-<div class="viewcode-block" id="ResTreeReporter._make_resampling_record"><a class="viewcode-back" href="../../../_api/wepy.reporter.restree.html#wepy.reporter.restree.ResTreeReporter._make_resampling_record">[docs]</a>    <span class="k">def</span> <span class="nf">_make_resampling_record</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">record_d</span><span class="p">,</span> <span class="n">cycle_idx</span><span class="p">):</span>
+<div class="viewcode-block" id="ResTreeReporter._make_resampling_record"><a class="viewcode-back" href="../../../api/wepy.reporter.restree.html#wepy.reporter.restree.ResTreeReporter._make_resampling_record">[docs]</a>    <span class="k">def</span> <span class="nf">_make_resampling_record</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">record_d</span><span class="p">,</span> <span class="n">cycle_idx</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Make a namedtuple resampling record from a dictionary</span>
 <span class="sd">        representation.</span>
 
@@ -227,7 +227,7 @@
 
         <span class="k">return</span> <span class="n">record</span></div>
 
-<div class="viewcode-block" id="ResTreeReporter._make_warping_record"><a class="viewcode-back" href="../../../_api/wepy.reporter.restree.html#wepy.reporter.restree.ResTreeReporter._make_warping_record">[docs]</a>    <span class="k">def</span> <span class="nf">_make_warping_record</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">record_d</span><span class="p">,</span> <span class="n">cycle_idx</span><span class="p">):</span>
+<div class="viewcode-block" id="ResTreeReporter._make_warping_record"><a class="viewcode-back" href="../../../api/wepy.reporter.restree.html#wepy.reporter.restree.ResTreeReporter._make_warping_record">[docs]</a>    <span class="k">def</span> <span class="nf">_make_warping_record</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">record_d</span><span class="p">,</span> <span class="n">cycle_idx</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Make a namedtuple warping record from a dictionary representation.</span>
 
 <span class="sd">        Parameters</span>
@@ -256,7 +256,7 @@
         <span class="k">return</span> <span class="n">record</span></div>
 
 
-<div class="viewcode-block" id="ResTreeReporter._make_record"><a class="viewcode-back" href="../../../_api/wepy.reporter.restree.html#wepy.reporter.restree.ResTreeReporter._make_record">[docs]</a>    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="ResTreeReporter._make_record"><a class="viewcode-back" href="../../../api/wepy.reporter.restree.html#wepy.reporter.restree.ResTreeReporter._make_record">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">_make_record</span><span class="p">(</span><span class="n">record_d</span><span class="p">,</span> <span class="n">cycle_idx</span><span class="p">,</span>
                      <span class="n">record_field_names</span><span class="p">,</span> <span class="n">field_names</span><span class="p">,</span> <span class="n">field_shapes</span><span class="p">,</span> <span class="n">rec_namedtuple</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Generic record making function.</span>
@@ -334,7 +334,7 @@
         <span class="k">return</span> <span class="n">record</span></div>
 
 
-<div class="viewcode-block" id="ResTreeReporter.report"><a class="viewcode-back" href="../../../_api/wepy.reporter.restree.html#wepy.reporter.restree.ResTreeReporter.report">[docs]</a>    <span class="k">def</span> <span class="nf">report</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cycle_idx</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<div class="viewcode-block" id="ResTreeReporter.report"><a class="viewcode-back" href="../../../api/wepy.reporter.restree.html#wepy.reporter.restree.ResTreeReporter.report">[docs]</a>    <span class="k">def</span> <span class="nf">report</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cycle_idx</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                <span class="n">resampled_walkers</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                <span class="n">warp_data</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                <span class="n">progress_data</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -581,6 +581,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../_source/installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../_source/quick_start.html">Quick Start</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../_source/introduction.html">Introduction &amp; Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../_source/introduction.html#bibliography">Bibliography</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../_source/tutorials/index.html">Tutorials</a></li>

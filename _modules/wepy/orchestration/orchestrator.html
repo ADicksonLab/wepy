@@ -4,7 +4,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <title>wepy.orchestration.orchestrator &#8212; wepy 1.0.0rc3 documentation</title>
+    <title>wepy.orchestration.orchestrator &#8212; wepy 1.0.0rc6 documentation</title>
     <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/custom.css" />
@@ -64,13 +64,13 @@
 <span class="kn">from</span> <span class="nn">wepy.util.kv</span> <span class="kn">import</span> <span class="n">KV</span><span class="p">,</span> <span class="n">SQLITE3_INMEMORY_URI</span><span class="p">,</span> <span class="n">gen_uri</span>
 
 
-<div class="viewcode-block" id="OrchestratorError"><a class="viewcode-back" href="../../../_api/wepy.orchestration.orchestrator.html#wepy.orchestration.orchestrator.OrchestratorError">[docs]</a><span class="k">class</span> <span class="nc">OrchestratorError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+<div class="viewcode-block" id="OrchestratorError"><a class="viewcode-back" href="../../../api/wepy.orchestration.orchestrator.html#wepy.orchestration.orchestrator.OrchestratorError">[docs]</a><span class="k">class</span> <span class="nc">OrchestratorError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
     <span class="k">pass</span></div>
 
 
 
-<div class="viewcode-block" id="Orchestrator"><a class="viewcode-back" href="../../../_api/wepy.orchestration.orchestrator.html#wepy.orchestration.orchestrator.Orchestrator">[docs]</a><span class="k">class</span> <span class="nc">Orchestrator</span><span class="p">():</span>
+<div class="viewcode-block" id="Orchestrator"><a class="viewcode-back" href="../../../api/wepy.orchestration.orchestrator.html#wepy.orchestration.orchestrator.Orchestrator">[docs]</a><span class="k">class</span> <span class="nc">Orchestrator</span><span class="p">():</span>
     <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
 
     <span class="c1"># we freeze the pickle protocol for making hashes, because we care</span>
@@ -170,7 +170,7 @@
     <span class="k">def</span> <span class="nf">append_only</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_append_only</span>
 
-<div class="viewcode-block" id="Orchestrator.close"><a class="viewcode-back" href="../../../_api/wepy.orchestration.orchestrator.html#wepy.orchestration.orchestrator.Orchestrator.close">[docs]</a>    <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Orchestrator.close"><a class="viewcode-back" href="../../../api/wepy.orchestration.orchestrator.html#wepy.orchestration.orchestrator.Orchestrator.close">[docs]</a>    <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_closed</span> <span class="o">==</span> <span class="kc">True</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span><span class="s2">&quot;The database connection is already closed&quot;</span><span class="p">)</span>
@@ -208,7 +208,7 @@
             <span class="k">return</span> <span class="n">url</span>
 
 
-<div class="viewcode-block" id="Orchestrator.serialize"><a class="viewcode-back" href="../../../_api/wepy.orchestration.orchestrator.html#wepy.orchestration.orchestrator.Orchestrator.serialize">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="Orchestrator.serialize"><a class="viewcode-back" href="../../../api/wepy.orchestration.orchestrator.html#wepy.orchestration.orchestrator.Orchestrator.serialize">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">serialize</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">snapshot</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Serialize a snapshot to a compressed, encoded, pickle string</span>
 <span class="sd">        representation.</span>
@@ -258,7 +258,7 @@
     <span class="c1"># core methods for serializing python objects, used for snapshots,</span>
     <span class="c1"># apparatuses, configurations, and the initial walker list</span>
 
-<div class="viewcode-block" id="Orchestrator.deserialize"><a class="viewcode-back" href="../../../_api/wepy.orchestration.orchestrator.html#wepy.orchestration.orchestrator.Orchestrator.deserialize">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="Orchestrator.deserialize"><a class="viewcode-back" href="../../../api/wepy.orchestration.orchestrator.html#wepy.orchestration.orchestrator.Orchestrator.deserialize">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">deserialize</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">serial_str</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Deserialize an unencoded string snapshot to an object.</span>
 
@@ -278,21 +278,21 @@
 
 
     <span class="c1"># defaults getters and setters</span>
-<div class="viewcode-block" id="Orchestrator.set_default_sim_apparatus"><a class="viewcode-back" href="../../../_api/wepy.orchestration.orchestrator.html#wepy.orchestration.orchestrator.Orchestrator.set_default_sim_apparatus">[docs]</a>    <span class="k">def</span> <span class="nf">set_default_sim_apparatus</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sim_apparatus</span><span class="p">):</span>
+<div class="viewcode-block" id="Orchestrator.set_default_sim_apparatus"><a class="viewcode-back" href="../../../api/wepy.orchestration.orchestrator.html#wepy.orchestration.orchestrator.Orchestrator.set_default_sim_apparatus">[docs]</a>    <span class="k">def</span> <span class="nf">set_default_sim_apparatus</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sim_apparatus</span><span class="p">):</span>
 
         <span class="c1"># serialize the apparatus and then set it</span>
         <span class="n">serial_app</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">serialize</span><span class="p">(</span><span class="n">sim_apparatus</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">metadata_kv</span><span class="p">[</span><span class="s1">&#39;default_sim_apparatus&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">serial_app</span></div>
 
-<div class="viewcode-block" id="Orchestrator.set_default_init_walkers"><a class="viewcode-back" href="../../../_api/wepy.orchestration.orchestrator.html#wepy.orchestration.orchestrator.Orchestrator.set_default_init_walkers">[docs]</a>    <span class="k">def</span> <span class="nf">set_default_init_walkers</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">init_walkers</span><span class="p">):</span>
+<div class="viewcode-block" id="Orchestrator.set_default_init_walkers"><a class="viewcode-back" href="../../../api/wepy.orchestration.orchestrator.html#wepy.orchestration.orchestrator.Orchestrator.set_default_init_walkers">[docs]</a>    <span class="k">def</span> <span class="nf">set_default_init_walkers</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">init_walkers</span><span class="p">):</span>
 
         <span class="c1"># serialize the apparatus and then set it</span>
         <span class="n">serial_walkers</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">serialize</span><span class="p">(</span><span class="n">init_walkers</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">metadata_kv</span><span class="p">[</span><span class="s1">&#39;default_init_walkers&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">serial_walkers</span></div>
 
-<div class="viewcode-block" id="Orchestrator.set_default_configuration"><a class="viewcode-back" href="../../../_api/wepy.orchestration.orchestrator.html#wepy.orchestration.orchestrator.Orchestrator.set_default_configuration">[docs]</a>    <span class="k">def</span> <span class="nf">set_default_configuration</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">configuration</span><span class="p">):</span>
+<div class="viewcode-block" id="Orchestrator.set_default_configuration"><a class="viewcode-back" href="../../../api/wepy.orchestration.orchestrator.html#wepy.orchestration.orchestrator.Orchestrator.set_default_configuration">[docs]</a>    <span class="k">def</span> <span class="nf">set_default_configuration</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">configuration</span><span class="p">):</span>
 
         <span class="c1"># serialize the apparatus and then set it</span>
         <span class="n">serial_config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">serialize</span><span class="p">(</span><span class="n">configuration</span><span class="p">)</span>
@@ -303,7 +303,7 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">configuration_kv</span><span class="p">[</span><span class="n">config_hash</span><span class="p">]</span> <span class="o">=</span> <span class="n">serial_config</span></div>
 
-<div class="viewcode-block" id="Orchestrator.set_default_snapshot"><a class="viewcode-back" href="../../../_api/wepy.orchestration.orchestrator.html#wepy.orchestration.orchestrator.Orchestrator.set_default_snapshot">[docs]</a>    <span class="k">def</span> <span class="nf">set_default_snapshot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">snapshot</span><span class="p">):</span>
+<div class="viewcode-block" id="Orchestrator.set_default_snapshot"><a class="viewcode-back" href="../../../api/wepy.orchestration.orchestrator.html#wepy.orchestration.orchestrator.Orchestrator.set_default_snapshot">[docs]</a>    <span class="k">def</span> <span class="nf">set_default_snapshot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">snapshot</span><span class="p">):</span>
 
         <span class="n">snaphash</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">add_snapshot</span><span class="p">(</span><span class="n">snapshot</span><span class="p">)</span>
 
@@ -312,7 +312,7 @@
 
         <span class="k">return</span> <span class="n">snaphash</span></div>
 
-<div class="viewcode-block" id="Orchestrator.gen_default_snapshot"><a class="viewcode-back" href="../../../_api/wepy.orchestration.orchestrator.html#wepy.orchestration.orchestrator.Orchestrator.gen_default_snapshot">[docs]</a>    <span class="k">def</span> <span class="nf">gen_default_snapshot</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Orchestrator.gen_default_snapshot"><a class="viewcode-back" href="../../../api/wepy.orchestration.orchestrator.html#wepy.orchestration.orchestrator.Orchestrator.gen_default_snapshot">[docs]</a>    <span class="k">def</span> <span class="nf">gen_default_snapshot</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 
         <span class="c1"># generate the snapshot</span>
         <span class="n">sim_start_hash</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gen_start_snapshot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_default_init_walkers</span><span class="p">())</span>
@@ -323,37 +323,37 @@
         <span class="k">return</span> <span class="n">sim_start_hash</span></div>
 
 
-<div class="viewcode-block" id="Orchestrator.get_default_sim_apparatus"><a class="viewcode-back" href="../../../_api/wepy.orchestration.orchestrator.html#wepy.orchestration.orchestrator.Orchestrator.get_default_sim_apparatus">[docs]</a>    <span class="k">def</span> <span class="nf">get_default_sim_apparatus</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Orchestrator.get_default_sim_apparatus"><a class="viewcode-back" href="../../../api/wepy.orchestration.orchestrator.html#wepy.orchestration.orchestrator.Orchestrator.get_default_sim_apparatus">[docs]</a>    <span class="k">def</span> <span class="nf">get_default_sim_apparatus</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">deserialize</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">metadata_kv</span><span class="p">[</span><span class="s1">&#39;default_sim_apparatus&#39;</span><span class="p">])</span></div>
 
-<div class="viewcode-block" id="Orchestrator.get_default_init_walkers"><a class="viewcode-back" href="../../../_api/wepy.orchestration.orchestrator.html#wepy.orchestration.orchestrator.Orchestrator.get_default_init_walkers">[docs]</a>    <span class="k">def</span> <span class="nf">get_default_init_walkers</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Orchestrator.get_default_init_walkers"><a class="viewcode-back" href="../../../api/wepy.orchestration.orchestrator.html#wepy.orchestration.orchestrator.Orchestrator.get_default_init_walkers">[docs]</a>    <span class="k">def</span> <span class="nf">get_default_init_walkers</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">deserialize</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">metadata_kv</span><span class="p">[</span><span class="s1">&#39;default_init_walkers&#39;</span><span class="p">])</span></div>
 
-<div class="viewcode-block" id="Orchestrator.get_default_configuration"><a class="viewcode-back" href="../../../_api/wepy.orchestration.orchestrator.html#wepy.orchestration.orchestrator.Orchestrator.get_default_configuration">[docs]</a>    <span class="k">def</span> <span class="nf">get_default_configuration</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Orchestrator.get_default_configuration"><a class="viewcode-back" href="../../../api/wepy.orchestration.orchestrator.html#wepy.orchestration.orchestrator.Orchestrator.get_default_configuration">[docs]</a>    <span class="k">def</span> <span class="nf">get_default_configuration</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 
         <span class="n">config_hash</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata_kv</span><span class="p">[</span><span class="s1">&#39;default_configuration_hash&#39;</span><span class="p">]</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_configuration</span><span class="p">(</span><span class="n">config_hash</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Orchestrator.get_default_configuration_hash"><a class="viewcode-back" href="../../../_api/wepy.orchestration.orchestrator.html#wepy.orchestration.orchestrator.Orchestrator.get_default_configuration_hash">[docs]</a>    <span class="k">def</span> <span class="nf">get_default_configuration_hash</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Orchestrator.get_default_configuration_hash"><a class="viewcode-back" href="../../../api/wepy.orchestration.orchestrator.html#wepy.orchestration.orchestrator.Orchestrator.get_default_configuration_hash">[docs]</a>    <span class="k">def</span> <span class="nf">get_default_configuration_hash</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata_kv</span><span class="p">[</span><span class="s1">&#39;default_configuration_hash&#39;</span><span class="p">]</span></div>
 
 
-<div class="viewcode-block" id="Orchestrator.get_default_snapshot"><a class="viewcode-back" href="../../../_api/wepy.orchestration.orchestrator.html#wepy.orchestration.orchestrator.Orchestrator.get_default_snapshot">[docs]</a>    <span class="k">def</span> <span class="nf">get_default_snapshot</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Orchestrator.get_default_snapshot"><a class="viewcode-back" href="../../../api/wepy.orchestration.orchestrator.html#wepy.orchestration.orchestrator.Orchestrator.get_default_snapshot">[docs]</a>    <span class="k">def</span> <span class="nf">get_default_snapshot</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 
         <span class="n">start_hash</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata_kv</span><span class="p">[</span><span class="s1">&#39;default_snapshot_hash&#39;</span><span class="p">]</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_snapshot</span><span class="p">(</span><span class="n">start_hash</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Orchestrator.get_default_snapshot_hash"><a class="viewcode-back" href="../../../_api/wepy.orchestration.orchestrator.html#wepy.orchestration.orchestrator.Orchestrator.get_default_snapshot_hash">[docs]</a>    <span class="k">def</span> <span class="nf">get_default_snapshot_hash</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Orchestrator.get_default_snapshot_hash"><a class="viewcode-back" href="../../../api/wepy.orchestration.orchestrator.html#wepy.orchestration.orchestrator.Orchestrator.get_default_snapshot_hash">[docs]</a>    <span class="k">def</span> <span class="nf">get_default_snapshot_hash</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata_kv</span><span class="p">[</span><span class="s1">&#39;default_snapshot_hash&#39;</span><span class="p">]</span></div>
 
 
-<div class="viewcode-block" id="Orchestrator.hash_snapshot"><a class="viewcode-back" href="../../../_api/wepy.orchestration.orchestrator.html#wepy.orchestration.orchestrator.Orchestrator.hash_snapshot">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="Orchestrator.hash_snapshot"><a class="viewcode-back" href="../../../api/wepy.orchestration.orchestrator.html#wepy.orchestration.orchestrator.Orchestrator.hash_snapshot">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">hash_snapshot</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">serial_str</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
@@ -369,7 +369,7 @@
         <span class="k">return</span> <span class="n">md5</span><span class="p">(</span><span class="n">serial_str</span><span class="p">)</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()</span></div>
 
 
-<div class="viewcode-block" id="Orchestrator.get_snapshot"><a class="viewcode-back" href="../../../_api/wepy.orchestration.orchestrator.html#wepy.orchestration.orchestrator.Orchestrator.get_snapshot">[docs]</a>    <span class="k">def</span> <span class="nf">get_snapshot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">snapshot_hash</span><span class="p">):</span>
+<div class="viewcode-block" id="Orchestrator.get_snapshot"><a class="viewcode-back" href="../../../api/wepy.orchestration.orchestrator.html#wepy.orchestration.orchestrator.Orchestrator.get_snapshot">[docs]</a>    <span class="k">def</span> <span class="nf">get_snapshot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">snapshot_hash</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Returns a copy of a snapshot.</span>
 
 <span class="sd">        Parameters</span>
@@ -385,7 +385,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">deserialize</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">snapshot_kv</span><span class="p">[</span><span class="n">snapshot_hash</span><span class="p">])</span></div>
 
 
-<div class="viewcode-block" id="Orchestrator.get_configuration"><a class="viewcode-back" href="../../../_api/wepy.orchestration.orchestrator.html#wepy.orchestration.orchestrator.Orchestrator.get_configuration">[docs]</a>    <span class="k">def</span> <span class="nf">get_configuration</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config_hash</span><span class="p">):</span>
+<div class="viewcode-block" id="Orchestrator.get_configuration"><a class="viewcode-back" href="../../../api/wepy.orchestration.orchestrator.html#wepy.orchestration.orchestrator.Orchestrator.get_configuration">[docs]</a>    <span class="k">def</span> <span class="nf">get_configuration</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config_hash</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Returns a copy of a snapshot.</span>
 
 <span class="sd">        Parameters</span>
@@ -416,7 +416,7 @@
         <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">configuration_kv</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
 
 
-<div class="viewcode-block" id="Orchestrator.add_snapshot"><a class="viewcode-back" href="../../../_api/wepy.orchestration.orchestrator.html#wepy.orchestration.orchestrator.Orchestrator.add_snapshot">[docs]</a>    <span class="k">def</span> <span class="nf">add_snapshot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">snapshot</span><span class="p">):</span>
+<div class="viewcode-block" id="Orchestrator.add_snapshot"><a class="viewcode-back" href="../../../api/wepy.orchestration.orchestrator.html#wepy.orchestration.orchestrator.Orchestrator.add_snapshot">[docs]</a>    <span class="k">def</span> <span class="nf">add_snapshot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">snapshot</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">        Parameters</span>
@@ -445,7 +445,7 @@
 
         <span class="k">return</span> <span class="n">snaphash</span></div>
 
-<div class="viewcode-block" id="Orchestrator.add_serial_snapshot"><a class="viewcode-back" href="../../../_api/wepy.orchestration.orchestrator.html#wepy.orchestration.orchestrator.Orchestrator.add_serial_snapshot">[docs]</a>    <span class="k">def</span> <span class="nf">add_serial_snapshot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">serial_snapshot</span><span class="p">):</span>
+<div class="viewcode-block" id="Orchestrator.add_serial_snapshot"><a class="viewcode-back" href="../../../api/wepy.orchestration.orchestrator.html#wepy.orchestration.orchestrator.Orchestrator.add_serial_snapshot">[docs]</a>    <span class="k">def</span> <span class="nf">add_serial_snapshot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">serial_snapshot</span><span class="p">):</span>
 
         <span class="c1"># get the hash of the snapshot</span>
         <span class="n">snaphash</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">hash_snapshot</span><span class="p">(</span><span class="n">serial_snapshot</span><span class="p">)</span>
@@ -461,7 +461,7 @@
 
         <span class="k">return</span> <span class="n">snaphash</span></div>
 
-<div class="viewcode-block" id="Orchestrator.gen_start_snapshot"><a class="viewcode-back" href="../../../_api/wepy.orchestration.orchestrator.html#wepy.orchestration.orchestrator.Orchestrator.gen_start_snapshot">[docs]</a>    <span class="k">def</span> <span class="nf">gen_start_snapshot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">init_walkers</span><span class="p">):</span>
+<div class="viewcode-block" id="Orchestrator.gen_start_snapshot"><a class="viewcode-back" href="../../../api/wepy.orchestration.orchestrator.html#wepy.orchestration.orchestrator.Orchestrator.gen_start_snapshot">[docs]</a>    <span class="k">def</span> <span class="nf">gen_start_snapshot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">init_walkers</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">        Parameters</span>
@@ -492,7 +492,7 @@
         <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_snapshot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">default_snapshot_hash</span><span class="p">)</span>
 
-<div class="viewcode-block" id="Orchestrator.snapshot_registered"><a class="viewcode-back" href="../../../_api/wepy.orchestration.orchestrator.html#wepy.orchestration.orchestrator.Orchestrator.snapshot_registered">[docs]</a>    <span class="k">def</span> <span class="nf">snapshot_registered</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">snapshot</span><span class="p">):</span>
+<div class="viewcode-block" id="Orchestrator.snapshot_registered"><a class="viewcode-back" href="../../../api/wepy.orchestration.orchestrator.html#wepy.orchestration.orchestrator.Orchestrator.snapshot_registered">[docs]</a>    <span class="k">def</span> <span class="nf">snapshot_registered</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">snapshot</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Check whether a snapshot is already in the database, based on the</span>
 <span class="sd">        hash of it.</span>
 
@@ -514,7 +514,7 @@
         <span class="c1"># then check it</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">snapshot_hash_registered</span><span class="p">(</span><span class="n">snaphash</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Orchestrator.snapshot_hash_registered"><a class="viewcode-back" href="../../../_api/wepy.orchestration.orchestrator.html#wepy.orchestration.orchestrator.Orchestrator.snapshot_hash_registered">[docs]</a>    <span class="k">def</span> <span class="nf">snapshot_hash_registered</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">snapshot_hash</span><span class="p">):</span>
+<div class="viewcode-block" id="Orchestrator.snapshot_hash_registered"><a class="viewcode-back" href="../../../api/wepy.orchestration.orchestrator.html#wepy.orchestration.orchestrator.Orchestrator.snapshot_hash_registered">[docs]</a>    <span class="k">def</span> <span class="nf">snapshot_hash_registered</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">snapshot_hash</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Check whether a snapshot hash is already in the database.</span>
 
 <span class="sd">        Parameters</span>
@@ -533,7 +533,7 @@
             <span class="k">return</span> <span class="kc">False</span></div>
 
 
-<div class="viewcode-block" id="Orchestrator.configuration_hash_registered"><a class="viewcode-back" href="../../../_api/wepy.orchestration.orchestrator.html#wepy.orchestration.orchestrator.Orchestrator.configuration_hash_registered">[docs]</a>    <span class="k">def</span> <span class="nf">configuration_hash_registered</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config_hash</span><span class="p">):</span>
+<div class="viewcode-block" id="Orchestrator.configuration_hash_registered"><a class="viewcode-back" href="../../../api/wepy.orchestration.orchestrator.html#wepy.orchestration.orchestrator.Orchestrator.configuration_hash_registered">[docs]</a>    <span class="k">def</span> <span class="nf">configuration_hash_registered</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config_hash</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Check whether a snapshot hash is already in the database.</span>
 
 <span class="sd">        Parameters</span>
@@ -554,7 +554,7 @@
 
     <span class="c1">### run methods</span>
 
-<div class="viewcode-block" id="Orchestrator.add_configuration"><a class="viewcode-back" href="../../../_api/wepy.orchestration.orchestrator.html#wepy.orchestration.orchestrator.Orchestrator.add_configuration">[docs]</a>    <span class="k">def</span> <span class="nf">add_configuration</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">configuration</span><span class="p">):</span>
+<div class="viewcode-block" id="Orchestrator.add_configuration"><a class="viewcode-back" href="../../../api/wepy.orchestration.orchestrator.html#wepy.orchestration.orchestrator.Orchestrator.add_configuration">[docs]</a>    <span class="k">def</span> <span class="nf">add_configuration</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">configuration</span><span class="p">):</span>
 
         <span class="n">serialized_config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">serialize</span><span class="p">(</span><span class="n">configuration</span><span class="p">)</span>
 
@@ -571,7 +571,7 @@
 
         <span class="k">return</span> <span class="n">config_hash</span></div>
 
-<div class="viewcode-block" id="Orchestrator.add_serial_configuration"><a class="viewcode-back" href="../../../_api/wepy.orchestration.orchestrator.html#wepy.orchestration.orchestrator.Orchestrator.add_serial_configuration">[docs]</a>    <span class="k">def</span> <span class="nf">add_serial_configuration</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">serial_configuration</span><span class="p">):</span>
+<div class="viewcode-block" id="Orchestrator.add_serial_configuration"><a class="viewcode-back" href="../../../api/wepy.orchestration.orchestrator.html#wepy.orchestration.orchestrator.Orchestrator.add_serial_configuration">[docs]</a>    <span class="k">def</span> <span class="nf">add_serial_configuration</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">serial_configuration</span><span class="p">):</span>
 
         <span class="c1"># get the hash of the configuration</span>
         <span class="n">snaphash</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">hash_snapshot</span><span class="p">(</span><span class="n">serial_configuration</span><span class="p">)</span>
@@ -635,7 +635,7 @@
         <span class="k">return</span> <span class="n">q</span>
 
 
-<div class="viewcode-block" id="Orchestrator._add_run_record"><a class="viewcode-back" href="../../../_api/wepy.orchestration.orchestrator.html#wepy.orchestration.orchestrator.Orchestrator._add_run_record">[docs]</a>    <span class="k">def</span> <span class="nf">_add_run_record</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start_hash</span><span class="p">,</span> <span class="n">end_hash</span><span class="p">,</span> <span class="n">configuration_hash</span><span class="p">,</span> <span class="n">cycle_idx</span><span class="p">):</span>
+<div class="viewcode-block" id="Orchestrator._add_run_record"><a class="viewcode-back" href="../../../api/wepy.orchestration.orchestrator.html#wepy.orchestration.orchestrator.Orchestrator._add_run_record">[docs]</a>    <span class="k">def</span> <span class="nf">_add_run_record</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start_hash</span><span class="p">,</span> <span class="n">end_hash</span><span class="p">,</span> <span class="n">configuration_hash</span><span class="p">,</span> <span class="n">cycle_idx</span><span class="p">):</span>
 
         <span class="n">params</span> <span class="o">=</span> <span class="p">(</span><span class="n">start_hash</span><span class="p">,</span> <span class="n">end_hash</span><span class="p">,</span> <span class="n">configuration_hash</span><span class="p">,</span> <span class="n">cycle_idx</span><span class="p">)</span>
 
@@ -645,7 +645,7 @@
         <span class="c1"># run the insert</span>
         <span class="n">c</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">add_run_record_query</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Orchestrator._delete_run_record"><a class="viewcode-back" href="../../../_api/wepy.orchestration.orchestrator.html#wepy.orchestration.orchestrator.Orchestrator._delete_run_record">[docs]</a>    <span class="k">def</span> <span class="nf">_delete_run_record</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start_hash</span><span class="p">,</span> <span class="n">end_hash</span><span class="p">):</span>
+<div class="viewcode-block" id="Orchestrator._delete_run_record"><a class="viewcode-back" href="../../../api/wepy.orchestration.orchestrator.html#wepy.orchestration.orchestrator.Orchestrator._delete_run_record">[docs]</a>    <span class="k">def</span> <span class="nf">_delete_run_record</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start_hash</span><span class="p">,</span> <span class="n">end_hash</span><span class="p">):</span>
 
         <span class="n">params</span> <span class="o">=</span> <span class="p">(</span><span class="n">start_hash</span><span class="p">,</span> <span class="n">end_hash</span><span class="p">)</span>
 
@@ -653,7 +653,7 @@
 
         <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">delete_run_record_query</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Orchestrator._update_run_record"><a class="viewcode-back" href="../../../_api/wepy.orchestration.orchestrator.html#wepy.orchestration.orchestrator.Orchestrator._update_run_record">[docs]</a>    <span class="k">def</span> <span class="nf">_update_run_record</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start_hash</span><span class="p">,</span> <span class="n">end_hash</span><span class="p">,</span> <span class="n">new_config_hash</span><span class="p">,</span> <span class="n">new_last_cycle_idx</span><span class="p">):</span>
+<div class="viewcode-block" id="Orchestrator._update_run_record"><a class="viewcode-back" href="../../../api/wepy.orchestration.orchestrator.html#wepy.orchestration.orchestrator.Orchestrator._update_run_record">[docs]</a>    <span class="k">def</span> <span class="nf">_update_run_record</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start_hash</span><span class="p">,</span> <span class="n">end_hash</span><span class="p">,</span> <span class="n">new_config_hash</span><span class="p">,</span> <span class="n">new_last_cycle_idx</span><span class="p">):</span>
 
         <span class="n">params</span> <span class="o">=</span> <span class="p">(</span><span class="n">new_config_hash</span><span class="p">,</span> <span class="n">new_last_cycle_idx</span><span class="p">,</span> <span class="n">start_hash</span><span class="p">,</span> <span class="n">end_hash</span><span class="p">)</span>
 
@@ -665,7 +665,7 @@
 
 
 
-<div class="viewcode-block" id="Orchestrator.register_run"><a class="viewcode-back" href="../../../_api/wepy.orchestration.orchestrator.html#wepy.orchestration.orchestrator.Orchestrator.register_run">[docs]</a>    <span class="k">def</span> <span class="nf">register_run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start_hash</span><span class="p">,</span> <span class="n">end_hash</span><span class="p">,</span> <span class="n">config_hash</span><span class="p">,</span> <span class="n">cycle_idx</span><span class="p">):</span>
+<div class="viewcode-block" id="Orchestrator.register_run"><a class="viewcode-back" href="../../../api/wepy.orchestration.orchestrator.html#wepy.orchestration.orchestrator.Orchestrator.register_run">[docs]</a>    <span class="k">def</span> <span class="nf">register_run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start_hash</span><span class="p">,</span> <span class="n">end_hash</span><span class="p">,</span> <span class="n">config_hash</span><span class="p">,</span> <span class="n">cycle_idx</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">        Parameters</span>
@@ -706,7 +706,7 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_add_run_record</span><span class="p">(</span><span class="n">start_hash</span><span class="p">,</span> <span class="n">end_hash</span><span class="p">,</span> <span class="n">config_hash</span><span class="p">,</span> <span class="n">cycle_idx</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Orchestrator.get_run_records"><a class="viewcode-back" href="../../../_api/wepy.orchestration.orchestrator.html#wepy.orchestration.orchestrator.Orchestrator.get_run_records">[docs]</a>    <span class="k">def</span> <span class="nf">get_run_records</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Orchestrator.get_run_records"><a class="viewcode-back" href="../../../api/wepy.orchestration.orchestrator.html#wepy.orchestration.orchestrator.Orchestrator.get_run_records">[docs]</a>    <span class="k">def</span> <span class="nf">get_run_records</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 
         <span class="n">get_run_record_query</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
 <span class="s2">        SELECT *</span>
@@ -719,7 +719,7 @@
 
         <span class="k">return</span> <span class="n">records</span></div>
 
-<div class="viewcode-block" id="Orchestrator.get_run_record"><a class="viewcode-back" href="../../../_api/wepy.orchestration.orchestrator.html#wepy.orchestration.orchestrator.Orchestrator.get_run_record">[docs]</a>    <span class="k">def</span> <span class="nf">get_run_record</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start_hash</span><span class="p">,</span> <span class="n">end_hash</span><span class="p">):</span>
+<div class="viewcode-block" id="Orchestrator.get_run_record"><a class="viewcode-back" href="../../../api/wepy.orchestration.orchestrator.html#wepy.orchestration.orchestrator.Orchestrator.get_run_record">[docs]</a>    <span class="k">def</span> <span class="nf">get_run_record</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start_hash</span><span class="p">,</span> <span class="n">end_hash</span><span class="p">):</span>
 
         <span class="n">get_run_record_query</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
 <span class="s2">        SELECT </span><span class="si">{fields}</span><span class="s2"></span>
@@ -735,7 +735,7 @@
 
         <span class="k">return</span> <span class="n">record</span></div>
 
-<div class="viewcode-block" id="Orchestrator.run_last_cycle_idx"><a class="viewcode-back" href="../../../_api/wepy.orchestration.orchestrator.html#wepy.orchestration.orchestrator.Orchestrator.run_last_cycle_idx">[docs]</a>    <span class="k">def</span> <span class="nf">run_last_cycle_idx</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start_hash</span><span class="p">,</span> <span class="n">end_hash</span><span class="p">):</span>
+<div class="viewcode-block" id="Orchestrator.run_last_cycle_idx"><a class="viewcode-back" href="../../../api/wepy.orchestration.orchestrator.html#wepy.orchestration.orchestrator.Orchestrator.run_last_cycle_idx">[docs]</a>    <span class="k">def</span> <span class="nf">run_last_cycle_idx</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start_hash</span><span class="p">,</span> <span class="n">end_hash</span><span class="p">):</span>
 
         <span class="n">record</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_run_record</span><span class="p">(</span><span class="n">start_hash</span><span class="p">,</span> <span class="n">end_hash</span><span class="p">)</span>
 
@@ -744,7 +744,7 @@
         <span class="k">return</span> <span class="n">last_cycle_idx</span></div>
 
 
-<div class="viewcode-block" id="Orchestrator.run_configuration"><a class="viewcode-back" href="../../../_api/wepy.orchestration.orchestrator.html#wepy.orchestration.orchestrator.Orchestrator.run_configuration">[docs]</a>    <span class="k">def</span> <span class="nf">run_configuration</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start_hash</span><span class="p">,</span> <span class="n">end_hash</span><span class="p">):</span>
+<div class="viewcode-block" id="Orchestrator.run_configuration"><a class="viewcode-back" href="../../../api/wepy.orchestration.orchestrator.html#wepy.orchestration.orchestrator.Orchestrator.run_configuration">[docs]</a>    <span class="k">def</span> <span class="nf">run_configuration</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start_hash</span><span class="p">,</span> <span class="n">end_hash</span><span class="p">):</span>
 
         <span class="n">record</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_run_record</span><span class="p">(</span><span class="n">start_hash</span><span class="p">,</span> <span class="n">end_hash</span><span class="p">)</span>
 
@@ -753,7 +753,7 @@
         <span class="c1"># get the configuration object and deserialize it</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">deserialize</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">configuration_kv</span><span class="p">[</span><span class="n">config_hash</span><span class="p">])</span></div>
 
-<div class="viewcode-block" id="Orchestrator.run_configuration_hash"><a class="viewcode-back" href="../../../_api/wepy.orchestration.orchestrator.html#wepy.orchestration.orchestrator.Orchestrator.run_configuration_hash">[docs]</a>    <span class="k">def</span> <span class="nf">run_configuration_hash</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start_hash</span><span class="p">,</span> <span class="n">end_hash</span><span class="p">):</span>
+<div class="viewcode-block" id="Orchestrator.run_configuration_hash"><a class="viewcode-back" href="../../../api/wepy.orchestration.orchestrator.html#wepy.orchestration.orchestrator.Orchestrator.run_configuration_hash">[docs]</a>    <span class="k">def</span> <span class="nf">run_configuration_hash</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start_hash</span><span class="p">,</span> <span class="n">end_hash</span><span class="p">):</span>
 
         <span class="n">record</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_run_record</span><span class="p">(</span><span class="n">start_hash</span><span class="p">,</span> <span class="n">end_hash</span><span class="p">)</span>
 
@@ -761,11 +761,11 @@
 
         <span class="k">return</span> <span class="n">config_hash</span></div>
 
-<div class="viewcode-block" id="Orchestrator.run_hashes"><a class="viewcode-back" href="../../../_api/wepy.orchestration.orchestrator.html#wepy.orchestration.orchestrator.Orchestrator.run_hashes">[docs]</a>    <span class="k">def</span> <span class="nf">run_hashes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Orchestrator.run_hashes"><a class="viewcode-back" href="../../../api/wepy.orchestration.orchestrator.html#wepy.orchestration.orchestrator.Orchestrator.run_hashes">[docs]</a>    <span class="k">def</span> <span class="nf">run_hashes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 
         <span class="k">return</span> <span class="p">[(</span><span class="n">rec</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">rec</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="k">for</span> <span class="n">rec</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_run_records</span><span class="p">()]</span></div>
 
-<div class="viewcode-block" id="Orchestrator.run_continues"><a class="viewcode-back" href="../../../_api/wepy.orchestration.orchestrator.html#wepy.orchestration.orchestrator.Orchestrator.run_continues">[docs]</a>    <span class="k">def</span> <span class="nf">run_continues</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start_hash</span><span class="p">,</span> <span class="n">end_hash</span><span class="p">):</span>
+<div class="viewcode-block" id="Orchestrator.run_continues"><a class="viewcode-back" href="../../../api/wepy.orchestration.orchestrator.html#wepy.orchestration.orchestrator.Orchestrator.run_continues">[docs]</a>    <span class="k">def</span> <span class="nf">run_continues</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start_hash</span><span class="p">,</span> <span class="n">end_hash</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Given a start hash and end hash for a run, find the run that this</span>
 <span class="sd">        continues.</span>
 
@@ -804,7 +804,7 @@
                 <span class="k">return</span> <span class="kc">None</span></div>
 
 
-<div class="viewcode-block" id="Orchestrator._init_checkpoint_db"><a class="viewcode-back" href="../../../_api/wepy.orchestration.orchestrator.html#wepy.orchestration.orchestrator.Orchestrator._init_checkpoint_db">[docs]</a>    <span class="k">def</span> <span class="nf">_init_checkpoint_db</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start_hash</span><span class="p">,</span> <span class="n">configuration</span><span class="p">,</span> <span class="n">checkpoint_dir</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;x&#39;</span><span class="p">):</span>
+<div class="viewcode-block" id="Orchestrator._init_checkpoint_db"><a class="viewcode-back" href="../../../api/wepy.orchestration.orchestrator.html#wepy.orchestration.orchestrator.Orchestrator._init_checkpoint_db">[docs]</a>    <span class="k">def</span> <span class="nf">_init_checkpoint_db</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start_hash</span><span class="p">,</span> <span class="n">configuration</span><span class="p">,</span> <span class="n">checkpoint_dir</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;x&#39;</span><span class="p">):</span>
 
         <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Initializing checkpoint orch database&quot;</span><span class="p">)</span>
 
@@ -833,7 +833,7 @@
         <span class="k">return</span> <span class="n">checkpoint_path</span><span class="p">,</span> <span class="n">config_hash</span></div>
 
 
-<div class="viewcode-block" id="Orchestrator._save_checkpoint"><a class="viewcode-back" href="../../../_api/wepy.orchestration.orchestrator.html#wepy.orchestration.orchestrator.Orchestrator._save_checkpoint">[docs]</a>    <span class="k">def</span> <span class="nf">_save_checkpoint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">checkpoint_snapshot</span><span class="p">,</span> <span class="n">config_hash</span><span class="p">,</span>
+<div class="viewcode-block" id="Orchestrator._save_checkpoint"><a class="viewcode-back" href="../../../api/wepy.orchestration.orchestrator.html#wepy.orchestration.orchestrator.Orchestrator._save_checkpoint">[docs]</a>    <span class="k">def</span> <span class="nf">_save_checkpoint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">checkpoint_snapshot</span><span class="p">,</span> <span class="n">config_hash</span><span class="p">,</span>
                          <span class="n">checkpoint_db_path</span><span class="p">,</span> <span class="n">cycle_idx</span><span class="p">,</span>
                          <span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -945,7 +945,7 @@
         <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;closed the checkpoint orch connection&quot;</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="Orchestrator.gen_sim_manager"><a class="viewcode-back" href="../../../_api/wepy.orchestration.orchestrator.html#wepy.orchestration.orchestrator.Orchestrator.gen_sim_manager">[docs]</a>    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="Orchestrator.gen_sim_manager"><a class="viewcode-back" href="../../../api/wepy.orchestration.orchestrator.html#wepy.orchestration.orchestrator.Orchestrator.gen_sim_manager">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">gen_sim_manager</span><span class="p">(</span><span class="n">start_snapshot</span><span class="p">,</span> <span class="n">configuration</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
@@ -968,12 +968,14 @@
                               <span class="n">resampler</span><span class="o">=</span><span class="n">start_snapshot</span><span class="o">.</span><span class="n">apparatus</span><span class="o">.</span><span class="n">filters</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span>
                               <span class="c1"># configuration options</span>
                               <span class="n">work_mapper</span><span class="o">=</span><span class="n">configuration</span><span class="o">.</span><span class="n">work_mapper</span><span class="p">,</span>
-                              <span class="n">reporters</span><span class="o">=</span><span class="n">configuration</span><span class="o">.</span><span class="n">reporters</span><span class="p">)</span>
+                              <span class="n">reporters</span><span class="o">=</span><span class="n">configuration</span><span class="o">.</span><span class="n">reporters</span><span class="p">,</span>
+                              <span class="n">sim_monitor</span><span class="o">=</span><span class="n">configuration</span><span class="o">.</span><span class="n">monitor</span><span class="p">,</span>
+        <span class="p">)</span>
 
         <span class="k">return</span> <span class="n">sim_manager</span></div>
 
 
-<div class="viewcode-block" id="Orchestrator.run_snapshot_by_time"><a class="viewcode-back" href="../../../_api/wepy.orchestration.orchestrator.html#wepy.orchestration.orchestrator.Orchestrator.run_snapshot_by_time">[docs]</a>    <span class="k">def</span> <span class="nf">run_snapshot_by_time</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start_hash</span><span class="p">,</span> <span class="n">run_time</span><span class="p">,</span> <span class="n">n_steps</span><span class="p">,</span>
+<div class="viewcode-block" id="Orchestrator.run_snapshot_by_time"><a class="viewcode-back" href="../../../api/wepy.orchestration.orchestrator.html#wepy.orchestration.orchestrator.Orchestrator.run_snapshot_by_time">[docs]</a>    <span class="k">def</span> <span class="nf">run_snapshot_by_time</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start_hash</span><span class="p">,</span> <span class="n">run_time</span><span class="p">,</span> <span class="n">n_steps</span><span class="p">,</span>
                              <span class="n">checkpoint_freq</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                              <span class="n">checkpoint_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                              <span class="n">configuration</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -1119,7 +1121,7 @@
         <span class="c1"># that is what is wanted later on</span>
         <span class="k">return</span> <span class="n">end_snapshot</span><span class="p">,</span> <span class="n">configuration_hash</span><span class="p">,</span> <span class="n">checkpoint_db_path</span><span class="p">,</span> <span class="n">last_cycle_idx</span></div>
 
-<div class="viewcode-block" id="Orchestrator.orchestrate_snapshot_run_by_time"><a class="viewcode-back" href="../../../_api/wepy.orchestration.orchestrator.html#wepy.orchestration.orchestrator.Orchestrator.orchestrate_snapshot_run_by_time">[docs]</a>    <span class="k">def</span> <span class="nf">orchestrate_snapshot_run_by_time</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">snapshot_hash</span><span class="p">,</span> <span class="n">run_time</span><span class="p">,</span> <span class="n">n_steps</span><span class="p">,</span>
+<div class="viewcode-block" id="Orchestrator.orchestrate_snapshot_run_by_time"><a class="viewcode-back" href="../../../api/wepy.orchestration.orchestrator.html#wepy.orchestration.orchestrator.Orchestrator.orchestrate_snapshot_run_by_time">[docs]</a>    <span class="k">def</span> <span class="nf">orchestrate_snapshot_run_by_time</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">snapshot_hash</span><span class="p">,</span> <span class="n">run_time</span><span class="p">,</span> <span class="n">n_steps</span><span class="p">,</span>
                                          <span class="n">checkpoint_freq</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                                          <span class="n">checkpoint_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                                          <span class="n">orchestrator_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -1292,7 +1294,7 @@
 
 
 
-<div class="viewcode-block" id="reconcile_orchestrators"><a class="viewcode-back" href="../../../_api/wepy.orchestration.orchestrator.html#wepy.orchestration.orchestrator.reconcile_orchestrators">[docs]</a><span class="k">def</span> <span class="nf">reconcile_orchestrators</span><span class="p">(</span><span class="n">host_path</span><span class="p">,</span> <span class="o">*</span><span class="n">orchestrator_paths</span><span class="p">):</span>
+<div class="viewcode-block" id="reconcile_orchestrators"><a class="viewcode-back" href="../../../api/wepy.orchestration.orchestrator.html#wepy.orchestration.orchestrator.reconcile_orchestrators">[docs]</a><span class="k">def</span> <span class="nf">reconcile_orchestrators</span><span class="p">(</span><span class="n">host_path</span><span class="p">,</span> <span class="o">*</span><span class="n">orchestrator_paths</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">    Parameters</span>
@@ -1464,6 +1466,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../_source/installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../_source/quick_start.html">Quick Start</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../_source/introduction.html">Introduction &amp; Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../_source/introduction.html#bibliography">Bibliography</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../_source/tutorials/index.html">Tutorials</a></li>

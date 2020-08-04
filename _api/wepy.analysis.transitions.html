@@ -4,7 +4,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <title>wepy.analysis.transitions module &#8212; wepy 1.0.0rc3 documentation</title>
+    <title>wepy.analysis.transitions module &#8212; wepy 1.0.0rc6 documentation</title>
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
@@ -92,8 +92,9 @@ between each macrostate as an assymetric transition probability matrix.</p>
 </dl>
 <dl class="py function">
 <dt id="wepy.analysis.transitions.transition_counts">
-<code class="sig-prename descclassname">wepy.analysis.transitions.</code><code class="sig-name descname">transition_counts</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">assignments</span></em>, <em class="sig-param"><span class="n">transitions</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/transitions.html#transition_counts"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.transitions.transition_counts" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">wepy.analysis.transitions.</code><code class="sig-name descname">transition_counts</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">assignments</span></em>, <em class="sig-param"><span class="n">transitions</span></em>, <em class="sig-param"><span class="n">weights</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/transitions.html#transition_counts"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.transitions.transition_counts" title="Permalink to this definition">¶</a></dt>
 <dd><p>Make a dictionary of the count of microstate transitions between macrostates.</p>
+<p>If weights are given counts are the weight instead of 1.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -102,11 +103,17 @@ is the number of runs, N_traj is the number of trajectories,
 and N_cycle is the number of cycles.</p></li>
 <li><p><strong>transitions</strong> (<em>list of list of tuples of ints</em><em> (</em><em>run_idx</em><em>, </em><em>traj_idx</em><em>, </em><em>cycle_idx</em><em>)</em>) – List of run traces corresponding to transitions. Only the
 first and last trace elements are used.</p></li>
+<li><p><strong>weights</strong> (<em>mixed array_like of dim</em><em> (</em><em>n_run</em><em>, </em><em>n_traj</em><em>, </em><em>n_cycle</em><em>) </em><em>type float</em><em> or </em><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.8)"><em>None</em></a>) – <dl class="simple">
+<dt>Same shape as the assignments, but gives the weight of the walker at this time.</dt><dd><p>(Optional)</p>
+</dd>
+</dl>
+</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><strong>transition_counts</strong> – Dictionary mapping transitions between macrostate labels to
-the count of microstate transitions between them.</p>
+the count of microstate transitions between them. If weights
+are given this is the weighted counts.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>dict of (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a>, <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a>): int</p>
@@ -292,6 +299,7 @@ first and last trace elements are used.</p></li>
 <li class="toctree-l1"><a class="reference internal" href="../_source/installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../_source/quick_start.html">Quick Start</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../_source/introduction.html">Introduction &amp; Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_source/introduction.html#bibliography">Bibliography</a></li>
 </ul>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../_source/tutorials/index.html">Tutorials</a></li>

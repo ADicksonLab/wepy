@@ -4,7 +4,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <title>wepy.reporter.walker &#8212; wepy 1.0.0rc3 documentation</title>
+    <title>wepy.reporter.walker &#8212; wepy 1.0.0rc6 documentation</title>
     <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/custom.css" />
@@ -61,7 +61,7 @@
 
 <span class="kn">import</span> <span class="nn">mdtraj</span> <span class="k">as</span> <span class="nn">mdj</span>
 
-<div class="viewcode-block" id="WalkerReporter"><a class="viewcode-back" href="../../../_api/wepy.reporter.walker.html#wepy.reporter.walker.WalkerReporter">[docs]</a><span class="k">class</span> <span class="nc">WalkerReporter</span><span class="p">(</span><span class="n">ProgressiveFileReporter</span><span class="p">):</span>
+<div class="viewcode-block" id="WalkerReporter"><a class="viewcode-back" href="../../../api/wepy.reporter.walker.html#wepy.reporter.walker.WalkerReporter">[docs]</a><span class="k">class</span> <span class="nc">WalkerReporter</span><span class="p">(</span><span class="n">ProgressiveFileReporter</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Reporter for generating 3D molecular structure files of the walkers</span>
 <span class="sd">    produced by a cycle.</span>
 
@@ -137,7 +137,7 @@
                                                                        <span class="n">init_state</span><span class="p">[</span><span class="s1">&#39;box_vectors&#39;</span><span class="p">])</span>
 
 
-<div class="viewcode-block" id="WalkerReporter.init"><a class="viewcode-back" href="../../../_api/wepy.reporter.walker.html#wepy.reporter.walker.WalkerReporter.init">[docs]</a>    <span class="k">def</span> <span class="nf">init</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="WalkerReporter.init"><a class="viewcode-back" href="../../../api/wepy.reporter.walker.html#wepy.reporter.walker.WalkerReporter.init">[docs]</a>    <span class="k">def</span> <span class="nf">init</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Initialize the reporter at simulation time.</span>
 
 <span class="sd">        This will generate the initial state PDB file.</span>
@@ -160,7 +160,7 @@
         <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Writing initial state to </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">init_state_path</span><span class="p">))</span>
         <span class="n">init_traj</span><span class="o">.</span><span class="n">save_pdb</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">init_state_path</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="WalkerReporter.report"><a class="viewcode-back" href="../../../_api/wepy.reporter.walker.html#wepy.reporter.walker.WalkerReporter.report">[docs]</a>    <span class="k">def</span> <span class="nf">report</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cycle_idx</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">new_walkers</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<div class="viewcode-block" id="WalkerReporter.report"><a class="viewcode-back" href="../../../api/wepy.reporter.walker.html#wepy.reporter.walker.WalkerReporter.report">[docs]</a>    <span class="k">def</span> <span class="nf">report</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cycle_idx</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">new_walkers</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Report the current cycle&#39;s walker states as 3D molecular</span>
 <span class="sd">        structures.</span>
@@ -234,6 +234,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../_source/installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../_source/quick_start.html">Quick Start</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../_source/introduction.html">Introduction &amp; Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../_source/introduction.html#bibliography">Bibliography</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../_source/tutorials/index.html">Tutorials</a></li>

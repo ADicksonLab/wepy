@@ -4,7 +4,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <title>wepy.reporter.wexplore.image &#8212; wepy 1.0.0rc3 documentation</title>
+    <title>wepy.reporter.wexplore.image &#8212; wepy 1.0.0rc6 documentation</title>
     <link rel="stylesheet" href="../../../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/custom.css" />
@@ -52,7 +52,7 @@
 <span class="kn">from</span> <span class="nn">wepy.util.mdtraj</span> <span class="kn">import</span> <span class="n">json_to_mdtraj_topology</span><span class="p">,</span> <span class="n">mdtraj_to_json_topology</span>
 <span class="kn">from</span> <span class="nn">wepy.util.json_top</span> <span class="kn">import</span> <span class="n">json_top_subset</span>
 
-<div class="viewcode-block" id="WExploreAtomImageReporter"><a class="viewcode-back" href="../../../../_api/wepy.reporter.wexplore.image.html#wepy.reporter.wexplore.image.WExploreAtomImageReporter">[docs]</a><span class="k">class</span> <span class="nc">WExploreAtomImageReporter</span><span class="p">(</span><span class="n">ProgressiveFileReporter</span><span class="p">):</span>
+<div class="viewcode-block" id="WExploreAtomImageReporter"><a class="viewcode-back" href="../../../../api/wepy.reporter.wexplore.image.html#wepy.reporter.wexplore.image.WExploreAtomImageReporter">[docs]</a><span class="k">class</span> <span class="nc">WExploreAtomImageReporter</span><span class="p">(</span><span class="n">ProgressiveFileReporter</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Reporter for generating 3D molecular structures from WExplore</span>
 <span class="sd">    region images.</span>
 
@@ -116,7 +116,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">times</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
 
-<div class="viewcode-block" id="WExploreAtomImageReporter.init"><a class="viewcode-back" href="../../../../_api/wepy.reporter.wexplore.image.html#wepy.reporter.wexplore.image.WExploreAtomImageReporter.init">[docs]</a>    <span class="k">def</span> <span class="nf">init</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="WExploreAtomImageReporter.init"><a class="viewcode-back" href="../../../../api/wepy.reporter.wexplore.image.html#wepy.reporter.wexplore.image.WExploreAtomImageReporter.init">[docs]</a>    <span class="k">def</span> <span class="nf">init</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">init</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
@@ -138,7 +138,7 @@
 
             <span class="bp">self</span><span class="o">.</span><span class="n">_top_pdb_written</span> <span class="o">=</span> <span class="kc">True</span></div>
 
-<div class="viewcode-block" id="WExploreAtomImageReporter.report"><a class="viewcode-back" href="../../../../_api/wepy.reporter.wexplore.image.html#wepy.reporter.wexplore.image.WExploreAtomImageReporter.report">[docs]</a>    <span class="k">def</span> <span class="nf">report</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cycle_idx</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">resampler_data</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<div class="viewcode-block" id="WExploreAtomImageReporter.report"><a class="viewcode-back" href="../../../../api/wepy.reporter.wexplore.image.html#wepy.reporter.wexplore.image.WExploreAtomImageReporter.report">[docs]</a>    <span class="k">def</span> <span class="nf">report</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cycle_idx</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">resampler_data</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 
         <span class="c1"># load the json topology as an mdtraj one</span>
@@ -212,6 +212,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../../_source/installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../_source/quick_start.html">Quick Start</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../_source/introduction.html">Introduction &amp; Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_source/introduction.html#bibliography">Bibliography</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../../_source/tutorials/index.html">Tutorials</a></li>

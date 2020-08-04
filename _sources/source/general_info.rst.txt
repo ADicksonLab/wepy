@@ -1,0 +1,14 @@
+General Information
+===================
+
+Bugs, issues, and feature requests
+----------------------------------
+
+Builds, Distributions, and Packages
+-----------------------------------
+
+Contacting other users
+----------------------
+
+Contacting the developers
+-------------------------

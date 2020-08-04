@@ -82,6 +82,15 @@ simulation are.
 ``wepy`` can be customized with arbitrary reporters to generate more
 kinds of files if you wish, but this is sufficient for getting started.
 
+You can see all the options that the test drive script has:
+
+.. code:: bash
+
+   python -m wepy_test_drive --help
+
+An extended tutorial that goes through some details of observing the
+results is in the :any:`tutorials <tutorials/index>`.
+
 Trivial example: Setting up a simulation
 ----------------------------------------
 

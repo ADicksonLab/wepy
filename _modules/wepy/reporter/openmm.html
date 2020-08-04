@@ -4,7 +4,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <title>wepy.reporter.openmm &#8212; wepy 1.0.0rc3 documentation</title>
+    <title>wepy.reporter.openmm &#8212; wepy 1.0.0rc6 documentation</title>
     <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/custom.css" />
@@ -50,7 +50,7 @@
 <span class="c1"># initialize the unit registry</span>
 <span class="n">units</span> <span class="o">=</span> <span class="n">UnitRegistry</span><span class="p">()</span>
 
-<div class="viewcode-block" id="OpenMMRunnerDashboardSection"><a class="viewcode-back" href="../../../_api/wepy.reporter.openmm.html#wepy.reporter.openmm.OpenMMRunnerDashboardSection">[docs]</a><span class="k">class</span> <span class="nc">OpenMMRunnerDashboardSection</span><span class="p">(</span><span class="n">RunnerDashboardSection</span><span class="p">):</span>
+<div class="viewcode-block" id="OpenMMRunnerDashboardSection"><a class="viewcode-back" href="../../../api/wepy.reporter.openmm.html#wepy.reporter.openmm.OpenMMRunnerDashboardSection">[docs]</a><span class="k">class</span> <span class="nc">OpenMMRunnerDashboardSection</span><span class="p">(</span><span class="n">RunnerDashboardSection</span><span class="p">):</span>
 
     <span class="n">RUNNER_SECTION_TEMPLATE</span> <span class="o">=</span> \
 <span class="sd">&quot;&quot;&quot;</span>
@@ -104,7 +104,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">walker_total_sampling_time</span> <span class="o">=</span> <span class="mf">0.0</span> <span class="o">*</span> <span class="n">units</span><span class="p">(</span><span class="s1">&#39;microsecond&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">total_sampling_time</span> <span class="o">=</span> <span class="mf">0.0</span> <span class="o">*</span> <span class="n">units</span><span class="p">(</span><span class="s1">&#39;microsecond&#39;</span><span class="p">)</span>
 
-<div class="viewcode-block" id="OpenMMRunnerDashboardSection.update_values"><a class="viewcode-back" href="../../../_api/wepy.reporter.openmm.html#wepy.reporter.openmm.OpenMMRunnerDashboardSection.update_values">[docs]</a>    <span class="k">def</span> <span class="nf">update_values</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="OpenMMRunnerDashboardSection.update_values"><a class="viewcode-back" href="../../../api/wepy.reporter.openmm.html#wepy.reporter.openmm.OpenMMRunnerDashboardSection.update_values">[docs]</a>    <span class="k">def</span> <span class="nf">update_values</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">update_values</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
@@ -121,7 +121,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">total_sampling_time</span> <span class="o">+=</span> <span class="n">new_sampling_time</span></div>
 
 
-<div class="viewcode-block" id="OpenMMRunnerDashboardSection.gen_fields"><a class="viewcode-back" href="../../../_api/wepy.reporter.openmm.html#wepy.reporter.openmm.OpenMMRunnerDashboardSection.gen_fields">[docs]</a>    <span class="k">def</span> <span class="nf">gen_fields</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="OpenMMRunnerDashboardSection.gen_fields"><a class="viewcode-back" href="../../../api/wepy.reporter.openmm.html#wepy.reporter.openmm.OpenMMRunnerDashboardSection.gen_fields">[docs]</a>    <span class="k">def</span> <span class="nf">gen_fields</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 
         <span class="n">fields</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">gen_fields</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
@@ -193,6 +193,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../_source/installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../_source/quick_start.html">Quick Start</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../_source/introduction.html">Introduction &amp; Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../_source/introduction.html#bibliography">Bibliography</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../_source/tutorials/index.html">Tutorials</a></li>

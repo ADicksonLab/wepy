@@ -4,7 +4,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <title>wepy.resampling.resamplers.resampler &#8212; wepy 1.0.0rc3 documentation</title>
+    <title>wepy.resampling.resamplers.resampler &#8212; wepy 1.0.0rc6 documentation</title>
     <link rel="stylesheet" href="../../../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/custom.css" />
@@ -45,18 +45,20 @@
 <span></span><span class="kn">import</span> <span class="nn">itertools</span> <span class="k">as</span> <span class="nn">it</span>
 <span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">defaultdict</span>
 <span class="kn">from</span> <span class="nn">warnings</span> <span class="kn">import</span> <span class="n">warn</span>
+
 <span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">from</span> <span class="nn">eliot</span> <span class="kn">import</span> <span class="n">start_action</span><span class="p">,</span> <span class="n">log_call</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
 <span class="kn">from</span> <span class="nn">wepy.resampling.decisions.decision</span> <span class="kn">import</span> <span class="n">Decision</span><span class="p">,</span> <span class="n">NoDecision</span>
 
-<div class="viewcode-block" id="ResamplerError"><a class="viewcode-back" href="../../../../_api/wepy.resampling.resamplers.resampler.html#wepy.resampling.resamplers.clone_merge.ResamplerError">[docs]</a><span class="k">class</span> <span class="nc">ResamplerError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+<div class="viewcode-block" id="ResamplerError"><a class="viewcode-back" href="../../../../api/wepy.resampling.resamplers.resampler.html#wepy.resampling.resamplers.clone_merge.ResamplerError">[docs]</a><span class="k">class</span> <span class="nc">ResamplerError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Error raised when some constraint on resampling properties is</span>
 <span class="sd">    violated.&quot;&quot;&quot;</span>
     <span class="k">pass</span></div>
 
-<div class="viewcode-block" id="Resampler"><a class="viewcode-back" href="../../../../_api/wepy.resampling.resamplers.resampler.html#wepy.resampling.resamplers.clone_merge.Resampler">[docs]</a><span class="k">class</span> <span class="nc">Resampler</span><span class="p">():</span>
+<div class="viewcode-block" id="Resampler"><a class="viewcode-back" href="../../../../api/wepy.resampling.resamplers.resampler.html#wepy.resampling.resamplers.clone_merge.Resampler">[docs]</a><span class="k">class</span> <span class="nc">Resampler</span><span class="p">():</span>
     <span class="sd">&quot;&quot;&quot;Abstract base class for implementing resamplers.</span>
 
 <span class="sd">    All subclasses of Resampler must implement the &#39;resample&#39; method.</span>
@@ -364,19 +366,19 @@
         <span class="sd">&quot;&quot;&quot;The decision class for this resampler.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">DECISION</span>
 
-<div class="viewcode-block" id="Resampler.resampling_field_names"><a class="viewcode-back" href="../../../../_api/wepy.resampling.resamplers.resampler.html#wepy.resampling.resamplers.clone_merge.Resampler.resampling_field_names">[docs]</a>    <span class="k">def</span> <span class="nf">resampling_field_names</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Resampler.resampling_field_names"><a class="viewcode-back" href="../../../../api/wepy.resampling.resamplers.resampler.html#wepy.resampling.resamplers.clone_merge.Resampler.resampling_field_names">[docs]</a>    <span class="k">def</span> <span class="nf">resampling_field_names</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Access the class level FIELDS constant for this record group.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">RESAMPLING_FIELDS</span></div>
 
-<div class="viewcode-block" id="Resampler.resampling_field_shapes"><a class="viewcode-back" href="../../../../_api/wepy.resampling.resamplers.resampler.html#wepy.resampling.resamplers.clone_merge.Resampler.resampling_field_shapes">[docs]</a>    <span class="k">def</span> <span class="nf">resampling_field_shapes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Resampler.resampling_field_shapes"><a class="viewcode-back" href="../../../../api/wepy.resampling.resamplers.resampler.html#wepy.resampling.resamplers.clone_merge.Resampler.resampling_field_shapes">[docs]</a>    <span class="k">def</span> <span class="nf">resampling_field_shapes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Access the class level SHAPES constant for this record group.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">RESAMPLING_SHAPES</span></div>
 
-<div class="viewcode-block" id="Resampler.resampling_field_dtypes"><a class="viewcode-back" href="../../../../_api/wepy.resampling.resamplers.resampler.html#wepy.resampling.resamplers.clone_merge.Resampler.resampling_field_dtypes">[docs]</a>    <span class="k">def</span> <span class="nf">resampling_field_dtypes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Resampler.resampling_field_dtypes"><a class="viewcode-back" href="../../../../api/wepy.resampling.resamplers.resampler.html#wepy.resampling.resamplers.clone_merge.Resampler.resampling_field_dtypes">[docs]</a>    <span class="k">def</span> <span class="nf">resampling_field_dtypes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Access the class level DTYPES constant for this record group.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">RESAMPLING_DTYPES</span></div>
 
-<div class="viewcode-block" id="Resampler.resampling_fields"><a class="viewcode-back" href="../../../../_api/wepy.resampling.resamplers.resampler.html#wepy.resampling.resamplers.clone_merge.Resampler.resampling_fields">[docs]</a>    <span class="k">def</span> <span class="nf">resampling_fields</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Resampler.resampling_fields"><a class="viewcode-back" href="../../../../api/wepy.resampling.resamplers.resampler.html#wepy.resampling.resamplers.clone_merge.Resampler.resampling_fields">[docs]</a>    <span class="k">def</span> <span class="nf">resampling_fields</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Returns a list of zipped field specs.</span>
 
 <span class="sd">        Returns</span>
@@ -390,23 +392,23 @@
                    <span class="bp">self</span><span class="o">.</span><span class="n">resampling_field_shapes</span><span class="p">(),</span>
                    <span class="bp">self</span><span class="o">.</span><span class="n">resampling_field_dtypes</span><span class="p">()))</span></div>
 
-<div class="viewcode-block" id="Resampler.resampling_record_field_names"><a class="viewcode-back" href="../../../../_api/wepy.resampling.resamplers.resampler.html#wepy.resampling.resamplers.clone_merge.Resampler.resampling_record_field_names">[docs]</a>    <span class="k">def</span> <span class="nf">resampling_record_field_names</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Resampler.resampling_record_field_names"><a class="viewcode-back" href="../../../../api/wepy.resampling.resamplers.resampler.html#wepy.resampling.resamplers.clone_merge.Resampler.resampling_record_field_names">[docs]</a>    <span class="k">def</span> <span class="nf">resampling_record_field_names</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Access the class level RECORD_FIELDS constant for this record group.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">RESAMPLING_RECORD_FIELDS</span></div>
 
-<div class="viewcode-block" id="Resampler.resampler_field_names"><a class="viewcode-back" href="../../../../_api/wepy.resampling.resamplers.resampler.html#wepy.resampling.resamplers.clone_merge.Resampler.resampler_field_names">[docs]</a>    <span class="k">def</span> <span class="nf">resampler_field_names</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Resampler.resampler_field_names"><a class="viewcode-back" href="../../../../api/wepy.resampling.resamplers.resampler.html#wepy.resampling.resamplers.clone_merge.Resampler.resampler_field_names">[docs]</a>    <span class="k">def</span> <span class="nf">resampler_field_names</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Access the class level FIELDS constant for this record group.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">RESAMPLER_FIELDS</span></div>
 
-<div class="viewcode-block" id="Resampler.resampler_field_shapes"><a class="viewcode-back" href="../../../../_api/wepy.resampling.resamplers.resampler.html#wepy.resampling.resamplers.clone_merge.Resampler.resampler_field_shapes">[docs]</a>    <span class="k">def</span> <span class="nf">resampler_field_shapes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Resampler.resampler_field_shapes"><a class="viewcode-back" href="../../../../api/wepy.resampling.resamplers.resampler.html#wepy.resampling.resamplers.clone_merge.Resampler.resampler_field_shapes">[docs]</a>    <span class="k">def</span> <span class="nf">resampler_field_shapes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Access the class level SHAPES constant for this record group.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">RESAMPLER_SHAPES</span></div>
 
-<div class="viewcode-block" id="Resampler.resampler_field_dtypes"><a class="viewcode-back" href="../../../../_api/wepy.resampling.resamplers.resampler.html#wepy.resampling.resamplers.clone_merge.Resampler.resampler_field_dtypes">[docs]</a>    <span class="k">def</span> <span class="nf">resampler_field_dtypes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Resampler.resampler_field_dtypes"><a class="viewcode-back" href="../../../../api/wepy.resampling.resamplers.resampler.html#wepy.resampling.resamplers.clone_merge.Resampler.resampler_field_dtypes">[docs]</a>    <span class="k">def</span> <span class="nf">resampler_field_dtypes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Access the class level DTYPES constant for this record group.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">RESAMPLER_DTYPES</span></div>
 
-<div class="viewcode-block" id="Resampler.resampler_fields"><a class="viewcode-back" href="../../../../_api/wepy.resampling.resamplers.resampler.html#wepy.resampling.resamplers.clone_merge.Resampler.resampler_fields">[docs]</a>    <span class="k">def</span> <span class="nf">resampler_fields</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Resampler.resampler_fields"><a class="viewcode-back" href="../../../../api/wepy.resampling.resamplers.resampler.html#wepy.resampling.resamplers.clone_merge.Resampler.resampler_fields">[docs]</a>    <span class="k">def</span> <span class="nf">resampler_fields</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Returns a list of zipped field specs.</span>
 
 <span class="sd">        Returns</span>
@@ -420,7 +422,7 @@
                    <span class="bp">self</span><span class="o">.</span><span class="n">resampler_field_shapes</span><span class="p">(),</span>
                    <span class="bp">self</span><span class="o">.</span><span class="n">resampler_field_dtypes</span><span class="p">()))</span></div>
 
-<div class="viewcode-block" id="Resampler.resampler_record_field_names"><a class="viewcode-back" href="../../../../_api/wepy.resampling.resamplers.resampler.html#wepy.resampling.resamplers.clone_merge.Resampler.resampler_record_field_names">[docs]</a>    <span class="k">def</span> <span class="nf">resampler_record_field_names</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Resampler.resampler_record_field_names"><a class="viewcode-back" href="../../../../api/wepy.resampling.resamplers.resampler.html#wepy.resampling.resamplers.clone_merge.Resampler.resampler_record_field_names">[docs]</a>    <span class="k">def</span> <span class="nf">resampler_record_field_names</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Access the class level RECORD_FIELDS constant for this record group.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">RESAMPLER_RECORD_FIELDS</span></div>
 
@@ -429,7 +431,7 @@
         <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_debug_mode</span>
 
-<div class="viewcode-block" id="Resampler.set_debug_mode"><a class="viewcode-back" href="../../../../_api/wepy.resampling.resamplers.resampler.html#wepy.resampling.resamplers.clone_merge.Resampler.set_debug_mode">[docs]</a>    <span class="k">def</span> <span class="nf">set_debug_mode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mode</span><span class="p">):</span>
+<div class="viewcode-block" id="Resampler.set_debug_mode"><a class="viewcode-back" href="../../../../api/wepy.resampling.resamplers.resampler.html#wepy.resampling.resamplers.clone_merge.Resampler.set_debug_mode">[docs]</a>    <span class="k">def</span> <span class="nf">set_debug_mode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mode</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">        Parameters</span>
@@ -453,14 +455,14 @@
             <span class="k">except</span> <span class="ne">ModuleNotFoundError</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ModuleNotFoundError</span><span class="p">(</span><span class="s2">&quot;You must have ipdb installed to use the debug feature&quot;</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Resampler.debug_on"><a class="viewcode-back" href="../../../../_api/wepy.resampling.resamplers.resampler.html#wepy.resampling.resamplers.clone_merge.Resampler.debug_on">[docs]</a>    <span class="k">def</span> <span class="nf">debug_on</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Resampler.debug_on"><a class="viewcode-back" href="../../../../api/wepy.resampling.resamplers.resampler.html#wepy.resampling.resamplers.clone_merge.Resampler.debug_on">[docs]</a>    <span class="k">def</span> <span class="nf">debug_on</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_debug_on</span><span class="p">:</span>
             <span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Debug mode is already on&quot;</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">set_debug_mode</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Resampler.debug_off"><a class="viewcode-back" href="../../../../_api/wepy.resampling.resamplers.resampler.html#wepy.resampling.resamplers.clone_merge.Resampler.debug_off">[docs]</a>    <span class="k">def</span> <span class="nf">debug_off</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Resampler.debug_off"><a class="viewcode-back" href="../../../../api/wepy.resampling.resamplers.resampler.html#wepy.resampling.resamplers.clone_merge.Resampler.debug_off">[docs]</a>    <span class="k">def</span> <span class="nf">debug_off</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_debug_on</span><span class="p">:</span>
             <span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Debug mode is already off&quot;</span><span class="p">)</span>
@@ -477,7 +479,7 @@
         <span class="sd">&quot;&quot;&quot;The specification for the minimum number of walkers for the resampler. &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_min_num_walkers</span>
 
-<div class="viewcode-block" id="Resampler.max_num_walkers"><a class="viewcode-back" href="../../../../_api/wepy.resampling.resamplers.resampler.html#wepy.resampling.resamplers.clone_merge.Resampler.max_num_walkers">[docs]</a>    <span class="k">def</span> <span class="nf">max_num_walkers</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Resampler.max_num_walkers"><a class="viewcode-back" href="../../../../api/wepy.resampling.resamplers.resampler.html#wepy.resampling.resamplers.clone_merge.Resampler.max_num_walkers">[docs]</a>    <span class="k">def</span> <span class="nf">max_num_walkers</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;&quot; Get the max number of walkers allowed currently&quot;&quot;&quot;</span>
 
         <span class="c1"># first check to make sure that a resampling is occuring and</span>
@@ -506,7 +508,7 @@
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_num_walkers_setting</span></div>
 
-<div class="viewcode-block" id="Resampler.min_num_walkers"><a class="viewcode-back" href="../../../../_api/wepy.resampling.resamplers.resampler.html#wepy.resampling.resamplers.clone_merge.Resampler.min_num_walkers">[docs]</a>    <span class="k">def</span> <span class="nf">min_num_walkers</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Resampler.min_num_walkers"><a class="viewcode-back" href="../../../../api/wepy.resampling.resamplers.resampler.html#wepy.resampling.resamplers.clone_merge.Resampler.min_num_walkers">[docs]</a>    <span class="k">def</span> <span class="nf">min_num_walkers</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;&quot; Get the min number of walkers allowed currently&quot;&quot;&quot;</span>
 
         <span class="c1"># first check to make sure that a resampling is occuring and</span>
@@ -536,7 +538,7 @@
                 <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_num_walkers_setting</span></div>
 
 
-<div class="viewcode-block" id="Resampler._set_resampling_num_walkers"><a class="viewcode-back" href="../../../../_api/wepy.resampling.resamplers.resampler.html#wepy.resampling.resamplers.clone_merge.Resampler._set_resampling_num_walkers">[docs]</a>    <span class="k">def</span> <span class="nf">_set_resampling_num_walkers</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num_walkers</span><span class="p">):</span>
+<div class="viewcode-block" id="Resampler._set_resampling_num_walkers"><a class="viewcode-back" href="../../../../api/wepy.resampling.resamplers.resampler.html#wepy.resampling.resamplers.clone_merge.Resampler._set_resampling_num_walkers">[docs]</a>    <span class="k">def</span> <span class="nf">_set_resampling_num_walkers</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num_walkers</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Sets the concrete number of walkers constraints given a number of</span>
 <span class="sd">        walkers and the settings for max and min.</span>
 
@@ -566,13 +568,13 @@
             <span class="k">raise</span> <span class="n">ResamplerError</span><span class="p">(</span>
                 <span class="s2">&quot;The number of walkers given to resample is less than the maximum&quot;</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Resampler._unset_resampling_num_walkers"><a class="viewcode-back" href="../../../../_api/wepy.resampling.resamplers.resampler.html#wepy.resampling.resamplers.clone_merge.Resampler._unset_resampling_num_walkers">[docs]</a>    <span class="k">def</span> <span class="nf">_unset_resampling_num_walkers</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Resampler._unset_resampling_num_walkers"><a class="viewcode-back" href="../../../../api/wepy.resampling.resamplers.resampler.html#wepy.resampling.resamplers.clone_merge.Resampler._unset_resampling_num_walkers">[docs]</a>    <span class="k">def</span> <span class="nf">_unset_resampling_num_walkers</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_resampling_num_walkers</span> <span class="o">=</span> <span class="kc">None</span></div>
 
 
 
-<div class="viewcode-block" id="Resampler._resample_init"><a class="viewcode-back" href="../../../../_api/wepy.resampling.resamplers.resampler.html#wepy.resampling.resamplers.clone_merge.Resampler._resample_init">[docs]</a>    <span class="k">def</span> <span class="nf">_resample_init</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">walkers</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="Resampler._resample_init"><a class="viewcode-back" href="../../../../api/wepy.resampling.resamplers.resampler.html#wepy.resampling.resamplers.clone_merge.Resampler._resample_init">[docs]</a>    <span class="k">def</span> <span class="nf">_resample_init</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">walkers</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Common initialization stuff for resamplers.</span>
 
 <span class="sd">        Sets the number of walkers in this round of resampling.</span>
@@ -586,7 +588,7 @@
         <span class="c1"># first set how many walkers there are in this resampling</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_set_resampling_num_walkers</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">walkers</span><span class="p">))</span></div>
 
-<div class="viewcode-block" id="Resampler._resample_cleanup"><a class="viewcode-back" href="../../../../_api/wepy.resampling.resamplers.resampler.html#wepy.resampling.resamplers.clone_merge.Resampler._resample_cleanup">[docs]</a>    <span class="k">def</span> <span class="nf">_resample_cleanup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="Resampler._resample_cleanup"><a class="viewcode-back" href="../../../../api/wepy.resampling.resamplers.resampler.html#wepy.resampling.resamplers.clone_merge.Resampler._resample_cleanup">[docs]</a>    <span class="k">def</span> <span class="nf">_resample_cleanup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Common cleanup stuff for resamplers.</span>
 
 <span class="sd">        Unsets the number of walkers for this round of resampling.</span>
@@ -597,7 +599,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_unset_resampling_num_walkers</span><span class="p">()</span></div>
 
 
-<div class="viewcode-block" id="Resampler.resample"><a class="viewcode-back" href="../../../../_api/wepy.resampling.resamplers.resampler.html#wepy.resampling.resamplers.clone_merge.Resampler.resample">[docs]</a>    <span class="k">def</span> <span class="nf">resample</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">walkers</span><span class="p">,</span> <span class="n">debug_mode</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="Resampler.resample"><a class="viewcode-back" href="../../../../api/wepy.resampling.resamplers.resampler.html#wepy.resampling.resamplers.clone_merge.Resampler.resample">[docs]</a>    <span class="nd">@log_call</span><span class="p">(</span><span class="n">include_args</span><span class="o">=</span><span class="p">[],</span>
+              <span class="n">include_result</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">resample</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">walkers</span><span class="p">,</span> <span class="n">debug_mode</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Perform resampling on the set of walkers.</span>
 
 <span class="sd">        Parameters</span>
@@ -630,7 +634,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_resample_init</span><span class="p">(</span><span class="n">walkers</span><span class="p">,</span> <span class="n">debug_mode</span><span class="o">=</span><span class="n">debug_mode</span><span class="p">)</span></div></div>
 
 
-<div class="viewcode-block" id="NoResampler"><a class="viewcode-back" href="../../../../_api/wepy.resampling.resamplers.resampler.html#wepy.resampling.resamplers.clone_merge.NoResampler">[docs]</a><span class="k">class</span> <span class="nc">NoResampler</span><span class="p">(</span><span class="n">Resampler</span><span class="p">):</span>
+<div class="viewcode-block" id="NoResampler"><a class="viewcode-back" href="../../../../api/wepy.resampling.resamplers.resampler.html#wepy.resampling.resamplers.clone_merge.NoResampler">[docs]</a><span class="k">class</span> <span class="nc">NoResampler</span><span class="p">(</span><span class="n">Resampler</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;The resampler which does nothing.&quot;&quot;&quot;</span>
 
     <span class="n">DECISION</span> <span class="o">=</span> <span class="n">NoDecision</span>
@@ -642,7 +646,9 @@
 
     <span class="n">RESAMPLING_RECORD_FIELDS</span> <span class="o">=</span> <span class="n">DECISION</span><span class="o">.</span><span class="n">RECORD_FIELDS</span> <span class="o">+</span> <span class="n">Resampler</span><span class="o">.</span><span class="n">CYCLE_RECORD_FIELDS</span>
 
-<div class="viewcode-block" id="NoResampler.resample"><a class="viewcode-back" href="../../../../_api/wepy.resampling.resamplers.resampler.html#wepy.resampling.resamplers.clone_merge.NoResampler.resample">[docs]</a>    <span class="k">def</span> <span class="nf">resample</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">walkers</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="NoResampler.resample"><a class="viewcode-back" href="../../../../api/wepy.resampling.resamplers.resampler.html#wepy.resampling.resamplers.clone_merge.NoResampler.resample">[docs]</a>    <span class="nd">@log_call</span><span class="p">(</span><span class="n">include_args</span><span class="o">=</span><span class="p">[],</span>
+              <span class="n">include_result</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">resample</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">walkers</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_resample_init</span><span class="p">(</span><span class="n">walkers</span><span class="o">=</span><span class="n">walkers</span><span class="p">)</span>
 
@@ -679,7 +685,7 @@
 
         <span class="k">return</span> <span class="n">walkers</span><span class="p">,</span> <span class="n">resampling_data</span><span class="p">,</span> <span class="n">resampler_data</span></div>
 
-<div class="viewcode-block" id="NoResampler._init_walker_actions"><a class="viewcode-back" href="../../../../_api/wepy.resampling.resamplers.resampler.html#wepy.resampling.resamplers.clone_merge.NoResampler._init_walker_actions">[docs]</a>    <span class="k">def</span> <span class="nf">_init_walker_actions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n_walkers</span><span class="p">):</span>
+<div class="viewcode-block" id="NoResampler._init_walker_actions"><a class="viewcode-back" href="../../../../api/wepy.resampling.resamplers.resampler.html#wepy.resampling.resamplers.clone_merge.NoResampler._init_walker_actions">[docs]</a>    <span class="k">def</span> <span class="nf">_init_walker_actions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n_walkers</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Returns a list of default resampling records for a single</span>
 <span class="sd">        resampling step.</span>
 
@@ -743,6 +749,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../../_source/installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../_source/quick_start.html">Quick Start</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../_source/introduction.html">Introduction &amp; Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_source/introduction.html#bibliography">Bibliography</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../../_source/tutorials/index.html">Tutorials</a></li>

@@ -1,6 +1,103 @@
 News and Updates
 ================
 
+Wepy 1.0 Release
+----------------
+
+<2020-08-04 Tue>
+
+We are finally releasing the official 1.0 version of ``wepy``.
+
+This will make ``pip install wepy`` point to the correct mostly up to
+date version which has been a point of confusion in the past.
+
+In the past few months not a lot of changes to the code has occured
+(despite being used by many people) and most of the progress has occured
+around improving the developer workflows for writing and testing
+examples and tutorials.
+
+We encourage everyone to look through the documentation and see what all
+there is to learn! Also, not all of the documentation materials are
+complete at this point, but will be filled out in the coming months as
+time allows.
+
+--------------
+
+We have placed special focus on testing examples, tutorials, and all
+documentation pages using a combination of a careful structure for
+inputs and outputs and the tangling properties of both org-mode
+documents and Jupyter Notebooks that also allow for web presentation.
+
+This is quite different from any other open source project I have seen
+which often emphasize the testing of the code base through unit and
+integration tests. ``wepy`` unfortunately does not have hardly any unit
+or integration tests. We have tried to start these in the past but not
+having test driven practice from the beginning this is a massive,
+thankless, and difficult undertaking that wouldn't provide much value.
+Instead one of the major hurdles for ``wepy`` users is just to
+understand how to connect all the parts and pieces that it offers in
+coherent ways. As the main developer I always had specific pipelines in
+mind when I wrote components but this isn't always evident to users.
+That is why the tutorials and examples are so important.
+
+So I was incentived to produce tutorials and full examples of working
+code which actually provides value to the users. The problem with these
+code bases is that they often go stale and don't work for users for a
+variety of reasons. These are:
+
+-  details of the environment are different (e.g. version of the
+   package, external programs like OpenMM and CUDA).
+-  the code simply isn't up to date with the code and is erroneous.
+
+It follows that we need the first point in order to solve the second
+one. That is, to test we need to specify environments. This is often
+solved with tools like ``tox`` (we use ``nox`` which is essentially the
+same thing). We have added a more static configuration concept to
+accompany this by the use of a series of ``requirements.in/txt`` files
+that can be specified, compiled, and pinned. This allows both ``nox`` to
+create proper test environments and for the users to also create
+environments in an explicit and "executable" format so they can
+troubleshoot if they need.
+
+Furthermore, this gives the author of the tutorial some confidence that
+the other dependent libraries will work when installed by the audience,
+since they are being pinned.
+
+The process of testing the tutorials isn't that complex but it did
+require a discipline of how to organize your tutorials. This allows for
+a building process to "tangle" the correct code from tutorial sources,
+and then execute this code. Tests are then written in ``pytest`` under
+the right category. Minimally, you can just run the code to see if it
+works. You can also fairly easily test to see that certain files were
+indeed produced. The sky of course is the limit and you could make
+detailed tests for the textual output of these programs.
+
+Its worth noting that more established documentation testing tools like
+``doctest`` for python do not help you in the same context. These are
+for running short, single line examples ideally in an interactive
+interpreter. These kinds of tests cannot do anything for you if your
+inputs are complicated or simply need to be read from a file. You cannot
+run ``doctest`` snippets for anything involving I/O (at least that I am
+aware of and then setting this up would be highly non-trivial).
+Furthermore, testing for outputs is a non-starter. Furthermore, many
+projects involve documentation which involves running things at a shell,
+which is totally outside of the ``doctest`` purview.
+
+I also believe that having these extra requirements for tests, directory
+structure, writing format etc. makes for a clear-cut requirement for
+what a tutorial or example needs to be for it to be included in the
+repository (editorial decisions of content aside). This takes out some
+of the ambiguity and anxiety that may surround greenlighting a community
+contributed tutorial (or for yourself so you know when its "done" as in
+publishable).
+
+Additionally, the documentation tests serve kind of as integration tests
+in their own sense. They are a good starting off point for establishing
+tests that also delivers immediate value to the project by making it
+easier for users to get started.
+
+~salotz
+
 Tutorial for Contributors for Running and Writing Examples
 ----------------------------------------------------------
 

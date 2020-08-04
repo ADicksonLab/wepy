@@ -4,7 +4,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <title>wepy.runners.runner &#8212; wepy 1.0.0rc3 documentation</title>
+    <title>wepy.runners.runner &#8212; wepy 1.0.0rc6 documentation</title>
     <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/custom.css" />
@@ -61,12 +61,14 @@
 
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">from</span> <span class="nn">eliot</span> <span class="kn">import</span> <span class="n">log_call</span><span class="p">,</span> <span class="n">start_action</span>
 
-<div class="viewcode-block" id="Runner"><a class="viewcode-back" href="../../../_api/wepy.runners.runner.html#wepy.runners.randomwalk.Runner">[docs]</a><span class="k">class</span> <span class="nc">Runner</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="Runner"><a class="viewcode-back" href="../../../api/wepy.runners.runner.html#wepy.runners.randomwalk.Runner">[docs]</a><span class="k">class</span> <span class="nc">Runner</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Abstract base class for the Runner interface.&quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="Runner.pre_cycle"><a class="viewcode-back" href="../../../_api/wepy.runners.runner.html#wepy.runners.randomwalk.Runner.pre_cycle">[docs]</a>    <span class="k">def</span> <span class="nf">pre_cycle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="Runner.pre_cycle"><a class="viewcode-back" href="../../../api/wepy.runners.runner.html#wepy.runners.randomwalk.Runner.pre_cycle">[docs]</a>    <span class="nd">@log_call</span><span class="p">(</span><span class="n">include_args</span><span class="o">=</span><span class="p">[],</span>
+              <span class="n">include_result</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">pre_cycle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Perform pre-cycle behavior. run_segment will be called for each</span>
 <span class="sd">        walker so this allows you to perform changes of state on a</span>
 <span class="sd">        per-cycle basis.</span>
@@ -82,7 +84,9 @@
         <span class="c1"># by default just pass since subclasses need not implement this</span>
         <span class="k">pass</span></div>
 
-<div class="viewcode-block" id="Runner.post_cycle"><a class="viewcode-back" href="../../../_api/wepy.runners.runner.html#wepy.runners.randomwalk.Runner.post_cycle">[docs]</a>    <span class="k">def</span> <span class="nf">post_cycle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="Runner.post_cycle"><a class="viewcode-back" href="../../../api/wepy.runners.runner.html#wepy.runners.randomwalk.Runner.post_cycle">[docs]</a>    <span class="nd">@log_call</span><span class="p">(</span><span class="n">include_args</span><span class="o">=</span><span class="p">[],</span>
+              <span class="n">include_result</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">post_cycle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Perform post-cycle behavior. run_segment will be called for each</span>
 <span class="sd">        walker so this allows you to perform changes of state on a</span>
 <span class="sd">        per-cycle basis.</span>
@@ -98,7 +102,9 @@
         <span class="c1"># by default just pass since subclasses need not implement this</span>
         <span class="k">pass</span></div>
 
-<div class="viewcode-block" id="Runner.run_segment"><a class="viewcode-back" href="../../../_api/wepy.runners.runner.html#wepy.runners.randomwalk.Runner.run_segment">[docs]</a>    <span class="k">def</span> <span class="nf">run_segment</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">walker</span><span class="p">,</span> <span class="n">segment_length</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="Runner.run_segment"><a class="viewcode-back" href="../../../api/wepy.runners.runner.html#wepy.runners.randomwalk.Runner.run_segment">[docs]</a>    <span class="nd">@log_call</span><span class="p">(</span><span class="n">include_args</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;segment_length&#39;</span><span class="p">],</span>
+              <span class="n">include_result</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">run_segment</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">walker</span><span class="p">,</span> <span class="n">segment_length</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Run dynamics for the walker.</span>
 
 <span class="sd">        Parameters</span>
@@ -117,13 +123,13 @@
 
         <span class="k">raise</span> <span class="ne">NotImplementedError</span></div></div>
 
-<div class="viewcode-block" id="NoRunner"><a class="viewcode-back" href="../../../_api/wepy.runners.runner.html#wepy.runners.randomwalk.NoRunner">[docs]</a><span class="k">class</span> <span class="nc">NoRunner</span><span class="p">(</span><span class="n">Runner</span><span class="p">):</span>
+<div class="viewcode-block" id="NoRunner"><a class="viewcode-back" href="../../../api/wepy.runners.runner.html#wepy.runners.randomwalk.NoRunner">[docs]</a><span class="k">class</span> <span class="nc">NoRunner</span><span class="p">(</span><span class="n">Runner</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Stub Runner that just returns the walkers back with the same state.</span>
 
 <span class="sd">    May be useful for testing.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="NoRunner.run_segment"><a class="viewcode-back" href="../../../_api/wepy.runners.runner.html#wepy.runners.randomwalk.NoRunner.run_segment">[docs]</a>    <span class="k">def</span> <span class="nf">run_segment</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">walker</span><span class="p">,</span> <span class="n">segment_length</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="NoRunner.run_segment"><a class="viewcode-back" href="../../../api/wepy.runners.runner.html#wepy.runners.randomwalk.NoRunner.run_segment">[docs]</a>    <span class="k">def</span> <span class="nf">run_segment</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">walker</span><span class="p">,</span> <span class="n">segment_length</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="c1"># documented in superclass</span>
         <span class="k">return</span> <span class="n">walker</span></div></div>
 </pre></div>
@@ -166,6 +172,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../_source/installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../_source/quick_start.html">Quick Start</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../_source/introduction.html">Introduction &amp; Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../_source/introduction.html#bibliography">Bibliography</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../_source/tutorials/index.html">Tutorials</a></li>

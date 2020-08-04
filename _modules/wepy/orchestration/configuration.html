@@ -4,7 +4,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <title>wepy.orchestration.configuration &#8212; wepy 1.0.0rc3 documentation</title>
+    <title>wepy.orchestration.configuration &#8212; wepy 1.0.0rc6 documentation</title>
     <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/custom.css" />
@@ -50,7 +50,7 @@
 <span class="kn">from</span> <span class="nn">wepy.work_mapper.mapper</span> <span class="kn">import</span> <span class="n">Mapper</span><span class="p">,</span> <span class="n">WorkerMapper</span>
 <span class="kn">from</span> <span class="nn">wepy.work_mapper.worker</span> <span class="kn">import</span> <span class="n">Worker</span>
 
-<div class="viewcode-block" id="Configuration"><a class="viewcode-back" href="../../../_api/wepy.orchestration.configuration.html#wepy.orchestration.configuration.Configuration">[docs]</a><span class="k">class</span> <span class="nc">Configuration</span><span class="p">():</span>
+<div class="viewcode-block" id="Configuration"><a class="viewcode-back" href="../../../api/wepy.orchestration.configuration.html#wepy.orchestration.configuration.Configuration">[docs]</a><span class="k">class</span> <span class="nc">Configuration</span><span class="p">():</span>
     <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
 
     <span class="n">DEFAULT_WORKDIR</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">realpath</span><span class="p">(</span><span class="n">osp</span><span class="o">.</span><span class="n">curdir</span><span class="p">)</span>
@@ -65,13 +65,18 @@
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                  <span class="c1"># reporters</span>
-                 <span class="n">config_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">work_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                 <span class="n">mode</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">narration</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">config_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">work_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">mode</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">narration</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">reporter_classes</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">reporter_partial_kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="c1"># work mappers</span>
                  <span class="n">work_mapper_class</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">work_mapper_partial_kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="c1"># monitors</span>
+                 <span class="n">monitor_class</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">monitor_partial_kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="c1"># apparatus configuration options</span>
                  <span class="n">apparatus_opts</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
@@ -156,6 +161,33 @@
         <span class="c1"># then generate a work mapper</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_work_mapper</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_work_mapper_class</span><span class="p">(</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_work_mapper_partial_kwargs</span><span class="p">)</span>
 
+
+        <span class="c1">### Monitor options</span>
+
+        <span class="c1"># get the names of the reporters in the order they are</span>
+        <span class="n">reporter_order</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">reporter_class</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
+                                <span class="k">for</span> <span class="n">reporter_class</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_reporter_classes</span><span class="p">])</span>
+
+        <span class="c1"># init the kwargs for the monitor</span>
+        <span class="k">if</span> <span class="n">monitor_partial_kwargs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_monitor_partial_kwargs</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_monitor_partial_kwargs</span> <span class="o">=</span> <span class="n">monitor_partial_kwargs</span>
+
+        <span class="c1"># choose the monitor class (None is okay)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_monitor_class</span> <span class="o">=</span> <span class="n">monitor_class</span>
+
+        <span class="c1"># generate the object</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_monitor_class</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_monitor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_monitor_class</span><span class="p">(</span>
+                <span class="n">reporter_order</span><span class="o">=</span><span class="n">reporter_order</span><span class="p">,</span>
+                <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_monitor_partial_kwargs</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_monitor</span> <span class="o">=</span> <span class="kc">None</span>
+
         <span class="c1">### Apparatus options</span>
 
         <span class="c1"># the runtime configuration of the apparatus can be configured</span>
@@ -213,12 +245,28 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_work_mapper</span>
 
     <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">monitor_class</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_monitor_class</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">monitor_partial_kwargs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_monitor_partial_kwargs</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">monitor</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_monitor</span>
+
+
+    <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">apparatus_opts</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_apparatus_opts</span>
 
 
-<div class="viewcode-block" id="Configuration._gen_reporters"><a class="viewcode-back" href="../../../_api/wepy.orchestration.configuration.html#wepy.orchestration.configuration.Configuration._gen_reporters">[docs]</a>    <span class="k">def</span> <span class="nf">_gen_reporters</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Configuration._gen_reporters"><a class="viewcode-back" href="../../../api/wepy.orchestration.configuration.html#wepy.orchestration.configuration.Configuration._gen_reporters">[docs]</a>    <span class="k">def</span> <span class="nf">_gen_reporters</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
 
         <span class="c1"># check the extensions of all the reporters. If any of them</span>
@@ -287,7 +335,8 @@
 
         <span class="k">return</span> <span class="n">reporters</span></div>
 
-<div class="viewcode-block" id="Configuration._gen_work_mapper"><a class="viewcode-back" href="../../../_api/wepy.orchestration.configuration.html#wepy.orchestration.configuration.Configuration._gen_work_mapper">[docs]</a>    <span class="k">def</span> <span class="nf">_gen_work_mapper</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="c1"># TODO: remove, not used</span>
+<div class="viewcode-block" id="Configuration._gen_work_mapper"><a class="viewcode-back" href="../../../api/wepy.orchestration.configuration.html#wepy.orchestration.configuration.Configuration._gen_work_mapper">[docs]</a>    <span class="k">def</span> <span class="nf">_gen_work_mapper</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
 
         <span class="n">work_mapper</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_work_mapper_class</span><span class="p">(</span><span class="n">n_workers</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_default_n_workers</span><span class="p">)</span>
@@ -304,8 +353,7 @@
         <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_work_mapper</span><span class="p">)</span>
 
-
-<div class="viewcode-block" id="Configuration.reparametrize"><a class="viewcode-back" href="../../../_api/wepy.orchestration.configuration.html#wepy.orchestration.configuration.Configuration.reparametrize">[docs]</a>    <span class="k">def</span> <span class="nf">reparametrize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="Configuration.reparametrize"><a class="viewcode-back" href="../../../api/wepy.orchestration.configuration.html#wepy.orchestration.configuration.Configuration.reparametrize">[docs]</a>    <span class="k">def</span> <span class="nf">reparametrize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">        Parameters</span>
@@ -321,9 +369,15 @@
         <span class="c1"># dictionary of the possible reparametrizations from the</span>
         <span class="c1"># current configuration</span>
         <span class="n">params</span> <span class="o">=</span> <span class="p">{</span>
+
             <span class="c1"># related to the work mapper</span>
             <span class="s1">&#39;work_mapper_class&#39;</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">work_mapper_class</span><span class="p">,</span>
             <span class="s1">&#39;work_mapper_partial_kwargs&#39;</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">work_mapper_partial_kwargs</span><span class="p">,</span>
+
+            <span class="c1"># monitor</span>
+            <span class="s1">&#39;monitor_class&#39;</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">monitor_class</span><span class="p">,</span>
+            <span class="s1">&#39;monitor_partial_kwargs&#39;</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">monitor_partial_kwargs</span><span class="p">,</span>
+
             <span class="c1"># those related to the reporters</span>
             <span class="s1">&#39;mode&#39;</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span><span class="p">,</span>
             <span class="s1">&#39;config_name&#39;</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">config_name</span><span class="p">,</span>
@@ -331,6 +385,7 @@
             <span class="s1">&#39;narration&#39;</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">narration</span><span class="p">,</span>
             <span class="s1">&#39;reporter_classes&#39;</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">reporter_classes</span><span class="p">,</span>
             <span class="s1">&#39;reporter_partial_kwargs&#39;</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">reporter_partial_kwargs</span><span class="p">,</span>
+
             <span class="c1"># apparatus</span>
             <span class="s1">&#39;apparatus_opts&#39;</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">apparatus_opts</span><span class="p">,</span>
         <span class="p">}</span>
@@ -339,7 +394,11 @@
 
             <span class="c1"># for the partial kwargs we need to update them not</span>
             <span class="c1"># completely overwrite</span>
-            <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;work_mapper_partial_kwargs&#39;</span><span class="p">,</span> <span class="s1">&#39;reporter_partial_kwargs&#39;</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">[</span>
+                    <span class="s1">&#39;work_mapper_partial_kwargs&#39;</span><span class="p">,</span>
+                    <span class="s1">&#39;reporter_partial_kwargs&#39;</span><span class="p">,</span>
+                    <span class="s1">&#39;monitor_partial_kwargs&#39;</span><span class="p">,</span>
+            <span class="p">]:</span>
                 <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                     <span class="n">params</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
 
@@ -390,6 +449,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../_source/installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../_source/quick_start.html">Quick Start</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../_source/introduction.html">Introduction &amp; Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../_source/introduction.html#bibliography">Bibliography</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../_source/tutorials/index.html">Tutorials</a></li>

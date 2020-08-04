@@ -1,0 +1,199 @@
+Quick Start
+===========
+
+These examples make use of ready-made MD systems in the openmmtools
+library, so install that from conda or following the instructions on
+their website, e.g.:
+
+.. code:: bash
+
+   conda install -c conda-forge openmmtools
+
+We promise this will make starting up with wepy faster since building
+systems from scratch can be pretty complex and non-portable in real.
+
+We will have advice later in the documentation on how to build systems
+and create inputs for wepy, but in general if you can make an OpenMM
+system go you can use wepy, so check out their documentation.
+
+Test Drive
+----------
+
+If you just want to poke ``wepy`` with a stick to see if the dang thing
+works we have the script for you!
+
+While this script is unlikely to do anything worthwhile it is a pretty
+good introduction to the inputs and kind of results you can expect from
+wepy simulations.
+
+Just go to a directory where you want your results to be placed and then
+execute the script with the options that you want to try out.
+
+.. code:: bash
+
+   mkdir test_drive
+   cd test_drive
+
+Here is an example where we are running a simulation of pair of
+Lennard-Jones particles using OpenMM's 'Reference' platform. In that
+simulation we are using 20 walkers for 10 cycles, where each cycle lasts
+4 picoseconds (τ = 10 ps in the WE terminology) and we are using 3
+workers. Additionally, it is using a pre-parametrized WExplore resampler
+for simplicity.
+
+.. code:: bash
+
+   python -m wepy_test_drive -v LennardJonesPair/OpenMM-Reference 20 10 4 3
+
+You should see a couple files appear in your directory:
+
+-  ``root.dash.org``
+-  ``root.wepy.h5``
+-  ``root.init_top.pdb``
+-  ``root.walkers.dcd``
+
+The ``root`` base file name is just a default name given for the
+simulation run.
+
+If you want to run again make sure you either delete the files or do it
+in another folder because wepy won't unintentionally overwrite already
+existing files.
+
+``root.dash.org`` is just a plain text file that can be viewed in any
+text editor. It formatted in emacs org-mode and so there are some
+enhanced features for folding and tables if you open it in emacs or
+other editor that supports org-mode files.
+
+This "dashboard" is updated every cycle with the current results and so
+is useful for checking in on the progress of a long running simulations.
+It also provides a nice high-level overview of what happened in the
+simulation.
+
+However, the main data output is in ``root.wepy.h5``. This contains all
+of the data from the simulation and is the only necessary output file,
+the rest are just for convenience. This file is in the HDF5 format with
+a schema designed specifically for wepy, which we typically call the
+**WepyHDF5** schema.
+
+There is a lot of things we can do this file and you should check out
+the documentation on analysis to get a feel for what you can do and how.
+You will have to do this in python itself, either by writing your own
+scripts or in a Jupyter notebook.
+
+The ``root.init_top.pdb`` and ``root.walkers.dcd`` files are for doing
+3D visualizations. The ``root.init_top.pdb`` is a PDB file with the
+initial structure, which can be used as a topology template for the DCD
+file, which has one frame for each walker of the last cycle. It is only
+useful for getting a quick snapshot of what the results of the
+simulation are.
+
+``wepy`` can be customized with arbitrary reporters to generate more
+kinds of files if you wish, but this is sufficient for getting started.
+
+Trivial example: Setting up a simulation
+----------------------------------------
+
+In the test drive everything was set up for you and we could only
+control how long, how many walkers, and which system to use. We couldn't
+choose the resampler or even change the parameters we might need to get
+useful simulations.
+
+``wepy`` is extremely customizable and just about any component can be
+changed to match your needs. For now we just show you one of the
+simplest possible examples of running wepy using OpenMM to give you a
+flavor of how this looks like.
+
+This example uses the ``NoResampler`` which performs no resampling so
+this is equivalent to running 10 simulations in parallel.
+
+.. code:: python
+
+   from copy import copy
+
+   import simtk.openmm as omm
+   import simtk.unit as unit
+
+   from openmmtools.testsystems import LennardJonesPair
+
+   from wepy.resampling.resamplers.resampler import NoResampler
+   from wepy.runners.openmm import OpenMMRunner, gen_walker_state
+   from wepy.walker import Walker
+   from wepy.sim_manager import Manager
+
+   # use a ready made system for OpenMM MD simulation
+   test_sys = LennardJonesPair()
+
+   integrator = omm.LangevinIntegrator(300.0*unit.kelvin,
+                                       1/unit.picosecond,
+                                       0.002*unit.picoseconds)
+
+   init_state = gen_walker_state(test_sys.positions, test_sys.system, integrator)
+
+   runner = OpenMMRunner(test_sys.system, test_sys.topology, integrator,
+                         platform='Reference')
+
+   # a trivial resampler which does nothing
+   resampler = NoResampler()
+
+   # Run the simulation
+
+   # number of cycles of WE to perform
+   n_cycles = 5
+
+   # the number of MD dynamics steps for each cycle
+   n_steps = 1000
+   steps = [n_steps for i in range(n_cycles)]
+
+   # number of parallel simulations
+   n_walkers = 10
+
+
+
+   # create the initial walkers with equal weights
+   init_weight = 1.0 / n_walkers
+   init_walkers = [Walker(copy(init_state), init_weight) for i in range(n_walkers)]
+
+   sim_manager = Manager(init_walkers,
+                         runner=runner,
+                         resampler=resampler)
+
+   # run the simulation and get the results
+   final_walkers, _ = sim_manager.run_simulation(n_cycles, steps)
+
+In this example we see the core components of a wepy simulation:
+
+-  **Runner**: for running dynamics ('sampling' in wepy parlance)
+-  **Resampler**: for performing resampling (i.e. cloning and merging of
+   walkers)
+-  **Manager**: the main simulation loop
+
+Being the trivial example it is, not only does it do no resampling it
+produces no output other than the final walkers and then only in memory
+as ``Walker`` objects.
+
+Further in the docs we will show how to add reporters to the simulation
+so that your results can be saved and how to use and customize
+resamplers that do useful work.
+
+Writing scripts like this is the primary way in which wepy is intended
+to be used.
+
+You can run this wepy simulation by running this on the command line
+after you have copy and pasted it to a file:
+
+.. code:: bash
+
+   python run_wepy.py
+
+The ``wepy`` command line application introduces some useful tools for
+working with and managing many interconnected simulations with
+checkpointing capabilities. This is the ``orchestration`` sub-module and
+should be a considered an advanced feature. Just know that if you are
+running a lot of simulations, long simulations which tend to fail due to
+hardware issues, or if you need to repeatedly stop and restart
+simulations the orchestration sub-module is available for that.
+
+So ignore the wepy commands like ``wepy run`` for now.
+
+A somewhat more realistic example
+---------------------------------

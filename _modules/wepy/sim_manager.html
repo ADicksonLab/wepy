@@ -4,7 +4,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <title>wepy.sim_manager &#8212; wepy 1.0.0rc3 documentation</title>
+    <title>wepy.sim_manager &#8212; wepy 1.0.0rc6 documentation</title>
     <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../../_static/custom.css" />
@@ -93,9 +93,11 @@
 <span class="kn">from</span> <span class="nn">copy</span> <span class="kn">import</span> <span class="n">deepcopy</span>
 <span class="kn">import</span> <span class="nn">logging</span>
 
+<span class="kn">from</span> <span class="nn">eliot</span> <span class="kn">import</span> <span class="n">start_action</span><span class="p">,</span> <span class="n">log_call</span>
+
 <span class="kn">from</span> <span class="nn">wepy.work_mapper.mapper</span> <span class="kn">import</span> <span class="n">Mapper</span>
 
-<div class="viewcode-block" id="Manager"><a class="viewcode-back" href="../../_api/wepy.sim_manager.html#wepy.sim_manager.Manager">[docs]</a><span class="k">class</span> <span class="nc">Manager</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="Manager"><a class="viewcode-back" href="../../api/wepy.sim_manager.html#wepy.sim_manager.Manager">[docs]</a><span class="k">class</span> <span class="nc">Manager</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;The class that coordinates wepy simulations.</span>
 
 <span class="sd">    The Manager class is the lynchpin of wepy simulations and is where</span>
@@ -128,12 +130,20 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
 
-    <span class="n">REPORT_ITEM_KEYS</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;cycle_idx&#39;</span><span class="p">,</span> <span class="s1">&#39;n_segment_steps&#39;</span><span class="p">,</span>
-                        <span class="s1">&#39;new_walkers&#39;</span><span class="p">,</span> <span class="s1">&#39;resampled_walkers&#39;</span><span class="p">,</span>
-                        <span class="s1">&#39;warp_data&#39;</span><span class="p">,</span> <span class="s1">&#39;bc_data&#39;</span><span class="p">,</span> <span class="s1">&#39;progress_data&#39;</span><span class="p">,</span>
-                        <span class="s1">&#39;resampling_data&#39;</span><span class="p">,</span> <span class="s1">&#39;resampler_data&#39;</span><span class="p">,</span>
-                        <span class="s1">&#39;worker_segment_times&#39;</span><span class="p">,</span> <span class="s1">&#39;cycle_runner_time&#39;</span><span class="p">,</span>
-                        <span class="s1">&#39;cycle_bc_time&#39;</span><span class="p">,</span> <span class="s1">&#39;cycle_resampling_time&#39;</span><span class="p">,)</span>
+    <span class="n">REPORT_ITEM_KEYS</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;cycle_idx&#39;</span><span class="p">,</span>
+                        <span class="s1">&#39;n_segment_steps&#39;</span><span class="p">,</span>
+                        <span class="s1">&#39;new_walkers&#39;</span><span class="p">,</span>
+                        <span class="s1">&#39;resampled_walkers&#39;</span><span class="p">,</span>
+                        <span class="s1">&#39;warp_data&#39;</span><span class="p">,</span>
+                        <span class="s1">&#39;bc_data&#39;</span><span class="p">,</span>
+                        <span class="s1">&#39;progress_data&#39;</span><span class="p">,</span>
+                        <span class="s1">&#39;resampling_data&#39;</span><span class="p">,</span>
+                        <span class="s1">&#39;resampler_data&#39;</span><span class="p">,</span>
+                        <span class="s1">&#39;worker_segment_times&#39;</span><span class="p">,</span>
+                        <span class="s1">&#39;cycle_runner_time&#39;</span><span class="p">,</span>
+                        <span class="s1">&#39;cycle_bc_time&#39;</span><span class="p">,</span>
+                        <span class="s1">&#39;cycle_resampling_time&#39;</span><span class="p">,</span>
+    <span class="p">)</span>
     <span class="sd">&quot;&quot;&quot;Keys of values that will be passed to reporters.</span>
 
 <span class="sd">    This indicates the values that the reporters will have access to.</span>
@@ -144,7 +154,9 @@
                  <span class="n">work_mapper</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
                  <span class="n">resampler</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
                  <span class="n">boundary_conditions</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-                 <span class="n">reporters</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+                 <span class="n">reporters</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                 <span class="n">sim_monitor</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Constructor for Manager.</span>
 
 <span class="sd">        Arguments</span>
@@ -168,6 +180,10 @@
 
 <span class="sd">        reporters : list of objects implenting the Reporter interface, optional</span>
 <span class="sd">            Reporters to be used. You should provide these if you want to keep data.</span>
+
+<span class="sd">        sim_monitor : SimMonitor object</span>
+<span class="sd">            An object implementing SimMonitor interface for providing</span>
+<span class="sd">            monitoring metrics of a simulation.</span>
 
 <span class="sd">        Warnings</span>
 <span class="sd">        --------</span>
@@ -208,7 +224,22 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">work_mapper</span> <span class="o">=</span> <span class="n">work_mapper</span>
 
-<div class="viewcode-block" id="Manager.run_segment"><a class="viewcode-back" href="../../_api/wepy.sim_manager.html#wepy.sim_manager.Manager.run_segment">[docs]</a>    <span class="k">def</span> <span class="nf">run_segment</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">walkers</span><span class="p">,</span> <span class="n">segment_length</span><span class="p">,</span> <span class="n">cycle_idx</span><span class="p">):</span>
+        <span class="c1">## Monitor</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">monitor</span> <span class="o">=</span> <span class="n">sim_monitor</span>
+
+        <span class="c1"># used to have a record of the last report for the simulation</span>
+        <span class="c1"># monitor without breaking the API. Ugly but I don&#39;t want to</span>
+        <span class="c1"># break it and no one cares about this anyhow</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_last_report</span> <span class="o">=</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="Manager.run_segment"><a class="viewcode-back" href="../../api/wepy.sim_manager.html#wepy.sim_manager.Manager.run_segment">[docs]</a>    <span class="nd">@log_call</span><span class="p">(</span>
+        <span class="n">include_args</span><span class="o">=</span><span class="p">[</span>
+            <span class="s1">&#39;segment_length&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;cycle_idx&#39;</span><span class="p">,</span>
+        <span class="p">],</span>
+        <span class="n">include_result</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">def</span> <span class="nf">run_segment</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">walkers</span><span class="p">,</span> <span class="n">segment_length</span><span class="p">,</span> <span class="n">cycle_idx</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Run a time segment for all walkers using the available workers.</span>
 
 <span class="sd">        Maps the work for running each segment for each walker using</span>
@@ -258,7 +289,12 @@
 
         <span class="k">return</span> <span class="n">new_walkers</span></div>
 
-<div class="viewcode-block" id="Manager.run_cycle"><a class="viewcode-back" href="../../_api/wepy.sim_manager.html#wepy.sim_manager.Manager.run_cycle">[docs]</a>    <span class="k">def</span> <span class="nf">run_cycle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+<div class="viewcode-block" id="Manager.run_cycle"><a class="viewcode-back" href="../../api/wepy.sim_manager.html#wepy.sim_manager.Manager.run_cycle">[docs]</a>    <span class="nd">@log_call</span><span class="p">(</span><span class="n">include_args</span><span class="o">=</span><span class="p">[</span>
+        <span class="s1">&#39;n_segment_steps&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;cycle_idx&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;runner_opts&#39;</span><span class="p">],</span>
+              <span class="n">include_result</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">run_cycle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                   <span class="n">walkers</span><span class="p">,</span>
                   <span class="n">n_segment_steps</span><span class="p">,</span>
                   <span class="n">cycle_idx</span><span class="p">,</span>
@@ -343,7 +379,7 @@
             <span class="n">runner_opts</span><span class="o">=</span><span class="n">runner_opts</span><span class="p">,</span>
         <span class="p">)</span></div>
 
-<div class="viewcode-block" id="Manager._run_cycle"><a class="viewcode-back" href="../../_api/wepy.sim_manager.html#wepy.sim_manager.Manager._run_cycle">[docs]</a>    <span class="k">def</span> <span class="nf">_run_cycle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+<div class="viewcode-block" id="Manager._run_cycle"><a class="viewcode-back" href="../../api/wepy.sim_manager.html#wepy.sim_manager.Manager._run_cycle">[docs]</a>    <span class="k">def</span> <span class="nf">_run_cycle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                    <span class="n">walkers</span><span class="p">,</span>
                    <span class="n">n_segment_steps</span><span class="p">,</span>
                    <span class="n">cycle_idx</span><span class="p">,</span>
@@ -351,12 +387,13 @@
     <span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;See run_cycle.&quot;&quot;&quot;</span>
 
-        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Begin cycle </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cycle_idx</span><span class="p">))</span>
-
         <span class="k">if</span> <span class="n">runner_opts</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">runner_opts</span> <span class="o">=</span> <span class="p">{}</span>
 
-        <span class="c1"># run the pre-cycle hook</span>
+        <span class="c1"># run the runner pre-cycle hook</span>
+
+        <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">runner</span><span class="o">.</span><span class="n">pre_cycle</span><span class="p">(</span>
             <span class="n">walkers</span><span class="o">=</span><span class="n">walkers</span><span class="p">,</span>
             <span class="n">n_segment_steps</span><span class="o">=</span><span class="n">n_segment_steps</span><span class="p">,</span>
@@ -364,16 +401,32 @@
             <span class="o">**</span><span class="n">runner_opts</span>
         <span class="p">)</span>
 
+        <span class="n">end</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="n">runner_precycle_time</span> <span class="o">=</span> <span class="n">end</span> <span class="o">-</span> <span class="n">start</span>
+
         <span class="c1"># run the segment</span>
         <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
-        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Entering run segment&quot;</span><span class="p">)</span>
+
         <span class="n">new_walkers</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">run_segment</span><span class="p">(</span><span class="n">walkers</span><span class="p">,</span> <span class="n">n_segment_steps</span><span class="p">,</span> <span class="n">cycle_idx</span><span class="p">)</span>
+
         <span class="n">end</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
-        <span class="n">runner_time</span> <span class="o">=</span> <span class="n">end</span> <span class="o">-</span> <span class="n">start</span>
+        <span class="n">sim_manager_segment_time</span> <span class="o">=</span> <span class="n">end</span> <span class="o">-</span> <span class="n">start</span>
+
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">runner</span><span class="p">,</span> <span class="s1">&#39;_last_cycle_segments_split_times&#39;</span><span class="p">):</span>
+
+            <span class="n">runner_splits</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">runner</span><span class="o">.</span><span class="n">_last_cycle_segments_split_times</span><span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">runner_splits</span> <span class="o">=</span> <span class="kc">None</span>
 
         <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Starting post cycle&quot;</span><span class="p">)</span>
         <span class="c1"># run post-cycle hook</span>
+        <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">runner</span><span class="o">.</span><span class="n">post_cycle</span><span class="p">()</span>
+
+        <span class="n">end</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="n">runner_postcycle_time</span> <span class="o">=</span> <span class="n">end</span> <span class="o">-</span> <span class="n">start</span>
 
         <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;End cycle </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cycle_idx</span><span class="p">))</span>
 
@@ -435,7 +488,7 @@
 
         <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">work_mapper</span><span class="p">,</span> <span class="s1">&#39;worker_segment_times&#39;</span><span class="p">):</span>
 
-            <span class="n">seg_times</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">work_mapper</span><span class="o">.</span><span class="n">worker_segment_times</span>
+            <span class="n">seg_times</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">work_mapper</span><span class="o">.</span><span class="n">worker_segment_times</span><span class="p">)</span>
 
             <span class="c1"># count up the total sampling time from the segments</span>
             <span class="n">sampling_time</span> <span class="o">=</span> <span class="mi">0</span>
@@ -444,15 +497,16 @@
                     <span class="n">sampling_time</span> <span class="o">+=</span> <span class="n">seg_time</span>
 
             <span class="c1"># calculate the overhead for logging</span>
-            <span class="n">overhead_time</span> <span class="o">=</span> <span class="n">runner_time</span> <span class="o">-</span> <span class="n">sampling_time</span>
+            <span class="n">sim_manager_segment_overhead_time</span> <span class="o">=</span> <span class="n">sim_manager_segment_time</span> <span class="o">-</span> <span class="n">sampling_time</span>
 
-            <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-                <span class="s2">&quot;Runner time = </span><span class="si">{}</span><span class="s2">; Sampling = (</span><span class="si">{}</span><span class="s2">); Overhead = (</span><span class="si">{}</span><span class="s2">)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-                    <span class="n">runner_time</span><span class="p">,</span> <span class="n">sampling_time</span><span class="p">,</span> <span class="n">overhead_time</span><span class="p">))</span>
+            <span class="c1"># logging.info(</span>
+            <span class="c1">#     &quot;Runner time = {}; Sampling = ({}); Overhead = ({})&quot;.format(</span>
+            <span class="c1">#         runner_time, sampling_time, overhead_time))</span>
 
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;No worker segment times given&quot;</span><span class="p">)</span>
-            <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Runner time = </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">runner_time</span><span class="p">))</span>
+            <span class="n">sim_manager_segment_overhead_time</span> <span class="o">=</span> <span class="mf">0.</span>
+            <span class="c1"># logging.info(&quot;No worker segment times given&quot;)</span>
+            <span class="c1"># logging.info(&quot;Runner time = {}&quot;.format(runner_time))</span>
 
 
         <span class="n">report</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;cycle_idx&#39;</span> <span class="p">:</span> <span class="n">cycle_idx</span><span class="p">,</span>
@@ -463,11 +517,22 @@
                   <span class="s1">&#39;resampling_data&#39;</span> <span class="p">:</span> <span class="n">resampling_data</span><span class="p">,</span>
                   <span class="s1">&#39;resampler_data&#39;</span> <span class="p">:</span> <span class="n">resampler_data</span><span class="p">,</span>
                   <span class="s1">&#39;n_segment_steps&#39;</span> <span class="p">:</span> <span class="n">n_segment_steps</span><span class="p">,</span>
+                  <span class="s1">&#39;resampled_walkers&#39;</span> <span class="p">:</span> <span class="n">resampled_walkers</span><span class="p">,</span>
+
+                  <span class="c1"># timings</span>
+                  <span class="s1">&#39;runner_precycle_time&#39;</span> <span class="p">:</span> <span class="n">runner_precycle_time</span><span class="p">,</span>
+                  <span class="s1">&#39;runner_postcycle_time&#39;</span> <span class="p">:</span> <span class="n">runner_postcycle_time</span><span class="p">,</span>
+                  <span class="s1">&#39;sim_manager_segment_overhead_time&#39;</span> <span class="p">:</span> <span class="n">sim_manager_segment_overhead_time</span><span class="p">,</span>
+                  <span class="s1">&#39;runner_splits_time&#39;</span> <span class="p">:</span> <span class="n">runner_splits</span><span class="p">,</span>
                   <span class="s1">&#39;worker_segment_times&#39;</span> <span class="p">:</span> <span class="n">seg_times</span><span class="p">,</span>
-                  <span class="s1">&#39;cycle_runner_time&#39;</span> <span class="p">:</span> <span class="n">runner_time</span><span class="p">,</span>
+                  <span class="s1">&#39;cycle_sim_manager_segment_time&#39;</span> <span class="p">:</span> <span class="n">sim_manager_segment_time</span><span class="p">,</span>
+                  <span class="s1">&#39;cycle_runner_time&#39;</span> <span class="p">:</span> <span class="n">sim_manager_segment_time</span><span class="p">,</span>
                   <span class="s1">&#39;cycle_bc_time&#39;</span> <span class="p">:</span> <span class="n">bc_time</span><span class="p">,</span>
                   <span class="s1">&#39;cycle_resampling_time&#39;</span> <span class="p">:</span> <span class="n">resampling_time</span><span class="p">,</span>
-                  <span class="s1">&#39;resampled_walkers&#39;</span> <span class="p">:</span> <span class="n">resampled_walkers</span><span class="p">}</span>
+
+        <span class="p">}</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_last_report</span> <span class="o">=</span> <span class="n">report</span>
 
         <span class="c1"># check that all of the keys that are specified for this sim</span>
         <span class="c1"># manager are present</span>
@@ -481,6 +546,11 @@
 
         <span class="c1"># prepare resampled walkers for running new state changes</span>
         <span class="n">walkers</span> <span class="o">=</span> <span class="n">resampled_walkers</span>
+
+        <span class="c1"># run the simulation monitor to get metrics on everything</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">monitor</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Running monitoring&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">monitor</span><span class="o">.</span><span class="n">cycle_monitor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">walkers</span><span class="p">)</span>
 
 
         <span class="c1"># we also return a list of the &quot;filters&quot; which are the</span>
@@ -498,7 +568,11 @@
         <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Done: returning walkers&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">walkers</span><span class="p">,</span> <span class="n">filters</span></div>
 
-<div class="viewcode-block" id="Manager.init"><a class="viewcode-back" href="../../_api/wepy.sim_manager.html#wepy.sim_manager.Manager.init">[docs]</a>    <span class="k">def</span> <span class="nf">init</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num_workers</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">continue_run</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="Manager.init"><a class="viewcode-back" href="../../api/wepy.sim_manager.html#wepy.sim_manager.Manager.init">[docs]</a>    <span class="nd">@log_call</span>
+    <span class="k">def</span> <span class="nf">init</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+             <span class="n">num_workers</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+             <span class="n">continue_run</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Initialize wepy configuration components for use at runtime.</span>
 
 <span class="sd">        This `init` method is different than the constructor</span>
@@ -542,11 +616,21 @@
 
         <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Starting simulation&quot;</span><span class="p">)</span>
 
+        <span class="c1"># initialize the monitoring object</span>
+
+        <span class="c1"># TODO: do we need to supply the port here? I don&#39;t want to</span>
+        <span class="c1"># add it to the interface... Should be pre-parametrized</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">monitor</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">monitor</span><span class="o">.</span><span class="n">init</span><span class="p">()</span>
+
         <span class="c1"># initialize the work_mapper with the function it will be</span>
         <span class="c1"># mapping and the number of workers, this may include things like starting processes</span>
         <span class="c1"># etc.</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">work_mapper</span><span class="o">.</span><span class="n">init</span><span class="p">(</span><span class="n">segment_func</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">runner</span><span class="o">.</span><span class="n">run_segment</span><span class="p">,</span>
-                              <span class="n">num_workers</span><span class="o">=</span><span class="n">num_workers</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">work_mapper</span><span class="o">.</span><span class="n">init</span><span class="p">(</span>
+            <span class="n">segment_func</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">runner</span><span class="o">.</span><span class="n">run_segment</span><span class="p">,</span>
+            <span class="n">num_workers</span><span class="o">=</span><span class="n">num_workers</span><span class="p">,</span>
+        <span class="p">)</span>
+
 
         <span class="c1"># init the reporter</span>
         <span class="k">for</span> <span class="n">reporter</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">reporters</span><span class="p">:</span>
@@ -558,7 +642,7 @@
                           <span class="n">reporters</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">reporters</span><span class="p">,</span>
                           <span class="n">continue_run</span><span class="o">=</span><span class="n">continue_run</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Manager.cleanup"><a class="viewcode-back" href="../../_api/wepy.sim_manager.html#wepy.sim_manager.Manager.cleanup">[docs]</a>    <span class="k">def</span> <span class="nf">cleanup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Manager.cleanup"><a class="viewcode-back" href="../../api/wepy.sim_manager.html#wepy.sim_manager.Manager.cleanup">[docs]</a>    <span class="k">def</span> <span class="nf">cleanup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Perform cleanup actions for wepy configuration components.</span>
 
 <span class="sd">        Allow components to perform actions before ending the main</span>
@@ -581,6 +665,9 @@
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">monitor</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">monitor</span><span class="o">.</span><span class="n">cleanup</span><span class="p">()</span>
+
         <span class="c1"># cleanup the mapper</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">work_mapper</span><span class="o">.</span><span class="n">cleanup</span><span class="p">()</span>
 
@@ -593,7 +680,7 @@
                              <span class="n">reporters</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">reporters</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="Manager.run_simulation_by_time"><a class="viewcode-back" href="../../_api/wepy.sim_manager.html#wepy.sim_manager.Manager.run_simulation_by_time">[docs]</a>    <span class="k">def</span> <span class="nf">run_simulation_by_time</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">run_time</span><span class="p">,</span> <span class="n">segments_length</span><span class="p">,</span> <span class="n">num_workers</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="Manager.run_simulation_by_time"><a class="viewcode-back" href="../../api/wepy.sim_manager.html#wepy.sim_manager.Manager.run_simulation_by_time">[docs]</a>    <span class="k">def</span> <span class="nf">run_simulation_by_time</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">run_time</span><span class="p">,</span> <span class="n">segments_length</span><span class="p">,</span> <span class="n">num_workers</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Run a simulation for a certain amount of time.</span>
 
 <span class="sd">        This starts timing as soon as this is called. If the time</span>
@@ -646,13 +733,25 @@
 
             <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;ending cycle </span><span class="si">{}</span><span class="s2"> at time </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cycle_idx</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start_time</span><span class="p">))</span>
 
+
             <span class="n">cycle_idx</span> <span class="o">+=</span> <span class="mi">1</span>
 
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Cleaning up simulation&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">cleanup</span><span class="p">()</span>
 
         <span class="k">return</span> <span class="n">walkers</span><span class="p">,</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">filters</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Manager.run_simulation"><a class="viewcode-back" href="../../_api/wepy.sim_manager.html#wepy.sim_manager.Manager.run_simulation">[docs]</a>    <span class="k">def</span> <span class="nf">run_simulation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n_cycles</span><span class="p">,</span> <span class="n">segment_lengths</span><span class="p">,</span> <span class="n">num_workers</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="Manager.run_simulation"><a class="viewcode-back" href="../../api/wepy.sim_manager.html#wepy.sim_manager.Manager.run_simulation">[docs]</a>    <span class="nd">@log_call</span><span class="p">(</span>
+        <span class="n">include_args</span><span class="o">=</span><span class="p">[</span>
+            <span class="s1">&#39;n_cycles&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;segment_lengths&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;num_workers&#39;</span><span class="p">,</span>
+        <span class="p">],</span>
+        <span class="n">include_result</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">run_simulation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n_cycles</span><span class="p">,</span>
+                       <span class="n">segment_lengths</span><span class="p">,</span>
+                       <span class="n">num_workers</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Run a simulation for an explicit number of cycles.</span>
 
 <span class="sd">        Parameters</span>
@@ -666,6 +765,7 @@
 <span class="sd">        num_workers : int</span>
 <span class="sd">            The number of workers to use for the work mapper.</span>
 <span class="sd">             (Default value = None)</span>
+
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -690,15 +790,27 @@
             <span class="n">segment_lengths</span> <span class="o">=</span> <span class="p">[</span><span class="n">segment_lengths</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_cycles</span><span class="p">)]</span>
 
         <span class="n">walkers</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">init_walkers</span>
+
         <span class="c1"># the main cycle loop</span>
-        <span class="k">for</span> <span class="n">cycle_idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_cycles</span><span class="p">):</span>
-            <span class="n">walkers</span><span class="p">,</span> <span class="n">filters</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">run_cycle</span><span class="p">(</span><span class="n">walkers</span><span class="p">,</span> <span class="n">segment_lengths</span><span class="p">[</span><span class="n">cycle_idx</span><span class="p">],</span> <span class="n">cycle_idx</span><span class="p">)</span>
+        <span class="k">with</span> <span class="n">start_action</span><span class="p">(</span><span class="n">action_type</span><span class="o">=</span><span class="s2">&quot;Simulation Loop&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">simloop_cx</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">cycle_idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_cycles</span><span class="p">):</span>
+
+                <span class="n">walkers</span><span class="p">,</span> <span class="n">filters</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">run_cycle</span><span class="p">(</span><span class="n">walkers</span><span class="p">,</span> <span class="n">segment_lengths</span><span class="p">[</span><span class="n">cycle_idx</span><span class="p">],</span> <span class="n">cycle_idx</span><span class="p">)</span>
+
+                <span class="c1"># run the simulation monitor to get metrics on everything</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">monitor</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">monitor</span><span class="o">.</span><span class="n">cycle_monitor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">walkers</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">cleanup</span><span class="p">()</span>
 
         <span class="k">return</span> <span class="n">walkers</span><span class="p">,</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">filters</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Manager.continue_run_simulation"><a class="viewcode-back" href="../../_api/wepy.sim_manager.html#wepy.sim_manager.Manager.continue_run_simulation">[docs]</a>    <span class="k">def</span> <span class="nf">continue_run_simulation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">run_idx</span><span class="p">,</span> <span class="n">n_cycles</span><span class="p">,</span> <span class="n">segment_lengths</span><span class="p">,</span> <span class="n">num_workers</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="Manager.continue_run_simulation"><a class="viewcode-back" href="../../api/wepy.sim_manager.html#wepy.sim_manager.Manager.continue_run_simulation">[docs]</a>    <span class="k">def</span> <span class="nf">continue_run_simulation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                                <span class="n">run_idx</span><span class="p">,</span>
+                                <span class="n">n_cycles</span><span class="p">,</span>
+                                <span class="n">segment_lengths</span><span class="p">,</span>
+                                <span class="n">num_workers</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Continue a simulation. All this does is provide a run idx to the</span>
 <span class="sd">        reporters, which is the run that is intended to be</span>
 <span class="sd">        continued. This simulation manager knows no details and is</span>
@@ -744,12 +856,17 @@
         <span class="k">for</span> <span class="n">cycle_idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_cycles</span><span class="p">):</span>
             <span class="n">walkers</span><span class="p">,</span> <span class="n">filters</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">run_cycle</span><span class="p">(</span><span class="n">walkers</span><span class="p">,</span> <span class="n">segment_lengths</span><span class="p">[</span><span class="n">cycle_idx</span><span class="p">],</span> <span class="n">cycle_idx</span><span class="p">)</span>
 
+            <span class="c1"># run the simulation monitor to get metrics on everything</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">monitor</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">monitor</span><span class="o">.</span><span class="n">cycle_monitor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">walkers</span><span class="p">)</span>
+
+
         <span class="bp">self</span><span class="o">.</span><span class="n">cleanup</span><span class="p">()</span>
 
         <span class="k">return</span> <span class="n">walkers</span><span class="p">,</span> <span class="n">filters</span></div>
 
 
-<div class="viewcode-block" id="Manager.continue_run_simulation_by_time"><a class="viewcode-back" href="../../_api/wepy.sim_manager.html#wepy.sim_manager.Manager.continue_run_simulation_by_time">[docs]</a>    <span class="k">def</span> <span class="nf">continue_run_simulation_by_time</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">run_idx</span><span class="p">,</span> <span class="n">run_time</span><span class="p">,</span> <span class="n">segments_length</span><span class="p">,</span> <span class="n">num_workers</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="Manager.continue_run_simulation_by_time"><a class="viewcode-back" href="../../api/wepy.sim_manager.html#wepy.sim_manager.Manager.continue_run_simulation_by_time">[docs]</a>    <span class="k">def</span> <span class="nf">continue_run_simulation_by_time</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">run_idx</span><span class="p">,</span> <span class="n">run_time</span><span class="p">,</span> <span class="n">segments_length</span><span class="p">,</span> <span class="n">num_workers</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Continue a simulation with a separate run by time.</span>
 
 <span class="sd">        This starts timing as soon as this is called. If the time</span>
@@ -791,6 +908,10 @@
             <span class="n">walkers</span><span class="p">,</span> <span class="n">filters</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">run_cycle</span><span class="p">(</span><span class="n">walkers</span><span class="p">,</span> <span class="n">segments_length</span><span class="p">,</span> <span class="n">cycle_idx</span><span class="p">)</span>
 
             <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;ending cycle </span><span class="si">{}</span><span class="s2"> at time </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cycle_idx</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start_time</span><span class="p">))</span>
+
+            <span class="c1"># run the simulation monitor to get metrics on everything</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">monitor</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">monitor</span><span class="o">.</span><span class="n">cycle_monitor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">walkers</span><span class="p">)</span>
 
             <span class="n">cycle_idx</span> <span class="o">+=</span> <span class="mi">1</span>
 
@@ -837,6 +958,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../_source/installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../_source/quick_start.html">Quick Start</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../_source/introduction.html">Introduction &amp; Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../_source/introduction.html#bibliography">Bibliography</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../_source/tutorials/index.html">Tutorials</a></li>

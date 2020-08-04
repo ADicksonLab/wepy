@@ -4,7 +4,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <title>wepy.work_mapper.mapper module &#8212; wepy 1.0.0rc3 documentation</title>
+    <title>wepy.work_mapper.mapper module &#8212; wepy 1.0.0rc6 documentation</title>
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
@@ -110,7 +110,7 @@ are ignored.</p>
 <dl class="py class">
 <dt id="wepy.work_mapper.mapper.Mapper">
 <em class="property">class </em><code class="sig-prename descclassname">wepy.work_mapper.mapper.</code><code class="sig-name descname">Mapper</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">segment_func</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/work_mapper/mapper.html#Mapper"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.work_mapper.mapper.Mapper" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#wepy.work_mapper.mapper.ABCMapper" title="wepy.work_mapper.mapper.ABCMapper"><code class="xref py py-class docutils literal notranslate"><span class="pre">wepy.work_mapper.mapper.ABCMapper</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="../api/wepy.work_mapper.mapper.html#wepy.work_mapper.mapper.ABCMapper" title="wepy.work_mapper.mapper.ABCMapper"><code class="xref py py-class docutils literal notranslate"><span class="pre">wepy.work_mapper.mapper.ABCMapper</span></code></a></p>
 <p>Basic non-parallel reference implementation of a mapper.</p>
 <p>Constructor for the Mapper class. No arguments are required.</p>
 <dl class="field-list simple">
@@ -230,7 +230,7 @@ set self.__traceback__ to tb and return self.</p>
 <dl class="py exception">
 <dt id="wepy.work_mapper.mapper.TaskException">
 <em class="property">exception </em><code class="sig-prename descclassname">wepy.work_mapper.mapper.</code><code class="sig-name descname">TaskException</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">message</span></em>, <em class="sig-param"><span class="n">wrapped_exception</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">tb</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/work_mapper/mapper.html#TaskException"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.work_mapper.mapper.TaskException" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#wepy.work_mapper.mapper.WrapperException" title="wepy.work_mapper.mapper.WrapperException"><code class="xref py py-class docutils literal notranslate"><span class="pre">wepy.work_mapper.mapper.WrapperException</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="../api/wepy.work_mapper.mapper.html#wepy.work_mapper.mapper.WrapperException" title="wepy.work_mapper.mapper.WrapperException"><code class="xref py py-class docutils literal notranslate"><span class="pre">wepy.work_mapper.mapper.WrapperException</span></code></a></p>
 <dl class="py attribute">
 <dt id="wepy.work_mapper.mapper.TaskException.args">
 <code class="sig-name descname">args</code><a class="headerlink" href="#wepy.work_mapper.mapper.TaskException.args" title="Permalink to this definition">¶</a></dt>
@@ -248,7 +248,7 @@ set self.__traceback__ to tb and return self.</p>
 <dl class="py class">
 <dt id="wepy.work_mapper.mapper.ABCWorkerMapper">
 <em class="property">class </em><code class="sig-prename descclassname">wepy.work_mapper.mapper.</code><code class="sig-name descname">ABCWorkerMapper</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">num_workers</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">segment_func</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">proc_start_method</span><span class="o">=</span><span class="default_value">'fork'</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/work_mapper/mapper.html#ABCWorkerMapper"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.work_mapper.mapper.ABCWorkerMapper" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#wepy.work_mapper.mapper.ABCMapper" title="wepy.work_mapper.mapper.ABCMapper"><code class="xref py py-class docutils literal notranslate"><span class="pre">wepy.work_mapper.mapper.ABCMapper</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="../api/wepy.work_mapper.mapper.html#wepy.work_mapper.mapper.ABCMapper" title="wepy.work_mapper.mapper.ABCMapper"><code class="xref py py-class docutils literal notranslate"><span class="pre">wepy.work_mapper.mapper.ABCMapper</span></code></a></p>
 <p>Constructor for WorkerMapper.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -348,7 +348,7 @@ task from the queue.</p>
 <dl class="py exception">
 <dt id="wepy.work_mapper.mapper.WorkerException">
 <em class="property">exception </em><code class="sig-prename descclassname">wepy.work_mapper.mapper.</code><code class="sig-name descname">WorkerException</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">message</span></em>, <em class="sig-param"><span class="n">wrapped_exception</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">tb</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/work_mapper/mapper.html#WorkerException"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.work_mapper.mapper.WorkerException" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#wepy.work_mapper.mapper.WrapperException" title="wepy.work_mapper.mapper.WrapperException"><code class="xref py py-class docutils literal notranslate"><span class="pre">wepy.work_mapper.mapper.WrapperException</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="../api/wepy.work_mapper.mapper.html#wepy.work_mapper.mapper.WrapperException" title="wepy.work_mapper.mapper.WrapperException"><code class="xref py py-class docutils literal notranslate"><span class="pre">wepy.work_mapper.mapper.WrapperException</span></code></a></p>
 <dl class="py attribute">
 <dt id="wepy.work_mapper.mapper.WorkerException.args">
 <code class="sig-name descname">args</code><a class="headerlink" href="#wepy.work_mapper.mapper.WorkerException.args" title="Permalink to this definition">¶</a></dt>
@@ -413,7 +413,7 @@ set self.__traceback__ to tb and return self.</p>
 <dl class="py class">
 <dt id="wepy.work_mapper.mapper.WorkerMapper">
 <em class="property">class </em><code class="sig-prename descclassname">wepy.work_mapper.mapper.</code><code class="sig-name descname">WorkerMapper</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">num_workers</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">worker_type</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">worker_attributes</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">segment_func</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/work_mapper/mapper.html#WorkerMapper"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.work_mapper.mapper.WorkerMapper" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#wepy.work_mapper.mapper.ABCWorkerMapper" title="wepy.work_mapper.mapper.ABCWorkerMapper"><code class="xref py py-class docutils literal notranslate"><span class="pre">wepy.work_mapper.mapper.ABCWorkerMapper</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="../api/wepy.work_mapper.mapper.html#wepy.work_mapper.mapper.ABCWorkerMapper" title="wepy.work_mapper.mapper.ABCWorkerMapper"><code class="xref py py-class docutils literal notranslate"><span class="pre">wepy.work_mapper.mapper.ABCWorkerMapper</span></code></a></p>
 <p>Work mapper implementation using multiple worker processes and task
 queue.</p>
 <p>Uses the python multiprocessing module to spawn multiple worker
@@ -533,7 +533,7 @@ seconds for each segment run.</p>
 
 <dl class="py class">
 <dt id="wepy.work_mapper.mapper.Worker">
-<em class="property">class </em><code class="sig-prename descclassname">wepy.work_mapper.mapper.</code><code class="sig-name descname">Worker</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">worker_idx</span></em>, <em class="sig-param"><span class="n">task_queue</span></em>, <em class="sig-param"><span class="n">result_queue</span></em>, <em class="sig-param"><span class="n">exception_queue</span></em>, <em class="sig-param"><span class="n">interrupt_connection</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/work_mapper/mapper.html#Worker"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.work_mapper.mapper.Worker" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">wepy.work_mapper.mapper.</code><code class="sig-name descname">Worker</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">worker_idx</span></em>, <em class="sig-param"><span class="n">task_queue</span></em>, <em class="sig-param"><span class="n">result_queue</span></em>, <em class="sig-param"><span class="n">exception_queue</span></em>, <em class="sig-param"><span class="n">interrupt_connection</span></em>, <em class="sig-param"><span class="n">mapper_attributes</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/work_mapper/mapper.html#Worker"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.work_mapper.mapper.Worker" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">multiprocessing.context.Process</span></code></p>
 <p>Worker process.</p>
 <p>This is a subclass of process with an overriden <cite>__init__</cite>
@@ -547,6 +547,8 @@ constructor that will automatically generate the Process.</p>
 <li><p><strong>task_queue</strong> (<a class="reference external" href="https://docs.python.org/3/library/multiprocessing.html#multiprocessing.JoinableQueue" title="(in Python v3.8)"><em>multiprocessing.JoinableQueue</em></a>) – The shared task queue the worker will watch for new tasks to complete.</p></li>
 <li><p><strong>result_queue</strong> (<a class="reference external" href="https://docs.python.org/3/library/multiprocessing.html#multiprocessing.Queue" title="(in Python v3.8)"><em>multiprocessing.Queue</em></a>) – The shared queue that completed task results will be placed on.</p></li>
 <li><p><strong>interrupt_connection</strong> (<em>multiprocessing.Connection</em>) – One end of a pipe to listen for messages specific to this worker.</p></li>
+<li><p><strong>mapper_attributes</strong> (<a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.8)"><em>None</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)"><em>dict</em></a>) – A dictionary of the attributes of the mapper for reference in workers.</p></li>
+<li><p><strong>kwargs</strong> – The worker specific attributes</p></li>
 </ul>
 </dd>
 </dl>
@@ -570,6 +572,18 @@ logs. The field will be filled with the worker index.</p>
 </dd></dl>
 
 <dl class="py method">
+<dt id="wepy.work_mapper.mapper.Worker.mapper_attributes">
+<em class="property">property </em><code class="sig-name descname">mapper_attributes</code><a class="headerlink" href="#wepy.work_mapper.mapper.Worker.mapper_attributes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Dictionary of attributes of the worker.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="wepy.work_mapper.mapper.Worker.run">
+<code class="sig-name descname">run</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/work_mapper/mapper.html#Worker.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.work_mapper.mapper.Worker.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method to be run in sub-process; can be overridden in sub-class</p>
+</dd></dl>
+
+<dl class="py method">
 <dt id="wepy.work_mapper.mapper.Worker._Popen">
 <em class="property">static </em><code class="sig-name descname">_Popen</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">process_obj</span></em><span class="sig-paren">)</span><a class="headerlink" href="#wepy.work_mapper.mapper.Worker._Popen" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -582,6 +596,11 @@ logs. The field will be filled with the worker index.</p>
 <dl class="py method">
 <dt id="wepy.work_mapper.mapper.Worker._check_closed">
 <code class="sig-name descname">_check_closed</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.work_mapper.mapper.Worker._check_closed" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="wepy.work_mapper.mapper.Worker._sigterm_shutdown">
+<code class="sig-name descname">_sigterm_shutdown</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">signum</span></em>, <em class="sig-param"><span class="n">frame</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/work_mapper/mapper.html#Worker._sigterm_shutdown"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.work_mapper.mapper.Worker._sigterm_shutdown" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -650,12 +669,6 @@ an error to call this method if the child process is still running.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="wepy.work_mapper.mapper.Worker.run">
-<code class="sig-name descname">run</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/work_mapper/mapper.html#Worker.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.work_mapper.mapper.Worker.run" title="Permalink to this definition">¶</a></dt>
-<dd><p>Method to be run in sub-process; can be overridden in sub-class</p>
-</dd></dl>
-
-<dl class="py method">
 <dt id="wepy.work_mapper.mapper.Worker.sentinel">
 <em class="property">property </em><code class="sig-name descname">sentinel</code><a class="headerlink" href="#wepy.work_mapper.mapper.Worker.sentinel" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a file descriptor (Unix) or handle (Windows) suitable for
@@ -675,11 +688,6 @@ waiting for process termination.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="wepy.work_mapper.mapper.Worker._sigterm_shutdown">
-<code class="sig-name descname">_sigterm_shutdown</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">signum</span></em>, <em class="sig-param"><span class="n">frame</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/work_mapper/mapper.html#Worker._sigterm_shutdown"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.work_mapper.mapper.Worker._sigterm_shutdown" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
 <dt id="wepy.work_mapper.mapper.Worker._shutdown">
 <code class="sig-name descname">_shutdown</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/work_mapper/mapper.html#Worker._shutdown"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.work_mapper.mapper.Worker._shutdown" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -690,9 +698,33 @@ waiting for process termination.</p>
 <dd></dd></dl>
 
 <dl class="py method">
+<dt id="wepy.work_mapper.mapper.Worker.run_task">
+<code class="sig-name descname">run_task</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">task</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/work_mapper/mapper.html#Worker.run_task"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.work_mapper.mapper.Worker.run_task" title="Permalink to this definition">¶</a></dt>
+<dd><p>Actually executes the task.</p>
+<p>This default runner simply executes the task thunk.</p>
+<p>This can be customized by subclasses in order to allow for
+injection of worker specific data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>task</strong> (<em>Task object</em>) – The partially evaluated task; function plus arguments</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Results of running the task.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>task_result</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt id="wepy.work_mapper.mapper.Worker._run_task">
 <code class="sig-name descname">_run_task</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">task</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/work_mapper/mapper.html#Worker._run_task"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.work_mapper.mapper.Worker._run_task" title="Permalink to this definition">¶</a></dt>
 <dd><p>Runs the given task and returns the results.</p>
+<p>This manages handling exceptions and tracebacks from the
+actual <cite>run_task</cite> function which is intended to be specialized
+by different workers to inject worker specific arguments to
+tasks. Such as node and device identification.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>task</strong> (<em>Task object</em>) – The partially evaluated task; function plus arguments</p>
@@ -757,6 +789,7 @@ waiting for process termination.</p>
 <li class="toctree-l1"><a class="reference internal" href="../_source/installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../_source/quick_start.html">Quick Start</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../_source/introduction.html">Introduction &amp; Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_source/introduction.html#bibliography">Bibliography</a></li>
 </ul>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../_source/tutorials/index.html">Tutorials</a></li>
