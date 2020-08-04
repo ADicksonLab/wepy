@@ -82,6 +82,9 @@ simulation are.
 kinds of files if you wish, but this is sufficient for getting
 started.
 
+An extended tutorial that goes through some details of observing the
+results is in the @@rst::any:`tutorials <tutorials/index>`@@.
+
 ** Trivial example: Setting up a simulation
 
 In the test drive everything was set up for you and we could only

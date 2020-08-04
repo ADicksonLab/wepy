@@ -30,6 +30,7 @@ molecular dynamics. Currently, these are:
 
 - md :: extra packages for molecular dynamics
 - distributed :: extra packages to allow for distributed analysis
+- prometheus :: for monitoring simulations via [[https://prometheus.io][Prometheus]]
 - all :: installs all extras
 
 Check the setup.py file under ~extras_requirements~ for the full listing.
