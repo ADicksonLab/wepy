@@ -12,6 +12,11 @@
 - [[https://pypi.org/project/wepy/][PyPI]]
 - [[https://github.com/ADicksonLab/wepy/releases][Github Releases]]
 
+There are also historical releases archived on [[https://zenodo.org/badge/latestdoi/101077926][Zenodo]] that also
+are assigned DOIs for easy citations.
+
+
+
 ** Community & Related Projects
 
 Discussion takes place on riot.im (#wepy:matrix.org) which is a slack-like app that works
