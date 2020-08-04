@@ -113,7 +113,7 @@ json_top_filename = "pair.top.json"
 
 # outputs
 hdf5_filename = 'results.wepy.h5'
-dashboard_filename = 'wepy.dash.org.org'
+dashboard_filename = 'wepy.dash.org'
 
 # normalize the output paths
 hdf5_path = osp.join(outputs_dir, hdf5_filename)

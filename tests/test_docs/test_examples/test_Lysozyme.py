@@ -4,6 +4,7 @@ from pathlib import Path
 
 from pytest_shutil.cmdline import chdir
 from pytest_shutil.run import run, run_as_main
+from pytest_check import check
 
 ### Tests
 
@@ -36,24 +37,30 @@ def test_we(datadir_factory, printer):
 
     with chdir(datadir):
 
-        print("CPU-NoResampler")
-        run(['python',
-            'source/we.py',
-             '2', '2', '10', '1', 'CPU', 'NoResampler'
-            ],
-        )
+        with check:
 
-        print("CPU-REVOResampler")
-        run(['python',
-            'source/we.py',
-             '2', '2', '10', '1', 'CPU', 'REVOResampler'
-            ],
-        )
+            printer("running CPU-NoResampler")
+            run(['python',
+                'source/we.py',
+                 '2', '2', '10', '1', 'CPU', 'NoResampler'
+                ],
+            )
 
-        print("CPU_WExploreResampler")
-        run(['python',
-            'source/we.py',
-             '2', '2', '10', '1', 'CPU', 'WExploreResampler'
-            ],
-        )
+        printer("running CPU-REVOResampler")
+        with check:
+            print("CPU-REVOResampler")
+            run(['python',
+                'source/we.py',
+                 '2', '2', '10', '1', 'CPU', 'REVOResampler'
+                ],
+            )
+
+        printer("running CPU-WExploreResampler")
+        with check:
+            print("CPU_WExploreResampler")
+            run(['python',
+                'source/we.py',
+                 '2', '2', '10', '1', 'CPU', 'WExploreResampler'
+                ],
+            )
 
