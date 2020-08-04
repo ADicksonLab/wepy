@@ -1494,7 +1494,13 @@ class WepyHDF5(object):
             self._init_traj_field(run_idx, traj_idx,
                                   field_path, field_feature_shapes[i], field_feature_dtypes[i])
 
-    def _add_traj_field_data(self, run_idx, traj_idx, field_path, field_data, sparse_idxs=None):
+    def _add_traj_field_data(self,
+                             run_idx,
+                             traj_idx,
+                             field_path,
+                             field_data,
+                             sparse_idxs=None,
+    ):
         """Add a trajectory field to a trajectory.
 
         If the sparse indices are given the field will be created as a
@@ -2273,7 +2279,11 @@ class WepyHDF5(object):
         return data
 
 
-    def _add_run_field(self, run_idx, field_path, data, sparse_idxs=None,
+    def _add_run_field(self,
+                       run_idx,
+                       field_path,
+                       data,
+                       sparse_idxs=None,
                        force=False):
         """Add a trajectory field to all trajectories in a run.
 
@@ -2294,6 +2304,19 @@ class WepyHDF5(object):
         If 'force' is turned on, no checking for constraints will be done.
 
         """
+
+        # TODO, SNIPPET: check that we have the right permissions
+        # if field_exists:
+        #     # if we are in a permissive write mode we delete the
+        #     # old dataset and add the new one, overwriting old data
+        #     if self.mode in ['w', 'w-', 'x', 'r+']:
+        #         logging.info("Dataset already present. Overwriting.")
+        #         del obs_grp[field_name]
+        #         obs_grp.create_dataset(field_name, data=results)
+        #     # this will happen in 'c' and 'c-' modes
+        #     else:
+        #         raise RuntimeError(
+        #             "Dataset already exists and file is in concatenate mode ('c' or 'c-')")
 
         # check that the data has the correct number of trajectories
         if not force:
@@ -5008,7 +5031,11 @@ class WepyHDF5(object):
         """
         obs_path = '{}/{}'.format(OBSERVABLES, observable_name)
 
-        self._add_field(obs_path, data, sparse_idxs=sparse_idxs)
+        self._add_field(
+            obs_path,
+            data,
+            sparse_idxs=sparse_idxs,
+        )
 
     def compute_observable(self, func, fields, args,
                            map_func=map,
@@ -5102,40 +5129,21 @@ class WepyHDF5(object):
         # if we are saving this to the trajectories observables add it as a dataset
         if save_to_hdf5:
 
-            for idx_tup, traj_results in zip(result_idxs, results):
 
-                run_idx, traj_idx = idx_tup
+            # reshape the results to be in the observable shape:
+            observable = [[] for run_idx in self.run_idxs]
 
-                logging.info("Saving run {} traj {} observables/{}".format(
-                    run_idx, traj_idx, field_name))
+            for result_idx, traj_results in zip(result_idxs, results):
 
-                # try to get the observables group or make it if it doesn't exist
-                try:
-                    obs_grp = self.traj(run_idx, traj_idx)[OBSERVABLES]
-                except KeyError:
+                run_idx, traj_idx = result_idx
 
-                    logging.info("Group uninitialized. Initializing.")
+                observable[run_idx].append(traj_results)
 
-                    obs_grp = self.traj(run_idx, traj_idx).create_group(OBSERVABLES)
-
-                # try to create the dataset
-                try:
-                    obs_grp.create_dataset(field_name, data=obs_features)
-                # if it fails we either overwrite or raise an error
-                except RuntimeError:
-                    # if we are in a permissive write mode we delete the
-                    # old dataset and add the new one, overwriting old data
-                    if self.mode in ['w', 'w-', 'x', 'r+']:
-
-                        logging.info("Dataset already present. Overwriting.")
-
-                        del obs_grp[field_name]
-                        obs_grp.create_dataset(field_name, data=obs_features)
-                    # this will happen in 'c' and 'c-' modes
-                    else:
-                        raise RuntimeError(
-                            "Dataset already exists and file is in concatenate mode ('c' or 'c-')")
-
+            self.add_observable(
+                field_name,
+                observable,
+                sparse_idxs=None,
+           )
 
         if return_results:
             if idxs:

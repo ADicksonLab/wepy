@@ -30,6 +30,13 @@ from . import toplevel
 for func in _get_functions(toplevel).values():
     ns.add_task(func)
 
+
+## STUB: User-added modules
+# from user_modules import MODULES as user_modules
+
+# for module in user_modules:
+#     ns.add_collection(module)
+
 ## Upstream
 
 from .modules import MODULES as modules

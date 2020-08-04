@@ -1312,12 +1312,20 @@ class OpenMMCPUWalkerTaskProcess(WalkerTaskProcess):
 
     def run_task(self, task):
 
-        num_threads = self.attributes['num_threads']
+        if 'num_threads' in self.mapper_attributes:
+            num_threads = self.mapper_attributes['num_threads']
 
-        # make the platform kwargs dictionary
-        platform_options = {'Threads' : str(num_threads)}
+            # make the platform kwargs dictionary
+            platform_options = {'Threads' : str(num_threads)}
 
-        return task(platform_kwargs=platform_options)
+            logging.info(f"Threads={num_threads}")
+
+        else:
+            platform_options = {}
+
+        return task(
+            platform_kwargs=platform_options,
+        )
 
 class OpenMMGPUWalkerTaskProcess(WalkerTaskProcess):
 

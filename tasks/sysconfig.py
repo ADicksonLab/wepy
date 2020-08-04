@@ -87,3 +87,10 @@ BENCHMARKS_DIR = "benchmarks"
 # benchmarks. See documentation in `asv run --help` for details.
 # Defaults to using the HASHFILE.
 ASV_RANGE = "HASHFILE:benchmark_selection.list"
+
+
+### Containers
+
+# choose the container tool, options really are just: docker or podman
+# since these two are compatible
+CONTAINER_TOOL = "podman"

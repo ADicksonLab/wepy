@@ -966,7 +966,7 @@ class Worker(mp.Process):
 
                 # handle the message
 
-                # a None is a signal to kill the process
+                # a SIGTERM is a signal to kill the process
                 # unconditionally
                 if message is signal.SIGTERM:
 
