@@ -2,6 +2,10 @@
 
 [[./info/logo/wepy.svg]]
 
+#+begin_src html
+<a href="https://doi.org/10.5281/zenodo.3973431"><img src="https://zenodo.org/badge/DOI/10.5281/zenodo.3973431.svg" alt="DOI"></a>
+#+end_src
+
 [[https://adicksonlab.github.io/wepy/index.html][Sphinx Documentation]]
 
 [[https://github.com/ADicksonLab/wepy/blob/master/info/README.org][Plaintext Org-Mode Docs]]
@@ -56,9 +60,15 @@ wepy --help
 
 ** Citations
 
-Current [[https://zenodo.org/badge/latestdoi/101077926][Zenodo DOI]]
+Current [[https://zenodo.org/badge/latestdoi/101077926][Zenodo DOI]].
 
-Lotz and Dickson. 2020. in preparation.
+Cite software as:
+
+#+begin_example
+Samuel D. Lotz, Nazanin Donyapour, Alex Dickson, Tom Dixon, Nicole Roussey, & Rob Hall. (2020, August 4). ADicksonLab/wepy: 1.0.0 Major version release (Version v1.0.0). Zenodo. http://doi.org/10.5281/zenodo.3973431
+#+end_example
+
+Accompanying peer-reviewed journal article in preparation.
 
 
 

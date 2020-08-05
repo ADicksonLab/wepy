@@ -12,8 +12,10 @@
 - [[https://pypi.org/project/wepy/][PyPI]]
 - [[https://github.com/ADicksonLab/wepy/releases][Github Releases]]
 
-There are also historical releases archived on [[https://zenodo.org/badge/latestdoi/101077926][Zenodo]] that also
-are assigned DOIs for easy citations.
+There are also historical releases archived on [[https://zenodo.org/badge/latestdoi/101077926][Zenodo]] that also are
+assigned DOIs for easy citations.
+
+DOI: [[https://doi.org/10.5281/zenodo.3973431][10.5281/zenodo.3973431]]
 
 
 
