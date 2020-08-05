@@ -14,6 +14,12 @@ Builds, Distributions, and Packages
 -  `PyPI <https://pypi.org/project/wepy/>`__
 -  `Github Releases <https://github.com/ADicksonLab/wepy/releases>`__
 
+There are also historical releases archived on
+`Zenodo <https://zenodo.org/badge/latestdoi/101077926>`__ that also are
+assigned DOIs for easy citations.
+
+DOI: `10.5281/zenodo.3973431 <https://doi.org/10.5281/zenodo.3973431>`__
+
 Community & Related Projects
 ----------------------------
 
