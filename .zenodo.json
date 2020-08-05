@@ -37,11 +37,6 @@
             "scheme": "url",
             "identifier": "https://github.com/ADicksonLab/wepy/tree/v1.0.0",
             "relation": "isSupplementTo"
-        },
-        {
-            "scheme": "doi",
-            "identifier": "10.5281/zenodo.3666944",
-            "relation": "isVersionOf"
         }
     ]
 }
