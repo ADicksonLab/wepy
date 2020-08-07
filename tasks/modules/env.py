@@ -57,6 +57,9 @@ PYENV_DIR = "_pyenv"
 SELF_REQUIREMENTS = 'self.requirements.txt'
 """How to install the work piece"""
 
+# requirements for specific packaging tooling, like pip
+ENV_TOOLS_REQUIREMENTS = 'tools.requirements.txt'
+
 PYTHON_VERSION_FILE = 'pyversion.txt'
 """Specify which version of python to use for the env"""
 
@@ -69,7 +72,7 @@ PIP_COMPILED_REQUIREMENTS = 'requirements.txt'
 
 # conda specific
 CONDA_ABSTRACT_REQUIREMENTS = 'env.yaml'
-CONDA_COMPILED_REQUIREMENTS = 'env.yaml'
+CONDA_COMPILED_REQUIREMENTS = 'env.pinned.yaml'
 
 ### Util
 
@@ -106,7 +109,10 @@ def deps_pip_pin(cx,
     # gather any development repos that are colocated on this machine
     # and solve the dependencies together
 
-    specs = [str(path / PIP_ABSTRACT_REQUIREMENTS)]
+    specs = [
+        str(path / PIP_ABSTRACT_REQUIREMENTS),
+        str(path / ENV_TOOLS_REQUIREMENTS)
+    ]
 
     # to get the development repos read the DEV list
     if osp.exists(path / DEV_REQUIREMENTS_LIST):
@@ -240,10 +246,13 @@ def deps_pin_path(cx,
                  upgrade=False)
 
     if ENV_METHOD == 'conda':
-        deps_conda_pin(cx,
-                       path=path,
-                       upgrade=False,
-                       optional=True,)
+
+        # WKRD, FIXME: disabled for now since the end result isn't useful anymore
+        pass
+        # deps_conda_pin(cx,
+        #                path=path,
+        #                upgrade=False,
+        #                optional=True,)
 
 
 # altogether
@@ -315,23 +324,31 @@ def conda_env(cx,
 
         # install the conda dependencies. choose a specification file
         # based on these priorities of most pinned to least frozen.
-        if osp.exists(env_spec_path / CONDA_COMPILED_REQUIREMENTS):
 
-            cx.run(f"conda env update "
-                   f"--prefix {env_dir} "
-                   f"--file {env_spec_path}/{CONDA_COMPILED_REQUIREMENTS}")
+        # WKRD, FIXME: this is disabled because this is super-platform
+        # dependent and not reliable
+        #
+        # if osp.exists(env_spec_path / CONDA_COMPILED_REQUIREMENTS):
+        #     cx.run(f"conda env update "
+        #            f"--prefix {env_dir} "
+        #            f"--file {env_spec_path}/{CONDA_COMPILED_REQUIREMENTS}")
 
 
-        elif osp.exists(env_spec_path / CONDA_ABSTRACT_REQUIREMENTS):
+        if osp.exists(env_spec_path / CONDA_ABSTRACT_REQUIREMENTS):
 
             cx.run(f"conda env update "
                    f"--prefix {env_dir} "
                    f"--file {env_spec_path}/{CONDA_ABSTRACT_REQUIREMENTS}")
 
         else:
+            print("No conda dependencies specified")
             # don't do a conda env pin
             pass
 
+
+        # install the tooling, like pip version etc.
+        if osp.exists(env_spec_path / ENV_TOOLS_REQUIREMENTS):
+            cx.run(f"{env_dir}/bin/pip install -r {env_spec_path}/{ENV_TOOLS_REQUIREMENTS}")
 
         # install the extra pip dependencies.
 
@@ -388,9 +405,11 @@ def venv_env(cx,
     # then install the things we need
     with cx.prefix(f"source {venv_path}/bin/activate"):
 
-        # update pip
-        cx.run("pip install --upgrade pip")
+        # install the tooling, like pip version etc.
+        if osp.exists(env_spec_path / ENV_TOOLS_REQUIREMENTS):
+            cx.run(f"{env_dir}/bin/pip install -r {env_spec_path}/{ENV_TOOLS_REQUIREMENTS}")
 
+        # install the pip pinned requirements
         if osp.exists(env_spec_path / PIP_COMPILED_REQUIREMENTS):
             cx.run(f"pip install -r {env_spec_path}/{PIP_COMPILED_REQUIREMENTS}")
 
@@ -470,9 +489,11 @@ def pyenv_env(cx,
     # then install the things we need
     with cx.prefix(f"source {env_path}/bin/activate"):
 
-        # update pip
-        cx.run("pip install --upgrade pip")
+        # install the tooling, like pip version etc.
+        if osp.exists(env_spec_path / ENV_TOOLS_REQUIREMENTS):
+            cx.run(f"{env_dir}/bin/pip install -r {env_spec_path}/{ENV_TOOLS_REQUIREMENTS}")
 
+        # install the pinned packages
         if osp.exists(env_spec_path / SELF_REQUIREMENTS):
             cx.run(f"pip install -r {env_spec_path}/{PIP_COMPILED_REQUIREMENTS}")
 

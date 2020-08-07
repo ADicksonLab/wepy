@@ -643,7 +643,15 @@ def version_which(cx):
 
 @task
 def update_tools(cx):
-    cx.run("pip install --upgrade pip setuptools wheel twine")
+
+    # WKRD, FIXME: because new versions of pip are incompatible with
+    # pip-tools we can't blindly update in envs. Want to make a
+    # mechanism for installing the tools in a separate
+    # requirements.txt file since we can't put these in the pip tools
+    # input files. In short should be taken care of in the 'env' module
+    print("Disable 'update_tools' use the envs 'tools.requirements.txt' instead")
+    pass
+    # cx.run("pip install --upgrade pip setuptools wheel twine")
 
 @task(pre=[update_tools])
 def build_sdist(cx):

@@ -3,5 +3,6 @@
 # current working directoy is not a good idea since it will be
 # different on every machine.
 
-# non-develop mode
-.[all]
+# non-develop mode ideall, but takes forever to install if you don't
+# because of pip "bug"/feature
+-e .[all]

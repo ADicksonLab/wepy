@@ -15,5 +15,4 @@ nglview
 
 git+https://github.com/ADicksonLab/CSNAnalysis
 
-# TODO: do after release
-# wepy[md]
+wepy[md]

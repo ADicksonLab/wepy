@@ -189,6 +189,9 @@ git commit -m "Updates dev environment"
 #+end_src
 
 
+**** 
+
+
 **** Explanation
 
 Reminder that there are two separate goals of managing dependencies
@@ -328,6 +331,14 @@ This will include each of these files in the dependency compilation
 step.  Note that the ~requirements.in~ can come from any location and
 is not a specification other projects /must/ support.
 
+***** tools.requirements.txt
+
+Use this to "pin" or constrain versions of tools which won't be or
+can't be managed by the pinning tool (i.e. ~pip-tools~, meaning ~pip~,
+~setuptools~ etc.).
+
+The main use of this to pin the version of ~pip~ in case it breaks
+some other tools.
 
 ***** pyversion.txt
 

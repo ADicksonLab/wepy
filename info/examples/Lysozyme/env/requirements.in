@@ -1,6 +1,5 @@
 
 --index-url https://pypi.python.org/simple/
 
-# TODO: set this after release
-# wepy[md]
+wepy[md]
 multiprocessing_logging

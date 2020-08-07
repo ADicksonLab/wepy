@@ -1,12 +1,10 @@
-
 --index-url https://pypi.python.org/simple/
 
 ipython
 pdbpp
 invoke
 
-# TODO: set after release
-# wepy[all]==1.0.0rc1.dev0
+wepy[all]
 
 multiprocessing_logging
 numpy

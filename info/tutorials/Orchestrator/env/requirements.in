@@ -5,5 +5,4 @@ numpy
 scipy
 mdtraj
 
-# TODO: set after release
-# wepy[md]
+wepy[md]

@@ -1,1 +1,2 @@
-.[md]
+# uncomment for developing this example
+# -e .[md]

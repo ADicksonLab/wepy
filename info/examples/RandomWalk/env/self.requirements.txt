@@ -1,1 +1,3 @@
-wepy[md]==1.0.0rc5
+# uncomment for developing this example
+# -e .
+
