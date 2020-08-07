@@ -720,12 +720,17 @@ class BaseMacroStateNetwork():
 
         Parameters
         ----------
-        func :
+        func : callable
+            The function to map over the nodes.
 
-        map_func :
+        map_func : callable
+            The mapping function, implementing the `map` interface
 
         Returns
         -------
+
+        node_values : dict of node_id : values
+            The mapping of node_ids to the values computed by the mapped func.
 
         """
 
@@ -1068,25 +1073,50 @@ class MacroStateNetwork():
         self.base_network.set_nodes_attribute('Weight', self.macrostate_weights())
 
     def node_fields_map(self, func, fields, map_func=map):
-        """
+        """Map a function over the nodes and microstate fields.
+
+        The function should take as its arguments:
+
+        1. node_id
+        2. dictionary of all the node attributes
+        3. fields dictionary mapping traj field names. (The output of
+        `MacroStateNetwork.get_node_fields`)
+
+        This *will* give access to the underlying trajectory data in
+        the HDF5 which can be requested with the `fields`
+        argument. The behaviour is very similar to the
+        `WepyHDF5.compute_observable` function with the added input
+        data to the mapped function being all of the macrostate node
+        attributes.
+
+        Extra args not supported use 'functools.partial' to make
+        functions with arguments for all data.
+
 
         Parameters
         ----------
-        func :
-            
-        fields :
-            
-        *args :
-            
-        map_func :
-             (Default value = map)
-        idxs :
-             (Default value = False)
-        node_sel :
-             (Default value = None)
+        func : callable
+            The function to map over the nodes.
+
+        fields : iterable of str
+           The microstate (trajectory) fields to provide to the mapped function.
+
+        map_func : callable
+            The mapping function, implementing the `map` interface
 
         Returns
         -------
+
+        node_values : dict of node_id : values
+            The mapping of node_ids to the values computed by the mapped func.
+
+
+        Returns
+        -------
+
+        node_values : dict of node_id : values
+            Dictionary mapping nodes to the computed values from the
+            mapped function.
 
         """
 
