@@ -4,7 +4,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <title>wepy.analysis.network module &#8212; wepy 1.0.0rc6 documentation</title>
+    <title>wepy.analysis.network module &#8212; wepy 1.0.1 documentation</title>
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
@@ -427,9 +427,15 @@ functions with arguments for all data.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>func</strong> – </p></li>
-<li><p><strong>map_func</strong> – </p></li>
+<li><p><strong>func</strong> (<em>callable</em>) – The function to map over the nodes.</p></li>
+<li><p><strong>map_func</strong> (<em>callable</em>) – The mapping function, implementing the <cite>map</cite> interface</p></li>
 </ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>node_values</strong> – The mapping of node_ids to the values computed by the mapped func.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict of node_id : values</p>
 </dd>
 </dl>
 </dd></dl>
@@ -641,16 +647,42 @@ Each node has it’s own dictionary of node fields for each microstate.</p>
 <dl class="py method">
 <dt id="wepy.analysis.network.MacroStateNetwork.node_fields_map">
 <code class="sig-name descname">node_fields_map</code><span class="sig-paren">(</span><em class="sig-param">func</em>, <em class="sig-param">fields</em>, <em class="sig-param">map_func=&lt;class 'map'&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/network.html#MacroStateNetwork.node_fields_map"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.network.MacroStateNetwork.node_fields_map" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
+<dd><p>Map a function over the nodes and microstate fields.</p>
+<p>The function should take as its arguments:</p>
+<ol class="arabic simple">
+<li><p>node_id</p></li>
+<li><p>dictionary of all the node attributes</p></li>
+</ol>
+<p>3. fields dictionary mapping traj field names. (The output of
+<cite>MacroStateNetwork.get_node_fields</cite>)</p>
+<p>This <em>will</em> give access to the underlying trajectory data in
+the HDF5 which can be requested with the <cite>fields</cite>
+argument. The behaviour is very similar to the
+<cite>WepyHDF5.compute_observable</cite> function with the added input
+data to the mapped function being all of the macrostate node
+attributes.</p>
+<p>Extra args not supported use ‘functools.partial’ to make
+functions with arguments for all data.</p>
+<dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>func</strong> – </p></li>
-<li><p><strong>fields</strong> – </p></li>
-<li><p><strong>*args</strong> – </p></li>
-<li><p><strong>map_func</strong> – (Default value = map)</p></li>
-<li><p><strong>idxs</strong> – (Default value = False)</p></li>
-<li><p><strong>node_sel</strong> – (Default value = None)</p></li>
+<li><p><strong>func</strong> (<em>callable</em>) – The function to map over the nodes.</p></li>
+<li><p><strong>fields</strong> (<em>iterable of str</em>) – The microstate (trajectory) fields to provide to the mapped function.</p></li>
+<li><p><strong>map_func</strong> (<em>callable</em>) – The mapping function, implementing the <cite>map</cite> interface</p></li>
 </ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>node_values</strong> – The mapping of node_ids to the values computed by the mapped func.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict of node_id : values</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>node_values</strong> – Dictionary mapping nodes to the computed values from the
+mapped function.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict of node_id : values</p>
 </dd>
 </dl>
 </dd></dl>

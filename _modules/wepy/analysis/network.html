@@ -4,7 +4,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <title>wepy.analysis.network &#8212; wepy 1.0.0rc6 documentation</title>
+    <title>wepy.analysis.network &#8212; wepy 1.0.1 documentation</title>
     <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/custom.css" />
@@ -764,12 +764,17 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        func :</span>
+<span class="sd">        func : callable</span>
+<span class="sd">            The function to map over the nodes.</span>
 
-<span class="sd">        map_func :</span>
+<span class="sd">        map_func : callable</span>
+<span class="sd">            The mapping function, implementing the `map` interface</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
+
+<span class="sd">        node_values : dict of node_id : values</span>
+<span class="sd">            The mapping of node_ids to the values computed by the mapped func.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -1112,25 +1117,50 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">base_network</span><span class="o">.</span><span class="n">set_nodes_attribute</span><span class="p">(</span><span class="s1">&#39;Weight&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">macrostate_weights</span><span class="p">())</span></div>
 
 <div class="viewcode-block" id="MacroStateNetwork.node_fields_map"><a class="viewcode-back" href="../../../api/wepy.analysis.network.html#wepy.analysis.network.MacroStateNetwork.node_fields_map">[docs]</a>    <span class="k">def</span> <span class="nf">node_fields_map</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">fields</span><span class="p">,</span> <span class="n">map_func</span><span class="o">=</span><span class="nb">map</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Map a function over the nodes and microstate fields.</span>
+
+<span class="sd">        The function should take as its arguments:</span>
+
+<span class="sd">        1. node_id</span>
+<span class="sd">        2. dictionary of all the node attributes</span>
+<span class="sd">        3. fields dictionary mapping traj field names. (The output of</span>
+<span class="sd">        `MacroStateNetwork.get_node_fields`)</span>
+
+<span class="sd">        This *will* give access to the underlying trajectory data in</span>
+<span class="sd">        the HDF5 which can be requested with the `fields`</span>
+<span class="sd">        argument. The behaviour is very similar to the</span>
+<span class="sd">        `WepyHDF5.compute_observable` function with the added input</span>
+<span class="sd">        data to the mapped function being all of the macrostate node</span>
+<span class="sd">        attributes.</span>
+
+<span class="sd">        Extra args not supported use &#39;functools.partial&#39; to make</span>
+<span class="sd">        functions with arguments for all data.</span>
+
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        func :</span>
-<span class="sd">            </span>
-<span class="sd">        fields :</span>
-<span class="sd">            </span>
-<span class="sd">        *args :</span>
-<span class="sd">            </span>
-<span class="sd">        map_func :</span>
-<span class="sd">             (Default value = map)</span>
-<span class="sd">        idxs :</span>
-<span class="sd">             (Default value = False)</span>
-<span class="sd">        node_sel :</span>
-<span class="sd">             (Default value = None)</span>
+<span class="sd">        func : callable</span>
+<span class="sd">            The function to map over the nodes.</span>
+
+<span class="sd">        fields : iterable of str</span>
+<span class="sd">           The microstate (trajectory) fields to provide to the mapped function.</span>
+
+<span class="sd">        map_func : callable</span>
+<span class="sd">            The mapping function, implementing the `map` interface</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
+
+<span class="sd">        node_values : dict of node_id : values</span>
+<span class="sd">            The mapping of node_ids to the values computed by the mapped func.</span>
+
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
+<span class="sd">        node_values : dict of node_id : values</span>
+<span class="sd">            Dictionary mapping nodes to the computed values from the</span>
+<span class="sd">            mapped function.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 

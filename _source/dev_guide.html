@@ -4,7 +4,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <title>Development Guide &#8212; wepy 1.0.0rc6 documentation</title>
+    <title>Development Guide &#8212; wepy 1.0.1 documentation</title>
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
@@ -200,6 +200,7 @@ git commit -m <span class="s2">&quot;Updates dev environment&quot;</span>
 </pre></div>
 </div>
 </li>
+<li></li>
 <li><p>Explanation</p>
 <p>Reminder that there are two separate goals of managing dependencies
 and where they are managed:</p>
@@ -330,6 +331,13 @@ $HOME/dev/util_project/requirements.in
 compilation step. Note that the <code class="docutils literal notranslate"><span class="pre">requirements.in</span></code> can come from
 any location and is not a specification other projects <em>must</em>
 support.</p>
+</li>
+<li><p>tools.requirements.txt</p>
+<p>Use this to “pin” or constrain versions of tools which won’t be or
+can’t be managed by the pinning tool (i.e. <code class="docutils literal notranslate"><span class="pre">pip-tools</span></code>, meaning
+<code class="docutils literal notranslate"><span class="pre">pip</span></code>, <code class="docutils literal notranslate"><span class="pre">setuptools</span></code> etc.).</p>
+<p>The main use of this to pin the version of <code class="docutils literal notranslate"><span class="pre">pip</span></code> in case it
+breaks some other tools.</p>
 </li>
 <li><p>pyversion.txt</p>
 <p>This file should only contain the text that specifies the version
