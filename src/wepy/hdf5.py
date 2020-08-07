@@ -5909,8 +5909,15 @@ class WepyHDF5(object):
                         # the new data
                         field_dset = traj_grp[field_name]
 
+                        # since we are slicing we want to make sure
+                        # that the chunks are smaller than the
+                        # slices. Normally chunks are (1, ...) for a
+                        # field, but may not be for observables
+                        # (perhaps they should but thats for another issue)
+                        chunks = (1, *field_dset.chunks[1:])
+
                         dset_kwargs = {
-                            'chunks' : field_dset.chunks,
+                            'chunks' : chunks,
                             'compression' : field_dset.compression,
                             'compression_opts' : field_dset.compression_opts,
                             'shuffle' : field_dset.shuffle,
