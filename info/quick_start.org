@@ -51,7 +51,7 @@ it in another folder because ~wepy~ won't unintentionally overwrite
 already existing files.
 
 ~root.dash.org~ is just a plain text file that can be viewed in any
-text editor. It formatted in emacs org-mode and so there are some
+text editor. It is formatted in emacs org-mode and so there are some
 enhanced features for folding and tables if you open it in emacs or
 other editor that supports org-mode files.
 

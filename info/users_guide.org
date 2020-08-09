@@ -16,7 +16,7 @@ inputs, outputs, and any arguments, but not the "calling convention"
 of them.
 
 All scripts are expected to be run from the example directory,
-e.g. for and example called ~myexample~ you would run a script called
+e.g. for an example called ~myexample~ you would run a script called
 ~example.py~ like:
 
 #+begin_src bash

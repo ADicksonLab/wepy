@@ -14,7 +14,7 @@ from wepy.analysis.transitions import transition_counts, counts_d_to_matrix, \
 try:
     import pandas as pd
 except ModuleNotFoundError:
-    print("Pandas is not installe, that functionality won't work")
+    print("pandas is not installed, that functionality won't work")
 
 class MacroStateNetworkError(Exception):
     """Errors specific to MacroStateNetwork requirements."""
