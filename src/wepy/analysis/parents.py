@@ -335,13 +335,19 @@ def parent_table_discontinuities(boundary_condition_class, parent_table, warping
 
 
         discs = [False for _ in range(n_walkers)]
-        # Check to see if any walkers in the current step
-        # originated from this warped walker
-        for walker_idx in range(n_walkers):
 
-            # this walker was warped discontinuously make a record true for itq
-            if boundary_condition_class.warping_discontinuity(warp_record):
-                discs[walker_idx] = True
+
+        # this walker was warped discontinuously make a record true for itq                      
+        if boundary_condition_class.warping_discontinuity(warp_record):
+        
+            # Check to see if any walkers in the current step
+            # originated from this warped walker
+        
+            for walker_idx in range(n_walkers):
+
+                if parent_table[cycle_idx][walker_idx] == parent_idx:
+                
+                    discs[walker_idx] = True
 
         disc_parent_row = parent_cycle_discontinuities(parent_table[cycle_idx],
                                                        discs)
