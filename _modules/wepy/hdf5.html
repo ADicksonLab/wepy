@@ -4,7 +4,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <title>wepy.hdf5 &#8212; wepy 1.0.1 documentation</title>
+    <title>wepy.hdf5 &#8212; wepy 1.0.1+3.gd209e73 documentation</title>
     <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../../_static/custom.css" />
@@ -5953,8 +5953,15 @@
                         <span class="c1"># the new data</span>
                         <span class="n">field_dset</span> <span class="o">=</span> <span class="n">traj_grp</span><span class="p">[</span><span class="n">field_name</span><span class="p">]</span>
 
+                        <span class="c1"># since we are slicing we want to make sure</span>
+                        <span class="c1"># that the chunks are smaller than the</span>
+                        <span class="c1"># slices. Normally chunks are (1, ...) for a</span>
+                        <span class="c1"># field, but may not be for observables</span>
+                        <span class="c1"># (perhaps they should but thats for another issue)</span>
+                        <span class="n">chunks</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="o">*</span><span class="n">field_dset</span><span class="o">.</span><span class="n">chunks</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
+
                         <span class="n">dset_kwargs</span> <span class="o">=</span> <span class="p">{</span>
-                            <span class="s1">&#39;chunks&#39;</span> <span class="p">:</span> <span class="n">field_dset</span><span class="o">.</span><span class="n">chunks</span><span class="p">,</span>
+                            <span class="s1">&#39;chunks&#39;</span> <span class="p">:</span> <span class="n">chunks</span><span class="p">,</span>
                             <span class="s1">&#39;compression&#39;</span> <span class="p">:</span> <span class="n">field_dset</span><span class="o">.</span><span class="n">compression</span><span class="p">,</span>
                             <span class="s1">&#39;compression_opts&#39;</span> <span class="p">:</span> <span class="n">field_dset</span><span class="o">.</span><span class="n">compression_opts</span><span class="p">,</span>
                             <span class="s1">&#39;shuffle&#39;</span> <span class="p">:</span> <span class="n">field_dset</span><span class="o">.</span><span class="n">shuffle</span><span class="p">,</span>

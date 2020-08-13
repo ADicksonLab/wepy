@@ -1,6 +1,11 @@
 Introduction & Features
 =======================
 
+There is an academic paper describing various aspects of the design and
+usage of ``wepy``. Peer-review is in process:
+
+-  `ChemRxiv preprint <https://chemrxiv.org/s/369c2530c150add1450b>`__
+
 Weighted Ensemble (WE)
 ----------------------
 
