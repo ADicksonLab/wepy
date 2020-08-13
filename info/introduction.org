@@ -1,5 +1,10 @@
 * Introduction & Features
 
+There is an academic paper describing various aspects of the design
+and usage of ~wepy~. Peer-review is in process:
+
+- [[https://chemrxiv.org/s/369c2530c150add1450b][ChemRxiv preprint]]
+
 ** Weighted Ensemble (WE)
 
 The weighted ensemble algorithm (WE) is a general strategy for

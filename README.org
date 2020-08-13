@@ -68,7 +68,9 @@ Cite software as:
 Samuel D. Lotz, Nazanin Donyapour, Alex Dickson, Tom Dixon, Nicole Roussey, & Rob Hall. (2020, August 4). ADicksonLab/wepy: 1.0.0 Major version release (Version v1.0.0). Zenodo. http://doi.org/10.5281/zenodo.3973431
 #+end_example
 
-Accompanying peer-reviewed journal article in preparation.
+Accompanying journal article (peer-review in process):
+
+- [[https://chemrxiv.org/s/369c2530c150add1450b][ChemRxiv]] preprint
 
 
 
