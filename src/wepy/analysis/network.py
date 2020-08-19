@@ -239,7 +239,7 @@ class BaseMacroStateNetwork():
             # then we raise flag to unwrap them
             unwrap = True
 
-        elif len(test_field.shape) == 1 and test_field.shape[0] == 1:
+        elif len(test_field.shape) == 1:
             # then it is unwrapped and we don't need to do anything,
             # just assert the flag to not unwrap
             unwrap = False
