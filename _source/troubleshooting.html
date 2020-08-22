@@ -4,7 +4,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <title>Common Troubleshooting &#8212; wepy 1.0.1+3.gd209e73 documentation</title>
+    <title>FAQ &#8212; wepy 1.0.3 documentation</title>
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
@@ -51,11 +51,19 @@
 
           <div class="body" role="main">
             
-  <div class="section" id="common-troubleshooting">
-<h1>Common Troubleshooting<a class="headerlink" href="#common-troubleshooting" title="Permalink to this headline">¶</a></h1>
-</div>
-<div class="section" id="faq">
+  <div class="section" id="faq">
 <h1>FAQ<a class="headerlink" href="#faq" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="my-results-files-are-large-can-i-compress-them">
+<h2>My results files are large, can I compress them?<a class="headerlink" href="#my-results-files-are-large-can-i-compress-them" title="Permalink to this headline">¶</a></h2>
+<p>There is an HDF5 tool that allows you to “repack” and compress your
+datasets called <code class="docutils literal notranslate"><span class="pre">h5repack</span></code>. A good ratio of compression to time is
+using GZIP level 2 but read the documentation to customize for yourself:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>h5repack -f <span class="nv">GZIP</span><span class="o">=</span><span class="m">2</span> original.wepy.h5 compressed.wepy.h5
+</pre></div>
+</div>
+<p>There are other more involved mechanisms, but this should cut your size
+significantly.</p>
+</div>
 </div>
 
 
@@ -110,8 +118,7 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="tutorials/index.html">Tutorials</a></li>
 <li class="toctree-l1"><a class="reference internal" href="users_guide.html">User’s Guide</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Common Troubleshooting</a></li>
-<li class="toctree-l1"><a class="reference internal" href="#faq">FAQ</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">FAQ</a></li>
 <li class="toctree-l1"><a class="reference internal" href="reference.html">Reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="glossary.html">Glossary</a></li>
 <li class="toctree-l1"><a class="reference internal" href="api.html">API Overview</a></li>

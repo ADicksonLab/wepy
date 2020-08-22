@@ -8,13 +8,32 @@ See the git commit log history for full details.
 
 .. _section-1:
 
+1.0.3 - 2020-08-19
+------------------
+
+-  This fixes an issue with the MacroStateNetwork that allows for
+
+different shapes of state assignment arrays. This was previously an
+issue but did not completely solve the issue.
+
+.. _section-2:
+
+1.0.2 - 2020-08-13
+------------------
+
+-  Fixes too-large chunk size when copying observable run data to other
+   files in ``WepyHDF5.copy_run_slice``
+-  Improves docstrings for the MacroStateNetwork methods
+
+.. _section-3:
+
 1.0.1 - 2020-08-07
 ------------------
 
 This fixes an issue with the MacroStateNetwork that allows for different
 shapes of state assignment arrays.
 
-.. _section-2:
+.. _section-4:
 
 1.0.0 - 2020-08-04
 ------------------

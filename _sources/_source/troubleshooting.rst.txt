@@ -1,5 +1,16 @@
-Common Troubleshooting
-======================
-
 FAQ
 ===
+
+My results files are large, can I compress them?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+There is an HDF5 tool that allows you to "repack" and compress your
+datasets called ``h5repack``. A good ratio of compression to time is
+using GZIP level 2 but read the documentation to customize for yourself:
+
+.. code:: bash
+
+   h5repack -f GZIP=2 original.wepy.h5 compressed.wepy.h5
+
+There are other more involved mechanisms, but this should cut your size
+significantly.
