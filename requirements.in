@@ -30,6 +30,7 @@ dask[bag]
 prometheus_client
 pympler
 
-git+https://github.com/ADicksonLab/geomm
-git+https://github.com/ADicksonLab/openmm_systems
+# causes simultaneous dev to fail
+# git+https://github.com/ADicksonLab/geomm
+# git+https://github.com/ADicksonLab/openmm_systems
 
