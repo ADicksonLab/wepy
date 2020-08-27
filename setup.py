@@ -92,7 +92,7 @@ setup(
 
     entry_points={
         'console_scripts' : [
-            'wepy=wepy.cli:cli',
+            'wepy=wepy.__main__:cli',
         ],
         'pytest11' : [
             'pytest-wepy=pytest_wepy',
