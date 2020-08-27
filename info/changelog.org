@@ -5,6 +5,10 @@ Adapted from [[https://keepachangelog.com][keepachangelog.com]] for org-mode.
 
 See the git commit log history for full details.
 
+** 1.0.4 - 2020-08-27
+
+- Fixes the broken CLI interface. Moves it into the standard ~__main__.py~ module.
+
 ** 1.0.3 - 2020-08-19
 
 - This fixes an issue with the MacroStateNetwork that allows for
