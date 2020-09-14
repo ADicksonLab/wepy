@@ -892,9 +892,19 @@ class Orchestrator():
 
         # delete the old snapshot if we need to
         if delete_params is not None:
-            logging.debug("Deleting the old snapshot")
-            del checkpoint_orch.snapshot_kv[old_checkpoint_hash]
-            logging.debug("finished")
+
+            # WARN: occasionally and for unknown reasons we have found
+            # that the final checkpoint hash is the same as the one
+            # before. (The case where the last snapshot is on the same
+            # cycle as a backup is already covered). So as a last
+            # resort, we check that they don't have the same hash. If
+            # they do we don't delete it!
+            if snaphash != old_checkpoint_hash:
+                logging.debug("Deleting the old snapshot")
+                del checkpoint_orch.snapshot_kv[old_checkpoint_hash]
+                logging.debug("finished")
+            else:
+                logging.warn("Final snapshot has same hash as the previous checkpoint. Not deleting the previous one.")
 
 
         checkpoint_orch.close()

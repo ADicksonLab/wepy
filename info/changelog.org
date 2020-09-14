@@ -5,6 +5,11 @@ Adapted from [[https://keepachangelog.com][keepachangelog.com]] for org-mode.
 
 See the git commit log history for full details.
 
+** 1.0.5 - 2020-09-14
+
+- Work around fix for final snapshot in orchestrator being deleted if
+  it is the same hash as the last checkpoint snapshot.
+
 ** 1.0.4 - 2020-08-27
 
 - Fixes the broken CLI interface. Moves it into the standard ~__main__.py~ module.
@@ -27,8 +32,6 @@ This fixes an issue with the MacroStateNetwork that allows for
 different shapes of state assignment arrays.
 
 ** 1.0.0 - 2020-08-04
-
-
 
 Changes in rc6:
 
@@ -70,12 +73,6 @@ Changes in rc1:
 
 
 ** 1.0.0rc1 - 2020-04-09
-
-*** Breakages
-
-*** Regressions
-
-*** Growth
 
 Changes in rc2:
 
