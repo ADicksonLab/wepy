@@ -59,6 +59,7 @@ extensions = [
     'sphinx.ext.napoleon',
     'nbsphinx',
     'sphinxcontrib.bibtex',
+    'sphinxcontrib.newsfeed',
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -99,11 +100,12 @@ html_theme = "alabaster"
 html_theme_options = {
     'logo': 'wepy.svg',
     'logo_name': True,
-    'description': 'A Weighted Ensemble  (WE) simulation framework',
+    'description': 'Wepy Documentation',
+    # 'description': 'A Weighted Ensemble  (WE) simulation framework',
     'github_user': 'ADicksonLab',
     'github_repo': 'wepy',
-    'github_banner': True,
-    'github_button': False,
+    'github_banner': False,
+    'github_button': True,
     'travis_button': False,
     'codecov_button': False,
     'analytics_id': False,  # TODO
@@ -118,7 +120,7 @@ html_theme_options = {
 
 html_static_path = ['_static']
 html_css_files = ['custom.css']
-
+html_favicon = "_static/wepy-icon.ico"
 html_sidebars = {
     '**': [
         'about.html',
@@ -128,6 +130,12 @@ html_sidebars = {
         'donate.html',
     ]
 }
+
+
+html_title = "Wepy Documentation"
+html_baseurl = "https://adicksonlab.github.io/wepy"
+
+# html_extra_path = ["news.rss"]
 
 # -- Options for HTMLHelp output ---------------------------------------------
 
@@ -224,4 +232,6 @@ intersphinx_mapping = {'https://docs.python.org/': None}
 # If true, `todo` and `todoList` produce output, else they produce nothing.
 todo_include_todos = True
 
+
+# -- Options for newsfeed extension ------------------------------------------
 
