@@ -2,6 +2,7 @@
 
 #+begin_export rst
 .. feed-entry::
+   :author: salotz
    :date: 2020-04-29
 #+end_export
 

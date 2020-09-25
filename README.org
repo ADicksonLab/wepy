@@ -2,6 +2,8 @@
 
 [[./info/logo/wepy.svg]]
 
+# trying to make a zenodo badge but github doesn't support this
+# directly. Would have to add a separate build step for this.
 #+begin_export html
 <a href="https://doi.org/10.5281/zenodo.3973431"><img src="https://zenodo.org/badge/DOI/10.5281/zenodo.3973431.svg" alt="DOI"></a>
 #+end_export
