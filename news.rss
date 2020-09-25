@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0">
+  <channel>
+    <title>wepy News</title>
+    <link></link>
+    <description>Various announcements related to the wepy project.</description>
+    <lastBuildDate>Fri, 25 Sep 2020 19:16:26 GMT</lastBuildDate>
+    <generator>sphinxcontrib-newsfeed</generator>
+    <item>
+      <title>Wepy Paper Preprint Released</title>
+      <link>_source/news-articles/wepy-preprint.html</link>
+      <description>&lt;div class="compound"&gt;
+&lt;p class="compound-first"&gt;A preprint for the academic paper describing &lt;code class="docutils literal notranslate"&gt;&lt;span class="pre"&gt;wepy&lt;/span&gt;&lt;/code&gt; has been published
+on &lt;a class="reference external" href="https://chemrxiv.org/s/369c2530c150add1450b"&gt;ChemRxiv&lt;/a&gt;.&lt;/p&gt;
+&lt;p class="compound-middle"&gt;This paper goes into more detail regarding some of the relationships of
+the &lt;code class="docutils literal notranslate"&gt;&lt;span class="pre"&gt;wepy&lt;/span&gt;&lt;/code&gt; architecture to the mathematical descriptions of Weighted
+Ensemble (WE) in general.&lt;/p&gt;
+&lt;p class="compound-middle"&gt;It also describes some of the challenges and solutions that &lt;code class="docutils literal notranslate"&gt;&lt;span class="pre"&gt;wepy&lt;/span&gt;&lt;/code&gt;
+solves with regards to the complexity of WE trajectory data that is
+different from normal linear trajectories.&lt;/p&gt;
+&lt;p class="compound-middle"&gt;In these respects it is a great supplementary resource for understanding
+some of the higher-level issues &lt;code class="docutils literal notranslate"&gt;&lt;span class="pre"&gt;wepy&lt;/span&gt;&lt;/code&gt; solves.&lt;/p&gt;
+&lt;p class="compound-middle"&gt;Enjoy,&lt;/p&gt;
+&lt;p class="compound-last"&gt;~salotz&lt;/p&gt;
+&lt;/div&gt;
+</description>
+      <guid>_source/news-articles/wepy-preprint.html</guid>
+      <pubDate>Thu, 13 Aug 2020 00:00:00 GMT</pubDate>
+    </item>
+    <item>
+      <title>Wepy 1.0 Release</title>
+      <link>_source/news-articles/wepy-1-0-release.html</link>
+      <description>&lt;div class="compound"&gt;
+&lt;p class="compound-first"&gt;We are finally releasing the official 1.0 version of &lt;code class="docutils literal notranslate"&gt;&lt;span class="pre"&gt;wepy&lt;/span&gt;&lt;/code&gt;.&lt;/p&gt;
+&lt;p class="compound-middle"&gt;This will make &lt;code class="docutils literal notranslate"&gt;&lt;span class="pre"&gt;pip&lt;/span&gt; &lt;span class="pre"&gt;install&lt;/span&gt; &lt;span class="pre"&gt;wepy&lt;/span&gt;&lt;/code&gt; point to the correct mostly up to
+date version which has been a point of confusion in the past.&lt;/p&gt;
+&lt;p class="compound-middle"&gt;In the past few months not a lot of changes to the code has occured
+(despite being used by many people) and most of the progress has occured
+around improving the developer workflows for writing and testing
+examples and tutorials.&lt;/p&gt;
+&lt;p class="compound-last"&gt;We encourage everyone to look through the documentation and see what all
+there is to learn! Also, not all of the documentation materials are
+complete at this point, but will be filled out in the coming months as
+time allows.&lt;/p&gt;
+&lt;/div&gt;
+</description>
+      <guid>_source/news-articles/wepy-1-0-release.html</guid>
+      <pubDate>Tue, 04 Aug 2020 00:00:00 GMT</pubDate>
+    </item>
+    <item>
+      <title>Tutorial for Contributors for Running and Writing Examples</title>
+      <link>_source/news-articles/example-writing-guide.html</link>
+      <description>&lt;div class="compound"&gt;
+&lt;p class="compound-first"&gt;We have a separate repository where we save all the workshops we have
+done for the users/contributors in our lab:&lt;/p&gt;
+&lt;p class="compound-middle"&gt;&lt;a class="reference external" href="https://gitlab.com/ADicksonLab/wepy-developer-resources"&gt;https://gitlab.com/ADicksonLab/wepy-developer-resources&lt;/a&gt;&lt;/p&gt;
+&lt;p class="compound-middle"&gt;These are topics which may change throughout time, so we don’t include
+them in the main &lt;code class="docutils literal notranslate"&gt;&lt;span class="pre"&gt;wepy&lt;/span&gt;&lt;/code&gt; tree nor do we guarantee they will work in
+perpetuity.&lt;/p&gt;
+&lt;p class="compound-middle"&gt;Today we are running a workshop on getting people started running &amp;amp;
+writing examples for &lt;code class="docutils literal notranslate"&gt;&lt;span class="pre"&gt;wepy&lt;/span&gt;&lt;/code&gt;:&lt;/p&gt;
+&lt;p class="compound-middle"&gt;&lt;a class="reference external" href="https://gitlab.com/ADicksonLab/wepy-developer-resources/-/tree/master/workshops/2020-04-29_Examples-Tutorials-HOWTO"&gt;Examples &amp;amp; Tutorials
+HOWTO&lt;/a&gt;&lt;/p&gt;
+&lt;p class="compound-middle"&gt;In the &lt;code class="docutils literal notranslate"&gt;&lt;span class="pre"&gt;wepy&lt;/span&gt;&lt;/code&gt; project we have a number of utilities which we think
+will help us in keeping the examples in our docs up to date with the
+code.&lt;/p&gt;
+&lt;p class="compound-middle"&gt;Outdated docs are a frequent problem with software projects. Hopefully,
+the strategies that we start to outline here can help you in all your
+software projects by gaining a discipline of carefully maintaining and
+pinning your dependencies for purpose-driven virtualenvs.&lt;/p&gt;
+&lt;p class="compound-middle"&gt;A common structure for writing examples and tutorials also helps to
+allow for automated processes to create and test them in a uniform and
+low friction way.&lt;/p&gt;
+&lt;p class="compound-last"&gt;~salotz&lt;/p&gt;
+&lt;/div&gt;
+</description>
+      <guid>_source/news-articles/example-writing-guide.html</guid>
+      <pubDate>Wed, 29 Apr 2020 00:00:00 GMT</pubDate>
+    </item>
+  </channel>
+</rss>

@@ -8,6 +8,22 @@ See the git commit log history for full details.
 
 .. _section-1:
 
+1.0.5 - 2020-09-14
+------------------
+
+-  Work around fix for final snapshot in orchestrator being deleted if
+   it is the same hash as the last checkpoint snapshot.
+
+.. _section-2:
+
+1.0.4 - 2020-08-27
+------------------
+
+-  Fixes the broken CLI interface. Moves it into the standard
+   ``__main__.py`` module.
+
+.. _section-3:
+
 1.0.3 - 2020-08-19
 ------------------
 
@@ -16,7 +32,7 @@ See the git commit log history for full details.
 different shapes of state assignment arrays. This was previously an
 issue but did not completely solve the issue.
 
-.. _section-2:
+.. _section-4:
 
 1.0.2 - 2020-08-13
 ------------------
@@ -25,7 +41,7 @@ issue but did not completely solve the issue.
    files in ``WepyHDF5.copy_run_slice``
 -  Improves docstrings for the MacroStateNetwork methods
 
-.. _section-3:
+.. _section-5:
 
 1.0.1 - 2020-08-07
 ------------------
@@ -33,7 +49,7 @@ issue but did not completely solve the issue.
 This fixes an issue with the MacroStateNetwork that allows for different
 shapes of state assignment arrays.
 
-.. _section-4:
+.. _section-6:
 
 1.0.0 - 2020-08-04
 ------------------
@@ -77,15 +93,6 @@ Changes in rc1:
 
 1.0.0rc1 - 2020-04-09
 ---------------------
-
-Breakages
-~~~~~~~~~
-
-Regressions
-~~~~~~~~~~~
-
-Growth
-~~~~~~
 
 Changes in rc2:
 

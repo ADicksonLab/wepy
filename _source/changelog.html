@@ -4,7 +4,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <title>Changelog &#8212; wepy 1.0.3 documentation</title>
+    <title>Changelog &#8212; Wepy Documentation</title>
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
@@ -16,10 +16,12 @@
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    <link rel="canonical" href="https://adicksonlab.github.io/wepy/_source/changelog.html" />
+    <link rel="shortcut icon" href="../_static/wepy-icon.ico"/>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Development Guide" href="dev_guide.html" />
-    <link rel="prev" title="News and Updates" href="news.html" />
+    <link rel="prev" title="Tutorial for Contributors for Running and Writing Examples" href="news-articles/example-writing-guide.html" />
    
   <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
   
@@ -38,7 +40,7 @@
     <ul>
         <li>
           &larr;
-          <a href="news.html" title="Previous document">News and Updates</a>
+          <a href="news-articles/example-writing-guide.html" title="Previous document">Tutorial for Contributors for Running and Writing Examples</a>
         </li>
         <li>
           <a href="dev_guide.html" title="Next document">Development Guide</a>
@@ -57,28 +59,42 @@
 org-mode.</p>
 <p>See the git commit log history for full details.</p>
 <div class="section" id="section-1">
-<span id="id1"></span><h2>1.0.3 - 2020-08-19<a class="headerlink" href="#section-1" title="Permalink to this headline">¶</a></h2>
+<span id="id1"></span><h2>1.0.5 - 2020-09-14<a class="headerlink" href="#section-1" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>Work around fix for final snapshot in orchestrator being deleted if
+it is the same hash as the last checkpoint snapshot.</p></li>
+</ul>
+</div>
+<div class="section" id="section-2">
+<span id="id2"></span><h2>1.0.4 - 2020-08-27<a class="headerlink" href="#section-2" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>Fixes the broken CLI interface. Moves it into the standard
+<code class="docutils literal notranslate"><span class="pre">__main__.py</span></code> module.</p></li>
+</ul>
+</div>
+<div class="section" id="section-3">
+<span id="id3"></span><h2>1.0.3 - 2020-08-19<a class="headerlink" href="#section-3" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li><p>This fixes an issue with the MacroStateNetwork that allows for</p></li>
 </ul>
 <p>different shapes of state assignment arrays. This was previously an
 issue but did not completely solve the issue.</p>
 </div>
-<div class="section" id="section-2">
-<span id="id2"></span><h2>1.0.2 - 2020-08-13<a class="headerlink" href="#section-2" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="section-4">
+<span id="id4"></span><h2>1.0.2 - 2020-08-13<a class="headerlink" href="#section-4" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li><p>Fixes too-large chunk size when copying observable run data to other
 files in <code class="docutils literal notranslate"><span class="pre">WepyHDF5.copy_run_slice</span></code></p></li>
 <li><p>Improves docstrings for the MacroStateNetwork methods</p></li>
 </ul>
 </div>
-<div class="section" id="section-3">
-<span id="id3"></span><h2>1.0.1 - 2020-08-07<a class="headerlink" href="#section-3" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="section-5">
+<span id="id5"></span><h2>1.0.1 - 2020-08-07<a class="headerlink" href="#section-5" title="Permalink to this headline">¶</a></h2>
 <p>This fixes an issue with the MacroStateNetwork that allows for different
 shapes of state assignment arrays.</p>
 </div>
-<div class="section" id="section-4">
-<span id="id4"></span><h2>1.0.0 - 2020-08-04<a class="headerlink" href="#section-4" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="section-6">
+<span id="id6"></span><h2>1.0.0 - 2020-08-04<a class="headerlink" href="#section-6" title="Permalink to this headline">¶</a></h2>
 <p>Changes in rc6:</p>
 <ul class="simple">
 <li><p>adds feature to make weighted transition counts from simulation data.
@@ -119,14 +135,6 @@ resamplers.</p></li>
 </div>
 <div class="section" id="rc1-2020-04-09">
 <h2>1.0.0rc1 - 2020-04-09<a class="headerlink" href="#rc1-2020-04-09" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="breakages">
-<h3>Breakages<a class="headerlink" href="#breakages" title="Permalink to this headline">¶</a></h3>
-</div>
-<div class="section" id="regressions">
-<h3>Regressions<a class="headerlink" href="#regressions" title="Permalink to this headline">¶</a></h3>
-</div>
-<div class="section" id="growth">
-<h3>Growth<a class="headerlink" href="#growth" title="Permalink to this headline">¶</a></h3>
 <p>Changes in rc2:</p>
 <ul class="simple">
 <li><p>adds support for setting the OpenMM Platform at <code class="docutils literal notranslate"><span class="pre">run_segment</span></code> or in
@@ -142,7 +150,6 @@ resamplers.</p></li>
 <li><p>fixes bug in WorkerMapper</p></li>
 </ul>
 </div>
-</div>
 <div class="section" id="rc0">
 <h2>1.0.0rc0<a class="headerlink" href="#rc0" title="Permalink to this headline">¶</a></h2>
 <p>Prehistory</p>
@@ -157,7 +164,7 @@ resamplers.</p></li>
     <ul>
         <li>
           &larr;
-          <a href="news.html" title="Previous document">News and Updates</a>
+          <a href="news-articles/example-writing-guide.html" title="Previous document">Tutorial for Contributors for Running and Writing Examples</a>
         </li>
         <li>
           <a href="dev_guide.html" title="Next document">Development Guide</a>
@@ -182,10 +189,15 @@ resamplers.</p></li>
 
 
 
-<p class="blurb">A Weighted Ensemble  (WE) simulation framework</p>
+<p class="blurb">Wepy Documentation</p>
 
 
 
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=ADicksonLab&repo=wepy&type=watch&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
 
 
 
@@ -218,7 +230,7 @@ resamplers.</p></li>
 <h3>Related Topics</h3>
 <ul>
   <li><a href="../index.html">Documentation overview</a><ul>
-      <li>Previous: <a href="news.html" title="previous chapter">News and Updates</a></li>
+      <li>Previous: <a href="news-articles/example-writing-guide.html" title="previous chapter">Tutorial for Contributors for Running and Writing Examples</a></li>
       <li>Next: <a href="dev_guide.html" title="next chapter">Development Guide</a></li>
   </ul></li>
 </ul>
@@ -257,10 +269,6 @@ resamplers.</p></li>
           rel="nofollow">Page source</a>
     </div>
 
-    
-    <a href="https://github.com/ADicksonLab/wepy" class="github">
-        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
-    </a>
     
 
     

@@ -1,0 +1,257 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Wepy 1.0 Release &#8212; Wepy Documentation</title>
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/custom.css" />
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/language_data.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    <link rel="canonical" href="https://adicksonlab.github.io/wepy/_source/news-articles/wepy-1-0-release.html" />
+    <link rel="shortcut icon" href="../../_static/wepy-icon.ico"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Tutorial for Contributors for Running and Writing Examples" href="example-writing-guide.html" />
+    <link rel="prev" title="Wepy Paper Preprint Released" href="wepy-preprint.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+              <div class="related top">
+                &nbsp;
+  <nav id="rellinks">
+    <ul>
+        <li>
+          &larr;
+          <a href="wepy-preprint.html" title="Previous document">Wepy Paper Preprint Released</a>
+        </li>
+        <li>
+          <a href="example-writing-guide.html" title="Next document">Tutorial for Contributors for Running and Writing Examples</a>
+          &rarr;
+        </li>
+    </ul>
+  </nav>
+              </div>
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="wepy-1-0-release">
+<h1>Wepy 1.0 Release<a class="headerlink" href="#wepy-1-0-release" title="Permalink to this headline">¶</a></h1>
+<p class="feed-meta">Published on <em class="feed-date">2020-08-04 00:00:00</em></p>
+<p>We are finally releasing the official 1.0 version of <code class="docutils literal notranslate"><span class="pre">wepy</span></code>.</p>
+<p>This will make <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">wepy</span></code> point to the correct mostly up to
+date version which has been a point of confusion in the past.</p>
+<p>In the past few months not a lot of changes to the code has occured
+(despite being used by many people) and most of the progress has occured
+around improving the developer workflows for writing and testing
+examples and tutorials.</p>
+<p>We encourage everyone to look through the documentation and see what all
+there is to learn! Also, not all of the documentation materials are
+complete at this point, but will be filled out in the coming months as
+time allows.</p>
+<p>We have placed special focus on testing examples, tutorials, and all
+documentation pages using a combination of a careful structure for
+inputs and outputs and the tangling properties of both org-mode
+documents and Jupyter Notebooks that also allow for web presentation.</p>
+<p>This is quite different from any other open source project I have seen
+which often emphasize the testing of the code base through unit and
+integration tests. <code class="docutils literal notranslate"><span class="pre">wepy</span></code> unfortunately does not have hardly any unit
+or integration tests. We have tried to start these in the past but not
+having test driven practice from the beginning this is a massive,
+thankless, and difficult undertaking that wouldn’t provide much value.
+Instead one of the major hurdles for <code class="docutils literal notranslate"><span class="pre">wepy</span></code> users is just to
+understand how to connect all the parts and pieces that it offers in
+coherent ways. As the main developer I always had specific pipelines in
+mind when I wrote components but this isn’t always evident to users.
+That is why the tutorials and examples are so important.</p>
+<p>So I was incentived to produce tutorials and full examples of working
+code which actually provides value to the users. The problem with these
+code bases is that they often go stale and don’t work for users for a
+variety of reasons. These are:</p>
+<ul class="simple">
+<li><p>details of the environment are different (e.g. version of the
+package, external programs like OpenMM and CUDA).</p></li>
+<li><p>the code simply isn’t up to date with the code and is erroneous.</p></li>
+</ul>
+<p>It follows that we need the first point in order to solve the second
+one. That is, to test we need to specify environments. This is often
+solved with tools like <code class="docutils literal notranslate"><span class="pre">tox</span></code> (we use <code class="docutils literal notranslate"><span class="pre">nox</span></code> which is essentially the
+same thing). We have added a more static configuration concept to
+accompany this by the use of a series of <code class="docutils literal notranslate"><span class="pre">requirements.in/txt</span></code> files
+that can be specified, compiled, and pinned. This allows both <code class="docutils literal notranslate"><span class="pre">nox</span></code> to
+create proper test environments and for the users to also create
+environments in an explicit and “executable” format so they can
+troubleshoot if they need.</p>
+<p>Furthermore, this gives the author of the tutorial some confidence that
+the other dependent libraries will work when installed by the audience,
+since they are being pinned.</p>
+<p>The process of testing the tutorials isn’t that complex but it did
+require a discipline of how to organize your tutorials. This allows for
+a building process to “tangle” the correct code from tutorial sources,
+and then execute this code. Tests are then written in <code class="docutils literal notranslate"><span class="pre">pytest</span></code> under
+the right category. Minimally, you can just run the code to see if it
+works. You can also fairly easily test to see that certain files were
+indeed produced. The sky of course is the limit and you could make
+detailed tests for the textual output of these programs.</p>
+<p>Its worth noting that more established documentation testing tools like
+<code class="docutils literal notranslate"><span class="pre">doctest</span></code> for python do not help you in the same context. These are
+for running short, single line examples ideally in an interactive
+interpreter. These kinds of tests cannot do anything for you if your
+inputs are complicated or simply need to be read from a file. You cannot
+run <code class="docutils literal notranslate"><span class="pre">doctest</span></code> snippets for anything involving I/O (at least that I am
+aware of and then setting this up would be highly non-trivial).
+Furthermore, testing for outputs is a non-starter. Furthermore, many
+projects involve documentation which involves running things at a shell,
+which is totally outside of the <code class="docutils literal notranslate"><span class="pre">doctest</span></code> purview.</p>
+<p>I also believe that having these extra requirements for tests, directory
+structure, writing format etc. makes for a clear-cut requirement for
+what a tutorial or example needs to be for it to be included in the
+repository (editorial decisions of content aside). This takes out some
+of the ambiguity and anxiety that may surround greenlighting a community
+contributed tutorial (or for yourself so you know when its “done” as in
+publishable).</p>
+<p>Additionally, the documentation tests serve kind of as integration tests
+in their own sense. They are a good starting off point for establishing
+tests that also delivers immediate value to the project by making it
+easier for users to get started.</p>
+<p>~salotz</p>
+</div>
+
+
+          </div>
+              <div class="related bottom">
+                &nbsp;
+  <nav id="rellinks">
+    <ul>
+        <li>
+          &larr;
+          <a href="wepy-preprint.html" title="Previous document">Wepy Paper Preprint Released</a>
+        </li>
+        <li>
+          <a href="example-writing-guide.html" title="Next document">Tutorial for Contributors for Running and Writing Examples</a>
+          &rarr;
+        </li>
+    </ul>
+  </nav>
+              </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<p class="logo">
+  <a href="../../index.html">
+    <img class="logo" src="../../_static/wepy.svg" alt="Logo"/>
+    
+    <h1 class="logo logo-name">wepy</h1>
+    
+  </a>
+</p>
+
+
+
+<p class="blurb">Wepy Documentation</p>
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=ADicksonLab&repo=wepy&type=watch&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+<h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../quick_start.html">Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../introduction.html">Introduction &amp; Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../introduction.html#bibliography">Bibliography</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/index.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide.html">User’s Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../troubleshooting.html">FAQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference.html">Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../glossary.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api.html">API Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../_api/modules.html">Full API</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../general_info.html">General Information</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../news.html">News and Updates</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../dev_guide.html">Development Guide</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../news.html">News and Updates</a><ul>
+      <li>Previous: <a href="wepy-preprint.html" title="previous chapter">Wepy Paper Preprint Released</a></li>
+      <li>Next: <a href="example-writing-guide.html" title="next chapter">Tutorial for Contributors for Running and Writing Examples</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, Samuel D. Lotz.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.0.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../../_sources/_source/news-articles/wepy-1-0-release.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

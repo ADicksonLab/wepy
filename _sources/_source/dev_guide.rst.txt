@@ -813,8 +813,9 @@ Making a release then follows these steps:
    Here then is the checklist of manually edited versions (currently the
    conda packaging stuff is not supported):
 
-   -  [ ] ``tasks/config.py``
-   -  [ ] ``inv git.release``
+   -  [ ] edit ``tasks/config.py``
+   -  [ ] commit
+   -  [ ] run ``inv git.release``
 
    Changing the version may happen a few times through the release
    process in order to debug wrinkles in the process so its useful to
