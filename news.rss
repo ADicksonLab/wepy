@@ -4,11 +4,38 @@
     <title>wepy News</title>
     <link></link>
     <description>Various announcements related to the wepy project.</description>
-    <lastBuildDate>Fri, 25 Sep 2020 19:16:26 GMT</lastBuildDate>
+    <lastBuildDate>Fri, 25 Sep 2020 19:39:51 GMT</lastBuildDate>
     <generator>sphinxcontrib-newsfeed</generator>
     <item>
+      <title>RSS Feed Now Available</title>
+      <link>_source/news-articles/2020-09-25_news-rss-feed.html</link>
+      <description>&lt;div class="compound"&gt;
+&lt;p class="compound-first"&gt;I have now made an RSS feed for this news section:
+&lt;a class="reference external" href="https://adicksonlab.github.io/wepy/news.rss"&gt;https://adicksonlab.github.io/wepy/news.rss&lt;/a&gt;&lt;/p&gt;
+&lt;p class="compound-middle"&gt;You can follow releases of packages using the services they are deployed
+on:&lt;/p&gt;
+&lt;ul class="compound-middle simple"&gt;
+&lt;li&gt;&lt;p&gt;&lt;a class="reference external" href="https://pypi.org/rss/project/wepy/releases.xml"&gt;PyPI&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;Github:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;&lt;a class="reference external" href="https://github.com/ADicksonLab/wepy/releases.atom"&gt;Releases&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;&lt;a class="reference external" href="https://github.com/ADicksonLab/wepy/commits.atom"&gt;Commits&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;&lt;a class="reference external" href="https://github.com/ADicksonLab/wepy/tags.atom"&gt;Tags&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p class="compound-middle"&gt;If you aren’t familiar you’ll need to get a Feed Reader applications
+that basically goes and fetches the RSS (or Atom) feed pages and
+provides you a readable digest of the articles there.&lt;/p&gt;
+&lt;p class="compound-last"&gt;~salotz&lt;/p&gt;
+&lt;/div&gt;
+</description>
+      <guid>_source/news-articles/2020-09-25_news-rss-feed.html</guid>
+      <pubDate>Fri, 25 Sep 2020 00:00:00 GMT</pubDate>
+    </item>
+    <item>
       <title>Wepy Paper Preprint Released</title>
-      <link>_source/news-articles/wepy-preprint.html</link>
+      <link>_source/news-articles/2020-08-13_wepy-preprint.html</link>
       <description>&lt;div class="compound"&gt;
 &lt;p class="compound-first"&gt;A preprint for the academic paper describing &lt;code class="docutils literal notranslate"&gt;&lt;span class="pre"&gt;wepy&lt;/span&gt;&lt;/code&gt; has been published
 on &lt;a class="reference external" href="https://chemrxiv.org/s/369c2530c150add1450b"&gt;ChemRxiv&lt;/a&gt;.&lt;/p&gt;
@@ -24,12 +51,12 @@ some of the higher-level issues &lt;code class="docutils literal notranslate"&gt
 &lt;p class="compound-last"&gt;~salotz&lt;/p&gt;
 &lt;/div&gt;
 </description>
-      <guid>_source/news-articles/wepy-preprint.html</guid>
+      <guid>_source/news-articles/2020-08-13_wepy-preprint.html</guid>
       <pubDate>Thu, 13 Aug 2020 00:00:00 GMT</pubDate>
     </item>
     <item>
       <title>Wepy 1.0 Release</title>
-      <link>_source/news-articles/wepy-1-0-release.html</link>
+      <link>_source/news-articles/2020-08-04_wepy-1-0-release.html</link>
       <description>&lt;div class="compound"&gt;
 &lt;p class="compound-first"&gt;We are finally releasing the official 1.0 version of &lt;code class="docutils literal notranslate"&gt;&lt;span class="pre"&gt;wepy&lt;/span&gt;&lt;/code&gt;.&lt;/p&gt;
 &lt;p class="compound-middle"&gt;This will make &lt;code class="docutils literal notranslate"&gt;&lt;span class="pre"&gt;pip&lt;/span&gt; &lt;span class="pre"&gt;install&lt;/span&gt; &lt;span class="pre"&gt;wepy&lt;/span&gt;&lt;/code&gt; point to the correct mostly up to
@@ -44,12 +71,12 @@ complete at this point, but will be filled out in the coming months as
 time allows.&lt;/p&gt;
 &lt;/div&gt;
 </description>
-      <guid>_source/news-articles/wepy-1-0-release.html</guid>
+      <guid>_source/news-articles/2020-08-04_wepy-1-0-release.html</guid>
       <pubDate>Tue, 04 Aug 2020 00:00:00 GMT</pubDate>
     </item>
     <item>
       <title>Tutorial for Contributors for Running and Writing Examples</title>
-      <link>_source/news-articles/example-writing-guide.html</link>
+      <link>_source/news-articles/2020-04-29_example-writing-guide.html</link>
       <description>&lt;div class="compound"&gt;
 &lt;p class="compound-first"&gt;We have a separate repository where we save all the workshops we have
 done for the users/contributors in our lab:&lt;/p&gt;
@@ -74,7 +101,7 @@ low friction way.&lt;/p&gt;
 &lt;p class="compound-last"&gt;~salotz&lt;/p&gt;
 &lt;/div&gt;
 </description>
-      <guid>_source/news-articles/example-writing-guide.html</guid>
+      <guid>_source/news-articles/2020-04-29_example-writing-guide.html</guid>
       <pubDate>Wed, 29 Apr 2020 00:00:00 GMT</pubDate>
     </item>
   </channel>

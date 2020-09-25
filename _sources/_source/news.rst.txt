@@ -8,6 +8,7 @@ News and Updates
    :title: wepy News
    :description: Various announcements related to the wepy project.
 
-   news-articles/wepy-preprint
-   news-articles/wepy-1-0-release
-   news-articles/example-writing-guide
+   news-articles/2020-09-25_news-rss-feed
+   news-articles/2020-08-13_wepy-preprint
+   news-articles/2020-08-04_wepy-1-0-release
+   news-articles/2020-04-29_example-writing-guide
