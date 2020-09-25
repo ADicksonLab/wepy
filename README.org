@@ -2,9 +2,9 @@
 
 [[./info/logo/wepy.svg]]
 
-#+begin_src html
+#+begin_export html
 <a href="https://doi.org/10.5281/zenodo.3973431"><img src="https://zenodo.org/badge/DOI/10.5281/zenodo.3973431.svg" alt="DOI"></a>
-#+end_src
+#+end_export
 
 [[https://adicksonlab.github.io/wepy/index.html][Sphinx Documentation]]
 
