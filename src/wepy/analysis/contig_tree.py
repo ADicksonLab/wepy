@@ -1271,20 +1271,21 @@ class BaseContigTree():
         return contig_runs
 
 
-    def exit_point_trajectories(self):
-        """Return full run traces for every warping event."""
+    # TODO remove
+    # def exit_point_trajectories(self):
+    #     """Return full run traces for every warping event."""
 
-        # this operation is done over every spanning contig since we
-        # need a parent table
-        span_traces = []
-        for span_trace in self.spanning_contig_traces():
+    #     # this operation is done over every spanning contig since we
+    #     # need a parent table
+    #     span_traces = []
+    #     for span_trace in self.spanning_contig_traces():
 
-            # make the contig
-            span_contig = self.make_contig(span_trace)
+    #         # make the contig
+    #         span_contig = self.make_contig(span_trace)
 
-            span_traces.extend(span_contig.exit_point_trajectories())
+    #         span_traces.extend(span_contig.exit_point_trajectories())
 
-        return span_traces
+    #     return span_traces
 
 
 class ContigTree(BaseContigTree):
