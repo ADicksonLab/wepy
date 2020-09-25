@@ -63,6 +63,7 @@ ORG_DOCS_SOURCES = [
     'troubleshooting',
     'users_guide',
     'reference',
+    'news-articles',
 ]
 
 RST_DOCS_SOURCES = [
