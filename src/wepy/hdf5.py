@@ -5230,10 +5230,10 @@ class WepyHDF5(object):
 
         """
 
-        # TODO optimize by doing reads in chunks
-        opt_flag = True
-
-        if opt_flag:
+        # TODO, WARN: this is known to not work properly in all
+        # cases. While this is an important feature, we defer the
+        # implementation of chunking to another function or interace
+        if False:
 
             def argsort(seq):
                 return sorted(range(len(seq)), key=seq.__getitem__)
