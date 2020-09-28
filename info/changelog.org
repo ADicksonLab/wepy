@@ -5,6 +5,18 @@ Adapted from [[https://keepachangelog.com][keepachangelog.com]] for org-mode.
 
 See the git commit log history for full details.
 
+** 1.0.6 - 2020-09-28
+
+- Fixes the ~WepyHDF5.get_trace_field~ function.
+
+  Previously I had implemented a chunking strategy to improve
+  performance for situations with very long traces. This has a bug
+  somewhere in it. For the time being we have just reverted this
+  optimization to the naive (but correct) approach. If an optimized
+  version is introduced it will be made explicit (either in the
+  ~get_trace_field~ call, or as a wrapper or separate method).
+
+
 ** 1.0.5 - 2020-09-14
 
 - Work around fix for final snapshot in orchestrator being deleted if

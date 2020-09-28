@@ -8,7 +8,7 @@ from .sysconfig import *
 
 PROJECT_SLUG = "wepy"
 
-VERSION = '1.0.5'
+VERSION = '1.0.6'
 
 
 ENV_METHOD = 'conda'
