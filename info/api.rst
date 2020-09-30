@@ -34,15 +34,17 @@ Wepy Core
 * :any:`Simulation Manager </_api/wepy.sim_manager>`
 * :any:`Walker </_api/wepy.walker>`
 
-  Orchestration CLI
------------------
+  ..
+     Orchestration CLI
+   -----------------
 
-TODO
+   TODO
 
    
 Utilities
 ---------
 
+* :any:`JSON Topology </_api/wepy.util.json_top>`
 * :any:`Miscellaneous </_api/wepy.util.util>`
 * :any:`MDTraj Interface </_api/wepy.util.mdtraj>`
 
@@ -59,7 +61,6 @@ General Purpose:
 * :any:`WepyHDF5 </_api/wepy.reporter.hdf5>`
 * :any:`Resampling Tree </_api/wepy.reporter.restree>`
 * :any:`Last Walkers </_api/wepy.reporter.walker>`
-* :any:`Abstract Base Classes </_api/wepy.reporter.reporter>`
 
 WExplore and Image Based Resamplers:
 
@@ -71,7 +72,7 @@ Resamplers
 
 * :any:`WExplore </_api/wepy.resampling.resamplers.wexplore>`
 * :any:`REVO </_api/wepy.resampling.resamplers.revo>`
-* :any:`Abstract Base Classes </_api/wepy.resampling.resamplers.resampler>`
+
 
 Distance Metrics
 ^^^^^^^^^^^^^^^^
@@ -83,17 +84,25 @@ Runners
 ^^^^^^^
 
 * :any:`OpenMM </_api/wepy.runners.openmm>`
-* :any:`Abstract Base Class </_api/wepy.runners.runner>`
 
 Work Mapper
 ^^^^^^^^^^^
    
-* :any:`Single Process and Worker Processes </_api/wepy.work_mapper.mapper>`
+* :any:`Single Process </_api/wepy.work_mapper.mapper>`
+* :any:`Worker Mapper </_api/wepy.work_mapper.mapper>`
 
+Parallel mapper via python multiprocessing that implements the
+worker-consumer model. There will only be as many forked processes as
+workers used.
+
+* :any:`Task Mapper </_api/wepy.work_mapper.task_mapper>`
+
+Parallel mapper via python multiprocessing that implements a task
+based parallelism. Every walker every cycle will have a new process
+created (forked) and workers are scheduled via a lock queue.
 
 Boundary Conditions
 ^^^^^^^^^^^^^^^^^^^
 
 * :any:`Receptor-Ligand (Un)Binding </_api/wepy.boundary_conditions.receptor>`
-* :any:`Abstract Base Classes </_api/wepy.boundary_conditions.boundary>`
    
