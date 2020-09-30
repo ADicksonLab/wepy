@@ -5,6 +5,12 @@ Adapted from [[https://keepachangelog.com][keepachangelog.com]] for org-mode.
 
 See the git commit log history for full details.
 
+** 1.0.7 - Unreleased
+
+- Adds a check to make sure the ~platform~ for the
+  ~runners.openmm.OpenMMRunner~ is a string and not an actual
+  ~Platform~ object.
+
 ** 1.0.6 - 2020-09-28
 
 - Fixes the ~WepyHDF5.get_trace_field~ function.
