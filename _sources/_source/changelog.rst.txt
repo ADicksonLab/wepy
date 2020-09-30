@@ -6,7 +6,28 @@ org-mode.
 
 See the git commit log history for full details.
 
+1.0.7 - Unreleased
+------------------
+
+-  Adds a check to make sure the ``platform`` for the
+   ``runners.openmm.OpenMMRunner`` is a string and not an actual
+   ``Platform`` object.
+
 .. _section-1:
+
+1.0.6 - 2020-09-28
+------------------
+
+-  Fixes the ``WepyHDF5.get_trace_field`` function.
+
+   Previously I had implemented a chunking strategy to improve
+   performance for situations with very long traces. This has a bug
+   somewhere in it. For the time being we have just reverted this
+   optimization to the naive (but correct) approach. If an optimized
+   version is introduced it will be made explicit (either in the
+   ``get_trace_field`` call, or as a wrapper or separate method).
+
+.. _section-2:
 
 1.0.5 - 2020-09-14
 ------------------
@@ -14,7 +35,7 @@ See the git commit log history for full details.
 -  Work around fix for final snapshot in orchestrator being deleted if
    it is the same hash as the last checkpoint snapshot.
 
-.. _section-2:
+.. _section-3:
 
 1.0.4 - 2020-08-27
 ------------------
@@ -22,7 +43,7 @@ See the git commit log history for full details.
 -  Fixes the broken CLI interface. Moves it into the standard
    ``__main__.py`` module.
 
-.. _section-3:
+.. _section-4:
 
 1.0.3 - 2020-08-19
 ------------------
@@ -32,7 +53,7 @@ See the git commit log history for full details.
 different shapes of state assignment arrays. This was previously an
 issue but did not completely solve the issue.
 
-.. _section-4:
+.. _section-5:
 
 1.0.2 - 2020-08-13
 ------------------
@@ -41,7 +62,7 @@ issue but did not completely solve the issue.
    files in ``WepyHDF5.copy_run_slice``
 -  Improves docstrings for the MacroStateNetwork methods
 
-.. _section-5:
+.. _section-6:
 
 1.0.1 - 2020-08-07
 ------------------
@@ -49,7 +70,7 @@ issue but did not completely solve the issue.
 This fixes an issue with the MacroStateNetwork that allows for different
 shapes of state assignment arrays.
 
-.. _section-6:
+.. _section-7:
 
 1.0.0 - 2020-08-04
 ------------------

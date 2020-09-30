@@ -5276,10 +5276,10 @@
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="c1"># TODO optimize by doing reads in chunks</span>
-        <span class="n">opt_flag</span> <span class="o">=</span> <span class="kc">True</span>
-
-        <span class="k">if</span> <span class="n">opt_flag</span><span class="p">:</span>
+        <span class="c1"># TODO, WARN: this is known to not work properly in all</span>
+        <span class="c1"># cases. While this is an important feature, we defer the</span>
+        <span class="c1"># implementation of chunking to another function or interace</span>
+        <span class="k">if</span> <span class="kc">False</span><span class="p">:</span>
 
             <span class="k">def</span> <span class="nf">argsort</span><span class="p">(</span><span class="n">seq</span><span class="p">):</span>
                 <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">seq</span><span class="p">)),</span> <span class="n">key</span><span class="o">=</span><span class="n">seq</span><span class="o">.</span><span class="fm">__getitem__</span><span class="p">)</span>

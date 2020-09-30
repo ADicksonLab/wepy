@@ -83,18 +83,16 @@
 </div>
 <div class="section" id="wepy-core">
 <h2>Wepy Core<a class="headerlink" href="#wepy-core" title="Permalink to this headline">¶</a></h2>
-<ul>
+<ul class="simple">
 <li><p><a class="reference internal" href="../_api/wepy.sim_manager.html"><span class="doc">Simulation Manager</span></a></p></li>
 <li><p><a class="reference internal" href="../_api/wepy.walker.html"><span class="doc">Walker</span></a></p>
-<p>Orchestration CLI</p>
 </li>
 </ul>
-<hr class="docutils" />
-<p>TODO</p>
 </div>
 <div class="section" id="utilities">
 <h2>Utilities<a class="headerlink" href="#utilities" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
+<li><p><a class="reference internal" href="../_api/wepy.util.json_top.html"><span class="doc">JSON Topology</span></a></p></li>
 <li><p><a class="reference internal" href="../_api/wepy.util.util.html"><span class="doc">Miscellaneous</span></a></p></li>
 <li><p><a class="reference internal" href="../_api/wepy.util.mdtraj.html"><span class="doc">MDTraj Interface</span></a></p></li>
 </ul>
@@ -109,7 +107,6 @@
 <li><p><a class="reference internal" href="../_api/wepy.reporter.hdf5.html"><span class="doc">WepyHDF5</span></a></p></li>
 <li><p><a class="reference internal" href="../_api/wepy.reporter.restree.html"><span class="doc">Resampling Tree</span></a></p></li>
 <li><p><a class="reference internal" href="../_api/wepy.reporter.walker.html"><span class="doc">Last Walkers</span></a></p></li>
-<li><p><a class="reference internal" href="../_api/wepy.reporter.reporter.html"><span class="doc">Abstract Base Classes</span></a></p></li>
 </ul>
 <p>WExplore and Image Based Resamplers:</p>
 <ul class="simple">
@@ -122,7 +119,6 @@
 <ul class="simple">
 <li><p><a class="reference internal" href="../_api/wepy.resampling.resamplers.wexplore.html"><span class="doc">WExplore</span></a></p></li>
 <li><p><a class="reference internal" href="../_api/wepy.resampling.resamplers.revo.html"><span class="doc">REVO</span></a></p></li>
-<li><p><a class="reference internal" href="../_api/wepy.resampling.resamplers.resampler.html"><span class="doc">Abstract Base Classes</span></a></p></li>
 </ul>
 </div>
 <div class="section" id="distance-metrics">
@@ -135,20 +131,28 @@
 <h3>Runners<a class="headerlink" href="#runners" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li><p><a class="reference internal" href="../_api/wepy.runners.openmm.html"><span class="doc">OpenMM</span></a></p></li>
-<li><p><a class="reference internal" href="../_api/wepy.runners.runner.html"><span class="doc">Abstract Base Class</span></a></p></li>
 </ul>
 </div>
 <div class="section" id="work-mapper">
 <h3>Work Mapper<a class="headerlink" href="#work-mapper" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
-<li><p><a class="reference internal" href="../_api/wepy.work_mapper.mapper.html"><span class="doc">Single Process and Worker Processes</span></a></p></li>
+<li><p><a class="reference internal" href="../_api/wepy.work_mapper.mapper.html"><span class="doc">Single Process</span></a></p></li>
+<li><p><a class="reference internal" href="../_api/wepy.work_mapper.mapper.html"><span class="doc">Worker Mapper</span></a></p></li>
 </ul>
+<p>Parallel mapper via python multiprocessing that implements the
+worker-consumer model. There will only be as many forked processes as
+workers used.</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="../_api/wepy.work_mapper.task_mapper.html"><span class="doc">Task Mapper</span></a></p></li>
+</ul>
+<p>Parallel mapper via python multiprocessing that implements a task
+based parallelism. Every walker every cycle will have a new process
+created (forked) and workers are scheduled via a lock queue.</p>
 </div>
 <div class="section" id="boundary-conditions">
 <h3>Boundary Conditions<a class="headerlink" href="#boundary-conditions" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li><p><a class="reference internal" href="../_api/wepy.boundary_conditions.receptor.html"><span class="doc">Receptor-Ligand (Un)Binding</span></a></p></li>
-<li><p><a class="reference internal" href="../_api/wepy.boundary_conditions.boundary.html"><span class="doc">Abstract Base Classes</span></a></p></li>
 </ul>
 </div>
 </div>
