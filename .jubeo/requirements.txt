@@ -11,30 +11,30 @@ cffi==1.14.0              # via bcrypt, cryptography, pynacl
 chardet==3.0.4            # via requests
 click==7.1.2              # via jubeo, pip-tools
 colorlog==2.10.0          # via lxdock
-coverage==5.1             # via -r repos/python/.jubeo/requirements.in
-cryptography==2.9.2       # via paramiko, pylxd
-fabric==2.5.0             # via -r repos/python/.jubeo/requirements.in
-ghp-import==0.5.5         # via -r repos/python/.jubeo/requirements.in
+coverage==5.1             # via -r requirements.in
+cryptography==3.2         # via paramiko, pylxd
+fabric==2.5.0             # via -r requirements.in
+ghp-import==0.5.5         # via -r requirements.in
 gitdb==4.0.5              # via gitpython
 gitpython==3.1.2          # via jubeo
 hyperlink==19.0.0         # via jubeo
 idna==2.9                 # via hyperlink, requests
-invoke==1.4.1             # via -r repos/python/.jubeo/requirements.in, fabric
-jubeo==0.0.3a0.dev0       # via -r repos/python/.jubeo/requirements.in
-lxdock==0.4.1             # via -r repos/python/.jubeo/requirements.in
+invoke==1.4.1             # via -r requirements.in, fabric
+jubeo==0.0.3a0.dev0       # via -r requirements.in
+lxdock==0.4.1             # via -r requirements.in
 more-itertools==8.2.0     # via pytest
 packaging==20.3           # via pytest
 paramiko==2.7.1           # via fabric
 pbr==5.4.5                # via pylxd
-pip-tools==5.1.2          # via -r repos/python/.jubeo/requirements.in
+pip-tools==5.1.2          # via -r requirements.in
 pluggy==0.13.1            # via pytest
 py==1.8.1                 # via pytest
 pycparser==2.20           # via cffi
 pylxd==2.2.10             # via lxdock
 pynacl==1.3.0             # via paramiko
 pyparsing==2.4.7          # via packaging
-pytest-runner==5.2        # via -r repos/python/.jubeo/requirements.in
-pytest==5.4.2             # via -r repos/python/.jubeo/requirements.in
+pytest-runner==5.2        # via -r requirements.in
+pytest==5.4.2             # via -r requirements.in
 python-dateutil==2.8.1    # via pylxd
 python-dotenv==0.13.0     # via lxdock
 pyyaml==3.13              # via lxdock
@@ -45,7 +45,7 @@ six==1.14.0               # via bcrypt, cryptography, packaging, pip-tools, pylx
 smmap==3.0.4              # via gitdb
 toml==0.10.0              # via jubeo
 urllib3==1.25.9           # via requests, requests-unixsocket
-versioneer==0.18          # via -r repos/python/.jubeo/requirements.in
+versioneer==0.18          # via -r requirements.in
 voluptuous==0.11.7        # via lxdock
 wcwidth==0.1.9            # via pytest
 ws4py==0.5.1              # via pylxd
