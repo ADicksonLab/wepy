@@ -73,7 +73,7 @@ setup(
     ],
     # building/dev
     setup_requires=['pytest-runner'],
-    tests_require=['pytest', 'tox'],
+    tests_require=['pytest', 'nox'],
 
     cmdclass=versioneer.get_cmdclass(),
 
