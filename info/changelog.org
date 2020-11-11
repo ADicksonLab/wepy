@@ -10,6 +10,8 @@ See the git commit log history for full details.
 - Adds a check to make sure the ~platform~ for the
   ~runners.openmm.OpenMMRunner~ is a string and not an actual
   ~Platform~ object.
+- Fixes the _tranche_cumulative_partition function in the
+  ~analysis.profiles~ module.
 
 ** 1.0.6 - 2020-09-28
 
