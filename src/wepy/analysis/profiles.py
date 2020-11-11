@@ -68,16 +68,18 @@ def _tranche_cumulative_partitions(ensemble_values,
         end_idxs = []
         for i in range(num_partitions):
             end_idx = time_tranche * (i + 1)
-
-        # and create the array of partitions
-        partitions = [(start_idx, end_idx) for end_idx in end_idxs]
+            end_idxs.append(end_idx)
 
         # if there is a remainder in this case we add it to the first
         # partition since the number of partitions is invariant
         # (unlike time_tranche option)
         remainder = n_cycles % time_tranche
         if remainder > 0:
-            partitions[0][1] += remainder
+            end_idxs[0] += remainder
+
+        # and create the array of partitions
+        partitions = [(start_idx, end_idx) for end_idx in end_idxs]
+
 
     return partitions
 
