@@ -5,13 +5,15 @@ Adapted from [[https://keepachangelog.com][keepachangelog.com]] for org-mode.
 
 See the git commit log history for full details.
 
-** 1.0.7 - Unreleased
+** 1.0.7 - unreleased
 
 - Adds a check to make sure the ~platform~ for the
   ~runners.openmm.OpenMMRunner~ is a string and not an actual
   ~Platform~ object.
 - Fixes the _tranche_cumulative_partition function in the
   ~analysis.profiles~ module.
+- Pins version of ~h5py~ to less than version 3, which introduced
+  breaking API changes.
 
 ** 1.0.6 - 2020-09-28
 

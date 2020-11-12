@@ -22,7 +22,7 @@ import versioneer
 # requirements i.e. index or repo URL see requirements.txt
 base_requirements = [
     'numpy',
-    'h5py',
+    'h5py<3',
     'networkx==2.3',
     'pandas',
     'dill',
