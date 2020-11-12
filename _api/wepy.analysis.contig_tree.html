@@ -94,7 +94,7 @@ Contig</p>
 <dl class="py class">
 <dt id="wepy.analysis.contig_tree.BaseContigTree">
 <em class="property">class </em><code class="sig-prename descclassname">wepy.analysis.contig_tree.</code><code class="sig-name descname">BaseContigTree</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">wepy_h5</span></em>, <em class="sig-param"><span class="n">continuations</span><span class="o">=</span><span class="default_value">Ellipsis</span></em>, <em class="sig-param"><span class="n">runs</span><span class="o">=</span><span class="default_value">Ellipsis</span></em>, <em class="sig-param"><span class="n">boundary_condition_class</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">decision_class</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/contig_tree.html#BaseContigTree"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.contig_tree.BaseContigTree" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>A base class for the contigtree which doesn’t contain a WepyHDF5
 object. Useful for serialization of the object and can then be
 reattached later to a WepyHDF5.</p>
@@ -318,15 +318,15 @@ frame indices given by the contig_trace.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>run_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – Index of a run in the contig tree</p></li>
-<li><p><strong>cycle_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – Index of a cycle index within a run</p></li>
+<li><p><strong>run_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – Index of a run in the contig tree</p></li>
+<li><p><strong>cycle_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – Index of a cycle index within a run</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><strong>contig_cycle_idx</strong> – The cycle idx in the contig</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)">int</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -339,9 +339,9 @@ point back to a set point (defaults to root of contig tree).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>run_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – </p></li>
-<li><p><strong>cycle_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – An in-contig cycle index</p></li>
-<li><p><strong>start_contig_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a><em>, </em><em>optional</em>) – <dl class="simple">
+<li><p><strong>run_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – </p></li>
+<li><p><strong>cycle_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – An in-contig cycle index</p></li>
+<li><p><strong>start_contig_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a><em>, </em><em>optional</em>) – <dl class="simple">
 <dt>The in-contig cycle index where the “root” of the branch will start</dt><dd><p>(Default value = 0)</p>
 </dd>
 </dl>
@@ -365,7 +365,7 @@ point back to a set point (defaults to root of contig tree).</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>contig_trace</strong> (<em>list of tuples</em><em> (</em><em>run_idx</em><em>, </em><em>cycle_idx</em><em>)</em>) – </p></li>
-<li><p><strong>discontinuities</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a>) – Whether or not to include discontinuities in the table.</p></li>
+<li><p><strong>discontinuities</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Whether or not to include discontinuities in the table.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -511,7 +511,7 @@ roots).</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>contig_trace</strong> (<em>list of tuples of ints</em><em> (</em><em>run_idx</em><em>, </em><em>cycle_idx</em><em>)</em>) – Trace defining a contig in the contig tree.</p></li>
-<li><p><strong>window_length</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – The length of the sliding windows to return.</p></li>
+<li><p><strong>window_length</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – The length of the sliding windows to return.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -530,7 +530,7 @@ roots).</p>
 as contig traces.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>window_length</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – </p>
+<dd class="field-odd"><p><strong>window_length</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – </p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><strong>contig_windows</strong> – List of contig traces</p>
@@ -550,7 +550,7 @@ subtree defined by the subtree root as run traces.</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>subtree_root</strong> (<em>node_id</em>) – </p></li>
-<li><p><strong>window_length</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – </p></li>
+<li><p><strong>window_length</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – </p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -569,7 +569,7 @@ subtree defined by the subtree root as run traces.</p>
 traces for a given window length.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>window_length</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – </p>
+<dd class="field-odd"><p><strong>window_length</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – </p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><strong>windows</strong> – List of run traces.</p>
@@ -831,7 +831,7 @@ get erroneous contiguous trajectories.</p>
 event.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>decision_id</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – The string ID of the decision you want to match on and get
+<dd class="field-odd"><p><strong>decision_id</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – The string ID of the decision you want to match on and get
 lineages for.</p>
 </dd>
 </dl>
@@ -1059,7 +1059,7 @@ subtree defined by the subtree root as run traces.</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>subtree_root</strong> (<em>node_id</em>) – </p></li>
-<li><p><strong>window_length</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – </p></li>
+<li><p><strong>window_length</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – </p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -1106,15 +1106,15 @@ the leaves of the tree.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>run_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – Index of a run in the contig tree</p></li>
-<li><p><strong>cycle_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – Index of a cycle index within a run</p></li>
+<li><p><strong>run_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – Index of a run in the contig tree</p></li>
+<li><p><strong>cycle_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – Index of a cycle index within a run</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><strong>contig_cycle_idx</strong> – The cycle idx in the contig</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)">int</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -1128,7 +1128,7 @@ the leaves of the tree.</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>contig_trace</strong> (<em>list of tuples of ints</em><em> (</em><em>run_idx</em><em>, </em><em>cycle_idx</em><em>)</em>) – Trace defining a contig in the contig tree.</p></li>
-<li><p><strong>window_length</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – The length of the sliding windows to return.</p></li>
+<li><p><strong>window_length</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – The length of the sliding windows to return.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -1182,9 +1182,9 @@ point back to a set point (defaults to root of contig tree).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>run_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – </p></li>
-<li><p><strong>cycle_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – An in-contig cycle index</p></li>
-<li><p><strong>start_contig_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a><em>, </em><em>optional</em>) – <dl class="simple">
+<li><p><strong>run_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – </p></li>
+<li><p><strong>cycle_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – An in-contig cycle index</p></li>
+<li><p><strong>start_contig_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a><em>, </em><em>optional</em>) – <dl class="simple">
 <dt>The in-contig cycle index where the “root” of the branch will start</dt><dd><p>(Default value = 0)</p>
 </dd>
 </dl>
@@ -1288,7 +1288,7 @@ a forest and can have multiple roots).</p>
 as contig traces.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>window_length</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – </p>
+<dd class="field-odd"><p><strong>window_length</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – </p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><strong>contig_windows</strong> – List of contig traces</p>
@@ -1306,7 +1306,7 @@ as contig traces.</p>
 traces for a given window length.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>window_length</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – </p>
+<dd class="field-odd"><p><strong>window_length</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – </p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><strong>windows</strong> – List of run traces.</p>
@@ -1373,7 +1373,7 @@ roots).</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>contig_trace</strong> (<em>list of tuples</em><em> (</em><em>run_idx</em><em>, </em><em>cycle_idx</em><em>)</em>) – </p></li>
-<li><p><strong>discontinuities</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a>) – Whether or not to include discontinuities in the table.</p></li>
+<li><p><strong>discontinuities</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Whether or not to include discontinuities in the table.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -1514,7 +1514,7 @@ get erroneous contiguous trajectories.</p>
 <dd class="field-odd"><p><strong>num_cycles</strong></p>
 </dd>
 <dt class="field-even">Return type</dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a></p>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)">int</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -1525,13 +1525,13 @@ get erroneous contiguous trajectories.</p>
 <dd><p>Get the number of walkers at a given cycle in the contig.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>cycle_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – </p>
+<dd class="field-odd"><p><strong>cycle_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – </p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><strong>n_walkers</strong></p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)">int</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -1542,7 +1542,7 @@ get erroneous contiguous trajectories.</p>
 <dd><p>Returns the records for the given key.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>record_key</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – </p>
+<dd class="field-odd"><p><strong>record_key</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – </p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><strong>records</strong></p>
@@ -1559,7 +1559,7 @@ get erroneous contiguous trajectories.</p>
 <dd><p>Returns the records as a pandas.DataFrame for the given key.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>record_key</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – </p>
+<dd class="field-odd"><p><strong>record_key</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – </p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><strong>records_df</strong></p>
@@ -1962,7 +1962,7 @@ subtree defined by the subtree root as run traces.</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>subtree_root</strong> (<em>node_id</em>) – </p></li>
-<li><p><strong>window_length</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – </p></li>
+<li><p><strong>window_length</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – </p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -2019,15 +2019,15 @@ the leaves of the tree.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>run_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – Index of a run in the contig tree</p></li>
-<li><p><strong>cycle_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – Index of a cycle index within a run</p></li>
+<li><p><strong>run_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – Index of a run in the contig tree</p></li>
+<li><p><strong>cycle_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – Index of a cycle index within a run</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><strong>contig_cycle_idx</strong> – The cycle idx in the contig</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)">int</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -2041,7 +2041,7 @@ the leaves of the tree.</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>contig_trace</strong> (<em>list of tuples of ints</em><em> (</em><em>run_idx</em><em>, </em><em>cycle_idx</em><em>)</em>) – Trace defining a contig in the contig tree.</p></li>
-<li><p><strong>window_length</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – The length of the sliding windows to return.</p></li>
+<li><p><strong>window_length</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – The length of the sliding windows to return.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -2095,9 +2095,9 @@ point back to a set point (defaults to root of contig tree).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>run_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – </p></li>
-<li><p><strong>cycle_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – An in-contig cycle index</p></li>
-<li><p><strong>start_contig_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a><em>, </em><em>optional</em>) – <dl class="simple">
+<li><p><strong>run_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – </p></li>
+<li><p><strong>cycle_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – An in-contig cycle index</p></li>
+<li><p><strong>start_contig_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a><em>, </em><em>optional</em>) – <dl class="simple">
 <dt>The in-contig cycle index where the “root” of the branch will start</dt><dd><p>(Default value = 0)</p>
 </dd>
 </dl>
@@ -2228,7 +2228,7 @@ a forest and can have multiple roots).</p>
 as contig traces.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>window_length</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – </p>
+<dd class="field-odd"><p><strong>window_length</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – </p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><strong>contig_windows</strong> – List of contig traces</p>
@@ -2246,7 +2246,7 @@ as contig traces.</p>
 traces for a given window length.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>window_length</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – </p>
+<dd class="field-odd"><p><strong>window_length</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – </p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><strong>windows</strong> – List of run traces.</p>
@@ -2313,7 +2313,7 @@ roots).</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>contig_trace</strong> (<em>list of tuples</em><em> (</em><em>run_idx</em><em>, </em><em>cycle_idx</em><em>)</em>) – </p></li>
-<li><p><strong>discontinuities</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a>) – Whether or not to include discontinuities in the table.</p></li>
+<li><p><strong>discontinuities</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Whether or not to include discontinuities in the table.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -2377,7 +2377,7 @@ trace.</p>
 event.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>decision_id</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – The integer ID of the decision you want to match on and get
+<dd class="field-odd"><p><strong>decision_id</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – The integer ID of the decision you want to match on and get
 lineages for. This is the integer value of the decision
 enumeration value.</p>
 </dd>
@@ -2402,7 +2402,7 @@ enumeration value.</p>
 event.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>decision_id</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – The string ID of the decision you want to match on and get
+<dd class="field-odd"><p><strong>decision_id</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – The string ID of the decision you want to match on and get
 lineages for.</p>
 </dd>
 </dl>

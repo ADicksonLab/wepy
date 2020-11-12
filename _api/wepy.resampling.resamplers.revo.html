@@ -126,21 +126,21 @@ information in resampling data.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>dist_exponent</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – The distance exponent that modifies distance and weight novelty
+<li><p><strong>dist_exponent</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – The distance exponent that modifies distance and weight novelty
 relative to each other in the variation equation.</p></li>
-<li><p><strong>merge_dist</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a>) – The merge distance threshold. Units should be the same as
+<li><p><strong>merge_dist</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a>) – The merge distance threshold. Units should be the same as
 the distance metric.</p></li>
-<li><p><strong>char_dist</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a>) – The characteristic distance value. It is calculated by
+<li><p><strong>char_dist</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a>) – The characteristic distance value. It is calculated by
 running a single dynamic cycle and then calculating the
 average distance between all walkers. Units should be the
 same as the distance metric.</p></li>
 <li><p><strong>distance</strong> (<em>object implementing Distance</em>) – The distance metric to compare walkers.</p></li>
-<li><p><strong>weights</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a>) – Turns off or on the weight novelty in
+<li><p><strong>weights</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Turns off or on the weight novelty in
 calculating the variation equation. When weight is
 False, the value of the novelty function is set to 1 for all
 walkers.</p></li>
 <li><p><strong>init_state</strong> (<em>WalkerState object</em>) – Used for automatically determining the state image shape.</p></li>
-<li><p><strong>seed</strong> (<a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.8)"><em>None</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a><em>, </em><em>optional</em>) – The random seed. If None, the system (random) one will be used.</p></li>
+<li><p><strong>seed</strong> (<a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><em>None</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a><em>, </em><em>optional</em>) – The random seed. If None, the system (random) one will be used.</p></li>
 </ul>
 </dd>
 </dl>
@@ -206,8 +206,8 @@ walkers.</p></li>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>walker_weight</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a>) – The weight of the walker.</p></li>
-<li><p><strong>num_walker_copy</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – The number of copies of the walker.</p></li>
+<li><p><strong>walker_weight</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a>) – The weight of the walker.</p></li>
+<li><p><strong>num_walker_copy</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – The number of copies of the walker.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -357,7 +357,7 @@ walkers.</p></li>
 resampling step.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>n_walkers</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – The number of walkers to generate records for</p>
+<dd class="field-odd"><p><strong>n_walkers</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – The number of walkers to generate records for</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><strong>decision_records</strong> – A list of default decision records for one step of
@@ -395,7 +395,7 @@ resampling.</p>
 walkers and the settings for max and min.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>num_walkers</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – </p>
+<dd class="field-odd"><p><strong>num_walkers</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – </p>
 </dd>
 </dl>
 </dd></dl>

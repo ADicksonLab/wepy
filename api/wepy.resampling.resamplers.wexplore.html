@@ -48,7 +48,7 @@
 <dl class="py exception">
 <dt id="wepy.resampling.resamplers.wexplore.RegionTreeError">
 <em class="property">exception </em><code class="sig-prename descclassname">wepy.resampling.resamplers.wexplore.</code><code class="sig-name descname">RegionTreeError</code><a class="reference internal" href="../_modules/wepy/resampling/resamplers/wexplore.html#RegionTreeError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.resampling.resamplers.wexplore.RegionTreeError" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#Exception" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></a></p>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#Exception" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></a></p>
 <p>Errors related to violations of constraints in RegionTree algorithms.</p>
 <dl class="py attribute">
 <dt id="wepy.resampling.resamplers.wexplore.RegionTreeError.args">
@@ -77,14 +77,14 @@ performance.</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>walker_weights</strong> (<em>list of float</em>) – The weights of the walkers</p></li>
-<li><p><strong>max_weight</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a>) – The maximum weight a walker can have.</p></li>
+<li><p><strong>max_weight</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a>) – The maximum weight a walker can have.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><strong>n_squashable</strong> – The maximum number of squashable walkers.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)">int</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -101,8 +101,8 @@ collection to a single walker, thus there is a single merge_group.</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>walker_weights</strong> (<em>list of float</em>) – The weights of the walkers.</p></li>
-<li><p><strong>balance</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – The net change in the number of walkers we desire.</p></li>
-<li><p><strong>max_weight</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a>) – The maximum weight a single walker can be.</p></li>
+<li><p><strong>balance</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – The net change in the number of walkers we desire.</p></li>
+<li><p><strong>max_weight</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a>) – The maximum weight a single walker can be.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -913,7 +913,7 @@ structure without requiring any memory for copying the information.</p>
 and deep copies, <a class="reference external" href="https://docs.python.org/2/library/copy.html">https://docs.python.org/2/library/copy.html</a>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>as_view</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a><em>, </em><em>optional</em><em> (</em><em>default=False</em><em>)</em>) – If True, the returned graph-view provides a read-only view
+<dd class="field-odd"><p><strong>as_view</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a><em>, </em><em>optional</em><em> (</em><em>default=False</em><em>)</em>) – If True, the returned graph-view provides a read-only view
 of the original graph without actually copying any data.</p>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -950,7 +950,7 @@ lookup for the degree for a single node.</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>nbunch</strong> (<em>single node</em><em>, </em><em>container</em><em>, or </em><em>all nodes</em><em> (</em><em>default= all nodes</em><em>)</em>) – The view will only report edges incident to these nodes.</p></li>
-<li><p><strong>weight</strong> (<em>string</em><em> or </em><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.8)"><em>None</em></a><em>, </em><em>optional</em><em> (</em><em>default=None</em><em>)</em>) – The name of an edge attribute that holds the numerical value used
+<li><p><strong>weight</strong> (<em>string</em><em> or </em><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><em>None</em></a><em>, </em><em>optional</em><em> (</em><em>default=None</em><em>)</em>) – The name of an edge attribute that holds the numerical value used
 as a weight.  If None, then each edge has weight 1.
 The degree is the sum of the edge weights adjacent to the node.</p></li>
 </ul>
@@ -1042,7 +1042,7 @@ with default <cite>‘red’</cite> if no color attribute exists.</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>nbunch</strong> (<em>single node</em><em>, </em><em>container</em><em>, or </em><em>all nodes</em><em> (</em><em>default= all nodes</em><em>)</em>) – The view will only report edges incident to these nodes.</p></li>
-<li><p><strong>data</strong> (<em>string</em><em> or </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a><em>, </em><em>optional</em><em> (</em><em>default=False</em><em>)</em>) – The edge attribute returned in 3-tuple (u, v, ddict[data]).
+<li><p><strong>data</strong> (<em>string</em><em> or </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a><em>, </em><em>optional</em><em> (</em><em>default=False</em><em>)</em>) – The edge attribute returned in 3-tuple (u, v, ddict[data]).
 If True, return edge attribute dict in 3-tuple (u, v, ddict).
 If False, return 2-tuple (u, v).</p></li>
 <li><p><strong>default</strong> (<em>value</em><em>, </em><em>optional</em><em> (</em><em>default=None</em><em>)</em>) – Value used for edges that don’t have the requested attribute.
@@ -1155,7 +1155,7 @@ Nodes must be hashable (and not None) Python objects.</p>
 <dd class="field-even"><p><strong>edge_ind</strong> – True if edge is in the graph, False otherwise.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)">bool</a></p>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
@@ -1229,7 +1229,7 @@ lookup for the degree for a single node.</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>nbunch</strong> (<em>single node</em><em>, </em><em>container</em><em>, or </em><em>all nodes</em><em> (</em><em>default= all nodes</em><em>)</em>) – The view will only report edges incident to these nodes.</p></li>
-<li><p><strong>weight</strong> (<em>string</em><em> or </em><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.8)"><em>None</em></a><em>, </em><em>optional</em><em> (</em><em>default=None</em><em>)</em>) – The name of an edge attribute that holds the numerical value used
+<li><p><strong>weight</strong> (<em>string</em><em> or </em><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><em>None</em></a><em>, </em><em>optional</em><em> (</em><em>default=None</em><em>)</em>) – The name of an edge attribute that holds the numerical value used
 as a weight.  If None, then each edge has weight 1.
 The degree is the sum of the edge weights adjacent to the node.</p></li>
 </ul>
@@ -1268,7 +1268,7 @@ The degree is the sum of the edge weights adjacent to the node.</p></li>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>nbunch</strong> (<em>single node</em><em>, </em><em>container</em><em>, or </em><em>all nodes</em><em> (</em><em>default= all nodes</em><em>)</em>) – The view will only report edges incident to these nodes.</p></li>
-<li><p><strong>data</strong> (<em>string</em><em> or </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a><em>, </em><em>optional</em><em> (</em><em>default=False</em><em>)</em>) – The edge attribute returned in 3-tuple (u, v, ddict[data]).
+<li><p><strong>data</strong> (<em>string</em><em> or </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a><em>, </em><em>optional</em><em> (</em><em>default=False</em><em>)</em>) – The edge attribute returned in 3-tuple (u, v, ddict[data]).
 If True, return edge attribute dict in 3-tuple (u, v, ddict).
 If False, return 2-tuple (u, v).</p></li>
 <li><p><strong>default</strong> (<em>value</em><em>, </em><em>optional</em><em> (</em><em>default=None</em><em>)</em>) – Value used for edges that don’t have the requested attribute.
@@ -1386,7 +1386,7 @@ provides a default for nodes that do not have attribute <cite>foo</cite>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>data</strong> (<em>string</em><em> or </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a><em>, </em><em>optional</em><em> (</em><em>default=False</em><em>)</em>) – The node attribute returned in 2-tuple (n, ddict[data]).
+<li><p><strong>data</strong> (<em>string</em><em> or </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a><em>, </em><em>optional</em><em> (</em><em>default=False</em><em>)</em>) – The node attribute returned in 2-tuple (n, ddict[data]).
 If True, return entire node attribute dict as (n, ddict).
 If False, return just the nodes n.</p></li>
 <li><p><strong>default</strong> (<em>value</em><em>, </em><em>optional</em><em> (</em><em>default=None</em><em>)</em>) – Value used for nodes that don’t have the requested attribute.
@@ -1490,7 +1490,7 @@ provides a default for nodes that do not have attribute <cite>foo</cite>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>data</strong> (<em>string</em><em> or </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a><em>, </em><em>optional</em><em> (</em><em>default=False</em><em>)</em>) – The node attribute returned in 2-tuple (n, ddict[data]).
+<li><p><strong>data</strong> (<em>string</em><em> or </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a><em>, </em><em>optional</em><em> (</em><em>default=False</em><em>)</em>) – The node attribute returned in 2-tuple (n, ddict[data]).
 If True, return entire node attribute dict as (n, ddict).
 If False, return just the nodes n.</p></li>
 <li><p><strong>default</strong> (<em>value</em><em>, </em><em>optional</em><em> (</em><em>default=None</em><em>)</em>) – Value used for nodes that don’t have the requested attribute.
@@ -1587,7 +1587,7 @@ the graph is directed, this only returns the number of edges
 from <cite>u</cite> to <cite>v</cite>.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)">int</a></p>
 </dd>
 </dl>
 <div class="admonition seealso">
@@ -1628,7 +1628,7 @@ directed edges from <cite>u</cite> to <cite>v</cite>:</p>
 <dd class="field-odd"><p><strong>nnodes</strong> – The number of nodes in the graph.</p>
 </dd>
 <dt class="field-even">Return type</dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a></p>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)">int</a></p>
 </dd>
 </dl>
 <div class="admonition seealso">
@@ -1657,7 +1657,7 @@ directed edges from <cite>u</cite> to <cite>v</cite>:</p>
 <dd class="field-odd"><p><strong>nnodes</strong> – The number of nodes in the graph.</p>
 </dd>
 <dt class="field-even">Return type</dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a></p>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)">int</a></p>
 </dd>
 </dl>
 <div class="admonition seealso">
@@ -1679,7 +1679,7 @@ lookup for the degree for a single node.</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>nbunch</strong> (<em>single node</em><em>, </em><em>container</em><em>, or </em><em>all nodes</em><em> (</em><em>default= all nodes</em><em>)</em>) – The view will only report edges incident to these nodes.</p></li>
-<li><p><strong>weight</strong> (<em>string</em><em> or </em><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.8)"><em>None</em></a><em>, </em><em>optional</em><em> (</em><em>default=None</em><em>)</em>) – The name of an edge attribute that holds the numerical value used
+<li><p><strong>weight</strong> (<em>string</em><em> or </em><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><em>None</em></a><em>, </em><em>optional</em><em> (</em><em>default=None</em><em>)</em>) – The name of an edge attribute that holds the numerical value used
 as a weight.  If None, then each edge has weight 1.
 The degree is the sum of the edge weights adjacent to the node.</p></li>
 </ul>
@@ -1727,7 +1727,7 @@ with default <cite>‘red’</cite> if no color attribute exists.</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>nbunch</strong> (<em>single node</em><em>, </em><em>container</em><em>, or </em><em>all nodes</em><em> (</em><em>default= all nodes</em><em>)</em>) – The view will only report edges incident to these nodes.</p></li>
-<li><p><strong>data</strong> (<em>string</em><em> or </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a><em>, </em><em>optional</em><em> (</em><em>default=False</em><em>)</em>) – The edge attribute returned in 3-tuple (u, v, ddict[data]).
+<li><p><strong>data</strong> (<em>string</em><em> or </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a><em>, </em><em>optional</em><em> (</em><em>default=False</em><em>)</em>) – The edge attribute returned in 3-tuple (u, v, ddict[data]).
 If True, return edge attribute dict in 3-tuple (u, v, ddict).
 If False, return 2-tuple (u, v).</p></li>
 <li><p><strong>default</strong> (<em>value</em><em>, </em><em>optional</em><em> (</em><em>default=None</em><em>)</em>) – Value used for edges that don’t have the requested attribute.
@@ -1839,7 +1839,7 @@ edge from m to n.</p>
 <dd><p>Remove all edges specified in ebunch.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>ebunch</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.8)"><em>list</em></a><em> or </em><em>container of edge tuples</em>) – <p>Each edge given in the list or container will be removed
+<dd class="field-odd"><p><strong>ebunch</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.9)"><em>list</em></a><em> or </em><em>container of edge tuples</em>) – <p>Each edge given in the list or container will be removed
 from the graph. The edges can be:</p>
 <blockquote>
 <div><ul class="simple">
@@ -1948,7 +1948,7 @@ the original graph.</p>
 <dd><p>Returns the number of edges or total of all edge weights.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>weight</strong> (<em>string</em><em> or </em><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.8)"><em>None</em></a><em>, </em><em>optional</em><em> (</em><em>default=None</em><em>)</em>) – The edge attribute that holds the numerical value used
+<dd class="field-odd"><p><strong>weight</strong> (<em>string</em><em> or </em><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><em>None</em></a><em>, </em><em>optional</em><em> (</em><em>default=None</em><em>)</em>) – The edge attribute that holds the numerical value used
 as a weight. If None, then each edge has weight 1.</p>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -1991,7 +1991,7 @@ as a weight. If None, then each edge has weight 1.</p>
 and the edges between those nodes.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>nodes</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.8)"><em>list</em></a><em>, </em><em>iterable</em>) – A container of nodes which will be iterated through once.</p>
+<dd class="field-odd"><p><strong>nodes</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.9)"><em>list</em></a><em>, </em><em>iterable</em>) – A container of nodes which will be iterated through once.</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><strong>G</strong> – A subgraph view of the graph. The graph structure cannot be
@@ -2134,9 +2134,9 @@ what directed class to use for <cite>to_directed()</cite> copies.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>reciprocal</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a><em> (</em><em>optional</em><em>)</em>) – If True only keep edges that appear in both directions
+<li><p><strong>reciprocal</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a><em> (</em><em>optional</em><em>)</em>) – If True only keep edges that appear in both directions
 in the original digraph.</p></li>
-<li><p><strong>as_view</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a><em> (</em><em>optional</em><em>, </em><em>default=False</em><em>)</em>) – If True return an undirected view of the original directed graph.</p></li>
+<li><p><strong>as_view</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a><em> (</em><em>optional</em><em>, </em><em>default=False</em><em>)</em>) – If True return an undirected view of the original directed graph.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -2205,14 +2205,14 @@ should yield 2-tuples (u, v) or 3-tuples (u, v, datadict).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>edges</strong> (<em>Graph object</em><em>, </em><em>collection of edges</em><em>, or </em><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.8)"><em>None</em></a>) – The first parameter can be a graph or some edges. If it has
+<li><p><strong>edges</strong> (<em>Graph object</em><em>, </em><em>collection of edges</em><em>, or </em><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><em>None</em></a>) – The first parameter can be a graph or some edges. If it has
 attributes <cite>nodes</cite> and <cite>edges</cite>, then it is taken to be a
 Graph-like object and those attributes are used as collections
 of nodes and edges to be added to the graph.
 If the first parameter does not have those attributes, it is
 treated as a collection of edges and added to the graph.
 If the first argument is None, no edges are added.</p></li>
-<li><p><strong>nodes</strong> (<em>collection of nodes</em><em>, or </em><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.8)"><em>None</em></a>) – The second parameter is treated as a collection of nodes
+<li><p><strong>nodes</strong> (<em>collection of nodes</em><em>, or </em><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><em>None</em></a>) – The second parameter is treated as a collection of nodes
 to be added to the graph unless it is None.
 If <cite>edges is None</cite> and <cite>nodes is None</cite> an exception is raised.
 If the first parameter is a Graph, then <cite>nodes</cite> is ignored.</p></li>
@@ -2433,7 +2433,7 @@ excluded from negotiations.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>seed</strong> (<a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.8)"><em>None</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – The random seed. If None the system (random) one will be used.</p></li>
+<li><p><strong>seed</strong> (<a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><em>None</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – The random seed. If None the system (random) one will be used.</p></li>
 <li><p><strong>distance</strong> (<em>object implementing Distance</em>) – The distance metric to compare walkers to region images with.</p></li>
 <li><p><strong>init_state</strong> (<em>WalkerState object</em>) – The state that seeds the first region in the region hierarchy.</p></li>
 <li><p><strong>max_n_regions</strong> (<em>tuple of int</em>) – The number of allowed sub-regions for a region at each
@@ -2572,7 +2572,7 @@ For example: (1, 0.5, 0.35, 0.25).</p></li>
 resampling step.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>n_walkers</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – The number of walkers to generate records for</p>
+<dd class="field-odd"><p><strong>n_walkers</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – The number of walkers to generate records for</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><strong>decision_records</strong> – A list of default decision records for one step of
@@ -2591,7 +2591,7 @@ resampling.</p>
 walkers and the settings for max and min.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>num_walkers</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – </p>
+<dd class="field-odd"><p><strong>num_walkers</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – </p>
 </dd>
 </dl>
 </dd></dl>
@@ -2653,7 +2653,7 @@ they don’t have the right list-like wrappers.</p>
 <dd><p>Make decisions for resampling for a single step.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>delta_walkers</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – <dl class="simple">
+<dd class="field-odd"><p><strong>delta_walkers</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – <dl class="simple">
 <dt>The net change in the number of walkers to make.</dt><dd><p>(Default value = 0)</p>
 </dd>
 </dl>

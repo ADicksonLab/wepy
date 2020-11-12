@@ -51,7 +51,7 @@ wepy.</p>
 <dl class="py class">
 <dt id="wepy.boundary_conditions.boundary.BoundaryConditions">
 <em class="property">class </em><code class="sig-prename descclassname">wepy.boundary_conditions.boundary.</code><code class="sig-name descname">BoundaryConditions</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/boundary_conditions/boundary.html#BoundaryConditions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.boundary_conditions.boundary.BoundaryConditions" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>Abstract base class for conveniently making compliant boundary condition classes.</p>
 <p>Includes empty record group definitions and useful getters for those.</p>
 <p>Null constructor accepts and ignores any key word arguments.</p>
@@ -396,7 +396,7 @@ list. This corresponds to the ‘BC’ record group.</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>walkers</strong> (<em>list of walkers</em>) – A list of objects implementing the Walker interface</p></li>
-<li><p><strong>cycle</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – The index of the cycle this is for. Used to generate proper records.</p></li>
+<li><p><strong>cycle</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – The index of the cycle this is for. Used to generate proper records.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -421,13 +421,13 @@ corresponding to each walker.</p></li>
 occured or False if a discontinuity did not occur.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>warping_record</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.8)"><em>tuple</em></a>) – A tuple record of type ‘WARPING’</p>
+<dd class="field-odd"><p><strong>warping_record</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.9)"><em>tuple</em></a>) – A tuple record of type ‘WARPING’</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><strong>is_discontinuous</strong> – True if discontinuous warping record False if continuous.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)">bool</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -453,7 +453,7 @@ since there is nothing to do.</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>walkers</strong> (<em>list of walkers</em>) – A list of objects implementing the Walker interface</p></li>
-<li><p><strong>cycle</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – The index of the cycle this is for. Used to generate proper records.</p></li>
+<li><p><strong>cycle</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – The index of the cycle this is for. Used to generate proper records.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -616,13 +616,13 @@ type (field_name, shape_spec, dtype_spec)</p>
 occured or False if a discontinuity did not occur.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>warping_record</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.8)"><em>tuple</em></a>) – A tuple record of type ‘WARPING’</p>
+<dd class="field-odd"><p><strong>warping_record</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.9)"><em>tuple</em></a>) – A tuple record of type ‘WARPING’</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><strong>is_discontinuous</strong> – True if discontinuous warping record False if continuous.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)">bool</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -781,13 +781,13 @@ type (field_name, shape_spec, dtype_spec)</p>
 occured or False if a discontinuity did not occur.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>warping_record</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.8)"><em>tuple</em></a>) – A tuple record of type ‘WARPING’</p>
+<dd class="field-odd"><p><strong>warping_record</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.9)"><em>tuple</em></a>) – A tuple record of type ‘WARPING’</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><strong>is_discontinuous</strong> – True if discontinuous warping record False if continuous.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)">bool</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -896,7 +896,7 @@ list. This corresponds to the ‘BC’ record group.</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>walkers</strong> (<em>list of walkers</em>) – A list of objects implementing the Walker interface</p></li>
-<li><p><strong>cycle</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – The index of the cycle this is for. Used to generate proper records.</p></li>
+<li><p><strong>cycle</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – The index of the cycle this is for. Used to generate proper records.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>

@@ -59,7 +59,7 @@ the fields set in the Abstract Base Class for boundary conditions
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>warping_records</strong> (<em>list of namedtuples implementing the warping interface</em>) – The list of warping records for which events will be used to
 calculate the rates.</p></li>
-<li><p><strong>total_sampling_time</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a>) – The total amount of sampling time that was run to generate
+<li><p><strong>total_sampling_time</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a>) – The total amount of sampling time that was run to generate
 these warping records.</p></li>
 </ul>
 </dd>
@@ -71,7 +71,7 @@ probability across the boundary (rate), and the total sampling
 time it was calculated with,respectively.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>dict of int : tuple of (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a>, <a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a>, <a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a>)</p>
+<dd class="field-odd"><p>dict of int : tuple of (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)">float</a>, <a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)">float</a>, <a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)">float</a>)</p>
 </dd>
 </dl>
 <div class="admonition seealso">
@@ -100,8 +100,8 @@ class (wepy.boundary_conditions.boundary.Boundary).</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>contig</strong> (<a class="reference internal" href="wepy.analysis.contig_tree.html#wepy.analysis.contig_tree.Contig" title="wepy.analysis.contig_tree.Contig"><em>analysis.contig_tree.Contig</em></a>) – Underlying WepyHDF5 must be open for reading.</p></li>
-<li><p><strong>cycle_time</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a>) – The sampling time for each cycle.</p></li>
-<li><p><strong>time_points</strong> (<a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.8)"><em>None</em></a><em> or </em><em>Ellipsis</em>) – Determines how many and which time points are computed for the
+<li><p><strong>cycle_time</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a>) – The sampling time for each cycle.</p></li>
+<li><p><strong>time_points</strong> (<a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><em>None</em></a><em> or </em><em>Ellipsis</em>) – Determines how many and which time points are computed for the
 rates of each run. None, only the end; Ellipsis, all cycles.</p></li>
 </ul>
 </dd>
@@ -111,7 +111,7 @@ calc_warping_rate. The number and meaning of the elements of
 the list depend on the value of the ‘time_points’ kwarg.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>list of dict of int : tuple of (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a>, <a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a>, <a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a>)</p>
+<dd class="field-odd"><p>list of dict of int : tuple of (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)">float</a>, <a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)">float</a>, <a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)">float</a>)</p>
 </dd>
 </dl>
 <div class="admonition seealso">

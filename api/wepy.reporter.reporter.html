@@ -48,7 +48,7 @@
 <dl class="py exception">
 <dt id="wepy.reporter.reporter.ReporterError">
 <em class="property">exception </em><code class="sig-prename descclassname">wepy.reporter.reporter.</code><code class="sig-name descname">ReporterError</code><a class="reference internal" href="../_modules/wepy/reporter/reporter.html#ReporterError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.reporter.reporter.ReporterError" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#Exception" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></a></p>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#Exception" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></a></p>
 <dl class="py attribute">
 <dt id="wepy.reporter.reporter.ReporterError.args">
 <code class="sig-name descname">args</code><a class="headerlink" href="#wepy.reporter.reporter.ReporterError.args" title="Permalink to this definition">¶</a></dt>
@@ -66,7 +66,7 @@ set self.__traceback__ to tb and return self.</p>
 <dl class="py class">
 <dt id="wepy.reporter.reporter.Reporter">
 <em class="property">class </em><code class="sig-prename descclassname">wepy.reporter.reporter.</code><code class="sig-name descname">Reporter</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/reporter/reporter.html#Reporter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.reporter.reporter.Reporter" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>Abstract base class for wepy reporters.</p>
 <p>All reporters must customize and override minimally the ‘report’
 method. Optionally the ‘init’ and ‘cleanup’ can be overriden.</p>
@@ -104,7 +104,7 @@ call.</p>
 <li><p><strong>boundary_conditions</strong> (<em>BoundaryConditions object</em>) – The boundary conditions taht will be used in the simulation.</p></li>
 <li><p><strong>work_mapper</strong> (<em>WorkMapper object</em>) – The work mapper that will be used in the simulation.</p></li>
 <li><p><strong>reporters</strong> (<em>list of Reporter objects</em>) – The list of reporters that are in the simulation.</p></li>
-<li><p><strong>continue_run</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – The index of the run that is being continued within this
+<li><p><strong>continue_run</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – The index of the run that is being continued within this
 same file.</p></li>
 </ul>
 </dd>
@@ -122,7 +122,7 @@ passed to them during a simulation by the sim_manager.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>cycle_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – </p></li>
+<li><p><strong>cycle_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – </p></li>
 <li><p><strong>new_walkers</strong> (<em>list of Walker objects</em>) – List of walkers that were produced from running their
 dynamics by the runner.</p></li>
 <li><p><strong>warp_data</strong> (<em>list of dict of str : value</em>) – List of dict-like records for each warping event from the
@@ -135,12 +135,12 @@ the last cycle.</p></li>
 cycle.</p></li>
 <li><p><strong>resampler_data</strong> (<em>list of dict of str : value</em>) – List of records specifying the changes to the state of the
 resampler in the last cycle.</p></li>
-<li><p><strong>n_segment_steps</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – The number of dynamics steps that were completed in the last cycle</p></li>
+<li><p><strong>n_segment_steps</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – The number of dynamics steps that were completed in the last cycle</p></li>
 <li><p><strong>worker_segment_times</strong> (<em>dict of int : list of float</em>) – Mapping worker index to the times they took for each
 segment they processed.</p></li>
-<li><p><strong>cycle_runner_time</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a>) – Total time runner took in last cycle.</p></li>
-<li><p><strong>cycle_bc_time</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a>) – Total time boundary conditions took in last cycle.</p></li>
-<li><p><strong>cycle_resampling_time</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a>) – Total time resampler took in last cycle.</p></li>
+<li><p><strong>cycle_runner_time</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a>) – Total time runner took in last cycle.</p></li>
+<li><p><strong>cycle_bc_time</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a>) – Total time boundary conditions took in last cycle.</p></li>
+<li><p><strong>cycle_resampling_time</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a>) – Total time resampler took in last cycle.</p></li>
 <li><p><strong>resampled_walkers</strong> (<em>list of Walker objects</em>) – List of walkers that were produced from the new_walkers
 from applying resampling and boundary conditions.</p></li>
 </ul>
@@ -206,8 +206,8 @@ where order is important for associating other features.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>file_paths</strong> (<em>list of str</em>) – The list of file paths (in order) to use.</p></li>
 <li><p><strong>modes</strong> (<em>list of str</em>) – The list of mode specs (in order) to use.</p></li>
-<li><p><strong>file_path</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – If ‘file_paths’ not specified, the single file path to use.</p></li>
-<li><p><strong>mode</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – If ‘file_path’ option used, this is the mode for that file.</p></li>
+<li><p><strong>file_path</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – If ‘file_paths’ not specified, the single file path to use.</p></li>
+<li><p><strong>mode</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – If ‘file_path’ option used, this is the mode for that file.</p></li>
 </ul>
 </dd>
 </dl>
@@ -270,13 +270,13 @@ reparametrization feature. Should be customized.</p>
 <dd><p>Check if the mode spec is a valid one.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>mode</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – </p>
+<dd class="field-odd"><p><strong>mode</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – </p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><strong>valid</strong></p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)">bool</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -340,7 +340,7 @@ call.</p>
 <li><p><strong>boundary_conditions</strong> (<em>BoundaryConditions object</em>) – The boundary conditions taht will be used in the simulation.</p></li>
 <li><p><strong>work_mapper</strong> (<em>WorkMapper object</em>) – The work mapper that will be used in the simulation.</p></li>
 <li><p><strong>reporters</strong> (<em>list of Reporter objects</em>) – The list of reporters that are in the simulation.</p></li>
-<li><p><strong>continue_run</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – The index of the run that is being continued within this
+<li><p><strong>continue_run</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – The index of the run that is being continued within this
 same file.</p></li>
 </ul>
 </dd>
@@ -358,7 +358,7 @@ passed to them during a simulation by the sim_manager.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>cycle_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – </p></li>
+<li><p><strong>cycle_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – </p></li>
 <li><p><strong>new_walkers</strong> (<em>list of Walker objects</em>) – List of walkers that were produced from running their
 dynamics by the runner.</p></li>
 <li><p><strong>warp_data</strong> (<em>list of dict of str : value</em>) – List of dict-like records for each warping event from the
@@ -371,12 +371,12 @@ the last cycle.</p></li>
 cycle.</p></li>
 <li><p><strong>resampler_data</strong> (<em>list of dict of str : value</em>) – List of records specifying the changes to the state of the
 resampler in the last cycle.</p></li>
-<li><p><strong>n_segment_steps</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – The number of dynamics steps that were completed in the last cycle</p></li>
+<li><p><strong>n_segment_steps</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – The number of dynamics steps that were completed in the last cycle</p></li>
 <li><p><strong>worker_segment_times</strong> (<em>dict of int : list of float</em>) – Mapping worker index to the times they took for each
 segment they processed.</p></li>
-<li><p><strong>cycle_runner_time</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a>) – Total time runner took in last cycle.</p></li>
-<li><p><strong>cycle_bc_time</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a>) – Total time boundary conditions took in last cycle.</p></li>
-<li><p><strong>cycle_resampling_time</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a>) – Total time resampler took in last cycle.</p></li>
+<li><p><strong>cycle_runner_time</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a>) – Total time runner took in last cycle.</p></li>
+<li><p><strong>cycle_bc_time</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a>) – Total time boundary conditions took in last cycle.</p></li>
+<li><p><strong>cycle_resampling_time</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a>) – Total time resampler took in last cycle.</p></li>
 <li><p><strong>resampled_walkers</strong> (<em>list of Walker objects</em>) – List of walkers that were produced from the new_walkers
 from applying resampling and boundary conditions.</p></li>
 </ul>
@@ -391,8 +391,8 @@ from applying resampling and boundary conditions.</p></li>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>file_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – Index in the listing of files.</p></li>
-<li><p><strong>path</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – The new path to set for this file</p></li>
+<li><p><strong>file_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – Index in the listing of files.</p></li>
+<li><p><strong>path</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – The new path to set for this file</p></li>
 </ul>
 </dd>
 </dl>
@@ -411,8 +411,8 @@ from applying resampling and boundary conditions.</p></li>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>file_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – Index in the listing of files.</p></li>
-<li><p><strong>mode</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – The new mode spec.</p></li>
+<li><p><strong>file_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – Index in the listing of files.</p></li>
+<li><p><strong>mode</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – The new mode spec.</p></li>
 </ul>
 </dd>
 </dl>
@@ -452,8 +452,8 @@ where order is important for associating other features.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>file_paths</strong> (<em>list of str</em>) – The list of file paths (in order) to use.</p></li>
 <li><p><strong>modes</strong> (<em>list of str</em>) – The list of mode specs (in order) to use.</p></li>
-<li><p><strong>file_path</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – If ‘file_paths’ not specified, the single file path to use.</p></li>
-<li><p><strong>mode</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – If ‘file_path’ option used, this is the mode for that file.</p></li>
+<li><p><strong>file_path</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – If ‘file_paths’ not specified, the single file path to use.</p></li>
+<li><p><strong>mode</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – If ‘file_path’ option used, this is the mode for that file.</p></li>
 </ul>
 </dd>
 </dl>
@@ -493,13 +493,13 @@ where order is important for associating other features.</p>
 <dd><p>Check if the mode spec is a valid one.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>mode</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – </p>
+<dd class="field-odd"><p><strong>mode</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – </p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><strong>valid</strong></p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)">bool</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -575,7 +575,7 @@ passed to them during a simulation by the sim_manager.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>cycle_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – </p></li>
+<li><p><strong>cycle_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – </p></li>
 <li><p><strong>new_walkers</strong> (<em>list of Walker objects</em>) – List of walkers that were produced from running their
 dynamics by the runner.</p></li>
 <li><p><strong>warp_data</strong> (<em>list of dict of str : value</em>) – List of dict-like records for each warping event from the
@@ -588,12 +588,12 @@ the last cycle.</p></li>
 cycle.</p></li>
 <li><p><strong>resampler_data</strong> (<em>list of dict of str : value</em>) – List of records specifying the changes to the state of the
 resampler in the last cycle.</p></li>
-<li><p><strong>n_segment_steps</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – The number of dynamics steps that were completed in the last cycle</p></li>
+<li><p><strong>n_segment_steps</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – The number of dynamics steps that were completed in the last cycle</p></li>
 <li><p><strong>worker_segment_times</strong> (<em>dict of int : list of float</em>) – Mapping worker index to the times they took for each
 segment they processed.</p></li>
-<li><p><strong>cycle_runner_time</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a>) – Total time runner took in last cycle.</p></li>
-<li><p><strong>cycle_bc_time</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a>) – Total time boundary conditions took in last cycle.</p></li>
-<li><p><strong>cycle_resampling_time</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a>) – Total time resampler took in last cycle.</p></li>
+<li><p><strong>cycle_runner_time</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a>) – Total time runner took in last cycle.</p></li>
+<li><p><strong>cycle_bc_time</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a>) – Total time boundary conditions took in last cycle.</p></li>
+<li><p><strong>cycle_resampling_time</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a>) – Total time resampler took in last cycle.</p></li>
 <li><p><strong>resampled_walkers</strong> (<em>list of Walker objects</em>) – List of walkers that were produced from the new_walkers
 from applying resampling and boundary conditions.</p></li>
 </ul>
@@ -608,8 +608,8 @@ from applying resampling and boundary conditions.</p></li>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>file_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – Index in the listing of files.</p></li>
-<li><p><strong>mode</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – The new mode spec.</p></li>
+<li><p><strong>file_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – Index in the listing of files.</p></li>
+<li><p><strong>mode</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – The new mode spec.</p></li>
 </ul>
 </dd>
 </dl>
@@ -622,8 +622,8 @@ from applying resampling and boundary conditions.</p></li>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>file_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – Index in the listing of files.</p></li>
-<li><p><strong>path</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – The new path to set for this file</p></li>
+<li><p><strong>file_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – Index in the listing of files.</p></li>
+<li><p><strong>path</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – The new path to set for this file</p></li>
 </ul>
 </dd>
 </dl>
@@ -639,8 +639,8 @@ from applying resampling and boundary conditions.</p></li>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>file_paths</strong> (<em>list of str</em>) – The list of file paths (in order) to use.</p></li>
 <li><p><strong>modes</strong> (<em>list of str</em>) – The list of mode specs (in order) to use.</p></li>
-<li><p><strong>file_path</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – If ‘file_paths’ not specified, the single file path to use.</p></li>
-<li><p><strong>mode</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – If ‘file_path’ option used, this is the mode for that file.</p></li>
+<li><p><strong>file_path</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – If ‘file_paths’ not specified, the single file path to use.</p></li>
+<li><p><strong>mode</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – If ‘file_path’ option used, this is the mode for that file.</p></li>
 </ul>
 </dd>
 </dl>

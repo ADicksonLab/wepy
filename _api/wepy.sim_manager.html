@@ -89,7 +89,7 @@ to be determined adaptively (e.g. according to some time limit).</p>
 <dl class="py class">
 <dt id="wepy.sim_manager.Manager">
 <em class="property">class </em><code class="sig-prename descclassname">wepy.sim_manager.</code><code class="sig-name descname">Manager</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">init_walkers</span></em>, <em class="sig-param"><span class="n">runner</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">work_mapper</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">resampler</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">boundary_conditions</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">reporters</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">sim_monitor</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/sim_manager.html#Manager"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.sim_manager.Manager" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>The class that coordinates wepy simulations.</p>
 <p>The Manager class is the lynchpin of wepy simulations and is where
 all the different components are composed.</p>
@@ -164,7 +164,7 @@ the work mapper.</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>walkers</strong> (<em>list of walkers</em>) – </p></li>
-<li><p><strong>segment_length</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – Number of steps to run in each segment.</p></li>
+<li><p><strong>segment_length</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – Number of steps to run in each segment.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -217,8 +217,8 @@ without any).</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>walkers</strong> (<em>list of walkers</em>) – </p></li>
-<li><p><strong>n_segment_steps</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – Number of steps to run in each segment.</p></li>
-<li><p><strong>cycle_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – The index of this cycle.</p></li>
+<li><p><strong>n_segment_steps</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – Number of steps to run in each segment.</p></li>
+<li><p><strong>cycle_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – The index of this cycle.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -277,12 +277,12 @@ workers to the work_mapper.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>num_workers</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – <dl class="simple">
+<li><p><strong>num_workers</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – <dl class="simple">
 <dt>The number of workers to use in the work mapper.</dt><dd><p>(Default value = None)</p>
 </dd>
 </dl>
 </p></li>
-<li><p><strong>continue_run</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – <dl class="simple">
+<li><p><strong>continue_run</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – <dl class="simple">
 <dt>Index of a run this one is continuing.</dt><dd><p>(Default value = None)</p>
 </dd>
 </dl>
@@ -329,9 +329,9 @@ handle this appropriately.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>run_time</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a>) – The time to run in seconds.</p></li>
-<li><p><strong>segments_length</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – The number of steps for each runner segment.</p></li>
-<li><p><strong>num_workers</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – <dl class="simple">
+<li><p><strong>run_time</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a>) – The time to run in seconds.</p></li>
+<li><p><strong>segments_length</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – The number of steps for each runner segment.</p></li>
+<li><p><strong>num_workers</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – <dl class="simple">
 <dt>The number of workers to use for the work mapper.</dt><dd><p>(Default value = None)</p>
 </dd>
 </dl>
@@ -363,9 +363,9 @@ conditions objects at the end of the cycle.</p></li>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>n_cycles</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – Number of cycles to perform.</p></li>
-<li><p><strong>segment_lengths</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – The number of steps for each runner segment.</p></li>
-<li><p><strong>num_workers</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – <dl class="simple">
+<li><p><strong>n_cycles</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – Number of cycles to perform.</p></li>
+<li><p><strong>segment_lengths</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – The number of steps for each runner segment.</p></li>
+<li><p><strong>num_workers</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – <dl class="simple">
 <dt>The number of workers to use for the work mapper.</dt><dd><p>(Default value = None)</p>
 </dd>
 </dl>
@@ -400,10 +400,10 @@ left up to the reporters to handle this appropriately.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>run_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – Index of the run you are continuing.</p></li>
-<li><p><strong>n_cycles</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – Number of cycles to perform.</p></li>
-<li><p><strong>segment_lengths</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – The number of steps for each runner segment.</p></li>
-<li><p><strong>num_workers</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – <dl class="simple">
+<li><p><strong>run_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – Index of the run you are continuing.</p></li>
+<li><p><strong>n_cycles</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – Number of cycles to perform.</p></li>
+<li><p><strong>segment_lengths</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – The number of steps for each runner segment.</p></li>
+<li><p><strong>num_workers</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – <dl class="simple">
 <dt>The number of workers to use for the work mapper.</dt><dd><p>(Default value = None)</p>
 </dd>
 </dl>
@@ -442,7 +442,7 @@ manager knows no details and is left up to the reporters to
 handle this appropriately.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>run_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – Deep copies of the runner, resampler, and boundary
+<dd class="field-odd"><p><strong>run_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – Deep copies of the runner, resampler, and boundary
 conditions objects at the end of the cycle.</p>
 </dd>
 </dl>

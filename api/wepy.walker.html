@@ -75,7 +75,7 @@ walker with weight evenly divided between them.</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>walker</strong> (<em>object implementing the Walker interface</em>) – The walker to split/clone</p></li>
-<li><p><strong>number</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – <dl class="simple">
+<li><p><strong>number</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – <dl class="simple">
 <dt>The number of clones to make of the walker</dt><dd><p>(Default value = 2)</p>
 </dd>
 </dl>
@@ -99,7 +99,7 @@ walker with weight evenly divided between them.</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>walkers</strong> (<em>list of objects implementing the Walker interface</em>) – The walkers that will be merged together</p></li>
-<li><p><strong>keep_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – The index of the walker in the walkers list that will be used
+<li><p><strong>keep_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – The index of the walker in the walkers list that will be used
 to set the state of the new merged walker.</p></li>
 </ul>
 </dd>
@@ -135,7 +135,7 @@ the walkers weights.</p>
 <dl class="py class">
 <dt id="wepy.walker.Walker">
 <em class="property">class </em><code class="sig-prename descclassname">wepy.walker.</code><code class="sig-name descname">Walker</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">state</span></em>, <em class="sig-param"><span class="n">weight</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/walker.html#Walker"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.walker.Walker" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>Reference implementation of the Walker interface.</p>
 <p>A container for:</p>
 <ul class="simple">
@@ -147,7 +147,7 @@ the walkers weights.</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>state</strong> (<em>object implementing the WalkerState interface</em>) – </p></li>
-<li><p><strong>weight</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a>) – </p></li>
+<li><p><strong>weight</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a>) – </p></li>
 </ul>
 </dd>
 </dl>
@@ -161,7 +161,7 @@ the probability uniformly between clones.</p>
 this object but with probability split 50/50 between them</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>number</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – <dl class="simple">
+<dd class="field-odd"><p><strong>number</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – <dl class="simple">
 <dt>Number of extra clones to make</dt><dd><p>(Default value = 1)</p>
 </dd>
 </dl>
@@ -215,7 +215,7 @@ this object but with probability split 50/50 between them</p>
 <dl class="py class">
 <dt id="wepy.walker.WalkerState">
 <em class="property">class </em><code class="sig-prename descclassname">wepy.walker.</code><code class="sig-name descname">WalkerState</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/walker.html#WalkerState"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.walker.WalkerState" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>Reference implementation of the WalkerState interface.</p>
 <p>Access all key-value pairs as a dictionary with the dict() method.</p>
 <p>Access individual values using the accessor syntax similar to

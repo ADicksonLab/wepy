@@ -76,7 +76,7 @@ set self.__traceback__ to tb and return self.</p>
 <dl class="py exception">
 <dt id="wepy.work_mapper.task_mapper.TaskProcessKilledError">
 <em class="property">exception </em><code class="sig-prename descclassname">wepy.work_mapper.task_mapper.</code><code class="sig-name descname">TaskProcessKilledError</code><a class="reference internal" href="../_modules/wepy/work_mapper/task_mapper.html#TaskProcessKilledError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.work_mapper.task_mapper.TaskProcessKilledError" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ChildProcessError" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ChildProcessError</span></code></a></p>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ChildProcessError" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ChildProcessError</span></code></a></p>
 <dl class="py attribute">
 <dt id="wepy.work_mapper.task_mapper.TaskProcessKilledError.args">
 <code class="sig-name descname">args</code><a class="headerlink" href="#wepy.work_mapper.task_mapper.TaskProcessKilledError.args" title="Permalink to this definition">¶</a></dt>
@@ -149,9 +149,9 @@ WorkerMapper may be better suited.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>num_workers</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – The number of worker processes to spawn.</p></li>
+<li><p><strong>num_workers</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – The number of worker processes to spawn.</p></li>
 <li><p><strong>segment_func</strong> (<em>callable</em><em>, </em><em>optional</em>) – Set a default segment_func. Typically set at runtime.</p></li>
-<li><p><strong>proc_start_method</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.8)"><em>None</em></a>) – A string indicating the type of process start method to
+<li><p><strong>proc_start_method</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><em>None</em></a>) – A string indicating the type of process start method to
 use from python multiprocessing typically ‘fork’, ‘spawn’,
 or ‘forkserver’, or the platform default for None. See
 documentation. Generates a context with the method
@@ -166,7 +166,7 @@ multiprocessing.get_context(proc_start_method) on <cite>init</cite>.</p></li>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>num_workers</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – The number of worker processes to spawn</p></li>
+<li><p><strong>num_workers</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – The number of worker processes to spawn</p></li>
 <li><p><strong>segment_func</strong> (<em>callable implementing the Runner.run_segment interface</em>) – </p></li>
 </ul>
 </dd>

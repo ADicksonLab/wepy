@@ -60,7 +60,7 @@ structure of weighted ensemble simulation data.</p>
 <dl class="py exception">
 <dt id="wepy.analysis.network.MacroStateNetworkError">
 <em class="property">exception </em><code class="sig-prename descclassname">wepy.analysis.network.</code><code class="sig-name descname">MacroStateNetworkError</code><a class="reference internal" href="../_modules/wepy/analysis/network.html#MacroStateNetworkError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.network.MacroStateNetworkError" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#Exception" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></a></p>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#Exception" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></a></p>
 <p>Errors specific to MacroStateNetwork requirements.</p>
 <dl class="py attribute">
 <dt id="wepy.analysis.network.MacroStateNetworkError.args">
@@ -79,7 +79,7 @@ set self.__traceback__ to tb and return self.</p>
 <dl class="py class">
 <dt id="wepy.analysis.network.BaseMacroStateNetwork">
 <em class="property">class </em><code class="sig-prename descclassname">wepy.analysis.network.</code><code class="sig-name descname">BaseMacroStateNetwork</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">contig_tree</span></em>, <em class="sig-param"><span class="n">assg_field_key</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">assignments</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">transition_lag_time</span><span class="o">=</span><span class="default_value">2</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/network.html#BaseMacroStateNetwork"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.network.BaseMacroStateNetwork" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>A base class for the MacroStateNetwork which doesn’t contain a
 WepyHDF5 object. Useful for serialization of the object and can
 then be reattached later to a WepyHDF5.</p>
@@ -98,7 +98,7 @@ microstate data.</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>contig_tree</strong> (<em>ContigTree object</em>) – </p></li>
-<li><p><strong>assg_field_key</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>, </em><em>conditionally optional on 'assignments'</em>) – The field in the WepyHDF5 dataset you want to generate macrostates for.</p></li>
+<li><p><strong>assg_field_key</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>, </em><em>conditionally optional on 'assignments'</em>) – The field in the WepyHDF5 dataset you want to generate macrostates for.</p></li>
 <li><p><strong>assignments</strong> (<em>list of list of array_like of dim</em><em> (</em><em>n_traj_frames</em><em>, </em><em>observable_shape</em><em>[</em><em>0</em><em>]</em><em>, </em><em>..</em><em>)</em><em>,</em>) – <p>conditionally optional on ‘assg_field_key’</p>
 <p>List of assignments for all frames in each run, where each
 element of the outer list is for a run, the elements of
@@ -149,7 +149,7 @@ arraylikes of shape (n_traj, observable_shape[0], …).</p>
 <dd class="field-even"><p><strong>node_idx</strong></p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)">int</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -160,7 +160,7 @@ arraylikes of shape (n_traj, observable_shape[0], …).</p>
 <dd><p>Convert a node index to its node id.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>node_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – </p>
+<dd class="field-odd"><p><strong>node_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – </p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><strong>node_id</strong></p>
@@ -252,7 +252,7 @@ arraylikes of shape (n_traj, observable_shape[0], …).</p>
 <dd class="field-even"><p><strong>macrostate_attrs</strong></p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)">dict</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)">dict</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -265,7 +265,7 @@ arraylikes of shape (n_traj, observable_shape[0], …).</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>node_id</strong> (<em>node_id</em>) – </p></li>
-<li><p><strong>attribute_key</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – </p></li>
+<li><p><strong>attribute_key</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – </p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -307,7 +307,7 @@ arraylikes of shape (n_traj, observable_shape[0], …).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>key</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – </p></li>
+<li><p><strong>key</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – </p></li>
 <li><p><strong>values_dict</strong> (<em>dict of node_id: values</em>) – </p></li>
 </ul>
 </dd>
@@ -368,7 +368,7 @@ arraylikes of shape (n_traj, observable_shape[0], …).</p>
 <dd><p>Writes a graph file in the gexf format of the network.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>filepath</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – </p>
+<dd class="field-odd"><p><strong>filepath</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – </p>
 </dd>
 </dl>
 </dd></dl>
@@ -457,7 +457,7 @@ functions with arguments for all data.</p>
 <dl class="py class">
 <dt id="wepy.analysis.network.MacroStateNetwork">
 <em class="property">class </em><code class="sig-prename descclassname">wepy.analysis.network.</code><code class="sig-name descname">MacroStateNetwork</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">contig_tree</span></em>, <em class="sig-param"><span class="n">base_network</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">assg_field_key</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">assignments</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">transition_lag_time</span><span class="o">=</span><span class="default_value">2</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/network.html#MacroStateNetwork"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.network.MacroStateNetwork" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>Provides an abstraction over weighted ensemble data in the form of
 a kinetically connected network.</p>
 <p>The MacroStateNetwork refers to any grouping of the so called
@@ -558,7 +558,7 @@ specified.</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>node_id</strong> (<em>node_id</em>) – </p></li>
-<li><p><strong>alt_rep</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – (Default value = None)</p></li>
+<li><p><strong>alt_rep</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – (Default value = None)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>

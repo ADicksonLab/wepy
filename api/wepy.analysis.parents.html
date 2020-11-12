@@ -111,7 +111,7 @@ by the cycle, hence the name panel.</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>resampling_records</strong> (<em>list of nametuple records</em>) – A list of resampling records.</p></li>
-<li><p><strong>is_sorted</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a>) – If this is True it will be assumed that the resampling_records
+<li><p><strong>is_sorted</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – If this is True it will be assumed that the resampling_records
 are presorted, otherwise they will be sorted.</p></li>
 </ul>
 </dd>
@@ -209,9 +209,9 @@ the given walker.</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>parent_table</strong> (<em>list of list of int</em>) – </p></li>
-<li><p><strong>cycle_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – Cycle of walker to query.</p></li>
-<li><p><strong>walker_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – Walker index in to query along with cycle_idx.</p></li>
-<li><p><strong>ancestor_cycle</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – Index of cycle in history to go back to. Must be less than cycle_idx.</p></li>
+<li><p><strong>cycle_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – Cycle of walker to query.</p></li>
+<li><p><strong>walker_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – Walker index in to query along with cycle_idx.</p></li>
+<li><p><strong>ancestor_cycle</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – Index of cycle in history to go back to. Must be less than cycle_idx.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -235,7 +235,7 @@ trees.</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>parent_table</strong> (<em>list of list of int</em>) – Parent table defining parent relationships and contig.</p></li>
-<li><p><strong>window_length</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – Length of window to use. Must be greater than 1.</p></li>
+<li><p><strong>window_length</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – Length of window to use. Must be greater than 1.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -250,7 +250,7 @@ trees.</p>
 <dl class="py class">
 <dt id="wepy.analysis.parents.ParentForest">
 <em class="property">class </em><code class="sig-prename descclassname">wepy.analysis.parents.</code><code class="sig-name descname">ParentForest</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">contig</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">parent_table</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/parents.html#ParentForest"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.parents.ParentForest" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>A tree abstraction to a contig representing the family trees of walkers.</p>
 <p>Uses a directed graph (networkx.DiGraph) to represent parent-child
 relationships; i.e. for edge (A, B) node A is a parent of node B.</p>
@@ -268,7 +268,7 @@ which is preferrable.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Raises</dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.8)"><strong>ValueError</strong></a> – If neither parent_table nor contig is given, or if both are given.</p>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.9)"><strong>ValueError</strong></a> – If neither parent_table nor contig is given, or if both are given.</p>
 </dd>
 </dl>
 <dl class="py attribute">
@@ -310,7 +310,7 @@ value in the parent table.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>step_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – Index of step, just sets the value to put into the node_ids</p></li>
+<li><p><strong>step_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – Index of step, just sets the value to put into the node_ids</p></li>
 <li><p><strong>parent_idxs</strong> (<em>list of int</em>) – For element i in this list, the value j is the index of
 the child in slot i in step_idx+1. Thus j must be
 between 0 and len(parent_idxs)-1.</p></li>
@@ -368,7 +368,7 @@ between 0 and len(parent_idxs)-1.</p></li>
 <dd><p>Get the nodes at the step (level of the tree).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>step_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – </p>
+<dd class="field-odd"><p><strong>step_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – </p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><strong>nodes</strong></p>
@@ -399,7 +399,7 @@ between 0 and len(parent_idxs)-1.</p></li>
 <dd><p>Get the nodes for this walker for the whole tree.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>walker_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – </p>
+<dd class="field-odd"><p><strong>walker_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – </p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><strong>nodes</strong></p>
@@ -417,7 +417,7 @@ between 0 and len(parent_idxs)-1.</p></li>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>attribute_key</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – Key to set for a node attribute.</p></li>
+<li><p><strong>attribute_key</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Key to set for a node attribute.</p></li>
 <li><p><strong>node_attribute_dict</strong> (<em>dict of node_id: value</em>) – Dictionary mapping nodes to the values that will be set
 for the attribute_key.</p></li>
 </ul>
@@ -435,7 +435,7 @@ step.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>attribute_key</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – Key to set for a node attribute.</p></li>
+<li><p><strong>attribute_key</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Key to set for a node attribute.</p></li>
 <li><p><strong>values</strong> (<em>array_like of dim</em><em> (</em><em>n_steps</em><em>, </em><em>n_walkers</em><em>) or </em><em>list of</em>) – list of values.
 Either an array_like if there is a constant number of
 walkers or a list of lists of the values.</p></li>

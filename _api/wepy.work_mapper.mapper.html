@@ -61,7 +61,7 @@ wepy simulation cycles.</p>
 <dl class="py class">
 <dt id="wepy.work_mapper.mapper.ABCMapper">
 <em class="property">class </em><code class="sig-prename descclassname">wepy.work_mapper.mapper.</code><code class="sig-name descname">ABCMapper</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">segment_func</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/work_mapper/mapper.html#ABCMapper"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.work_mapper.mapper.ABCMapper" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>Abstract base class for a Mapper.</p>
 <p>Constructor for the Mapper class. No arguments are required.</p>
 <dl class="field-list simple">
@@ -132,7 +132,7 @@ are ignored.</p>
 <dd class="field-even"><p><strong>results</strong> – The results of each call to ‘segment_func’ in the same order as input.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.8)">list</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.9)">list</a></p>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
@@ -195,7 +195,7 @@ are ignored.</p>
 <dl class="py class">
 <dt id="wepy.work_mapper.mapper.Task">
 <em class="property">class </em><code class="sig-prename descclassname">wepy.work_mapper.mapper.</code><code class="sig-name descname">Task</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">func</span></em>, <em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/work_mapper/mapper.html#Task"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.work_mapper.mapper.Task" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>Class that composes a function and arguments.</p>
 <p>Constructor for Task.</p>
 <dl class="field-list simple">
@@ -211,7 +211,7 @@ are ignored.</p>
 <dl class="py exception">
 <dt id="wepy.work_mapper.mapper.WrapperException">
 <em class="property">exception </em><code class="sig-prename descclassname">wepy.work_mapper.mapper.</code><code class="sig-name descname">WrapperException</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">message</span></em>, <em class="sig-param"><span class="n">wrapped_exception</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">tb</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/work_mapper/mapper.html#WrapperException"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.work_mapper.mapper.WrapperException" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#Exception" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></a></p>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#Exception" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></a></p>
 <p>Exception used for wrapping another exception.</p>
 <p>Since tracebacks can’t be pickled we format it and save that
 instead.</p>
@@ -255,9 +255,9 @@ set self.__traceback__ to tb and return self.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>num_workers</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – The number of worker processes to spawn.</p></li>
+<li><p><strong>num_workers</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – The number of worker processes to spawn.</p></li>
 <li><p><strong>segment_func</strong> (<em>callable</em><em>, </em><em>optional</em>) – Set a default segment_func. Typically set at runtime.</p></li>
-<li><p><strong>proc_start_method</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.8)"><em>None</em></a>) – A string indicating the type of process start method to
+<li><p><strong>proc_start_method</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><em>None</em></a>) – A string indicating the type of process start method to
 use from python multiprocessing typically ‘fork’, ‘spawn’,
 or ‘forkserver’, or the platform default for None. See
 documentation. Generates a context with the method
@@ -272,7 +272,7 @@ multiprocessing.get_context(proc_start_method) on <cite>init</cite>.</p></li>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>num_workers</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – The number of worker processes to spawn</p></li>
+<li><p><strong>num_workers</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – The number of worker processes to spawn</p></li>
 <li><p><strong>segment_func</strong> (<em>callable implementing the Runner.run_segment interface</em>) – </p></li>
 </ul>
 </dd>
@@ -368,7 +368,7 @@ set self.__traceback__ to tb and return self.</p>
 <dl class="py exception">
 <dt id="wepy.work_mapper.mapper.WorkerKilledError">
 <em class="property">exception </em><code class="sig-prename descclassname">wepy.work_mapper.mapper.</code><code class="sig-name descname">WorkerKilledError</code><a class="reference internal" href="../_modules/wepy/work_mapper/mapper.html#WorkerKilledError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.work_mapper.mapper.WorkerKilledError" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ChildProcessError" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ChildProcessError</span></code></a></p>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ChildProcessError" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ChildProcessError</span></code></a></p>
 <dl class="py attribute">
 <dt id="wepy.work_mapper.mapper.WorkerKilledError.args">
 <code class="sig-name descname">args</code><a class="headerlink" href="#wepy.work_mapper.mapper.WorkerKilledError.args" title="Permalink to this definition">¶</a></dt>
@@ -424,7 +424,7 @@ processes which watch a task queue of walker segments.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>num_workers</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – The number of worker processes to spawn.</p></li>
+<li><p><strong>num_workers</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – The number of worker processes to spawn.</p></li>
 <li><p><strong>worker_type</strong> (<em>callable</em><em>, </em><em>optional</em>) – Callable that generates an object implementing the Worker
 interface, typically a type from a Worker class.</p></li>
 <li><p><strong>worker_attributes</strong> (<em>dictionary</em>) – A dictionary of values that are passed to the worker
@@ -448,7 +448,7 @@ the Worker where the constructor is called.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>num_workers</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – The number of worker processes to spawn</p></li>
+<li><p><strong>num_workers</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – The number of worker processes to spawn</p></li>
 <li><p><strong>segment_func</strong> (<em>callable implementing the Runner.run_segment interface</em>) – </p></li>
 </ul>
 </dd>
@@ -545,11 +545,11 @@ constructor that will automatically generate the Process.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>worker_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – The index of the worker. Should be unique.</p></li>
-<li><p><strong>task_queue</strong> (<a class="reference external" href="https://docs.python.org/3/library/multiprocessing.html#multiprocessing.JoinableQueue" title="(in Python v3.8)"><em>multiprocessing.JoinableQueue</em></a>) – The shared task queue the worker will watch for new tasks to complete.</p></li>
-<li><p><strong>result_queue</strong> (<a class="reference external" href="https://docs.python.org/3/library/multiprocessing.html#multiprocessing.Queue" title="(in Python v3.8)"><em>multiprocessing.Queue</em></a>) – The shared queue that completed task results will be placed on.</p></li>
+<li><p><strong>worker_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – The index of the worker. Should be unique.</p></li>
+<li><p><strong>task_queue</strong> (<a class="reference external" href="https://docs.python.org/3/library/multiprocessing.html#multiprocessing.JoinableQueue" title="(in Python v3.9)"><em>multiprocessing.JoinableQueue</em></a>) – The shared task queue the worker will watch for new tasks to complete.</p></li>
+<li><p><strong>result_queue</strong> (<a class="reference external" href="https://docs.python.org/3/library/multiprocessing.html#multiprocessing.Queue" title="(in Python v3.9)"><em>multiprocessing.Queue</em></a>) – The shared queue that completed task results will be placed on.</p></li>
 <li><p><strong>interrupt_connection</strong> (<em>multiprocessing.Connection</em>) – One end of a pipe to listen for messages specific to this worker.</p></li>
-<li><p><strong>mapper_attributes</strong> (<a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.8)"><em>None</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)"><em>dict</em></a>) – A dictionary of the attributes of the mapper for reference in workers.</p></li>
+<li><p><strong>mapper_attributes</strong> (<a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><em>None</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)"><em>dict</em></a>) – A dictionary of the attributes of the mapper for reference in workers.</p></li>
 <li><p><strong>kwargs</strong> – The worker specific attributes</p></li>
 </ul>
 </dd>

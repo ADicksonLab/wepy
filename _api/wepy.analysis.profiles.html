@@ -76,11 +76,11 @@ trajectory weights.</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>ensemble_values</strong> (<em>arraylikes of float of shape</em><em> (</em><em>n_cycles</em><em>, </em><em>n_trajs</em><em>)</em>) – Array of scalar values for all of the frames of an ensemble simulation.</p></li>
-<li><p><strong>time_tranche</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – Width of time-bins/windows/tranche to compute free energies
+<li><p><strong>time_tranche</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – Width of time-bins/windows/tranche to compute free energies
 for. This overrides the functionality of the ‘partitions’
 argument. The last tranche will be truncated to the remainder
 after partitioning by tranches.</p></li>
-<li><p><strong>num_partitions</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – Will evenly partition the time coordinate given the
+<li><p><strong>num_partitions</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – Will evenly partition the time coordinate given the
 dataset. The first partition will carry the
 remainder. Overriden by time_tranche.</p></li>
 <li><p><strong>percentages</strong> (<em>list of float</em><em>, </em><em>optional</em>) – </p></li>
@@ -102,7 +102,7 @@ tranche.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>weights</strong> (<em>arraylikes of float of shape</em><em> (</em><em>n_trajs</em><em>, </em><em>n_cycles</em><em>)</em>) – The weights for all of the frames of an ensemble simulation.</p></li>
 <li><p><strong>observables</strong> (<em>arraylikes of shape</em><em> (</em><em>n_trajs</em><em>, </em><em>n_cycles</em><em>)</em>) – The scalar observables to compute the free energy over.</p></li>
-<li><p><strong>bins</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a><em> or </em><em>sequence of scalars</em><em> or </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – The number of bins to bin along the observable axis, or the
+<li><p><strong>bins</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a><em> or </em><em>sequence of scalars</em><em> or </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – The number of bins to bin along the observable axis, or the
 actual bin edges, or the spec for the binning method.</p></li>
 </ul>
 </dd>
@@ -125,11 +125,11 @@ multiple contigtrees.</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>contigtrees</strong> (<em>list of ContigTree objects</em>) – The contigtrees to draw the data from.</p></li>
-<li><p><strong>bins</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em> or </em><em>sequence of scalars</em><em> or </em><em>function</em>) – The number of bins to make or the method to use for
+<li><p><strong>bins</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em> or </em><em>sequence of scalars</em><em> or </em><em>function</em>) – The number of bins to make or the method to use for
 autobinning or the actual specification of bins. See
 <cite>numpy.histogram_bin_edges</cite> for exact meaning and methods.</p></li>
-<li><p><strong>field_key</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – The trajectory field key for the values to get bins for.</p></li>
-<li><p><strong>truncate_cycles</strong> (<a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.8)"><em>None</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – If None include all cycles of a run. Otherwise only consider
+<li><p><strong>field_key</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – The trajectory field key for the values to get bins for.</p></li>
+<li><p><strong>truncate_cycles</strong> (<a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><em>None</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – If None include all cycles of a run. Otherwise only consider
 cycles for spans up to (exclusive) the cycle index given.</p></li>
 </ul>
 </dd>
@@ -152,7 +152,7 @@ cycles for spans up to (exclusive) the cycle index given.</p></li>
 <dl class="py class">
 <dt id="wepy.analysis.profiles.ContigTreeProfiler">
 <em class="property">class </em><code class="sig-prename descclassname">wepy.analysis.profiles.</code><code class="sig-name descname">ContigTreeProfiler</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">contigtree</span></em>, <em class="sig-param"><span class="n">truncate_cycles</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/profiles.html#ContigTreeProfiler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.profiles.ContigTreeProfiler" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>A wrapper class around a ContigTree that provides extra methods for
 generating free energy profiles for observables.</p>
 <p>Create a wrapper around a contigtree for the profiler.</p>
@@ -160,7 +160,7 @@ generating free energy profiles for observables.</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>contigtree</strong> (<em>ContigTree object</em>) – The contigtree you want to generate profiles for.</p></li>
-<li><p><strong>truncate_cycles</strong> (<a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.8)"><em>None</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – If None include all cycles of a run. Otherwise only consider
+<li><p><strong>truncate_cycles</strong> (<a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><em>None</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – If None include all cycles of a run. Otherwise only consider
 cycles for spans up to (exclusive) the cycle index given.</p></li>
 </ul>
 </dd>
@@ -175,14 +175,14 @@ value.</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>contigtree</strong> (<a class="reference internal" href="../api/wepy.analysis.contig_tree.html#wepy.analysis.contig_tree.ContigTree" title="wepy.analysis.contig_tree.ContigTree"><em>ContigTree</em></a>) – </p></li>
-<li><p><strong>truncate_cycles</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – The cycle index to truncate at (exclusive).</p></li>
+<li><p><strong>truncate_cycles</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – The cycle index to truncate at (exclusive).</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><strong>ignored_trace</strong> – The frames to ignore given the truncation.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>set of (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a>, <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a>)</p>
+<dd class="field-odd"><p>set of (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)">int</a>, <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)">int</a>)</p>
 </dd>
 </dl>
 </dd></dl>
@@ -201,13 +201,13 @@ value.</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>trace</strong> (<em>list of tuple of ints</em><em> (</em><em>run_idx</em><em>, </em><em>traj_idx</em><em>, </em><em>cycle_idx</em><em>)</em>) – </p></li>
-<li><p><strong>field_key</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – The key for the trajectory field to calculate the profiles
+<li><p><strong>field_key</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – The key for the trajectory field to calculate the profiles
 for. Must be a rank 0 (or equivalent (1,) rank) field.</p></li>
-<li><p><strong>bins</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a><em> or </em><em>sequence of scalars</em><em> or </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.8)"><em>None</em></a>) – The number of bins to bin along the observable axis, or
+<li><p><strong>bins</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a><em> or </em><em>sequence of scalars</em><em> or </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><em>None</em></a>) – The number of bins to bin along the observable axis, or
 the actual bin edges, or the spec for the binning method,
 or None. If None will generate them with the ‘auto’
 setting for this span.</p></li>
-<li><p><strong>ignore_truncate</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a>) – Ignore the truncate_cycles value.</p></li>
+<li><p><strong>ignore_truncate</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Ignore the truncate_cycles value.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -226,13 +226,13 @@ setting for this span.</p></li>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>field_key</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – The key for the trajectory field to calculate the profiles
+<li><p><strong>field_key</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – The key for the trajectory field to calculate the profiles
 for. Must be a rank 0 (or equivalent (1,) rank) field.</p></li>
-<li><p><strong>bins</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a><em> or </em><em>sequence of scalars</em><em> or </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.8)"><em>None</em></a>) – The number of bins to bin along the observable axis, or
+<li><p><strong>bins</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a><em> or </em><em>sequence of scalars</em><em> or </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><em>None</em></a>) – The number of bins to bin along the observable axis, or
 the actual bin edges, or the spec for the binning method,
 or None. If None will generate them with the ‘auto’
 setting for this span.</p></li>
-<li><p><strong>ignore_truncate</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a>) – Ignore the truncate_cycles value.</p></li>
+<li><p><strong>ignore_truncate</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Ignore the truncate_cycles value.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -254,14 +254,14 @@ profile is span based.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>span</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – The index of the span to calculate profiles for.</p></li>
-<li><p><strong>field_key</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – The key for the trajectory field to calculate the profiles
+<li><p><strong>span</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – The index of the span to calculate profiles for.</p></li>
+<li><p><strong>field_key</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – The key for the trajectory field to calculate the profiles
 for. Must be a rank 0 (or equivalent (1,) rank) field.</p></li>
-<li><p><strong>bins</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a><em> or </em><em>sequence of scalars</em><em> or </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.8)"><em>None</em></a>) – The number of bins to bin along the observable axis, or
+<li><p><strong>bins</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a><em> or </em><em>sequence of scalars</em><em> or </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><em>None</em></a>) – The number of bins to bin along the observable axis, or
 the actual bin edges, or the spec for the binning method,
 or None. If None will generate them with the ‘auto’
 setting for this span.</p></li>
-<li><p><strong>ignore_truncate</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a>) – Ignore the truncate_cycles value.</p></li>
+<li><p><strong>ignore_truncate</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Ignore the truncate_cycles value.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -281,22 +281,22 @@ field.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>span</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – The index of the span to calculate profiles for.</p></li>
-<li><p><strong>field_key</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – The key for the trajectory field to calculate the profiles
+<li><p><strong>span</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – The index of the span to calculate profiles for.</p></li>
+<li><p><strong>field_key</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – The key for the trajectory field to calculate the profiles
 for. Must be a rank 0 (or equivalent (1,) rank) field.</p></li>
-<li><p><strong>bins</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a><em> or </em><em>sequence of scalars</em><em> or </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.8)"><em>None</em></a>) – The number of bins to bin along the observable axis, or
+<li><p><strong>bins</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a><em> or </em><em>sequence of scalars</em><em> or </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><em>None</em></a>) – The number of bins to bin along the observable axis, or
 the actual bin edges, or the spec for the binning method,
 or None. If None will generate them with the ‘auto’
 setting for this span.</p></li>
-<li><p><strong>time_tranche</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – Width of time-bins/windows/tranche to compute free
+<li><p><strong>time_tranche</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – Width of time-bins/windows/tranche to compute free
 energies for. This overrides the functionality of the
 ‘num_partitions’ argument. The last tranche will be truncated
 to the remainder after partitioning by tranches. Overrides
 partitions.</p></li>
-<li><p><strong>num_partitions</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – Will evenly partition the time coordinate given the
+<li><p><strong>num_partitions</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – Will evenly partition the time coordinate given the
 dataset. The first partition will carry the remainder.
 Overriden by time_tranche.</p></li>
-<li><p><strong>ignore_truncate</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a>) – Ignore the truncate_cycles value.</p></li>
+<li><p><strong>ignore_truncate</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Ignore the truncate_cycles value.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -318,22 +318,22 @@ field for all spans in a contigtree.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>field_key</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – The key for the trajectory field to calculate the profiles
+<li><p><strong>field_key</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – The key for the trajectory field to calculate the profiles
 for. Must be a rank 0 (or equivalent (1,) rank) field.</p></li>
-<li><p><strong>bins</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a><em> or </em><em>sequence of scalars</em><em> or </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.8)"><em>None</em></a>) – The number of bins to bin along the observable axis, or
+<li><p><strong>bins</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a><em> or </em><em>sequence of scalars</em><em> or </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><em>None</em></a>) – The number of bins to bin along the observable axis, or
 the actual bin edges, or the spec for the binning method,
 or None. If None will generate them with the ‘auto’
 setting for this span.</p></li>
-<li><p><strong>time_tranche</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – Width of time-bins/windows/tranche to compute free
+<li><p><strong>time_tranche</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – Width of time-bins/windows/tranche to compute free
 energies for. This overrides the functionality of the
 ‘num_partitions’ argument. The last tranche will be truncated
 to the remainder after partitioning by tranches. Overrides
 partitions.</p></li>
-<li><p><strong>num_partitions</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – Will evenly partition the time coordinate given the
+<li><p><strong>num_partitions</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – Will evenly partition the time coordinate given the
 dataset. The first partition will carry the remainder.
 Overriden by time_tranche.</p></li>
 <li><p><strong>percentages</strong> (<em>list of float</em>) – </p></li>
-<li><p><strong>ignore_truncate</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a>) – Ignore the truncate_cycles value.</p></li>
+<li><p><strong>ignore_truncate</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Ignore the truncate_cycles value.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -355,9 +355,9 @@ data for the number of bins.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>bins</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – The number of bins to make or the method to use for
+<li><p><strong>bins</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – The number of bins to make or the method to use for
 autobinning.</p></li>
-<li><p><strong>field_key</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – The trajectory field key for the values to get bins for.</p></li>
+<li><p><strong>field_key</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – The trajectory field key for the values to get bins for.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>

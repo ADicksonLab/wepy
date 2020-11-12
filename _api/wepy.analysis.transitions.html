@@ -105,7 +105,7 @@ is the number of runs, N_traj is the number of trajectories,
 and N_cycle is the number of cycles.</p></li>
 <li><p><strong>transitions</strong> (<em>list of list of tuples of ints</em><em> (</em><em>run_idx</em><em>, </em><em>traj_idx</em><em>, </em><em>cycle_idx</em><em>)</em>) – List of run traces corresponding to transitions. Only the
 first and last trace elements are used.</p></li>
-<li><p><strong>weights</strong> (<em>mixed array_like of dim</em><em> (</em><em>n_run</em><em>, </em><em>n_traj</em><em>, </em><em>n_cycle</em><em>) </em><em>type float</em><em> or </em><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.8)"><em>None</em></a>) – <dl class="simple">
+<li><p><strong>weights</strong> (<em>mixed array_like of dim</em><em> (</em><em>n_run</em><em>, </em><em>n_traj</em><em>, </em><em>n_cycle</em><em>) </em><em>type float</em><em> or </em><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><em>None</em></a>) – <dl class="simple">
 <dt>Same shape as the assignments, but gives the weight of the walker at this time.</dt><dd><p>(Optional)</p>
 </dd>
 </dl>
@@ -118,7 +118,7 @@ the count of microstate transitions between them. If weights
 are given this is the weighted counts.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>dict of (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a>, <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a>): int</p>
+<dd class="field-odd"><p>dict of (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)">int</a>, <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)">int</a>): int</p>
 </dd>
 </dl>
 </dd></dl>
@@ -130,7 +130,7 @@ are given this is the weighted counts.</p>
 assymetric transitions counts matrix.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>counts_d</strong> (<em>dict of</em><em> (</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a><em>)</em><em>: int</em>) – Dictionary mapping transitions between macrostate labels to
+<dd class="field-odd"><p><strong>counts_d</strong> (<em>dict of</em><em> (</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a><em>)</em><em>: int</em>) – Dictionary mapping transitions between macrostate labels to
 the count of microstate transitions between them.</p>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -213,8 +213,8 @@ first and last trace elements are used.</p></li>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>wepy_hdf5</strong> (<em>WepyHDF5 object</em>) – </p></li>
-<li><p><strong>run_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – </p></li>
-<li><p><strong>assignment_key</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – Field from trajectory data to use as macrostate label.</p></li>
+<li><p><strong>run_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – </p></li>
+<li><p><strong>assignment_key</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Field from trajectory data to use as macrostate label.</p></li>
 <li><p><strong>transitions</strong> (<em>list of list of tuples of ints</em><em> (</em><em>run_idx</em><em>, </em><em>traj_idx</em><em>, </em><em>cycle_idx</em><em>)</em>) – List of run traces corresponding to transitions. Only the
 first and last trace elements are used.</p></li>
 </ul>
@@ -236,8 +236,8 @@ first and last trace elements are used.</p></li>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>wepy_hdf5</strong> (<em>WepyHDF5 object</em>) – </p></li>
-<li><p><strong>run_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – </p></li>
-<li><p><strong>assignment_key</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – Field from trajectory data to use as macrostate label.</p></li>
+<li><p><strong>run_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – </p></li>
+<li><p><strong>assignment_key</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Field from trajectory data to use as macrostate label.</p></li>
 <li><p><strong>transitions</strong> (<em>list of list of tuples of ints</em><em> (</em><em>run_idx</em><em>, </em><em>traj_idx</em><em>, </em><em>cycle_idx</em><em>)</em>) – List of run traces corresponding to transitions. Only the
 first and last trace elements are used.</p></li>
 </ul>
