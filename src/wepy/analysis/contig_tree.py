@@ -180,8 +180,17 @@ class BaseContigTree():
         if self._decision_class is not None:
             self._set_parents(self._decision_class)
 
+            # if there was a boundary condition class we add the
+            # discontinuities to the graph nodes
             if self._boundary_condition_class is not None:
-                self._set_discontinuities(wepy_h5, self._boundary_condition_class)
+
+                self._set_discontinuities(wepy_h5,
+                                          self._boundary_condition_class)
+
+            # otherwise we simply initialize the discontinuities
+            else:
+
+                self._initialize_discontinuities(wepy_h5)
 
         # set the spanning contigs as a mapping of the index to the
         # span trace
@@ -272,6 +281,20 @@ class BaseContigTree():
                 node = (run_idx, step_idx)
                 self.graph.nodes[node][self.RESAMPLING_PANEL_KEY] = step
 
+
+    def _initialize_discontinuities(self,
+                                    wepy_h5):
+        """Initialize the nodes with discontinuities attributes but set to 0s
+        indicating no discontinuities.
+        """
+
+        # initialize the attributes for discontinuities to 0s for no
+        # discontinuities
+        for node in self.graph.nodes:
+            n_walkers = len(self.graph.node[node][self.PARENTS_KEY])
+            self.graph.node[node][self.DISCONTINUITY_KEY] = [0 for i in range(n_walkers)]
+
+
     def _set_discontinuities(self, wepy_h5, boundary_conditions_class):
         """Given the boundary condition class sets node attributes for where
         there are discontinuities in the parental lineages.
@@ -282,13 +305,11 @@ class BaseContigTree():
 
         """
 
-        # initialize the attributes for discontinuities to 0s for no
-        # discontinuities
-        for node in self.graph.nodes:
-            n_walkers = len(self.graph.node[node][self.PARENTS_KEY])
-            self.graph.node[node][self.DISCONTINUITY_KEY] = [0 for i in range(n_walkers)]
+        # initialize the nodes with the fields and the false values
+        # (0s)
+        self._initialize_discontinuities(wepy_h5)
 
-        #
+        # Now actually fill in where there are discontinuities
         for run_idx in self.run_idxs:
 
             # get the warping records for this run
@@ -1492,7 +1513,10 @@ class ContigTree(BaseContigTree):
         return list(set(big_trace))
 
 
-    def lineages(self, trace):
+    def lineages(self,
+                 trace,
+                 discontinuities=True
+    ):
         """Get the ancestry lineage for each element of the trace as a run
         trace."""
 
@@ -1510,7 +1534,12 @@ class ContigTree(BaseContigTree):
                     contig = self.span_contig(span_idx)
 
                     # lineages for a single frame
-                    lines.append(contig.lineages([(w_cycle_idx, w_walker_idx)])[0])
+                    lines.append(
+                        contig.lineages(
+                            [(w_walker_idx, w_cycle_idx)],
+                            discontinuities=discontinuities,
+                        )[0]
+                    )
 
                     # any span trace will do so we finish at this point
                     break
