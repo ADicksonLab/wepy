@@ -2804,7 +2804,7 @@ class WepyHDF5(object):
 
         # if any of the field names has not occured for every
         # trajectory we raise an error
-        for field_name, count in field_names:
+        for field_name, count in field_names.items():
             if count != n_trajs:
                 raise TypeError("observable field names are inconsistent")
 

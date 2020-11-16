@@ -11,6 +11,7 @@ See the git commit log history for full details.
   conditions in a ~ContigTree~. (Fixes: 10.gh_issue)
 - Fixes mistake in the ~ContigTree.lineages~ function. (Fixes: 10.gh_issue)
 - Adds an option to account for discontinuities in ~ContigTree.lineages~.
+- Fixes the ~WepyHDF5.observable_field_names~ function.
 
 ** 1.0.7 - 2020-11-12
 
