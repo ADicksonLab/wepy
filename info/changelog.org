@@ -12,7 +12,9 @@ See the git commit log history for full details.
 - Fixes mistake in the ~ContigTree.lineages~ function. (Fixes: 10.gh_issue)
 - Adds an option to account for discontinuities in ~ContigTree.lineages~.
 - Fixes the ~WepyHDF5.observable_field_names~ function.
+- Fixes the ContigTreeProfiler functions for FE profiles
 
+  
 ** 1.0.7 - 2020-11-12
 
 - Adds a check to make sure the ~platform~ for the
