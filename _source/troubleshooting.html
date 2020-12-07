@@ -66,6 +66,35 @@ using GZIP level 2 but read the documentation to customize for yourself:</p>
 <p>There are other more involved mechanisms, but this should cut your size
 significantly.</p>
 </div>
+<div class="section" id="i-get-a-valid-identifiers-error-when-accessing-hdf5-data">
+<h2>I get a ‘valid identifiers’ error when accessing HDF5 data.<a class="headerlink" href="#i-get-a-valid-identifiers-error-when-accessing-hdf5-data" title="Permalink to this headline">¶</a></h2>
+<p>If you get something like this:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="ne">ValueError</span><span class="p">:</span> <span class="n">Type</span> <span class="n">names</span> <span class="ow">and</span> <span class="n">field</span> <span class="n">names</span> <span class="n">must</span> <span class="n">be</span> <span class="n">valid</span> <span class="n">identifiers</span><span class="p">:</span> <span class="s2">&quot;b&#39;decision_id&#39;&quot;</span>
+</pre></div>
+</div>
+<p>When accessing your WepyHDF5 data its likely because you have a version
+of <code class="docutils literal notranslate"><span class="pre">h5py</span></code> that is too new. Simply downgrade to before version 3.0.</p>
+<p>You can check this by running:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip list <span class="p">|</span> grep h5py
+</pre></div>
+</div>
+<p>And install an ealier version:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip install <span class="s1">&#39;h5py&lt;3&#39;</span>
+</pre></div>
+</div>
+<p>See <em>I think I have the wrong versions of dependencies</em> for more info on
+fixing dependencies.</p>
+</div>
+<div class="section" id="i-think-i-have-the-wrong-versions-of-dependencies">
+<h2>I think I have the wrong versions of dependencies<a class="headerlink" href="#i-think-i-have-the-wrong-versions-of-dependencies" title="Permalink to this headline">¶</a></h2>
+<p>All known version constrained dependencies are recorded both in the
+<code class="docutils literal notranslate"><span class="pre">setup.py</span></code> file (this is what gets installed) as well as the
+<code class="docutils literal notranslate"><span class="pre">requirements.in</span></code> file. The <code class="docutils literal notranslate"><span class="pre">requirements.in</span></code> file allows for more
+complex expressions of dependencies and may have notes as to why they
+are constrained.</p>
+<p>You can check <code class="docutils literal notranslate"><span class="pre">info/changelog.org</span></code> to find when and why a constraint
+was added as well.</p>
+</div>
 </div>
 
 

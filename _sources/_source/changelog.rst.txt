@@ -6,6 +6,18 @@ org-mode.
 
 See the git commit log history for full details.
 
+1.0.8 - Unreleased
+------------------
+
+-  Fixes uninitialized discontinuities when not using boundary
+   conditions in a ``ContigTree``. (Fixes: 10.gh\ :sub:`issue`)
+-  Fixes mistake in the ``ContigTree.lineages`` function. (Fixes:
+   10.gh\ :sub:`issue`)
+-  Adds an option to account for discontinuities in
+   ``ContigTree.lineages``.
+-  Fixes the ``WepyHDF5.observable_field_names`` function.
+-  Fixes the ContigTreeProfiler functions for FE profiles
+
 .. _section-1:
 
 1.0.7 - 2020-11-12

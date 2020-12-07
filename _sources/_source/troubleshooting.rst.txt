@@ -14,3 +14,42 @@ using GZIP level 2 but read the documentation to customize for yourself:
 
 There are other more involved mechanisms, but this should cut your size
 significantly.
+
+I get a 'valid identifiers' error when accessing HDF5 data.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+If you get something like this:
+
+::
+
+   ValueError: Type names and field names must be valid identifiers: "b'decision_id'"
+
+When accessing your WepyHDF5 data its likely because you have a version
+of ``h5py`` that is too new. Simply downgrade to before version 3.0.
+
+You can check this by running:
+
+.. code:: bash
+
+   pip list | grep h5py
+
+And install an ealier version:
+
+.. code:: bash
+
+   pip install 'h5py<3'
+
+See *I think I have the wrong versions of dependencies* for more info on
+fixing dependencies.
+
+I think I have the wrong versions of dependencies
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+All known version constrained dependencies are recorded both in the
+``setup.py`` file (this is what gets installed) as well as the
+``requirements.in`` file. The ``requirements.in`` file allows for more
+complex expressions of dependencies and may have notes as to why they
+are constrained.
+
+You can check ``info/changelog.org`` to find when and why a constraint
+was added as well.
