@@ -151,26 +151,35 @@ class BaseContigTree():
         # should be unique
         if runs is Ellipsis:
             self._run_idxs.update(wepy_h5.run_idxs)
+
         elif runs is not None:
             self._run_idxs.update(runs)
 
         # the continuations also give extra runs to incorporate into
         # this contig tree
 
-        # if it is Ellipsis (...) then we include all runs and all the continuations
+        # if it is Ellipsis (...) then we include all the
+        # continuations involving the runs that are in this contigtree
         if continuations is Ellipsis:
-            self._run_idxs.update(wepy_h5.run_idxs)
-            self._continuations.update([(a,b) for a, b in wepy_h5.continuations])
 
-        # otherwise we make the tree based on the runs in the
-        # continuations
+            # add continuations involving both ends of the continuation
+
+            self._continuations.update([
+                (a,b)
+                for a, b
+                in wepy_h5.continuations
+                if a in self._run_idxs and b in self._run_idxs]
+            )
+
+        # if a subset of continuations was given use only those
         elif continuations is not None:
-            # the unique run_idxs
-            self._run_idxs.update(it.chain(*self._continuations))
 
-            # the continuations themselves
-            self._continuations.update([(a,b) for a, b in continuations])
-
+            self._continuations.update([
+                (a,b)
+                for a, b
+                in continuations
+                if a in self._run_idxs and b in self._run_idxs]
+            )
 
         # using the wepy_h5 create a tree of the cycles
         self._create_tree(wepy_h5)
