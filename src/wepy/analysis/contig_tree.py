@@ -1181,7 +1181,8 @@ class BaseContigTree():
 
             # get the spanning paths by passing the continuation edges
             # and this root to this recursive static method
-            root_spanning_contigs = [span for leaf, span in self._spanning_paths(root).items()]
+            root_spanning_contigs = [span for leaf, span in
+                                     self._spanning_paths(root).items()]
 
             spanning_contig_traces[root] = root_spanning_contigs
 

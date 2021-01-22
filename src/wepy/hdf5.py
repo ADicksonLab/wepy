@@ -5202,8 +5202,11 @@ class WepyHDF5(object):
             return self._get_contiguous_traj_field(run_idx, traj_idx, field_path,
                                                    frames=frames)
 
-    def get_trace_fields(self, frame_tups, fields,
-                         same_order=True):
+    def get_trace_fields(self,
+                         frame_tups,
+                         fields,
+                         same_order=True,
+                         ):
         """Get trajectory field data for the frames specified by the trace.
 
         Parameters
@@ -5292,7 +5295,12 @@ class WepyHDF5(object):
             frame_fields = {field : [] for field in fields}
             for run_idx, traj_idx, cycle_idx in frame_tups:
                 for field in fields:
-                    frame_field = self.get_traj_field(run_idx, traj_idx, field, frames=[cycle_idx])
+                    frame_field = self.get_traj_field(
+                        run_idx,
+                        traj_idx,
+                        field,
+                        frames=[cycle_idx],
+                    )
                     # the first dimension doesn't matter here since we
                     # only get one frame at a time.
                     frame_fields[field].append(frame_field[0])

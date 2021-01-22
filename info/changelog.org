@@ -15,6 +15,7 @@ See the git commit log history for full details.
 - Fixes the ~ContigTreeProfiler~ functions for partitioning FE
   profiles into tranches: ~_tranche_cumulative_partitions~
 - Fixes the setting of continuations in ~ContigTree~ initialization.
+- Fixes computation of ~ContigTreeProfiler.fe_profile_all~.
   
 ** 1.0.7 - 2020-11-12
 
