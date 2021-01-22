@@ -511,15 +511,9 @@ class ContigTreeProfiler(object):
         # to do all of them we get all of the fields from each
         # spanning contig and then pool them all together
 
-        # DEBUG
-        print("Starting to get the data")
-
         all_weights = []
         all_values = []
         for span in self.contigtree.span_traces.keys():
-
-            # DEBUG
-            print(f"Getting data for span: {span}")
 
             # make the contig for this span
             contig = self.contigtree.span_contig(span)
@@ -555,9 +549,6 @@ class ContigTreeProfiler(object):
             all_weights.append(weights)
             all_values.append(values)
 
-            # DEBUG
-            print(f"Finished getting data for span: {span}, cleaning up handles & GCing")
-
             # manually clean up so we don't get unnecessary memory
             # pressure in the next iteration of the loop
             del weights
@@ -566,14 +557,6 @@ class ContigTreeProfiler(object):
             gc.collect()
 
         # determine the bin_edges
-
-        # DEBUG
-        print(f"Finished getting all data")
-
-        # DEBUG
-        print(f"concatenating data one by one")
-        print(f"weights")
-
         all_weights = np.concatenate(all_weights)
         gc.collect
 
@@ -583,9 +566,6 @@ class ContigTreeProfiler(object):
         # if the bins were not specified generate them from all the
         # values for this span
         if bins is None:
-
-            # DEBUG
-            print(f"Calculating bin edges")
 
             bin_edges = np.histogram_bin_edges(
                 all_values,
@@ -597,9 +577,6 @@ class ContigTreeProfiler(object):
         # according to that
         elif type(bins) in (str, int):
 
-            # DEBUG
-            print(f"Calculating bin edges")
-
             bin_edges = np.histogram_bin_edges(
                 all_values,
                 bins=bins,
@@ -610,14 +587,8 @@ class ContigTreeProfiler(object):
         # bin_edges
         else:
 
-            # DEBUG
-            print(f"Bin edges already calculated")
-
             bin_edges = bins
 
-
-        # DEBUG
-        print(f"Calculating Free Energy profile")
 
         fe_profile, _ = free_energy_profile(
             all_weights,
