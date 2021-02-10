@@ -16,6 +16,7 @@ See the git commit log history for full details.
   profiles into tranches: ~_tranche_cumulative_partitions~
 - Fixes the setting of continuations in ~ContigTree~ initialization.
 - Fixes computation of ~ContigTreeProfiler.fe_profile_all~.
+- Fix the arguments to the mapped function in ~MacroStateNetwork.node_fields_map~
   
 ** 1.0.7 - 2020-11-12
 

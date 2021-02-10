@@ -1123,7 +1123,15 @@ class MacroStateNetwork():
         # wrap the function so that we can pass through the node_id
         def func_wrapper(args):
             node_id, node_attrs, node_fields = args
-            return node_id, func(node_attrs, node_fields)
+
+            # evaluate the wrapped function
+            result = func(
+                node_id,
+                node_attrs,
+                node_fields,
+            )
+
+            return node_id, result
 
         # zip the node_ids with the node attributes as an iterator
         node_attr_fields_it = (
