@@ -954,9 +954,8 @@ class MacroStateNetwork():
         traj : mdtraj.Trajectory
 
         """
-        with self.wepy_h5:
-            return self.wepy_h5.trace_to_mdtraj(self.base_network.node_assignments(node_id),
-                                                alt_rep=alt_rep)
+        return self.wepy_h5.trace_to_mdtraj(self.base_network.node_assignments(node_id),
+                                            alt_rep=alt_rep)
 
     def state_to_traj_fields(self, node_id, alt_rep=None):
 
@@ -969,14 +968,12 @@ class MacroStateNetwork():
         for node_id in node_ids:
             node_assignments.extend(self.base_network.node_assignments(node_id))
 
-        with self.wepy_h5:
+        # get the right fields
+        rep_path = self.wepy_h5._choose_rep_path(alt_rep)
+        fields = [rep_path, 'box_vectors']
 
-            # get the right fields
-            rep_path = self.wepy_h5._choose_rep_path(alt_rep)
-            fields = [rep_path, 'box_vectors']
-
-            return self.wepy_h5.get_trace_fields(node_assignments,
-                                                 fields)
+        return self.wepy_h5.get_trace_fields(node_assignments,
+                                             fields)
 
 
     def get_node_fields(self, node_id, fields):
@@ -1001,8 +998,7 @@ class MacroStateNetwork():
         node_trace = self.base_network.node_assignments(node_id)
 
         # use the node_trace to get the weights from the HDF5
-        with self.wepy_h5:
-            fields_d = self.wepy_h5.get_trace_fields(node_trace, fields)
+        fields_d = self.wepy_h5.get_trace_fields(node_trace, fields)
 
         return fields_d
 
@@ -1044,8 +1040,7 @@ class MacroStateNetwork():
             node_trace = self.base_network.node_assignments(node_id)
 
             # use the node_trace to get the weights from the HDF5
-            with self.wepy_h5:
-                trace_weights = self.wepy_h5.get_trace_fields(node_trace, ['weights'])['weights']
+            trace_weights = self.wepy_h5.get_trace_fields(node_trace, ['weights'])['weights']
 
             node_weights[node_id] = trace_weights
 
@@ -1141,5 +1136,10 @@ class MacroStateNetwork():
             )
                      for node_id in self.graph.nodes)
 
-        return {node_id : value for node_id, value
-                in map_func(func_wrapper, node_attr_fields_it)}
+        # map the inputs to the wrapped function and return as a
+        # dictionary for the nodes
+        return {
+            node_id : value
+            for node_id, value
+            in map_func(func_wrapper, node_attr_fields_it)
+        }

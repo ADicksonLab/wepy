@@ -17,6 +17,9 @@ See the git commit log history for full details.
 - Fixes the setting of continuations in ~ContigTree~ initialization.
 - Fixes computation of ~ContigTreeProfiler.fe_profile_all~.
 - Fix the arguments to the mapped function in ~MacroStateNetwork.node_fields_map~
+- Removed all implicit file opening in ~MacroStateNetwork~ except for
+  in the ~BaseMacroStateNetwork~ constructor. This allows for parallel
+  processing.
   
 ** 1.0.7 - 2020-11-12
 
