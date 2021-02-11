@@ -109,7 +109,9 @@ def transition_counts(
 
     return countsmat_d
 
-def counts_d_to_matrix(counts_d):
+def counts_d_to_matrix(
+        counts_d,
+):
     """Convert a dictionary of counts for macrostate transitions to an
     assymetric transitions counts matrix.
 
@@ -117,18 +119,32 @@ def counts_d_to_matrix(counts_d):
     ----------
     counts_d : dict of (int, int): int
         Dictionary mapping transitions between macrostate labels to
-        the count of microstate transitions between them.
+        the count of microstate transitions between them. The first
+        value is the 'source' node and the second value is the
+        'target' node of a directed graph.
 
     Returns
     -------
     counts_matrix : numpy.ndarray of int
-        Assymetric counts matrix of dim (n_macrostates, n_macrostates).
+        Assymetric counts matrix of dim (n_macrostates,
+        n_macrostates). The 0-th axis corresponds to the 'source' node
+        and the 1-st axis corresponds to the 'target' nodes, i.e. the
+        dimensions mean: (source, target).
 
     """
+
     # get the number of unique nodes in the counts_d
     max_assignment = max(it.chain(*counts_d.keys()))
-    countsmat = np.zeros((max_assignment+1, max_assignment+1))
+
+    # allocate the matrix and initialize to zero for each element
+    countsmat = np.zeros(
+        (max_assignment+1,
+         max_assignment+1),
+    )
+
     for transition, n_trans in counts_d.items():
+
+        # add it to the counts matrix in source, target order
         countsmat[transition] = n_trans
 
     return countsmat

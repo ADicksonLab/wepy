@@ -20,6 +20,37 @@ See the git commit log history for full details.
 - Removed all implicit file opening in ~MacroStateNetwork~ except for
   in the ~BaseMacroStateNetwork~ constructor. This allows for parallel
   processing.
+- Improves calculations of transition counts when constructing
+  ~BaseMacroStateNetwork~ objects. Now instead of only calculating the
+  "weighted counts" for edges the "unweighted counts" are also
+  calculated and the full set of transition sample weights are also
+  saved as edge attributes. This change in interface is the reason for
+  the *breakages* and *regressions*, see below.
+- Addition of the ~edge_attribute_to_matrix~ to the
+  ~BaseMacroStateNetwork~ (and ~MacroStateNetwork~) classes. This
+  generalizes and supercedes the use of the precomputed ~countsmat~
+  and ~probmat~ attributes. And makes the source-to-sink orientation
+  of the matrix explicit and user controlled.
+- Addition of edge attribute getting methods similar to the node ones:
+  ~get_edge_attribute~, ~get_edge_attributes~, ~get_edges_attributes~.
+
+*** Breakages
+
+- The two attributes ~countsmat~ and ~probmat~ for
+  ~(Base)MacroStateNetwork~ classes have been removed, and superceded
+  by the ~edge_attribute_to_matrix~ method.
+- The values of the columns of the nodes and edges dataframe have
+  changed. They no longer have the 'Weight' column, which was for
+  support of gephi tables, and was too tight a coupling. The edges
+  dataframe will no longer have the 'transition probability' or 'type'
+  columns. The latter for similar reasons and the former because this
+  value is no longer calculated.
+
+*** Regression
+
+- As stated in the Growth items, a potentially large amount of
+  transition sample weights are stored in the ~BaseMacroStateNetwork~
+  object now.
   
 ** 1.0.7 - 2020-11-12
 
