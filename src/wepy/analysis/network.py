@@ -4,12 +4,15 @@ structure of weighted ensemble simulation data.
 
 from collections import defaultdict
 from copy import deepcopy
+import gc
 
 import numpy as np
 import networkx as nx
 
-from wepy.analysis.transitions import transition_counts, counts_d_to_matrix, \
-                                      normalize_counts
+from wepy.analysis.transitions import (
+    transition_counts,
+    counts_d_to_matrix,
+)
 
 try:
     import pandas as pd
@@ -23,7 +26,80 @@ class MacroStateNetworkError(Exception):
 class BaseMacroStateNetwork():
     """A base class for the MacroStateNetwork which doesn't contain a
     WepyHDF5 object. Useful for serialization of the object and can
-    then be reattached later to a WepyHDF5.
+    then be reattached later to a WepyHDF5. For this functionality see
+    the 'MacroStateNetwork' class.
+
+    BaseMacroStateNetwork can also be though of as just a way of
+    mapping macrostate properties to the underlying microstate data.
+
+    The network itself is a networkx directed graph.
+
+    Upon construction the nodes will be a value called the 'node_id'
+    which is the label/assignment for the node. This either comes from
+    an explicit labelling (the 'assignments' argument) or from the
+    labels/assignments from the contig tree (from the 'assg_field_key'
+    argument).
+
+    Nodes have the following attributes after construction:
+
+    - node_id :: Same as the actual node value
+
+    - node_idx :: An extra index that is used for 'internal' ordering
+                  of the nodes in a consistent manner. Used for
+                  example in any method which constructs matrices from
+                  edges and ensures they are all the same.
+
+    - assignments :: An index trace over the contig_tree dataset used
+                     to construct the network. This is how the
+                     individual microstates are indexed for each node.
+
+    - num_samples :: A total of the number of microstates that a node
+                     has. Is the length of the 'assignments' attribute.
+
+    Additionally, there are auxiliary node attributes that may be
+    added by various methods. All of these are prefixed with a single
+    underscore '_' and any user set values should avoid this.
+
+    These auxiliary attributes also make use of namespacing, where
+    namespaces are similar to file paths and are separated by '/'
+    characters.
+
+    Additionally the auxiliary groups are typically managed such that
+    they remain consistent across all of the nodes and have metadata
+    queryable from the BaseMacroStateNetwork object. In contrast user
+    defined node attributes are not restricted to this structure.
+
+    The auxiliary groups are:
+
+    - '_groups' :: used to mark nodes as belonging to a higher level group.
+
+    - '_observables' :: used for values that are calculated from the
+                        underlying microstate structures. As opposed
+                        to more operational values describing the
+                        network itself.
+
+    Edge values are simply 2-tuples of node_ids where the first value
+    is the source and the second value is the target. Edges have the
+    following attributes following initialization:
+
+    - 'weighted_counts' :: The weighted sum of all the transitions
+                           for an edge. This is a floating point
+                           number.
+
+    - 'unweighted_counts' :: The unweighted sum of all the
+                             transitions for an edge, this is a
+                             normal count and is a whole integer.
+
+    - 'all_transition' :: This is an array of floats of the weight
+                          for every individual transition for an
+                          edge. This is useful for doing more
+                          advanced statistics for a given edge.
+
+
+    A network object can be used as a stateful container for
+    calculated values over the nodes and edges and has methods to
+    support this. However, there is no standard way to serialize this
+    data beyond the generic python techniques like pickle.
 
     """
 
@@ -41,14 +117,13 @@ class BaseMacroStateNetwork():
         Either 'assg_field_key' or 'assignments' must be given, but not
         both.
 
-        The lag time is default set to 2, which is the natural connection
+        The 'transition_lag_time' is default set to 2, which is the natural connection
         between microstates. The lag time can be increased to vary the
         kinetic accuracy of transition probabilities generated through
         Markov State Modelling.
 
-        Alternatively the MacroStateNetwork can also be though of as just
-        a way of mapping macrostate properties to the underlying
-        microstate data.
+        The 'transition_lag_time' must be given as an integer greater
+        than 1.
 
         Arguments
         ---------
@@ -64,6 +139,10 @@ class BaseMacroStateNetwork():
             element of the outer list is for a run, the elements of
             these lists are lists for each trajectory which are
             arraylikes of shape (n_traj, observable_shape[0], ...).
+
+
+        See Also
+
         """
 
         self._graph = nx.DiGraph()
@@ -87,13 +166,38 @@ class BaseMacroStateNetwork():
         # initialize the list of available layouts
         self._layouts = []
 
+        # initialize the lookup of the node_idxs from node_ids
+        self._node_idxs = {}
+
+        # initialize the reverse node lookups which is memoized if
+        # needed
+        self._node_idx_to_id_dict = None
+
+
+        # validate lag time input
+        if (
+                (transition_lag_time is not None) and
+                (transition_lag_time < 2)
+        ):
+            raise MacroStateNetworkError(
+                "transition_lag_time must be an integer value >= 2"
+            )
+
+        self._transition_lag_time = transition_lag_time
+
+        ## Temporary variables for initialization only
+
         # the temporary assignments dictionary
         self._node_assignments = None
         # and temporary raw assignments
         self._assignments = None
 
-        with contig_tree:
+        ## Code for creating nodes and edges
 
+
+        ## Nodes
+
+        with contig_tree:
 
             # map the keys to their lists of assignments, depending on
             # whether or not we are using a field from the HDF5 traj or
@@ -105,9 +209,8 @@ class BaseMacroStateNetwork():
             else:
                 self._assignments_init(assignments)
 
-            # once we have made th dictionary add the nodes to the network
+            # once we have made the dictionary add the nodes to the network
             # and reassign the assignments to the nodes
-            self._node_idxs = {}
             for node_idx, assg_item in enumerate(self._node_assignments.items()):
                 assg_key, assigs = assg_item
                 # count the number of samples (assigs) and use this as a field as well
@@ -125,85 +228,18 @@ class BaseMacroStateNetwork():
                                      num_samples=num_samples)
                 self._node_idxs[assg_key] = node_idx
 
-            # also initialize the reverse which is memoized if needed
-            self._node_idx_to_id_dict = None
 
-            # now count the transitions between the states and set those
-            # as the edges between nodes
+        ## Edges
 
-            # first get the sliding window transitions from the contig
-            # tree, once we set edges for a tree we don't really want to
-            # have multiple sets of transitions on the same network so we
-            # don't provide the method to add different assignments
-            self._transition_lag_time = None
-            self._probmat = None
-            self._countsmat = None
-            if transition_lag_time is not None:
+        # TODO: make the edges
+        counts = self._init_transition_counts(
+            contig_tree,
+            transition_lag_time,
+        )
 
+        # TODO: after calculating the transition counts set these as edge values
 
-                # get the weights for the walkers so we can compute
-                # the weighted transition counts
-                weights = [[] for run_idx in contig_tree.wepy_h5.run_idxs]
-                for idx_tup, traj_fields_d in contig_tree.wepy_h5.iter_trajs_fields(
-                        ['weights'],
-                        idxs=True):
-
-                    run_idx, traj_idx = idx_tup
-
-                    weights[run_idx].append(np.ravel(traj_fields_d['weights']))
-
-                # set the lag time attribute
-                self._transition_lag_time = transition_lag_time
-
-                # get the transitions
-                transitions = []
-                for window in contig_tree.sliding_windows(self._transition_lag_time):
-
-                    transition = [window[0], window[-1]]
-
-                    # convert the window trace on the contig to a trace
-                    # over the runs
-                    transitions.append(transition)
-
-                # then get the counts for those edges
-                counts_d = transition_counts(
-                    self._assignments,
-                    transitions,
-                    weights=weights)
-
-                # create the edges and set the counts into them
-                for edge, trans_counts in counts_d.items():
-                    self._graph.add_edge(*edge, counts=trans_counts)
-
-                # then we also want to get the transition probabilities so
-                # we get the counts matrix and compute the probabilities
-                # we first have to replace the keys of the counts of the
-                # node_ids with the node_idxs
-                node_id_to_idx_dict = self.node_id_to_idx_dict()
-                self._countsmat = counts_d_to_matrix(
-                                    {(node_id_to_idx_dict[edge[0]],
-                                      node_id_to_idx_dict[edge[1]]) : counts
-                                     for edge, counts in counts_d.items()})
-
-                self._probmat = normalize_counts(self._countsmat)
-
-                # then we add these attributes to the edges in the network
-                node_idx_to_id_dict = self.node_id_to_idx_dict()
-                for i_id, j_id in self._graph.edges:
-                    # i and j are the node idxs so we need to get the
-                    # actual node_ids of them
-                    i_idx = node_idx_to_id_dict[i_id]
-                    j_idx = node_idx_to_id_dict[j_id]
-
-                    # convert to a normal float and set it as an explicitly named attribute
-                    self._graph.edges[i_id, j_id]['transition_probability'] = \
-                                                                float(self._probmat[i_idx, j_idx])
-
-                    # we also set the general purpose default weight of
-                    # the edge to be this.
-                    self._graph.edges[i_id, j_id]['Weight'] = \
-                                                    float(self._probmat[i_idx, j_idx])
-
+        ## Cleanup
 
         # then get rid of the assignments dictionary, this information
         # can be accessed from the network
@@ -301,6 +337,145 @@ class BaseMacroStateNetwork():
                 for frame_idx, assignment in enumerate(traj):
                     self._node_assignments[assignment].append( (run_idx, traj_idx, frame_idx) )
 
+
+    def _init_transition_counts(self,
+                                contig_tree,
+                                transition_lag_time,
+                                ):
+        """Given the lag time get the transitions between microstates for the
+        network using the sliding windows algorithm.
+
+        This will create a directed edge between nodes that had at
+        least one transition, no matter the weight.
+
+        See the main class docstring for a description of the fields.
+
+        contig_tree should be unopened.
+
+        """
+
+        # now count the transitions between the states and set those
+        # as the edges between nodes
+
+        # first get the sliding window transitions from the contig
+        # tree, once we set edges for a tree we don't really want to
+        # have multiple sets of transitions on the same network so we
+        # don't provide the method to add different assignments
+
+        # get the weights for the walkers so we can compute
+        # the weighted transition counts
+        with contig_tree:
+            weights = [[] for run_idx in contig_tree.wepy_h5.run_idxs]
+            for idx_tup, traj_fields_d in contig_tree.wepy_h5.iter_trajs_fields(
+                    ['weights'],
+                    idxs=True):
+
+                run_idx, traj_idx = idx_tup
+
+                weights[run_idx].append(np.ravel(traj_fields_d['weights']))
+
+            # get the transitions
+            transitions = []
+            for window in contig_tree.sliding_windows(transition_lag_time):
+
+                transition = [window[0], window[-1]]
+
+                # convert the window trace on the contig to a trace
+                # over the runs
+                transitions.append(transition)
+
+
+        # ALERT: I'm not sure this is going to work out since this is
+        # potentially a lot of data and might make the object too
+        # large, lets just be aware and maybe we'll have to not do
+        # this if things are out of control.
+
+        ## transition distributions
+
+        # get an array of all of the transition weights so we can do
+        # stats on them later.
+        all_transitions_d = defaultdict(list)
+        for transition in transitions:
+
+            # get the weight of the walker that transitioned
+            start = transition[0]
+            weight = weights[start[0]][start[1]][start[2]]
+
+            # append this transition weight to the list for it
+            all_transitions_d[tuple(transition)].append(weight)
+
+        # convert the lists in the transition dictionary to numpy arrays
+        all_transitions_d = {
+            edge : np.array(transitions_l)
+            for edge, transitions_l in all_transitions_d.items()
+        }
+        gc.collect()
+
+        ## sum of weighted counts
+        # then get the weighted counts for those edges
+        weighted_counts_d = transition_counts(
+            self._assignments,
+            transitions,
+            weights=weights,
+        )
+
+        ## Sum of unweighted counts
+        # also get unweighted counts
+        unweighted_counts_d = transition_counts(
+            self._assignments,
+            transitions,
+            weights=None,
+        )
+
+        # make the edges with these attributes
+        for edge, all_trans in all_transitions_d.items():
+
+            weighted_counts = weighted_counts_d[edge]
+            unweighted_counts = unweighted_counts_d[edge]
+
+            # add the edge with all of the values
+            self._graph.add_edge(
+                *edge,
+                weighted_counts=weighted_counts,
+                unweighted_counts=unweighted_counts,
+                all_transitions=all_trans,
+            )
+
+
+        # DEBUG: remove this, but account for the 'Weight' field when
+        # doing gexf stuff elsewhere
+
+        # # then we also want to get the transition probabilities so
+        # # we get the counts matrix and compute the probabilities
+        # # we first have to replace the keys of the counts of the
+        # # node_ids with the node_idxs
+        # node_id_to_idx_dict = self.node_id_to_idx_dict()
+        # self._countsmat = counts_d_to_matrix(
+        #                     {(node_id_to_idx_dict[edge[0]],
+        #                       node_id_to_idx_dict[edge[1]]) : counts
+        #                      for edge, counts in counts_d.items()})
+
+        # self._probmat = normalize_counts(self._countsmat)
+
+        # # then we add these attributes to the edges in the network
+        # node_idx_to_id_dict = self.node_id_to_idx_dict()
+        # for i_id, j_id in self._graph.edges:
+        #     # i and j are the node idxs so we need to get the
+        #     # actual node_ids of them
+        #     i_idx = node_idx_to_id_dict[i_id]
+        #     j_idx = node_idx_to_id_dict[j_id]
+
+        #     # convert to a normal float and set it as an explicitly named attribute
+        #     self._graph.edges[i_id, j_id]['transition_probability'] = \
+        #                                                 float(self._probmat[i_idx, j_idx])
+
+        #     # we also set the general purpose default weight of
+        #     # the edge to be this.
+        #     self._graph.edges[i_id, j_id]['Weight'] = \
+        #                                     float(self._probmat[i_idx, j_idx])
+
+
+
     def node_id_to_idx(self, assg_key):
         """Convert a node_id (which is the assignment value) to a canonical index.
 
@@ -383,37 +558,36 @@ class BaseMacroStateNetwork():
         else:
             return self._assg_field_key
 
-    @property
-    def countsmat(self):
-        """Return the transition counts matrix of the network.
+    # @property
+    # def countsmat(self):
+    #     """Return the transition counts matrix of the network.
 
-        Raises
-        ------
-        MacroStateNetworkError
-            If no lag time was given.
+    #     Raises
+    #     ------
+    #     MacroStateNetworkError
+    #         If no lag time was given.
 
-        """
+    #     """
 
-        if self._countsmat is None:
-            raise MacroStateNetworkError("transition counts matrix not calculated")
-        else:
-            return self._countsmat
+    #     if self._countsmat is None:
+    #         raise MacroStateNetworkError("transition counts matrix not calculated")
+    #     else:
+    #         return self._countsmat
+    # @property
+    # def probmat(self):
+    #     """Return the transition probability matrix of the network.
 
-    @property
-    def probmat(self):
-        """Return the transition probability matrix of the network.
+    #     Raises
+    #     ------
+    #     MacroStateNetworkError
+    #         If no lag time was given.
 
-        Raises
-        ------
-        MacroStateNetworkError
-            If no lag time was given.
+    #     """
 
-        """
-
-        if self._probmat is None:
-            raise MacroStateNetworkError("transition probability matrix not set")
-        else:
-            return self._probmat
+    #     if self._probmat is None:
+    #         raise MacroStateNetworkError("transition probability matrix not set")
+    #     else:
+    #         return self._probmat
 
     def get_node_attributes(self, node_id):
         """Returns the node attributes of the macrostate.
@@ -615,6 +789,7 @@ class BaseMacroStateNetwork():
         nx.write_gexf(gexf_graph, filepath)
 
 
+    # TODO: fix for the update
     def nodes_to_records(self):
 
         keys = ['num_samples', 'Weight']
@@ -635,6 +810,7 @@ class BaseMacroStateNetwork():
 
         return recs
 
+    # TODO: fix for the update
     def nodes_to_dataframe(self):
         """Make a dataframe of the nodes and their attributes.
 
@@ -659,6 +835,7 @@ class BaseMacroStateNetwork():
         return pd.DataFrame(self.nodes_to_records())
 
 
+    # TODO: fix for the update
     def edges_to_records(self):
         """Make a dataframe of the nodes and their attributes.
 
@@ -690,7 +867,7 @@ class BaseMacroStateNetwork():
         return recs
 
 
-
+    # fix for the update
     def edges_to_dataframe(self):
         """Make a dataframe of the nodes and their attributes.
 
@@ -763,14 +940,57 @@ class MacroStateNetwork():
     the network. These edges are determined automatically and a lag
     time can also be specified, which is useful in the creation of
     Markov State Models.
+
+    This class provides transparent access to an underlying 'WepyHDF5'
+    dataset. If you wish to have a simple serializable network that
+    does not reference see the 'BaseMacroStateNetwork' class, which
+    you can construct standalone or access the instance attached as
+    the 'base_network' attribute of an object of this class.
+
+    For a description of all of the default node and edge attributes
+    which are set after construction see the docstring for the
+    'BaseMacroStateNetwork' class docstring.
+
+    Warnings
+    --------
+
+    This class is not serializable as it references a 'WepyHDF5'
+    object. Either construct a 'BaseMacroStateNetwork' or use the
+    attached instance in the 'base_network' attribute.
+
     """
 
 
-    def __init__(self, contig_tree,
+    def __init__(self,
+                 contig_tree,
                  base_network=None,
                  assg_field_key=None,
                  assignments=None,
-                 transition_lag_time=2):
+                 transition_lag_time=2,
+                 ):
+        """For documentation of the following arguments see the constructor
+        docstring of the 'BaseMacroStateNetwork' class:
+
+        - contig_tree
+        - assg_field_key
+        - assignments
+        - transition_lag_time
+
+        The other arguments are documented here. This is primarily
+        optional 'base_network' argument. This is a
+        'BaseMacroStateNetwork' instance, which allows you to
+        associate it with a 'WepyHDF5' dataset for access to the
+        microstate data etc.
+
+        Parameters
+        ----------
+
+        base_network : BaseMacroStateNetwork object
+            An already constructed network, which will avoid
+            recomputing all in-memory network values again for this
+            object.
+
+        """
 
         self.closed = True
         self._contig_tree = contig_tree
@@ -805,8 +1025,10 @@ class MacroStateNetwork():
         self._node_idxs = self._base_network._node_idxs
         self._node_idx_to_id_dict = self._base_network._node_idx_to_id_dict
         self._transition_lag_time = self._base_network._transition_lag_time
-        self._probmat = self._base_network._probmat
-        self._countsmat = self._base_network._countsmat
+
+        # DEBUG: remove once tested
+        # self._probmat = self._base_network._probmat
+        # self._countsmat = self._base_network._countsmat
 
         # functions
         self.node_id_to_idx = self._base_network.node_id_to_idx
@@ -888,42 +1110,37 @@ class MacroStateNetwork():
         else:
             return self._assg_field_key
 
-    @property
-    def countsmat(self):
-        """Return the transition counts matrix of the network.
+    # @property
+    # def countsmat(self):
+    #     """Return the transition counts matrix of the network.
 
-        Raises
-        ------
-        MacroStateNetworkError
-            If no lag time was given.
+    #     Raises
+    #     ------
+    #     MacroStateNetworkError
+    #         If no lag time was given.
 
-        """
+    #     """
 
-        if self._countsmat is None:
-            raise MacroStateNetworkError("transition counts matrix not calculated")
-        else:
-            return self._countsmat
+    #     if self._countsmat is None:
+    #         raise MacroStateNetworkError("transition counts matrix not calculated")
+    #     else:
+    #         return self._countsmat
 
-    @property
-    def probmat(self):
-        """Return the transition probability matrix of the network.
+    # @property
+    # def probmat(self):
+    #     """Return the transition probability matrix of the network.
 
-        Raises
-        ------
-        MacroStateNetworkError
-            If no lag time was given.
+    #     Raises
+    #     ------
+    #     MacroStateNetworkError
+    #         If no lag time was given.
 
-        """
+    #     """
 
-        if self._probmat is None:
-            raise MacroStateNetworkError("transition probability matrix not set")
-        else:
-            return self._probmat
-
-
-
-
-
+    #     if self._probmat is None:
+    #         raise MacroStateNetworkError("transition probability matrix not set")
+    #     else:
+    #         return self._probmat
 
     # unique to the HDF5 holding one
     @property
