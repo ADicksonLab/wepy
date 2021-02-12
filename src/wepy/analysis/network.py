@@ -774,7 +774,12 @@ class BaseMacroStateNetwork():
             self._layouts.append(layout_name)
 
 
-    def write_gexf(self, filepath, exclude_fields=None, layout=None):
+    def write_gexf(self,
+                   filepath,
+                   exclude_node_fields=None,
+                   exclude_edge_fields=None,
+                   layout=None,
+                   ):
         """Writes a graph file in the gexf format of the network.
 
         Parameters
@@ -789,32 +794,39 @@ class BaseMacroStateNetwork():
             if layout not in self.layouts:
                 raise ValueError("Layout not found, use None for no layout")
 
-
-        if exclude_fields is None:
-            exclude_fields = [self.ASSIGNMENTS]
-        else:
-            exclude_fields.append(self.ASSIGNMENTS)
-            exclude_fields = list(set(exclude_fields))
-
-        # exclude the layouts, we will set the viz manually for the layout
-        exclude_fields.extend(['_layouts/{}'.format(layout_name)
-                               for layout_name in self.layouts])
-
+        ### filter the node and edge attributes
 
         # to do this we need to get rid of the assignments in the
         # nodes though since this is not really supported or good to
         # store in a gexf file which is more for visualization as an
         # XML format, so we copy and modify then write the copy
         gexf_graph = deepcopy(self._graph)
+
+        ## Nodes
+
+        if exclude_node_fields is None:
+            exclude_node_fields = [self.ASSIGNMENTS]
+        else:
+            exclude_node_fields.append(self.ASSIGNMENTS)
+            exclude_node_fields = list(set(exclude_node_fields))
+
+        # exclude the layouts, we will set the viz manually for the layout
+        exclude_node_fields.extend(['_layouts/{}'.format(layout_name)
+                               for layout_name in self.layouts])
+
         for node in gexf_graph:
+
             # remove requested fields
-            for field in exclude_fields:
+            for field in exclude_node_fields:
                 del gexf_graph.nodes[node][field]
 
             # also remove the fields which are not valid gexf types
             fields = list(gexf_graph.nodes[node].keys())
             for field in fields:
-                if type(gexf_graph.nodes[node][field]) not in nx.readwrite.gexf.GEXF.xml_type:
+
+                if (type(gexf_graph.nodes[node][field]) not in
+                    nx.readwrite.gexf.GEXF.xml_type):
+
                     del gexf_graph.nodes[node][field]
 
             if layout_key is not None:
@@ -822,11 +834,50 @@ class BaseMacroStateNetwork():
                 # set the layout as viz attributes to this
                 gexf_graph.nodes[node]['viz'] = self._graph.nodes[node][layout_key]
 
+        ## Edges
+
+        if exclude_edge_fields is None:
+            exclude_edge_fields = ['all_transitions']
+        else:
+            exclude_edge_fields.append('all_transitions')
+            exclude_edge_fields = list(set(exclude_edge_fields))
+
+        # TODO: viz and layouts not supported for edges currently
+        #
+        # exclude the layouts, we will set the viz manually for the layout
+        # exclude_edge_fields.extend(['_layouts/{}'.format(layout_name)
+        #                             for layout_name in self.layouts])
+
+        for edge in gexf_graph.edges:
+
+            # remove requested fields
+            for field in exclude_edge_fields:
+
+                del gexf_graph.edges[edge][field]
+
+            # also remove the fields which are not valid gexf types
+            fields = list(gexf_graph.edges[edge].keys())
+
+            for field in fields:
+
+                if (type(gexf_graph.edges[edge][field]) not in
+                    nx.readwrite.gexf.GEXF.xml_type):
+
+                    del gexf_graph.edges[edge][field]
+
+            # TODO,SNIPPET: we don't support layouts for the edges,
+            # but maybe we could
+
+            # if layout_key is not None:
+            #     # set the layout as viz attributes to this
+            #     gexf_graph.nodes[node]['viz'] = self._graph.nodes[node][layout_key]
+
+        # then write this filtered gexf to file
         nx.write_gexf(gexf_graph, filepath)
 
 
     def nodes_to_records(self,
-                         extra_attributes=('total_weight'),
+                         extra_attributes=('_observables/total_weight',),
                          ):
 
         if extra_attributes is None:
