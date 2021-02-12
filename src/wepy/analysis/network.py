@@ -862,7 +862,7 @@ class BaseMacroStateNetwork():
         return recs
 
     def nodes_to_dataframe(self,
-                           extra_attributes=('total_weight'),
+                           extra_attributes=('_observables/total_weight',),
                            ):
         """Make a dataframe of the nodes and their attributes.
 
