@@ -1124,11 +1124,14 @@ class BaseMacroStateNetwork():
             attribute_key,
             )
 
-        # TODO: do type/shape
-        # assert typetest_attr_value
+        # duck type check
+
+        dt = np.dtype(type(test_attr_value))
+
+        # TODO: test that its a numerical type
 
         # get the dtype so we can make the matrix
-        assert hasattr(test_attr_value, 'dtype')
+        # assert hasattr(test_attr_value, 'dtype')
 
         # do  "duck type" test, if the construction fails it was no good!
 
@@ -1137,7 +1140,7 @@ class BaseMacroStateNetwork():
             (self.num_states,
              self.num_states),
             fill_value,
-            dtype=test_attr_value.dtype
+            dtype=dt,
         )
 
         #  get a dictionary of (node_id, node_id) -> value
