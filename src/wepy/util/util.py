@@ -2,10 +2,37 @@
 
 import json
 import warnings
+import logging
 
 import numpy as np
 
+def set_loglevel(loglevel):
+    """
 
+    \b
+    Parameters
+    ----------
+    loglevel :
+        
+
+    \b
+    Returns
+    -------
+
+    """
+
+    # try to cast the loglevel as an integer. If that fails interpret
+    # it as a string.
+    try:
+        loglevel_num = int(loglevel)
+    except ValueError:
+        loglevel_num = getattr(logging, loglevel, None)
+
+    # if no such log level exists in logging the string was invalid
+    if loglevel_num is None:
+        raise ValueError("invalid log level given")
+
+    logging.basicConfig(level=loglevel_num)
 
 def traj_box_vectors_to_lengths_angles(traj_box_vectors):
     """Convert box vectors for multiple 'frames' (a 'trajectory') to box lengths and angles.
