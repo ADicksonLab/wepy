@@ -14,6 +14,8 @@ import signal
 import logging
 from eliot import start_action, log_call
 
+from wepy.util.util import set_loglevel
+
 PY_MAP = map
 
 class ABCMapper(object):
@@ -767,6 +769,7 @@ class Worker(mp.Process):
                  exception_queue,
                  interrupt_connection,
                  mapper_attributes=None,
+                 log_level='INFO',
                  **kwargs):
         """Constructor for the Worker class.
 

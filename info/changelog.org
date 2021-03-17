@@ -33,6 +33,12 @@ See the git commit log history for full details.
   of the matrix explicit and user controlled.
 - Addition of edge attribute getting methods similar to the node ones:
   ~get_edge_attribute~, ~get_edge_attributes~, ~get_edges_attributes~.
+- Fixes the setting of the platform in the ~OpenMMRunner~ when the
+  ~pre_cycle()~ is called without a platform.
+- Moves the ~set_loglevel~ function into ~wepy.util.util~ thus making
+  it a general purpose function rather than a helper to the
+  orchestration CLI (see breakages, but we don't expect anyone to have
+  used this and is minor).
 
 *** Breakages
 
@@ -45,6 +51,10 @@ See the git commit log history for full details.
   dataframe will no longer have the 'transition probability' or 'type'
   columns. The latter for similar reasons and the former because this
   value is no longer calculated.
+- The ~set_loglevel~ function was removed from
+  ~wepy.orchestration.cli~ to ~wepy.util.util~, risk of breaking other
+  peoples code is low (we can put a stub in for backwards
+  compatibility if needed).
 
 *** Regression
 

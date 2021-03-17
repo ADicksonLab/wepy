@@ -212,17 +212,24 @@ class OpenMMRunner(Runner):
                   **kwargs
     ):
 
-        super().pre_cycle(
-            platform=platform,
-            platform_kwargs=platform_kwargs,
-            **kwargs)
+        # choose to use the platform spec in this function call or to
+        # use the default one saved in the runner
 
-        logging.info(f"Setting the platform ({platform}) in the 'pre_cycle' OpenMM Runner call"
-                     f"with platform kwargs: {platform_kwargs}"
-        )
-        # set the platform and kwargs for this cycle
-        self._cycle_platform = platform
-        self._cycle_platform_kwargs = platform_kwargs
+        # if the platform is given locally use this one
+        if platform is not None:
+
+            logging.info(f"Setting the platform ({platform}) in the 'pre_cycle' OpenMM Runner call"
+                         f"with platform kwargs: {platform_kwargs}"
+            )
+            # set the platform and kwargs for this cycle
+            self._cycle_platform = platform
+            self._cycle_platform_kwargs = platform_kwargs
+
+        # otherwise we just don't set this and let resolution of
+        # platform happen at run segment.
+
+        super().pre_cycle(**kwargs)
+
 
         # each segment split times will get appended to this
         self._last_cycle_segments_split_times = []

@@ -13,37 +13,11 @@ from wepy.orchestration.orchestrator import (
 from wepy.reporter.hdf5 import WepyHDF5Reporter
 from wepy.hdf5 import WepyHDF5
 
+from wepy.util.util import set_loglevel
+
 ORCHESTRATOR_DEFAULT_FILENAME = \
             Orchestrator.ORCH_FILENAME_TEMPLATE.format(config=Orchestrator.DEFAULT_CONFIG_NAME,
                                                        narration=Orchestrator.DEFAULT_NARRATION)
-
-def set_loglevel(loglevel):
-    """
-
-    \b
-    Parameters
-    ----------
-    loglevel :
-        
-
-    \b
-    Returns
-    -------
-
-    """
-
-    # try to cast the loglevel as an integer. If that fails interpret
-    # it as a string.
-    try:
-        loglevel_num = int(loglevel)
-    except ValueError:
-        loglevel_num = getattr(logging, loglevel, None)
-
-    # if no such log level exists in logging the string was invalid
-    if loglevel_num is None:
-        raise ValueError("invalid log level given")
-
-    logging.basicConfig(level=loglevel_num)
 
 START_HASH = '<start_hash>'
 CURDIR = '<curdir>'
