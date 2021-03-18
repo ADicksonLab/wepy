@@ -189,9 +189,6 @@ git commit -m "Updates dev environment"
 #+end_src
 
 
-**** 
-
-
 **** Explanation
 
 Reminder that there are two separate goals of managing dependencies
@@ -254,7 +251,12 @@ need only add another file for the abstract conda dependencies:
 All the other files are still valid for conda environments still.
 
 
-***** requirements.in
+***** Abstract Requirements
+
+#+begin_example
+requirements.in
+#+end_example
+
 
 The basic part of this spec is the ~requirements.in~ and
 ~self.requirements.txt~ files. 
@@ -277,7 +279,12 @@ There should be no entries like ~-e .~ for installing the package or
 any local file paths. This should be portable between machines and
 developers.
 
-***** self.requirements.txt
+***** Development Project Installation Spec
+
+#+begin_example
+self.requirements.txt
+#+end_example
+
 The ~self.requirements.txt~ file instead is where these kinds of
 specifications should be.
 
@@ -302,7 +309,11 @@ write a ~self.requirements.txt~ file that looks like this:
   -e $HOME/dev/util_project
 #+end_src
 
-***** dev.requirements.list
+***** Simultaneous Project Development
+
+#+begin_example
+dev.requirements.list
+#+end_example
 
 During simultaneous development however, the dependencies of these
 other repos won't be included in the compilation of the
@@ -331,7 +342,11 @@ This will include each of these files in the dependency compilation
 step.  Note that the ~requirements.in~ can come from any location and
 is not a specification other projects /must/ support.
 
-***** tools.requirements.txt
+***** Meta-Tools Installation Spec
+
+#+begin_example
+tools.requirements.txt
+#+end_example
 
 Use this to "pin" or constrain versions of tools which won't be or
 can't be managed by the pinning tool (i.e. ~pip-tools~, meaning ~pip~,
@@ -340,7 +355,11 @@ can't be managed by the pinning tool (i.e. ~pip-tools~, meaning ~pip~,
 The main use of this to pin the version of ~pip~ in case it breaks
 some other tools.
 
-***** pyversion.txt
+***** Specifying Python Version
+
+#+begin_example
+pyversion.txt
+#+end_example
 
 This file should only contain the text that specifies the version of
 python to use that is understood by the env method (e.g. ~conda~).
