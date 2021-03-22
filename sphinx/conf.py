@@ -235,3 +235,6 @@ todo_include_todos = True
 
 # -- Options for newsfeed extension ------------------------------------------
 
+# -- Options for bibtex contrib extension ------------------------------------
+bibtex_bibfiles = ['_souce/docs.bib']
+
