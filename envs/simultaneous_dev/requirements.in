@@ -1,0 +1,44 @@
+# core
+wheel
+twine
+
+
+# meta repo tooling
+
+# NOTE: we are including the .jubeo/requirements.in in the dev.requirements.list so you need not write them all here
+
+# virtual environments
+virtualenv
+
+# interactive and debugging
+ipython
+pdbpp
+remote-pdb
+
+# repo meta-utilities
+
+
+# docs
+sphinx
+sphinxcontrib-napoleon
+sphinxcontrib-bibtex
+sphinxcontrib-newsfeed
+nbsphinx
+notebook
+
+# testing
+
+# NOTE: that we include the test env requirements in the compile so
+# they don't need to be specified twice
+argcomplete
+nox
+coverage
+
+# code quality metrics
+lizard
+flake8
+interrogate
+asv
+
+# need this for using multiprocessing logging in the tests
+multiprocessing_logging
