@@ -5,7 +5,7 @@ Adapted from [[https://keepachangelog.com][keepachangelog.com]] for org-mode.
 
 See the git commit log history for full details.
 
-** 1.0.8 - Unreleased
+** 1.0.8 - 2021-03-22
 
 - Fixes uninitialized discontinuities when not using boundary
   conditions in a ~ContigTree~. (Fixes: 10.gh_issue)
