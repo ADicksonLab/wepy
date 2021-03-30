@@ -704,10 +704,10 @@ class REVOResampler(CloneMergeResampler):
 
        # flatten the distance matrix and give the number of walkers
         # as well for the resampler data, there is just one per cycle
-        resampler_data = [{'distance_matrix' : np.ravel(np.array(distance_matrix)),
-                           'num_walkers' : np.array([len(walkers)]),
-                           'variation' : np.array([variation]),
-                           'images' : np.ravel(np.array(images)),
-                           'image_shape' : np.array(images[0].shape)}]
+        resampler_data = [{
+            'distance_matrix' : np.ravel(np.array(distance_matrix)),
+            'num_walkers' : np.array([len(walkers)]),
+            'variation' : np.array([variation]),
+        }]
 
         return resampled_walkers, resampling_data, resampler_data
