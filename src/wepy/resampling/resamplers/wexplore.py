@@ -2327,28 +2327,6 @@ class WExploreResampler(CloneMergeResampler):
                                        pmin=self.pmin,
                                        pmax=self.pmax)
 
-    def resampler_field_shapes(self):
-
-        # index of the image idx
-        image_idx = self.resampler_field_names().index('image')
-
-        # shapes adding the image shape
-        shapes = list(super().resampler_field_shapes())
-        shapes[image_idx] = self.image_shape
-
-        return tuple(shapes)
-
-    def resampler_field_dtypes(self):
-
-        # index of the image idx
-        image_idx = self.resampler_field_names().index('image')
-
-        # dtypes adding the image dtype
-        dtypes = list(super().resampler_field_dtypes())
-        dtypes[image_idx] = self.image_dtype
-
-        return tuple(dtypes)
-
     @property
     def region_tree(self):
         """The RegionTree instance used to manage the region hierachy.
