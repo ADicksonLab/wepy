@@ -2234,7 +2234,7 @@ class WExploreResampler(CloneMergeResampler):
     # image, distance the walker was away from the image at that
     # level, and the id of the leaf node
     RESAMPLER_FIELDS = CloneMergeResampler.RESAMPLER_FIELDS + \
-                       ('branching_level', 'distance', 'new_leaf_id', 'image')
+                       ('branching_level', 'distance', 'new_leaf_id')
     RESAMPLER_SHAPES = CloneMergeResampler.RESAMPLER_SHAPES + \
                        ((1,), (1,), Ellipsis, Ellipsis)
     RESAMPLER_DTYPES = CloneMergeResampler.RESAMPLER_DTYPES + \
