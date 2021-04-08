@@ -2,17 +2,15 @@ import multiprocessing as mulproc
 import random as rand
 import itertools as it
 import logging
-
+import pickle
 import numpy as np
 
 from wepy.resampling.resamplers.resampler import Resampler
 from wepy.resampling.resamplers.clone_merge  import CloneMergeResampler
 from wepy.resampling.decisions.clone_merge import MultiCloneMergeDecision
 
-import pickle
-import time
 
-class NoveltyREVOResampler(CloneMergeResampler):
+class REVOResampler(CloneMergeResampler):
     """Resampler implementing the REVO algorithm.
 
     You can find more detailed information in the paper "REVO:
@@ -113,8 +111,16 @@ class NoveltyREVOResampler(CloneMergeResampler):
                               ('variation',)
 
 
-    def __init__(self, seed=None, pmin=1e-12, pmax=0.1, dist_exponent=4, merge_dist=None,
-                 char_dist=None, distance=None, init_state=None, weights=True, novelty=None, 
+    def __init__(self,
+                 seed=None,
+                 pmin=1e-12,
+                 pmax=0.1,
+                 dist_exponent=4,
+                 merge_dist=None,
+                 char_dist=None,
+                 distance=None,
+                 init_state=None,
+                 weights=True, 
                  **kwargs):
 
         """Constructor for the REVO Resampler.
@@ -130,8 +136,8 @@ class NoveltyREVOResampler(CloneMergeResampler):
           relative to each other in the variation equation.
 
         merge_dist : float
-            The merge distance threshold. Its value depends on the system
-            of interest. A value of 2.5 is recommended.
+            The merge distance threshold. Units should be the same as
+            the distance metric.
 
         char_dist : float
             The characteristic distance value. It is calculated by running
@@ -144,11 +150,11 @@ class NoveltyREVOResampler(CloneMergeResampler):
         init_state : WalkerState object
             The state that seeds the first region in the region hierarchy.
 
-        weights : True or False
+        weights : bool
             Turns off or on the weight novelty in
             calculating the variation equation. When weight is
             False, the value of the novelty function is set to 1 for all
-            walkers. Weight on is recomended.
+            walkers.
 
         """
 
@@ -160,42 +166,36 @@ class NoveltyREVOResampler(CloneMergeResampler):
                          max_num_walkers=Ellipsis,
                          **kwargs)
 
-        # ln(probability_min)
-        self.lpmin = np.log(self.pmin/100)
-        self.dist_exponent = dist_exponent
-        self.merge_dist = merge_dist
 
-        # the distance metric
         assert merge_dist is not None, "Merge distance must be given."
+        assert distance is not None,  "Distance object must be given."
+        assert char_dist is not None, "Characteristic distance value (d0) msu be given"
+        assert init_state is not None,  "An initial state must be given."
+
+        
+        self.dist_exponent = dist_exponent
+
+        # the distance metric
         self.merge_dist = merge_dist
 
         # the distance metric
-        assert distance is not None,  "Distance object must be given."
         self.distance = distance
 
         # the characteristic distance, char_dist
         assert char_dist is not None, "Characteristic distance value (d0) msu be given"
-        self.char_dist = char_dist
 
         # setting the random seed
         self.seed = seed
         if seed is not None:
             rand.seed(seed)
 
-        # setting the weights parameter
-        self.weights = weights
-
         # we do not know the shape and dtype of the images until
         # runtime so we determine them here
-        assert init_state is not None,  "An initial state must be given."
         image = self.distance.image(init_state)
         self.image_dtype = image.dtype
 
-        # The novelty used to calculate variation
-        assert novelty is not None, "must give a novelty to calculate spread"
-        self.novelty = novelty
+        self.novelty = WeightFactorNovelty(self.weights, self.pmin)
 
-        self.cycle_id = 0
 
 
     def resampler_field_dtypes(self):
@@ -218,7 +218,7 @@ class NoveltyREVOResampler(CloneMergeResampler):
         return tuple(dtypes)
 
 
-    def _calcvariation(self, walker_weights, num_walker_copies, distance_matrix, images):
+    def _calc_variation(self, walker_weights, num_walker_copies, distance_matrix, images):
         """Calculates the variation value.
 
         Parameters
@@ -252,7 +252,7 @@ class NoveltyREVOResampler(CloneMergeResampler):
 
 
         # set the novelty values
-        walker_novelties = self.novelty.calculate_novelty(walker_weights, num_walker_copies, images)
+        walker_novelties = self.novelty.calculate_novelty(walker_weights, num_walker_copies)
 
 
         # the value to be optimized
@@ -272,9 +272,6 @@ class NoveltyREVOResampler(CloneMergeResampler):
 
                         partial_variation = ((distance_matrix[i][j] / self.char_dist) ** self.dist_exponent) \
                         * walker_novelties[i] * walker_novelties[j]
-
-                        #print('Distance term is', (distance_matrix[i][j] / self.char_dist) ** self.dist_exponent)
-                        #print('Novelty term is', walker_novelties[i] * walker_novelties[j])
 
                         variation += partial_variation * num_walker_copies[i] * num_walker_copies[j]
                         walker_variations[i] += partial_variation * num_walker_copies[j]
@@ -325,9 +322,6 @@ class NoveltyREVOResampler(CloneMergeResampler):
             if v_loss < v_loss_min:
                 min_loss_pair = pair
 
-                print(pair)
-                print(wt_i, wt_j)
-                
                 v_loss_min = v_loss
 
         return(min_loss_pair)
@@ -368,7 +362,6 @@ class NoveltyREVOResampler(CloneMergeResampler):
                         if weights[i] + weights[j] < self.pmax:
                             if distance_matrix[i][j] < self.merge_dist:
                                 eligible_pairs.append((i,j))
-                                #print(weights[i], weights[j])
 
         return(eligible_pairs)
 
@@ -412,14 +405,14 @@ class NoveltyREVOResampler(CloneMergeResampler):
 
 
         # calculate the initial variation which will be optimized
-        variation, walker_variations = self._calcvariation(walker_weights,
+        variation, walker_variations = self._calc_variation(walker_weights,
                                                            new_num_walker_copies,
                                                            distance_matrix,
                                                            images)
         variations.append(variation)
 
         # maximize the variance through cloning and merging
-        logging.info("Starting variance optimization:", variation)
+        logging.info("Starting variance optimization: {}".format(variation)) 
 
         productive = True
         while productive:
@@ -443,17 +436,15 @@ class NoveltyREVOResampler(CloneMergeResampler):
                    (new_walker_weights[i]/(new_num_walker_copies[i] + 1) > self.pmin) and \
                    (len(merge_groups[i]) == 0):
                     max_tups.append((value, new_walker_weights[i], i))
-            #print('Walker to be cloned is:', max_tups)
+
             if len(max_tups) > 0:
                 max_value, max_weight, max_idx = max(max_tups)
-                print('Walker to be cloned is', max_value, max_weight)
 
             pot_merge_pairs = self._find_eligible_merge_pairs(new_walker_weights, distance_matrix, max_idx, new_num_walker_copies)
 
             merge_pair= self._calc_variation_loss(walker_variations, new_walker_weights, pot_merge_pairs)
 
             # did we find a closewalk?
-            #condition_list = np.array([i is not None for i in [min_idx, max_idx, closewalk]])
             #if we find a walker for cloning, a walker and its close neighbor for merging
             if len(merge_pair) != 0:
                 min_idx = merge_pair [0]
@@ -466,13 +457,11 @@ class NoveltyREVOResampler(CloneMergeResampler):
                 new_num_walker_copies[max_idx] += 1
 
                 # re-determine variation function, and walker_variations values
-                new_variation, walker_variations = self._calcvariation(new_walker_weights, new_num_walker_copies, distance_matrix, images)
+                new_variation, walker_variations = self._calc_variation(new_walker_weights, new_num_walker_copies, distance_matrix, images)
 
                 if new_variation > variation:
                     variations.append(new_variation)
-
-                    logging.info("Variance move to", new_variation, "accepted")
-
+                    logging.info("Variance move to {} accepted".format(new_variation))
 
                     productive = True
                     variation = new_variation
@@ -516,14 +505,12 @@ class NoveltyREVOResampler(CloneMergeResampler):
                     walker_clone_nums[max_idx] += 1
 
                     # new variation for starting new stage
-                    new_variation, walker_variations = self._calcvariation(new_walker_weights,
+                    new_variation, walker_variations = self._calc_variation(new_walker_weights,
                                                                           new_num_walker_copies,
                                                                           distance_matrix,
                                                                           images)
                     variations.append(new_variation)
-
-                    logging.info("variance after selection:", new_variation)
-
+                    logging.info("variance after selection: {}".format(new_variation)) 
 
                 # if not productive
                 else:
@@ -604,29 +591,20 @@ class NoveltyREVOResampler(CloneMergeResampler):
         #initialize the parameters
         num_walkers = len(walkers)
         walker_weights = [walker.weight for walker in walkers]
-        num_walker_copies = np.ones(n_walkers) # Needs to be floats to do partial amps during second variation calculations.
+        
+        # Needs to be floats to do partial amps during second variation calculations.
+        num_walker_copies = np.ones(n_walkers)
 
         # calculate distance matrix
         distance_matrix, images = self._all_to_all_distance(walkers)
 
         logging.info("distance_matrix")
-        logging.info(np.array(distance_matrix))
-
+        logging.info("\n{}".format(str(np.array(distance_matrix))))
+        
         # determine cloning and merging actions to be performed, by
         # maximizing the variation, i.e. the Decider
         resampling_data, variation = self.decide(walker_weights, num_walker_copies, distance_matrix, images)
 
-        self.novelty.clone_merge_iter = 0
-
-        if (self.cycle_id + 1) % 10000 == 0:
-            start = time.time()
-            pickle.dump(self.novelty, open("novelty_object.pkl", "wb"))
-            end = time.time()
-
-            print('Saving novelty object took', end - start)
-
-        self.cycle_id += 1
-        
         # convert the target idxs and decision_id to feature vector arrays
         for record in resampling_data:
             record['target_idxs'] = np.array(record['target_idxs'])
@@ -644,3 +622,113 @@ class NoveltyREVOResampler(CloneMergeResampler):
                            'image_shape' : np.array(images[0].shape)}]
 
         return resampled_walkers, resampling_data, resampler_data
+
+class WeightFactorNovelty():
+
+    """
+    The implementation of how the weight based
+    novelty terms for the resampler are calculated.
+    
+    You can find more detailed information in the paper "REVO:
+    Resampling of ensembles by variation optimization" but
+    briefly:
+
+    The novelty term is how we balance the walker weight and the
+    walker distance during the REVO resampling algorithm.
+
+    The novelty is defined by:
+    .. math::
+        \phi_i= log(w_{i}) - log(\frac{pmin}{100})
+
+    where
+    
+    :math: `\phi_i' is the novelty of a given walker.
+
+    :math: `w_i` is the weight of the given walker.
+
+    :math: `pmin` is the minimum probability a walker
+            can be in the simulation.
+
+    """
+
+    def __init__(self, weights,  pmin=1e-12):
+
+        """
+        Constructor for the Weight Factor Novelty.
+
+        Parameters
+        -----------
+        weights: boolean
+            Turns off or on the weight novelty in
+            calculating the variation equation. When weight is
+            False, the value of the novelty function is set to 1 for all
+            walkers.
+
+        
+        pmin: float
+            The minimum weight a walker can be
+            during the simulation.
+
+        """
+
+        self.weights = weights
+        
+        # The minimum weight for a walker
+        self.pmin = pmin
+        
+        # log(probability_min)
+        self.lpmin = np.log(pmin / 100)
+
+    def calculate_novelty(self, walkerwt, amp, n_walkers):
+
+        """
+        Calculates the novelty term for the REVO resampler.
+
+        Parameters
+        ----------
+        
+        walkerwt: list of floats
+            The weights of all walkers. The sum of all weights should be 1.0.
+
+        amp : list of floats
+            The number of copies of each walker.
+            0 means the walker is not exists anymore.
+            1 means there is one of the this walker.
+            >1 means it should be cloned to this number of walkers.
+            Between 0 and 1 means we are considering the variation
+            given by each walker when we propose merging.
+
+        n_walkers: int
+            The number of walkers in the simulation.
+
+
+        Returns
+        -------
+
+        novelty: list of floats of len num_walkers
+            The novelties for each walker during
+            the current resampling step.
+        """
+        
+        # Weight factor for the walkers
+
+        if self.weights:
+            novelty = np.ones(n_walkers)
+
+        else:
+            novelty = np.zeros(n_walkers)
+
+            # Set the weight factor
+            for walker in range(n_walkers):
+            
+                if walkerwt[walker] > 0 and amp[walker] > 0:
+                    novelty[walker] = np.log(walkerwt[walker] / amp[walker]) - self.lpmin
+
+                else:
+                    novelty[walker] = 0
+                
+                if novelty[walker] < 0:
+                    novelty[walker] = 0
+
+        return(novelty)
+        
