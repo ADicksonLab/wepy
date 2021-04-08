@@ -679,7 +679,7 @@ class WeightFactorNovelty():
         # log(probability_min)
         self.lpmin = np.log(pmin / 100)
 
-    def calculate_novelty(self, walkerwt, amp, n_walkers):
+    def calculate_novelty(self, walkerwt, amp):
 
         """
         Calculates the novelty term for the REVO resampler.
@@ -712,6 +712,8 @@ class WeightFactorNovelty():
         
         # Weight factor for the walkers
 
+        n_walkers = len(walkerwt)
+        
         if self.weights:
             novelty = np.ones(n_walkers)
 
