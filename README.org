@@ -1,5 +1,8 @@
 * Weighted Ensemble Python (wepy)
 
+  #+ATTR_HTML: title="Join the chat at https://gitter.im/wepy/general"
+  [[https://gitter.im/wepy/general?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge][file:https://badges.gitter.im/wepy/general.svg]]
+
 [[./info/logo/wepy.svg]]
 
 # trying to make a zenodo badge but github doesn't support this
