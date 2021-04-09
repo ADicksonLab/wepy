@@ -2,7 +2,6 @@ import multiprocessing as mulproc
 import random as rand
 import itertools as it
 import logging
-import pickle
 import numpy as np
 
 from wepy.resampling.resamplers.resampler import Resampler
@@ -170,7 +169,7 @@ class REVOResampler(CloneMergeResampler):
 
         assert merge_dist is not None, "Merge distance must be given."
         assert distance is not None,  "Distance object must be given."
-        assert char_dist is not None, "Characteristic distance value (d0) msu be given"
+        assert char_dist is not None, "Characteristic distance value (d0) must be given"
         assert init_state is not None,  "An initial state must be given."
 
         
@@ -187,9 +186,6 @@ class REVOResampler(CloneMergeResampler):
 
         # the distance metric
         self.distance = distance
-
-        # the characteristic distance, char_dist
-        assert char_dist is not None, "Characteristic distance value (d0) msu be given"
 
         # setting the random seed
         self.seed = seed
@@ -633,7 +629,6 @@ class REVOResampler(CloneMergeResampler):
         return resampled_walkers, resampling_data, resampler_data
 
 class WeightFactorNovelty():
-
     """
     The implementation of how the weight based
     novelty terms for the resampler are calculated.
