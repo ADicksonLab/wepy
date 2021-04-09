@@ -173,8 +173,14 @@ class REVOResampler(CloneMergeResampler):
         assert init_state is not None,  "An initial state must be given."
 
         
+        # log of pmin
+        self.lpmin = np.log(pmin / 100)
+        
+        # The distance exponent
         self.dist_exponent = dist_exponent
 
+
+        self.char_dist = char_dist
         # the distance metric
         self.merge_dist = merge_dist
 
@@ -193,6 +199,8 @@ class REVOResampler(CloneMergeResampler):
         # runtime so we determine them here
         image = self.distance.image(init_state)
         self.image_dtype = image.dtype
+
+        self.weights = weights
 
         self.novelty = WeightFactorNovelty(self.weights, self.pmin)
 
@@ -593,7 +601,7 @@ class REVOResampler(CloneMergeResampler):
         walker_weights = [walker.weight for walker in walkers]
         
         # Needs to be floats to do partial amps during second variation calculations.
-        num_walker_copies = np.ones(n_walkers)
+        num_walker_copies = np.ones(num_walkers)
 
         # calculate distance matrix
         distance_matrix, images = self._all_to_all_distance(walkers)
@@ -697,9 +705,6 @@ class WeightFactorNovelty():
             >1 means it should be cloned to this number of walkers.
             Between 0 and 1 means we are considering the variation
             given by each walker when we propose merging.
-
-        n_walkers: int
-            The number of walkers in the simulation.
 
 
         Returns
