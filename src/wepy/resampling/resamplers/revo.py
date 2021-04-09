@@ -129,7 +129,8 @@ class REVOResampler(CloneMergeResampler):
         ----------
 
         seed : None or int
-            The random seed. If None, the system (random) one will be used.
+            The seed to initialize the pseudorandom random number generator. 
+            If None, the system one will be used.
 
         dist_exponent : int
           The distance exponent that modifies distance and weight novelty
