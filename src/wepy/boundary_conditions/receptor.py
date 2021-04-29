@@ -437,6 +437,8 @@ class RebindingBC(ReceptorBC):
                  initial_weights=None,
                  ligand_idxs=None,
                  binding_site_idxs=None,
+                 native_state_ligand_idxs=None,
+                 native_state_binding_site_idxs=None
                  **kwargs):
         """Constructor for RebindingBC.
 
@@ -485,6 +487,18 @@ class RebindingBC(ReceptorBC):
         assert type(cutoff_rmsd) is float
 
 
+        if native_state_ligand_idxs == None:
+            self.native_ligand_idxs = ligand_idxs
+
+        else:
+            self.native_ligand_idxs = native_state_ligand_idxs
+
+        if native_state_binding_site_idxs == None:
+            self.native_state_binding_site_idxs = binding_site_idxs
+
+        else:
+            self.native_state_binding_site_idxs = native_state_binding_site_idxs
+
         # number of atoms of in the ligand and binding site
 
         self._n_lig_atoms = len(self.ligand_idxs)
@@ -492,17 +506,23 @@ class RebindingBC(ReceptorBC):
 
         
         # the idxs used for the whole image
-        self._image_idxs = np.concatenate( (self._lig_idxs, self._bs_idxs) )
+        self._image_idxs = np.concatenate( (self._ligand_idxs,
+                                            self._binding_site_idxs) )
+
+        self._native_image_idxs = np.concatenate((self.native_ligand_idxs,
+                                                  self.native_state_binding_site_idxs))
 
         # the idxs of the ligand and binding site within the image
         self._image_lig_idxs = np.arange(self._n_lig_atoms)
-        self._image_bs_idxs = np.arange(self._n_lig_atoms, self._n_lig_atoms + self._n_bs_atoms)
+        
+        self._image_bs_idxs = np.arange(self._n_lig_atoms,
+                                        self._n_lig_atoms + self._n_bs_atoms)
 
 
         # save the reference state's image so we can align all further
         # images to it
 
-        self.ref_image = self._unaligned_image(ref_state)
+        self.ref_image = self._unaligned_image(ref_state, ref_state=True)
         self._cutoff_rmsd = cutoff_rmsd
 
     @property
@@ -521,7 +541,7 @@ class RebindingBC(ReceptorBC):
 
         return self._receptor_idxs
 
-    def _unaligned_image(self, state):
+    def _unaligned_image(self, state, ref_state = False):
         """The preprocessing method of states.
         First it groups the binding site and ligand into the same
         periodic box image and then centers the box around their
@@ -536,6 +556,17 @@ class RebindingBC(ReceptorBC):
         -------
         """
 
+        if ref_state:
+            bs_idxs = self.native_state_binding_site_idxs
+            lig_idxs = self.native_state_ligand_idxs
+            image_idxs = self._native_image_idxs
+
+        else:
+            bs_idxs = self.binding_site_idxs
+            lig_idxs = self.ligand_idxs
+            image_idxs = self._image_idxs
+            
+
         # get the box lengths from the vectors
         box_lengths, box_angles = box_vectors_to_lengths_angles(state['box_vectors'])
 
@@ -544,13 +575,13 @@ class RebindingBC(ReceptorBC):
 
         # regroup the ligand and protein in together
         grouped_positions = group_pair(state['positions'], box_lengths,
-                                    self._bs_idxs, self._lig_idxs)
+                                       bs_idxs, lig_idxs)
 
         # then center them around the binding site
-        centered_positions = center_around(grouped_positions, self._bs_idxs)
+        centered_positions = center_around(grouped_positions, bs_idxs)
 
         # slice these positions to get the image
-        state_image = centered_positions[self._image_idxs]
+        state_image = centered_positions[image_idxs]
 
         return state_image
     
@@ -573,11 +604,12 @@ class RebindingBC(ReceptorBC):
         """
 
         # first recenter the ligand and the receptor in the walker
-        state_image = self._unaligned_image(walker.state)
+        state_image = self._unaligned_image(walker.state, ref_state=False)
         
         # superimpose the walker state positions over the native state
         # matching the binding site indices only
-        sup_walker_pos, _, _ = superimpose(self.native_image, state_image,
+        sup_walker_pos, _, _ = superimpose(self.native_image,
+                                           state_image,
                                            idxs=self._image_bs_idxs)
 
         # calculate the rmsd of the walker ligand (superimposed
