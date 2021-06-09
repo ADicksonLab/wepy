@@ -1152,7 +1152,7 @@ class OpenMMState(WalkerState):
                               unitcell_angles=[unitcell_angles],
                               topology=topology)
 
-def gen_sim_state(positions, system, integrator,
+def gen_sim_state(positions, system, integrator, box_vectors=None,
                   getState_kwargs=None):
     """Convenience function for generating an omm.State object.
 
@@ -1165,6 +1165,8 @@ def gen_sim_state(positions, system, integrator,
     system : openmm.app.System object
 
     integrator : openmm.Integrator object
+
+    box_vectors : list of Vec3 Quantities
 
     Returns
     -------
@@ -1190,7 +1192,9 @@ def gen_sim_state(positions, system, integrator,
 
     # set the positions
     context.setPositions(positions)
-
+    if box_vectors is not None:
+        context.setPeriodicBoxVectors(box_vectors[0],box_vectors[1],box_vectors[2])
+    
     # then just retrieve it as a state using the default kwargs
     sim_state = context.getState(**getState_kwargs)
 
