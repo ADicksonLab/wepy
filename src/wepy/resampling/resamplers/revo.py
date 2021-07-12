@@ -122,6 +122,7 @@ class REVOResampler(CloneMergeResampler):
                  pmax=0.1,
                  dist_exponent=4,
                  seed=None,
+                 num_proc=1,
                  **kwargs):
 
         """Constructor for the REVO Resampler.
@@ -157,6 +158,10 @@ class REVOResampler(CloneMergeResampler):
 
         seed : None or int, optional
             The random seed. If None, the system (random) one will be used.
+
+        num_proc : int, optional
+            The number of processors used to calculate the walker images
+            and all-to-all distances.
 
         """
 
@@ -196,6 +201,9 @@ class REVOResampler(CloneMergeResampler):
 
         # setting the weights parameter
         self.weights = weights
+
+        # setting the number of processors
+        self.num_proc = num_proc
 
         # we do not know the shape and dtype of the images until
         # runtime so we determine them here
@@ -536,10 +544,14 @@ class REVOResampler(CloneMergeResampler):
         dist_mat = np.zeros((len(walkers), len(walkers)))
 
         # make images for all the walker states for us to compute distances on
-        images = []
-        for walker in walkers:
-            image = self.distance.image(walker.state)
-            images.append(image)
+        if self.num_proc > 1:
+            pool = mulproc.Pool(self.num_proc)
+            images = pool.map(self.distance.image, [walker.state for walker in walkers])
+        else:
+            images = []
+            for walker in walkers:
+                image = self.distance.image(walker.state)
+                images.append(image)
 
         # get the combinations of indices for all walker pairs
         for i, j in it.combinations(range(len(images)), 2):
