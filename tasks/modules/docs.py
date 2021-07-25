@@ -554,7 +554,7 @@ def pin_example(cx, name=None):
     if name is None:
         examples = visit_examples()
     else:
-        examples = [name]
+        examples = [Path(DOCS_SPEC['EXAMPLES_DIR']) / name]
 
     print(examples)
     for example in examples:
