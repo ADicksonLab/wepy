@@ -1,5 +1,5 @@
 
 --index-url https://pypi.python.org/simple/
 
-wepy[md]
+# wepy[md]
 multiprocessing_logging
